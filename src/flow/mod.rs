@@ -88,7 +88,16 @@ impl fmt::Display for FlowType {
     }
 }
 
-/// AuthFlow struct for OAuth
+#[derive(Debug, Serialize, Deserialize)]
+struct AccessToken {
+    token_type: String,
+    scope: String,
+    expires_in: usize,
+    ext_expires_in: usize,
+    access_token: String,
+}
+
+/// Builder for the OAuth2 specification for Microsoft Graph and Authorization
 ///
 /// # Example
 ///
@@ -103,16 +112,6 @@ impl fmt::Display for FlowType {
 ///        .set_client_secret("client_secret")
 ///        .set_token_url("https://example.com/token");
 /// ```
-#[derive(Debug, Serialize, Deserialize)]
-struct AccessToken {
-    token_type: String,
-    scope: String,
-    expires_in: usize,
-    ext_expires_in: usize,
-    access_token: String,
-}
-
-/// Builder for the OAuth2 specification for Microsoft Graph and Authorization
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AuthFlow {
     config_name: String,
