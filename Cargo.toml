@@ -1,0 +1,25 @@
+[package]
+name = "rust-onedrive"
+version = "0.1.0"
+authors = ["sreeise"]
+edition = "2018"
+readme = "README.md"
+license = "MIT"
+
+[dependencies.url]
+git = "https://github.com/servo/rust-url"
+features = ["query_encoding"]
+
+[dependencies]
+reqwest = "0.9.5"
+serde = "1.0.81"
+serde_json = "1.0.33"
+serde_derive = "1.0.81"
+base64 = "0.10.0"
+encoding = "0.2.33"
+mio = "0.6.16"
+http-muncher = "0.3.2"
+ws = "0.7.9"
+
+[badges]
+travis-ci = { repository = "https://github.com/sreeise/rust-onedrive", branch = "master" }

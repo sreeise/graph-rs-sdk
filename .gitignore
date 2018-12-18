@@ -1,0 +1,9 @@
+/target
+**/*.rs.bk
+/src/flow/mod.rs
+
+# No Intellij files
+.idea/
+
+# Dont import lock file for library
+Cargo.lock
