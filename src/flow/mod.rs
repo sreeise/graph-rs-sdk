@@ -62,8 +62,8 @@ use url::form_urlencoded;
 pub enum FlowType {
     AuthorizeTokenFlow,
     AuthorizeCodeFlow,
-    CodeBody,
-    RefreshBody,
+    GrantTypeAuthCode,
+    GrantTypeRefreshToken,
 }
 
 impl FlowType {
@@ -71,8 +71,8 @@ impl FlowType {
         match *self {
             FlowType::AuthorizeTokenFlow => "token",
             FlowType::AuthorizeCodeFlow => "code",
-            FlowType::CodeBody => "code_body",
-            FlowType::RefreshBody => "refresh_body",
+            FlowType::GrantTypeRefreshToken => "refresh_token",
+            FlowType::GrantTypeAuthCode => "authorization_code",
         }
     }
 }
@@ -82,8 +82,8 @@ impl fmt::Display for FlowType {
         match self {
             FlowType::AuthorizeTokenFlow => write!(f, "{}", "token"),
             FlowType::AuthorizeCodeFlow => write!(f, "{}", "code"),
-            FlowType::CodeBody => write!(f, "{}", "code_body"),
-            FlowType::RefreshBody => write!(f, "{}", "refresh_body"),
+            FlowType::GrantTypeAuthCode => write!(f, "{}", "authorization_code"),
+            FlowType::GrantTypeRefreshToken => write!(f, "{}", "refresh_token"),
         }
     }
 }
@@ -197,7 +197,7 @@ impl AuthFlow {
 
     /// Set the refresh token of a request
     pub fn set_refresh(&mut self, code: &str) -> &mut AuthFlow {
-        self.set_config("REFRESH", code)
+        self.set_config("REFRESH_TOKEN", code)
     }
 
     /// Set the token of a request
@@ -249,7 +249,7 @@ impl AuthFlow {
         self.params.get("ACCESS_TOKEN")
     }
     pub fn get_scope(&self) -> Option<&String> {
-        self.params.get("REFRESH")
+        self.params.get("REFRESH_TOKEN")
     }
     pub fn get_server(&self) -> Option<&String> {
         self.params.get("SERVER_URL")
@@ -330,15 +330,93 @@ impl AuthFlow {
         match to_build {
             FlowType::AuthorizeTokenFlow => Some(self.build_auth(to_build)),
             FlowType::AuthorizeCodeFlow => Some(self.build_auth(to_build)),
-            FlowType::CodeBody => Some(
-                self.build_access_body()
+            FlowType::GrantTypeAuthCode => Some(
+                self.build_grant_request(to_build)
                     .expect("Could not build access token body"),
             ),
-            FlowType::RefreshBody => Some(
-                self.build_access_refresh()
+            FlowType::GrantTypeRefreshToken => Some(
+                self.build_grant_request(to_build)
                     .expect("Could not build refresh token body"),
             ),
         }
+    }
+
+    /// Access Tokens and Refresh Access Tokens
+    ///
+    /// Access Tokens
+    ///
+    /// POST https://login.microsoftonline.com/common/oauth2/v2.0/token
+    /// Content-Type: application/x-www-form-urlencoded
+    ///
+    /// Body of request:
+    ///     client_id={client_id}
+    ///     &redirect_uri={redirect_uri}
+    ///     &client_secret={client_secret}
+    ///     &code={code}
+    ///     &grant_type=authorization_code
+    ///
+    /// Refresh Access Tokens
+    ///
+    /// POST https://login.microsoftonline.com/common/oauth2/v2.0/token
+    /// Content-Type: application/x-www-form-urlencoded
+    ///
+    /// Body of Request:
+    ///     client_id={client_id}
+    ///     &redirect_uri={redirect_uri}8
+    ///     &client_secret={client_secret}
+    ///     &refresh_token={refresh_token}
+    ///     &grant_type=refresh_token
+    fn build_grant_request(&mut self, grant_type: FlowType) -> result::Result<String, io::Error> {
+        let req_type = match grant_type {
+            FlowType::GrantTypeAuthCode => FlowType::GrantTypeAuthCode.as_str(),
+            FlowType::GrantTypeRefreshToken => FlowType::GrantTypeRefreshToken.as_str(),
+            FlowType::AuthorizeTokenFlow => panic!("Not a grant type"),
+            FlowType::AuthorizeCodeFlow => panic!("Not a grant type"),
+        };
+
+        let param_type = match grant_type {
+            FlowType::GrantTypeAuthCode => "code",
+            FlowType::GrantTypeRefreshToken => "refresh_token",
+            FlowType::AuthorizeTokenFlow => panic!("Not a grant type"),
+            FlowType::AuthorizeCodeFlow => panic!("Not a grant type"),
+        };
+
+        let encoded: String = form_urlencoded::Serializer::new(String::from(""))
+            .append_pair(
+                "client_id",
+                &mut self
+                    .params
+                    .get("CLIENT_ID")
+                    .expect("Couldn't set client_id")
+                    .to_string(),
+            )
+            .append_pair(
+                "redirect_uri",
+                &mut self
+                    .params
+                    .get("REDIRECT_URI")
+                    .expect("Couldn't set redirect_id")
+                    .to_string(),
+            )
+            .append_pair(
+                "client_secret",
+                &mut self
+                    .params
+                    .get("CLIENT_SECRET")
+                    .expect("Couldn't set client_secret")
+                    .to_string(),
+            )
+            .append_pair(
+                param_type,
+                &mut self
+                    .params
+                    .get(&param_type.to_uppercase())
+                    .unwrap()
+                    .to_string(),
+            )
+            .append_pair("grant_type", req_type)
+            .finish();
+        Ok(encoded.to_string())
     }
 
     /// The first prat of the request is determined by the user of the
@@ -377,89 +455,6 @@ impl AuthFlow {
         auth_url.to_string()
     }
 
-    /// ACCESS TOKENS
-    ///
-    /// POST https://login.microsoftonline.com/common/oauth2/v2.0/token
-    /// Content-Type: application/x-www-form-urlencoded
-    ///
-    /// client_id={client_id}
-    /// &redirect_uri={redirect_uri}
-    /// &client_secret={client_secret}
-    /// &code={code}
-    /// &grant_type=authorization_code
-    pub fn build_access_body(&mut self) -> result::Result<String, io::Error> {
-        let encoded: String = form_urlencoded::Serializer::new(String::from(""))
-            .append_pair(
-                "client_id",
-                &mut self
-                    .params
-                    .get("CLIENT_ID")
-                    .expect("Couldn't set client_id")
-                    .to_string(),
-            )
-            .append_pair(
-                "redirect_uri",
-                &mut self
-                    .params
-                    .get("REDIRECT_URI")
-                    .expect("Couldn't set redirect_id")
-                    .to_string(),
-            )
-            .append_pair(
-                "client_secret",
-                &mut self
-                    .params
-                    .get("CLIENT_SECRET")
-                    .expect("Couldn't set client_secret")
-                    .to_string(),
-            )
-            .append_pair(
-                "code",
-                &mut self
-                    .params
-                    .get("CODE")
-                    .expect("Couldn't set code")
-                    .to_string(),
-            )
-            .append_pair("grant_type", "authorization_code")
-            .finish();
-        Ok(encoded.to_string())
-    }
-
-    /// Refresh Access Tokens
-    ///
-    /// POST https://login.microsoftonline.com/common/oauth2/v2.0/token
-    /// Content-Type: application/x-www-form-urlencoded
-    ///
-    /// Body of Request:
-    ///     client_id={client_id}
-    ///     &redirect_uri={redirect_uri}
-    ///     &client_secret={client_secret}
-    ///     &refresh_token={refresh_token}
-    ///     &grant_type=refresh_token
-    fn build_access_refresh(&mut self) -> result::Result<String, io::Error> {
-        let encoded: String = form_urlencoded::Serializer::new(String::from(""))
-            .append_pair(
-                "client_id",
-                &mut self.params.get("CLIENT_ID").unwrap().to_string(),
-            )
-            .append_pair(
-                "redirect_uri",
-                &mut self.params.get("REDIRECT_URI").unwrap().to_string(),
-            )
-            .append_pair(
-                "client_secret",
-                &mut self.params.get("CLIENT_SECRET").unwrap().to_string(),
-            )
-            .append_pair(
-                "refresh_token",
-                &mut self.params.get("REFRESH").unwrap().to_string(),
-            )
-            .append_pair("grant_type", "refresh_token")
-            .finish();
-        Ok(encoded.to_string())
-    }
-
     /// Open the browser to the authentication page. Once the user signs in the
     /// page will redirect to the url that was specified for redirect_url.
     ///
@@ -492,7 +487,7 @@ impl AuthFlow {
     pub fn request_access_token(&mut self) -> std::result::Result<Response, reqwest::Error> {
         let client = reqwest::Client::builder().build()?;
         let code_body = self
-            .build(FlowType::CodeBody)
+            .build(FlowType::GrantTypeAuthCode)
             .expect("Could not build with FlowType::CodeBody");
         let access_code = self.params.get("ACCESS_TOKEN").expect(
             "Could not find access token in HashMap. Ensure the value has been set correctly",
@@ -656,7 +651,7 @@ mod flow_tests {
             .set_client_secret("CLDIE3F")
             .set_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
-        let code_body = code_flow.build(FlowType::CodeBody).unwrap();
+        let code_body = code_flow.build(FlowType::GrantTypeAuthCode).unwrap();
         assert_eq!(code_body, "client_id=bb301aaa-1201-4259-a796-b68d0cf5ff1b&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&grant_type=authorization_code");
     }
 
@@ -670,7 +665,7 @@ mod flow_tests {
             .set_client_secret("CLDIE3F")
             .set_refresh("32LKLASDKJ")
             .set_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
-        let refresh_body = refresh_flow.build(FlowType::RefreshBody).unwrap();
+        let refresh_body = refresh_flow.build(FlowType::GrantTypeRefreshToken).unwrap();
         assert_eq!(refresh_body, "client_id=d12019be-1201-4259-a796-b68d0cf5ff1b&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token");
     }
 }
