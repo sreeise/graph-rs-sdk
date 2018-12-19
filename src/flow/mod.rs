@@ -582,6 +582,7 @@ impl AuthFlow {
 #[cfg(test)]
 mod flow_tests {
     use super::*;
+    use std::fs;
 
     #[test]
     fn create() {
@@ -670,5 +671,28 @@ mod flow_tests {
             .set_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
         let refresh_body = refresh_flow.build(FlowType::GrantTypeRefreshToken).unwrap();
         assert_eq!(refresh_body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token");
+    }
+
+    #[test]
+    fn flow_as_json_file() {
+        let mut auth_flow = AuthFlow::new(true);
+        auth_flow.set_client_id("bb301aaa-1201-4259-a230923fds32")
+            .set_redirect_uri("http://localhost:8888/redirect")
+            .set_auth_url("https://example.com/oauth2/v2.0/authorize");
+        auth_flow.as_json_file("graph_configs/test_file.json");
+
+        let metadata = fs::metadata("graph_configs/test_file.json")
+            .expect("Could not get metadata for auth_configs/test_file.json");
+        let file_type = metadata.file_type();
+        assert_eq!(file_type.is_file(), true);
+
+        let auth_flow_from_file: AuthFlow = AuthFlow::from_file("graph_configs/test_file.json")
+            .expect("Could not create AuthFlow from graph_configs/test_file.json");
+        assert_eq!(auth_flow_from_file.get_client_id().unwrap(), "bb301aaa-1201-4259-a230923fds32");
+        assert_eq!(auth_flow_from_file.get_redirect_uri().unwrap(), "http://localhost:8888/redirect");
+        assert_eq!(auth_flow_from_file.get_auth_url().unwrap(), "https://example.com/oauth2/v2.0/authorize");
+
+        fs::remove_file("graph_configs/test_file.json")
+            .expect("graph_configs/test_file.json could not be removed. It must be removed manually.");
     }
 }
