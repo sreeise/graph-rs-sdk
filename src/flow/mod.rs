@@ -245,6 +245,9 @@ impl AuthFlow {
     pub fn get_token_url(&self) -> Option<&String> {
         self.params.get("TOKEN_URL")
     }
+    pub fn get_redirect_uri(&self) -> Option<&String> {
+        self.params.get("REDIRECT_URI")
+    }
     pub fn get_token(&self) -> Option<&String> {
         self.params.get("ACCESS_TOKEN")
     }
