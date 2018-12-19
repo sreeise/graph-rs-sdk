@@ -622,11 +622,11 @@ mod flow_tests {
         let mut auth_flow = AuthFlow::new(true);
         auth_flow
             .set_auth_url("https://example.com/oauth2/v2.0/authorize")
-            .set_client_id("fd3019be-1201-4259-a796-b68d0cf5ff1b")
+            .set_client_id("bb301aaa-1201-4259-a230923fds32")
             .set_redirect_uri("http://localhost:8888/redirect")
             .set_response_type("token");
         let mut auth_url = auth_flow.build(FlowType::AuthorizeTokenFlow).unwrap();
-        assert_eq!(auth_url, "https://example.com/oauth2/v2.0/authorize?client_id=fd3019be-1201-4259-a796-b68d0cf5ff1b&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
+        assert_eq!(auth_url, "https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
     }
 
     #[test]
@@ -634,38 +634,38 @@ mod flow_tests {
         let mut auth_flow = AuthFlow::new(true);
         auth_flow
             .set_auth_url("https://example.com/oauth2/v2.0/authorize")
-            .set_client_id("fd3019be-1201-4259-a796-b68d0cf5ff1b")
+            .set_client_id("bb301aaa-1201-4259-a230923fds32")
             .set_redirect_uri("http://localhost:8888/redirect")
             .set_response_type("code");
         let mut auth_url = auth_flow.build(FlowType::AuthorizeCodeFlow).unwrap();
-        assert_eq!(auth_url, "https://example.com/oauth2/v2.0/authorize?client_id=fd3019be-1201-4259-a796-b68d0cf5ff1b&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
+        assert_eq!(auth_url, "https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
     }
 
     #[test]
     fn access_token() {
         let mut code_flow = AuthFlow::new(true);
         code_flow
-            .set_client_id("bb301aaa-1201-4259-a796-b68d0cf5ff1b")
+            .set_client_id("bb301aaa-1201-4259-a230923fds32")
             .set_redirect_uri("http://localhost:8888/redirect")
             .set_response_type("token")
             .set_client_secret("CLDIE3F")
             .set_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
         let code_body = code_flow.build(FlowType::GrantTypeAuthCode).unwrap();
-        assert_eq!(code_body, "client_id=bb301aaa-1201-4259-a796-b68d0cf5ff1b&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&grant_type=authorization_code");
+        assert_eq!(code_body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&grant_type=authorization_code");
     }
 
     #[test]
     fn refresh_token() {
         let mut refresh_flow = AuthFlow::new(true);
         refresh_flow
-            .set_client_id("d12019be-1201-4259-a796-b68d0cf5ff1b")
+            .set_client_id("bb301aaa-1201-4259-a230923fds32")
             .set_redirect_uri("http://localhost:8888/redirect")
             .set_response_type("token")
             .set_client_secret("CLDIE3F")
             .set_refresh("32LKLASDKJ")
             .set_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
         let refresh_body = refresh_flow.build(FlowType::GrantTypeRefreshToken).unwrap();
-        assert_eq!(refresh_body, "client_id=d12019be-1201-4259-a796-b68d0cf5ff1b&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token");
+        assert_eq!(refresh_body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token");
     }
 }
