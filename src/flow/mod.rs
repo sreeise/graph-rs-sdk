@@ -642,7 +642,7 @@ mod flow_tests {
             .set_client_id("bb301aaa-1201-4259-a230923fds32")
             .set_redirect_uri("http://localhost:8888/redirect")
             .set_response_type("token");
-        let mut auth_url = auth_flow.build(FlowType::AuthorizeTokenFlow).unwrap();
+        let auth_url = auth_flow.build(FlowType::AuthorizeTokenFlow).unwrap();
         assert_eq!(auth_url, "https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
     }
 
@@ -654,7 +654,7 @@ mod flow_tests {
             .set_client_id("bb301aaa-1201-4259-a230923fds32")
             .set_redirect_uri("http://localhost:8888/redirect")
             .set_response_type("code");
-        let mut auth_url = auth_flow.build(FlowType::AuthorizeCodeFlow).unwrap();
+        let auth_url = auth_flow.build(FlowType::AuthorizeCodeFlow).unwrap();
         assert_eq!(auth_url, "https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
     }
 
