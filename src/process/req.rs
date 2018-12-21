@@ -24,8 +24,8 @@ impl Req {
         let req_ok = "HTTP/1.1 200 OK\r\n\r\n";
         let req_not_found = "HTTP/1.1 404 NOT FOUND\r\n\r\n";
         match *self {
-            Req::Get => Some((req_ok, "html/return.html")),
-            Req::Redirect => Some((req_ok, "html/return.html")),
+            Req::Get => Some((req_ok, "html/redirect_with_socket.html")),
+            Req::Redirect => Some((req_ok, "html/redirect_with_socket.html")),
             Req::NotFound => Some((req_not_found, "html/404.html")),
         }
     }
