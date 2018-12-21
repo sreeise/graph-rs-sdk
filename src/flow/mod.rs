@@ -79,10 +79,10 @@ impl FlowType {
 impl fmt::Display for FlowType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            FlowType::AuthorizeTokenFlow => write!(f, "{}", "token"),
-            FlowType::AuthorizeCodeFlow => write!(f, "{}", "code"),
-            FlowType::GrantTypeAuthCode => write!(f, "{}", "authorization_code"),
-            FlowType::GrantTypeRefreshToken => write!(f, "{}", "refresh_token"),
+            FlowType::AuthorizeTokenFlow => write!(f, "{:#?}", "token"),
+            FlowType::AuthorizeCodeFlow => write!(f, "{:#?}", "code"),
+            FlowType::GrantTypeAuthCode => write!(f, "{:#?}", "authorization_code"),
+            FlowType::GrantTypeRefreshToken => write!(f, "{:#?}", "refresh_token"),
         }
     }
 }
@@ -402,7 +402,7 @@ impl AuthFlow {
         let encoded: String = form_urlencoded::Serializer::new(String::from(""))
             .append_pair(
                 "client_id",
-                &mut self
+                self
                     .params
                     .get("CLIENT_ID")
                     .expect("Couldn't set client_id")
@@ -410,7 +410,7 @@ impl AuthFlow {
             )
             .append_pair(
                 "redirect_uri",
-                &mut self
+                self
                     .params
                     .get("REDIRECT_URI")
                     .expect("Couldn't set redirect_id")
@@ -418,7 +418,7 @@ impl AuthFlow {
             )
             .append_pair(
                 "client_secret",
-                &mut self
+                self
                     .params
                     .get("CLIENT_SECRET")
                     .expect("Couldn't set client_secret")
@@ -426,7 +426,7 @@ impl AuthFlow {
             )
             .append_pair(
                 param_type,
-                &mut self
+                self
                     .params
                     .get(&param_type.to_uppercase())
                     .unwrap()
@@ -455,18 +455,18 @@ impl AuthFlow {
     ///     &response_type=token
     ///     &redirect_uri={redirect_uri}
     pub fn build_auth(&mut self, flow_type: FlowType) -> String {
-        let auth_url = &mut self.params.get("AUTH_URL").unwrap().to_string();
+        let auth_url = &mut self.params["AUTH_URL"].to_string();
         auth_url.push_str("?");
         let encoded: String = form_urlencoded::Serializer::new(String::from(""))
             .append_pair(
                 "client_id",
-                &self.params.get("CLIENT_ID").unwrap().to_string(),
+                &self.params["CLIENT_ID"].to_string(),
             )
             .append_pair("scope", "https://graph.microsoft.com/.default")
             .append_pair("response_type", flow_type.as_str())
             .append_pair(
                 "redirect_uri",
-                &self.params.get("REDIRECT_URI").unwrap().to_string(),
+                &self.params["REDIRECT_URI"].to_string(),
             )
             .finish();
         auth_url.push_str(&encoded);
