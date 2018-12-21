@@ -122,8 +122,11 @@ pub struct AuthFlow {
 
 impl fmt::Display for AuthFlow {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:#?}\n{:#?}\n{:#?}\n{:#?}\n{:#?}", self.config_name,
-               self.scopes, self.params, self.allow_reset, self.default_scope)
+        write!(
+            f,
+            "{:#?}\n{:#?}\n{:#?}\n{:#?}\n{:#?}",
+            self.config_name, self.scopes, self.params, self.allow_reset, self.default_scope
+        )
     }
 }
 
@@ -264,7 +267,7 @@ impl AuthFlow {
         self.params.get("REFRESH_TOKEN")
     }
     pub fn get_scopes(&self) -> Option<&Vec<String>> {
-        Some( &self.scopes)
+        Some(&self.scopes)
     }
     pub fn get_server(&self) -> Option<&String> {
         self.params.get("SERVER_URL")
@@ -484,10 +487,9 @@ impl AuthFlow {
 
         // TODO: Need a way to somehow close the browser process as long
         // as it is in in's own window, which currently it is not.
-       Command::new("xdg-open").arg(auth_to_string).spawn()?;
+        Command::new("xdg-open").arg(auth_to_string).spawn()?;
         Ok(())
     }
-
 
     /// Request Access Tokens
     ///
@@ -563,7 +565,8 @@ impl AuthFlow {
             .write(true)
             .open(&path)
             .expect("Error writing file with serialized struct");
-        file.write_all(serialized.as_bytes()).expect("Could not write AuthFlow as a new json file");
+        file.write_all(serialized.as_bytes())
+            .expect("Could not write AuthFlow as a new json file");
         Ok(())
     }
 
@@ -689,7 +692,8 @@ mod flow_tests {
     #[test]
     fn flow_as_json_file() {
         let mut auth_flow = AuthFlow::new(true);
-        auth_flow.set_client_id("bb301aaa-1201-4259-a230923fds32")
+        auth_flow
+            .set_client_id("bb301aaa-1201-4259-a230923fds32")
             .set_redirect_uri("http://localhost:8888/redirect")
             .set_auth_url("https://example.com/oauth2/v2.0/authorize");
         auth_flow.as_json_file("graph_configs/test_file.json");
@@ -701,11 +705,21 @@ mod flow_tests {
 
         let auth_flow_from_file: AuthFlow = AuthFlow::from_file("graph_configs/test_file.json")
             .expect("Could not create AuthFlow from graph_configs/test_file.json");
-        assert_eq!(auth_flow_from_file.get_client_id().unwrap(), "bb301aaa-1201-4259-a230923fds32");
-        assert_eq!(auth_flow_from_file.get_redirect_uri().unwrap(), "http://localhost:8888/redirect");
-        assert_eq!(auth_flow_from_file.get_auth_url().unwrap(), "https://example.com/oauth2/v2.0/authorize");
+        assert_eq!(
+            auth_flow_from_file.get_client_id().unwrap(),
+            "bb301aaa-1201-4259-a230923fds32"
+        );
+        assert_eq!(
+            auth_flow_from_file.get_redirect_uri().unwrap(),
+            "http://localhost:8888/redirect"
+        );
+        assert_eq!(
+            auth_flow_from_file.get_auth_url().unwrap(),
+            "https://example.com/oauth2/v2.0/authorize"
+        );
 
-        fs::remove_file("graph_configs/test_file.json")
-            .expect("graph_configs/test_file.json could not be removed. It must be removed manually.");
+        fs::remove_file("graph_configs/test_file.json").expect(
+            "graph_configs/test_file.json could not be removed. It must be removed manually.",
+        );
     }
 }

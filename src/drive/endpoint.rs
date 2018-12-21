@@ -77,13 +77,19 @@ impl DriveEndPoint {
             DriveEndPoint::SharedWithMe => "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe",
             DriveEndPoint::DriveRecent => "https://graph.microsoft.com/v1.0/me/drive/recent",
             DriveEndPoint::SpecialDocuments => "https://graph.microsoft.com/v1.0/documents",
-            DriveEndPoint::SpecialDocumentsChild => "https://graph.microsoft.com/v1.0/documents/children",
+            DriveEndPoint::SpecialDocumentsChild => {
+                "https://graph.microsoft.com/v1.0/documents/children"
+            }
             DriveEndPoint::SpecialPhotos => "https://graph.microsoft.com/v1.0/photos",
             DriveEndPoint::SpecialPhotosChild => "https://graph.microsoft.com/v1.0/photos/children",
             DriveEndPoint::SpecialCameraRoll => "https://graph.microsoft.com/v1.0/cameraroll",
-            DriveEndPoint::SpecialCameraRollChild => "https://graph.microsoft.com/v1.0/cameraroll/children",
+            DriveEndPoint::SpecialCameraRollChild => {
+                "https://graph.microsoft.com/v1.0/cameraroll/children"
+            }
             DriveEndPoint::SpecialAppRoot => "https://graph.microsoft.com/v1.0/approot",
-            DriveEndPoint::SpecialAppRootChild => "https://graph.microsoft.com/v1.0/approot/children",
+            DriveEndPoint::SpecialAppRootChild => {
+                "https://graph.microsoft.com/v1.0/approot/children"
+            }
             DriveEndPoint::SpecialMusic => "https://graph.microsoft.com/v1.0/music",
             DriveEndPoint::SpecialMusicChild => "https://graph.microsoft.com/v1.0/music/children",
         }
@@ -101,8 +107,10 @@ impl SiteEndPoint {
     pub fn as_str(&mut self) -> &str {
         match *self {
             SiteEndPoint::RootSiteTenant => "https://graph.microsoft.com/v1.0/sites/root",
-            SiteEndPoint::SharePointTenant => "https://graph.microsoft.com/v1.0/sites/contoso.sharepoint.com",
+            SiteEndPoint::SharePointTenant => {
+                "https://graph.microsoft.com/v1.0/sites/contoso.sharepoint.com"
+            }
             SiteEndPoint::JPNTenant => "https://graph.microsoft.com/v1.0/sites/sites/JPN",
         }
     }
- }
+}

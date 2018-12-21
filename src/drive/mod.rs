@@ -15,7 +15,10 @@ use reqwest::*;
 use std;
 
 pub trait DriveRequest {
-    fn request(&mut self, end_point: DriveEndPoint) -> std::result::Result<Response, reqwest::Error>;
+    fn request(
+        &mut self,
+        end_point: DriveEndPoint,
+    ) -> std::result::Result<Response, reqwest::Error>;
 }
 
 pub struct Drive {
@@ -36,12 +39,17 @@ impl Drive {
 
 impl DriveRequest for Drive {
     /// A drive request can make a request to any of the end points on the DriveEndPoint enum
-    fn request(&mut self, end_point: DriveEndPoint) -> std::result::Result<Response, reqwest::Error> {
+    fn request(
+        &mut self,
+        end_point: DriveEndPoint,
+    ) -> std::result::Result<Response, reqwest::Error> {
         let client = reqwest::Client::builder().build()?;
-        let res = client.get(end_point.as_str())
+        let res = client
+            .get(end_point.as_str())
             .header(header::AUTHORIZATION, self.access_token.as_str())
             .header(header::CONTENT_TYPE, "application/json")
-            .send().expect("Error with request to microsoft graph");
+            .send()
+            .expect("Error with request to microsoft graph");
         Ok(res)
     }
 }
