@@ -54,11 +54,10 @@ use std::path::Path;
 use std::process::Command;
 use std::result;
 
-use crate::process::ReqBuf;
 use reqwest::{header, Response};
 use url::form_urlencoded;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum FlowType {
     AuthorizeTokenFlow,
     AuthorizeCodeFlow,
@@ -112,13 +111,20 @@ struct AccessToken {
 ///        .set_client_secret("client_secret")
 ///        .set_token_url("https://example.com/token");
 /// ```
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AuthFlow {
     config_name: String,
     scopes: Vec<String>,
     params: HashMap<String, String>,
     allow_reset: bool,
     default_scope: bool,
+}
+
+impl fmt::Display for AuthFlow {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:#?}\n{:#?}\n{:#?}\n{:#?}\n{:#?}", self.config_name,
+               self.scopes, self.params, self.allow_reset, self.default_scope)
+    }
 }
 
 impl AuthFlow {
@@ -191,7 +197,7 @@ impl AuthFlow {
     }
 
     /// Set the code of a request - returned from log in and authorization
-    pub fn set_code(&mut self, code: &str) -> &mut AuthFlow {
+    pub fn set_access_code(&mut self, code: &str) -> &mut AuthFlow {
         self.set_config("CODE", code)
     }
 
@@ -201,7 +207,7 @@ impl AuthFlow {
     }
 
     /// Set the token of a request
-    pub fn set_token(&mut self, token: &str) -> &mut AuthFlow {
+    pub fn set_access_token(&mut self, token: &str) -> &mut AuthFlow {
         self.set_config("ACCESS_TOKEN", token)
     }
 
@@ -248,11 +254,17 @@ impl AuthFlow {
     pub fn get_redirect_uri(&self) -> Option<&String> {
         self.params.get("REDIRECT_URI")
     }
-    pub fn get_token(&self) -> Option<&String> {
+    pub fn get_access_code(&self) -> Option<&String> {
+        self.params.get("CODE")
+    }
+    pub fn get_access_token(&self) -> Option<&String> {
         self.params.get("ACCESS_TOKEN")
     }
-    pub fn get_scope(&self) -> Option<&String> {
+    pub fn get_refresh_token(&self) -> Option<&String> {
         self.params.get("REFRESH_TOKEN")
+    }
+    pub fn get_scopes(&self) -> Option<&Vec<String>> {
+        Some( &self.scopes)
     }
     pub fn get_server(&self) -> Option<&String> {
         self.params.get("SERVER_URL")
@@ -466,15 +478,16 @@ impl AuthFlow {
     ///     2. Use Command to call the firefox process directly:
     ///         .arg("firefox")
     ///         .arg("--new-window");
-    pub fn browser_flow(&mut self, addr: &str) -> io::Result<()> {
+    pub fn browser_flow(&mut self) -> io::Result<()> {
         let auth_url = self.build(FlowType::AuthorizeCodeFlow).unwrap();
         let auth_to_string = auth_url.as_str();
+
         // TODO: Need a way to somehow close the browser process as long
         // as it is in in's own window, which currently it is not.
-        Command::new("xdg-open").arg(auth_to_string).spawn()?;
-        ReqBuf::start(addr);
+       Command::new("xdg-open").arg(auth_to_string).spawn()?;
         Ok(())
     }
+
 
     /// Request Access Tokens
     ///
@@ -492,7 +505,7 @@ impl AuthFlow {
         let code_body = self
             .build(FlowType::GrantTypeAuthCode)
             .expect("Could not build with FlowType::CodeBody");
-        let access_code = self.params.get("ACCESS_TOKEN").expect(
+        let access_code = self.params.get("CODE").expect(
             "Could not find access token in HashMap. Ensure the value has been set correctly",
         );
         let access_token_url = self
@@ -550,7 +563,7 @@ impl AuthFlow {
             .write(true)
             .open(&path)
             .expect("Error writing file with serialized struct");
-        file.write_all(serialized.as_bytes());
+        file.write_all(serialized.as_bytes()).expect("Could not write AuthFlow as a new json file");
         Ok(())
     }
 
@@ -653,7 +666,7 @@ mod flow_tests {
             .set_redirect_uri("http://localhost:8888/redirect")
             .set_response_type("token")
             .set_client_secret("CLDIE3F")
-            .set_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
+            .set_access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
         let code_body = code_flow.build(FlowType::GrantTypeAuthCode).unwrap();
         assert_eq!(code_body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&grant_type=authorization_code");
@@ -668,7 +681,7 @@ mod flow_tests {
             .set_response_type("token")
             .set_client_secret("CLDIE3F")
             .set_refresh("32LKLASDKJ")
-            .set_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
+            .set_access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
         let refresh_body = refresh_flow.build(FlowType::GrantTypeRefreshToken).unwrap();
         assert_eq!(refresh_body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token");
     }
