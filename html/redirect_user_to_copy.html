@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Rust One Drive</title>
+</head>
+<body>
+<h1>Login Successful!</h1>
+<p>Please copy and paste this URL in the app: <span id="urlCode"></span></p>
+<p>If the URL is not showing please paste the URL in the address bar in the app</p>
+<script>
+  let url = window.location;
+  document.getElementById("urlCode").innerText = url;
+</script>
+</body>
+</html>
