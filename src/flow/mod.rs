@@ -402,35 +402,31 @@ impl AuthFlow {
         let encoded: String = form_urlencoded::Serializer::new(String::from(""))
             .append_pair(
                 "client_id",
-                self
-                    .params
+                self.params
                     .get("CLIENT_ID")
                     .expect("Couldn't set client_id")
-                    .to_string(),
+                    .as_str(),
             )
             .append_pair(
                 "redirect_uri",
-                self
-                    .params
+                self.params
                     .get("REDIRECT_URI")
                     .expect("Couldn't set redirect_id")
-                    .to_string(),
+                    .as_str(),
             )
             .append_pair(
                 "client_secret",
-                self
-                    .params
+                self.params
                     .get("CLIENT_SECRET")
                     .expect("Couldn't set client_secret")
-                    .to_string(),
+                    .as_str(),
             )
             .append_pair(
                 param_type,
-                self
-                    .params
+                self.params
                     .get(&param_type.to_uppercase())
                     .unwrap()
-                    .to_string(),
+                    .as_str(),
             )
             .append_pair("grant_type", req_type)
             .finish();
@@ -458,16 +454,10 @@ impl AuthFlow {
         let auth_url = &mut self.params["AUTH_URL"].to_string();
         auth_url.push_str("?");
         let encoded: String = form_urlencoded::Serializer::new(String::from(""))
-            .append_pair(
-                "client_id",
-                &self.params["CLIENT_ID"].to_string(),
-            )
+            .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
             .append_pair("scope", "https://graph.microsoft.com/.default")
             .append_pair("response_type", flow_type.as_str())
-            .append_pair(
-                "redirect_uri",
-                &self.params["REDIRECT_URI"].to_string(),
-            )
+            .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
             .finish();
         auth_url.push_str(&encoded);
         auth_url.to_string()
