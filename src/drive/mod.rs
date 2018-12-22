@@ -29,10 +29,12 @@ pub trait DriveRequest {
     ) -> std::result::Result<Response, reqwest::Error>;
 }
 
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Drive {
     access_token: String,
 }
 
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DriveItems {
     Drives,
     Groups,
@@ -40,6 +42,7 @@ pub enum DriveItems {
     Users,
 }
 
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DriveItemType {
     CheckIn,
     CheckOut,
