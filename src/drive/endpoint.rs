@@ -49,6 +49,8 @@ RECENT ITEM
     GET /drives/{remoteItem-driveId}/items/{remoteItem-id}
 */
 
+pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com";
+
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub enum DriveEndPoint {
     DriveMe,
