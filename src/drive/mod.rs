@@ -171,7 +171,6 @@ impl DriveRequest for Drive {
         item_id: &str,
     ) -> std::result::Result<Response, reqwest::Error> {
         let client = reqwest::Client::builder().build()?;
-        //  let mut url = self.resource_url(resource, resource_type, resource_id, item_id).as_str();
         let res = client
             .get(
                 self.resource_drive_item_url(resource, resource_type, resource_id, item_id)
