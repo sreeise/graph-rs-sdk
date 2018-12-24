@@ -148,8 +148,8 @@ impl AuthFlow {
     /// ```
     /// use rust_onedrive::flow::AuthFlow;
     ///
-    /// let mut graph = AuthFlow::new(true);
-    /// graph.set_client_id("client_id");
+    /// let mut auth_flow = AuthFlow::new(true);
+    /// auth_flow.set_client_id("client_id");
     /// ```
     pub fn set_client_id(&mut self, client_id: &str) -> &mut AuthFlow {
         self.set_config("CLIENT_ID", client_id)
@@ -161,8 +161,8 @@ impl AuthFlow {
     /// ```
     /// use rust_onedrive::flow::AuthFlow;
     ///
-    /// let mut graph = AuthFlow::new(true);
-    /// graph.set_client_secret("client_secret");
+    /// let mut auth_flow = AuthFlow::new(true);
+    /// auth_flow.set_client_secret("client_secret");
     /// ```
     pub fn set_client_secret(&mut self, client_secret: &str) -> &mut AuthFlow {
         self.set_config("CLIENT_SECRET", client_secret)
@@ -175,19 +175,35 @@ impl AuthFlow {
     /// ```
     ///  use rust_onedrive::flow::AuthFlow;
     ///
-    /// let mut graph = AuthFlow::new(true);
-    /// graph.set_auth_url("https://example.com/authorize");
+    /// let mut auth_flow = AuthFlow::new(true);
+    /// auth_flow.set_auth_url("https://example.com/authorize");
     /// ```
     pub fn set_auth_url(&mut self, auth_url: &str) -> &mut AuthFlow {
         self.set_config("AUTH_URL", auth_url)
     }
 
-    /// Set the token url of a request
+    /// Set the token url of a request for OAuth
+    ///
+    /// # Example
+    /// ```
+    ///  use rust_onedrive::flow::AuthFlow;
+    ///
+    /// let mut auth_flow = AuthFlow::new(true);
+    /// auth_flow.set_token_url("https://example.com/token");
+    /// ```
     pub fn set_token_url(&mut self, token_url: &str) -> &mut AuthFlow {
         self.set_config("TOKEN_URL", token_url)
     }
 
     /// Set the redirect uri of a request
+    ///
+    /// # Example
+    /// ```
+    ///  use rust_onedrive::flow::AuthFlow;
+    ///
+    /// let mut auth_flow = AuthFlow::new(true);
+    /// auth_flow.set_redirect_uri("https://localhost:8888/redirect");
+    /// ```
     pub fn set_redirect_uri(&mut self, redirect_uri: &str) -> &mut AuthFlow {
         self.set_config("REDIRECT_URI", redirect_uri)
     }
@@ -195,6 +211,14 @@ impl AuthFlow {
     /// Set the response type of a request:
     ///     1. Code Flow: 'code'
     ///     2. Token Flow: 'token'
+    ///
+    /// # Example
+    /// ```
+    ///  use rust_onedrive::flow::AuthFlow;
+    ///
+    /// let mut auth_flow = AuthFlow::new(true);
+    /// auth_flow.set_response_type("code");
+    /// ```
     pub fn set_response_type(&mut self, response_type: &str) -> &mut AuthFlow {
         self.set_config("RESPONSE_TYPE", response_type)
     }
