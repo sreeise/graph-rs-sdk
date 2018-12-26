@@ -8,12 +8,22 @@ Your app provides the access token in each request, through an HTTP header:
 Authorization: bearer {token}
 */
 
+pub mod drive_builder;
 pub mod endpoint;
 
 use crate::drive::endpoint::DriveEndPoint;
 use crate::drive::endpoint::GRAPH_ENDPOINT;
 use reqwest::*;
 use std;
+
+#[allow(dead_code)]
+enum CustomEndPoint {
+    DriveItem,
+    DriveItemWithType,
+    MeDriveItem,
+    MeDriveItemWithType,
+    DriveRoot,
+}
 
 pub trait DriveRequest {
     fn request(
@@ -27,6 +37,9 @@ pub trait DriveRequest {
         resource_id: &str,
         item_id: &str,
     ) -> std::result::Result<Response, reqwest::Error>;
+
+    fn get_with_url(&mut self, url: String) -> std::result::Result<Response, reqwest::Error>;
+    fn post_with_url(&mut self, url: String) -> std::result::Result<Response, reqwest::Error>;
 }
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -41,6 +54,18 @@ pub enum DriveItems {
     Sites,
     Users,
     Me,
+}
+
+impl DriveItems {
+    pub fn as_str(&self) -> String {
+        match self {
+            DriveItems::Drives => String::from("/drives"),
+            DriveItems::Groups => String::from("/groups"),
+            DriveItems::Sites => String::from("/sites"),
+            DriveItems::Users => String::from("/users"),
+            DriveItems::Me => String::from("/me"),
+        }
+    }
 }
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -121,7 +146,7 @@ impl Drive {
     ///            "323",
     ///            "222"
     ///        );
-    ///     assert_eq!("https://graph.microsoft.com/groups/323/drive/items/222/checkin", drive_item_url);
+    ///     assert_eq!("https://graph.microsoft.com/v1.0/groups/323/drive/items/222/checkin", drive_item_url);
     /// ```
     pub fn resource_drive_item_url(
         &self,
@@ -132,9 +157,9 @@ impl Drive {
     ) -> String {
         match resource_type {
             DriveItemType::GetItemRoot => self.match_root_resource(resource, resource_id, item_id),
-            DriveItemType::GetItem => self.match_no_resource_type(resource, resource_id, item_id),
-            DriveItemType::Delete => self.match_no_resource_type(resource, resource_id, item_id),
-            DriveItemType::Move => self.match_no_resource_type(resource, resource_id, item_id),
+            DriveItemType::GetItem | DriveItemType::Delete | DriveItemType::Move => {
+                self.match_no_resource_type(resource, resource_id, item_id)
+            }
             _ => self.match_with_resource_type(resource, resource_type, resource_id, item_id),
         }
     }
@@ -294,6 +319,30 @@ impl DriveRequest for Drive {
             .expect("Error with request to microsoft graph");
         Ok(res)
     }
+
+    fn get_with_url(&mut self, url: String) -> std::result::Result<Response, reqwest::Error> {
+        let client = reqwest::Client::builder().build().unwrap();
+        let res = client
+            .get(url.as_str())
+            .header(header::AUTHORIZATION, self.access_token.as_str())
+            .header(header::CONTENT_TYPE, "application/json")
+            .send()
+            .expect("Error with request to microsoft graph");
+
+        Ok(res)
+    }
+
+    fn post_with_url(&mut self, url: String) -> std::result::Result<Response, reqwest::Error> {
+        let client = reqwest::Client::builder().build().unwrap();
+        let res = client
+            .post(url.as_str())
+            .header(header::AUTHORIZATION, self.access_token.as_str())
+            .header(header::CONTENT_TYPE, "application/json")
+            .send()
+            .expect("Error with request to microsoft graph");
+
+        Ok(res)
+    }
 }
 
 #[cfg(test)]
@@ -317,7 +366,7 @@ mod drive_tests {
         POST /sites/{siteId}/drive/items/{itemId}/checkin
         POST /users/{userId}/drive/items/{itemId}/checkin
         */
-        let mut drive = Drive::new("Ei4rD32VVoFtDE69nI=");
+        let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let checkin_item_drive = drive.resource_drive_item_url(
             DriveItems::Drives,
             &mut DriveItemType::CheckIn,
@@ -351,23 +400,23 @@ mod drive_tests {
 
         assert_eq!(
             checkin_item_drive,
-            "https://graph.microsoft.com/drives/driveId/items/itemId/checkin"
+            "https://graph.microsoft.com/v1.0/drives/driveId/items/itemId/checkin"
         );
         assert_eq!(
             checkin_item_group,
-            "https://graph.microsoft.com/groups/groupId/drive/items/itemId/checkin"
+            "https://graph.microsoft.com/v1.0/groups/groupId/drive/items/itemId/checkin"
         );
         assert_eq!(
             checkin_item_users,
-            "https://graph.microsoft.com/users/userId/drive/items/itemId/checkin"
+            "https://graph.microsoft.com/v1.0/users/userId/drive/items/itemId/checkin"
         );
         assert_eq!(
             checkin_item_sites,
-            "https://graph.microsoft.com/sites/siteId/drive/items/itemId/checkin"
+            "https://graph.microsoft.com/v1.0/sites/siteId/drive/items/itemId/checkin"
         );
         assert_eq!(
             checkin_item_me,
-            "https://graph.microsoft.com/me/drive/items/item-Id/checkin"
+            "https://graph.microsoft.com/v1.0/me/drive/items/item-Id/checkin"
         );
     }
 
@@ -380,7 +429,7 @@ mod drive_tests {
         POST /sites/{siteId}/drive/items/{itemId}/checkout
         POST /users/{userId}/drive/items/{itemId}/checkout
         */
-        let mut drive = Drive::new("Ei4rD32VVoFtDE69nI=");
+        let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let checkout_item_drive = drive.resource_drive_item_url(
             DriveItems::Drives,
             &mut DriveItemType::CheckOut,
@@ -414,23 +463,23 @@ mod drive_tests {
 
         assert_eq!(
             checkout_item_drive,
-            "https://graph.microsoft.com/drives/driveId/items/itemId/checkout"
+            "https://graph.microsoft.com/v1.0/drives/driveId/items/itemId/checkout"
         );
         assert_eq!(
             checkout_item_group,
-            "https://graph.microsoft.com/groups/groupId/drive/items/itemId/checkout"
+            "https://graph.microsoft.com/v1.0/groups/groupId/drive/items/itemId/checkout"
         );
         assert_eq!(
             checkout_item_users,
-            "https://graph.microsoft.com/users/userId/drive/items/itemId/checkout"
+            "https://graph.microsoft.com/v1.0/users/userId/drive/items/itemId/checkout"
         );
         assert_eq!(
             checkout_item_sites,
-            "https://graph.microsoft.com/sites/siteId/drive/items/itemId/checkout"
+            "https://graph.microsoft.com/v1.0/sites/siteId/drive/items/itemId/checkout"
         );
         assert_eq!(
             checkout_item_me,
-            "https://graph.microsoft.com/me/drive/items/item-Id/checkout"
+            "https://graph.microsoft.com/v1.0/me/drive/items/item-Id/checkout"
         );
     }
 
@@ -443,7 +492,7 @@ mod drive_tests {
         POST /sites/{siteId}/drive/items/{itemId}/copy
         POST /users/{userId}/drive/items/{itemId}/copy
         */
-        let mut drive = Drive::new("Ei4rD32VVoFtDE69nI=");
+        let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let copy_item_drive = drive.resource_drive_item_url(
             DriveItems::Drives,
             &mut DriveItemType::Copy,
@@ -477,23 +526,23 @@ mod drive_tests {
 
         assert_eq!(
             copy_item_drive,
-            "https://graph.microsoft.com/drives/driveId/items/itemId/copy"
+            "https://graph.microsoft.com/v1.0/drives/driveId/items/itemId/copy"
         );
         assert_eq!(
             copy_item_group,
-            "https://graph.microsoft.com/groups/groupId/drive/items/itemId/copy"
+            "https://graph.microsoft.com/v1.0/groups/groupId/drive/items/itemId/copy"
         );
         assert_eq!(
             copy_item_users,
-            "https://graph.microsoft.com/users/userId/drive/items/itemId/copy"
+            "https://graph.microsoft.com/v1.0/users/userId/drive/items/itemId/copy"
         );
         assert_eq!(
             copy_item_sites,
-            "https://graph.microsoft.com/sites/siteId/drive/items/itemId/copy"
+            "https://graph.microsoft.com/v1.0/sites/siteId/drive/items/itemId/copy"
         );
         assert_eq!(
             copy_item_me,
-            "https://graph.microsoft.com/me/drive/items/item-Id/copy"
+            "https://graph.microsoft.com/v1.0/me/drive/items/item-Id/copy"
         );
     }
 
@@ -506,7 +555,7 @@ mod drive_tests {
         POST /sites/{site-id}/drive/items/{parent-item-id}/children
         POST /users/{user-id}/drive/items/{parent-item-id}/children
         */
-        let mut drive = Drive::new("Ei4rD32VVoFtDE69nI=");
+        let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let create_folder_item_drive = drive.resource_drive_item_url(
             DriveItems::Drives,
             &mut DriveItemType::CreateFolder,
@@ -540,23 +589,23 @@ mod drive_tests {
 
         assert_eq!(
             create_folder_item_drive,
-            "https://graph.microsoft.com/drives/driveId/items/itemId/children"
+            "https://graph.microsoft.com/v1.0/drives/driveId/items/itemId/children"
         );
         assert_eq!(
             create_folder_item_group,
-            "https://graph.microsoft.com/groups/groupId/drive/items/itemId/children"
+            "https://graph.microsoft.com/v1.0/groups/groupId/drive/items/itemId/children"
         );
         assert_eq!(
             create_folder_item_users,
-            "https://graph.microsoft.com/users/userId/drive/items/itemId/children"
+            "https://graph.microsoft.com/v1.0/users/userId/drive/items/itemId/children"
         );
         assert_eq!(
             create_folder_item_sites,
-            "https://graph.microsoft.com/sites/siteId/drive/items/itemId/children"
+            "https://graph.microsoft.com/v1.0/sites/siteId/drive/items/itemId/children"
         );
         assert_eq!(
             create_folder_item_me,
-            "https://graph.microsoft.com/me/drive/items/item-Id/children"
+            "https://graph.microsoft.com/v1.0/me/drive/items/item-Id/children"
         );
     }
 
@@ -569,7 +618,7 @@ mod drive_tests {
         DELETE /sites/{siteId}/drive/items/{itemId}
         DELETE /users/{userId}/drive/items/{itemId}
         */
-        let mut drive = Drive::new("Ei4rD32VVoFtDE69nI=");
+        let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let delete_item_drive = drive.resource_drive_item_url(
             DriveItems::Drives,
             &mut DriveItemType::Delete,
@@ -603,23 +652,23 @@ mod drive_tests {
 
         assert_eq!(
             delete_item_drive,
-            "https://graph.microsoft.com/drives/driveId/items/itemId"
+            "https://graph.microsoft.com/v1.0/drives/driveId/items/itemId"
         );
         assert_eq!(
             delete_item_group,
-            "https://graph.microsoft.com/groups/groupId/drive/items/itemId"
+            "https://graph.microsoft.com/v1.0/groups/groupId/drive/items/itemId"
         );
         assert_eq!(
             delete_item_users,
-            "https://graph.microsoft.com/users/userId/drive/items/itemId"
+            "https://graph.microsoft.com/v1.0/users/userId/drive/items/itemId"
         );
         assert_eq!(
             delete_item_sites,
-            "https://graph.microsoft.com/sites/siteId/drive/items/itemId"
+            "https://graph.microsoft.com/v1.0/sites/siteId/drive/items/itemId"
         );
         assert_eq!(
             delete_item_me,
-            "https://graph.microsoft.com/me/drive/items/item-Id"
+            "https://graph.microsoft.com/v1.0/me/drive/items/item-Id"
         );
     }
 
@@ -632,7 +681,7 @@ mod drive_tests {
         DELETE /sites/{siteId}/drive/items/{itemId}
         DELETE /users/{userId}/drive/items/{itemId}
         */
-        let mut drive = Drive::new("Ei4rD32VVoFtDE69nI=");
+        let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let download_item_drive = drive.resource_drive_item_url(
             DriveItems::Drives,
             &mut DriveItemType::Download,
@@ -672,27 +721,27 @@ mod drive_tests {
 
         assert_eq!(
             download_item_drive,
-            "https://graph.microsoft.com/drives/driveId/items/itemId/content"
+            "https://graph.microsoft.com/v1.0/drives/driveId/items/itemId/content"
         );
         assert_eq!(
             download_item_group,
-            "https://graph.microsoft.com/groups/groupId/drive/items/itemId/content"
+            "https://graph.microsoft.com/v1.0/groups/groupId/drive/items/itemId/content"
         );
         assert_eq!(
             download_item_users,
-            "https://graph.microsoft.com/users/userId/drive/items/itemId/content"
+            "https://graph.microsoft.com/v1.0/users/userId/drive/items/itemId/content"
         );
         assert_eq!(
             download_item_sites,
-            "https://graph.microsoft.com/sites/siteId/drive/items/itemId/content"
+            "https://graph.microsoft.com/v1.0/sites/siteId/drive/items/itemId/content"
         );
         assert_eq!(
             download_item_me,
-            "https://graph.microsoft.com/me/drive/items/item-Id/content"
+            "https://graph.microsoft.com/v1.0/me/drive/items/item-Id/content"
         );
         assert_eq!(
             download_item_me_path,
-            "https://graph.microsoft.com/me/drive/root/item-Id/itemid:/content"
+            "https://graph.microsoft.com/v1.0/me/drive/root/item-Id/itemid:/content"
         );
     }
 
@@ -705,7 +754,7 @@ mod drive_tests {
         GET /sites/{siteId}/drive/items/{itemId}
         GET /users/{userId}/drive/items/{itemId}
         */
-        let mut drive = Drive::new("Ei4rD32VVoFtDE69nI=");
+        let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let get_item_drive = drive.resource_drive_item_url(
             DriveItems::Drives,
             &mut DriveItemType::GetItem,
@@ -739,23 +788,23 @@ mod drive_tests {
 
         assert_eq!(
             get_item_drive,
-            "https://graph.microsoft.com/drives/driveId/items/itemId"
+            "https://graph.microsoft.com/v1.0/drives/driveId/items/itemId"
         );
         assert_eq!(
             get_item_group,
-            "https://graph.microsoft.com/groups/groupId/drive/items/itemId"
+            "https://graph.microsoft.com/v1.0/groups/groupId/drive/items/itemId"
         );
         assert_eq!(
             get_item_users,
-            "https://graph.microsoft.com/users/userId/drive/items/itemId"
+            "https://graph.microsoft.com/v1.0/users/userId/drive/items/itemId"
         );
         assert_eq!(
             get_item_sites,
-            "https://graph.microsoft.com/sites/siteId/drive/items/itemId"
+            "https://graph.microsoft.com/v1.0/sites/siteId/drive/items/itemId"
         );
         assert_eq!(
             get_item_me,
-            "https://graph.microsoft.com/me/drive/items/item-Id"
+            "https://graph.microsoft.com/v1.0/me/drive/items/item-Id"
         );
     }
 
@@ -769,7 +818,7 @@ mod drive_tests {
         GET /users/{userId}/drive/root:/{item-path}
         */
 
-        let mut drive = Drive::new("Ei4rD32VVoFtDE69nI=");
+        let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let root_item_drive = drive.resource_drive_item_url(
             DriveItems::Drives,
             &mut DriveItemType::GetItemRoot,
@@ -803,23 +852,23 @@ mod drive_tests {
 
         assert_eq!(
             root_item_drive,
-            "https://graph.microsoft.com/drives/driveId/root:/itemId"
+            "https://graph.microsoft.com/v1.0/drives/driveId/root:/itemId"
         );
         assert_eq!(
             root_item_group,
-            "https://graph.microsoft.com/groups/groupId/drive/root:/itemId"
+            "https://graph.microsoft.com/v1.0/groups/groupId/drive/root:/itemId"
         );
         assert_eq!(
             root_item_users,
-            "https://graph.microsoft.com/users/userId/drive/root:/itemId"
+            "https://graph.microsoft.com/v1.0/users/userId/drive/root:/itemId"
         );
         assert_eq!(
             root_item_sites,
-            "https://graph.microsoft.com/sites/siteId/drive/root:/itemId"
+            "https://graph.microsoft.com/v1.0/sites/siteId/drive/root:/itemId"
         );
         assert_eq!(
             root_item_me,
-            "https://graph.microsoft.com/me/drive/root:/item-Id"
+            "https://graph.microsoft.com/v1.0/me/drive/root:/item-Id"
         );
     }
 
@@ -832,7 +881,7 @@ mod drive_tests {
         GET /sites/{site-id}/drive/items/{item-id}/children
         GET /users/{user-id}/drive/items/{item-id}/children
         */
-        let mut drive = Drive::new("Ei4rD32VVoFtDE69nI=");
+        let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let list_children_drive = drive.resource_drive_item_url(
             DriveItems::Drives,
             &mut DriveItemType::ListChildren,
@@ -866,23 +915,23 @@ mod drive_tests {
 
         assert_eq!(
             list_children_drive,
-            "https://graph.microsoft.com/drives/driveId/items/itemId/children"
+            "https://graph.microsoft.com/v1.0/drives/driveId/items/itemId/children"
         );
         assert_eq!(
             list_children_group,
-            "https://graph.microsoft.com/groups/groupId/drive/items/itemId/children"
+            "https://graph.microsoft.com/v1.0/groups/groupId/drive/items/itemId/children"
         );
         assert_eq!(
             list_children_users,
-            "https://graph.microsoft.com/users/userId/drive/items/itemId/children"
+            "https://graph.microsoft.com/v1.0/users/userId/drive/items/itemId/children"
         );
         assert_eq!(
             list_children_sites,
-            "https://graph.microsoft.com/sites/siteId/drive/items/itemId/children"
+            "https://graph.microsoft.com/v1.0/sites/siteId/drive/items/itemId/children"
         );
         assert_eq!(
             list_children_me,
-            "https://graph.microsoft.com/me/drive/items/item-Id/children"
+            "https://graph.microsoft.com/v1.0/me/drive/items/item-Id/children"
         );
     }
 
@@ -895,7 +944,7 @@ mod drive_tests {
         PATCH /sites/{site-id}/drive/items/{item-id}
         PATCH /users/{user-id}/drive/items/{item-id}
         */
-        let mut drive = Drive::new("Ei4rD32VVoFtDE69nI=");
+        let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let move_item_drive = drive.resource_drive_item_url(
             DriveItems::Drives,
             &mut DriveItemType::Move,
@@ -929,23 +978,23 @@ mod drive_tests {
 
         assert_eq!(
             move_item_drive,
-            "https://graph.microsoft.com/drives/driveId/items/itemId"
+            "https://graph.microsoft.com/v1.0/drives/driveId/items/itemId"
         );
         assert_eq!(
             move_item_group,
-            "https://graph.microsoft.com/groups/groupId/drive/items/itemId"
+            "https://graph.microsoft.com/v1.0/groups/groupId/drive/items/itemId"
         );
         assert_eq!(
             move_item_users,
-            "https://graph.microsoft.com/users/userId/drive/items/itemId"
+            "https://graph.microsoft.com/v1.0/users/userId/drive/items/itemId"
         );
         assert_eq!(
             move_item_sites,
-            "https://graph.microsoft.com/sites/siteId/drive/items/itemId"
+            "https://graph.microsoft.com/v1.0/sites/siteId/drive/items/itemId"
         );
         assert_eq!(
             move_item_me,
-            "https://graph.microsoft.com/me/drive/items/item-Id"
+            "https://graph.microsoft.com/v1.0/me/drive/items/item-Id"
         );
     }
 }

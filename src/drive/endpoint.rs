@@ -48,8 +48,7 @@ RECENT ITEM
     GET /me/drive/recent
     GET /drives/{remoteItem-driveId}/items/{remoteItem-id}
 */
-
-pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com";
+pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub enum DriveEndPoint {
@@ -82,41 +81,36 @@ impl DriveEndPoint {
             DriveEndPoint::DriveChanges => "https://graph.microsoft.com/v1.0/drive/root/delta",
             DriveEndPoint::SharedWithMe => "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe",
             DriveEndPoint::DriveRecent => "https://graph.microsoft.com/v1.0/me/drive/recent",
-            DriveEndPoint::SpecialDocuments => "https://graph.microsoft.com/v1.0/documents",
+            DriveEndPoint::SpecialDocuments => {
+                "https://graph.microsoft.com/v1.0/me/drive/documents"
+            }
             DriveEndPoint::SpecialDocumentsChild => {
-                "https://graph.microsoft.com/v1.0/documents/children"
+                "https://graph.microsoft.com/v1.0/me/drive/special/documents/children"
             }
-            DriveEndPoint::SpecialPhotos => "https://graph.microsoft.com/v1.0/photos",
-            DriveEndPoint::SpecialPhotosChild => "https://graph.microsoft.com/v1.0/photos/children",
-            DriveEndPoint::SpecialCameraRoll => "https://graph.microsoft.com/v1.0/cameraroll",
+            DriveEndPoint::SpecialPhotos => {
+                "https://graph.microsoft.com/v1.0/me/drive/special/photos"
+            }
+            DriveEndPoint::SpecialPhotosChild => {
+                "https://graph.microsoft.com/v1.0/me/drive/special/photos/children"
+            }
+            DriveEndPoint::SpecialCameraRoll => {
+                "https://graph.microsoft.com/v1.0/me/drive/special/cameraroll"
+            }
             DriveEndPoint::SpecialCameraRollChild => {
-                "https://graph.microsoft.com/v1.0/cameraroll/children"
+                "https://graph.microsoft.com/v1.0/me/drive/special/cameraroll/children"
             }
-            DriveEndPoint::SpecialAppRoot => "https://graph.microsoft.com/v1.0/approot",
+            DriveEndPoint::SpecialAppRoot => {
+                "https://graph.microsoft.com/v1.0/me/drive/special/approot"
+            }
             DriveEndPoint::SpecialAppRootChild => {
-                "https://graph.microsoft.com/v1.0/approot/children"
+                "https://graph.microsoft.com/v1.0/me/drive/special/approot/children"
             }
-            DriveEndPoint::SpecialMusic => "https://graph.microsoft.com/v1.0/music",
-            DriveEndPoint::SpecialMusicChild => "https://graph.microsoft.com/v1.0/music/children",
-        }
-    }
-}
-
-#[derive(Debug)]
-pub enum SiteEndPoint {
-    RootSiteTenant,
-    SharePointTenant,
-    JPNTenant,
-}
-
-impl SiteEndPoint {
-    pub fn as_str(&mut self) -> &str {
-        match *self {
-            SiteEndPoint::RootSiteTenant => "https://graph.microsoft.com/v1.0/sites/root",
-            SiteEndPoint::SharePointTenant => {
-                "https://graph.microsoft.com/v1.0/sites/contoso.sharepoint.com"
+            DriveEndPoint::SpecialMusic => {
+                "https://graph.microsoft.com/v1.0/me/drive/special/music"
             }
-            SiteEndPoint::JPNTenant => "https://graph.microsoft.com/v1.0/sites/sites/JPN",
+            DriveEndPoint::SpecialMusicChild => {
+                "https://graph.microsoft.com/v1.0/me/drive/special/music/children"
+            }
         }
     }
 }
