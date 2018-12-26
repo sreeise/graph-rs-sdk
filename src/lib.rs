@@ -1,5 +1,7 @@
+#[allow(unused_imports)]
 #[macro_use]
 extern crate serde_derive;
+#[allow(unused_imports)]
 #[macro_use]
 extern crate serde_json;
 extern crate encoding;
