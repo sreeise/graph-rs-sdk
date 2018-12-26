@@ -20,6 +20,7 @@ encoding = "0.2.33"
 mio = "0.6.16"
 http-muncher = "0.3.2"
 ws = "0.7.9"
+json = "0.11.13"
 
 [badges]
 travis-ci = { repository = "https://github.com/sreeise/rust-onedrive", branch = "master" }
