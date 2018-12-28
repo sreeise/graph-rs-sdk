@@ -6,3 +6,6 @@
 
 # Dont import lock file for library
 Cargo.lock
+
+# For testing in development
+src/bin
