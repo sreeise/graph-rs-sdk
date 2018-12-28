@@ -10,6 +10,9 @@ Authorization: bearer {token}
 
 pub mod drive_builder;
 pub mod endpoint;
+pub mod driveresource;
+pub mod driveitem;
+pub mod identity;
 
 use crate::drive::endpoint::DriveEndPoint;
 use crate::drive::endpoint::GRAPH_ENDPOINT;
@@ -47,6 +50,8 @@ pub struct Drive {
     access_token: String,
 }
 
+// TODO: Remove DriveItems and change all occurences of DriveItem in tis file to Drive Resource
+// See https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/addressing-driveitems?view=odsp-graph-online
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DriveItems {
     Drives,
@@ -110,9 +115,9 @@ impl Drive {
     ///  // authenticated requests to microsoft graph.
     /// let mut drive = Drive::new("B32484FJL;ASFJ");
     /// ```
-    pub fn new(access_code: &str) -> Drive {
+    pub fn new(access_token: &str) -> Drive {
         Drive {
-            access_token: String::from(access_code),
+            access_token: String::from(access_token),
         }
     }
 
@@ -292,7 +297,7 @@ impl DriveRequest for Drive {
     ) -> std::result::Result<Response, reqwest::Error> {
         let client = reqwest::Client::builder().build()?;
         let res = client
-            .get(end_point.as_str())
+            .get(DriveEndPoint::build(end_point).unwrap().as_str())
             .header(header::AUTHORIZATION, self.access_token.as_str())
             .header(header::CONTENT_TYPE, "application/json")
             .send()
