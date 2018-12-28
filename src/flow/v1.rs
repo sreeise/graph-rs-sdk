@@ -54,7 +54,6 @@ use std::path::Path;
 use std::process::Command;
 use std::result;
 
-use crate::flow::accesstoken::serialize_access_token;
 use crate::flow::accesstoken::AccessToken;
 use reqwest::{header, Response};
 use std::thread;
@@ -110,7 +109,6 @@ impl fmt::Display for FlowType {
 pub struct AuthFlow {
     config_name: String,
     scopes: Vec<String>,
-    scopes_v2: Vec<String>,
     params: HashMap<String, String>,
     allow_reset: bool,
     default_scope: bool,
@@ -132,7 +130,6 @@ impl AuthFlow {
         AuthFlow {
             config_name: String::from("AuthFlow"),
             scopes: Vec::new(),
-            scopes_v2: Vec::new(),
             params: HashMap::new(),
             allow_reset: false,
             default_scope: default,
@@ -228,16 +225,6 @@ impl AuthFlow {
         self
     }
 
-    // Sets the access_code and automatically requests an access_token saving
-    // the AccessToken struct to a json file using serde_json.
-    pub fn set_ac_request_token(&mut self, code: &str) -> &mut AuthFlow {
-        self.set_config("CODE", code);
-        let mut res = self.request_access_token().unwrap();
-        let data = res.text().unwrap().to_string();
-        self.access_token = Some(serialize_access_token(&data));
-        self
-    }
-
     /// Set the refresh token of a request
     pub fn set_refresh(&mut self, code: &str) -> &mut AuthFlow {
         self.set_config("REFRESH_TOKEN", code)
@@ -246,6 +233,10 @@ impl AuthFlow {
     /// Set the token of a request
     pub fn set_access_token(&mut self, token: &str) -> &mut AuthFlow {
         self.set_config("ACCESS_TOKEN", token)
+    }
+
+    pub fn set_access_token_struct(&mut self, access_token: AccessToken) {
+        self.access_token = Some(access_token);
     }
 
     /// Add a scope' for the OAuth URL.
@@ -309,6 +300,9 @@ impl AuthFlow {
     }
     pub fn get_server(&self) -> Option<&String> {
         self.params.get("SERVER_URL")
+    }
+    pub fn get_access_token_struct(self) -> Option<AccessToken> {
+        self.access_token
     }
 
     fn set_config(&mut self, config_key: &str, config_value: &str) -> &mut AuthFlow {
@@ -527,6 +521,19 @@ impl AuthFlow {
 
     /// Request Access Tokens
     ///
+    /// Builds the url and performs post request for access token.
+    /// If successful, the access token String and the struct AccessToken
+    /// will automatically be set (see example). This method requires
+    /// the token_url and access_code to be set and valid for performing
+    /// the post request.
+    ///
+    /// Don't confuse an access_code for an access_token. The access_code is
+    /// used to perform the post request for an access_token. The access_code
+    /// is retrieved from the url on a browser redirect when logging in to
+    /// a Microsoft account.
+    ///
+    /// An access token request has the following requirements:
+    ///
     /// POST https://login.live.com/oauth20_token.srf
     /// Content-Type: application/x-www-form-urlencoded
     ///
@@ -536,8 +543,40 @@ impl AuthFlow {
     ///     &client_secret={client_secret}
     ///     &refresh_token={refresh_token}
     ///     &grant_type=refresh_token
-    pub fn request_access_token(&mut self) -> std::result::Result<Response, reqwest::Error> {
-        let client = reqwest::Client::builder().build()?;
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let mut auth_flow = AuthFlow::new(true);
+    /// auth_flow
+    ///     .set_auth_url("https://login.live.com/oauth20_authorize.srf")
+    ///     .set_client_id("<client id>")
+    ///     .set_client_secret("<client secret>")
+    ///     .set_redirect_uri("http://localhost:8000/redirect")
+    ///     .set_token_url("https://login.live.com/oauth20_token.srf");
+    ///
+    /// // Send user to url for for access code
+    /// // then set the access code for an AuthFlow struct
+    /// auth_flow.set_access_token("<access code>");
+    ///
+    /// // Run request_access_token() which will automatically set the
+    /// // AccessToken struct in AuthFlow.access_token
+    /// auth_flow.request_access_token()?;
+    ///
+    /// // Get the AccessToken struct
+    /// let access_token: AccessToken = auth_flow.get_access_token_struct()?;
+    /// // Get the access token String from AccessToken
+    /// println!("{:#?}", access_token.get_access_token());
+    ///
+    /// // or
+    ///
+    /// // Get only the access token string which is also set in AuthFlow
+    /// // when calling request_access_token()
+    /// println!("{:#?}", auth_flow.get_access_token());
+    /// ```
+    pub fn request_access_token(&mut self) -> io::Result<()> {
+        let client = reqwest::Client::builder()
+            .build()
+            .expect("could not construct reqwest builder");
         let code_body = self
             .build(FlowType::GrantTypeAuthCode)
             .expect("Could not build with FlowType::GrantTypeAuthCode");
@@ -549,14 +588,33 @@ impl AuthFlow {
             .get("TOKEN_URL")
             .expect("Could not find token_url in HashMap. Ensure the value has been set correctly");
 
-        let res = client
+        let mut res = client
             .post(access_token_url)
             .header(header::AUTHORIZATION, access_code.as_str())
             .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
             .body(code_body)
             .send()
             .expect("Error in sending access token post request");
-        Ok(res)
+
+        let mut json_str = res
+            .text()
+            .expect("could not get request body: bad request or invalid access_code");
+        let mut data = json::parse(&json_str.as_str())
+            .expect("could not get request body: bad request or invalid access_code");;
+        let access_token_str = data["access_token"]
+            .as_str()
+            .expect("could not get request body: bad request or invalid access_code");;
+
+        self.set_access_token(access_token_str);
+        self.access_token = Some(AccessToken::new(
+            data["token_type"].to_string(),
+            data["expires_in"].to_string(),
+            data["scope"].to_string(),
+            data["access_token"].to_string(),
+            data["user_id"].to_string(),
+        ));
+
+        Ok(())
     }
 
     /// Writes the AuthFlow struct as a JSON file using serde_json.
