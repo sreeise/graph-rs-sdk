@@ -9,9 +9,9 @@ Authorization: bearer {token}
 */
 
 pub mod drive_builder;
-pub mod endpoint;
-pub mod driveresource;
 pub mod driveitem;
+pub mod driveresource;
+pub mod endpoint;
 pub mod identity;
 
 use crate::drive::endpoint::DriveEndPoint;
