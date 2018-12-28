@@ -25,7 +25,8 @@ impl JsonFile {
         Ok(())
     }
 
-    /// Writes self.data_struct to a new JSON file. Panics if the file is already created.
+    /// Writes the struct given, data_struct, to a new JSON file.
+    /// Panics if the file is already created.
     pub fn new_json_file<T, P: AsRef<Path>>(path: P, data_struct: &T) -> io::Result<()>
     where
         T: serde::Serialize,
