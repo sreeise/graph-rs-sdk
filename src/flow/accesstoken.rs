@@ -50,6 +50,7 @@ pub struct AccessToken {
     scope: String,
     access_token: String,
     user_id: String,
+    refresh_token: Option<String>,
 }
 
 impl AccessToken {
@@ -66,6 +67,25 @@ impl AccessToken {
             scope: String::from(scope),
             access_token: String::from(access_token),
             user_id: String::from(user_id),
+            refresh_token: None,
+        }
+    }
+
+    pub fn new_with_refresh_token(
+        token_type: &str,
+        expires_in: u64,
+        scope: &str,
+        access_token: &str,
+        user_id: &str,
+        refresh_token: Option<String>,
+    ) -> AccessToken {
+        AccessToken {
+            token_type: String::from(token_type),
+            expires_in,
+            scope: String::from(scope),
+            access_token: String::from(access_token),
+            user_id: String::from(user_id),
+            refresh_token,
         }
     }
 
@@ -89,6 +109,14 @@ impl AccessToken {
         Ok(&self.token_type)
     }
 
+    pub fn get_refresh_token(self) -> Option<String> {
+        self.refresh_token
+    }
+
+    pub fn set_refresh_token(&mut self, refresh_token: &str) {
+        self.refresh_token = Some(String::from(refresh_token));
+    }
+
     pub fn from_json_str(json_str: &str) -> io::Result<AccessToken> {
         let access_token: AccessToken = serde_json::from_str(json_str)?;
         Ok(access_token)
@@ -101,12 +129,39 @@ mod access_token_tests {
 
     #[test]
     fn get_method() {
-        let access_token =
+        let mut access_token =
             AccessToken::new("bearer", 3600, "offline", "ASODFIUJ34KJ;LADSK", "USER_ID");
         assert_eq!(access_token.get_expires_in().unwrap(), &3600_u64);
         assert_eq!(access_token.get_token_type().unwrap(), "bearer");
-        assert_eq!(access_token.get_access_token().unwrap(), "ASODFIUJ34KJ;LADSK");
+        assert_eq!(
+            access_token.get_access_token().unwrap(),
+            "ASODFIUJ34KJ;LADSK"
+        );
         assert_eq!(access_token.get_scopes().unwrap(), "offline");
         assert_eq!(access_token.get_user_id().unwrap(), "USER_ID");
+
+        access_token.set_refresh_token("eyJh...9323");
+        assert_eq!(access_token.get_refresh_token().unwrap(), "eyJh...9323");
+    }
+
+    #[test]
+    fn new_with_refresh_method() {
+        let access_token = AccessToken::new_with_refresh_token(
+            "bearer",
+            3600,
+            "offline",
+            "ASODFIUJ34KJ;LADSK",
+            "USER_ID",
+            Some(String::from("eyJh...9323")),
+        );
+        assert_eq!(access_token.get_expires_in().unwrap(), &3600_u64);
+        assert_eq!(access_token.get_token_type().unwrap(), "bearer");
+        assert_eq!(
+            access_token.get_access_token().unwrap(),
+            "ASODFIUJ34KJ;LADSK"
+        );
+        assert_eq!(access_token.get_scopes().unwrap(), "offline");
+        assert_eq!(access_token.get_user_id().unwrap(), "USER_ID");
+        assert_eq!(access_token.get_refresh_token().unwrap(), "eyJh...9323");
     }
 }
