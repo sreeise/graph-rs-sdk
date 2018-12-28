@@ -1,5 +1,13 @@
 /*
-OAuth2 for Microsoft Authorization for using the Graph API V1.
+OAuth2 for Microsoft Authorization using the REST OneDrive Graph API V1:
+
+    https://docs.microsoft.com/en-us/onedrive/developer/rest-api/?view=odsp-graph-online
+
+Specifically the implementation is here:
+
+    https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online
+
+Overview:
 
     client_id:
         Type:  string
@@ -55,7 +63,7 @@ use std::process::Command;
 use std::result;
 
 use crate::flow::accesstoken::AccessToken;
-use reqwest::{header};
+use reqwest::header;
 use std::thread;
 use std::time::Duration;
 use url::form_urlencoded;
@@ -613,7 +621,8 @@ impl AuthFlow {
             data["expires_in"]
                 .as_u64()
                 .expect("could not convert expires_in to u64"),
-            data["scope"].as_str()
+            data["scope"]
+                .as_str()
                 .expect("could not convert scope to str"),
             data["access_token"]
                 .as_str()
