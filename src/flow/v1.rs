@@ -56,10 +56,10 @@ use std::result;
 
 use crate::flow::accesstoken::AccessToken;
 use reqwest::{header, Response};
+use serde_json::{Deserializer, Error, Value};
 use std::thread;
 use std::time::Duration;
 use url::form_urlencoded;
-use serde_json::{Value, Error, Deserializer};
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -608,12 +608,20 @@ impl AuthFlow {
 
         self.set_access_token(&data["access_token"].as_str().unwrap());
         self.access_token = Some(AccessToken::new(
-            data["token_type"].to_string(),
-            data["expires_in"].as_u64()
+            data["token_type"]
+                .as_str()
+                .expect("could not convert token_type to str"),
+            data["expires_in"]
+                .as_u64()
                 .expect("could not convert expires_in to u64"),
-            data["scope"].to_string(),
-            data["access_token"].to_string(),
-            data["user_id"].to_string(),
+            data["scope"].as_str()
+                .expect("could not convert scope to str"),
+            data["access_token"]
+                .as_str()
+                .expect("could not convert access_token to str"),
+            data["user_id"]
+                .as_str()
+                .expect("could not convert user_id to str"),
         ));
 
         Ok(())
