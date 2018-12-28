@@ -34,18 +34,18 @@ pub struct AccessToken {
 
 impl AccessToken {
     pub fn new(
-        token_type: String,
+        token_type: &str,
         expires_in: u64,
-        scope: String,
-        access_token: String,
-        user_id: String,
+        scope: &str,
+        access_token: &str,
+        user_id: &str,
     ) -> AccessToken {
         AccessToken {
-            token_type,
+            token_type: String::from(token_type),
             expires_in,
-            scope,
-            access_token,
-            user_id,
+            scope: String::from(scope),
+            access_token: String::from(access_token),
+            user_id: String::from(user_id),
         }
     }
 
