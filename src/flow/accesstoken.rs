@@ -49,24 +49,24 @@ impl AccessToken {
         }
     }
 
-    pub fn get_expires_in(&self) -> Option<&u64> {
-        Some(&self.expires_in)
+    pub fn get_expires_in(&self) -> io::Result<&u64> {
+        Ok(&self.expires_in)
     }
 
-    pub fn get_scopes(&self) -> &String {
-        &self.scope
+    pub fn get_scopes(&self) -> io::Result<&str> {
+        Ok(&self.scope)
     }
 
-    pub fn get_access_token(&self) -> &String {
-        &self.access_token
+    pub fn get_access_token(&self) -> io::Result<&str> {
+        Ok(&self.access_token)
     }
 
-    pub fn get_user_id(&self) -> &String {
-        &self.user_id
+    pub fn get_user_id(&self) -> io::Result<&str> {
+        Ok(&self.user_id)
     }
 
-    pub fn get_token_type(&self) -> &String {
-        &self.token_type
+    pub fn get_token_type(&self) -> io::Result<&str> {
+        Ok(&self.token_type)
     }
 
     pub fn from_json_str(json_str: &str) -> io::Result<AccessToken> {
