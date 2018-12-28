@@ -74,3 +74,19 @@ impl AccessToken {
         Ok(access_token)
     }
 }
+
+#[cfg(test)]
+mod access_token_tests {
+    use super::*;
+
+    #[test]
+    fn get_method() {
+        let mut access_token =
+            AccessToken::new("bearer", 3600, "offline", "ASODFIUJ34KJ;LADSK", "USER_ID");
+        assert_eq!(access_token.get_expires_in().unwrap(), &3600_u64);
+        assert_eq!(access_token.get_token_type().unwrap(), "bearer");
+        assert_eq!(access_token.get_access_token().unwrap(), "ASODFIUJ34KJ;LADSK");
+        assert_eq!(access_token.get_scopes().unwrap(), "offline");
+        assert_eq!(access_token.get_user_id().unwrap(), "USER_ID");
+    }
+}
