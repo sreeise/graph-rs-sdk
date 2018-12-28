@@ -1,11 +1,16 @@
 use serde_derive;
 use serde_json;
 use std::io;
-use std::num::ParseIntError;
 use std::path::Path;
 
 /// AccessToken is the token used to make authenticated requests
 /// to the OneDrive api
+///
+/// Unless the caller is implementing their own version of an AccessToken request,
+/// using the new method to create an AccessToken should most likely never happen.
+/// Instead, callers should use AuthFlow request_access_token().
+/// AuthFlow has a field for the AccessToken struct and is automatically set
+/// when calling request_access_token().
 ///
 /// An access token request returns the following:
 ///
@@ -21,6 +26,22 @@ use std::path::Path;
 ///}
 /// ```
 ///
+/// An access token can be created by providing the expires in time, token type,
+/// access token, scopes, and user id:
+///
+/// # Example
+/// ```
+///  use rust_onedrive::flow::accesstoken::AccessToken;
+///
+///  let access_token =
+///     AccessToken::new("bearer", 3600, "offline", "ASODFIUJ34KJ;LADSK", "USER_ID");
+///
+///        assert_eq!(access_token.get_expires_in().unwrap(), &3600_u64);
+///        assert_eq!(access_token.get_token_type().unwrap(), "bearer");
+///        assert_eq!(access_token.get_access_token().unwrap(), "ASODFIUJ34KJ;LADSK");
+///        assert_eq!(access_token.get_scopes().unwrap(), "offline");
+///        assert_eq!(access_token.get_user_id().unwrap(), "USER_ID");
+///```
 /// The refresh token is optional and depends upon whether it was requested.
 /// Currently this is not available to be set for the AccessToken.
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -81,7 +102,7 @@ mod access_token_tests {
 
     #[test]
     fn get_method() {
-        let mut access_token =
+        let access_token =
             AccessToken::new("bearer", 3600, "offline", "ASODFIUJ34KJ;LADSK", "USER_ID");
         assert_eq!(access_token.get_expires_in().unwrap(), &3600_u64);
         assert_eq!(access_token.get_token_type().unwrap(), "bearer");
