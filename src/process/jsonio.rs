@@ -76,7 +76,6 @@ impl JsonFile {
         for<'de> T: serde::Deserialize<'de>,
     {
         let paths = fs::read_dir(&dir)?;
-        let initial_path = String::from(dir);
         let mut t_vec = Vec::new();
 
         for path in paths {

@@ -55,8 +55,7 @@ use std::process::Command;
 use std::result;
 
 use crate::flow::accesstoken::AccessToken;
-use reqwest::{header, Response};
-use serde_json::{Deserializer, Error, Value};
+use reqwest::{header};
 use std::thread;
 use std::time::Duration;
 use url::form_urlencoded;
@@ -597,16 +596,16 @@ impl AuthFlow {
             .send()
             .expect("Error in sending access token post request");
 
-        let mut json_str = res
+        let json_str = res
             .text()
             .expect("could not get request body: bad request or invalid access_code");
-        let mut data = json::parse(&json_str.as_str())
+        let data = json::parse(&json_str.as_str())
             .expect("could not get request body: bad request or invalid access_code");
         let access_token_str = data["access_token"]
             .as_str()
             .expect("could not get request body: bad request or invalid access_code");
 
-        self.set_access_token(&data["access_token"].as_str().unwrap());
+        self.set_access_token(access_token_str);
         self.access_token = Some(AccessToken::new(
             data["token_type"]
                 .as_str()

@@ -5,20 +5,22 @@ TODO: Change DriveItem in mod.rs as it's naming is off. This is the correct impl
 for drive item
 */
 
-use crate::drive::driveresource::DriveResource;
 use crate::drive::identity::IdentitySet;
 use std::collections::HashMap;
 
+#[allow(dead_code)]
 pub struct DriveItemImage {
     height: u64,
     width: u64,
 }
 
+#[allow(dead_code)]
 pub struct DriveFile {
     meme_type: String,
     hashes: HashMap<String, String>,
 }
 
+#[allow(dead_code)]
 pub struct ParentReference {
     drive_id: String,
     drive_type: String,
@@ -26,15 +28,18 @@ pub struct ParentReference {
     path: String,
 }
 
+#[allow(dead_code)]
 pub struct FileSystemInfo {
     created_date_time: String,
     last_modified_date_time: String,
 }
 
+#[allow(dead_code)]
 pub struct Shared {
     scope: String,
 }
 
+#[allow(dead_code)]
 pub struct DriveItem {
     data_context: Option<String>, // Depends on the url end point.
     download_url: String,

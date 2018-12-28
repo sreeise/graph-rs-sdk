@@ -1,7 +1,6 @@
 use serde_derive;
 use serde_json;
 use std::io;
-use std::path::Path;
 
 /// AccessToken is the token used to make authenticated requests
 /// to the OneDrive api
