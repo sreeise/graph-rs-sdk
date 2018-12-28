@@ -26,7 +26,7 @@ use std::path::Path;
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AccessToken {
     token_type: String,
-    expires_in: String,
+    expires_in: u64,
     scope: String,
     access_token: String,
     user_id: String,
@@ -35,7 +35,7 @@ pub struct AccessToken {
 impl AccessToken {
     pub fn new(
         token_type: String,
-        expires_in: String,
+        expires_in: u64,
         scope: String,
         access_token: String,
         user_id: String,
@@ -49,12 +49,8 @@ impl AccessToken {
         }
     }
 
-    pub fn get_expires_in(&self) -> Option<u64> {
-        let num = self.expires_in.parse::<u64>();
-        match num {
-            Ok(u64_num) => Some(u64_num),
-            Err(error) => None,
-        }
+    pub fn get_expires_in(&self) -> Option<&u64> {
+        Some(&self.expires_in)
     }
 
     pub fn get_scopes(&self) -> &String {

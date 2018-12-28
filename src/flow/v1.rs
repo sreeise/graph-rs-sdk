@@ -59,6 +59,7 @@ use reqwest::{header, Response};
 use std::thread;
 use std::time::Duration;
 use url::form_urlencoded;
+use serde_json::{Value, Error, Deserializer};
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -600,15 +601,16 @@ impl AuthFlow {
             .text()
             .expect("could not get request body: bad request or invalid access_code");
         let mut data = json::parse(&json_str.as_str())
-            .expect("could not get request body: bad request or invalid access_code");;
+            .expect("could not get request body: bad request or invalid access_code");
         let access_token_str = data["access_token"]
             .as_str()
-            .expect("could not get request body: bad request or invalid access_code");;
+            .expect("could not get request body: bad request or invalid access_code");
 
-        self.set_access_token(access_token_str);
+        self.set_access_token(&data["access_token"].as_str().unwrap());
         self.access_token = Some(AccessToken::new(
             data["token_type"].to_string(),
-            data["expires_in"].to_string(),
+            data["expires_in"].as_u64()
+                .expect("could not convert expires_in to u64"),
             data["scope"].to_string(),
             data["access_token"].to_string(),
             data["user_id"].to_string(),
