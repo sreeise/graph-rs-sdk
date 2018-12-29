@@ -49,7 +49,7 @@ pub struct AccessToken {
     expires_in: u64,
     scope: String,
     access_token: String,
-    user_id: String,
+    user_id: Option<String>,
     refresh_token: Option<String>,
 }
 
@@ -66,7 +66,7 @@ impl AccessToken {
             expires_in,
             scope: String::from(scope),
             access_token: String::from(access_token),
-            user_id: String::from(user_id),
+            user_id: Some(String::from(user_id)),
             refresh_token: None,
         }
     }
@@ -84,7 +84,7 @@ impl AccessToken {
             expires_in,
             scope: String::from(scope),
             access_token: String::from(access_token),
-            user_id: String::from(user_id),
+            user_id: Some(String::from(user_id)),
             refresh_token,
         }
     }
@@ -102,7 +102,7 @@ impl AccessToken {
     }
 
     pub fn get_user_id(&self) -> io::Result<&str> {
-        Ok(&self.user_id)
+        Ok(&self.user_id?)
     }
 
     pub fn get_token_type(&self) -> io::Result<&str> {
