@@ -10,6 +10,12 @@ bridge the gap between for Linux. Other platforms may be included in
 the future and there are only a few places where this build would fail
 for other systems.
 
+Requires Rust nightly:
+
+    rustup install nightly
+    cd rust-onedrive
+    rustup override set nightly
+
 ### Tests and Docs
 
 Of the portions that are implemented there are also examples and docs. Run: 
