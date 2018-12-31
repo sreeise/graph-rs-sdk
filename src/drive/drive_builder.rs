@@ -1,5 +1,5 @@
 use crate::drive::endpoint::GRAPH_ENDPOINT;
-use crate::drive::DriveItems;
+use crate::drive::DriveResource;
 use std::collections::HashMap;
 
 pub struct DriveBuilder {
@@ -25,7 +25,7 @@ impl DriveBuilder {
         }
         self.root_set = true;
         self.url_params
-            .insert(String::from("DRIVE_ITEM"), DriveItems::Drives.as_str());
+            .insert(String::from("DRIVE_ITEM"), DriveResource::Drives.as_str());
         self
     }
 
@@ -35,7 +35,7 @@ impl DriveBuilder {
         }
         self.root_set = true;
         self.url_params
-            .insert(String::from("DRIVE_ITEM"), DriveItems::Groups.as_str());
+            .insert(String::from("DRIVE_ITEM"), DriveResource::Groups.as_str());
         self
     }
 
@@ -46,7 +46,7 @@ impl DriveBuilder {
 
         self.root_set = true;
         self.url_params
-            .insert(String::from("DRIVE_ITEM"), DriveItems::Sites.as_str());
+            .insert(String::from("DRIVE_ITEM"), DriveResource::Sites.as_str());
         self
     }
 
@@ -56,7 +56,7 @@ impl DriveBuilder {
         }
         self.root_set = true;
         self.url_params
-            .insert(String::from("DRIVE_ITEM"), DriveItems::Users.as_str());
+            .insert(String::from("DRIVE_ITEM"), DriveResource::Users.as_str());
         self
     }
 

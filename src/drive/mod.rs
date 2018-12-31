@@ -10,7 +10,6 @@ Authorization: bearer {token}
 
 pub mod drive_builder;
 pub mod driveitem;
-pub mod driveresource;
 pub mod endpoint;
 pub mod identity;
 
@@ -18,6 +17,33 @@ use crate::drive::endpoint::DriveEndPoint;
 use crate::drive::endpoint::GRAPH_ENDPOINT;
 use reqwest::*;
 use std;
+
+/*
+Drive Resource: Top level Microsoft Graph resource.
+*/
+
+/// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/addressing-driveitems?view=odsp-graph-online
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum DriveResource {
+    Drives,
+    Groups,
+    Sites,
+    Users,
+    Me,
+}
+
+impl DriveResource {
+    pub fn as_str(&self) -> String {
+        match self {
+            DriveResource::Drives => String::from("/drives"),
+            DriveResource::Groups => String::from("/groups"),
+            DriveResource::Sites => String::from("/sites"),
+            DriveResource::Users => String::from("/users"),
+            DriveResource::Me => String::from("/me"),
+        }
+    }
+}
+
 
 #[allow(dead_code)]
 enum CustomEndPoint {
@@ -35,7 +61,7 @@ pub trait DriveRequest {
     ) -> std::result::Result<Response, reqwest::Error>;
     fn resource_request(
         &mut self,
-        resource: DriveItems,
+        resource: DriveResource,
         resource_type: &mut DriveItemType,
         resource_id: &str,
         item_id: &str,
@@ -48,29 +74,6 @@ pub trait DriveRequest {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Drive {
     access_token: String,
-}
-
-// TODO: Remove DriveItems and change all occurences of DriveItem in tis file to Drive Resource
-// See https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/addressing-driveitems?view=odsp-graph-online
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum DriveItems {
-    Drives,
-    Groups,
-    Sites,
-    Users,
-    Me,
-}
-
-impl DriveItems {
-    pub fn as_str(&self) -> String {
-        match self {
-            DriveItems::Drives => String::from("/drives"),
-            DriveItems::Groups => String::from("/groups"),
-            DriveItems::Sites => String::from("/sites"),
-            DriveItems::Users => String::from("/users"),
-            DriveItems::Me => String::from("/me"),
-        }
-    }
 }
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -142,11 +145,11 @@ impl Drive {
     ///
     /// # Example
     /// ```
-    /// use rust_onedrive::drive::{Drive, DriveItemType, DriveItems};
+    /// use rust_onedrive::drive::{Drive, DriveItemType, DriveResource};
     ///
     ///     let mut drive = Drive::new("Dfsdf");
     ///     let drive_item_url = drive.resource_drive_item_url(
-    ///            DriveItems::Groups,
+    ///            DriveResource::Groups,
     ///            &mut DriveItemType::CheckIn,
     ///            "323",
     ///            "222"
@@ -155,7 +158,7 @@ impl Drive {
     /// ```
     pub fn resource_drive_item_url(
         &self,
-        resource: DriveItems,
+        resource: DriveResource,
         resource_type: &mut DriveItemType,
         resource_id: &str,
         item_id: &str,
@@ -171,95 +174,95 @@ impl Drive {
 
     fn match_root_resource(
         &self,
-        resource: DriveItems,
+        resource: DriveResource,
         resource_id: &str,
         item_id: &str,
     ) -> String {
         match resource {
-            DriveItems::Drives => format!(
+            DriveResource::Drives => format!(
                 "{}/drives/{}/root:/{}",
                 GRAPH_ENDPOINT, resource_id, item_id,
             ),
-            DriveItems::Users => format!(
+            DriveResource::Users => format!(
                 "{}/users/{}/drive/root:/{}",
                 GRAPH_ENDPOINT, resource_id, item_id,
             ),
-            DriveItems::Sites => format!(
+            DriveResource::Sites => format!(
                 "{}/sites/{}/drive/root:/{}",
                 GRAPH_ENDPOINT, resource_id, item_id,
             ),
-            DriveItems::Groups => format!(
+            DriveResource::Groups => format!(
                 "{}/groups/{}/drive/root:/{}",
                 GRAPH_ENDPOINT, resource_id, item_id,
             ),
-            DriveItems::Me => format!("{}/me/drive/root:/{}", GRAPH_ENDPOINT, item_id,),
+            DriveResource::Me => format!("{}/me/drive/root:/{}", GRAPH_ENDPOINT, item_id,),
         }
     }
 
     fn match_no_resource_type(
         &self,
-        resource: DriveItems,
+        resource: DriveResource,
         resource_id: &str,
         item_id: &str,
     ) -> String {
         match resource {
-            DriveItems::Drives => format!(
+            DriveResource::Drives => format!(
                 "{}/drives/{}/items/{}",
                 GRAPH_ENDPOINT, resource_id, item_id,
             ),
-            DriveItems::Users => format!(
+            DriveResource::Users => format!(
                 "{}/users/{}/drive/items/{}",
                 GRAPH_ENDPOINT, resource_id, item_id,
             ),
-            DriveItems::Sites => format!(
+            DriveResource::Sites => format!(
                 "{}/sites/{}/drive/items/{}",
                 GRAPH_ENDPOINT, resource_id, item_id,
             ),
-            DriveItems::Groups => format!(
+            DriveResource::Groups => format!(
                 "{}/groups/{}/drive/items/{}",
                 GRAPH_ENDPOINT, resource_id, item_id,
             ),
-            DriveItems::Me => format!("{}/me/drive/items/{}", GRAPH_ENDPOINT, item_id,),
+            DriveResource::Me => format!("{}/me/drive/items/{}", GRAPH_ENDPOINT, item_id,),
         }
     }
 
     fn match_with_resource_type(
         &self,
-        resource: DriveItems,
+        resource: DriveResource,
         resource_type: &mut DriveItemType,
         resource_id: &str,
         item_id: &str,
     ) -> String {
         match resource {
-            DriveItems::Drives => format!(
+            DriveResource::Drives => format!(
                 "{}/drives/{}/items/{}/{}",
                 GRAPH_ENDPOINT,
                 resource_id,
                 item_id,
                 resource_type.as_str()
             ),
-            DriveItems::Users => format!(
+            DriveResource::Users => format!(
                 "{}/users/{}/drive/items/{}/{}",
                 GRAPH_ENDPOINT,
                 resource_id,
                 item_id,
                 resource_type.as_str()
             ),
-            DriveItems::Sites => format!(
+            DriveResource::Sites => format!(
                 "{}/sites/{}/drive/items/{}/{}",
                 GRAPH_ENDPOINT,
                 resource_id,
                 item_id,
                 resource_type.as_str()
             ),
-            DriveItems::Groups => format!(
+            DriveResource::Groups => format!(
                 "{}/groups/{}/drive/items/{}/{}",
                 GRAPH_ENDPOINT,
                 resource_id,
                 item_id,
                 resource_type.as_str()
             ),
-            DriveItems::Me => {
+            DriveResource::Me => {
                 if resource_type == &mut DriveItemType::Download {
                     if item_id.ends_with(":") {
                         format!(
@@ -307,7 +310,7 @@ impl DriveRequest for Drive {
 
     fn resource_request(
         &mut self,
-        resource: DriveItems,
+        resource: DriveResource,
         resource_type: &mut DriveItemType,
         resource_id: &str,
         item_id: &str,
@@ -373,31 +376,31 @@ mod drive_tests {
         */
         let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let checkin_item_drive = drive.resource_drive_item_url(
-            DriveItems::Drives,
+            DriveResource::Drives,
             &mut DriveItemType::CheckIn,
             "driveId",
             "itemId",
         );
         let checkin_item_group = drive.resource_drive_item_url(
-            DriveItems::Groups,
+            DriveResource::Groups,
             &mut DriveItemType::CheckIn,
             "groupId",
             "itemId",
         );
         let checkin_item_users = drive.resource_drive_item_url(
-            DriveItems::Users,
+            DriveResource::Users,
             &mut DriveItemType::CheckIn,
             "userId",
             "itemId",
         );
         let checkin_item_sites = drive.resource_drive_item_url(
-            DriveItems::Sites,
+            DriveResource::Sites,
             &mut DriveItemType::CheckIn,
             "siteId",
             "itemId",
         );
         let checkin_item_me = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::CheckIn,
             "meId_not_used",
             "item-Id",
@@ -436,31 +439,31 @@ mod drive_tests {
         */
         let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let checkout_item_drive = drive.resource_drive_item_url(
-            DriveItems::Drives,
+            DriveResource::Drives,
             &mut DriveItemType::CheckOut,
             "driveId",
             "itemId",
         );
         let checkout_item_group = drive.resource_drive_item_url(
-            DriveItems::Groups,
+            DriveResource::Groups,
             &mut DriveItemType::CheckOut,
             "groupId",
             "itemId",
         );
         let checkout_item_users = drive.resource_drive_item_url(
-            DriveItems::Users,
+            DriveResource::Users,
             &mut DriveItemType::CheckOut,
             "userId",
             "itemId",
         );
         let checkout_item_sites = drive.resource_drive_item_url(
-            DriveItems::Sites,
+            DriveResource::Sites,
             &mut DriveItemType::CheckOut,
             "siteId",
             "itemId",
         );
         let checkout_item_me = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::CheckOut,
             "meId_not_used",
             "item-Id",
@@ -499,31 +502,31 @@ mod drive_tests {
         */
         let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let copy_item_drive = drive.resource_drive_item_url(
-            DriveItems::Drives,
+            DriveResource::Drives,
             &mut DriveItemType::Copy,
             "driveId",
             "itemId",
         );
         let copy_item_group = drive.resource_drive_item_url(
-            DriveItems::Groups,
+            DriveResource::Groups,
             &mut DriveItemType::Copy,
             "groupId",
             "itemId",
         );
         let copy_item_users = drive.resource_drive_item_url(
-            DriveItems::Users,
+            DriveResource::Users,
             &mut DriveItemType::Copy,
             "userId",
             "itemId",
         );
         let copy_item_sites = drive.resource_drive_item_url(
-            DriveItems::Sites,
+            DriveResource::Sites,
             &mut DriveItemType::Copy,
             "siteId",
             "itemId",
         );
         let copy_item_me = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::Copy,
             "meId_not_used",
             "item-Id",
@@ -562,31 +565,31 @@ mod drive_tests {
         */
         let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let create_folder_item_drive = drive.resource_drive_item_url(
-            DriveItems::Drives,
+            DriveResource::Drives,
             &mut DriveItemType::CreateFolder,
             "driveId",
             "itemId",
         );
         let create_folder_item_group = drive.resource_drive_item_url(
-            DriveItems::Groups,
+            DriveResource::Groups,
             &mut DriveItemType::CreateFolder,
             "groupId",
             "itemId",
         );
         let create_folder_item_users = drive.resource_drive_item_url(
-            DriveItems::Users,
+            DriveResource::Users,
             &mut DriveItemType::CreateFolder,
             "userId",
             "itemId",
         );
         let create_folder_item_sites = drive.resource_drive_item_url(
-            DriveItems::Sites,
+            DriveResource::Sites,
             &mut DriveItemType::CreateFolder,
             "siteId",
             "itemId",
         );
         let create_folder_item_me = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::CreateFolder,
             "meId_not_used",
             "item-Id",
@@ -625,31 +628,31 @@ mod drive_tests {
         */
         let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let delete_item_drive = drive.resource_drive_item_url(
-            DriveItems::Drives,
+            DriveResource::Drives,
             &mut DriveItemType::Delete,
             "driveId",
             "itemId",
         );
         let delete_item_group = drive.resource_drive_item_url(
-            DriveItems::Groups,
+            DriveResource::Groups,
             &mut DriveItemType::Delete,
             "groupId",
             "itemId",
         );
         let delete_item_users = drive.resource_drive_item_url(
-            DriveItems::Users,
+            DriveResource::Users,
             &mut DriveItemType::Delete,
             "userId",
             "itemId",
         );
         let delete_item_sites = drive.resource_drive_item_url(
-            DriveItems::Sites,
+            DriveResource::Sites,
             &mut DriveItemType::Delete,
             "siteId",
             "itemId",
         );
         let delete_item_me = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::Delete,
             "meId_not_used",
             "item-Id",
@@ -688,37 +691,37 @@ mod drive_tests {
         */
         let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let download_item_drive = drive.resource_drive_item_url(
-            DriveItems::Drives,
+            DriveResource::Drives,
             &mut DriveItemType::Download,
             "driveId",
             "itemId",
         );
         let download_item_group = drive.resource_drive_item_url(
-            DriveItems::Groups,
+            DriveResource::Groups,
             &mut DriveItemType::Download,
             "groupId",
             "itemId",
         );
         let download_item_users = drive.resource_drive_item_url(
-            DriveItems::Users,
+            DriveResource::Users,
             &mut DriveItemType::Download,
             "userId",
             "itemId",
         );
         let download_item_sites = drive.resource_drive_item_url(
-            DriveItems::Sites,
+            DriveResource::Sites,
             &mut DriveItemType::Download,
             "siteId",
             "itemId",
         );
         let download_item_me = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::Download,
             "meId_not_used",
             "item-Id",
         );
         let download_item_me_path = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::Download,
             "meId_not_used",
             "item-Id/itemid:",
@@ -761,31 +764,31 @@ mod drive_tests {
         */
         let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let get_item_drive = drive.resource_drive_item_url(
-            DriveItems::Drives,
+            DriveResource::Drives,
             &mut DriveItemType::GetItem,
             "driveId",
             "itemId",
         );
         let get_item_group = drive.resource_drive_item_url(
-            DriveItems::Groups,
+            DriveResource::Groups,
             &mut DriveItemType::GetItem,
             "groupId",
             "itemId",
         );
         let get_item_users = drive.resource_drive_item_url(
-            DriveItems::Users,
+            DriveResource::Users,
             &mut DriveItemType::GetItem,
             "userId",
             "itemId",
         );
         let get_item_sites = drive.resource_drive_item_url(
-            DriveItems::Sites,
+            DriveResource::Sites,
             &mut DriveItemType::GetItem,
             "siteId",
             "itemId",
         );
         let get_item_me = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::GetItem,
             "meId_not_used",
             "item-Id",
@@ -825,31 +828,31 @@ mod drive_tests {
 
         let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let root_item_drive = drive.resource_drive_item_url(
-            DriveItems::Drives,
+            DriveResource::Drives,
             &mut DriveItemType::GetItemRoot,
             "driveId",
             "itemId",
         );
         let root_item_group = drive.resource_drive_item_url(
-            DriveItems::Groups,
+            DriveResource::Groups,
             &mut DriveItemType::GetItemRoot,
             "groupId",
             "itemId",
         );
         let root_item_users = drive.resource_drive_item_url(
-            DriveItems::Users,
+            DriveResource::Users,
             &mut DriveItemType::GetItemRoot,
             "userId",
             "itemId",
         );
         let root_item_sites = drive.resource_drive_item_url(
-            DriveItems::Sites,
+            DriveResource::Sites,
             &mut DriveItemType::GetItemRoot,
             "siteId",
             "itemId",
         );
         let root_item_me = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::GetItemRoot,
             "meId_not_used",
             "item-Id",
@@ -888,31 +891,31 @@ mod drive_tests {
         */
         let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let list_children_drive = drive.resource_drive_item_url(
-            DriveItems::Drives,
+            DriveResource::Drives,
             &mut DriveItemType::ListChildren,
             "driveId",
             "itemId",
         );
         let list_children_group = drive.resource_drive_item_url(
-            DriveItems::Groups,
+            DriveResource::Groups,
             &mut DriveItemType::ListChildren,
             "groupId",
             "itemId",
         );
         let list_children_users = drive.resource_drive_item_url(
-            DriveItems::Users,
+            DriveResource::Users,
             &mut DriveItemType::ListChildren,
             "userId",
             "itemId",
         );
         let list_children_sites = drive.resource_drive_item_url(
-            DriveItems::Sites,
+            DriveResource::Sites,
             &mut DriveItemType::ListChildren,
             "siteId",
             "itemId",
         );
         let list_children_me = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::ListChildren,
             "meId_not_used",
             "item-Id",
@@ -951,31 +954,31 @@ mod drive_tests {
         */
         let drive = Drive::new("Ei4rD32VVoFtDE69nI=");
         let move_item_drive = drive.resource_drive_item_url(
-            DriveItems::Drives,
+            DriveResource::Drives,
             &mut DriveItemType::Move,
             "driveId",
             "itemId",
         );
         let move_item_group = drive.resource_drive_item_url(
-            DriveItems::Groups,
+            DriveResource::Groups,
             &mut DriveItemType::Move,
             "groupId",
             "itemId",
         );
         let move_item_users = drive.resource_drive_item_url(
-            DriveItems::Users,
+            DriveResource::Users,
             &mut DriveItemType::Move,
             "userId",
             "itemId",
         );
         let move_item_sites = drive.resource_drive_item_url(
-            DriveItems::Sites,
+            DriveResource::Sites,
             &mut DriveItemType::Move,
             "siteId",
             "itemId",
         );
         let move_item_me = drive.resource_drive_item_url(
-            DriveItems::Me,
+            DriveResource::Me,
             &mut DriveItemType::Move,
             "meId_not_used",
             "item-Id",
