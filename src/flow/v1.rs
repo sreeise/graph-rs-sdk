@@ -555,10 +555,14 @@ impl AuthFlow {
     /// page will redirect to the url that was specified for redirect_url.
     ///
     /// Linux: There are a couple of options to open the browser with a url.
-    ///     1. Use xdg-open to open the browser
+    ///     1. Use xdg-open to open the browser using Command:
+    ///         Command::new("xdg-open").arg("url-to-open");
     ///     2. Use Command to call the firefox process directly:
     ///         .arg("firefox")
     ///         .arg("--new-window");
+    ///
+    /// On Linux it is much better to use xdg-open. Using the firefox command that is
+    /// built in with the browser may result in rogue processes.
     pub fn browser_flow(&mut self) -> io::Result<()> {
         let auth_url = self.build(FlowType::AuthorizeCodeFlow).unwrap();
         let handle = thread::spawn(move || {
