@@ -11,7 +11,7 @@ NOTE: This may change to a general encoding and decoding module for Graph and/or
 
 define_encode_set! {
     /// This encode set is used in the URL parser for query strings.
-    pub ONEDRIVE_AUTH_RESERVED_ENCODE_SET = [DEFAULT_ENCODE_SET] | {'/', '\', '*', '<', '>', '?', ':', '|', ' ', '#'}
+    pub ONEDRIVE_AUTH_RESERVED_ENCODE_SET = [DEFAULT_ENCODE_SET] | {'/', '\\', '*', '<', '>', '?', ':', '|', ' ', '#'}
 }
 
 pub fn encode_url(domain: &str, url: &str) -> String {
