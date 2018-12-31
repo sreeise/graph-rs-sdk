@@ -4,11 +4,13 @@ extern crate serde_derive;
 #[allow(unused_imports)]
 #[macro_use]
 extern crate serde_json;
+#[macro_use]
+extern crate url;
+
 extern crate encoding;
 extern crate http_muncher;
 extern crate mio;
 extern crate serde;
-extern crate url;
 extern crate ws;
 
 pub mod drive;
