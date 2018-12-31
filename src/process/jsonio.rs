@@ -19,7 +19,12 @@ impl JsonFile {
     where
         T: serde::Serialize,
     {
-        let mut file = File::create(path)?;
+        let mut file = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .read(true)
+            .open(&path)
+            .expect("Could not write to file");
         let serialized = serde_json::to_string(data_struct)?;
         file.write_all(serialized.as_bytes())?;
         Ok(())
