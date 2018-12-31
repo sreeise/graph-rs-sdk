@@ -63,11 +63,11 @@ use std::process::Command;
 use std::result;
 
 use crate::flow::accesstoken::AccessToken;
+use crate::flow::encode::OauthUrlBuilder;
 use reqwest::header;
 use std::thread;
 use std::time::Duration;
 use url::form_urlencoded;
-use crate::flow::encode::OauthUrlBuilder;
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -493,7 +493,10 @@ impl AuthFlow {
     ///     &redirect_uri={redirect_uri}
     pub fn build_auth(&mut self, flow_type: FlowType) -> String {
         let mut encoded = OauthUrlBuilder::new(true);
-        encoded.scheme("").host(self.params["AUTH_URL"].as_str()).path("");
+        encoded
+            .scheme("")
+            .host(self.params["AUTH_URL"].as_str())
+            .path("");
 
         if self.default_scope {
             let mut query = String::from("client_id=");
@@ -541,11 +544,11 @@ impl AuthFlow {
     pub fn build_auth_using_form_urlencoded(&mut self, flow_type: FlowType) -> String {
         let mut auth_url = String::from(self.params["AUTH_URL"].as_str());
         let encoded: String = form_urlencoded::Serializer::new(String::from(""))
-                    .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
-                    .append_pair("scope", "https://graph.microsoft.com/.default")
-                    .append_pair("response_type", flow_type.as_str())
-                    .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
-                    .finish();
+            .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
+            .append_pair("scope", "https://graph.microsoft.com/.default")
+            .append_pair("response_type", flow_type.as_str())
+            .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
+            .finish();
 
         auth_url.push_str(&encoded);
         auth_url

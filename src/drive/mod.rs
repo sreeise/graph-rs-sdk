@@ -44,7 +44,6 @@ impl DriveResource {
     }
 }
 
-
 #[allow(dead_code)]
 enum CustomEndPoint {
     DriveItem,
