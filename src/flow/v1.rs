@@ -99,39 +99,36 @@ impl fmt::Display for FlowType {
     }
 }
 
-pub static V1_AUTH_ENDPOINT: &str = "https://login.live.com/oauth20_authorize.srf?";
-pub static V2_AUTH_ENDPOINT: &str =
-    "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?";
-pub static V2_TOKEN_ENDPOINT: &str = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
-
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum AuthEndPoint {
-    V1,
-    V2,
+pub enum AuthUrl {
+    AccountAuth,
+    AccountToken,
+    GraphAuth,
+    GraphToken,
 }
 
-impl AuthEndPoint {
+impl AuthUrl {
     pub fn as_str(&self) -> &'static str {
         match *self {
-            AuthEndPoint::V1 => "V1",
-            AuthEndPoint::V2 => "V2",
+            AuthUrl::AccountAuth => "https://login.live.com/oauth20_authorize.srf?",
+            AuthUrl::AccountToken => "https://login.live.com/oauth20_token.srf",
+            AuthUrl::GraphAuth => "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?",
+            AuthUrl::GraphToken => "https://login.microsoftonline.com/common/oauth2/v2.0/token",
         }
     }
+}
 
-    pub fn as_url_hash_map(&self) -> HashMap<&str, &str> {
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum AuthVersion {
+    Account,
+    Graph,
+}
+
+impl AuthVersion {
+    pub fn as_str(&self) -> &'static str {
         match *self {
-            AuthEndPoint::V1 => {
-                let mut hash_map = HashMap::new();
-                hash_map.insert("Authorize", V1_AUTH_ENDPOINT);
-                hash_map.insert("Token", V1_AUTH_ENDPOINT);
-                hash_map
-            }
-            AuthEndPoint::V2 => {
-                let mut hash_map = HashMap::new();
-                hash_map.insert("Authorize", V2_AUTH_ENDPOINT);
-                hash_map.insert("Token", V2_TOKEN_ENDPOINT);
-                hash_map
-            }
+            AuthVersion::Account => "Account",
+            AuthVersion::Graph => "Graph",
         }
     }
 }
@@ -159,7 +156,7 @@ pub struct AuthFlow {
     allow_reset: bool,
     default_scope: bool,
     default_auth: bool,
-    auth_type: AuthEndPoint,
+    auth_type: AuthVersion,
     access_token: Option<AccessToken>,
 }
 
@@ -182,7 +179,7 @@ impl AuthFlow {
             allow_reset: false,
             default_scope: default,
             default_auth: false,
-            auth_type: AuthEndPoint::V1,
+            auth_type: AuthVersion::Account,
             access_token: None,
         }
     }
@@ -408,38 +405,38 @@ impl AuthFlow {
         self.scopes.join(" ")
     }
 
-    pub fn get_default_auth_setting(&self) -> &AuthEndPoint {
+    pub fn get_default_auth_setting(&self) -> &AuthVersion {
         &self.auth_type
     }
 
-    pub fn use_default_auth_url(&mut self, auth_version: AuthEndPoint) -> &mut AuthFlow {
+    pub fn use_default_auth_url(&mut self, auth_version: AuthVersion) -> &mut AuthFlow {
         match auth_version {
-            AuthEndPoint::V1 => {
+            AuthVersion::Account => {
                 if !self.allow_reset {
                     self.allow_reset(true);
                     self.default_auth = true;
-                    self.auth_type = AuthEndPoint::V1;
-                    self.set_auth_url(V1_AUTH_ENDPOINT);
-                    self.set_token_url(V1_AUTH_ENDPOINT);
+                    self.auth_type = AuthVersion::Account;
+                    self.set_auth_url(AuthUrl::AccountAuth.as_str());
+                    self.set_token_url(AuthUrl::AccountToken.as_str());
                     self.allow_reset(false);
                 } else {
-                    self.auth_type = AuthEndPoint::V1;
-                    self.set_auth_url(V1_AUTH_ENDPOINT);
-                    self.set_token_url(V1_AUTH_ENDPOINT);
+                    self.auth_type = AuthVersion::Account;
+                    self.set_auth_url(AuthUrl::AccountAuth.as_str());
+                    self.set_token_url(AuthUrl::AccountToken.as_str());
                 }
             }
-            AuthEndPoint::V2 => {
+            AuthVersion::Graph => {
                 if !self.allow_reset {
                     self.allow_reset(true);
                     self.default_auth = true;
-                    self.auth_type = AuthEndPoint::V2;
-                    self.set_auth_url(V2_AUTH_ENDPOINT);
-                    self.set_token_url(V2_TOKEN_ENDPOINT);
+                    self.auth_type = AuthVersion::Graph;
+                    self.set_auth_url(AuthUrl::GraphAuth.as_str());
+                    self.set_token_url(AuthUrl::GraphToken.as_str());
                     self.allow_reset(false);
                 } else {
-                    self.auth_type = AuthEndPoint::V2;
-                    self.set_auth_url(V1_AUTH_ENDPOINT);
-                    self.set_token_url(V2_TOKEN_ENDPOINT);
+                    self.auth_type = AuthVersion::Graph;
+                    self.set_auth_url(AuthUrl::GraphAuth.as_str());
+                    self.set_token_url(AuthUrl::GraphToken.as_str());
                 }
             }
         };
@@ -572,19 +569,7 @@ impl AuthFlow {
     ///     &redirect_uri={redirect_uri}
     pub fn build_auth(&mut self, flow_type: FlowType) -> String {
         if self.default_auth {
-            let mut encoded = OauthUrlBuilder::new(true);
-            let auth_hash_map = AuthEndPoint::as_url_hash_map(&self.auth_type);
-            println!("{:#?}", auth_hash_map);
-            encoded
-                .scheme("")
-                .host(
-                    auth_hash_map
-                        .get("Authorize")
-                        .expect("could not get authorization endpoint"),
-                )
-                .path("")
-                .query(self.build_query(flow_type).as_str());
-            encoded.build()
+            self.build_default_auth(flow_type)
         } else {
             let mut encoded = OauthUrlBuilder::new(true);
             encoded
@@ -593,6 +578,29 @@ impl AuthFlow {
                 .path("");
             encoded.query(self.build_query(flow_type).as_str());
             encoded.build()
+        }
+    }
+
+    fn build_default_auth(&mut self, flow_type: FlowType) -> String {
+        match self.auth_type {
+            AuthVersion::Account => {
+                let mut encoded = OauthUrlBuilder::new(true);
+                encoded
+                    .scheme("")
+                    .host(AuthUrl::AccountAuth.as_str())
+                    .path("")
+                    .query(self.build_query(flow_type).as_str());
+                encoded.build()
+            }
+            AuthVersion::Graph => {
+                let mut encoded = OauthUrlBuilder::new(true);
+                encoded
+                    .scheme("")
+                    .host(AuthUrl::GraphAuth.as_str())
+                    .path("")
+                    .query(self.build_query(flow_type).as_str());
+                encoded.build()
+            }
         }
     }
 
@@ -1003,16 +1011,28 @@ mod flow_tests {
             .set_client_secret("CLDIE3F")
             .set_token_url("https://www.example.com/token"); // Should'nt be used
 
-        auth_flow.use_default_auth_url(AuthEndPoint::V1);
-        assert_eq!(auth_flow.get_auth_url().unwrap(), V1_AUTH_ENDPOINT);
-        assert_eq!(auth_flow.get_token_url().unwrap(), V1_AUTH_ENDPOINT);
+        auth_flow.use_default_auth_url(AuthVersion::Account);
+        assert_eq!(
+            auth_flow.get_auth_url().unwrap(),
+            AuthUrl::AccountAuth.as_str()
+        );
+        assert_eq!(
+            auth_flow.get_token_url().unwrap(),
+            AuthUrl::AccountToken.as_str()
+        );
 
         let auth_url = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
         assert_eq!(auth_url, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
 
-        auth_flow.use_default_auth_url(AuthEndPoint::V2);
-        assert_eq!(auth_flow.get_auth_url().unwrap(), V2_AUTH_ENDPOINT);
-        assert_eq!(auth_flow.get_token_url().unwrap(), V2_TOKEN_ENDPOINT);
+        auth_flow.use_default_auth_url(AuthVersion::Graph);
+        assert_eq!(
+            auth_flow.get_auth_url().unwrap(),
+            AuthUrl::GraphAuth.as_str()
+        );
+        assert_eq!(
+            auth_flow.get_token_url().unwrap(),
+            AuthUrl::GraphToken.as_str()
+        );
 
         let auth_url2 = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
         assert_eq!(auth_url2, "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
