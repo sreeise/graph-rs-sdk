@@ -64,6 +64,7 @@ use std::result;
 
 use crate::flow::accesstoken::AccessToken;
 use crate::flow::encode::OauthUrlBuilder;
+use crate::flow::error::FlowErrorType;
 use reqwest::header;
 use std::thread;
 use std::time::Duration;
@@ -501,19 +502,30 @@ impl AuthFlow {
     ///     &client_secret={client_secret}
     ///     &refresh_token={refresh_token}
     ///     &grant_type=refresh_token
-    fn build_grant_request(&mut self, grant_type: FlowType) -> result::Result<String, io::Error> {
+    pub fn build_grant_request(
+        &mut self,
+        grant_type: FlowType,
+    ) -> result::Result<String, io::Error> {
         let req_type = match grant_type {
             FlowType::GrantTypeAuthCode => FlowType::GrantTypeAuthCode.as_str(),
             FlowType::GrantTypeRefreshToken => FlowType::GrantTypeRefreshToken.as_str(),
-            FlowType::AuthorizeTokenFlow => panic!("Not a grant type"),
-            FlowType::AuthorizeCodeFlow => panic!("Not a grant type"),
+            FlowType::AuthorizeTokenFlow => {
+                panic!(FlowErrorType::match_error_type(FlowErrorType::RequiresGrantType).message)
+            }
+            FlowType::AuthorizeCodeFlow => {
+                panic!(FlowErrorType::match_error_type(FlowErrorType::RequiresGrantType).message)
+            }
         };
 
         let param_type = match grant_type {
             FlowType::GrantTypeAuthCode => "code",
             FlowType::GrantTypeRefreshToken => "refresh_token",
-            FlowType::AuthorizeTokenFlow => panic!("Not a grant type"),
-            FlowType::AuthorizeCodeFlow => panic!("Not a grant type"),
+            FlowType::AuthorizeTokenFlow => {
+                panic!(FlowErrorType::match_error_type(FlowErrorType::RequiresGrantType).message)
+            }
+            FlowType::AuthorizeCodeFlow => {
+                panic!(FlowErrorType::match_error_type(FlowErrorType::RequiresGrantType).message)
+            }
         };
 
         let encoded: String = form_urlencoded::Serializer::new(String::from(""))
