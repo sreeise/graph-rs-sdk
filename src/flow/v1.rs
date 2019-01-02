@@ -62,6 +62,7 @@ use std::path::Path;
 use std::process::Command;
 use std::result;
 
+use crate::drive::Drive;
 use crate::flow::accesstoken::AccessToken;
 use crate::flow::encode::OauthUrlBuilder;
 use crate::flow::error::FlowErrorType;
@@ -314,11 +315,6 @@ impl AuthFlow {
         self.set_config("STATE", state)
     }
 
-    /// Set url to use for sending authentication info of a request
-    pub fn with_listener(&mut self, url: &str) -> &mut AuthFlow {
-        self.set_config("SERVER_URL", url)
-    }
-
     pub fn get_client_id(&self) -> Option<&String> {
         self.params.get("CLIENT_ID")
     }
@@ -345,9 +341,6 @@ impl AuthFlow {
     }
     pub fn get_scopes(&self) -> Option<&Vec<String>> {
         Some(&self.scopes)
-    }
-    pub fn get_server(&self) -> Option<&String> {
-        self.params.get("SERVER_URL")
     }
     pub fn get_access_token_struct(self) -> Option<AccessToken> {
         self.access_token
@@ -808,6 +801,16 @@ impl AuthFlow {
         ));
 
         Ok(())
+    }
+
+    pub fn into_drive(&mut self) -> Drive {
+        Drive::new(
+            self.get_access_token().expect(
+                FlowErrorType::match_error_type(FlowErrorType::MissingAccessCode)
+                    .message
+                    .as_str(),
+            ),
+        )
     }
 
     /// Writes the AuthFlow struct as a JSON file using serde_json.
