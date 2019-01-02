@@ -150,6 +150,32 @@ impl AuthVersion {
 ///        .set_client_secret("client_secret")
 ///        .set_token_url("https://example.com/token");
 /// ```
+///
+/// There is also an enum for automatically setting the end points
+/// to use based upon the type of resource: Account, Graph.
+///
+/// Account endpoints:
+///     Access Code: https://login.live.com/oauth20_authorize.srf?
+///     Access Token: "https://login.live.com/oauth20_token.srf
+///
+/// Graph endpoints:
+///     Access Code: https://login.microsoftonline.com/common/oauth2/v2.0/authorize?
+///     Access Token: https://login.microsoftonline.com/common/oauth2/v2.0/token
+///
+/// # Example
+/// ```
+/// use rust_onedrive::flow::v1::{AuthFlow, AuthVersion};
+///
+///    let mut auth_flow = AuthFlow::new(true);
+///    auth_flow
+///        .set_client_id("client_id")
+///        .set_redirect_uri("http://localhost:8000/redirect")
+///        .set_client_secret("client_secret");
+///
+///    auth_flow.use_default_auth_url(AuthVersion::Account);
+///
+///    assert_eq!(auth_flow.get_auth_url().unwrap(), "https://login.live.com/oauth20_authorize.srf?");
+///```
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AuthFlow {
     config_name: String,
