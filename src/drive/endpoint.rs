@@ -19,15 +19,15 @@ Special folders are one of:
         Description: The Music folder.
 */
 
+use crate::drive::GRAPH_ENDPOINT;
 use std::io;
-
-pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub enum DriveEndPoint {
     Drive,
     DriveMe,
     DriveRoot,
+    DriveRootMe,
     DriveRootChild,
     DriveChanges,
     SharedWithMe,
@@ -49,7 +49,8 @@ impl DriveEndPoint {
         match *self {
             DriveEndPoint::Drive => "/drive",
             DriveEndPoint::DriveMe => "/me/drive",
-            DriveEndPoint::DriveRoot => "/me/drive/root",
+            DriveEndPoint::DriveRoot => "/drive/root",
+            DriveEndPoint::DriveRootMe => "/me/drive/root",
             DriveEndPoint::DriveRootChild => "/drive/root/children",
             DriveEndPoint::DriveChanges => "/drive/root/delta",
             DriveEndPoint::SharedWithMe => "/me/drive/sharedWithMe",
@@ -90,6 +91,11 @@ mod endpoint_tests {
         );
         assert_eq!(
             DriveEndPoint::build(DriveEndPoint::DriveRoot).expect("could not build drive endpoint"),
+            "https://graph.microsoft.com/v1.0/drive/root"
+        );
+        assert_eq!(
+            DriveEndPoint::build(DriveEndPoint::DriveRootMe)
+                .expect("could not build drive endpoint"),
             "https://graph.microsoft.com/v1.0/me/drive/root"
         );
         assert_eq!(

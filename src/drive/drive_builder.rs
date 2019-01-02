@@ -1,5 +1,5 @@
-use crate::drive::endpoint::GRAPH_ENDPOINT;
 use crate::drive::DriveResource;
+use crate::drive::GRAPH_ENDPOINT;
 use std::collections::HashMap;
 
 pub struct DriveBuilder {

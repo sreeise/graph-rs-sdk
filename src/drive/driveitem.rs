@@ -1,10 +1,3 @@
-/*
-DRIVE ITEM
-
-TODO: Change DriveItem in mod.rs as it's naming is off. This is the correct implementation
-for drive item
-*/
-
 use crate::drive::identity::IdentitySet;
 use std::collections::HashMap;
 

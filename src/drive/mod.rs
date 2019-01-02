@@ -14,13 +14,19 @@ pub mod endpoint;
 pub mod identity;
 
 use crate::drive::endpoint::DriveEndPoint;
-use crate::drive::endpoint::GRAPH_ENDPOINT;
+pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
 use reqwest::*;
 use std;
-
 /*
 Drive Resource: Top level Microsoft Graph resource.
 */
+
+pub static AND_SELECT: &str = "?select=";
+pub static AND_EXPAND: &str = "?expand=";
+pub static AND_ORDER_BY: &str = "?orderby=";
+
+pub type DriveResponse = std::result::Result<Response, reqwest::Error>;
+pub type UrlResult = std::io::Result<String>;
 
 /// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/addressing-driveitems?view=odsp-graph-online
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -53,11 +59,23 @@ enum CustomEndPoint {
     DriveRoot,
 }
 
-pub trait DriveRequest {
-    fn request(
-        &mut self,
+/// Query string trait for building graph requests with select and expand query strings
+///
+/// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties
+pub trait QueryString {
+    fn select(&self, end_point: DriveEndPoint, query: Vec<&str>) -> DriveResponse;
+    fn expand(
+        &self,
         end_point: DriveEndPoint,
-    ) -> std::result::Result<Response, reqwest::Error>;
+        expand_item: &str,
+        query: Vec<&str>,
+    ) -> DriveResponse;
+    fn select_url(&self, end_point: DriveEndPoint, query: Vec<&str>) -> String;
+    fn expand_url(&self, end_point: DriveEndPoint, expand_item: &str, query: Vec<&str>) -> String;
+}
+
+pub trait DriveRequest {
+    fn request(&mut self, end_point: DriveEndPoint) -> DriveResponse;
     fn resource_request(
         &mut self,
         resource: DriveResource,
@@ -66,13 +84,8 @@ pub trait DriveRequest {
         item_id: &str,
     ) -> std::result::Result<Response, reqwest::Error>;
 
-    fn get_with_url(&mut self, url: String) -> std::result::Result<Response, reqwest::Error>;
-    fn post_with_url(&mut self, url: String) -> std::result::Result<Response, reqwest::Error>;
-}
-
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Drive {
-    access_token: String,
+    fn get_with_url(&self, url: String) -> DriveResponse;
+    fn post_with_url(&self, url: String) -> DriveResponse;
 }
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -106,6 +119,11 @@ impl DriveItemType {
     }
 }
 
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct Drive {
+    access_token: String,
+}
+
 impl Drive {
     /// Construct a new Drive struct for accessing drive resources
     ///
@@ -120,6 +138,118 @@ impl Drive {
     pub fn new(access_token: &str) -> Drive {
         Drive {
             access_token: String::from(access_token),
+        }
+    }
+
+    fn req_url(url: &str, access_token: &str) -> DriveResponse {
+        let client = reqwest::Client::builder().build()?;
+        let res = client
+            .get(url)
+            .header(header::AUTHORIZATION, access_token)
+            .header(header::CONTENT_TYPE, "application/json")
+            .send()
+            .expect("Error with request to microsoft graph");
+        Ok(res)
+    }
+
+    pub fn url(
+        resource: DriveResource,
+        resource_type: &mut DriveItemType,
+        resource_id: &str,
+        item_id: &str,
+    ) -> String {
+        match resource_type {
+            DriveItemType::GetItemRoot => Drive::match_root_url(resource, resource_id, item_id),
+            DriveItemType::GetItem | DriveItemType::Delete | DriveItemType::Move => {
+                Drive::match_root_url(resource, resource_id, item_id)
+            }
+            _ => Drive::match_url(resource, resource_type, resource_id, item_id),
+        }
+    }
+
+    fn match_url(
+        resource: DriveResource,
+        resource_type: &mut DriveItemType,
+        resource_id: &str,
+        item_id: &str,
+    ) -> String {
+        match resource {
+            DriveResource::Drives => format!(
+                "{}/drives/{}/items/{}/{}",
+                GRAPH_ENDPOINT,
+                resource_id,
+                item_id,
+                resource_type.as_str()
+            ),
+            DriveResource::Users => format!(
+                "{}/users/{}/drive/items/{}/{}",
+                GRAPH_ENDPOINT,
+                resource_id,
+                item_id,
+                resource_type.as_str()
+            ),
+            DriveResource::Sites => format!(
+                "{}/sites/{}/drive/items/{}/{}",
+                GRAPH_ENDPOINT,
+                resource_id,
+                item_id,
+                resource_type.as_str()
+            ),
+            DriveResource::Groups => format!(
+                "{}/groups/{}/drive/items/{}/{}",
+                GRAPH_ENDPOINT,
+                resource_id,
+                item_id,
+                resource_type.as_str()
+            ),
+            DriveResource::Me => {
+                if resource_type == &mut DriveItemType::Download {
+                    if item_id.ends_with(":") {
+                        format!(
+                            "{}/me/drive/root/{}/{}",
+                            GRAPH_ENDPOINT,
+                            item_id,
+                            resource_type.as_str(),
+                        )
+                    } else {
+                        format!(
+                            "{}/me/drive/items/{}/{}",
+                            GRAPH_ENDPOINT,
+                            item_id,
+                            resource_type.as_str(),
+                        )
+                    }
+                } else {
+                    format!(
+                        "{}/me/drive/items/{}/{}",
+                        GRAPH_ENDPOINT,
+                        item_id,
+                        resource_type.as_str(),
+                    )
+                }
+            }
+        }
+    }
+
+    fn match_root_url(resource: DriveResource, resource_id: &str, item_id: &str) -> String {
+        match resource {
+            DriveResource::Drives => format!(
+                "{}/drives/{}/root:/{}",
+                GRAPH_ENDPOINT, resource_id, item_id,
+            ),
+            DriveResource::Users => format!(
+                "{}/users/{}/drive/root:/{}",
+                GRAPH_ENDPOINT, resource_id, item_id,
+            ),
+            DriveResource::Sites => format!(
+                "{}/sites/{}/drive/root:/{}",
+                GRAPH_ENDPOINT, resource_id, item_id,
+            ),
+            DriveResource::Groups => format!(
+                "{}/groups/{}/drive/root:/{}",
+                GRAPH_ENDPOINT, resource_id, item_id,
+            ),
+            DriveResource::Me => format!("{}/me/drive/root:/{}", GRAPH_ENDPOINT, item_id,),
         }
     }
 
@@ -293,10 +423,7 @@ impl Drive {
 
 impl DriveRequest for Drive {
     /// A drive request can make a request to any of the end points on the DriveEndPoint enum
-    fn request(
-        &mut self,
-        end_point: DriveEndPoint,
-    ) -> std::result::Result<Response, reqwest::Error> {
+    fn request(&mut self, end_point: DriveEndPoint) -> DriveResponse {
         let client = reqwest::Client::builder().build()?;
         let res = client
             .get(DriveEndPoint::build(end_point).unwrap().as_str())
@@ -313,7 +440,7 @@ impl DriveRequest for Drive {
         resource_type: &mut DriveItemType,
         resource_id: &str,
         item_id: &str,
-    ) -> std::result::Result<Response, reqwest::Error> {
+    ) -> DriveResponse {
         let client = reqwest::Client::builder().build()?;
         let res = client
             .get(
@@ -327,7 +454,7 @@ impl DriveRequest for Drive {
         Ok(res)
     }
 
-    fn get_with_url(&mut self, url: String) -> std::result::Result<Response, reqwest::Error> {
+    fn get_with_url(&self, url: String) -> DriveResponse {
         let client = reqwest::Client::builder().build().unwrap();
         let res = client
             .get(url.as_str())
@@ -339,7 +466,7 @@ impl DriveRequest for Drive {
         Ok(res)
     }
 
-    fn post_with_url(&mut self, url: String) -> std::result::Result<Response, reqwest::Error> {
+    fn post_with_url(&self, url: String) -> DriveResponse {
         let client = reqwest::Client::builder().build().unwrap();
         let res = client
             .post(url.as_str())
@@ -349,6 +476,83 @@ impl DriveRequest for Drive {
             .expect("Error with request to microsoft graph");
 
         Ok(res)
+    }
+}
+
+impl QueryString for Drive {
+    /// Query String Select
+    ///
+    /// An expand request url includes an item to expand and the items to select:
+    ///     select=name,size
+    ///
+    /// # Example
+    /// ```rust,ignore
+    ///    let mut query = Vec::new();
+    ///    query.push("name");
+    ///    query.push("size");
+    ///
+    ///   // Forms the request url: "https://graph.microsoft.com/v1.0/drive/root/children?select=name,size"
+    ///   // sending the request and returning the response
+    ///   let mut req = drive.select(DriveEndPoint::DriveRootChild, query)?;
+    ///
+    ///   println!("{:#?}", req); // -> Head of response
+    ///   println!("{:#?}", req.text()); // -> Body of response
+    /// ```
+    fn select(&self, end_point: DriveEndPoint, query: Vec<&str>) -> DriveResponse {
+        let url = self.select_url(end_point, query);
+        self.get_with_url(url)
+    }
+
+    /// Query String Expand
+    ///
+    /// An expand request url includes an item to expand and the items to select:
+    ///     expand=children(select=id,name,folder)
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let mut query = vec!["id", "name", "size"];
+    ///
+    /// // Forms the request url: "https://graph.microsoft.com/v1.0/me/drive/root?expand=children(select=id,name,size)"
+    /// // sending the request and returning the response
+    /// let req = drive.expand(DriveEndPoint::DriveRoot, "children", query);
+    ///
+    ///   println!("{:#?}", req); // -> Head of response
+    ///   println!("{:#?}", req.text()); // -> Body of response
+    ///```
+    /// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties
+    fn expand(
+        &self,
+        end_point: DriveEndPoint,
+        expand_item: &str,
+        query: Vec<&str>,
+    ) -> DriveResponse {
+        let url = self.expand_url(end_point, expand_item, query);
+        self.get_with_url(url)
+    }
+
+    /// Get the URL string a select query string
+    fn select_url(&self, end_point: DriveEndPoint, query: Vec<&str>) -> String {
+        let query_str = query.join(",");
+        let url_vec = vec![
+            DriveEndPoint::build(end_point).expect("could not build drive end point"),
+            AND_SELECT.to_string(),
+            query_str,
+        ];
+        url_vec.join("")
+    }
+
+    /// Get the URL string for a expand query string
+    fn expand_url(&self, end_point: DriveEndPoint, expand_item: &str, query: Vec<&str>) -> String {
+        let query_str = query.join(",");
+        let url_vec = vec![
+            DriveEndPoint::build(end_point).expect("could not build drive end point"),
+            AND_EXPAND.to_string(),
+            expand_item.to_string(),
+            "(select=".to_string(),
+            query_str,
+            String::from(")"),
+        ];
+        url_vec.join("")
     }
 }
 
@@ -1002,6 +1206,25 @@ mod drive_tests {
         assert_eq!(
             move_item_me,
             "https://graph.microsoft.com/v1.0/me/drive/items/item-Id"
+        );
+    }
+
+    #[test]
+    fn query_string_test() {
+        let expand_query = vec!["id", "name", "size"];
+        let select_query = vec!["name", "size"];
+        let drive = Drive::new("access_token");
+
+        let expand_string = drive.expand_url(DriveEndPoint::DriveRoot, "children", expand_query);
+        assert_eq!(
+            expand_string,
+            "https://graph.microsoft.com/v1.0/drive/root?expand=children(select=id,name,size)"
+        );
+
+        let select_string = drive.select_url(DriveEndPoint::DriveRootChild, select_query);
+        assert_eq!(
+            select_string,
+            "https://graph.microsoft.com/v1.0/drive/root/children?select=name,size"
         );
     }
 }
