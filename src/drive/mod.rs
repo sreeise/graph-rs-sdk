@@ -141,7 +141,8 @@ impl Drive {
         }
     }
 
-    fn req_url(url: &str, access_token: &str) -> DriveResponse {
+    #[allow(dead_code)]
+    fn req_with_url(url: &str, access_token: &str) -> DriveResponse {
         let client = reqwest::Client::builder().build()?;
         let res = client
             .get(url)
@@ -159,15 +160,15 @@ impl Drive {
         item_id: &str,
     ) -> String {
         match resource_type {
-            DriveItemType::GetItemRoot => Drive::match_root_url(resource, resource_id, item_id),
+            DriveItemType::GetItemRoot => Drive::root_resource_url(resource, resource_id, item_id),
             DriveItemType::GetItem | DriveItemType::Delete | DriveItemType::Move => {
-                Drive::match_root_url(resource, resource_id, item_id)
+                Drive::no_resource_type_url(resource, resource_id, item_id)
             }
-            _ => Drive::match_url(resource, resource_type, resource_id, item_id),
+            _ => Drive::with_resource_type_url(resource, resource_type, resource_id, item_id),
         }
     }
 
-    fn match_url(
+    pub fn with_resource_type_url(
         resource: DriveResource,
         resource_type: &mut DriveItemType,
         resource_id: &str,
@@ -231,7 +232,7 @@ impl Drive {
         }
     }
 
-    fn match_root_url(resource: DriveResource, resource_id: &str, item_id: &str) -> String {
+    pub fn root_resource_url(resource: DriveResource, resource_id: &str, item_id: &str) -> String {
         match resource {
             DriveResource::Drives => format!(
                 "{}/drives/{}/root:/{}",
@@ -293,43 +294,15 @@ impl Drive {
         item_id: &str,
     ) -> String {
         match resource_type {
-            DriveItemType::GetItemRoot => self.match_root_resource(resource, resource_id, item_id),
+            DriveItemType::GetItemRoot => Drive::root_resource_url(resource, resource_id, item_id),
             DriveItemType::GetItem | DriveItemType::Delete | DriveItemType::Move => {
-                self.match_no_resource_type(resource, resource_id, item_id)
+                Drive::no_resource_type_url(resource, resource_id, item_id)
             }
-            _ => self.match_with_resource_type(resource, resource_type, resource_id, item_id),
+            _ => Drive::with_resource_type_url(resource, resource_type, resource_id, item_id),
         }
     }
 
-    fn match_root_resource(
-        &self,
-        resource: DriveResource,
-        resource_id: &str,
-        item_id: &str,
-    ) -> String {
-        match resource {
-            DriveResource::Drives => format!(
-                "{}/drives/{}/root:/{}",
-                GRAPH_ENDPOINT, resource_id, item_id,
-            ),
-            DriveResource::Users => format!(
-                "{}/users/{}/drive/root:/{}",
-                GRAPH_ENDPOINT, resource_id, item_id,
-            ),
-            DriveResource::Sites => format!(
-                "{}/sites/{}/drive/root:/{}",
-                GRAPH_ENDPOINT, resource_id, item_id,
-            ),
-            DriveResource::Groups => format!(
-                "{}/groups/{}/drive/root:/{}",
-                GRAPH_ENDPOINT, resource_id, item_id,
-            ),
-            DriveResource::Me => format!("{}/me/drive/root:/{}", GRAPH_ENDPOINT, item_id,),
-        }
-    }
-
-    fn match_no_resource_type(
-        &self,
+    fn no_resource_type_url(
         resource: DriveResource,
         resource_id: &str,
         item_id: &str,
@@ -352,71 +325,6 @@ impl Drive {
                 GRAPH_ENDPOINT, resource_id, item_id,
             ),
             DriveResource::Me => format!("{}/me/drive/items/{}", GRAPH_ENDPOINT, item_id,),
-        }
-    }
-
-    fn match_with_resource_type(
-        &self,
-        resource: DriveResource,
-        resource_type: &mut DriveItemType,
-        resource_id: &str,
-        item_id: &str,
-    ) -> String {
-        match resource {
-            DriveResource::Drives => format!(
-                "{}/drives/{}/items/{}/{}",
-                GRAPH_ENDPOINT,
-                resource_id,
-                item_id,
-                resource_type.as_str()
-            ),
-            DriveResource::Users => format!(
-                "{}/users/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
-                resource_id,
-                item_id,
-                resource_type.as_str()
-            ),
-            DriveResource::Sites => format!(
-                "{}/sites/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
-                resource_id,
-                item_id,
-                resource_type.as_str()
-            ),
-            DriveResource::Groups => format!(
-                "{}/groups/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
-                resource_id,
-                item_id,
-                resource_type.as_str()
-            ),
-            DriveResource::Me => {
-                if resource_type == &mut DriveItemType::Download {
-                    if item_id.ends_with(":") {
-                        format!(
-                            "{}/me/drive/root/{}/{}",
-                            GRAPH_ENDPOINT,
-                            item_id,
-                            resource_type.as_str(),
-                        )
-                    } else {
-                        format!(
-                            "{}/me/drive/items/{}/{}",
-                            GRAPH_ENDPOINT,
-                            item_id,
-                            resource_type.as_str(),
-                        )
-                    }
-                } else {
-                    format!(
-                        "{}/me/drive/items/{}/{}",
-                        GRAPH_ENDPOINT,
-                        item_id,
-                        resource_type.as_str(),
-                    )
-                }
-            }
         }
     }
 }
