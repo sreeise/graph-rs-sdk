@@ -7,12 +7,6 @@ extern crate serde_json;
 #[macro_use]
 extern crate url;
 
-extern crate encoding;
-extern crate http_muncher;
-extern crate mio;
-extern crate serde;
-extern crate ws;
-
 pub mod drive;
 pub mod flow;
 pub mod process;

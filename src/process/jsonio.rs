@@ -15,6 +15,10 @@ pub struct JsonFile;
 impl JsonFile {
     /// Writes a data struct to a file given. If the file has already been created this
     /// method will truncate previous data and only write the new struct.
+    /// # Arguments
+    ///
+    /// * `path` - Path to a file and the file name itself.
+    /// * `data_struct` - The struct to write to a file in json format.
     pub fn json_file<T, P: AsRef<Path>>(path: P, data_struct: &T) -> io::Result<()>
     where
         T: serde::Serialize,

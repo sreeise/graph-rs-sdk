@@ -61,15 +61,15 @@ use std::io::{BufRead, BufReader, ErrorKind, Write};
 use std::path::Path;
 use std::process::Command;
 use std::result;
+use std::thread;
+
+use reqwest::header;
+use url::form_urlencoded;
 
 use crate::drive::Drive;
 use crate::flow::accesstoken::AccessToken;
 use crate::flow::encode::OauthUrlBuilder;
 use crate::flow::error::FlowErrorType;
-use reqwest::header;
-use std::thread;
-use std::time::Duration;
-use url::form_urlencoded;
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -91,7 +91,7 @@ impl FlowType {
 }
 
 impl fmt::Display for FlowType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             FlowType::AuthorizeTokenFlow => write!(f, "{:#?}", "token"),
             FlowType::AuthorizeCodeFlow => write!(f, "{:#?}", "code"),
@@ -99,6 +99,11 @@ impl fmt::Display for FlowType {
             FlowType::GrantTypeRefreshToken => write!(f, "{:#?}", "refresh_token"),
         }
     }
+}
+
+pub enum FlowStatus {
+    AccessCode,
+    AccessToken,
 }
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -121,16 +126,16 @@ impl AuthUrl {
 }
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum AuthVersion {
+pub enum AccountType {
     Account,
     Graph,
 }
 
-impl AuthVersion {
+impl AccountType {
     pub fn as_str(&self) -> &'static str {
         match *self {
-            AuthVersion::Account => "Account",
-            AuthVersion::Graph => "Graph",
+            AccountType::Account => "Account",
+            AccountType::Graph => "Graph",
         }
     }
 }
@@ -164,7 +169,7 @@ impl AuthVersion {
 ///
 /// # Example
 /// ```
-/// use rust_onedrive::flow::v1::{AuthFlow, AuthVersion};
+/// use rust_onedrive::flow::v1::{AuthFlow, AccountType};
 ///
 ///    let mut auth_flow = AuthFlow::new(true);
 ///    auth_flow
@@ -172,7 +177,7 @@ impl AuthVersion {
 ///        .set_redirect_uri("http://localhost:8000/redirect")
 ///        .set_client_secret("client_secret");
 ///
-///    auth_flow.use_default_auth_url(AuthVersion::Account);
+///    auth_flow.use_default_auth_url(AccountType::Account);
 ///
 ///    assert_eq!(auth_flow.get_auth_url().unwrap(), "https://login.live.com/oauth20_authorize.srf?");
 ///```
@@ -184,12 +189,12 @@ pub struct AuthFlow {
     allow_reset: bool,
     default_scope: bool,
     default_auth: bool,
-    auth_type: AuthVersion,
-    access_token: Option<AccessToken>,
+    auth_type: AccountType,
+    access_token: Option<Box<AccessToken>>,
 }
 
 impl fmt::Display for AuthFlow {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "{:#?}\n{:#?}\n{:#?}\n{:#?}\n{:#?}",
@@ -207,7 +212,7 @@ impl AuthFlow {
             allow_reset: false,
             default_scope: default,
             default_auth: false,
-            auth_type: AuthVersion::Account,
+            auth_type: AccountType::Account,
             access_token: None,
         }
     }
@@ -296,8 +301,7 @@ impl AuthFlow {
 
     /// Set the code of a request - returned from log in and authorization
     pub fn set_access_code(&mut self, code: &str) -> &mut AuthFlow {
-        self.set_config("CODE", code);
-        self
+        self.set_config("CODE", code)
     }
 
     /// Set the refresh token of a request
@@ -311,7 +315,7 @@ impl AuthFlow {
     }
 
     pub fn set_access_token_struct(&mut self, access_token: AccessToken) {
-        self.access_token = Some(access_token);
+        self.access_token = Some(Box::new(access_token));
     }
 
     /// Add a scope' for the OAuth URL.
@@ -342,34 +346,43 @@ impl AuthFlow {
     }
 
     pub fn get_client_id(&self) -> Option<&String> {
-        self.params.get("CLIENT_ID")
+        self.params.get("CLIENT_ID").clone()
     }
+
     pub fn get_client_secret(&self) -> Option<&String> {
-        self.params.get("CLIENT_SECRET")
+        self.params.get("CLIENT_SECRET").clone()
     }
+
     pub fn get_auth_url(&self) -> Option<&String> {
-        self.params.get("AUTH_URL")
+        self.params.get("AUTH_URL").clone()
     }
+
     pub fn get_token_url(&self) -> Option<&String> {
-        self.params.get("TOKEN_URL")
+        self.params.get("TOKEN_URL").clone()
     }
+
     pub fn get_redirect_uri(&self) -> Option<&String> {
-        self.params.get("REDIRECT_URI")
+        self.params.get("REDIRECT_URI").clone()
     }
+
     pub fn get_access_code(&self) -> Option<&String> {
-        self.params.get("CODE")
+        self.params.get("CODE").clone()
     }
+
     pub fn get_access_token(&self) -> Option<&String> {
-        self.params.get("ACCESS_TOKEN")
+        self.params.get("ACCESS_TOKEN").clone()
     }
+
     pub fn get_refresh_token(&self) -> Option<&String> {
-        self.params.get("REFRESH_TOKEN")
+        self.params.get("REFRESH_TOKEN").clone()
     }
+
     pub fn get_scopes(&self) -> Option<&Vec<String>> {
         Some(&self.scopes)
     }
-    pub fn get_access_token_struct(self) -> Option<AccessToken> {
-        self.access_token
+
+    pub fn get_access_token_struct(self) -> Option<Box<AccessToken>> {
+        self.access_token.clone()
     }
 
     fn set_config(&mut self, config_key: &str, config_value: &str) -> &mut AuthFlow {
@@ -418,43 +431,43 @@ impl AuthFlow {
         );
     }
 
-    // TODO: Encoding scopes is not implemented yet
     // Join the scopes when manually setting them versus
     // using the default url: https://graph.microsoft.com/.default
+    // default_auth must be set to false.
     pub fn join_scopes(&mut self) -> String {
         self.scopes.join(" ")
     }
 
-    pub fn get_default_auth_setting(&self) -> &AuthVersion {
+    pub fn get_default_auth_setting(&self) -> &AccountType {
         &self.auth_type
     }
 
-    pub fn use_default_auth_url(&mut self, auth_version: AuthVersion) -> &mut AuthFlow {
+    pub fn use_default_auth_url(&mut self, auth_version: AccountType) -> &mut AuthFlow {
         match auth_version {
-            AuthVersion::Account => {
+            AccountType::Account => {
                 if !self.allow_reset {
                     self.allow_reset(true);
                     self.default_auth = true;
-                    self.auth_type = AuthVersion::Account;
+                    self.auth_type = AccountType::Account;
                     self.set_auth_url(AuthUrl::AccountAuth.as_str());
                     self.set_token_url(AuthUrl::AccountToken.as_str());
                     self.allow_reset(false);
                 } else {
-                    self.auth_type = AuthVersion::Account;
+                    self.auth_type = AccountType::Account;
                     self.set_auth_url(AuthUrl::AccountAuth.as_str());
                     self.set_token_url(AuthUrl::AccountToken.as_str());
                 }
             }
-            AuthVersion::Graph => {
+            AccountType::Graph => {
                 if !self.allow_reset {
                     self.allow_reset(true);
                     self.default_auth = true;
-                    self.auth_type = AuthVersion::Graph;
+                    self.auth_type = AccountType::Graph;
                     self.set_auth_url(AuthUrl::GraphAuth.as_str());
                     self.set_token_url(AuthUrl::GraphToken.as_str());
                     self.allow_reset(false);
                 } else {
-                    self.auth_type = AuthVersion::Graph;
+                    self.auth_type = AccountType::Graph;
                     self.set_auth_url(AuthUrl::GraphAuth.as_str());
                     self.set_token_url(AuthUrl::GraphToken.as_str());
                 }
@@ -614,7 +627,7 @@ impl AuthFlow {
 
     fn build_default_auth(&mut self, flow_type: FlowType) -> String {
         match self.auth_type {
-            AuthVersion::Account => {
+            AccountType::Account => {
                 let mut encoded = OauthUrlBuilder::new(true);
                 encoded
                     .scheme("")
@@ -623,7 +636,7 @@ impl AuthFlow {
                     .query(self.build_query(flow_type).as_str());
                 encoded.build()
             }
-            AuthVersion::Graph => {
+            AccountType::Graph => {
                 let mut encoded = OauthUrlBuilder::new(true);
                 encoded
                     .scheme("")
@@ -710,7 +723,6 @@ impl AuthFlow {
                 .arg(auth_to_string)
                 .spawn()
                 .expect("Could not open browser");
-            thread::sleep(Duration::from_millis(3))
         });
 
         // Make sure threads spawn and finish
@@ -772,7 +784,7 @@ impl AuthFlow {
     /// // when calling request_access_token()
     /// println!("{:#?}", auth_flow.get_access_token());
     /// ```
-    pub fn request_access_token(&mut self) -> io::Result<()> {
+    pub fn request_access_token(&mut self) -> &mut AuthFlow {
         let client = reqwest::Client::builder()
             .build()
             .expect("could not construct reqwest builder");
@@ -795,17 +807,24 @@ impl AuthFlow {
             .send()
             .expect("Error in sending access token post request");
 
-        let json_str = res
-            .text()
-            .expect("could not get request body: bad request or invalid access_code");
-        let data = json::parse(&json_str.as_str())
-            .expect("could not get request body: bad request or invalid access_code");
-        let access_token_str = data["access_token"]
-            .as_str()
-            .expect("could not get request body: bad request or invalid access_code");
+        let json_str = res.text().expect(
+            FlowErrorType::match_error_type(FlowErrorType::BadRequest)
+                .message
+                .as_str(),
+        );
+        let data = json::parse(&json_str.as_str()).expect(
+            FlowErrorType::match_error_type(FlowErrorType::BadRequest)
+                .message
+                .as_str(),
+        );
+        let access_token_str = data["access_token"].as_str().expect(
+            FlowErrorType::match_error_type(FlowErrorType::BadRequest)
+                .message
+                .as_str(),
+        );
 
-        self.set_access_token(access_token_str);
-        self.access_token = Some(AccessToken::new(
+        self.set_access_token(&access_token_str);
+        self.set_access_token_struct(AccessToken::new(
             data["token_type"]
                 .as_str()
                 .expect("could not convert token_type to str"),
@@ -815,9 +834,7 @@ impl AuthFlow {
             data["scope"]
                 .as_str()
                 .expect("could not convert scope to str"),
-            data["access_token"]
-                .as_str()
-                .expect("could not convert access_token to str"),
+            &access_token_str,
             // TODO: Fix request_access_token USER_ID
             // This should be set by the request but it currently is not known
             // whether it will come in the request or not and therefore may throw an error
@@ -826,7 +843,7 @@ impl AuthFlow {
             "user_id",
         ));
 
-        Ok(())
+        self
     }
 
     pub fn into_drive(&mut self) -> Drive {
@@ -837,6 +854,14 @@ impl AuthFlow {
                     .as_str(),
             ),
         )
+    }
+
+    /// Check if the values have been set
+    pub fn check(&self, flow_status: FlowStatus) -> bool {
+        match flow_status {
+            FlowStatus::AccessCode => self.params.contains_key("CODE"),
+            FlowStatus::AccessToken => self.params.contains_key("ACCESS_TOKEN"),
+        }
     }
 
     /// Writes the AuthFlow struct as a JSON file using serde_json.
@@ -906,176 +931,5 @@ impl AuthFlow {
         }
 
         Ok(graph_vec)
-    }
-}
-
-#[cfg(test)]
-mod flow_tests {
-    use super::*;
-    use std::fs;
-
-    #[test]
-    fn create() {
-        let mut auth_flow = AuthFlow::new(true);
-        auth_flow
-            .set_client_id("graph_client_id")
-            .set_client_secret("A_client_secret")
-            .set_auth_url("https://example.com/authorize")
-            .set_token_url("https://example.com/token");
-
-        let mut result = auth_flow.get_client_id();
-        assert_eq!(result.is_none(), false);
-        assert_eq!(result.is_some(), true);
-        assert_eq!(result.unwrap(), "graph_client_id");
-        result = auth_flow.get_client_secret();
-        assert_eq!(result.is_none(), false);
-        assert_eq!(result.is_some(), true);
-        assert_eq!(result.unwrap(), "A_client_secret");
-        result = auth_flow.get_auth_url();
-        assert_eq!(result.is_none(), false);
-        assert_eq!(result.is_some(), true);
-        assert_eq!(result.unwrap(), "https://example.com/authorize");
-        result = auth_flow.get_token_url();
-        assert_eq!(result.is_none(), false);
-        assert_eq!(result.is_some(), true);
-        assert_eq!(result.unwrap(), "https://example.com/token");
-    }
-
-    #[test]
-    fn reset_config() {
-        let mut auth_flow = AuthFlow::new(true);
-        auth_flow.set_client_id("graph_client_id");
-        assert_eq!(auth_flow.get_client_id().unwrap(), "graph_client_id");
-        auth_flow.allow_reset(true);
-        auth_flow.set_client_id("diff_client_id");
-        assert_eq!(auth_flow.get_client_id().unwrap(), "diff_client_id");
-    }
-
-    #[test]
-    fn token_auth() {
-        let mut auth_flow = AuthFlow::new(true);
-        auth_flow
-            .set_auth_url("https://example.com/oauth2/v2.0/authorize")
-            .set_client_id("bb301aaa-1201-4259-a230923fds32")
-            .set_redirect_uri("http://localhost:8888/redirect")
-            .set_response_type("token");
-        let auth_url = auth_flow.build(FlowType::AuthorizeTokenFlow).unwrap();
-        assert_eq!(auth_url, "https://example.com/oauth2/v2.0/authorizeclient_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
-    }
-
-    #[test]
-    fn code_auth() {
-        let mut auth_flow = AuthFlow::new(true);
-        auth_flow
-            .set_auth_url("https://example.com/oauth2/v2.0/authorize?")
-            .set_client_id("bb301aaa-1201-4259-a230923fds32")
-            .set_redirect_uri("http://localhost:8888/redirect")
-            .set_response_type("code");
-        let auth_url = auth_flow.build(FlowType::AuthorizeCodeFlow).unwrap();
-        assert_eq!(auth_url, "https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
-    }
-
-    #[test]
-    fn access_token() {
-        let mut code_flow = AuthFlow::new(true);
-        code_flow
-            .set_client_id("bb301aaa-1201-4259-a230923fds32")
-            .set_redirect_uri("http://localhost:8888/redirect")
-            .set_response_type("token")
-            .set_client_secret("CLDIE3F")
-            .set_token_url("https://www.example.com/token")
-            .set_access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
-
-        let code_body = code_flow.build(FlowType::GrantTypeAuthCode).unwrap();
-        assert_eq!(code_body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&grant_type=authorization_code");
-    }
-
-    #[test]
-    fn refresh_token() {
-        let mut refresh_flow = AuthFlow::new(true);
-        refresh_flow
-            .set_client_id("bb301aaa-1201-4259-a230923fds32")
-            .set_redirect_uri("http://localhost:8888/redirect")
-            .set_response_type("token")
-            .set_client_secret("CLDIE3F")
-            .set_refresh("32LKLASDKJ")
-            .set_token_url("https://www.example.com/token")
-            .set_access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
-        let refresh_body = refresh_flow.build(FlowType::GrantTypeRefreshToken).unwrap();
-        assert_eq!(refresh_body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token");
-    }
-
-    #[test]
-    fn flow_as_json_file() {
-        let mut auth_flow = AuthFlow::new(true);
-        auth_flow
-            .set_client_id("bb301aaa-1201-4259-a230923fds32")
-            .set_redirect_uri("http://localhost:8888/redirect")
-            .set_auth_url("https://example.com/oauth2/v2.0/authorize");
-        auth_flow
-            .as_json_file("graph_configs/test_file.json")
-            .unwrap();
-
-        let metadata = fs::metadata("graph_configs/test_file.json")
-            .expect("Could not get metadata for auth_configs/test_file.json");
-        let file_type = metadata.file_type();
-        assert_eq!(file_type.is_file(), true);
-
-        let auth_flow_from_file: AuthFlow = AuthFlow::from_file("graph_configs/test_file.json")
-            .expect("Could not create AuthFlow from graph_configs/test_file.json");
-        assert_eq!(
-            auth_flow_from_file.get_client_id().unwrap(),
-            "bb301aaa-1201-4259-a230923fds32"
-        );
-        assert_eq!(
-            auth_flow_from_file.get_redirect_uri().unwrap(),
-            "http://localhost:8888/redirect"
-        );
-        assert_eq!(
-            auth_flow_from_file.get_auth_url().unwrap(),
-            "https://example.com/oauth2/v2.0/authorize"
-        );
-
-        fs::remove_file("graph_configs/test_file.json").expect(
-            "graph_configs/test_file.json could not be removed. It must be removed manually.",
-        );
-    }
-
-    #[test]
-    fn use_default_auth_test() {
-        let mut auth_flow = AuthFlow::new(true);
-        auth_flow
-            .set_client_id("bb301aaa-1201-4259-a230923fds32")
-            .set_redirect_uri("http://localhost:8888/redirect")
-            .set_auth_url("https://www.example.com/token") // Shouldn't be used
-            .set_response_type("token")
-            .set_client_secret("CLDIE3F")
-            .set_token_url("https://www.example.com/token"); // Should'nt be used
-
-        auth_flow.use_default_auth_url(AuthVersion::Account);
-        assert_eq!(
-            auth_flow.get_auth_url().unwrap(),
-            AuthUrl::AccountAuth.as_str()
-        );
-        assert_eq!(
-            auth_flow.get_token_url().unwrap(),
-            AuthUrl::AccountToken.as_str()
-        );
-
-        let auth_url = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
-        assert_eq!(auth_url, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
-
-        auth_flow.use_default_auth_url(AuthVersion::Graph);
-        assert_eq!(
-            auth_flow.get_auth_url().unwrap(),
-            AuthUrl::GraphAuth.as_str()
-        );
-        assert_eq!(
-            auth_flow.get_token_url().unwrap(),
-            AuthUrl::GraphToken.as_str()
-        );
-
-        let auth_url2 = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
-        assert_eq!(auth_url2, "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
     }
 }

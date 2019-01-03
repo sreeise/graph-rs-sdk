@@ -7,6 +7,7 @@ pub enum FlowErrorType {
     InvalidAccessCode = 2,
     MissingAccessCode = 3,
     RequiresGrantType = 4,
+    BadRequest = 5,
 }
 
 // TODO: Probably not the best way to define the errors. Implement finding line numbers as well.
@@ -30,6 +31,11 @@ impl FlowErrorType {
             FlowErrorType::RequiresGrantType => {
                 FlowError::new("The FlowType used is not a grant type", 0, 0)
             }
+            FlowErrorType::BadRequest => FlowError::new(
+                "could not get request body: bad request or invalid access_code",
+                0,
+                0,
+            ),
         }
     }
 }
@@ -52,7 +58,7 @@ impl FlowError {
 }
 
 impl fmt::Display for FlowError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{} ({}:{})", self.message, self.line, self.column)
     }
 }

@@ -42,7 +42,7 @@ use std::io;
 ///```
 /// The refresh token is optional and depends upon whether it was requested.
 /// Currently this is not available to be set for the AccessToken.
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AccessToken {
     token_type: String,
     expires_in: u64,
@@ -61,11 +61,11 @@ impl AccessToken {
         user_id: &str,
     ) -> AccessToken {
         AccessToken {
-            token_type: String::from(token_type),
-            expires_in,
-            scope: String::from(scope),
-            access_token: String::from(access_token),
-            user_id: String::from(user_id),
+            token_type: token_type.into(),
+            expires_in: expires_in.into(),
+            scope: scope.into(),
+            access_token: access_token.into(),
+            user_id: user_id.into(),
             refresh_token: None,
         }
     }
@@ -79,12 +79,12 @@ impl AccessToken {
         refresh_token: Option<String>,
     ) -> AccessToken {
         AccessToken {
-            token_type: String::from(token_type),
-            expires_in,
-            scope: String::from(scope),
-            access_token: String::from(access_token),
-            user_id: String::from(user_id),
-            refresh_token,
+            token_type: token_type.into(),
+            expires_in: expires_in.into(),
+            scope: scope.into(),
+            access_token: access_token.into(),
+            user_id: user_id.into(),
+            refresh_token: refresh_token.into(),
         }
     }
 
@@ -113,54 +113,11 @@ impl AccessToken {
     }
 
     pub fn set_refresh_token(&mut self, refresh_token: &str) {
-        self.refresh_token = Some(String::from(refresh_token));
+        self.refresh_token = Some(refresh_token.into());
     }
 
     pub fn from_json_str(json_str: &str) -> io::Result<AccessToken> {
         let access_token: AccessToken = serde_json::from_str(json_str)?;
         Ok(access_token)
-    }
-}
-
-#[cfg(test)]
-mod access_token_tests {
-    use super::*;
-
-    #[test]
-    fn get_method() {
-        let mut access_token =
-            AccessToken::new("bearer", 3600, "offline", "ASODFIUJ34KJ;LADSK", "USER_ID");
-        assert_eq!(access_token.get_expires_in().unwrap(), &3600_u64);
-        assert_eq!(access_token.get_token_type().unwrap(), "bearer");
-        assert_eq!(
-            access_token.get_access_token().unwrap(),
-            "ASODFIUJ34KJ;LADSK"
-        );
-        assert_eq!(access_token.get_scopes().unwrap(), "offline");
-        assert_eq!(access_token.get_user_id().unwrap(), "USER_ID");
-
-        access_token.set_refresh_token("eyJh...9323");
-        assert_eq!(access_token.get_refresh_token().unwrap(), "eyJh...9323");
-    }
-
-    #[test]
-    fn new_with_refresh_method() {
-        let access_token = AccessToken::new_with_refresh_token(
-            "bearer",
-            3600,
-            "offline",
-            "ASODFIUJ34KJ;LADSK",
-            "USER_ID",
-            Some(String::from("eyJh...9323")),
-        );
-        assert_eq!(access_token.get_expires_in().unwrap(), &3600_u64);
-        assert_eq!(access_token.get_token_type().unwrap(), "bearer");
-        assert_eq!(
-            access_token.get_access_token().unwrap(),
-            "ASODFIUJ34KJ;LADSK"
-        );
-        assert_eq!(access_token.get_scopes().unwrap(), "offline");
-        assert_eq!(access_token.get_user_id().unwrap(), "USER_ID");
-        assert_eq!(access_token.get_refresh_token().unwrap(), "eyJh...9323");
     }
 }
