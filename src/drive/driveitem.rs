@@ -386,13 +386,13 @@ impl DriveSerDe<DriveItem> for DriveItem {
 
     fn deserialize_from_str(item_str: &str) -> io::Result<DriveItem> {
         let drive_item: DriveItem = serde_json::from_slice(item_str.as_bytes())
-            .expect("Error demoralizing DriveItem from str");
+            .expect("Could not deserialize DriveItem from file");
         Ok(drive_item)
     }
 
     fn deserialize_from_file(path: &str) -> io::Result<DriveItem> {
         let drive_item: DriveItem =
-            JsonFile::from_file(path).expect("Error demoralizing DriveItem from file");
+            JsonFile::from_file(path).expect("Could not deserialize DriveItem from file");
         Ok(drive_item)
     }
 }
