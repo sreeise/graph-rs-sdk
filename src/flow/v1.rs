@@ -55,9 +55,9 @@ CODE FLOW
 
 use core::fmt;
 use std::collections::HashMap;
-use std::fs::{File, OpenOptions};
+use std::fs::File;
 use std::io;
-use std::io::{BufRead, BufReader, ErrorKind, Write};
+use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::process::Command;
 use std::result;
@@ -70,6 +70,7 @@ use crate::drive::Drive;
 use crate::flow::accesstoken::AccessToken;
 use crate::flow::encode::OauthUrlBuilder;
 use crate::flow::error::FlowErrorType;
+use crate::process::jsonio::JsonFile;
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -871,10 +872,7 @@ impl AuthFlow {
     ///
     /// * `path` - Path to a file and the file name itself.
     pub fn as_json_file<P: AsRef<Path>>(&mut self, path: P) -> io::Result<()> {
-        let mut file = File::create(path)?;
-        let serialized = serde_json::to_string(self)?;
-        file.write_all(serialized.as_bytes())?;
-        Ok(())
+        JsonFile::json_file(path, self)
     }
 
     /// Writes the AuthFlow struct as a JSON file using serde_json only if the path/file
@@ -882,31 +880,8 @@ impl AuthFlow {
     /// # Arguments
     ///
     /// * `path` - Path to a file and the file name itself.
-    pub fn as_new_json_file<P: AsRef<Path>>(&mut self, path: P) -> Result<(), io::Error> {
-        File::open(&path)
-            .map_err(|error| {
-                if error.kind() == ErrorKind::NotFound {
-                    File::create(&path).unwrap_or_else(|error| {
-                        panic!(
-                            "The file was originally not found but an error occurred: {:?}",
-                            error
-                        );
-                    })
-                } else {
-                    panic!("\nError in file creation, error: \n{:?}\n", error);
-                }
-            })
-            .expect("Could not write to file");
-
-        let serialized = serde_json::to_string(self).expect("Error serializing struct");
-        let mut file = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open(&path)
-            .expect("Error writing file with serialized struct");
-        file.write_all(serialized.as_bytes())
-            .expect("Could not write AuthFlow as a new json file");
-        Ok(())
+    pub fn as_new_json_file<P: AsRef<Path>>(&mut self, path: P) -> io::Result<()> {
+        JsonFile::new_json_file(path, self)
     }
 
     /// Get a Graph from a previously saved Graph as JSON
@@ -915,9 +890,9 @@ impl AuthFlow {
     ///
     /// * `path` - Path to a file and the file name itself.
     pub fn from_file<P: AsRef<Path>>(path: P) -> io::Result<AuthFlow> {
-        let f = File::open(path)?;
-        let graph = serde_json::from_reader(f)?;
-        Ok(graph)
+        let auth_flow: AuthFlow =
+            JsonFile::from_file(path).expect("Could not deserialize AuthFlow from file");
+        Ok(auth_flow)
     }
 
     pub fn from_file_as_vec<P: AsRef<Path>>(path: P) -> io::Result<Vec<AuthFlow>> {
