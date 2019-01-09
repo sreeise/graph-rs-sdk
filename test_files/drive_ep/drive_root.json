@@ -1,0 +1,21 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#drive/root/$entity",
+  "createdDateTime": "2017-07-27T02:32:33Z",
+  "id": "01OXYKUGV6Y2GOVW7725BZO354PWSELRRZ",
+  "lastModifiedDateTime": "2019-01-05T02:36:16Z",
+  "name": "root",
+  "webUrl": "https://m365x214355.sharepoint.com/Shared%20Documents",
+  "size": 305435615,
+  "parentReference": {
+    "driveId": "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+    "driveType": "documentLibrary"
+  },
+  "fileSystemInfo": {
+    "createdDateTime": "2017-07-27T02:32:33Z",
+    "lastModifiedDateTime": "2019-01-05T02:36:16Z"
+  },
+  "folder": {
+    "childCount": 2
+  },
+  "root": {}
+}

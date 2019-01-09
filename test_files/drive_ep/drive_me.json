@@ -1,0 +1,36 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#drives/$entity",
+  "createdDateTime": "2017-07-27T02:41:36Z",
+  "description": "",
+  "id": "b!-RIj2DuyvEyV1T4NlOaMHk8XkS_I8MdFlUCq1BlcjgmhRfAj3-Z8RY2VpuvV_tpd",
+  "lastModifiedDateTime": "2018-03-27T07:34:38Z",
+  "name": "OneDrive",
+  "webUrl": "https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/Documents",
+  "driveType": "business",
+  "createdBy": {
+    "user": {
+      "displayName": "System Account"
+    }
+  },
+  "lastModifiedBy": {
+    "user": {
+      "email": "MeganB@M365x214355.onmicrosoft.com",
+      "id": "48d31887-5fad-4d73-a9f5-3c356e68a038",
+      "displayName": "Megan Bowen"
+    }
+  },
+  "owner": {
+    "user": {
+      "email": "MeganB@M365x214355.onmicrosoft.com",
+      "id": "48d31887-5fad-4d73-a9f5-3c356e68a038",
+      "displayName": "Megan Bowen"
+    }
+  },
+  "quota": {
+    "deleted": 0,
+    "remaining": 1099292078173,
+    "state": "normal",
+    "total": 1099511627776,
+    "used": 106330475
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#Collection(driveItem)",
+  "value": [
+    {
+      "@odata.type": "#microsoft.graph.driveItem",
+      "createdDateTime": "2017-09-02T03:05:02Z",
+      "id": "01OMQY4ZIQKYGMW5QLMFB2FHQ7H5N6YUYP",
+      "lastModifiedDateTime": "2017-09-02T03:05:02Z",
+      "name": "November-December Ad Proposals.pptx",
+      "webUrl": "https://m365x214355-my.sharepoint.com/personal/miriamg_m365x214355_onmicrosoft_com/_layouts/15/Doc.aspx?sourcedoc=%7BCB0C5610-0B76-4361-A29E-1F3F5BEC530F%7D&file=November-December%20Ad%20Proposals.pptx&action=edit&mobileredirect=true",
+      "size": 100984,
+      "createdBy": {
+        "user": {
+          "email": "MiriamG@M365x214355.onmicrosoft.com",
+          "displayName": "Miriam Graham"
+        }
+      },
+      "lastModifiedBy": {
+        "user": {
+          "email": "MiriamG@M365x214355.onmicrosoft.com",
+          "displayName": "Miriam Graham"
+        }
+      },
+      "file": {
+        "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      },
+      "fileSystemInfo": {
+        "createdDateTime": "2017-09-02T03:05:02Z",
+        "lastModifiedDateTime": "2017-09-02T03:05:02Z"
+      },
+      "remoteItem": {
+        "createdDateTime": "2017-09-02T03:05:02Z",
+        "id": "01OMQY4ZIQKYGMW5QLMFB2FHQ7H5N6YUYP",
+        "lastModifiedDateTime": "2017-09-02T03:05:02Z",
+        "name": "November-December Ad Proposals.pptx",
+        "size": 100984,
+        "webDavUrl": "https://m365x214355-my.sharepoint.com/personal/miriamg_m365x214355_onmicrosoft_com/Documents/November-December%20Ad%20Proposals.pptx",
+        "webUrl": "https://m365x214355-my.sharepoint.com/personal/miriamg_m365x214355_onmicrosoft_com/_layouts/15/Doc.aspx?sourcedoc=%7BCB0C5610-0B76-4361-A29E-1F3F5BEC530F%7D&file=November-December%20Ad%20Proposals.pptx&action=edit&mobileredirect=true",
+        "createdBy": {
+          "user": {
+            "email": "MiriamG@M365x214355.onmicrosoft.com",
+            "displayName": "Miriam Graham"
+          }
+        },
+        "file": {
+          "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        },
+        "fileSystemInfo": {
+          "createdDateTime": "2017-09-02T03:05:02Z",
+          "lastModifiedDateTime": "2017-09-02T03:05:02Z"
+        },
+        "lastModifiedBy": {
+          "user": {
+            "email": "MiriamG@M365x214355.onmicrosoft.com",
+            "displayName": "Miriam Graham"
+          }
+        },
+        "parentReference": {
+          "driveId": "b!bUbEy-Q7O0yQlf5IKmlRJE8XkS_I8MdFlUCq1BlcjgmhRfAj3-Z8RY2VpuvV_tpd",
+          "driveType": "business",
+          "id": "01OMQY4ZN6Y2GOVW7725BZO354PWSELRRZ"
+        },
+        "shared": {
+          "scope": "users",
+          "sharedDateTime": "2017-09-02T03:05:34Z",
+          "sharedBy": {
+            "user": {
+              "email": "MiriamG@M365x214355.onmicrosoft.com",
+              "displayName": "Miriam Graham"
+            }
+          }
+        },
+        "sharepointIds": {
+          "listId": "23f045a1-e6df-457c-8d95-a6ebd5feda5d",
+          "listItemId": "7",
+          "listItemUniqueId": "cb0c5610-0b76-4361-a29e-1f3f5bec530f",
+          "siteId": "cbc4466d-3be4-4c3b-9095-fe482a695124",
+          "siteUrl": "https://m365x214355-my.sharepoint.com/personal/miriamg_m365x214355_onmicrosoft_com",
+          "webId": "2f91174f-f0c8-45c7-9540-aad4195c8e09"
+        }
+      }
+    },
+    {
+      "@odata.type": "#microsoft.graph.driveItem",
+      "createdDateTime": "2017-09-02T03:03:44Z",
+      "id": "01OMQY4ZM7GWL56GVGUJA2PWEVMWJHYZ4V",
+      "lastModifiedDateTime": "2017-09-02T03:03:44Z",
+      "name": "Marketing Term Successes International.xlsx",
+      "webUrl": "https://m365x214355-my.sharepoint.com/personal/miriamg_m365x214355_onmicrosoft_com/_layouts/15/Doc.aspx?sourcedoc=%7BDF97359F-A61A-41A2-A7D8-9565927C6795%7D&file=Marketing%20Term%20Successes%20International.xlsx&action=default&mobileredirect=true",
+      "size": 17776,
+      "createdBy": {
+        "user": {
+          "email": "MiriamG@M365x214355.onmicrosoft.com",
+          "displayName": "Miriam Graham"
+        }
+      },
+      "lastModifiedBy": {
+        "user": {
+          "email": "MiriamG@M365x214355.onmicrosoft.com",
+          "displayName": "Miriam Graham"
+        }
+      },
+      "file": {
+        "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      },
+      "fileSystemInfo": {
+        "createdDateTime": "2017-09-02T03:03:44Z",
+        "lastModifiedDateTime": "2017-09-02T03:03:44Z"
+      },
+      "remoteItem": {
+        "createdDateTime": "2017-09-02T03:03:44Z",
+        "id": "01OMQY4ZM7GWL56GVGUJA2PWEVMWJHYZ4V",
+        "lastModifiedDateTime": "2017-09-02T03:03:44Z",
+        "name": "Marketing Term Successes International.xlsx",
+        "size": 17776,
+        "webDavUrl": "https://m365x214355-my.sharepoint.com/personal/miriamg_m365x214355_onmicrosoft_com/Documents/Marketing%20Term%20Successes%20International.xlsx",
+        "webUrl": "https://m365x214355-my.sharepoint.com/personal/miriamg_m365x214355_onmicrosoft_com/_layouts/15/Doc.aspx?sourcedoc=%7BDF97359F-A61A-41A2-A7D8-9565927C6795%7D&file=Marketing%20Term%20Successes%20International.xlsx&action=default&mobileredirect=true",
+        "createdBy": {
+          "user": {
+            "email": "MiriamG@M365x214355.onmicrosoft.com",
+            "displayName": "Miriam Graham"
+          }
+        },
+        "file": {
+          "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        "fileSystemInfo": {
+          "createdDateTime": "2017-09-02T03:03:44Z",
+          "lastModifiedDateTime": "2017-09-02T03:03:44Z"
+        },
+        "lastModifiedBy": {
+          "user": {
+            "email": "MiriamG@M365x214355.onmicrosoft.com",
+            "displayName": "Miriam Graham"
+          }
+        },
+        "parentReference": {
+          "driveId": "b!bUbEy-Q7O0yQlf5IKmlRJE8XkS_I8MdFlUCq1BlcjgmhRfAj3-Z8RY2VpuvV_tpd",
+          "driveType": "business",
+          "id": "01OMQY4ZN6Y2GOVW7725BZO354PWSELRRZ"
+        },
+        "shared": {
+          "scope": "users",
+          "sharedDateTime": "2017-09-02T03:04:16Z",
+          "sharedBy": {
+            "user": {
+              "email": "MiriamG@M365x214355.onmicrosoft.com",
+              "displayName": "Miriam Graham"
+            }
+          }
+        },
+        "sharepointIds": {
+          "listId": "23f045a1-e6df-457c-8d95-a6ebd5feda5d",
+          "listItemId": "6",
+          "listItemUniqueId": "df97359f-a61a-41a2-a7d8-9565927c6795",
+          "siteId": "cbc4466d-3be4-4c3b-9095-fe482a695124",
+          "siteUrl": "https://m365x214355-my.sharepoint.com/personal/miriamg_m365x214355_onmicrosoft_com",
+          "webId": "2f91174f-f0c8-45c7-9540-aad4195c8e09"
+        }
+      }
+    }
+  ]
+}
+

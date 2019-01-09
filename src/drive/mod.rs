@@ -12,7 +12,12 @@ pub mod drive_builder;
 pub mod driveitem;
 pub mod endpoint;
 
+use crate::drive::driveitem::DriveInfo;
+use crate::drive::driveitem::DriveItem;
+use crate::drive::driveitem::Value;
 use crate::drive::endpoint::DriveEndPoint;
+use crate::drive::endpoint::ReqError;
+use crate::drive::endpoint::EP;
 use reqwest::*;
 use std;
 use std::io;
@@ -357,6 +362,84 @@ impl Drive {
             ),
             DriveResource::Me => format!("{}/me/drive/items/{}", GRAPH_ENDPOINT, item_id,),
         }
+    }
+}
+
+/// Automatically requests the DriveEndPoint given in the function name and returns the struct
+/// of that request. The structs may be of different types listed here by function name:
+///
+/// # Example
+/// ```rust,ignore
+/// fn req_to_string(&mut self, endpoint: DriveEndPoint) -> String;
+/// fn drive(&mut self) -> DriveInfo;
+/// fn drive_me(&mut self) -> DriveInfo;
+/// fn drive_root(&mut self) -> Value;
+/// fn drive_root_me(&mut self) -> Value;
+/// fn drive_root_child(&mut self) -> DriveItem;
+/// fn drive_changes(&mut self) -> DriveItem;
+/// fn shared_with_me(&mut self) -> DriveItem;
+/// ```
+impl EP for Drive {
+    fn req_to_string(&mut self, endpoint: DriveEndPoint) -> String {
+        let mut drive_req = self.request(endpoint).unwrap();
+        if drive_req.status() != 200 {
+            panic!("Bad request: {:#?}", drive_req.headers());
+        }
+        let json_str = json::parse(
+            drive_req
+                .text()
+                .expect(ReqError::BadRequest.as_str())
+                .as_str(),
+        )
+        .expect(ReqError::BadRequest.as_str());
+        json_str.pretty(1)
+    }
+
+    fn drive(&mut self) -> DriveInfo {
+        let d: DriveInfo = serde_json::from_str(self.req_to_string(DriveEndPoint::Drive).as_str())
+            .expect(ReqError::BadRequest.as_str());
+        d
+    }
+
+    fn drive_me(&mut self) -> DriveInfo {
+        let d: DriveInfo =
+            serde_json::from_str(self.req_to_string(DriveEndPoint::DriveMe).as_str())
+                .expect(ReqError::BadRequest.as_str());
+        d
+    }
+
+    fn drive_root(&mut self) -> Value {
+        let v: Value = serde_json::from_str(self.req_to_string(DriveEndPoint::DriveRoot).as_str())
+            .expect(ReqError::BadRequest.as_str());
+        v
+    }
+
+    fn drive_root_me(&mut self) -> Value {
+        let v: Value =
+            serde_json::from_str(self.req_to_string(DriveEndPoint::DriveRootMe).as_str())
+                .expect(ReqError::BadRequest.as_str());
+        v
+    }
+
+    fn drive_root_child(&mut self) -> DriveItem {
+        let d: DriveItem =
+            serde_json::from_str(self.req_to_string(DriveEndPoint::DriveRootChild).as_str())
+                .expect(ReqError::BadRequest.as_str());
+        d
+    }
+
+    fn drive_changes(&mut self) -> DriveItem {
+        let d: DriveItem =
+            serde_json::from_str(self.req_to_string(DriveEndPoint::DriveChanges).as_str())
+                .expect(ReqError::BadRequest.as_str());
+        d
+    }
+
+    fn shared_with_me(&mut self) -> DriveItem {
+        let d: DriveItem =
+            serde_json::from_str(self.req_to_string(DriveEndPoint::SharedWithMe).as_str())
+                .expect(ReqError::BadRequest.as_str());
+        d
     }
 }
 

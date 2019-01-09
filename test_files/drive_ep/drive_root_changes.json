@@ -1,0 +1,91 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#Collection(driveItem)",
+  "@odata.nextLink": "https://graph.microsoft.com/v1.0/drive/root/delta?token=MzslMjMzOyUyMzE7MztlYWNmMWZmMi03Zjk4LTRmNzEtOTYzYS00NGUwY2YzNWY2MDg7NjM2ODI2NTU0MTc0MTcwMDAwOzIyNjAzMzgxNjslMjNQYWdlZD1UUlVFJTI2cF9JRD0yMDA7JTIzOyUyMzQ",
+  "value": [
+    {
+      "@odata.type": "#microsoft.graph.driveItem",
+      "createdDateTime": "2017-07-27T02:32:33Z",
+      "id": "01OXYKUGV6Y2GOVW7725BZO354PWSELRRZ",
+      "lastModifiedDateTime": "2019-01-05T02:36:16Z",
+      "name": "root",
+      "webUrl": "https://m365x214355.sharepoint.com/Shared%20Documents",
+      "size": 305435615,
+      "parentReference": {
+        "driveId": "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+        "driveType": "documentLibrary"
+      },
+      "fileSystemInfo": {
+        "createdDateTime": "2017-07-27T02:32:33Z",
+        "lastModifiedDateTime": "2019-01-05T02:36:16Z"
+      },
+      "folder": {
+        "childCount": 2
+      },
+      "root": {}
+    },
+    {
+      "@odata.type": "#microsoft.graph.driveItem",
+      "createdDateTime": "2017-08-06T01:12:35Z",
+      "eTag": "\"{AE24CFC9-BFA3-4599-8D39-EA33FBD7E6FA},3\"",
+      "id": "01OXYKUGWJZ4SK5I57TFCY2OPKGP55PZX2",
+      "lastModifiedDateTime": "2017-08-06T01:12:37Z",
+      "name": "KBerg Notebook.onepkg",
+      "webUrl": "https://m365x214355.sharepoint.com/Shared%20Documents/DemoDocs/Office%20Web%20Apps%20Sample%20Docs/KBerg%20Notebook.onepkg",
+      "cTag": "\"c:{AE24CFC9-BFA3-4599-8D39-EA33FBD7E6FA},1\"",
+      "size": 5784759,
+      "createdBy": {
+        "user": {
+          "displayName": "Provisioning User"
+        }
+      },
+      "parentReference": {
+        "driveId": "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+        "driveType": "documentLibrary",
+        "id": "01OXYKUGUFKCWDFG4VENFKDWTSYHDUGZE2",
+        "path": "/drive/root:/DemoDocs/Office Web Apps Sample Docs"
+      },
+      "file": {
+        "mimeType": "application/msonenote",
+        "hashes": {
+          "quickXorHash": "9W8wCna/fJYV2/kyZwdv/WnDrS8="
+        }
+      },
+      "fileSystemInfo": {
+        "createdDateTime": "2017-08-06T01:12:35Z",
+        "lastModifiedDateTime": "2017-08-06T01:12:37Z"
+      }
+    },
+    {
+      "@odata.type": "#microsoft.graph.driveItem",
+      "createdDateTime": "2017-08-06T01:12:42Z",
+      "eTag": "\"{06287DD7-5790-42E6-ACF9-DA23EA5F8969},4\"",
+      "id": "01OXYKUGWXPUUANECX4ZBKZ6O2EPVF7CLJ",
+      "lastModifiedDateTime": "2017-08-06T01:12:48Z",
+      "name": "Northwind Internet Sales.xlsx",
+      "webUrl": "https://m365x214355.sharepoint.com/_layouts/15/Doc.aspx?sourcedoc=%7B06287DD7-5790-42E6-ACF9-DA23EA5F8969%7D&file=Northwind%20Internet%20Sales.xlsx&action=default&mobileredirect=true",
+      "cTag": "\"c:{06287DD7-5790-42E6-ACF9-DA23EA5F8969},6\"",
+      "size": 4795001,
+      "createdBy": {
+        "user": {
+          "displayName": "Provisioning User"
+        }
+      },
+      "parentReference": {
+        "driveId": "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+        "driveType": "documentLibrary",
+        "id": "01OXYKUGUFKCWDFG4VENFKDWTSYHDUGZE2",
+        "path": "/drive/root:/DemoDocs/Office Web Apps Sample Docs"
+      },
+      "file": {
+        "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "hashes": {
+          "quickXorHash": "NOFRcTaJ6M4rMxw2Ws7xou8Lyi0="
+        }
+      },
+      "fileSystemInfo": {
+        "createdDateTime": "2017-08-06T01:12:42Z",
+        "lastModifiedDateTime": "2017-08-06T01:12:48Z"
+      }
+    }
+  ]
+}

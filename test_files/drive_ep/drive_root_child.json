@@ -1,0 +1,72 @@
+
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#drive/root/children",
+  "value": [
+    {
+      "createdDateTime": "2017-08-06T01:12:26Z",
+      "eTag": "\"{870E69B3-B053-4D4C-A898-91D26FD74E63},1\"",
+      "id": "01OXYKUGVTNEHIOU5QJRG2RGER2JX5OTTD",
+      "lastModifiedDateTime": "2017-08-06T01:12:26Z",
+      "name": "DemoDocs",
+      "webUrl": "https://m365x214355.sharepoint.com/Shared%20Documents/DemoDocs",
+      "cTag": "\"c:{870E69B3-B053-4D4C-A898-91D26FD74E63},0\"",
+      "size": 301682171,
+      "createdBy": {
+        "user": {
+          "displayName": "Provisioning User"
+        }
+      },
+      "lastModifiedBy": {
+        "user": {
+          "displayName": "Provisioning User"
+        }
+      },
+      "parentReference": {
+        "driveId": "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+        "driveType": "documentLibrary",
+        "id": "01OXYKUGV6Y2GOVW7725BZO354PWSELRRZ",
+        "path": "/drive/root:"
+      },
+      "fileSystemInfo": {
+        "createdDateTime": "2017-08-06T01:12:26Z",
+        "lastModifiedDateTime": "2017-08-06T01:12:26Z"
+      },
+      "folder": {
+        "childCount": 45
+      }
+    },
+    {
+      "createdDateTime": "2017-08-06T01:23:51Z",
+      "eTag": "\"{EB96F8B2-F02C-41DB-B0D0-A0FA6EBBD3B7},1\"",
+      "id": "01OXYKUGVS7CLOWLHQ3NA3BUFA7JXLXU5X",
+      "lastModifiedDateTime": "2017-08-06T01:23:51Z",
+      "name": "OneDrive",
+      "webUrl": "https://m365x214355.sharepoint.com/Shared%20Documents/OneDrive",
+      "cTag": "\"c:{EB96F8B2-F02C-41DB-B0D0-A0FA6EBBD3B7},0\"",
+      "size": 3753444,
+      "createdBy": {
+        "user": {
+          "displayName": "Provisioning User"
+        }
+      },
+      "lastModifiedBy": {
+        "user": {
+          "displayName": "Provisioning User"
+        }
+      },
+      "parentReference": {
+        "driveId": "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+        "driveType": "documentLibrary",
+        "id": "01OXYKUGV6Y2GOVW7725BZO354PWSELRRZ",
+        "path": "/drive/root:"
+      },
+      "fileSystemInfo": {
+        "createdDateTime": "2017-08-06T01:23:51Z",
+        "lastModifiedDateTime": "2017-08-06T01:23:51Z"
+      },
+      "folder": {
+        "childCount": 12
+      }
+    }
+  ]
+}
