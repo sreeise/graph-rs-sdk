@@ -66,6 +66,7 @@ use std::thread;
 use reqwest::header;
 use url::form_urlencoded;
 
+use crate::drive::endpoint::ReqError;
 use crate::drive::Drive;
 use crate::flow::accesstoken::AccessToken;
 use crate::flow::encode::OauthUrlBuilder;
@@ -786,65 +787,102 @@ impl AuthFlow {
     /// println!("{:#?}", auth_flow.get_access_token());
     /// ```
     pub fn request_access_token(&mut self) -> &mut AuthFlow {
+        let mut code_body = self
+            .build(FlowType::GrantTypeAuthCode)
+            .expect("Could not build with FlowType::GrantTypeAuthCode");
+
+        let mut access_code = self
+            .params
+            .get("CODE")
+            .expect(
+                "Could not find access token in HashMap. Ensure the value has been set correctly",
+            )
+            .clone();
+
+        let mut access_token_url = self
+            .params
+            .get("TOKEN_URL")
+            .expect("Could not find token_url in HashMap. Ensure the value has been set correctly")
+            .clone();
+
+        let mut json_str = self.req_to_string(&access_token_url, &access_code, code_body);
+        let mut access_token: AccessToken =
+            serde_json::from_str(json_str.as_str()).expect("Could not parse AccessToken");
+
+        if self.allow_reset == true {
+            self.set_access_token_struct(access_token);
+        } else {
+            self.allow_reset(true);
+            self.set_access_token_struct(access_token);
+            self.allow_reset(false);
+        }
+        self
+    }
+
+    pub fn refresh_access_token(&mut self) -> &mut AuthFlow {
+        let mut code_body = self
+            .build(FlowType::GrantTypeRefreshToken)
+            .expect("Could not build with FlowType::GrantTypeAuthCode");
+
+        let mut access_code = self
+            .params
+            .get("CODE")
+            .expect(
+                "Could not find access token in HashMap. Ensure the value has been set correctly",
+            )
+            .clone();
+
+        let mut token_url = self
+            .params
+            .get("TOKEN_URL")
+            .expect("Could not find token_url in HashMap. Ensure the value has been set correctly")
+            .clone();
+
+        let mut json_str = self.req_to_string(&token_url, &access_code, code_body);
+        let mut access_token: AccessToken =
+            serde_json::from_str(json_str.as_str()).expect("Could not parse AccessToken");
+
+        if self.allow_reset == true {
+            self.set_access_token_struct(access_token);
+        } else {
+            self.allow_reset(true);
+            self.set_access_token_struct(access_token);
+            self.allow_reset(false);
+        }
+
+        self
+    }
+
+    fn req_to_string(&mut self, url: &str, access_code: &str, code_body: String) -> String {
         let client = reqwest::Client::builder()
             .build()
             .expect("could not construct reqwest builder");
-        let code_body = self
-            .build(FlowType::GrantTypeAuthCode)
-            .expect("Could not build with FlowType::GrantTypeAuthCode");
-        let access_code = self.params.get("CODE").expect(
-            "Could not find access token in HashMap. Ensure the value has been set correctly",
-        );
-        let access_token_url = self
-            .params
-            .get("TOKEN_URL")
-            .expect("Could not find token_url in HashMap. Ensure the value has been set correctly");
 
         let mut res = client
-            .post(access_token_url)
-            .header(header::AUTHORIZATION, access_code.as_str())
+            .post(url)
+            .header(header::AUTHORIZATION, access_code)
             .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
             .body(code_body)
             .send()
             .expect("Error in sending access token post request");
 
-        let json_str = res.text().expect(
-            FlowErrorType::match_error_type(FlowErrorType::BadRequest)
-                .message
-                .as_str(),
-        );
-        let data = json::parse(&json_str.as_str()).expect(
-            FlowErrorType::match_error_type(FlowErrorType::BadRequest)
-                .message
-                .as_str(),
-        );
-        let access_token_str = data["access_token"].as_str().expect(
-            FlowErrorType::match_error_type(FlowErrorType::BadRequest)
-                .message
-                .as_str(),
-        );
+        let json_str = json::parse(res.text().expect(ReqError::BadRequest.as_str()).as_str())
+            .expect(ReqError::BadRequest.as_str());
 
-        self.set_access_token(&access_token_str);
-        self.set_access_token_struct(AccessToken::new(
-            data["token_type"]
+        self.set_access_token(
+            &json_str["access_token"]
                 .as_str()
-                .expect("could not convert token_type to str"),
-            data["expires_in"]
-                .as_u64()
-                .expect("could not convert expires_in to u64"),
-            data["scope"]
-                .as_str()
-                .expect("could not convert scope to str"),
-            &access_token_str,
-            // TODO: Fix request_access_token USER_ID
-            // This should be set by the request but it currently is not known
-            // whether it will come in the request or not and therefore may throw an error
-            // if this does not comes in the request. Figure out what causes the graph API
-            // to return with and without the user_id.
-            "user_id",
-        ));
+                .expect("Could not parse access_token"),
+        );
+        if &json_str["refresh_token"] != "null" {
+            self.set_refresh(
+                &json_str["refresh_token"]
+                    .as_str()
+                    .expect("Could not parse refresh_token"),
+            );
+        }
 
-        self
+        json_str.pretty(1)
     }
 
     pub fn into_drive(&mut self) -> Drive {

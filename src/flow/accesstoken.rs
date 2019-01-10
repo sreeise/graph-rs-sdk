@@ -45,71 +45,54 @@ use std::io;
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AccessToken {
     token_type: String,
-    expires_in: u64,
+    expires_in: i64,
     scope: String,
     access_token: String,
-    user_id: String,
     refresh_token: Option<String>,
+    user_id: Option<String>,
 }
 
 impl AccessToken {
     pub fn new(
         token_type: &str,
-        expires_in: u64,
+        expires_in: i64,
         scope: &str,
         access_token: &str,
-        user_id: &str,
-    ) -> AccessToken {
-        AccessToken {
-            token_type: token_type.into(),
-            expires_in: expires_in.into(),
-            scope: scope.into(),
-            access_token: access_token.into(),
-            user_id: user_id.into(),
-            refresh_token: None,
-        }
-    }
-
-    pub fn new_with_refresh_token(
-        token_type: &str,
-        expires_in: u64,
-        scope: &str,
-        access_token: &str,
-        user_id: &str,
         refresh_token: Option<String>,
+        user_id: Option<String>,
     ) -> AccessToken {
         AccessToken {
-            token_type: token_type.into(),
-            expires_in: expires_in.into(),
-            scope: scope.into(),
-            access_token: access_token.into(),
-            user_id: user_id.into(),
-            refresh_token: refresh_token.into(),
+            token_type: token_type.to_string(),
+            expires_in,
+            scope: scope.to_string(),
+            access_token: access_token.to_string(),
+            user_id,
+            refresh_token,
         }
     }
 
-    pub fn get_expires_in(&self) -> io::Result<&u64> {
-        Ok(&self.expires_in)
+    pub fn get_expires_in(&self) -> i64 {
+        self.expires_in.clone()
     }
 
-    pub fn get_scopes(&self) -> io::Result<&str> {
-        Ok(&self.scope)
+    pub fn get_scopes(&self) -> String {
+        self.scope.clone()
     }
 
-    pub fn get_access_token(&self) -> io::Result<&str> {
-        Ok(&self.access_token)
+    pub fn get_access_token(&self) -> String {
+        self.access_token.clone()
     }
 
-    pub fn get_user_id(&self) -> io::Result<&str> {
-        Ok(&self.user_id)
+    pub fn get_user_id(&self) -> Option<String> {
+        self.user_id.clone()
     }
 
-    pub fn get_token_type(&self) -> io::Result<&str> {
-        Ok(&self.token_type)
+    pub fn get_token_type(&self) -> String {
+        self.token_type.clone()
     }
 
     pub fn get_refresh_token(self) -> Option<String> {
-        self.refresh_token
+        self.refresh_token.clone()
     }
 
     pub fn set_refresh_token(&mut self, refresh_token: &str) {
@@ -119,5 +102,9 @@ impl AccessToken {
     pub fn from_json_str(json_str: &str) -> io::Result<AccessToken> {
         let access_token: AccessToken = serde_json::from_str(json_str)?;
         Ok(access_token)
+    }
+
+    pub fn is_expired(&mut self) -> bool {
+        unimplemented!();
     }
 }
