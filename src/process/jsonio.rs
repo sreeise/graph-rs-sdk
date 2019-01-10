@@ -14,7 +14,7 @@ pub struct JsonFile;
 
 impl JsonFile {
     /// Writes a data struct to a file given. If the file has already been created this
-    /// method will truncate previous data and only write the new struct.
+    /// method will delete the previous file and recreate it with the new struct.
     /// # Arguments
     ///
     /// * `path` - Path to a file and the file name itself.
@@ -23,6 +23,7 @@ impl JsonFile {
     where
         T: serde::Serialize,
     {
+        JsonFile::remove_file(&path).unwrap();
         let mut file = OpenOptions::new()
             .create(true)
             .write(true)
@@ -98,5 +99,12 @@ impl JsonFile {
         }
 
         Ok(t_vec)
+    }
+
+    fn remove_file<P: AsRef<Path>>(path: P) -> io::Result<()> {
+        if path.as_ref().exists() {
+            fs::remove_file(path)?;
+        }
+        Ok(())
     }
 }
