@@ -32,12 +32,12 @@ use std::io;
 ///  use rust_onedrive::flow::accesstoken::AccessToken;
 ///
 ///  let access_token =
-///     AccessToken::new("bearer", 3600, "offline", "ASODFIUJ34KJ;LADSK", "USER_ID");
+///     AccessToken::new("bearer", 3600, "offline", "ASODFIUJ34KJ;LADSK", None, Some("USER_ID".to_string()));
 ///
-///        assert_eq!(access_token.get_expires_in().unwrap(), &3600_u64);
-///        assert_eq!(access_token.get_token_type().unwrap(), "bearer");
-///        assert_eq!(access_token.get_access_token().unwrap(), "ASODFIUJ34KJ;LADSK");
-///        assert_eq!(access_token.get_scopes().unwrap(), "offline");
+///        assert_eq!(access_token.get_expires_in(), 3600);
+///        assert_eq!(access_token.get_token_type(), "bearer");
+///        assert_eq!(access_token.get_access_token(), "ASODFIUJ34KJ;LADSK");
+///        assert_eq!(access_token.get_scopes(), "offline");
 ///        assert_eq!(access_token.get_user_id().unwrap(), "USER_ID");
 ///```
 /// The refresh token is optional and depends upon whether it was requested.
