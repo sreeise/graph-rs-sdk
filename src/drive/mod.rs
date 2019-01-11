@@ -383,7 +383,12 @@ impl EP for Drive {
     fn req_to_string(&mut self, endpoint: DriveEndPoint) -> String {
         let mut drive_req = self.request(endpoint).unwrap();
         if drive_req.status() != 200 {
-            panic!("Bad request: {:#?}", drive_req.headers());
+            // let headers = drive_req.headers().to_owned();
+            panic!(
+                "Bad request: {:#?}\n{:#?}",
+                drive_req.headers().to_owned(),
+                &drive_req.text().unwrap()
+            );
         }
         let json_str = json::parse(
             drive_req
