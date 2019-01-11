@@ -32,7 +32,7 @@ use std::io;
 ///  use rust_onedrive::flow::accesstoken::AccessToken;
 ///
 ///  let access_token =
-///     AccessToken::new("bearer", 3600, "offline", "ASODFIUJ34KJ;LADSK", None, Some("USER_ID".to_string()));
+///     AccessToken::new("bearer", 3600, "offline", "ASODFIUJ34KJ;LADSK", None, Some("USER_ID".to_string()), None);
 ///
 ///        assert_eq!(access_token.get_expires_in(), 3600);
 ///        assert_eq!(access_token.get_token_type(), "bearer");
@@ -50,6 +50,7 @@ pub struct AccessToken {
     access_token: String,
     refresh_token: Option<String>,
     user_id: Option<String>,
+    id_token: Option<String>,
 }
 
 impl AccessToken {
@@ -60,6 +61,7 @@ impl AccessToken {
         access_token: &str,
         refresh_token: Option<String>,
         user_id: Option<String>,
+        id_token: Option<String>, // Azure AD Id Token
     ) -> AccessToken {
         AccessToken {
             token_type: token_type.to_string(),
@@ -68,6 +70,7 @@ impl AccessToken {
             access_token: access_token.to_string(),
             user_id,
             refresh_token,
+            id_token,
         }
     }
 
@@ -97,6 +100,14 @@ impl AccessToken {
 
     pub fn set_refresh_token(&mut self, refresh_token: &str) {
         self.refresh_token = Some(refresh_token.into());
+    }
+
+    pub fn set_user_id(&mut self, user_id: &str) {
+        self.user_id = Some(user_id.to_string());
+    }
+
+    pub fn set_id_token(&mut self, id_token: &str) {
+        self.id_token = Some(id_token.to_string());
     }
 
     pub fn from_json_str(json_str: &str) -> io::Result<AccessToken> {
