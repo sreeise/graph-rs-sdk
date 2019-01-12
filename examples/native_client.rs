@@ -41,6 +41,13 @@ fn main() {
 }
 
 fn get_auth_flow() -> AuthFlow {
+    // native_client() sets using the default scopes to false
+    // and therefore requires adding scopes manually. This can
+    // be changed by the method: use_default_scope(true)
+
+    // Native clients also automatically prevent using a client_id in
+    // the request. An authentication request will get rejected
+    // if a native client is the caller. Only web clients use client_id.
     let mut auth_flow = AuthFlow::native_client();
     // There are other possible URI's for the redirect URI. This is set in
     // the Microsoft application portal
@@ -57,10 +64,9 @@ fn native_client() -> AuthFlow {
         .add_scope("Files.ReadWrite")
         .add_scope("Files.Read.All")
         .add_scope("Files.ReadWrite.All")
-        .add_scope("wl.offline_access");
-    //.public_client(true); // Default is false for web clients but native clients are public clients.
-    // This means they do not require a client secret. A request will fail
-    // if the caller tries to provide a client secret for a public client.
+        .add_scope("wl.offline_access"); // wl.offline_access will cause the request to return
+                                                // a refresh token as well.
+
     auth_flow.use_default_auth_url(AccountType::Account);
     auth_flow
 }
@@ -76,7 +82,8 @@ fn set_code_request_token(access_code: &str) {
     // This is stored in the struct AccessToken.
     auth_flow.request_access_token();
     // Stores AuthFlow as json using serde_json.
-    JsonFile::json_file("example/native_client_flow.json", &auth_flow).unwrap();
+    JsonFile::json_file("examples/native_client_flow.json", &auth_flow).unwrap();
+    println!("{:#?}", &auth_flow);
 
     /*
     To get AuthFlow back from the json file run:

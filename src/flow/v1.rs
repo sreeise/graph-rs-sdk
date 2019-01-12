@@ -427,6 +427,10 @@ impl AuthFlow {
         self
     }
 
+    pub fn use_default_scope(&mut self, value: bool) {
+        self.default_scope = value;
+    }
+
     /// By default, once a value has a value has been set (token, auth_url, etc.)
     /// the value cannot be changed unless the caller explicitly says to allow
     /// change.
