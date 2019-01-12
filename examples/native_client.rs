@@ -41,7 +41,7 @@ fn main() {
 }
 
 fn get_auth_flow() -> AuthFlow {
-    let mut auth_flow = AuthFlow::new(false);
+    let mut auth_flow = AuthFlow::native_client();
     // There are other possible URI's for the redirect URI. This is set in
     // the Microsoft application portal
     auth_flow
@@ -57,10 +57,10 @@ fn native_client() -> AuthFlow {
         .add_scope("Files.ReadWrite")
         .add_scope("Files.Read.All")
         .add_scope("Files.ReadWrite.All")
-        .add_scope("wl.offline_access")
-        .public_client(true); // Default is false for web clients but native clients are public clients.
-                              // This means they do not require a client secret. A request will fail
-                              // if the caller tries to provide a client secret for a public client.
+        .add_scope("wl.offline_access");
+    //.public_client(true); // Default is false for web clients but native clients are public clients.
+    // This means they do not require a client secret. A request will fail
+    // if the caller tries to provide a client secret for a public client.
     auth_flow.use_default_auth_url(AccountType::Account);
     auth_flow
 }

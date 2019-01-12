@@ -32,7 +32,7 @@ fn web_client() -> AuthFlow {
     // A Microsoft URL that can retrieve these scopes is then used instead and
     // makes it easier to set up AuthFlow. The scopes can still be implemented
     // manually by setting AuthFlow::new to false and using method add_scope()
-    let mut auth_flow = AuthFlow::new(true);
+    let mut auth_flow = AuthFlow::web_client(true);
     auth_flow
         .set_client_id("<CLIENT_ID>")
         // Or whatever you set the redirect to for a web client.
