@@ -32,6 +32,7 @@ impl JsonFile {
             .expect("Could not write to file");
         let serialized = serde_json::to_string(data_struct)?;
         file.write_all(serialized.as_bytes())?;
+        file.sync_all()?;
         Ok(())
     }
 
@@ -58,13 +59,9 @@ impl JsonFile {
             .expect("Could not write to file");
 
         let serialized = serde_json::to_string(data_struct).expect("Error serializing struct");
-        let mut file = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open(&path)
-            .expect("Error writing file with serialized struct");
-        file.write_all(serialized.as_bytes())
-            .expect("Could not write AuthFlow as a new json file");
+        let mut file = OpenOptions::new().read(true).write(true).open(&path)?;
+        file.write_all(serialized.as_bytes())?;
+        file.sync_all()?;
         Ok(())
     }
 
