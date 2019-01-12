@@ -72,6 +72,10 @@ use crate::flow::accesstoken::AccessToken;
 use crate::flow::encode::OauthUrlBuilder;
 use crate::flow::error::FlowErrorType;
 use crate::process::jsonio::JsonFile;
+use core::borrow::BorrowMut;
+use std::io::Error;
+use std::io::ErrorKind;
+use std::io::Read;
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -108,7 +112,7 @@ pub enum FlowStatus {
     AccessToken,
 }
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum AuthUrl {
     AccountAuth,
     AccountToken,
@@ -127,7 +131,7 @@ impl AuthUrl {
     }
 }
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum AccountType {
     Account,
     Graph,
@@ -183,7 +187,7 @@ impl AccountType {
 ///
 ///    assert_eq!(auth_flow.get_auth_url().unwrap(), "https://login.live.com/oauth20_authorize.srf?");
 ///```
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AuthFlow {
     config_name: String,
     scopes: Vec<String>,
@@ -193,6 +197,7 @@ pub struct AuthFlow {
     default_auth: bool,
     auth_type: AccountType,
     access_token: Option<Box<AccessToken>>,
+    public_client: bool,
 }
 
 impl fmt::Display for AuthFlow {
@@ -216,6 +221,35 @@ impl AuthFlow {
             default_auth: false,
             auth_type: AccountType::Account,
             access_token: None,
+            public_client: false,
+        }
+    }
+
+    pub fn web_client(default: bool) -> AuthFlow {
+        AuthFlow {
+            config_name: String::from("AuthFlow"),
+            scopes: Vec::new(),
+            params: HashMap::new(),
+            allow_reset: false,
+            default_scope: default,
+            default_auth: false,
+            auth_type: AccountType::Account,
+            access_token: None,
+            public_client: false,
+        }
+    }
+
+    pub fn native_client() -> AuthFlow {
+        AuthFlow {
+            config_name: String::from("AuthFlow"),
+            scopes: Vec::new(),
+            params: HashMap::new(),
+            allow_reset: false,
+            default_scope: false,
+            default_auth: false,
+            auth_type: AccountType::Account,
+            access_token: None,
+            public_client: true,
         }
     }
 
@@ -371,20 +405,16 @@ impl AuthFlow {
         self.params.get("CODE").clone()
     }
 
-    pub fn get_access_token(&self) -> Option<&String> {
-        self.params.get("ACCESS_TOKEN").clone()
-    }
-
     pub fn get_refresh_token(&self) -> Option<&String> {
         self.params.get("REFRESH_TOKEN").clone()
     }
 
-    pub fn get_scopes(&self) -> Option<&Vec<String>> {
-        Some(&self.scopes)
+    pub fn get_access_token(&self) -> Option<Box<AccessToken>> {
+        self.access_token.clone()
     }
 
-    pub fn get_access_token_struct(self) -> Option<Box<AccessToken>> {
-        self.access_token.clone()
+    pub fn get_scopes(&self) -> Option<&Vec<String>> {
+        Some(&self.scopes)
     }
 
     fn set_config(&mut self, config_key: &str, config_value: &str) -> &mut AuthFlow {
@@ -562,38 +592,68 @@ impl AuthFlow {
             }
         };
 
-        let encoded: String = form_urlencoded::Serializer::new(String::from(""))
-            .append_pair(
-                "client_id",
-                self.params
-                    .get("CLIENT_ID")
-                    .expect("Couldn't set client_id")
-                    .as_str(),
-            )
-            .append_pair(
-                "redirect_uri",
-                self.params
-                    .get("REDIRECT_URI")
-                    .expect("Couldn't set redirect_id")
-                    .as_str(),
-            )
-            .append_pair(
-                "client_secret",
-                self.params
-                    .get("CLIENT_SECRET")
-                    .expect("Couldn't set client_secret")
-                    .as_str(),
-            )
-            .append_pair(
-                param_type,
-                self.params
-                    .get(&param_type.to_uppercase())
-                    .unwrap()
-                    .as_str(),
-            )
-            .append_pair("grant_type", req_type)
-            .finish();
-        Ok(encoded.to_string())
+        if self.public_client {
+            let encoded: String = form_urlencoded::Serializer::new(String::from(""))
+                .append_pair(
+                    "client_id",
+                    self.params
+                        .get("CLIENT_ID")
+                        .expect("Couldn't set client_id")
+                        .as_str(),
+                )
+                .append_pair(
+                    "redirect_uri",
+                    self.params
+                        .get("REDIRECT_URI")
+                        .expect("Couldn't set redirect_id")
+                        .as_str(),
+                )
+                .append_pair(
+                    param_type,
+                    self.params
+                        .get(&param_type.to_uppercase())
+                        .unwrap()
+                        .as_str(),
+                )
+                .append_pair("grant_type", req_type)
+                .finish();
+
+            Ok(encoded.to_string())
+        } else {
+            let encoded: String = form_urlencoded::Serializer::new(String::from(""))
+                .append_pair(
+                    "client_id",
+                    self.params
+                        .get("CLIENT_ID")
+                        .expect("Couldn't set client_id")
+                        .as_str(),
+                )
+                .append_pair(
+                    "redirect_uri",
+                    self.params
+                        .get("REDIRECT_URI")
+                        .expect("Couldn't set redirect_id")
+                        .as_str(),
+                )
+                .append_pair(
+                    "client_secret",
+                    self.params
+                        .get("CLIENT_SECRET")
+                        .expect("Couldn't set client_secret")
+                        .as_str(),
+                )
+                .append_pair(
+                    param_type,
+                    self.params
+                        .get(&param_type.to_uppercase())
+                        .unwrap()
+                        .as_str(),
+                )
+                .append_pair("grant_type", req_type)
+                .finish();
+
+            Ok(encoded.to_string())
+        }
     }
 
     /// Build the request url for authorization. The type of request depends
@@ -795,27 +855,20 @@ impl AuthFlow {
             .params
             .get("CODE")
             .expect(
-                "Could not find access token in HashMap. Ensure the value has been set correctly",
-            )
+                FlowErrorType::missing_param("access_code").message.as_str())
             .clone();
 
         let mut access_token_url = self
             .params
             .get("TOKEN_URL")
-            .expect("Could not find token_url in HashMap. Ensure the value has been set correctly")
+            .expect(FlowErrorType::missing_param("token_url").message.as_str())
             .clone();
+        let client = reqwest::Client::builder()
+            .build()
+            .expect("could not construct reqwest builder");
 
-        let mut json_str = self.req_to_string(&access_token_url, &access_code, code_body);
-        let mut access_token: AccessToken =
-            serde_json::from_str(json_str.as_str()).expect("Could not parse AccessToken");
-
-        if self.allow_reset == true {
-            self.set_access_token_struct(access_token);
-        } else {
-            self.allow_reset(true);
-            self.set_access_token_struct(access_token);
-            self.allow_reset(false);
-        }
+        self.req_to_access_token(&access_token_url, &access_code, code_body)
+            .unwrap();
         self
     }
 
@@ -828,32 +881,38 @@ impl AuthFlow {
             .params
             .get("CODE")
             .expect(
-                "Could not find access token in HashMap. Ensure the value has been set correctly",
+                FlowErrorType::missing_param("access_code").message.as_str(),
             )
             .clone();
 
         let mut token_url = self
             .params
             .get("TOKEN_URL")
-            .expect("Could not find token_url in HashMap. Ensure the value has been set correctly")
+            .expect(FlowErrorType::missing_param("token_url").message.as_str())
             .clone();
 
-        let mut json_str = self.req_to_string(&token_url, &access_code, code_body);
-        let mut access_token: AccessToken =
-            serde_json::from_str(json_str.as_str()).expect("Could not parse AccessToken");
-
-        if self.allow_reset == true {
-            self.set_access_token_struct(access_token);
-        } else {
-            self.allow_reset(true);
-            self.set_access_token_struct(access_token);
-            self.allow_reset(false);
-        }
+        self.req_to_access_token(&token_url, &access_code, code_body)
+            .expect(
+                FlowErrorType::match_error_type(FlowErrorType::BadRequest)
+                    .message
+                    .as_str(),
+            );
 
         self
     }
 
-    fn req_to_string(&mut self, url: &str, access_code: &str, code_body: String) -> String {
+    /// Call the request for an access token.
+    fn req_to_access_token(
+        &mut self,
+        url: &str,
+        access_code: &str,
+        code_body: String,
+    ) -> io::Result<()> {
+        let can_change = self.allow_reset;
+        if !can_change {
+            self.allow_reset(true);
+        }
+
         let client = reqwest::Client::builder()
             .build()
             .expect("could not construct reqwest builder");
@@ -864,85 +923,100 @@ impl AuthFlow {
             .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
             .body(code_body)
             .send()
-            .expect("Error in sending access token post request");
-
-        let json_str = json::parse(res.text().expect(ReqError::BadRequest.as_str()).as_str())
-            .expect(ReqError::BadRequest.as_str());
-
-        self.set_access_token(
-            &json_str["access_token"]
-                .as_str()
-                .expect("Could not parse access_token"),
-        );
-        if &json_str["refresh_token"] != "null" {
-            self.set_refresh(
-                &json_str["refresh_token"]
-                    .as_str()
-                    .expect("Could not parse refresh_token"),
-            );
-        }
-
-        json_str.pretty(1)
-    }
-
-    pub fn into_drive(&mut self) -> Drive {
-        Drive::new(
-            self.get_access_token().expect(
-                FlowErrorType::match_error_type(FlowErrorType::MissingAccessCode)
+            .expect(
+                FlowErrorType::match_error_type(FlowErrorType::BadRequest)
                     .message
                     .as_str(),
-            ),
-        )
+            );
+
+        let mut json_str = String::from("");
+        res.read_to_string(&mut json_str);
+
+        let mut parsed_json = json::parse(json_str.as_str()).expect(
+            FlowErrorType::match_error_type(FlowErrorType::BadRequest)
+                .message
+                .as_str(),
+        );
+
+
+        // Normally an automatic conversion to AccessToken would be done here, however,
+        // different errors are consistently thrown. Thus, make sure the values are
+        // actually in the request.
+        if !parsed_json["access_token"].is_null()
+            && !parsed_json["expires_in"].is_null()
+            && !parsed_json["token_type"].is_null()
+        {
+            self.set_access_token(parsed_json["access_token"].as_str().unwrap_or(""));
+            let mut access_token: AccessToken = AccessToken::new(
+                parsed_json["token_type"]
+                    .as_str()
+                    .expect(FlowErrorType::missing_param("token_type").message.as_str()),
+                parsed_json["expires_in"]
+                    .as_i64()
+                    .expect(FlowErrorType::missing_param("expires_in").message.as_str()),
+                parsed_json["scope"].as_str().expect("Could not get scope"),
+                parsed_json["access_token"]
+                    .as_str()
+                    .expect(FlowErrorType::missing_param("access_token").message.as_str()),
+                None,
+                None,
+                None,
+            );
+
+            if !parsed_json["refresh_token"].is_null() {
+                self.set_refresh(parsed_json["refresh_token"].as_str().unwrap_or(""));
+                access_token.set_refresh_token(parsed_json["refresh_token"]
+                    .as_str()
+                    .expect("The parsed JSON was originally found to have a refresh token but an issue occurred."));
+            } else if self.params.get("REFRESH_TOKEN").is_some() {
+                // If there is no refresh token in the request but there was a
+                // previous refresh token then use the the previous token
+                // as it can be used to request multiple access tokens.
+                access_token
+                    .set_refresh_token(
+                        self.params.get("REFRESH_TOKEN")
+                            .expect("Attempted to use previous refresh token in AccessToken but issue occurred")
+                            .as_str()
+                    );
+            }
+
+            if !parsed_json["user_id"].is_null() {
+                access_token.set_user_id(parsed_json["user_id"]
+                    .as_str()
+                    .expect("The parsed JSON was originally found to have a user id but an issue occurred."));
+            }
+
+            if !parsed_json["id_token"].is_null() {
+                access_token.set_id_token(parsed_json["id_token"]
+                    .as_str()
+                    .expect("The parsed JSON was originally found to have a id token but an issue occurred."));
+            }
+            self.set_access_token_struct(access_token);
+        }
+
+        if !can_change {
+            self.allow_reset(false);
+        }
+
+        Ok(())
+    }
+
+    /// Automatic conversion to Drive
+    pub fn into_drive(&mut self) -> Option<Drive> {
+        Some(Drive::new(
+            self.get_access_token()
+                .expect(
+                    FlowErrorType::match_error_type(FlowErrorType::MissingParam)
+                        .message
+                        .as_str(),
+                )
+                .get_access_token()
+                .as_str(),
+        ))
     }
 
     /// Check if the values have been set
-    pub fn check(&self, flow_status: FlowStatus) -> bool {
-        match flow_status {
-            FlowStatus::AccessCode => self.params.contains_key("CODE"),
-            FlowStatus::AccessToken => self.params.contains_key("ACCESS_TOKEN"),
-        }
-    }
-
-    /// Writes the AuthFlow struct as a JSON file using serde_json.
-    /// An AuthFlow struct can then be brought back in.
-    ///
-    /// # Arguments
-    ///
-    /// * `path` - Path to a file and the file name itself.
-    pub fn as_json_file<P: AsRef<Path>>(&mut self, path: P) -> io::Result<()> {
-        JsonFile::json_file(path, self)
-    }
-
-    /// Writes the AuthFlow struct as a JSON file using serde_json only if the path/file
-    /// is not already created.
-    /// # Arguments
-    ///
-    /// * `path` - Path to a file and the file name itself.
-    pub fn as_new_json_file<P: AsRef<Path>>(&mut self, path: P) -> io::Result<()> {
-        JsonFile::new_json_file(path, self)
-    }
-
-    /// Get a Graph from a previously saved Graph as JSON
-    ///
-    /// # Arguments
-    ///
-    /// * `path` - Path to a file and the file name itself.
-    pub fn from_file<P: AsRef<Path>>(path: P) -> io::Result<AuthFlow> {
-        let auth_flow: AuthFlow =
-            JsonFile::from_file(path).expect("Could not deserialize AuthFlow from file");
-        Ok(auth_flow)
-    }
-
-    pub fn from_file_as_vec<P: AsRef<Path>>(path: P) -> io::Result<Vec<AuthFlow>> {
-        let f = File::open(path)?;
-        let buffer = BufReader::new(f);
-        let mut graph_vec: Vec<AuthFlow> = Vec::new();
-
-        for file_name in buffer.lines() {
-            let graph = AuthFlow::from_file(&file_name?)?;
-            graph_vec.push(graph);
-        }
-
-        Ok(graph_vec)
+    pub fn contains_key(&self, key: &str) -> bool {
+        self.params.contains_key(key)
     }
 }

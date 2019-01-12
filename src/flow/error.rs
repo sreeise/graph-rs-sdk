@@ -38,6 +38,12 @@ impl FlowErrorType {
             ),
         }
     }
+
+    pub fn missing_param(param: &str) -> FlowError {
+        let mut message = String::from("Error, missing parameter: ");
+        message.push_str(param);
+        FlowError::new(message.as_str(), 0, 0)
+    }
 }
 
 #[derive(Debug, Clone)]
