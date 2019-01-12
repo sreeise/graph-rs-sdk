@@ -218,18 +218,18 @@ pub struct Value {
     #[serde(rename = "@odata.type")]
     _odata_type: Option<String>,
     #[serde(rename = "createdDateTime")]
-    created_date_time: String,
+    created_date_time: Option<String>,
     #[serde(rename = "cTag")]
     c_tag: Option<String>,
     #[serde(rename = "eTag")]
     e_tag: Option<String>,
-    id: String,
+    id: Option<String>,
     #[serde(rename = "lastModifiedDateTime")]
-    last_modified_date_time: String,
-    name: String,
-    size: i64,
+    last_modified_date_time: Option<String>,
+    name: Option<String>,
+    size: Option<i64>,
     #[serde(rename = "webUrl")]
-    web_url: String,
+    web_url: Option<String>,
     #[serde(rename = "createdBy")]
     created_by: Option<CreatedBy>,
     #[serde(rename = "lastModifiedBy")]
@@ -255,14 +255,14 @@ impl Value {
     pub fn new(
         _odata_context: Option<String>,
         _odata_type: Option<String>,
-        created_date_time: String,
+        created_date_time: Option<String>,
         c_tag: Option<String>,
         e_tag: Option<String>,
-        id: String,
-        last_modified_date_time: String,
-        name: String,
-        size: i64,
-        web_url: String,
+        id: Option<String>,
+        last_modified_date_time: Option<String>,
+        name: Option<String>,
+        size: Option<i64>,
+        web_url: Option<String>,
         created_by: Option<CreatedBy>,
         last_modified_by: Option<LastModifiedBy>,
         parent_reference: Option<ParentReference>,
@@ -316,7 +316,7 @@ impl Value {
         self._odata_context.clone()
     }
 
-    pub fn created_date_time(&self) -> String {
+    pub fn created_date_time(&self) -> Option<String> {
         self.created_date_time.clone()
     }
 
@@ -328,23 +328,23 @@ impl Value {
         self.e_tag.clone()
     }
 
-    pub fn id(&self) -> String {
+    pub fn id(&self) -> Option<String> {
         self.id.clone()
     }
 
-    pub fn last_modified_date_time(&self) -> String {
+    pub fn last_modified_date_time(&self) -> Option<String> {
         self.last_modified_date_time.clone()
     }
 
-    pub fn name(&self) -> String {
+    pub fn name(&self) -> Option<String> {
         self.name.clone()
     }
 
-    pub fn size(&self) -> i64 {
+    pub fn size(&self) -> Option<i64> {
         self.size.clone()
     }
 
-    pub fn web_url(&self) -> String {
+    pub fn web_url(&self) -> Option<String> {
         self.web_url.clone()
     }
 
@@ -451,11 +451,11 @@ impl User {
 pub struct Application {
     #[serde(rename = "displayName")]
     display_name: Option<String>,
-    id: String,
+    id: Option<String>,
 }
 
 impl Application {
-    pub fn new(display_name: Option<String>, id: String) -> Self {
+    pub fn new(display_name: Option<String>, id: Option<String>) -> Self {
         Application { display_name, id }
     }
 
@@ -463,7 +463,7 @@ impl Application {
         self.display_name.clone()
     }
 
-    pub fn id(&self) -> String {
+    pub fn id(&self) -> Option<String> {
         self.id.clone()
     }
 }
@@ -491,17 +491,17 @@ impl LastModifiedBy {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParentReference {
     #[serde(rename = "driveId")]
-    drive_id: String,
+    drive_id: Option<String>,
     #[serde(rename = "driveType")]
-    drive_type: String,
+    drive_type: Option<String>,
     id: Option<String>,
     path: Option<String>,
 }
 
 impl ParentReference {
     pub fn new(
-        drive_id: String,
-        drive_type: String,
+        drive_id: Option<String>,
+        drive_type: Option<String>,
         id: Option<String>,
         path: Option<String>,
     ) -> ParentReference {
@@ -513,11 +513,11 @@ impl ParentReference {
         }
     }
 
-    pub fn drive_id(&self) -> String {
+    pub fn drive_id(&self) -> Option<String> {
         self.drive_id.clone()
     }
 
-    pub fn drive_type(&self) -> String {
+    pub fn drive_type(&self) -> Option<String> {
         self.drive_type.clone()
     }
 
@@ -533,13 +533,13 @@ impl ParentReference {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FileSystemInfo {
     #[serde(rename = "createdDateTime")]
-    created_date_time: String,
+    created_date_time: Option<String>,
     #[serde(rename = "lastModifiedDateTime")]
-    last_modified_date_time: String,
+    last_modified_date_time: Option<String>,
 }
 
 impl FileSystemInfo {
-    pub fn new(created_date_time: String, last_modified_date_time: String) -> Self {
+    pub fn new(created_date_time: Option<String>, last_modified_date_time: Option<String>) -> Self {
         FileSystemInfo {
             created_date_time,
             last_modified_date_time,
@@ -548,11 +548,11 @@ impl FileSystemInfo {
 }
 
 impl FileSystemInfo {
-    pub fn created_date_time(&self) -> String {
+    pub fn created_date_time(&self) -> Option<String> {
         self.created_date_time.clone()
     }
 
-    pub fn last_modified_time(&self) -> String {
+    pub fn last_modified_time(&self) -> Option<String> {
         self.last_modified_date_time.clone()
     }
 }
@@ -560,18 +560,18 @@ impl FileSystemInfo {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Folder {
     #[serde(rename = "childCount")]
-    child_count: i64,
+    child_count: Option<i64>,
     view: Option<View>,
 }
 
 impl Folder {
-    pub fn new(child_count: i64, view: Option<View>) -> Self {
+    pub fn new(child_count: Option<i64>, view: Option<View>) -> Self {
         Folder { child_count, view }
     }
 }
 
 impl Folder {
-    pub fn child_count(&self) -> i64 {
+    pub fn child_count(&self) -> Option<i64> {
         self.child_count.clone()
     }
 
@@ -583,15 +583,19 @@ impl Folder {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct View {
     #[serde(rename = "viewType")]
-    view_type: String,
+    view_type: Option<String>,
     #[serde(rename = "sortBy")]
-    sort_by: String,
+    sort_by: Option<String>,
     #[serde(rename = "sortOrder")]
-    sort_order: String,
+    sort_order: Option<String>,
 }
 
 impl View {
-    pub fn new(view_type: String, sort_by: String, sort_order: String) -> Self {
+    pub fn new(
+        view_type: Option<String>,
+        sort_by: Option<String>,
+        sort_order: Option<String>,
+    ) -> Self {
         View {
             view_type,
             sort_by,
@@ -601,32 +605,32 @@ impl View {
 }
 
 impl View {
-    pub fn view_type(&self) -> String {
+    pub fn view_type(&self) -> Option<String> {
         self.view_type.clone()
     }
 
-    pub fn sort_by(&self) -> String {
+    pub fn sort_by(&self) -> Option<String> {
         self.sort_by.clone()
     }
 
-    pub fn sort_order(&self) -> String {
+    pub fn sort_order(&self) -> Option<String> {
         self.sort_order.clone()
     }
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SpecialFolder {
-    name: String,
+    name: Option<String>,
 }
 
 impl SpecialFolder {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: Option<String>) -> Self {
         SpecialFolder { name }
     }
 }
 
 impl SpecialFolder {
-    pub fn name(&self) -> String {
+    pub fn name(&self) -> Option<String> {
         self.name.clone()
     }
 }
@@ -634,18 +638,18 @@ impl SpecialFolder {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct File {
     #[serde(rename = "mimeType")]
-    mime_type: String,
+    mime_type: Option<String>,
     hashes: Option<Hashes>,
 }
 
 impl File {
-    pub fn new(mime_type: String, hashes: Option<Hashes>) -> Self {
+    pub fn new(mime_type: Option<String>, hashes: Option<Hashes>) -> Self {
         File { mime_type, hashes }
     }
 }
 
 impl File {
-    pub fn mime_type(&self) -> String {
+    pub fn mime_type(&self) -> Option<String> {
         self.mime_type.clone()
     }
 
@@ -695,21 +699,22 @@ impl Hashes {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RemoteItem {
     #[serde(rename = "createdDateTime")]
-    created_date_time: String,
-    id: String,
+    created_date_time: Option<String>,
+    id: Option<String>,
     #[serde(rename = "lastModifiedDateTime")]
-    last_modified_date_time: String,
-    name: String,
-    size: i64,
+    last_modified_date_time: Option<String>,
+    name: Option<String>,
+    size: Option<i64>,
     #[serde(rename = "webDavUrl")]
-    web_dav_url: String,
+    web_dav_url: Option<String>,
     #[serde(rename = "webUrl")]
-    web_url: String,
+    web_url: Option<String>,
     #[serde(rename = "createdBy")]
     created_by: Option<CreatedBy>,
     file: Option<File>,
     #[serde(rename = "fileSystemInfo")]
     file_system_info: Option<FileSystemInfo>,
+    package: Option<Package>,
     #[serde(rename = "lastModifiedBy")]
     last_modified_by: Option<LastModifiedBy>,
     #[serde(rename = "parentReference")]
@@ -721,16 +726,17 @@ pub struct RemoteItem {
 
 impl RemoteItem {
     pub fn new(
-        created_date_time: String,
-        id: String,
-        last_modified_date_time: String,
-        name: String,
-        size: i64,
-        web_dav_url: String,
-        web_url: String,
+        created_date_time: Option<String>,
+        id: Option<String>,
+        last_modified_date_time: Option<String>,
+        name: Option<String>,
+        size: Option<i64>,
+        web_dav_url: Option<String>,
+        web_url: Option<String>,
         created_by: Option<CreatedBy>,
         file: Option<File>,
         file_system_info: Option<FileSystemInfo>,
+        package: Option<Package>,
         last_modified_by: Option<LastModifiedBy>,
         parent_reference: Option<ParentReference>,
         shared: Option<Shared>,
@@ -747,6 +753,7 @@ impl RemoteItem {
             created_by,
             file,
             file_system_info,
+            package,
             last_modified_by,
             parent_reference,
             shared,
@@ -756,31 +763,31 @@ impl RemoteItem {
 }
 
 impl RemoteItem {
-    pub fn created_date_time(&self) -> String {
+    pub fn created_date_time(&self) -> Option<String> {
         self.created_date_time.clone()
     }
 
-    pub fn id(&self) -> String {
+    pub fn id(&self) -> Option<String> {
         self.id.clone()
     }
 
-    pub fn last_modified_date_time(&self) -> String {
+    pub fn last_modified_date_time(&self) -> Option<String> {
         self.last_modified_date_time.clone()
     }
 
-    pub fn name(&self) -> String {
+    pub fn name(&self) -> Option<String> {
         self.name.clone()
     }
 
-    pub fn size(&self) -> i64 {
+    pub fn size(&self) -> Option<i64> {
         self.size
     }
 
-    pub fn web_url(&self) -> String {
+    pub fn web_url(&self) -> Option<String> {
         self.web_url.clone()
     }
 
-    pub fn web_dav_url(&self) -> String {
+    pub fn web_dav_url(&self) -> Option<String> {
         self.web_dav_url.clone()
     }
 
@@ -802,6 +809,10 @@ impl RemoteItem {
 
     pub fn file_system_info(&self) -> Option<FileSystemInfo> {
         self.file_system_info.clone()
+    }
+
+    pub fn package(&self) -> Option<Package> {
+        self.package.clone()
     }
 
     pub fn shared(&self) -> Option<Shared> {
@@ -930,6 +941,12 @@ impl SharedBy {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Package {
+    #[serde(rename = "type")]
+    type_field: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Image {
     height: Option<i64>,
     width: Option<i64>,
@@ -954,17 +971,17 @@ impl Image {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Photo {
     #[serde(rename = "takenDateTime")]
-    taken_date_time: String,
+    taken_date_time: Option<String>,
 }
 
 impl Photo {
-    pub fn new(taken_date_time: String) -> Self {
+    pub fn new(taken_date_time: Option<String>) -> Self {
         Photo { taken_date_time }
     }
 }
 
 impl Photo {
-    pub fn taken_date_time(&self) -> String {
+    pub fn taken_date_time(&self) -> Option<String> {
         self.taken_date_time.clone()
     }
 }

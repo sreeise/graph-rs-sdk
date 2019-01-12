@@ -10,11 +10,13 @@ fn main() {
     let mut drive = Drive::new("YOUR ACCESS TOKEN");
     let drive_item = drive.drive_root_child();
     println!("{:#?}", &drive_item);
-    JsonFile::json_file("examples/drive_item.json", &drive_item);
+    JsonFile::json_file("examples/drive_item.json", &drive_item).unwrap();
 }
 
-
 pub fn auth_flow_to_drive() {
-    let mut auth_flow: AuthFlow = JsonFile::from_file("examples/web_auth_flow.json").unwrap();
-    let mut drive = auth_flow.into_drive().unwrap();
+    // See native_client.rs and web_client.rs for getting access_token/refresh_tokens and
+    // using serde_json to save AuthFlow to a file.
+    let mut auth_flow: AuthFlow = JsonFile::from_file("examples/auth_flow.json").unwrap();
+    let drive = auth_flow.into_drive().unwrap();
+    println!("{:#?}", &drive);
 }

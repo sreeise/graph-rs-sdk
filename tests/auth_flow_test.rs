@@ -2,8 +2,8 @@ use rust_onedrive::flow::v1::AccountType;
 use rust_onedrive::flow::v1::AuthFlow;
 use rust_onedrive::flow::v1::AuthUrl;
 use rust_onedrive::flow::v1::FlowType;
-use std::fs;
 use rust_onedrive::process::jsonio::JsonFile;
+use std::fs;
 
 #[test]
 fn create() {
@@ -103,8 +103,7 @@ fn flow_as_json_file() {
         .set_client_id("bb301aaa-1201-4259-a230923fds32")
         .set_redirect_uri("http://localhost:8888/redirect")
         .set_auth_url("https://example.com/oauth2/v2.0/authorize");
-    JsonFile::json_file("graph_configs/test_file.json", &auth_flow)
-        .unwrap();
+    JsonFile::json_file("graph_configs/test_file.json", &auth_flow).unwrap();
 
     let metadata = fs::metadata("graph_configs/test_file.json")
         .expect("Could not get metadata for auth_configs/test_file.json");

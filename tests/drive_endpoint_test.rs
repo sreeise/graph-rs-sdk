@@ -34,7 +34,7 @@ fn drive_endpoint_test() {
     assert_eq!(
         DriveEndPoint::build(DriveEndPoint::SpecialDocuments)
             .expect("could not build drive endpoint"),
-        "https://graph.microsoft.com/v1.0/me/drive/documents"
+        "https://graph.microsoft.com/v1.0/me/drive/special/documents"
     );
     assert_eq!(
         DriveEndPoint::build(DriveEndPoint::SpecialDocumentsChild)

@@ -854,8 +854,7 @@ impl AuthFlow {
         let mut access_code = self
             .params
             .get("CODE")
-            .expect(
-                FlowErrorType::missing_param("access_code").message.as_str())
+            .expect(FlowErrorType::missing_param("access_code").message.as_str())
             .clone();
 
         let mut access_token_url = self
@@ -880,9 +879,7 @@ impl AuthFlow {
         let mut access_code = self
             .params
             .get("CODE")
-            .expect(
-                FlowErrorType::missing_param("access_code").message.as_str(),
-            )
+            .expect(FlowErrorType::missing_param("access_code").message.as_str())
             .clone();
 
         let mut token_url = self
@@ -938,7 +935,6 @@ impl AuthFlow {
                 .as_str(),
         );
 
-
         // Normally an automatic conversion to AccessToken would be done here, however,
         // different errors are consistently thrown. Thus, make sure the values are
         // actually in the request.
@@ -955,9 +951,11 @@ impl AuthFlow {
                     .as_i64()
                     .expect(FlowErrorType::missing_param("expires_in").message.as_str()),
                 parsed_json["scope"].as_str().expect("Could not get scope"),
-                parsed_json["access_token"]
-                    .as_str()
-                    .expect(FlowErrorType::missing_param("access_token").message.as_str()),
+                parsed_json["access_token"].as_str().expect(
+                    FlowErrorType::missing_param("access_token")
+                        .message
+                        .as_str(),
+                ),
                 None,
                 None,
                 None,
@@ -966,30 +964,30 @@ impl AuthFlow {
             if !parsed_json["refresh_token"].is_null() {
                 self.set_refresh(parsed_json["refresh_token"].as_str().unwrap_or(""));
                 access_token.set_refresh_token(parsed_json["refresh_token"]
-                    .as_str()
-                    .expect("The parsed JSON was originally found to have a refresh token but an issue occurred."));
+                        .as_str()
+                        .expect("The parsed JSON was originally found to have a refresh token but an issue occurred."));
             } else if self.params.get("REFRESH_TOKEN").is_some() {
                 // If there is no refresh token in the request but there was a
                 // previous refresh token then use the the previous token
                 // as it can be used to request multiple access tokens.
                 access_token
-                    .set_refresh_token(
-                        self.params.get("REFRESH_TOKEN")
-                            .expect("Attempted to use previous refresh token in AccessToken but issue occurred")
-                            .as_str()
-                    );
+                        .set_refresh_token(
+                            self.params.get("REFRESH_TOKEN")
+                                .expect("Attempted to use previous refresh token in AccessToken but issue occurred")
+                                .as_str()
+                        );
             }
 
             if !parsed_json["user_id"].is_null() {
-                access_token.set_user_id(parsed_json["user_id"]
-                    .as_str()
-                    .expect("The parsed JSON was originally found to have a user id but an issue occurred."));
+                access_token.set_user_id(parsed_json["user_id"].as_str().expect(
+                    "The parsed JSON was originally found to have a user id but an issue occurred.",
+                ));
             }
 
             if !parsed_json["id_token"].is_null() {
                 access_token.set_id_token(parsed_json["id_token"]
-                    .as_str()
-                    .expect("The parsed JSON was originally found to have a id token but an issue occurred."));
+                        .as_str()
+                        .expect("The parsed JSON was originally found to have a id token but an issue occurred."));
             }
             self.set_access_token_struct(access_token);
         }

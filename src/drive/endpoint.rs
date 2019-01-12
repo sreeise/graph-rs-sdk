@@ -57,6 +57,17 @@ pub trait EP {
     fn drive_root_child(&mut self) -> DriveItem;
     fn drive_changes(&mut self) -> DriveItem;
     fn shared_with_me(&mut self) -> DriveItem;
+    fn drive_recent(&mut self) -> DriveItem;
+    fn special_documents(&mut self) -> Value;
+    fn special_documents_child(&mut self) -> DriveItem;
+    fn special_photos(&mut self) -> Value;
+    fn special_photos_child(&mut self) -> DriveItem;
+    fn special_cameraroll(&mut self) -> Value;
+    fn special_cameraroll_child(&mut self) -> DriveItem;
+    fn special_approot(&mut self) -> Value;
+    fn special_approot_child(&mut self) -> DriveItem;
+    fn special_music(&mut self) -> Value;
+    fn special_music_child(&mut self) -> DriveItem;
 }
 
 impl DriveEndPoint {
@@ -70,7 +81,7 @@ impl DriveEndPoint {
             DriveEndPoint::DriveChanges => "/drive/root/delta",
             DriveEndPoint::SharedWithMe => "/me/drive/sharedWithMe",
             DriveEndPoint::DriveRecent => "/me/drive/recent",
-            DriveEndPoint::SpecialDocuments => "/me/drive/documents",
+            DriveEndPoint::SpecialDocuments => "/me/drive/special/documents",
             DriveEndPoint::SpecialDocumentsChild => "/me/drive/special/documents/children",
             DriveEndPoint::SpecialPhotos => "/me/drive/special/photos",
             DriveEndPoint::SpecialPhotosChild => "/me/special/photos/children",

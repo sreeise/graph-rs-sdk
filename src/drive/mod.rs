@@ -11,6 +11,8 @@ Authorization: bearer {token}
 pub mod drive_builder;
 pub mod driveitem;
 pub mod endpoint;
+pub mod error;
+pub mod headers;
 
 use crate::drive::driveitem::DriveInfo;
 use crate::drive::driveitem::DriveItem;
@@ -18,6 +20,8 @@ use crate::drive::driveitem::Value;
 use crate::drive::endpoint::DriveEndPoint;
 use crate::drive::endpoint::ReqError;
 use crate::drive::endpoint::EP;
+use crate::drive::error::ErrorResponse;
+use crate::flow::encode::OauthUrlBuilder;
 use reqwest::*;
 use std;
 use std::io;
@@ -41,55 +45,43 @@ pub trait DriveSerDe<T> {
 ///
 /// https://docs.microsoft.com/en-us/graph/query-parameters
 /// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties
+// TODO: Clean up QueryString methods and error handling.
 pub trait QueryString {
-    fn select(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> DriveResponse;
+    fn select(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> DriveItem;
 
-    fn expand(
-        &self,
-        end_point: DriveEndPoint,
-        expand_item: &str,
-        query: &Vec<&str>,
-    ) -> DriveResponse;
+    fn expand(&self, end_point: DriveEndPoint, expand_item: &str, query: &Vec<&str>) -> Value;
+
+    fn url_formatter(&self, end_point: DriveEndPoint, query_type: &str) -> String;
 
     fn select_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String;
 
     fn expand_url(&self, end_point: DriveEndPoint, expand_item: &str, query: &Vec<&str>) -> String;
 
-    // TODO: Add support for filter URL
+    fn filter_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String;
+
     // https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter
-    fn filter(&self) {
-        unimplemented!();
-    }
+    fn filter(&self, end_point: DriveEndPoint, query_str: &Vec<&str>) -> DriveItem;
 
-    // TODO: Add support for order_by URL
-    // https://docs.microsoft.com/en-us/graph/query-parameters#orderby-parameter
-    fn order_by(&self) {
-        unimplemented!();
-    }
+    fn order_by_url(&self, end_point: DriveEndPoint, query: &str) -> String;
 
-    // TODO: Add support for search url
+    // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/filtering-results?view=odsp-graph-online
+    fn order_by(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem;
+
     // https://docs.microsoft.com/en-us/graph/query-parameters#search-parameter
-    fn search(&self) {
-        unimplemented!();
-    }
+    fn search(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem;
 
-    // TODO: Add Support for format URL
+    fn search_url(&self, end_point: DriveEndPoint, query_str: &str) -> String;
+
+    fn format_url(&self, end_point: DriveEndPoint, query_str: &str) -> String;
+
     // https://docs.microsoft.com/en-us/graph/query-parameters#format-parameter
-    fn format(&self) {
-        unimplemented!();
-    }
+    fn format(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem;
 
-    // TODO: Add support for skip URL
     // https://docs.microsoft.com/en-us/graph/query-parameters#skip-parameter
-    fn skip(&self) {
-        unimplemented!();
-    }
+    fn skip(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse;
 
-    // TODO: Add support for top URL
     // https://docs.microsoft.com/en-us/graph/query-parameters#top-parameter
-    fn top(&self) {
-        unimplemented!();
-    }
+    fn top(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse;
 }
 
 pub trait DriveRequest {
@@ -381,14 +373,19 @@ impl Drive {
 /// ```
 impl EP for Drive {
     fn req_to_string(&mut self, endpoint: DriveEndPoint) -> String {
-        let mut drive_req = self.request(endpoint).unwrap();
+        let mut drive_req = self
+            .request(endpoint)
+            .expect("Unknown error requesting resource");
+
         if drive_req.status() != 200 {
-            // let headers = drive_req.headers().to_owned();
-            panic!(
-                "Bad request: {:#?}\n{:#?}",
-                drive_req.headers().to_owned(),
-                &drive_req.text().unwrap()
-            );
+            let error_response = ErrorResponse::from_u16(drive_req.status().as_u16());
+            if error_response.is_some() {
+                panic!(
+                    "Bad request:\nError Code: {:#?}\nError Message: {:#?}",
+                    drive_req.status(),
+                    error_response.unwrap().as_str(),
+                );
+            }
         }
         let json_str = json::parse(
             drive_req
@@ -444,6 +441,95 @@ impl EP for Drive {
         let d: DriveItem =
             serde_json::from_str(self.req_to_string(DriveEndPoint::SharedWithMe).as_str())
                 .expect(ReqError::BadRequest.as_str());
+        d
+    }
+
+    fn drive_recent(&mut self) -> DriveItem {
+        let d: DriveItem =
+            serde_json::from_str(self.req_to_string(DriveEndPoint::DriveRecent).as_str())
+                .expect(ReqError::BadRequest.as_str());
+        d
+    }
+
+    fn special_documents(&mut self) -> Value {
+        let v: Value =
+            serde_json::from_str(self.req_to_string(DriveEndPoint::SpecialDocuments).as_str())
+                .expect(ReqError::BadRequest.as_str());
+        v
+    }
+
+    fn special_documents_child(&mut self) -> DriveItem {
+        let d: DriveItem = serde_json::from_str(
+            self.req_to_string(DriveEndPoint::SpecialDocumentsChild)
+                .as_str(),
+        )
+        .expect(ReqError::BadRequest.as_str());
+        d
+    }
+
+    fn special_photos(&mut self) -> Value {
+        let v: Value =
+            serde_json::from_str(self.req_to_string(DriveEndPoint::SpecialPhotos).as_str())
+                .expect(ReqError::BadRequest.as_str());
+        v
+    }
+
+    fn special_photos_child(&mut self) -> DriveItem {
+        let d: DriveItem = serde_json::from_str(
+            self.req_to_string(DriveEndPoint::SpecialPhotosChild)
+                .as_str(),
+        )
+        .expect(ReqError::BadRequest.as_str());
+        d
+    }
+
+    fn special_cameraroll(&mut self) -> Value {
+        let v: Value = serde_json::from_str(
+            self.req_to_string(DriveEndPoint::SpecialCameraRoll)
+                .as_str(),
+        )
+        .expect(ReqError::BadRequest.as_str());
+        v
+    }
+
+    fn special_cameraroll_child(&mut self) -> DriveItem {
+        let d: DriveItem = serde_json::from_str(
+            self.req_to_string(DriveEndPoint::SpecialCameraRollChild)
+                .as_str(),
+        )
+        .expect(ReqError::BadRequest.as_str());
+        d
+    }
+
+    fn special_approot(&mut self) -> Value {
+        let v: Value =
+            serde_json::from_str(self.req_to_string(DriveEndPoint::SpecialAppRoot).as_str())
+                .expect(ReqError::BadRequest.as_str());
+        v
+    }
+
+    fn special_approot_child(&mut self) -> DriveItem {
+        let d: DriveItem = serde_json::from_str(
+            self.req_to_string(DriveEndPoint::SpecialAppRootChild)
+                .as_str(),
+        )
+        .expect(ReqError::BadRequest.as_str());
+        d
+    }
+
+    fn special_music(&mut self) -> Value {
+        let v: Value =
+            serde_json::from_str(self.req_to_string(DriveEndPoint::SpecialMusic).as_str())
+                .expect(ReqError::BadRequest.as_str());
+        v
+    }
+
+    fn special_music_child(&mut self) -> DriveItem {
+        let d: DriveItem = serde_json::from_str(
+            self.req_to_string(DriveEndPoint::SpecialMusicChild)
+                .as_str(),
+        )
+        .expect(ReqError::BadRequest.as_str());
         d
     }
 }
@@ -525,9 +611,12 @@ impl QueryString for Drive {
     ///   println!("{:#?}", req); // -> Head of response
     ///   println!("{:#?}", req.text()); // -> Body of response
     /// ```
-    fn select(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> DriveResponse {
+    fn select(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> DriveItem {
         let url = self.select_url(end_point, query);
-        self.get_with_url(url)
+        let mut response = self.get_with_url(url).expect("Bad request");
+        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
+        let d: DriveItem = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
+        d
     }
 
     /// Query String Expand
@@ -547,14 +636,21 @@ impl QueryString for Drive {
     ///   println!("{:#?}", req.text()); // -> Body of response
     ///```
     /// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties
-    fn expand(
-        &self,
-        end_point: DriveEndPoint,
-        expand_item: &str,
-        query: &Vec<&str>,
-    ) -> DriveResponse {
+    fn expand(&self, end_point: DriveEndPoint, expand_item: &str, query: &Vec<&str>) -> Value {
         let url = self.expand_url(end_point, expand_item, query);
-        self.get_with_url(url)
+        let mut response = self.get_with_url(url).expect("Bad request");
+        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
+        let v: Value = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
+        v
+    }
+
+    fn url_formatter(&self, end_point: DriveEndPoint, query_type: &str) -> String {
+        let url_vec = vec![
+            DriveEndPoint::build(end_point).expect("could not build drive end point"),
+            query_type.to_string(),
+        ];
+
+        url_vec.join("")
     }
 
     /// Get the URL string a select query string
@@ -563,7 +659,7 @@ impl QueryString for Drive {
         let url_vec = vec![
             DriveEndPoint::build(end_point).expect("could not build drive end point"),
             "?select=".to_string(),
-            query_str,
+            query_str.to_string(),
         ];
         url_vec.join("")
     }
@@ -581,13 +677,86 @@ impl QueryString for Drive {
         ];
         url_vec.join("")
     }
-}
 
-// Tests for private field in Drive - must stay here
-#[test]
-fn drive_access_token() {
-    let mut drive = Drive::new("232344");
-    assert_eq!(drive.access_token, "232344");
-    drive.reset_access_token("3232434");
-    assert_eq!(drive.access_token, "3232434");
+    fn filter_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String {
+        let query_str = query.join(" ").clone();
+        let url_vec = vec![
+            DriveEndPoint::build(end_point).expect("could not build drive end point"),
+            "?$filter=".to_string(),
+            query_str.to_string(),
+        ];
+
+        url_vec.join("")
+    }
+
+    fn filter(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> DriveItem {
+        let url = self.filter_url(end_point, query);
+        let mut response = self.get_with_url(url).expect("Bad request");
+        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
+        let d: DriveItem = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
+        d
+    }
+
+    fn order_by_url(&self, end_point: DriveEndPoint, query_str: &str) -> String {
+        let url_vec = vec![
+            DriveEndPoint::build(end_point).expect("could not build drive end point"),
+            "?$orderby=".to_string(),
+            query_str.to_string(),
+        ];
+        url_vec.join("")
+    }
+
+    fn order_by(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem {
+        let url = self.order_by_url(end_point, query_str);
+        let mut response = self.get_with_url(url).expect("Bad request");
+        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
+        let d: DriveItem = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
+        d
+    }
+
+    fn search(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem {
+        let url = self.search_url(end_point, query_str);
+        let mut response = self.get_with_url(url).expect("Bad request");
+        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
+        let d: DriveItem = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
+        d
+    }
+
+    fn search_url(&self, end_point: DriveEndPoint, query_str: &str) -> String {
+        let url_vec = vec![
+            DriveEndPoint::build(end_point).expect("could not build drive end point"),
+            "?$search=".to_string(),
+            query_str.to_string(),
+        ];
+        url_vec.join("")
+    }
+
+    fn format_url(&self, end_point: DriveEndPoint, query_str: &str) -> String {
+        let url_vec = vec![
+            DriveEndPoint::build(end_point).expect("could not build drive end point"),
+            "?$format=".to_string(),
+            query_str.to_string(),
+        ];
+        url_vec.join("")
+    }
+
+    fn format(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem {
+        let mut url = self.format_url(end_point, query_str);
+        let mut response = self.get_with_url(url).expect("Bad request");
+        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
+        let d: DriveItem = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
+        d
+    }
+
+    fn skip(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse {
+        let mut url = self.url_formatter(end_point, "&$skip=");
+        url.push_str(query_str);
+        self.get_with_url(url)
+    }
+
+    fn top(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse {
+        let mut url = self.url_formatter(end_point, "?$top=");
+        url.push_str(query_str);
+        self.get_with_url(url)
+    }
 }
