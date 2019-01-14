@@ -15,7 +15,7 @@ fn main() {
     using serde_json to save AuthFlow to a file.
     */
     let mut drive = Drive::new("YOUR ACCESS TOKEN");
-    let drive_item = drive.drive_root_child();
+    let drive_item = drive.drive_root_child(); // BaseItem<DriveItem>
     println!("{:#?}", &drive_item);
     JsonFile::json_file("examples/drive_item.json", &drive_item).unwrap();
 }
@@ -24,13 +24,13 @@ pub fn auth_flow_to_drive() {
     // See native_client.rs and web_client.rs for getting access_token/refresh_tokens and
     // using serde_json to save AuthFlow to a file.
     let mut auth_flow: AuthFlow = JsonFile::from_file("examples/auth_flow.json").unwrap();
-    let drive = auth_flow.into_drive().unwrap();
+    let drive = auth_flow.into_drive().unwrap(); // Drive
     println!("{:#?}", &drive);
 }
 
 pub fn base_item() {
     let mut auth_flow: AuthFlow = JsonFile::from_file("examples/auth_flow.json").unwrap();
-    let mut drive = auth_flow.into_drive().unwrap();
+    let mut drive = auth_flow.into_drive().unwrap(); // Drive
     // The base item holds one of DriveInfo, DriveItem, or Value.
     // where
     // DriveInfo: A top level drive and information for that drive such as id.
@@ -73,7 +73,7 @@ pub fn base_item_by_url() {
         let error = base_item.error; // Option<DriveError>
         println!("{:#?}", error);
     } else {
-        let drive_info = base_item.item().unwrap();
+        let drive_info = base_item.item().unwrap(); // DriveItem
         println!("{:#?}", drive_info);
     }
 }
