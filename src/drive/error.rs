@@ -8,7 +8,7 @@ impl DriveError {
     pub fn new(error_info: &str, error_type: DriveErrorType) -> DriveError {
         DriveError {
             error_info: error_info.to_string(),
-            error_type
+            error_type,
         }
     }
 }

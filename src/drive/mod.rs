@@ -21,17 +21,10 @@ use crate::drive::driveitem::Value;
 use crate::drive::endpoint::DriveEndPoint;
 use crate::drive::endpoint::EP;
 use crate::drive::error::DriveError;
-use crate::drive::error::DriveErrorInfo;
 use crate::drive::error::DriveErrorType;
-use crate::flow::encode::OauthUrlBuilder;
-use crate::process::jsonio::JsonFile;
 use reqwest::*;
 use std;
 use std::io;
-
-/*
-Drive Resource: Top level Microsoft Graph resource.
-*/
 
 pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
 
@@ -49,23 +42,27 @@ pub trait DriveSerDe<T> {
 ///
 /// https://docs.microsoft.com/en-us/graph/query-parameters
 /// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties
-// TODO: Clean up QueryString methods and error handling.
 pub trait QueryString {
-    fn select(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> DriveItem;
+    fn select(&mut self, end_point: DriveEndPoint, query: &Vec<&str>) -> BaseItem<DriveItem>;
     fn select_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String;
-    fn expand(&self, end_point: DriveEndPoint, expand_item: &str, query: &Vec<&str>) -> Value;
+    fn expand(
+        &mut self,
+        end_point: DriveEndPoint,
+        expand_item: &str,
+        query: &Vec<&str>,
+    ) -> BaseItem<Value>;
     fn expand_url(&self, end_point: DriveEndPoint, expand_item: &str, query: &Vec<&str>) -> String;
+    fn filter(&mut self, end_point: DriveEndPoint, query_str: &Vec<&str>) -> BaseItem<DriveItem>;
     fn filter_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String;
-    fn filter(&self, end_point: DriveEndPoint, query_str: &Vec<&str>) -> DriveItem;
-    fn order_by(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem;
+    fn order_by(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem>;
     fn order_by_url(&self, end_point: DriveEndPoint, query: &str) -> String;
-    fn search(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem;
+    fn search(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem>;
     fn search_url(&self, end_point: DriveEndPoint, query_str: &str) -> String;
     fn format_url(&self, end_point: DriveEndPoint, query_str: &str) -> String;
-    fn format(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem;
+    fn format(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem>;
+    // TODO: Fix skip() and top() url formatting.
     fn skip(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse;
     fn top(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse;
-    fn url_formatter(&self, end_point: DriveEndPoint, query_type: &str) -> String;
 }
 
 pub trait DriveRequest {
@@ -80,6 +77,36 @@ pub trait DriveRequest {
 
     fn get_with_url(&self, url: String) -> DriveResponse;
     fn post_with_url(&self, url: String) -> DriveResponse;
+    fn build_request(
+        &self,
+        url: &str,
+        request_type: &str,
+        content_type: &str,
+        access_token: &str,
+    ) -> DriveResponse {
+        let client = reqwest::Client::builder().build()?;
+        match request_type {
+            "GET" => {
+                let res = client
+                    .get(url)
+                    .header(header::AUTHORIZATION, access_token)
+                    .header(header::CONTENT_TYPE, content_type)
+                    .send()
+                    .expect("Error with request to microsoft graph");
+                Ok(res)
+            }
+            "POST" => {
+                let res = client
+                    .post(url)
+                    .header(header::AUTHORIZATION, access_token)
+                    .header(header::CONTENT_TYPE, content_type)
+                    .send()
+                    .expect("Error with request to microsoft graph");
+                Ok(res)
+            }
+            _ => unimplemented!(),
+        }
+    }
 }
 
 /// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/addressing-driveitems?view=odsp-graph-online
@@ -343,30 +370,49 @@ impl Drive {
     fn check_error(&self, status: u16) -> Option<DriveError> {
         let error_type = DriveErrorType::from_u16(status);
         if error_type.is_some() {
-            let error_t = error_type.expect("Drive Request Error found originally but unknown error occurred");
+            let error_t = error_type
+                .expect("Drive Request Error found originally but unknown error occurred");
             return Some(DriveError {
                 error_info: String::from(error_t.as_str()),
                 error_type: error_t,
-            })
+            });
         }
         None
     }
 
-    fn parse_base_item<T>(&mut self, end_point: DriveEndPoint) -> BaseItem<T>
+    pub fn base_item<T>(&mut self, end_point: DriveEndPoint) -> BaseItem<T>
     where
         for<'de> T: serde::Deserialize<'de>,
     {
         let mut drive_req = self
             .request(end_point)
             .expect("Unknown error requesting resource");
+        self.parse_base_item(&mut drive_req)
+    }
 
-        if self.check_error(drive_req.status().as_u16()).is_some() {
-            let drive_error = self.check_error(drive_req.status().as_u16()).unwrap();
-            let base_item= BaseItem::new(None, Some(drive_error), true);
+    pub fn base_item_from_url<T>(&mut self, url: &str) -> BaseItem<T>
+    where
+        for<'de> T: serde::Deserialize<'de>,
+    {
+        let mut response = self
+            .get_with_url(url.to_string())
+            .expect("Unknown error requesting resource");
+        self.parse_base_item(&mut response)
+    }
+
+    fn parse_base_item<T>(&mut self, response: &mut Response) -> BaseItem<T>
+    where
+        for<'de> T: serde::Deserialize<'de>,
+    {
+        if self.check_error(response.status().as_u16()).is_some() {
+            let drive_error = self
+                .check_error(response.status().as_u16())
+                .expect(DriveErrorType::BadRequest.as_str());
+            let base_item = BaseItem::new(None, Some(drive_error));
             base_item
         } else {
             let json_str = json::parse(
-                drive_req
+                response
                     .text()
                     .expect(DriveErrorType::BadRequest.as_str())
                     .as_str(),
@@ -374,8 +420,9 @@ impl Drive {
             .expect(DriveErrorType::BadRequest.as_str());
             let pretty_str = json_str.pretty(1);
 
-            let item: T = serde_json::from_str(pretty_str.as_str()).expect(DriveErrorType::BadRequest.as_str());
-            BaseItem::new(Some(item), None, false)
+            let item: T = serde_json::from_str(pretty_str.as_str())
+                .expect(DriveErrorType::BadRequest.as_str());
+            BaseItem::new(Some(item), None)
         }
     }
 
@@ -384,18 +431,17 @@ impl Drive {
             .request(endpoint)
             .expect("Unknown error requesting resource");
 
-        if drive_req.status() != 200 {
+        if self.check_error(drive_req.status().as_u16()).is_some() {
             let error_type = DriveErrorType::from_u16(drive_req.status().as_u16());
-            if error_type.is_some() {
-                let error_t = error_type.unwrap();
-                let drive_error = DriveError {
-                    error_info: String::from(error_t.as_str()),
-                    error_type: error_t,
-                };
+            let error_t = error_type.unwrap();
+            let drive_error = DriveError {
+                error_info: String::from(error_t.as_str()),
+                error_type: error_t,
+            };
 
-                let serialized = serde_json::to_string(&drive_error).unwrap();
-                return Some(serialized);
-            }
+            let serialized = serde_json::to_string(&drive_error).unwrap();
+            let json_str = json::parse(serialized.as_str()).unwrap();
+            return Some(json_str.pretty(1));
         }
 
         let json_str = json::parse(
@@ -414,85 +460,96 @@ impl Drive {
 ///
 /// # Example
 /// ```rust,ignore
-/// fn drive(&mut self) -> BaseItem<DriveInfo>;
-/// fn drive_me(&mut self) -> BaseItem<DriveInfo>;
-/// fn drive_root(&mut self) -> BaseItem<Value>;
-/// fn drive_root_me(&mut self) -> BaseItem<Value>;
-/// fn drive_root_child(&mut self) -> BaseItem<DriveItem>;
-/// fn drive_changes(&mut self) -> BaseItem<DriveItem>;
-/// fn shared_with_me(&mut self) -> BaseItem<DriveItem>;
+///    fn drive(&mut self) -> BaseItem<DriveInfo>;
+///    fn drive_me(&mut self) -> BaseItem<DriveInfo>;
+///    fn drive_root(&mut self) -> BaseItem<Value>;
+///    fn drive_root_me(&mut self) -> BaseItem<Value>;
+///    fn drive_root_child(&mut self) -> BaseItem<DriveItem>;
+///    fn drive_changes(&mut self) -> BaseItem<DriveItem>;
+///    fn shared_with_me(&mut self) -> BaseItem<DriveItem>;
+///    fn drive_recent(&mut self) -> BaseItem<DriveItem>;
+///    fn special_documents(&mut self) -> BaseItem<Value>;
+///    fn special_documents_child(&mut self) -> BaseItem<DriveItem>;
+///    fn special_photos(&mut self) -> BaseItem<Value>;
+///    fn special_photos_child(&mut self) -> BaseItem<DriveItem>;
+///    fn special_cameraroll(&mut self) -> BaseItem<Value>;
+///    fn special_cameraroll_child(&mut self) -> BaseItem<DriveItem>;
+///    fn special_approot(&mut self) -> BaseItem<Value>;
+///    fn special_approot_child(&mut self) -> BaseItem<DriveItem>;
+///    fn special_music(&mut self) -> BaseItem<Value>;
+///    fn special_music_child(&mut self) -> BaseItem<DriveItem>;
 /// ```
 impl EP for Drive {
     fn drive(&mut self) -> BaseItem<DriveInfo> {
-        self.parse_base_item(DriveEndPoint::Drive)
+        self.base_item(DriveEndPoint::Drive)
     }
 
     fn drive_me(&mut self) -> BaseItem<DriveInfo> {
-        self.parse_base_item(DriveEndPoint::DriveMe)
+        self.base_item(DriveEndPoint::DriveMe)
     }
 
     fn drive_root(&mut self) -> BaseItem<Value> {
-        self.parse_base_item(DriveEndPoint::DriveRoot)
+        self.base_item(DriveEndPoint::DriveRoot)
     }
 
     fn drive_root_me(&mut self) -> BaseItem<Value> {
-        self.parse_base_item(DriveEndPoint::DriveRootMe)
+        self.base_item(DriveEndPoint::DriveRootMe)
     }
 
     fn drive_root_child(&mut self) -> BaseItem<DriveItem> {
-        self.parse_base_item(DriveEndPoint::DriveRootChild)
+        self.base_item(DriveEndPoint::DriveRootChild)
     }
 
     fn drive_changes(&mut self) -> BaseItem<DriveItem> {
-        self.parse_base_item(DriveEndPoint::DriveChanges)
+        self.base_item(DriveEndPoint::DriveChanges)
     }
 
     fn shared_with_me(&mut self) -> BaseItem<DriveItem> {
-        self.parse_base_item(DriveEndPoint::SharedWithMe)
+        self.base_item(DriveEndPoint::SharedWithMe)
     }
 
     fn drive_recent(&mut self) -> BaseItem<DriveItem> {
-        self.parse_base_item(DriveEndPoint::DriveRecent)
+        self.base_item(DriveEndPoint::DriveRecent)
     }
 
     fn special_documents(&mut self) -> BaseItem<Value> {
-        self.parse_base_item(DriveEndPoint::SpecialDocuments)
+        self.base_item(DriveEndPoint::SpecialDocuments)
     }
 
     fn special_documents_child(&mut self) -> BaseItem<DriveItem> {
-        self.parse_base_item(DriveEndPoint::SpecialDocumentsChild)
+        self.base_item(DriveEndPoint::SpecialDocumentsChild)
     }
 
     fn special_photos(&mut self) -> BaseItem<Value> {
-        self.parse_base_item(DriveEndPoint::SpecialPhotos)
+        self.base_item(DriveEndPoint::SpecialPhotos)
     }
 
     fn special_photos_child(&mut self) -> BaseItem<DriveItem> {
-        self.parse_base_item(DriveEndPoint::SpecialPhotosChild)
+        self.base_item(DriveEndPoint::SpecialPhotosChild)
     }
 
     fn special_cameraroll(&mut self) -> BaseItem<Value> {
-        self.parse_base_item(DriveEndPoint::SpecialCameraRoll)
+        self.base_item(DriveEndPoint::SpecialCameraRoll)
     }
 
     fn special_cameraroll_child(&mut self) -> BaseItem<DriveItem> {
-        self.parse_base_item(DriveEndPoint::SpecialCameraRollChild)
+        self.base_item(DriveEndPoint::SpecialCameraRollChild)
     }
 
     fn special_approot(&mut self) -> BaseItem<Value> {
-        self.parse_base_item(DriveEndPoint::SpecialAppRoot)
+        self.base_item(DriveEndPoint::SpecialAppRoot)
     }
 
     fn special_approot_child(&mut self) -> BaseItem<DriveItem> {
-        self.parse_base_item(DriveEndPoint::SpecialAppRootChild)
+        self.base_item(DriveEndPoint::SpecialAppRootChild)
     }
 
     fn special_music(&mut self) -> BaseItem<Value> {
-        self.parse_base_item(DriveEndPoint::SpecialMusic)
+        self.base_item(DriveEndPoint::SpecialMusic)
     }
 
     fn special_music_child(&mut self) -> BaseItem<DriveItem> {
-        self.parse_base_item(DriveEndPoint::SpecialMusicChild)
+        self.base_item(DriveEndPoint::SpecialMusicChild)
     }
 }
 
@@ -516,41 +573,34 @@ impl DriveRequest for Drive {
         resource_id: &str,
         item_id: &str,
     ) -> DriveResponse {
-        let client = reqwest::Client::builder().build()?;
-        let res = client
-            .get(
-                self.resource_drive_item_url(resource, drive_action, resource_id, item_id)
-                    .as_str(),
-            )
-            .header(header::AUTHORIZATION, self.access_token.as_str())
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()
-            .expect("Error with request to microsoft graph");
-        Ok(res)
+        let url = self.resource_drive_item_url(resource, drive_action, resource_id, item_id);
+        let response = self.build_request(
+            url.as_str(),
+            "GET",
+            "application/json",
+            self.access_token.as_str(),
+        );
+        response
     }
 
     fn get_with_url(&self, url: String) -> DriveResponse {
-        let client = reqwest::Client::builder().build().unwrap();
-        let res = client
-            .get(url.as_str())
-            .header(header::AUTHORIZATION, self.access_token.as_str())
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()
-            .expect("Error with request to microsoft graph");
-
-        Ok(res)
+        let response = self.build_request(
+            url.as_str(),
+            "GET",
+            "application/json",
+            self.access_token.as_str(),
+        );
+        response
     }
 
     fn post_with_url(&self, url: String) -> DriveResponse {
-        let client = reqwest::Client::builder().build().unwrap();
-        let res = client
-            .post(url.as_str())
-            .header(header::AUTHORIZATION, self.access_token.as_str())
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()
-            .expect("Error with request to microsoft graph");
-
-        Ok(res)
+        let response = self.build_request(
+            url.as_str(),
+            "POST",
+            "application/json",
+            self.access_token.as_str(),
+        );
+        response
     }
 }
 
@@ -573,12 +623,10 @@ impl QueryString for Drive {
     ///   println!("{:#?}", req); // -> Head of response
     ///   println!("{:#?}", req.text()); // -> Body of response
     /// ```
-    fn select(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> DriveItem {
+    fn select(&mut self, end_point: DriveEndPoint, query: &Vec<&str>) -> BaseItem<DriveItem> {
         let url = self.select_url(end_point, query);
-        let mut response = self.get_with_url(url).expect("Bad request");
-        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
-        let d: DriveItem = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
-        d
+        let base_item = self.base_item_from_url(url.as_str());
+        base_item
     }
 
     /// Get the URL string a select query string
@@ -603,18 +651,24 @@ impl QueryString for Drive {
     ///
     /// // Forms the request url: "https://graph.microsoft.com/v1.0/me/drive/root?expand=children(select=id,name,size)"
     /// // sending the request and returning the response
-    /// let req = drive.expand(DriveEndPoint::DriveRoot, "children", query);
+    /// let base_item: BaseItem<Value> = drive.expand(DriveEndPoint::DriveRoot, "children", query);
     ///
-    ///   println!("{:#?}", req); // -> Head of response
-    ///   println!("{:#?}", req.text()); // -> Body of response
+    /// if base_item.is_some() {
+    ///     println!("{:#?}", &base_item); // BaseItem<Value>
+    /// } else {
+    ///     println!("{:#?}", &base_item.error); // DriveError
+    /// }
     ///```
     /// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties
-    fn expand(&self, end_point: DriveEndPoint, expand_item: &str, query: &Vec<&str>) -> Value {
+    fn expand(
+        &mut self,
+        end_point: DriveEndPoint,
+        expand_item: &str,
+        query: &Vec<&str>,
+    ) -> BaseItem<Value> {
         let url = self.expand_url(end_point, expand_item, query);
-        let mut response = self.get_with_url(url).expect("Bad request");
-        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
-        let v: Value = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
-        v
+        let base_item = self.base_item_from_url(url.as_str());
+        base_item
     }
 
     /// Get the URL string for a expand query string
@@ -631,6 +685,12 @@ impl QueryString for Drive {
         url_vec.join("")
     }
 
+    fn filter(&mut self, end_point: DriveEndPoint, query: &Vec<&str>) -> BaseItem<DriveItem> {
+        let url = self.filter_url(end_point, query);
+        let base_item = self.base_item_from_url(url.as_str());
+        base_item
+    }
+
     fn filter_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String {
         let query_str = query.join(" ").clone();
         let url_vec = vec![
@@ -642,20 +702,10 @@ impl QueryString for Drive {
         url_vec.join("")
     }
 
-    fn filter(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> DriveItem {
-        let url = self.filter_url(end_point, query);
-        let mut response = self.get_with_url(url).expect("Bad request");
-        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
-        let d: DriveItem = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
-        d
-    }
-
-    fn order_by(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem {
+    fn order_by(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem> {
         let url = self.order_by_url(end_point, query_str);
-        let mut response = self.get_with_url(url).expect("Bad request");
-        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
-        let d: DriveItem = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
-        d
+        let base_item = self.base_item_from_url(url.as_str());
+        base_item
     }
 
     fn order_by_url(&self, end_point: DriveEndPoint, query_str: &str) -> String {
@@ -667,12 +717,10 @@ impl QueryString for Drive {
         url_vec.join("")
     }
 
-    fn search(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem {
+    fn search(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem> {
         let url = self.search_url(end_point, query_str);
-        let mut response = self.get_with_url(url).expect("Bad request");
-        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
-        let d: DriveItem = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
-        d
+        let base_item = self.base_item_from_url(url.as_str());
+        base_item
     }
 
     fn search_url(&self, end_point: DriveEndPoint, query_str: &str) -> String {
@@ -693,32 +741,17 @@ impl QueryString for Drive {
         url_vec.join("")
     }
 
-    fn format(&self, end_point: DriveEndPoint, query_str: &str) -> DriveItem {
-        let mut url = self.format_url(end_point, query_str);
-        let mut response = self.get_with_url(url).expect("Bad request");
-        let json_str = json::parse(response.text().unwrap().as_str()).unwrap();
-        let d: DriveItem = serde_json::from_str(json_str.pretty(1).as_str()).unwrap();
-        d
+    fn format(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem> {
+        let url = self.format_url(end_point, query_str);
+        let base_item = self.base_item_from_url(url.as_str());
+        base_item
     }
 
     fn skip(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse {
-        let mut url = self.url_formatter(end_point, "&$skip=");
-        url.push_str(query_str);
-        self.get_with_url(url)
+        unimplemented!();
     }
 
     fn top(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse {
-        let mut url = self.url_formatter(end_point, "?$top=");
-        url.push_str(query_str);
-        self.get_with_url(url)
-    }
-
-    fn url_formatter(&self, end_point: DriveEndPoint, query_type: &str) -> String {
-        let url_vec = vec![
-            DriveEndPoint::build(end_point),
-            query_type.to_string(),
-        ];
-
-        url_vec.join("")
+        unimplemented!();
     }
 }

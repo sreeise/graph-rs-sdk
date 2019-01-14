@@ -23,7 +23,6 @@ use crate::drive::baseitem::BaseItem;
 use crate::drive::driveitem::Value;
 use crate::drive::driveitem::{DriveInfo, DriveItem};
 use crate::drive::GRAPH_ENDPOINT;
-use std::io;
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub enum DriveEndPoint {
@@ -47,8 +46,6 @@ pub enum DriveEndPoint {
     SpecialMusicChild,
 }
 
-// TODO: Implement the rest of DriveEndPoint for trait EP here and in drive/mod.rs
-// Tests will be needed as well.
 pub trait EP {
     fn drive(&mut self) -> BaseItem<DriveInfo>;
     fn drive_me(&mut self) -> BaseItem<DriveInfo>;

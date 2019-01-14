@@ -7,20 +7,11 @@ use crate::drive::error::DriveError;
 pub struct BaseItem<T> {
     pub item: Option<T>,
     pub error: Option<DriveError>,
-    pub is_error: bool,
 }
 
 impl<T> BaseItem<T> {
-    pub fn new(item: Option<T>, error: Option<DriveError>, is_error: bool) -> BaseItem<T> {
-        BaseItem {
-            item,
-            error,
-            is_error,
-        }
-    }
-
-    pub fn is_error(&self) -> bool {
-        self.is_error
+    pub fn new(item: Option<T>, error: Option<DriveError>) -> BaseItem<T> {
+        BaseItem { item, error }
     }
 
     pub fn is_none(&self) -> bool {
