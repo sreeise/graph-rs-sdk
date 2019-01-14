@@ -38,7 +38,9 @@ fn drive_root() {
     assert_eq!(drive_info.name(), Some(String::from("root")));
     assert_eq!(
         drive_info.web_url(),
-        Some(String::from("https://m365x214355.sharepoint.com/Shared%20Documents"))
+        Some(String::from(
+            "https://m365x214355.sharepoint.com/Shared%20Documents"
+        ))
     );
 }
 
@@ -68,7 +70,9 @@ fn shared_with_me() {
 
     let parent_ref = drive_value[0].remote_item().unwrap().parent_reference();
     let parent_ref2 = ParentReference::new(
-        Some(String::from("b!bUbEy-Q7O0yQlf5IKmlRJE8XkS_I8MdFlUCq1BlcjgmhRfAj3-Z8RY2VpuvV_tpd")),
+        Some(String::from(
+            "b!bUbEy-Q7O0yQlf5IKmlRJE8XkS_I8MdFlUCq1BlcjgmhRfAj3-Z8RY2VpuvV_tpd",
+        )),
         Some(String::from("business")),
         Some(String::from("01OMQY4ZN6Y2GOVW7725BZO354PWSELRRZ")),
         None,

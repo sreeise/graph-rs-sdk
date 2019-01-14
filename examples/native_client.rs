@@ -65,7 +65,7 @@ fn native_client() -> AuthFlow {
         .add_scope("Files.Read.All")
         .add_scope("Files.ReadWrite.All")
         .add_scope("wl.offline_access"); // wl.offline_access will cause the request to return
-                                                // a refresh token as well.
+                                         // a refresh token as well.
 
     auth_flow.use_default_auth_url(AccountType::Account);
     auth_flow

@@ -66,7 +66,6 @@ use std::thread;
 use reqwest::header;
 use url::form_urlencoded;
 
-use crate::drive::endpoint::ReqError;
 use crate::drive::Drive;
 use crate::flow::accesstoken::AccessToken;
 use crate::flow::encode::OauthUrlBuilder;

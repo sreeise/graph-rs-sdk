@@ -19,6 +19,7 @@ Special folders are one of:
         Description: The Music folder.
 */
 
+use crate::drive::baseitem::BaseItem;
 use crate::drive::driveitem::Value;
 use crate::drive::driveitem::{DriveInfo, DriveItem};
 use crate::drive::GRAPH_ENDPOINT;
@@ -49,25 +50,24 @@ pub enum DriveEndPoint {
 // TODO: Implement the rest of DriveEndPoint for trait EP here and in drive/mod.rs
 // Tests will be needed as well.
 pub trait EP {
-    fn req_to_string(&mut self, endpoint: DriveEndPoint) -> String;
-    fn drive(&mut self) -> DriveInfo;
-    fn drive_me(&mut self) -> DriveInfo;
-    fn drive_root(&mut self) -> Value;
-    fn drive_root_me(&mut self) -> Value;
-    fn drive_root_child(&mut self) -> DriveItem;
-    fn drive_changes(&mut self) -> DriveItem;
-    fn shared_with_me(&mut self) -> DriveItem;
-    fn drive_recent(&mut self) -> DriveItem;
-    fn special_documents(&mut self) -> Value;
-    fn special_documents_child(&mut self) -> DriveItem;
-    fn special_photos(&mut self) -> Value;
-    fn special_photos_child(&mut self) -> DriveItem;
-    fn special_cameraroll(&mut self) -> Value;
-    fn special_cameraroll_child(&mut self) -> DriveItem;
-    fn special_approot(&mut self) -> Value;
-    fn special_approot_child(&mut self) -> DriveItem;
-    fn special_music(&mut self) -> Value;
-    fn special_music_child(&mut self) -> DriveItem;
+    fn drive(&mut self) -> BaseItem<DriveInfo>;
+    fn drive_me(&mut self) -> BaseItem<DriveInfo>;
+    fn drive_root(&mut self) -> BaseItem<Value>;
+    fn drive_root_me(&mut self) -> BaseItem<Value>;
+    fn drive_root_child(&mut self) -> BaseItem<DriveItem>;
+    fn drive_changes(&mut self) -> BaseItem<DriveItem>;
+    fn shared_with_me(&mut self) -> BaseItem<DriveItem>;
+    fn drive_recent(&mut self) -> BaseItem<DriveItem>;
+    fn special_documents(&mut self) -> BaseItem<Value>;
+    fn special_documents_child(&mut self) -> BaseItem<DriveItem>;
+    fn special_photos(&mut self) -> BaseItem<Value>;
+    fn special_photos_child(&mut self) -> BaseItem<DriveItem>;
+    fn special_cameraroll(&mut self) -> BaseItem<Value>;
+    fn special_cameraroll_child(&mut self) -> BaseItem<DriveItem>;
+    fn special_approot(&mut self) -> BaseItem<Value>;
+    fn special_approot_child(&mut self) -> BaseItem<DriveItem>;
+    fn special_music(&mut self) -> BaseItem<Value>;
+    fn special_music_child(&mut self) -> BaseItem<DriveItem>;
 }
 
 impl DriveEndPoint {
@@ -94,25 +94,9 @@ impl DriveEndPoint {
         }
     }
 
-    pub fn build(endpoint: DriveEndPoint) -> io::Result<String> {
+    pub fn build(endpoint: DriveEndPoint) -> String {
         let mut url = GRAPH_ENDPOINT.to_string();
         url.push_str(endpoint.as_str());
-        Ok(url)
-    }
-}
-
-// TODO: Implement methods for request status in header or
-// possibly return header information on a request that fails?
-pub enum ReqError {
-    BadRequest,
-}
-
-impl ReqError {
-    pub fn as_str(&self) -> &str {
-        match *self {
-            ReqError::BadRequest => {
-                "Error: either the request did not succeed or the request could not be parsed"
-            }
-        }
+        url
     }
 }
