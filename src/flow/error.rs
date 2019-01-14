@@ -2,12 +2,12 @@ use std;
 use std::fmt;
 
 pub enum FlowErrorType {
-    MissingParam = 0,
-    AllowReset = 1,
-    InvalidAccessCode = 2,
-    MissingAccessCode = 3,
-    RequiresGrantType = 4,
-    BadRequest = 5,
+    MissingParam,
+    AllowReset,
+    InvalidAccessCode,
+    MissingAccessCode,
+    RequiresGrantType,
+    BadRequest,
 }
 
 // TODO: Probably not the best way to define the errors. Implement finding line numbers as well.
@@ -42,6 +42,14 @@ impl FlowErrorType {
     pub fn missing_param(param: &str) -> FlowError {
         let mut message = String::from("Error, missing parameter: ");
         message.push_str(param);
+        FlowError::new(message.as_str(), 0, 0)
+    }
+
+    pub fn json_prev_parsed_error(param_type: &str) -> FlowError {
+        let message = format!(
+            "The parsed JSON was originally found to have a {} but an issue occurred.",
+            param_type
+        );
         FlowError::new(message.as_str(), 0, 0)
     }
 }

@@ -93,9 +93,3 @@ impl OauthUrlBuilder {
         }
     }
 }
-
-pub struct QueryBuilder {
-    query: Vec<HashMap<String, String>>,
-}
-
-impl QueryBuilder {}

@@ -10,8 +10,12 @@ fn expand_example() {
     let mut auth_flow: AuthFlow = JsonFile::from_file("examples/auth_flow.json").unwrap();
     let mut drive = auth_flow.into_drive().unwrap();
     let vec = vec!["name", "size"];
-    let value: Value = drive.expand(DriveEndPoint::DriveRootMe, "children", &vec);
-    println!("{:#?}", &value);
+    let base_item = drive.expand(DriveEndPoint::DriveRoot, "children", &vec);
+    if base_item.is_some() {
+        println!("{:#?}", &base_item);
+    } else {
+        println!("{:#?}", &base_item.error);
+    }
 }
 
 fn search_example() {
@@ -19,8 +23,12 @@ fn search_example() {
     // using serde_json to save AuthFlow to a file.
     let mut auth_flow: AuthFlow = JsonFile::from_file("examples/auth_flow.json").unwrap();
     let mut drive = auth_flow.into_drive().unwrap();
-    let drive_item: DriveItem = drive.search(DriveEndPoint::DriveRootMe, "Documents");
-    println!("{:#?}", &drive_item);
+    let base_item = drive.search(DriveEndPoint::DriveRootMe, "Documents");
+    if base_item.is_some() {
+        println!("{:#?}", &base_item);
+    } else {
+        println!("{:#?}", &base_item.error);
+    }
 }
 
 fn main() {

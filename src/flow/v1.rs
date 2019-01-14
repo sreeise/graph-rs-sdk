@@ -55,10 +55,7 @@ CODE FLOW
 
 use core::fmt;
 use std::collections::HashMap;
-use std::fs::File;
 use std::io;
-use std::io::{BufRead, BufReader};
-use std::path::Path;
 use std::process::Command;
 use std::result;
 use std::thread;
@@ -70,11 +67,9 @@ use crate::drive::Drive;
 use crate::flow::accesstoken::AccessToken;
 use crate::flow::encode::OauthUrlBuilder;
 use crate::flow::error::FlowErrorType;
-use crate::process::jsonio::JsonFile;
-use core::borrow::BorrowMut;
-use std::io::Error;
-use std::io::ErrorKind;
+use reqwest::Response;
 use std::io::Read;
+use json::JsonValue;
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -850,24 +845,21 @@ impl AuthFlow {
     /// println!("{:#?}", auth_flow.get_access_token());
     /// ```
     pub fn request_access_token(&mut self) -> &mut AuthFlow {
-        let mut code_body = self
+        let code_body = self
             .build(FlowType::GrantTypeAuthCode)
             .expect("Could not build with FlowType::GrantTypeAuthCode");
 
-        let mut access_code = self
+        let access_code = self
             .params
             .get("CODE")
             .expect(FlowErrorType::missing_param("access_code").message.as_str())
             .clone();
 
-        let mut access_token_url = self
+        let access_token_url = self
             .params
             .get("TOKEN_URL")
             .expect(FlowErrorType::missing_param("token_url").message.as_str())
             .clone();
-        let client = reqwest::Client::builder()
-            .build()
-            .expect("could not construct reqwest builder");
 
         self.req_to_access_token(&access_token_url, &access_code, code_body)
             .unwrap();
@@ -875,17 +867,17 @@ impl AuthFlow {
     }
 
     pub fn refresh_access_token(&mut self) -> &mut AuthFlow {
-        let mut code_body = self
+        let code_body = self
             .build(FlowType::GrantTypeRefreshToken)
             .expect("Could not build with FlowType::GrantTypeAuthCode");
 
-        let mut access_code = self
+        let access_code = self
             .params
             .get("CODE")
             .expect(FlowErrorType::missing_param("access_code").message.as_str())
             .clone();
 
-        let mut token_url = self
+        let token_url = self
             .params
             .get("TOKEN_URL")
             .expect(FlowErrorType::missing_param("token_url").message.as_str())
@@ -929,77 +921,126 @@ impl AuthFlow {
                     .as_str(),
             );
 
-        let mut json_str = String::from("");
-        res.read_to_string(&mut json_str);
-
-        let mut parsed_json = json::parse(json_str.as_str()).expect(
-            FlowErrorType::match_error_type(FlowErrorType::BadRequest)
-                .message
-                .as_str(),
-        );
-
-        // Normally an automatic conversion to AccessToken would be done here, however,
-        // different errors are consistently thrown. Thus, make sure the values are
-        // actually in the request.
-        if !parsed_json["access_token"].is_null()
-            && !parsed_json["expires_in"].is_null()
-            && !parsed_json["token_type"].is_null()
-        {
-            self.set_access_token(parsed_json["access_token"].as_str().unwrap_or(""));
-            let mut access_token: AccessToken = AccessToken::new(
-                parsed_json["token_type"]
-                    .as_str()
-                    .expect(FlowErrorType::missing_param("token_type").message.as_str()),
-                parsed_json["expires_in"]
-                    .as_i64()
-                    .expect(FlowErrorType::missing_param("expires_in").message.as_str()),
-                parsed_json["scope"].as_str().expect("Could not get scope"),
-                parsed_json["access_token"].as_str().expect(
-                    FlowErrorType::missing_param("access_token")
-                        .message
-                        .as_str(),
-                ),
-                None,
-                None,
-                None,
-            );
-
-            if !parsed_json["refresh_token"].is_null() {
-                self.set_refresh(parsed_json["refresh_token"].as_str().unwrap_or(""));
-                access_token.set_refresh_token(parsed_json["refresh_token"]
-                        .as_str()
-                        .expect("The parsed JSON was originally found to have a refresh token but an issue occurred."));
-            } else if self.params.get("REFRESH_TOKEN").is_some() {
-                // If there is no refresh token in the request but there was a
-                // previous refresh token then use the the previous token
-                // as it can be used to request multiple access tokens.
-                access_token
-                        .set_refresh_token(
-                            self.params.get("REFRESH_TOKEN")
-                                .expect("Attempted to use previous refresh token in AccessToken but issue occurred")
-                                .as_str()
-                        );
-            }
-
-            if !parsed_json["user_id"].is_null() {
-                access_token.set_user_id(parsed_json["user_id"].as_str().expect(
-                    "The parsed JSON was originally found to have a user id but an issue occurred.",
-                ));
-            }
-
-            if !parsed_json["id_token"].is_null() {
-                access_token.set_id_token(parsed_json["id_token"]
-                        .as_str()
-                        .expect("The parsed JSON was originally found to have a id token but an issue occurred."));
-            }
-            self.set_access_token_struct(access_token);
-        }
+        let json_value = self.parse_request(&mut res);
+        self.deserialize_access_token(json_value);
 
         if !can_change {
             self.allow_reset(false);
         }
 
         Ok(())
+    }
+
+    fn parse_request(&self, response: &mut Response) -> JsonValue {
+        let mut json_str = String::from("");
+        response.read_to_string(&mut json_str).expect("Could not transform response to a string");
+
+        let parsed_json = json::parse(json_str.as_str()).expect(
+            FlowErrorType::match_error_type(FlowErrorType::BadRequest)
+                .message
+                .as_str(),
+        );
+        parsed_json
+    }
+
+    fn deserialize_access_token(&mut self, json_value: JsonValue) {
+        // Normally an automatic conversion to AccessToken would be done here, however,
+        // different errors are consistently thrown. Thus, make sure the values are
+        // actually in the request.
+        if !json_value["access_token"].is_null()
+            && !json_value["expires_in"].is_null()
+            && !json_value["token_type"].is_null()
+            && !json_value["scope"].is_null()
+        {
+            self.set_access_token(
+                json_value["access_token"].as_str().expect(
+                    FlowErrorType::json_prev_parsed_error("access_token")
+                        .message
+                        .as_str(),
+                ),
+            );
+            let token_type = json_value["token_type"].as_str().expect(
+                FlowErrorType::json_prev_parsed_error("token_type")
+                    .message
+                    .as_str(),
+            );
+            let expires_in = json_value["expires_in"].as_i64().expect(
+                FlowErrorType::json_prev_parsed_error("expires_in")
+                    .message
+                    .as_str(),
+            );
+            let scope = json_value["scope"].as_str().expect(
+                FlowErrorType::json_prev_parsed_error("scope")
+                    .message
+                    .as_str(),
+            );
+            let access_token = json_value["access_token"].as_str().expect(
+                FlowErrorType::json_prev_parsed_error("access_token")
+                    .message
+                    .as_str(),
+            );
+
+            let mut access_token: AccessToken = AccessToken::new(
+                token_type,
+                expires_in,
+                scope,
+                access_token,
+                None,
+                None,
+                None,
+            );
+
+            if !json_value["refresh_token"].is_null() {
+                self.set_refresh(
+                    json_value["refresh_token"].as_str().expect(
+                        FlowErrorType::json_prev_parsed_error("refresh_token")
+                            .message
+                            .as_str(),
+                    ),
+                );
+                access_token.set_refresh_token(
+                    json_value["refresh_token"].as_str().expect(
+                        FlowErrorType::json_prev_parsed_error("refresh_token")
+                            .message
+                            .as_str(),
+                    ),
+                );
+            } else if self.params.get("REFRESH_TOKEN").is_some() {
+                // If there is no refresh token in the request but there was a
+                // previous refresh token then use the the previous token
+                // as it can be used to request multiple access tokens.
+                access_token
+                    .set_refresh_token(
+                        self.params.get("REFRESH_TOKEN")
+                            .expect(
+                                FlowErrorType::missing_param("Attempted to use previous refresh token in AccessToken but unknown issue occurred")
+                                    .message
+                                    .as_str())
+                            .as_str()
+                    );
+            }
+
+            if !json_value["user_id"].is_null() {
+                access_token.set_user_id(
+                    json_value["user_id"].as_str().expect(
+                        FlowErrorType::json_prev_parsed_error("user_id")
+                            .message
+                            .as_str(),
+                    ),
+                );
+            }
+
+            if !json_value["id_token"].is_null() {
+                access_token.set_id_token(
+                    json_value["id_token"].as_str().expect(
+                        FlowErrorType::json_prev_parsed_error("id_token")
+                            .message
+                            .as_str(),
+                    ),
+                );
+            }
+            self.set_access_token_struct(access_token);
+        }
     }
 
     /// Automatic conversion to Drive
