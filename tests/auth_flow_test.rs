@@ -4,6 +4,20 @@ use rust_onedrive::flow::v1::AuthUrl;
 use rust_onedrive::flow::v1::FlowType;
 use rust_onedrive::process::jsonio::JsonFile;
 use std::fs;
+use rust_onedrive::flow::accesstoken::AccessToken;
+
+fn access_token_struct() -> AccessToken {
+    let access_token = AccessToken::new(
+        "Bearer",
+        3600,
+        "Read.Write",
+        "",
+        Some("32LKLASDKJ".to_string()),
+        None,
+        None,
+    );
+    access_token
+}
 
 #[test]
 fn create() {
@@ -48,10 +62,10 @@ fn token_auth() {
     auth_flow
         .set_auth_url("https://example.com/oauth2/v2.0/authorize")
         .set_client_id("bb301aaa-1201-4259-a230923fds32")
-        .set_redirect_uri("http://localhost:8888/redirect")
-        .set_response_type("token");
-    let auth_url = auth_flow.build(FlowType::AuthorizeTokenFlow).unwrap();
-    assert_eq!(auth_url, "https://example.com/oauth2/v2.0/authorizeclient_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
+        .set_redirect_uri("http://localhost:8888/redirect");
+
+    let auth_url = auth_flow.build(FlowType::AuthorizeTokenFlow);
+    assert_eq!(auth_url, Some("https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect".to_string()));
 }
 
 #[test]
@@ -60,10 +74,10 @@ fn code_auth() {
     auth_flow
         .set_auth_url("https://example.com/oauth2/v2.0/authorize?")
         .set_client_id("bb301aaa-1201-4259-a230923fds32")
-        .set_redirect_uri("http://localhost:8888/redirect")
-        .set_response_type("code");
-    let auth_url = auth_flow.build(FlowType::AuthorizeCodeFlow).unwrap();
-    assert_eq!(auth_url, "https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
+        .set_redirect_uri("http://localhost:8888/redirect");
+
+    let auth_url = auth_flow.build(FlowType::AuthorizeCodeFlow);
+    assert_eq!(auth_url, Some("https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect".to_string()));
 }
 
 #[test]
@@ -72,13 +86,12 @@ fn access_token() {
     code_flow
         .set_client_id("bb301aaa-1201-4259-a230923fds32")
         .set_redirect_uri("http://localhost:8888/redirect")
-        .set_response_type("token")
         .set_client_secret("CLDIE3F")
         .set_token_url("https://www.example.com/token")
         .set_access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
-    let code_body = code_flow.build(FlowType::GrantTypeAuthCode).unwrap();
-    assert_eq!(code_body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&grant_type=authorization_code");
+    let code_body = code_flow.build(FlowType::GrantTypeAuthCode);
+    assert_eq!(code_body, Some("client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&grant_type=authorization_code".to_string()));
 }
 
 #[test]
@@ -87,13 +100,13 @@ fn refresh_token() {
     refresh_flow
         .set_client_id("bb301aaa-1201-4259-a230923fds32")
         .set_redirect_uri("http://localhost:8888/redirect")
-        .set_response_type("token")
         .set_client_secret("CLDIE3F")
-        .set_refresh("32LKLASDKJ")
         .set_token_url("https://www.example.com/token")
         .set_access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
-    let refresh_body = refresh_flow.build(FlowType::GrantTypeRefreshToken).unwrap();
-    assert_eq!(refresh_body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token");
+
+    refresh_flow.set_access_token(access_token_struct());
+    let refresh_body = refresh_flow.build(FlowType::GrantTypeRefreshToken);
+    assert_eq!(refresh_body, Some("client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token".to_string()));
 }
 
 #[test]
@@ -136,7 +149,6 @@ fn use_default_auth_test() {
         .set_client_id("bb301aaa-1201-4259-a230923fds32")
         .set_redirect_uri("http://localhost:8888/redirect")
         .set_auth_url("https://www.example.com/token") // Shouldn't be used
-        .set_response_type("token")
         .set_client_secret("CLDIE3F")
         .set_token_url("https://www.example.com/token"); // Should'nt be used
 
@@ -165,4 +177,89 @@ fn use_default_auth_test() {
 
     let auth_url2 = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
     assert_eq!(auth_url2, "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
+}
+
+#[test]
+fn default_encode_set() {
+    let mut auth_flow = AuthFlow::native_client();
+    auth_flow
+        .set_client_id("CLIENT_ID")
+        .set_redirect_uri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+        .add_scope("Files.Read");
+
+    auth_flow.use_default_auth_url(AccountType::Account);
+
+    let code_flow_url = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
+    assert_eq!(code_flow_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+
+    let token_flow_url = auth_flow.build_auth(FlowType::AuthorizeTokenFlow);
+    assert_eq!(token_flow_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=token&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+
+    let grant_refresh_token_url = auth_flow.build_auth(FlowType::GrantTypeRefreshToken);
+    assert_eq!(grant_refresh_token_url, "client_id=CLIENT_ID&scope=Files.Read&response_type=refresh_token&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+
+    let grant_auth_code_url = auth_flow.build_auth(FlowType::GrantTypeAuthCode);
+    assert_eq!(grant_auth_code_url, "client_id=CLIENT_ID&scope=Files.Read&response_type=authorization_code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+}
+
+#[test]
+fn form_url_encoded() {
+    let mut native_flow = AuthFlow::native_client();
+    native_flow
+        .set_client_id("bb301aaa-1201-4259-a230923fds32")
+        .set_redirect_uri("https://login.microsoftonline.com/common/oauth2/nativeclient");
+    native_flow.set_access_code("asfasdf").add_scope("Read.Write")
+        .add_scope("wl.offline_access")
+        .add_scope("Read.Write.All");
+    native_flow.use_default_auth_url(AccountType::Account);
+
+    let authorize_code_flow_form_encoded = native_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
+    assert_eq!(authorize_code_flow_form_encoded, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=Read.Write%2Fwl.offline_access%2FRead.Write.All&response_type=code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+
+    let authorize_token_flow_form_encoded = native_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeTokenFlow);
+    assert_eq!(authorize_token_flow_form_encoded, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=Read.Write%2Fwl.offline_access%2FRead.Write.All&response_type=token&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+
+    let grant_code_body_form_encoded = native_flow.build_auth_using_form_urlencoded(FlowType::GrantTypeAuthCode);
+    assert_eq!(grant_code_body_form_encoded, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&code=asfasdf&grant_type=authorization_code");
+
+    native_flow.set_access_token(access_token_struct());
+    let grant_refresh_flow_form_encoded = native_flow.build_auth_using_form_urlencoded(FlowType::GrantTypeRefreshToken);
+    assert_eq!(grant_refresh_flow_form_encoded, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&refresh_token=32LKLASDKJ&grant_type=refresh_token");
+}
+
+#[test]
+fn form_url_encoded_default_scopes() {
+    let mut web_flow = AuthFlow::web_client(true);
+    web_flow
+        .set_client_id("bb301aaa-1201-4259-a230923fds32")
+        .set_client_secret("CLDIE3F")
+        .set_access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
+        .set_redirect_uri("http://localhost:8888/redirect");
+    web_flow.use_default_auth_url(AccountType::Account);
+
+    let web_code_flow_default_scopes = web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
+    assert_eq!(web_code_flow_default_scopes, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
+
+    let web_token_flow_default_scopes = web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeTokenFlow);
+    assert_eq!(web_token_flow_default_scopes, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
+}
+
+#[test]
+fn form_url_encoded_manual_scopes() {
+    let mut web_flow = AuthFlow::web_client(false);
+    web_flow
+        .set_client_id("bb301aaa-1201-4259-a230923fds32")
+        .set_client_secret("CLDIE3F")
+        .set_access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
+        .set_redirect_uri("http://localhost:8888/redirect")
+        .add_scope("Read.Write")
+        .add_scope("wl.offline_access")
+        .add_scope("Read.Write.All");
+    web_flow.use_default_auth_url(AccountType::Account);
+
+    let web_code_flow_manual_scopes = web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
+    assert_eq!(web_code_flow_manual_scopes, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=Read.Write%2Fwl.offline_access%2FRead.Write.All&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
+
+    let web_token_flow_manual_scopes = web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeTokenFlow);
+    assert_eq!(web_token_flow_manual_scopes, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=Read.Write%2Fwl.offline_access%2FRead.Write.All&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
 }

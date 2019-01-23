@@ -22,38 +22,43 @@ pub fn encode_url(domain: &str, url: &str) -> String {
 }
 
 #[derive(Debug)]
-pub struct OauthUrlBuilder {
+pub struct UrlEncode {
     url_params: HashMap<String, String>,
     encoded: bool,
 }
 
-impl OauthUrlBuilder {
-    pub fn new(encode: bool) -> OauthUrlBuilder {
-        OauthUrlBuilder {
+impl UrlEncode {
+    pub fn new(encode: bool) -> UrlEncode {
+        UrlEncode {
             url_params: HashMap::new(),
             encoded: encode,
         }
     }
 
-    pub fn scheme(&mut self, scheme: &str) -> &mut OauthUrlBuilder {
+    pub fn uri_utf8_percent_encode(uri: &str) -> String {
+        let encoded = utf8_percent_encode(uri, ONEDRIVE_AUTH_RESERVED_ENCODE_SET).collect::<String>();
+        encoded
+    }
+
+    pub fn scheme(&mut self, scheme: &str) -> &mut UrlEncode {
         self.url_params
             .insert(String::from("SCHEME"), String::from(scheme));
         self
     }
 
-    pub fn host(&mut self, host: &str) -> &mut OauthUrlBuilder {
+    pub fn host(&mut self, host: &str) -> &mut UrlEncode {
         self.url_params
             .insert(String::from("HOST"), String::from(host));
         self
     }
 
-    pub fn path(&mut self, path: &str) -> &mut OauthUrlBuilder {
+    pub fn path(&mut self, path: &str) -> &mut UrlEncode {
         self.url_params
             .insert(String::from("PATH"), String::from(path));
         self
     }
 
-    pub fn query(&mut self, query: &str) -> &mut OauthUrlBuilder {
+    pub fn query(&mut self, query: &str) -> &mut UrlEncode {
         self.url_params
             .insert(String::from("QUERY"), String::from(query));
         self

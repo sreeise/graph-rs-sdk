@@ -67,11 +67,12 @@ use crate::drive::error::DriveError;
 use crate::drive::error::DriveErrorType;
 use crate::drive::Drive;
 use crate::flow::accesstoken::AccessToken;
-use crate::flow::encode::OauthUrlBuilder;
+use crate::flow::encode::UrlEncode;
 use crate::flow::error::FlowErrorType;
 use json::JsonValue;
 use reqwest::Response;
 use std::io::Read;
+use crate::flow::encode::encode_url;
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -320,37 +321,13 @@ impl AuthFlow {
         self.set_config("REDIRECT_URI", redirect_uri)
     }
 
-    /// Set the response type of a request:
-    ///     1. Code Flow: 'code'
-    ///     2. Token Flow: 'token'
-    ///
-    /// # Example
-    /// ```
-    ///  use rust_onedrive::flow::v1::AuthFlow;
-    ///
-    /// let mut auth_flow = AuthFlow::new(true);
-    /// auth_flow.set_response_type("code");
-    /// ```
-    pub fn set_response_type(&mut self, response_type: &str) -> &mut AuthFlow {
-        self.set_config("RESPONSE_TYPE", response_type)
-    }
-
     /// Set the code of a request - returned from log in and authorization
     pub fn set_access_code(&mut self, code: &str) -> &mut AuthFlow {
         self.set_config("CODE", code)
     }
 
-    /// Set the refresh token of a request
-    pub fn set_refresh(&mut self, code: &str) -> &mut AuthFlow {
-        self.set_config("REFRESH_TOKEN", code)
-    }
-
     /// Set the token of a request
-    pub fn set_access_token(&mut self, token: &str) -> &mut AuthFlow {
-        self.set_config("ACCESS_TOKEN", token)
-    }
-
-    pub fn set_access_token_struct(&mut self, access_token: AccessToken) {
+    pub fn set_access_token(&mut self, access_token: AccessToken) {
         self.access_token = Some(Box::new(access_token));
     }
 
@@ -405,8 +382,12 @@ impl AuthFlow {
         self.params.get("CODE").clone()
     }
 
-    pub fn get_refresh_token(&self) -> Option<&String> {
-        self.params.get("REFRESH_TOKEN").clone()
+    pub fn get_refresh_token(&self) -> Option<String> {
+        if let Some(access_token) = self.get_access_token() {
+            access_token.get_refresh_token()
+        } else {
+            None
+        }
     }
 
     pub fn get_access_token(&self) -> Option<Box<AccessToken>> {
@@ -532,16 +513,9 @@ impl AuthFlow {
     ///     &redirect_uri={redirect_uri}
     pub fn build(&mut self, to_build: FlowType) -> Option<String> {
         match to_build {
-            FlowType::AuthorizeTokenFlow => Some(self.build_auth(to_build)),
-            FlowType::AuthorizeCodeFlow => Some(self.build_auth(to_build)),
-            FlowType::GrantTypeAuthCode => Some(
-                self.build_grant_request(to_build)
-                    .expect("Could not build access token body"),
-            ),
-            FlowType::GrantTypeRefreshToken => Some(
-                self.build_grant_request(to_build)
-                    .expect("Could not build refresh token body"),
-            ),
+            FlowType::AuthorizeTokenFlow | FlowType::AuthorizeCodeFlow  => Some(self.build_auth(to_build)),
+            FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => Some(self.build_grant_request(to_build)
+                .expect(FlowErrorType::missing_param(to_build.as_str()).message.as_str())),
         }
     }
 
@@ -594,9 +568,26 @@ impl AuthFlow {
             }
         };
 
-        let param_type = match grant_type {
-            FlowType::GrantTypeAuthCode => "code",
-            FlowType::GrantTypeRefreshToken => "refresh_token",
+        let (param_type, token_or_code) = match grant_type {
+            FlowType::GrantTypeAuthCode => {
+                if let Some(access_code) = self.get_access_code() {
+                    ("&code=", access_code.to_string())
+                } else {
+                    panic!(FlowErrorType::missing_param("access_code").message);
+                }
+            }
+            FlowType::GrantTypeRefreshToken => {
+                if self.get_access_token().is_some() {
+                    let prev_access_token = self.get_access_token().unwrap();
+                    if let Some(refresh) = prev_access_token.get_refresh_token() {
+                        ("&refresh_token=", refresh.to_string())
+                    } else {
+                        panic!(FlowErrorType::missing_param("AccessToken/refresh_token").message);
+                    }
+                } else {
+                    panic!(FlowErrorType::missing_param("AccessToken/refresh_token").message);
+                }
+            }
             FlowType::AuthorizeTokenFlow => {
                 panic!(FlowErrorType::match_error_type(FlowErrorType::RequiresGrantType).message)
             }
@@ -606,66 +597,50 @@ impl AuthFlow {
         };
 
         if self.public_client {
-            let encoded: String = form_urlencoded::Serializer::new(String::from(""))
-                .append_pair(
-                    "client_id",
-                    self.params
-                        .get("CLIENT_ID")
-                        .expect("Couldn't set client_id")
-                        .as_str(),
-                )
-                .append_pair(
-                    "redirect_uri",
-                    self.params
-                        .get("REDIRECT_URI")
-                        .expect("Couldn't set redirect_id")
-                        .as_str(),
-                )
-                .append_pair(
-                    param_type,
-                    self.params
-                        .get(&param_type.to_uppercase())
-                        .unwrap()
-                        .as_str(),
-                )
-                .append_pair("grant_type", req_type)
-                .finish();
+            let vec = vec![
+                "client_id=",
+                self.params
+                    .get("CLIENT_ID")
+                    .expect("Couldn't set client_id")
+                    .as_str(),
+                "&redirect_uri=",
+                self.params
+                    .get("REDIRECT_URI")
+                    .expect("Couldn't set redirect_id")
+                    .as_str(),
+                param_type,
+                token_or_code.as_str(),
+                "&grant_type=",
+                req_type,
+            ];
 
-            Ok(encoded.to_string())
+            let encoded = UrlEncode::uri_utf8_percent_encode(&vec.join(""));
+            Ok(encoded)
         } else {
-            let encoded: String = form_urlencoded::Serializer::new(String::from(""))
-                .append_pair(
-                    "client_id",
-                    self.params
-                        .get("CLIENT_ID")
-                        .expect("Couldn't set client_id")
-                        .as_str(),
-                )
-                .append_pair(
-                    "redirect_uri",
-                    self.params
-                        .get("REDIRECT_URI")
-                        .expect("Couldn't set redirect_id")
-                        .as_str(),
-                )
-                .append_pair(
-                    "client_secret",
-                    self.params
-                        .get("CLIENT_SECRET")
-                        .expect("Couldn't set client_secret")
-                        .as_str(),
-                )
-                .append_pair(
-                    param_type,
-                    self.params
-                        .get(&param_type.to_uppercase())
-                        .unwrap()
-                        .as_str(),
-                )
-                .append_pair("grant_type", req_type)
-                .finish();
+            let vec = vec![
+                "client_id=",
+                self.params
+                    .get("CLIENT_ID")
+                    .expect("Couldn't set client_id")
+                    .as_str(),
+                "&redirect_uri=",
+                self.params
+                    .get("REDIRECT_URI")
+                    .expect("Couldn't set redirect_id")
+                    .as_str(),
+                "&client_secret=",
+                self.params
+                    .get("CLIENT_SECRET")
+                    .expect("Couldn't set client_secret")
+                    .as_str(),
+                param_type,
+                token_or_code.as_str(),
+                "&grant_type=",
+                req_type,
+            ];
 
-            Ok(encoded.to_string())
+            let encoded = UrlEncode::uri_utf8_percent_encode(vec.join("").as_str());
+            Ok(encoded)
         }
     }
 
@@ -694,10 +669,10 @@ impl AuthFlow {
     /// assert_eq!(token_flow_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=token&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
     ///
     /// let grant_refresh_token_url = auth_flow.build_auth(FlowType::GrantTypeRefreshToken);
-    /// assert_eq!(grant_refresh_token_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=refresh_token&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+    /// assert_eq!(grant_refresh_token_url, "client_id=CLIENT_ID&scope=Files.Read&response_type=refresh_token&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
     ///
     /// let grant_auth_code_url = auth_flow.build_auth(FlowType::GrantTypeAuthCode);
-    /// assert_eq!(grant_auth_code_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=authorization_code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+    /// assert_eq!(grant_auth_code_url, "client_id=CLIENT_ID&scope=Files.Read&response_type=authorization_code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
     /// ```
     ///
     /// A request can user either the token or code flow shown below:
@@ -725,37 +700,61 @@ impl AuthFlow {
         if self.default_auth {
             self.build_default_auth(flow_type)
         } else {
-            let mut encoded = OauthUrlBuilder::new(true);
-            encoded
-                .scheme("")
-                .host(self.params["AUTH_URL"].as_str())
-                .path("");
-            encoded.query(self.build_query(flow_type).as_str());
-            encoded.build()
+            let mut encoded = UrlEncode::new(true);
+            let auth_url = match flow_type {
+                FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
+                    if let Some(url) = self.get_auth_url() {
+                        let mut auth_url = url.to_string();
+                        if !auth_url.ends_with("?") {
+                            auth_url.push_str("?")
+                        }
+
+                        let encoded_body = UrlEncode::uri_utf8_percent_encode(self.build_query(flow_type).as_str());
+                        auth_url.push_str(&encoded_body);
+                        auth_url
+                    } else {
+                        panic!(FlowErrorType::missing_param("AUTH_URL"));
+                    }
+                },
+                FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => {
+                    UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
+                },
+            };
+            auth_url
         }
     }
 
     fn build_default_auth(&mut self, flow_type: FlowType) -> String {
-        match self.auth_type {
+        let auth_url = match self.auth_type {
             AccountType::Account => {
-                let mut encoded = OauthUrlBuilder::new(true);
-                encoded
-                    .scheme("")
-                    .host(AuthUrl::AccountAuth.as_str())
-                    .path("")
-                    .query(self.build_query(flow_type).as_str());
-                encoded.build()
-            }
+                match flow_type {
+                    FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
+                        let mut url = String::from(AuthUrl::AccountAuth.as_str());
+                        let encoded_body =  UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type));
+                        url.push_str(encoded_body.as_str());
+                        url
+                    },
+                    FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => {
+                        UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
+                    }
+                }
+            },
             AccountType::Graph => {
-                let mut encoded = OauthUrlBuilder::new(true);
-                encoded
-                    .scheme("")
-                    .host(AuthUrl::GraphAuth.as_str())
-                    .path("")
-                    .query(self.build_query(flow_type).as_str());
-                encoded.build()
+                match flow_type {
+                    FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
+                        let mut url = String::from(AuthUrl::GraphAuth.as_str());
+                        let encoded_body =  UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type));
+                        url.push_str(encoded_body.as_str());
+                        url
+                    },
+                    FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => {
+                        UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
+                    }
+                }
             }
-        }
+        };
+
+        auth_url
     }
 
     /// Builds the URL for a request based upon FlowType
@@ -763,24 +762,31 @@ impl AuthFlow {
         // If AuthFlow has default_scope set to true then use
         // the default scope URL for the scope parameter.
         if self.default_scope {
-            let mut query = String::from("client_id=");
-            query.push_str(self.params["CLIENT_ID"].as_str());
-            query.push_str("&scope=https://graph.microsoft.com/.default");
-            query.push_str("&response_type=");
-            query.push_str(flow_type.as_str());
-            query.push_str("&redirect_uri=");
-            query.push_str(self.params["REDIRECT_URI"].as_str());
-            query
+            let vec = vec![
+                "client_id=",
+                self.params["CLIENT_ID"].as_str(),
+                "&scope=https://graph.microsoft.com/.default",
+                "&response_type=",
+                flow_type.as_str(),
+                "&redirect_uri=",
+                self.params["REDIRECT_URI"].as_str(),
+            ];
+
+            vec.join("")
         } else {
-            let mut query = String::from("client_id=");
-            query.push_str(self.params["CLIENT_ID"].as_str());
-            query.push_str("&scope=");
-            query.push_str(self.scopes.join(" ").as_str());
-            query.push_str("&response_type=");
-            query.push_str(flow_type.as_str());
-            query.push_str("&redirect_uri=");
-            query.push_str(self.params["REDIRECT_URI"].as_str());
-            query
+            let scopes = self.scopes.join(" ");
+            let vec = vec![
+                "client_id=",
+                self.params["CLIENT_ID"].as_str(),
+                "&scope=",
+                scopes.as_str(),
+                "&response_type=",
+                flow_type.as_str(),
+                "&redirect_uri=",
+                self.params["REDIRECT_URI"].as_str(),
+            ];
+
+            vec.join("")
         }
     }
 
@@ -814,15 +820,113 @@ impl AuthFlow {
     ///     &redirect_uri={redirect_uri}
     /// ```
     pub fn build_auth_using_form_urlencoded(&mut self, flow_type: FlowType) -> String {
-        let mut auth_url = String::from(self.params["AUTH_URL"].as_str());
-        let encoded: String = form_urlencoded::Serializer::new(String::from(""))
-            .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
-            .append_pair("scope", "https://graph.microsoft.com/.default")
-            .append_pair("response_type", flow_type.as_str())
-            .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
-            .finish();
+        let uri = match flow_type {
+            FlowType::AuthorizeCodeFlow => {
+                let encoded = self.form_url_encoded_body(FlowType::AuthorizeCodeFlow);
+                let mut auth_url = self.get_auth_url().unwrap().to_string();
+                if !auth_url.ends_with("?") {
+                    auth_url.push_str("?");
+                }
+                auth_url.push_str(&encoded);
+                auth_url
+            }
+            FlowType::AuthorizeTokenFlow => {
+                let encoded = self.form_url_encoded_body(FlowType::AuthorizeTokenFlow);
+                let mut auth_url = self.get_auth_url().unwrap().to_string();
+                if !auth_url.ends_with("?") {
+                    auth_url.push_str("?");
+                }
+                auth_url.push_str(&encoded);
+                auth_url
+            }
+            FlowType::GrantTypeAuthCode => self.form_url_encoded_body(FlowType::GrantTypeAuthCode),
+            FlowType::GrantTypeRefreshToken => self.form_url_encoded_body(FlowType::GrantTypeRefreshToken)
+        };
 
-        auth_url.push_str(&encoded);
+        uri
+    }
+
+    // FlowType::GrantTypeAuthCode
+    // Web Client:
+    // client_id={client_id}&redirect_uri={redirect_uri}&client_secret={client_secret}
+    // &code={code}&grant_type=authorization_code
+    // Native Client:
+    // client_id={client_id}&redirect_uri={redirect_uri}&code={code}&grant_type=authorization_code
+    //
+    // FlowType::GrantTypeRefreshToken
+    // Web Client:
+    // client_id={client_id}&redirect_uri={redirect_uri}&client_secret={client_secret}
+    // &refresh_token={refresh_token}&grant_type=refresh_token
+    // Native Client:
+    // client_id={client_id}&redirect_uri={redirect_uri}&refresh_token={refresh_token}
+    // &grant_type=refresh_token
+    pub fn form_url_encoded_body(&self, flow_type: FlowType) -> String {
+        let auth_url = match flow_type {
+            FlowType::AuthorizeTokenFlow | FlowType::AuthorizeCodeFlow => {
+                if self.default_scope {
+                    form_urlencoded::Serializer::new(String::from(""))
+                        .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
+                        .append_pair("scope", "https://graph.microsoft.com/.default")
+                        .append_pair("response_type", flow_type.as_str())
+                        .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
+                        .finish()
+                } else {
+                    let encoded_start: String = form_urlencoded::Serializer::new(String::from(""))
+                        .append_pair("client_id", &self.params["CLIENT_ID"].as_str()).finish();
+
+                    let encoded_end = form_urlencoded::Serializer::new(String::from(""))
+                        .append_pair("response_type", flow_type.as_str())
+                        .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string()).finish();
+
+                    let mut scope_string = String::from("&scope=");
+                    scope_string.push_str(self.scopes.join("%2F").as_str());
+
+                    let vec = vec![
+                        encoded_start,
+                        scope_string,
+                        "&".to_string(),
+                        encoded_end
+                    ];
+                    vec.join("")
+                }
+            }
+            FlowType::GrantTypeAuthCode => {
+                if self.public_client {
+                    form_urlencoded::Serializer::new(String::from(""))
+                        .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
+                        .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
+                        .append_pair("code", self.get_access_code().expect(FlowErrorType::missing_param("access_code").message.as_str()).as_str())
+                        .append_pair("grant_type", "authorization_code")
+                        .finish()
+                } else {
+                    form_urlencoded::Serializer::new(String::from(""))
+                        .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
+                        .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
+                        .append_pair("client_secret", &self.params["CLIENT_SECRET"].to_string())
+                        .append_pair("code", self.get_access_code().expect(FlowErrorType::missing_param("access_code").message.as_str()).as_str())
+                        .append_pair("grant_type", "authorization_code")
+                        .finish()
+                }
+            },
+            FlowType::GrantTypeRefreshToken => {
+                if self.public_client {
+                    form_urlencoded::Serializer::new(String::from(""))
+                        .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
+                        .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
+                        .append_pair("refresh_token", self.get_refresh_token().expect(FlowErrorType::missing_param("refresh_token").message.as_str()).as_str())
+                        .append_pair("grant_type", "refresh_token")
+                        .finish()
+                } else {
+                    form_urlencoded::Serializer::new(String::from(""))
+                        .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
+                        .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
+                        .append_pair("client_secret", &self.params["CLIENT_SECRET"].to_string())
+                        .append_pair("refresh_token", self.get_refresh_token().expect(FlowErrorType::missing_param("refresh_token").message.as_str()).as_str())
+                        .append_pair("grant_type", "refresh_token")
+                        .finish()
+                }
+            }
+        };
         auth_url
     }
 
@@ -841,7 +945,7 @@ impl AuthFlow {
     pub fn browser_flow(&mut self) -> io::Result<()> {
         let auth_url = self
             .build(FlowType::AuthorizeCodeFlow)
-            .expect("Could not build URL for code flow.");
+            .expect("Could not build AuthorizeCodeFlow");
         let handle = thread::spawn(move || {
             let auth_to_string = auth_url.as_str();
             Command::new("xdg-open")
@@ -910,7 +1014,7 @@ impl AuthFlow {
     pub fn request_access_token(&mut self) -> &mut AuthFlow {
         let code_body = self
             .build(FlowType::GrantTypeAuthCode)
-            .expect("Could not build with FlowType::GrantTypeAuthCode");
+            .expect("Could not build GrantTypeAuthCode");
 
         let access_code = self
             .params
@@ -941,7 +1045,7 @@ impl AuthFlow {
     pub fn refresh_access_token(&mut self) -> &mut AuthFlow {
         let code_body = self
             .build(FlowType::GrantTypeRefreshToken)
-            .expect("Could not build with FlowType::GrantTypeAuthCode");
+            .expect("Could not build GrantTypeRefreshToken");
 
         let access_code = self
             .params
@@ -1042,13 +1146,6 @@ impl AuthFlow {
             && !json_value["token_type"].is_null()
             && !json_value["scope"].is_null()
         {
-            self.set_access_token(
-                json_value["access_token"].as_str().expect(
-                    FlowErrorType::json_prev_parsed_error("access_token")
-                        .message
-                        .as_str(),
-                ),
-            );
             let token_type = json_value["token_type"].as_str().expect(
                 FlowErrorType::json_prev_parsed_error("token_type")
                     .message
@@ -1081,13 +1178,6 @@ impl AuthFlow {
             );
 
             if !json_value["refresh_token"].is_null() {
-                self.set_refresh(
-                    json_value["refresh_token"].as_str().expect(
-                        FlowErrorType::json_prev_parsed_error("refresh_token")
-                            .message
-                            .as_str(),
-                    ),
-                );
                 access_token.set_refresh_token(
                     json_value["refresh_token"].as_str().expect(
                         FlowErrorType::json_prev_parsed_error("refresh_token")
@@ -1095,19 +1185,14 @@ impl AuthFlow {
                             .as_str(),
                     ),
                 );
-            } else if self.params.get("REFRESH_TOKEN").is_some() {
+            } else if self.get_access_token().is_some() {
                 // If there is no refresh token in the request but there was a
                 // previous refresh token then use the the previous token
                 // as it can be used to request multiple access tokens.
-                access_token
-                    .set_refresh_token(
-                        self.params.get("REFRESH_TOKEN")
-                            .expect(
-                                FlowErrorType::missing_param("Attempted to use previous refresh token in AccessToken but unknown issue occurred")
-                                    .message
-                                    .as_str())
-                            .as_str()
-                    );
+                let prev_access_token = self.get_access_token().unwrap();
+                if let Some(refresh_token) = prev_access_token.get_refresh_token() {
+                    access_token.set_refresh_token(refresh_token.as_str());
+                }
             }
 
             if !json_value["user_id"].is_null() {
@@ -1129,7 +1214,7 @@ impl AuthFlow {
                     ),
                 );
             }
-            self.set_access_token_struct(access_token);
+            self.set_access_token(access_token);
         }
     }
 
