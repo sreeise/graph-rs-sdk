@@ -52,8 +52,18 @@ fn set_code_request_token(access_code: &str) {
     // Makes the POST request for an access token/refresh token.
     // This is stored in the struct AccessToken.
     auth_flow.request_access_token();
-    // Stores AuthFlow as json using serde_json.
-    JsonFile::json_file("example/web_client_flow.json", &auth_flow).unwrap();
+
+    // If there is an issue with the request, AuthFlow stores
+    // the error for the last request in the field req_error
+    // which holds an Option<DriveError>. DriveError holds
+    // the status code, error type such as BadRequest, and the
+    // error info/reason.
+    if auth_flow.req_error.is_some() {
+        println!("{:#?}", auth_flow.req_error); // Some(DriveError)
+    } else {
+        // Stores AuthFlow as json using serde_json.
+        JsonFile::json_file("example/web_client_flow.json", &auth_flow).unwrap();
+    }
 
     /*
     To get AuthFlow back from the json file run:

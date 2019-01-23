@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 use rust_onedrive::drive::driveitem::{DriveItem, Value};
 use rust_onedrive::drive::endpoint::DriveEndPoint;
 use rust_onedrive::drive::QueryString;

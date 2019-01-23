@@ -31,15 +31,15 @@ pub fn auth_flow_to_drive() {
 pub fn base_item() {
     let mut auth_flow: AuthFlow = JsonFile::from_file("examples/auth_flow.json").unwrap();
     let mut drive = auth_flow.into_drive().unwrap(); // Drive
-    // The base item holds one of DriveInfo, DriveItem, or Value.
-    // where
-    // DriveInfo: A top level drive and information for that drive such as id.
-    // DriveItem: Houses the top level of a drive item that includes: Vec<Value>
-    // Value: The specific information for a DriveItem that may include
-    // files/folders, users, remote items, etc.
+                                                     // The base item holds one of DriveInfo, DriveItem, or Value.
+                                                     // where
+                                                     // DriveInfo: A top level drive and information for that drive such as id.
+                                                     // DriveItem: Houses the top level of a drive item that includes: Vec<Value>
+                                                     // Value: The specific information for a DriveItem that may include
+                                                     // files/folders, users, remote items, etc.
     let base_item = drive.drive_me();
-    if base_item.is_some() {
-        println!("{:#?}", &base_item); // Option<DriveItem<DriveInfo>>
+    if base_item.error.is_some() {
+        println!("{:#?}", &base_item); // Option<BaseItem<DriveInfo>>
     } else {
         println!("{:#?}", &base_item.error); // Option<DriveError>
     }
@@ -52,7 +52,7 @@ pub fn base_item_by_endpoint() {
     // what will be returned and the endpoint to request. This is more of a manual approach
     // and can result in an error if the caller specifies the wrong type in BaseItem
     let base_item: BaseItem<DriveInfo> = drive.base_item(DriveEndPoint::Drive);
-    if base_item.is_none() {
+    if base_item.error.is_some() {
         let error = base_item.error; // Option<DriveError>
         println!("{:#?}", error);
     } else {
@@ -69,7 +69,7 @@ pub fn base_item_by_url() {
     // and can result in an error if the caller specifies the wrong type in BaseItem
     let base_item: BaseItem<DriveItem> =
         drive.base_item_from_url("https://graph.microsoft.com/v1.0/drive/root/children");
-    if base_item.is_none() {
+    if base_item.error.is_some() {
         let error = base_item.error; // Option<DriveError>
         println!("{:#?}", error);
     } else {
@@ -84,7 +84,7 @@ pub fn download_urls() {
     let base_item: BaseItem<DriveItem> =
         drive.base_item_from_url("https://graph.microsoft.com/v1.0/drive/root/children");
 
-    if base_item.is_none() {
+    if base_item.error.is_some() {
         let error = base_item.error; // Option<DriveError>
         println!("{:#?}", error);
     } else {
