@@ -63,13 +63,15 @@ use std::thread;
 use reqwest::header;
 use url::form_urlencoded;
 
+use crate::drive::error::DriveError;
+use crate::drive::error::DriveErrorType;
 use crate::drive::Drive;
 use crate::flow::accesstoken::AccessToken;
 use crate::flow::encode::OauthUrlBuilder;
 use crate::flow::error::FlowErrorType;
+use json::JsonValue;
 use reqwest::Response;
 use std::io::Read;
-use json::JsonValue;
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -192,6 +194,7 @@ pub struct AuthFlow {
     auth_type: AccountType,
     access_token: Option<Box<AccessToken>>,
     public_client: bool,
+    pub req_error: Option<DriveError>,
 }
 
 impl fmt::Display for AuthFlow {
@@ -205,31 +208,33 @@ impl fmt::Display for AuthFlow {
 }
 
 impl AuthFlow {
-    pub fn new(default: bool) -> AuthFlow {
+    pub fn new(default_scope: bool) -> AuthFlow {
         AuthFlow {
             config_name: String::from("AuthFlow"),
             scopes: Vec::new(),
             params: HashMap::new(),
             allow_reset: false,
-            default_scope: default,
+            default_scope,
             default_auth: false,
             auth_type: AccountType::Account,
             access_token: None,
             public_client: false,
+            req_error: None,
         }
     }
 
-    pub fn web_client(default: bool) -> AuthFlow {
+    pub fn web_client(default_scope: bool) -> AuthFlow {
         AuthFlow {
             config_name: String::from("AuthFlow"),
             scopes: Vec::new(),
             params: HashMap::new(),
             allow_reset: false,
-            default_scope: default,
+            default_scope,
             default_auth: false,
             auth_type: AccountType::Account,
             access_token: None,
             public_client: false,
+            req_error: None,
         }
     }
 
@@ -244,6 +249,7 @@ impl AuthFlow {
             auth_type: AccountType::Account,
             access_token: None,
             public_client: true,
+            req_error: None,
         }
     }
 
@@ -539,10 +545,15 @@ impl AuthFlow {
         }
     }
 
-    /// Access Tokens and Refresh Access Tokens
+    /// Builds Access Token and Refresh Token URLs
     ///
-    /// Access Tokens
+    /// This method is provided as a convenience and most uses
+    /// of AuthFlow may not require this method.
     ///
+    /// An access token URL is built with the following Parameters:
+    ///
+    /// # Example
+    /// ```rust,ignore
     /// POST https://login.microsoftonline.com/common/oauth2/v2.0/token
     /// Content-Type: application/x-www-form-urlencoded
     ///
@@ -552,9 +563,12 @@ impl AuthFlow {
     ///     &client_secret={client_secret}
     ///     &code={code}
     ///     &grant_type=authorization_code
+    ///```
     ///
-    /// Refresh Access Tokens
+    /// A refresh token is built with the following parameters:
     ///
+    /// # Example
+    /// ```rust,ignore
     /// POST https://login.microsoftonline.com/common/oauth2/v2.0/token
     /// Content-Type: application/x-www-form-urlencoded
     ///
@@ -564,6 +578,7 @@ impl AuthFlow {
     ///     &client_secret={client_secret}
     ///     &refresh_token={refresh_token}
     ///     &grant_type=refresh_token
+    /// ```
     pub fn build_grant_request(
         &mut self,
         grant_type: FlowType,
@@ -657,20 +672,55 @@ impl AuthFlow {
     /// Build the request url for authorization. The type of request depends
     /// upon the FlowType given as an argument.
     ///
+    /// Note: This method does not guarantee that the request URL is not malformed as this
+    /// can be caused from bad or insufficient parameters.
     ///
-    /// TOKEN FLOW = FlowType::
+    /// # Example
+    /// ```
+    /// use rust_onedrive::flow::v1::{AuthFlow, AccountType, FlowType};
+    ///
+    /// let mut auth_flow = AuthFlow::native_client();
+    /// auth_flow
+    ///     .set_client_id("CLIENT_ID")
+    ///     .set_redirect_uri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+    ///     .add_scope("Files.Read");
+    ///
+    /// auth_flow.use_default_auth_url(AccountType::Account);
+    ///
+    /// let code_flow_url = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
+    /// assert_eq!(code_flow_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+    ///
+    /// let token_flow_url = auth_flow.build_auth(FlowType::AuthorizeTokenFlow);
+    /// assert_eq!(token_flow_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=token&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+    ///
+    /// let grant_refresh_token_url = auth_flow.build_auth(FlowType::GrantTypeRefreshToken);
+    /// assert_eq!(grant_refresh_token_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=refresh_token&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+    ///
+    /// let grant_auth_code_url = auth_flow.build_auth(FlowType::GrantTypeAuthCode);
+    /// assert_eq!(grant_auth_code_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=authorization_code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
+    /// ```
+    ///
+    /// A request can user either the token or code flow shown below:
+    ///
+    /// TOKEN FLOW
+    /// # Example
+    /// ```rust,ignore
     ///     GET https://login.microsoftonline.com/common/oauth2/v2.0/authorize?
     ///     client_id={client_id}
     ///     &scope={scope}
     ///     &response_type=code
     ///     &redirect_uri={redirect_uri}
+    ///```
     ///
     /// CODE FLOW
+    /// # Example
+    /// ```rust,ignore
     ///     GET https://login.microsoftonline.com/common/oauth2/v2.0/authorize?
     ///     client_id={client_id}
     ///     &scope={scope}
     ///     &response_type=token
     ///     &redirect_uri={redirect_uri}
+    /// ```
     pub fn build_auth(&mut self, flow_type: FlowType) -> String {
         if self.default_auth {
             self.build_default_auth(flow_type)
@@ -708,7 +758,10 @@ impl AuthFlow {
         }
     }
 
+    /// Builds the URL for a request based upon FlowType
     fn build_query(&mut self, flow_type: FlowType) -> String {
+        // If AuthFlow has default_scope set to true then use
+        // the default scope URL for the scope parameter.
         if self.default_scope {
             let mut query = String::from("client_id=");
             query.push_str(self.params["CLIENT_ID"].as_str());
@@ -736,20 +789,30 @@ impl AuthFlow {
     /// based upon the Microsoft recommended set while this method uses the URL crate's encode set.
     /// The type of request depends upon the FlowType given as an argument.
     ///
+    /// This is the same as build_auth() with a different encode set.
     ///
-    /// TOKEN FLOW = FlowType::
+    /// Note: This method does not guarantee that the request URL is not malformed as this
+    /// can be caused from bad or insufficient parameters.
+    ///
+    /// TOKEN FLOW
+    /// # Example
+    /// ```rust,ignore
     ///     GET https://login.microsoftonline.com/common/oauth2/v2.0/authorize?
     ///     client_id={client_id}
     ///     &scope={scope}
     ///     &response_type=code
     ///     &redirect_uri={redirect_uri}
+    ///```
     ///
     /// CODE FLOW
+    /// # Example
+    /// ```rust,ignore
     ///     GET https://login.microsoftonline.com/common/oauth2/v2.0/authorize?
     ///     client_id={client_id}
     ///     &scope={scope}
     ///     &response_type=token
     ///     &redirect_uri={redirect_uri}
+    /// ```
     pub fn build_auth_using_form_urlencoded(&mut self, flow_type: FlowType) -> String {
         let mut auth_url = String::from(self.params["AUTH_URL"].as_str());
         let encoded: String = form_urlencoded::Serializer::new(String::from(""))
@@ -776,7 +839,9 @@ impl AuthFlow {
     /// On Linux it is much better to use xdg-open. Using the firefox command that is
     /// built in with the browser may result in rogue processes.
     pub fn browser_flow(&mut self) -> io::Result<()> {
-        let auth_url = self.build(FlowType::AuthorizeCodeFlow).unwrap();
+        let auth_url = self
+            .build(FlowType::AuthorizeCodeFlow)
+            .expect("Could not build URL for code flow.");
         let handle = thread::spawn(move || {
             let auth_to_string = auth_url.as_str();
             Command::new("xdg-open")
@@ -786,7 +851,9 @@ impl AuthFlow {
         });
 
         // Make sure threads spawn and finish
-        handle.join().unwrap();
+        handle
+            .join()
+            .expect("Could not ensure that the thread for browser_flow() spawned and finished");
         Ok(())
     }
 
@@ -831,18 +898,14 @@ impl AuthFlow {
     ///
     /// // Run request_access_token() which will automatically set the
     /// // AccessToken struct in AuthFlow.access_token
-    /// auth_flow.request_access_token()?;
+    /// auth_flow.request_access_token();
     ///
     /// // Get the AccessToken struct
-    /// let access_token: AccessToken = auth_flow.get_access_token_struct()?;
-    /// // Get the access token String from AccessToken
-    /// println!("{:#?}", access_token.get_access_token());
-    ///
-    /// // or
-    ///
-    /// // Get only the access token string which is also set in AuthFlow
-    /// // when calling request_access_token()
-    /// println!("{:#?}", auth_flow.get_access_token());
+    /// let access_token: Option<Box<AccessToken>> = auth_flow.get_access_token();
+    /// if let Some(at) = access_token {
+    ///     // Get the access token String from AccessToken
+    ///     println!("{:#?}", at.get_access_token());
+    /// }
     /// ```
     pub fn request_access_token(&mut self) -> &mut AuthFlow {
         let code_body = self
@@ -862,10 +925,19 @@ impl AuthFlow {
             .clone();
 
         self.req_to_access_token(&access_token_url, &access_code, code_body)
-            .unwrap();
+            .expect("Unknown error requesting access token.");
         self
     }
 
+    /// Refreshes the access token in AuthFlow
+    ///
+    /// This method requires a refresh token to be used in the request
+    /// for a new access token.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// auth_flow.refresh_access_token();
+    /// ```
     pub fn refresh_access_token(&mut self) -> &mut AuthFlow {
         let code_body = self
             .build(FlowType::GrantTypeRefreshToken)
@@ -922,7 +994,10 @@ impl AuthFlow {
             );
 
         let json_value = self.parse_request(&mut res);
-        self.deserialize_access_token(json_value);
+
+        if let Some(json) = json_value {
+            self.deserialize_access_token(json);
+        }
 
         if !can_change {
             self.allow_reset(false);
@@ -931,22 +1006,37 @@ impl AuthFlow {
         Ok(())
     }
 
-    fn parse_request(&self, response: &mut Response) -> JsonValue {
-        let mut json_str = String::from("");
-        response.read_to_string(&mut json_str).expect("Could not transform response to a string");
+    /// Parses json form a JsonValue. If the status of the request is an error
+    /// the field req_error will be set with the DriveError and a None value
+    /// will be returned in this method. Afterward, method callers would use
+    /// the Some(Json) or None to decipher whether the request was successful.
+    fn parse_request(&mut self, response: &mut Response) -> Option<JsonValue> {
+        if DriveErrorType::is_error(response.status().as_u16()) {
+            let drive_error = DriveErrorType::drive_error(response.status().as_u16());
+            self.req_error = drive_error;
+            None
+        } else {
+            let mut json_str = String::from("");
+            response
+                .read_to_string(&mut json_str)
+                .expect("Could not transform response to a string");
 
-        let parsed_json = json::parse(json_str.as_str()).expect(
-            FlowErrorType::match_error_type(FlowErrorType::BadRequest)
-                .message
-                .as_str(),
-        );
-        parsed_json
+            let parsed_json = json::parse(json_str.as_str()).expect(
+                FlowErrorType::match_error_type(FlowErrorType::BadRequest)
+                    .message
+                    .as_str(),
+            );
+
+            Some(parsed_json)
+        }
     }
 
+    /// Checks for AccessToken values and sets the AccessToken field on AuthFlow
     fn deserialize_access_token(&mut self, json_value: JsonValue) {
         // Normally an automatic conversion to AccessToken would be done here, however,
-        // different errors are consistently thrown. Thus, make sure the values are
-        // actually in the request.
+        // different parse errors are consistently thrown with very little information on
+        // the cause. Thus, make sure the values are actually in the request by individually
+        // checking each.
         if !json_value["access_token"].is_null()
             && !json_value["expires_in"].is_null()
             && !json_value["token_type"].is_null()
