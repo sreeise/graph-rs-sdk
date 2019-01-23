@@ -40,8 +40,9 @@ pub trait DriveSerDe<T> {
 
 /// Query string trait for building graph requests with select and expand query strings
 ///
-/// https://docs.microsoft.com/en-us/graph/query-parameters
-/// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties
+/// # See Also:
+/// [Query Documentation](https://docs.microsoft.com/en-us/graph/query-parameters)
+/// [Query Documentation Continued](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties)
 pub trait QueryString {
     fn select(&mut self, end_point: DriveEndPoint, query: &Vec<&str>) -> BaseItem<DriveItem>;
     fn select_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String;
@@ -109,7 +110,12 @@ pub trait DriveRequest {
     }
 }
 
-/// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/addressing-driveitems?view=odsp-graph-online
+/// A drive resource is the top level drive and describes where the item requested
+/// originates from.
+///
+/// # See Also:
+/// [Documentation on Drive Resources](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/addressing-driveitems?view=odsp-graph-online)
+/// [Documentation on Drive Resources Continued](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/drive_get?view=odsp-graph-online)
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DriveResource {
     Drives,
@@ -120,7 +126,7 @@ pub enum DriveResource {
 }
 
 impl DriveResource {
-    pub fn as_str(&self) -> String {
+    pub fn to_string(&self) -> String {
         match self {
             DriveResource::Drives => String::from("/drives"),
             DriveResource::Groups => String::from("/groups"),
@@ -129,8 +135,54 @@ impl DriveResource {
             DriveResource::Me => String::from("/me"),
         }
     }
+
+    pub fn action_url(
+        &self,
+        drive_id: Option<&str>,
+        item_id: &str,
+        drive_action: DriveAction,
+    ) -> String {
+        match self {
+            DriveResource::Drives => format!(
+                "{}/drives/{}/items/{}/{}",
+                GRAPH_ENDPOINT,
+                drive_id.expect("Expected drive_id for DriveResource::Drives"),
+                item_id,
+                drive_action.as_str()
+            ),
+            DriveResource::Groups => format!(
+                "{}/groups/{}/drive/items/{}/{}",
+                GRAPH_ENDPOINT,
+                drive_id.expect("Expected drive_id for DriveResource::Groups"),
+                item_id,
+                drive_action.as_str()
+            ),
+            DriveResource::Sites => format!(
+                "{}/sites/{}/drive/items/{}/{}",
+                GRAPH_ENDPOINT,
+                drive_id.expect("Expected drive_id for DriveResource::Sites"),
+                item_id,
+                drive_action.as_str()
+            ),
+            DriveResource::Users => format!(
+                "{}/users/{}/drive/items/{}/{}",
+                GRAPH_ENDPOINT,
+                drive_id.expect("Expected drive_id for DriveResource::Users"),
+                item_id,
+                drive_action.as_str()
+            ),
+            DriveResource::Me => format!(
+                "{}/me/drive/items/{}/{}",
+                GRAPH_ENDPOINT,
+                item_id,
+                drive_action.as_str()
+            ),
+        }
+    }
 }
 
+/// Enum for describing what action to take in a drive request
+/// such as uploading and item or downloading an item.
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DriveAction {
     CheckIn,
@@ -144,8 +196,32 @@ pub enum DriveAction {
     ListChildren,
     Move,
     Upload,
+    CreateUploadSession,
     ListVersions,
     TrackChanges,
+    Preview,
+    Activities,
+}
+
+impl DriveAction {
+    pub fn as_str(&self) -> &str {
+        match *self {
+            DriveAction::CheckIn => "checkin",
+            DriveAction::CheckOut => "checkout",
+            DriveAction::Copy => "copy",
+            DriveAction::ListVersions => "versions",
+            DriveAction::TrackChanges => "delta",
+            DriveAction::Download | DriveAction::Upload => "content",
+            DriveAction::CreateUploadSession => "createUploadSession",
+            DriveAction::ListChildren | DriveAction::CreateFolder => "children",
+            DriveAction::Preview => "preview",
+            DriveAction::Activities => "activities",
+            DriveAction::Move
+            | DriveAction::GetItem
+            | DriveAction::GetItemRoot
+            | DriveAction::Delete => "",
+        }
+    }
 }
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -212,7 +288,10 @@ impl Drive {
             DriveAction::ListVersions => "versions",
             DriveAction::TrackChanges => "delta",
             DriveAction::Download | DriveAction::Upload => "content",
+            DriveAction::CreateUploadSession => "createUploadSession",
             DriveAction::ListChildren | DriveAction::CreateFolder => "children",
+            DriveAction::Preview => "preview",
+            DriveAction::Activities => "activities",
             DriveAction::Move
             | DriveAction::GetItem
             | DriveAction::GetItemRoot
@@ -345,6 +424,8 @@ impl Drive {
         }
     }
 
+    /// Formats URLs where the DriveAction is an empty string or in other words
+    /// a URL doesn't have or end with a DriveAction
     fn no_drive_action_url(resource: DriveResource, resource_id: &str, item_id: &str) -> String {
         match resource {
             DriveResource::Drives => format!(
@@ -365,19 +446,6 @@ impl Drive {
             ),
             DriveResource::Me => format!("{}/me/drive/items/{}", GRAPH_ENDPOINT, item_id,),
         }
-    }
-
-    fn check_error(&self, status: u16) -> Option<DriveError> {
-        let error_type = DriveErrorType::from_u16(status);
-        if error_type.is_some() {
-            let error_t = error_type
-                .expect("Drive Request Error found originally but unknown error occurred");
-            return Some(DriveError {
-                error_info: String::from(error_t.as_str()),
-                error_type: error_t,
-            });
-        }
-        None
     }
 
     pub fn base_item<T>(&mut self, end_point: DriveEndPoint) -> BaseItem<T>
@@ -404,10 +472,10 @@ impl Drive {
     where
         for<'de> T: serde::Deserialize<'de>,
     {
-        if self.check_error(response.status().as_u16()).is_some() {
-            let drive_error = self
-                .check_error(response.status().as_u16())
+        if DriveErrorType::is_error(response.status().as_u16()) {
+            let drive_error = DriveErrorType::drive_error(response.status().as_u16())
                 .expect(DriveErrorType::BadRequest.as_str());
+
             let base_item = BaseItem::new(None, Some(drive_error));
             base_item
         } else {
@@ -418,10 +486,11 @@ impl Drive {
                     .as_str(),
             )
             .expect(DriveErrorType::BadRequest.as_str());
-            let pretty_str = json_str.pretty(1);
 
+            let pretty_str = json_str.pretty(1);
             let item: T = serde_json::from_str(pretty_str.as_str())
                 .expect(DriveErrorType::BadRequest.as_str());
+
             BaseItem::new(Some(item), None)
         }
     }
@@ -429,14 +498,15 @@ impl Drive {
     fn req_to_string_pretty(&mut self, endpoint: DriveEndPoint) -> Option<String> {
         let mut drive_req = self
             .request(endpoint)
-            .expect("Unknown error requesting resource");
+            .expect(DriveErrorType::BadRequest.as_str());
 
-        if self.check_error(drive_req.status().as_u16()).is_some() {
+        if DriveErrorType::is_error(drive_req.status().as_u16()) {
             let error_type = DriveErrorType::from_u16(drive_req.status().as_u16());
             let error_t = error_type.unwrap();
             let drive_error = DriveError {
                 error_info: String::from(error_t.as_str()),
                 error_type: error_t,
+                code: drive_req.status().as_u16(),
             };
 
             let serialized = serde_json::to_string(&drive_error).unwrap();
@@ -457,97 +527,147 @@ impl Drive {
 
 /// Automatically requests the DriveEndPoint given in the function name and returns the struct
 /// of that request. The structs may be of different types listed here by function name:
-///
-/// # Example
-/// ```rust,ignore
-///    fn drive(&mut self) -> BaseItem<DriveInfo>;
-///    fn drive_me(&mut self) -> BaseItem<DriveInfo>;
-///    fn drive_root(&mut self) -> BaseItem<Value>;
-///    fn drive_root_me(&mut self) -> BaseItem<Value>;
-///    fn drive_root_child(&mut self) -> BaseItem<DriveItem>;
-///    fn drive_changes(&mut self) -> BaseItem<DriveItem>;
-///    fn shared_with_me(&mut self) -> BaseItem<DriveItem>;
-///    fn drive_recent(&mut self) -> BaseItem<DriveItem>;
-///    fn special_documents(&mut self) -> BaseItem<Value>;
-///    fn special_documents_child(&mut self) -> BaseItem<DriveItem>;
-///    fn special_photos(&mut self) -> BaseItem<Value>;
-///    fn special_photos_child(&mut self) -> BaseItem<DriveItem>;
-///    fn special_cameraroll(&mut self) -> BaseItem<Value>;
-///    fn special_cameraroll_child(&mut self) -> BaseItem<DriveItem>;
-///    fn special_approot(&mut self) -> BaseItem<Value>;
-///    fn special_approot_child(&mut self) -> BaseItem<DriveItem>;
-///    fn special_music(&mut self) -> BaseItem<Value>;
-///    fn special_music_child(&mut self) -> BaseItem<DriveItem>;
-/// ```
 impl EP for Drive {
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_me(&mut self) -> BaseItem<DriveInfo>;
+    /// ```
     fn drive(&mut self) -> BaseItem<DriveInfo> {
         self.base_item(DriveEndPoint::Drive)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive(&mut self) -> BaseItem<DriveInfo>
+    /// ```
     fn drive_me(&mut self) -> BaseItem<DriveInfo> {
         self.base_item(DriveEndPoint::DriveMe)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_root(&mut self) -> BaseItem<Value>;
+    /// ```
     fn drive_root(&mut self) -> BaseItem<Value> {
         self.base_item(DriveEndPoint::DriveRoot)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_root_me(&mut self) -> BaseItem<Value>;
+    /// ```
     fn drive_root_me(&mut self) -> BaseItem<Value> {
         self.base_item(DriveEndPoint::DriveRootMe)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_root_child(&mut self) -> BaseItem<DriveItem>;
+    /// ```
     fn drive_root_child(&mut self) -> BaseItem<DriveItem> {
         self.base_item(DriveEndPoint::DriveRootChild)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn shared_with_me(&mut self) -> BaseItem<DriveItem>
+    /// ```
     fn drive_changes(&mut self) -> BaseItem<DriveItem> {
         self.base_item(DriveEndPoint::DriveChanges)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_recent(&mut self) -> BaseItem<DriveItem>
+    /// ```
     fn shared_with_me(&mut self) -> BaseItem<DriveItem> {
         self.base_item(DriveEndPoint::SharedWithMe)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_recent(&mut self) -> BaseItem<DriveItem>
+    /// ```
     fn drive_recent(&mut self) -> BaseItem<DriveItem> {
         self.base_item(DriveEndPoint::DriveRecent)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_documents(&mut self) -> BaseItem<Value>
+    /// ```
     fn special_documents(&mut self) -> BaseItem<Value> {
         self.base_item(DriveEndPoint::SpecialDocuments)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_documents_child(&mut self) -> BaseItem<DriveItem>
+    /// ```
     fn special_documents_child(&mut self) -> BaseItem<DriveItem> {
         self.base_item(DriveEndPoint::SpecialDocumentsChild)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_photos(&mut self) -> BaseItem<Value>
+    /// ```
     fn special_photos(&mut self) -> BaseItem<Value> {
         self.base_item(DriveEndPoint::SpecialPhotos)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_photos_child(&mut self) -> BaseItem<DriveItem>
+    /// ```
     fn special_photos_child(&mut self) -> BaseItem<DriveItem> {
         self.base_item(DriveEndPoint::SpecialPhotosChild)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_cameraroll(&mut self) -> BaseItem<Value>
+    /// ```
     fn special_cameraroll(&mut self) -> BaseItem<Value> {
         self.base_item(DriveEndPoint::SpecialCameraRoll)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_cameraroll_child(&mut self) -> BaseItem<DriveItem>
+    /// ```
     fn special_cameraroll_child(&mut self) -> BaseItem<DriveItem> {
         self.base_item(DriveEndPoint::SpecialCameraRollChild)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_approot(&mut self) -> BaseItem<Value>
+    /// ```
     fn special_approot(&mut self) -> BaseItem<Value> {
         self.base_item(DriveEndPoint::SpecialAppRoot)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_approot_child(&mut self) -> BaseItem<DriveItem>
+    /// ```
     fn special_approot_child(&mut self) -> BaseItem<DriveItem> {
         self.base_item(DriveEndPoint::SpecialAppRootChild)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///     fn special_music(&mut self) -> BaseItem<Value>
+    /// ```
     fn special_music(&mut self) -> BaseItem<Value> {
         self.base_item(DriveEndPoint::SpecialMusic)
     }
 
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_music_child(&mut self) -> BaseItem<DriveItem>
+    /// ```
     fn special_music_child(&mut self) -> BaseItem<DriveItem> {
         self.base_item(DriveEndPoint::SpecialMusicChild)
     }
@@ -653,7 +773,7 @@ impl QueryString for Drive {
     /// // sending the request and returning the response
     /// let base_item: BaseItem<Value> = drive.expand(DriveEndPoint::DriveRoot, "children", query);
     ///
-    /// if base_item.is_some() {
+    /// if !base_item.error.is_some() {
     ///     println!("{:#?}", &base_item); // BaseItem<Value>
     /// } else {
     ///     println!("{:#?}", &base_item.error); // DriveError

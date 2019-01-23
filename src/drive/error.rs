@@ -1,14 +1,16 @@
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DriveError {
     pub error_info: String,
     pub error_type: DriveErrorType,
+    pub code: u16,
 }
 
 impl DriveError {
-    pub fn new(error_info: &str, error_type: DriveErrorType) -> DriveError {
+    pub fn new(error_info: &str, error_type: DriveErrorType, code: u16) -> DriveError {
         DriveError {
             error_info: error_info.to_string(),
             error_type,
+            code,
         }
     }
 }
@@ -28,7 +30,7 @@ pub struct InnerError {
     date: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DriveErrorType {
     BadRequest,
     Unauthorized,
@@ -102,5 +104,23 @@ impl DriveErrorType {
             509 => Some(DriveErrorType::BandwidthLimitExceeded),
             _ => None,
         }
+    }
+
+    pub fn drive_error(status: u16) -> Option<DriveError> {
+        let error_type = DriveErrorType::from_u16(status);
+        if error_type.is_some() {
+            let error_t = error_type
+                .expect("Drive Request Error found originally but unknown error occurred");
+            return Some(DriveError {
+                error_info: String::from(error_t.as_str()),
+                error_type: error_t,
+                code: status,
+            });
+        }
+        None
+    }
+
+    pub fn is_error(status: u16) -> bool {
+        DriveErrorType::from_u16(status).is_some()
     }
 }
