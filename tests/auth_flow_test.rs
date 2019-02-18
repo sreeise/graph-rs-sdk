@@ -1,10 +1,10 @@
+use rust_onedrive::flow::accesstoken::AccessToken;
 use rust_onedrive::flow::v1::AccountType;
 use rust_onedrive::flow::v1::AuthFlow;
 use rust_onedrive::flow::v1::AuthUrl;
 use rust_onedrive::flow::v1::FlowType;
 use rust_onedrive::process::jsonio::JsonFile;
 use std::fs;
-use rust_onedrive::flow::accesstoken::AccessToken;
 
 fn access_token_struct() -> AccessToken {
     let access_token = AccessToken::new(
@@ -208,22 +208,28 @@ fn form_url_encoded() {
     native_flow
         .set_client_id("bb301aaa-1201-4259-a230923fds32")
         .set_redirect_uri("https://login.microsoftonline.com/common/oauth2/nativeclient");
-    native_flow.set_access_code("asfasdf").add_scope("Read.Write")
+    native_flow
+        .set_access_code("asfasdf")
+        .add_scope("Read.Write")
         .add_scope("wl.offline_access")
         .add_scope("Read.Write.All");
     native_flow.use_default_auth_url(AccountType::Account);
 
-    let authorize_code_flow_form_encoded = native_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
+    let authorize_code_flow_form_encoded =
+        native_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
     assert_eq!(authorize_code_flow_form_encoded, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=Read.Write%2Fwl.offline_access%2FRead.Write.All&response_type=code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
 
-    let authorize_token_flow_form_encoded = native_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeTokenFlow);
+    let authorize_token_flow_form_encoded =
+        native_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeTokenFlow);
     assert_eq!(authorize_token_flow_form_encoded, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=Read.Write%2Fwl.offline_access%2FRead.Write.All&response_type=token&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
 
-    let grant_code_body_form_encoded = native_flow.build_auth_using_form_urlencoded(FlowType::GrantTypeAuthCode);
+    let grant_code_body_form_encoded =
+        native_flow.build_auth_using_form_urlencoded(FlowType::GrantTypeAuthCode);
     assert_eq!(grant_code_body_form_encoded, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&code=asfasdf&grant_type=authorization_code");
 
     native_flow.set_access_token(access_token_struct());
-    let grant_refresh_flow_form_encoded = native_flow.build_auth_using_form_urlencoded(FlowType::GrantTypeRefreshToken);
+    let grant_refresh_flow_form_encoded =
+        native_flow.build_auth_using_form_urlencoded(FlowType::GrantTypeRefreshToken);
     assert_eq!(grant_refresh_flow_form_encoded, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&refresh_token=32LKLASDKJ&grant_type=refresh_token");
 }
 
@@ -237,10 +243,12 @@ fn form_url_encoded_default_scopes() {
         .set_redirect_uri("http://localhost:8888/redirect");
     web_flow.use_default_auth_url(AccountType::Account);
 
-    let web_code_flow_default_scopes = web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
+    let web_code_flow_default_scopes =
+        web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
     assert_eq!(web_code_flow_default_scopes, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
 
-    let web_token_flow_default_scopes = web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeTokenFlow);
+    let web_token_flow_default_scopes =
+        web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeTokenFlow);
     assert_eq!(web_token_flow_default_scopes, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
 }
 
@@ -257,9 +265,11 @@ fn form_url_encoded_manual_scopes() {
         .add_scope("Read.Write.All");
     web_flow.use_default_auth_url(AccountType::Account);
 
-    let web_code_flow_manual_scopes = web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
+    let web_code_flow_manual_scopes =
+        web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
     assert_eq!(web_code_flow_manual_scopes, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=Read.Write%2Fwl.offline_access%2FRead.Write.All&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
 
-    let web_token_flow_manual_scopes = web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeTokenFlow);
+    let web_token_flow_manual_scopes =
+        web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeTokenFlow);
     assert_eq!(web_token_flow_manual_scopes, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=Read.Write%2Fwl.offline_access%2FRead.Write.All&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
 }

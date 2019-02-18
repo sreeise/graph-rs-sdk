@@ -36,7 +36,8 @@ impl UrlEncode {
     }
 
     pub fn uri_utf8_percent_encode(uri: &str) -> String {
-        let encoded = utf8_percent_encode(uri, ONEDRIVE_AUTH_RESERVED_ENCODE_SET).collect::<String>();
+        let encoded =
+            utf8_percent_encode(uri, ONEDRIVE_AUTH_RESERVED_ENCODE_SET).collect::<String>();
         encoded
     }
 

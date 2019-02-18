@@ -74,7 +74,6 @@ impl AccessToken {
         }
     }
 
-
     pub fn get_expires_in(&self) -> i64 {
         self.expires_in.clone()
     }

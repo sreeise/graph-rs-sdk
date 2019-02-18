@@ -770,6 +770,6 @@ fn query_string_test() {
     let select_string = drive.select_url(DriveEndPoint::DriveRootChild, &select_query);
     assert_eq!(
         select_string,
-        "https://graph.microsoft.com/v1.0/drive/root/children?select=name,size"
+        "https://graph.microsoft.com/v1.0/drive/root/children?$select=name,size"
     );
 }

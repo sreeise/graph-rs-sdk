@@ -67,12 +67,12 @@ use crate::drive::error::DriveError;
 use crate::drive::error::DriveErrorType;
 use crate::drive::Drive;
 use crate::flow::accesstoken::AccessToken;
+use crate::flow::encode::encode_url;
 use crate::flow::encode::UrlEncode;
 use crate::flow::error::FlowErrorType;
 use json::JsonValue;
 use reqwest::Response;
 use std::io::Read;
-use crate::flow::encode::encode_url;
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -509,9 +509,16 @@ impl AuthFlow {
     ///     &redirect_uri={redirect_uri}
     pub fn build(&mut self, to_build: FlowType) -> Option<String> {
         match to_build {
-            FlowType::AuthorizeTokenFlow | FlowType::AuthorizeCodeFlow  => Some(self.build_auth(to_build)),
-            FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => Some(self.build_grant_request(to_build)
-                .expect(FlowErrorType::missing_param(to_build.as_str()).message.as_str())),
+            FlowType::AuthorizeTokenFlow | FlowType::AuthorizeCodeFlow => {
+                Some(self.build_auth(to_build))
+            }
+            FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => Some(
+                self.build_grant_request(to_build).expect(
+                    FlowErrorType::missing_param(to_build.as_str())
+                        .message
+                        .as_str(),
+                ),
+            ),
         }
     }
 
@@ -573,15 +580,19 @@ impl AuthFlow {
                 }
             }
             FlowType::GrantTypeRefreshToken => {
-                if self.get_access_token().is_some() {
-                    let prev_access_token = self.get_access_token().unwrap();
-                    if let Some(refresh) = prev_access_token.get_refresh_token() {
-                        ("&refresh_token=", refresh.to_string())
+                if let Some(access_token) = self.get_access_token() {
+                    if let Some(refresh_token) = access_token.get_refresh_token() {
+                        ("&refresh_token=", refresh_token)
                     } else {
-                        panic!(FlowErrorType::missing_param("AccessToken/refresh_token").message);
+                        panic!(
+                            FlowErrorType::match_error_type(FlowErrorType::RequiresGrantType)
+                                .message
+                        )
                     }
                 } else {
-                    panic!(FlowErrorType::missing_param("AccessToken/refresh_token").message);
+                    panic!(
+                        FlowErrorType::match_error_type(FlowErrorType::RequiresGrantType).message
+                    );
                 }
             }
             FlowType::AuthorizeTokenFlow => {
@@ -696,7 +707,6 @@ impl AuthFlow {
         if self.default_auth {
             self.build_default_auth(flow_type)
         } else {
-            let mut encoded = UrlEncode::new(true);
             let auth_url = match flow_type {
                 FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
                     if let Some(url) = self.get_auth_url() {
@@ -705,16 +715,18 @@ impl AuthFlow {
                             auth_url.push_str("?")
                         }
 
-                        let encoded_body = UrlEncode::uri_utf8_percent_encode(self.build_query(flow_type).as_str());
+                        let encoded_body = UrlEncode::uri_utf8_percent_encode(
+                            self.build_query(flow_type).as_str(),
+                        );
                         auth_url.push_str(&encoded_body);
                         auth_url
                     } else {
                         panic!(FlowErrorType::missing_param("AUTH_URL"));
                     }
-                },
+                }
                 FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => {
                     UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
-                },
+                }
             };
             auth_url
         }
@@ -722,32 +734,30 @@ impl AuthFlow {
 
     fn build_default_auth(&mut self, flow_type: FlowType) -> String {
         let auth_url = match self.auth_type {
-            AccountType::Account => {
-                match flow_type {
-                    FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
-                        let mut url = String::from(AuthUrl::AccountAuth.as_str());
-                        let encoded_body =  UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type));
-                        url.push_str(encoded_body.as_str());
-                        url
-                    },
-                    FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => {
-                        UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
-                    }
+            AccountType::Account => match flow_type {
+                FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
+                    let mut url = String::from(AuthUrl::AccountAuth.as_str());
+                    let encoded_body =
+                        UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type));
+                    url.push_str(encoded_body.as_str());
+                    url
+                }
+                FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => {
+                    UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
                 }
             },
-            AccountType::Graph => {
-                match flow_type {
-                    FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
-                        let mut url = String::from(AuthUrl::GraphAuth.as_str());
-                        let encoded_body =  UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type));
-                        url.push_str(encoded_body.as_str());
-                        url
-                    },
-                    FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => {
-                        UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
-                    }
+            AccountType::Graph => match flow_type {
+                FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
+                    let mut url = String::from(AuthUrl::GraphAuth.as_str());
+                    let encoded_body =
+                        UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type));
+                    url.push_str(encoded_body.as_str());
+                    url
                 }
-            }
+                FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => {
+                    UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
+                }
+            },
         };
 
         auth_url
@@ -836,7 +846,9 @@ impl AuthFlow {
                 auth_url
             }
             FlowType::GrantTypeAuthCode => self.form_url_encoded_body(FlowType::GrantTypeAuthCode),
-            FlowType::GrantTypeRefreshToken => self.form_url_encoded_body(FlowType::GrantTypeRefreshToken)
+            FlowType::GrantTypeRefreshToken => {
+                self.form_url_encoded_body(FlowType::GrantTypeRefreshToken)
+            }
         };
 
         uri
@@ -868,21 +880,18 @@ impl AuthFlow {
                         .finish()
                 } else {
                     let encoded_start: String = form_urlencoded::Serializer::new(String::from(""))
-                        .append_pair("client_id", &self.params["CLIENT_ID"].as_str()).finish();
+                        .append_pair("client_id", &self.params["CLIENT_ID"].as_str())
+                        .finish();
 
                     let encoded_end = form_urlencoded::Serializer::new(String::from(""))
                         .append_pair("response_type", flow_type.as_str())
-                        .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string()).finish();
+                        .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
+                        .finish();
 
                     let mut scope_string = String::from("&scope=");
                     scope_string.push_str(self.scopes.join("%2F").as_str());
 
-                    let vec = vec![
-                        encoded_start,
-                        scope_string,
-                        "&".to_string(),
-                        encoded_end
-                    ];
+                    let vec = vec![encoded_start, scope_string, "&".to_string(), encoded_end];
                     vec.join("")
                 }
             }
@@ -891,7 +900,14 @@ impl AuthFlow {
                     form_urlencoded::Serializer::new(String::from(""))
                         .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
                         .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
-                        .append_pair("code", self.get_access_code().expect(FlowErrorType::missing_param("access_code").message.as_str()).as_str())
+                        .append_pair(
+                            "code",
+                            self.get_access_code()
+                                .expect(
+                                    FlowErrorType::missing_param("access_code").message.as_str(),
+                                )
+                                .as_str(),
+                        )
                         .append_pair("grant_type", "authorization_code")
                         .finish()
                 } else {
@@ -899,17 +915,33 @@ impl AuthFlow {
                         .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
                         .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
                         .append_pair("client_secret", &self.params["CLIENT_SECRET"].to_string())
-                        .append_pair("code", self.get_access_code().expect(FlowErrorType::missing_param("access_code").message.as_str()).as_str())
+                        .append_pair(
+                            "code",
+                            self.get_access_code()
+                                .expect(
+                                    FlowErrorType::missing_param("access_code").message.as_str(),
+                                )
+                                .as_str(),
+                        )
                         .append_pair("grant_type", "authorization_code")
                         .finish()
                 }
-            },
+            }
             FlowType::GrantTypeRefreshToken => {
                 if self.public_client {
                     form_urlencoded::Serializer::new(String::from(""))
                         .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
                         .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
-                        .append_pair("refresh_token", self.get_refresh_token().expect(FlowErrorType::missing_param("refresh_token").message.as_str()).as_str())
+                        .append_pair(
+                            "refresh_token",
+                            self.get_refresh_token()
+                                .expect(
+                                    FlowErrorType::missing_param("refresh_token")
+                                        .message
+                                        .as_str(),
+                                )
+                                .as_str(),
+                        )
                         .append_pair("grant_type", "refresh_token")
                         .finish()
                 } else {
@@ -917,7 +949,16 @@ impl AuthFlow {
                         .append_pair("client_id", &self.params["CLIENT_ID"].to_string())
                         .append_pair("redirect_uri", &self.params["REDIRECT_URI"].to_string())
                         .append_pair("client_secret", &self.params["CLIENT_SECRET"].to_string())
-                        .append_pair("refresh_token", self.get_refresh_token().expect(FlowErrorType::missing_param("refresh_token").message.as_str()).as_str())
+                        .append_pair(
+                            "refresh_token",
+                            self.get_refresh_token()
+                                .expect(
+                                    FlowErrorType::missing_param("refresh_token")
+                                        .message
+                                        .as_str(),
+                                )
+                                .as_str(),
+                        )
                         .append_pair("grant_type", "refresh_token")
                         .finish()
                 }
@@ -1049,7 +1090,6 @@ impl AuthFlow {
             .expect(FlowErrorType::missing_param("access_code").message.as_str())
             .clone();
 
-
         let token_url = self
             .params
             .get("TOKEN_URL")
@@ -1127,8 +1167,8 @@ impl AuthFlow {
                 .expect("Could not read response to a string");
 
             match json::parse(json_str.as_str()) {
-                Ok(json_value) => Some(json_value) ,
-                Err(e) => None,
+                Ok(json_value) => Some(json_value),
+                Err(_) => None,
             }
         }
     }
@@ -1158,7 +1198,7 @@ impl AuthFlow {
 
         if let Some(refresh) = json_value["refresh_token"].as_str() {
             ac.set_refresh_token(refresh);
-        } else if let Some(current) =  self.get_access_token() {
+        } else if let Some(current) = self.get_access_token() {
             // If there is no refresh token in the request but there was a
             // previous refresh token then use the the previous token
             // as it can be used to request multiple access tokens.
@@ -1181,10 +1221,10 @@ impl AuthFlow {
     /// Automatic conversion to Drive
     pub fn into_drive(&mut self) -> Option<Drive> {
         if let Some(access_token) = self.get_access_token() {
-            return Some(Drive::new(access_token.get_access_token().as_str()))
+            return Some(Drive::new(access_token.get_access_token().as_str()));
         }
 
-        return None
+        return None;
     }
 
     /// Check if the values have been set

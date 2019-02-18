@@ -9,7 +9,7 @@ fn query_string_tests() {
 
     assert_eq!(
         drive.select_url(DriveEndPoint::Drive, &vec),
-        "https://graph.microsoft.com/v1.0/drive?select=name,size"
+        "https://graph.microsoft.com/v1.0/drive?$select=name,size"
     );
     assert_eq!(
         drive.expand_url(DriveEndPoint::Drive, "children", &vec),

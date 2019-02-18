@@ -109,9 +109,18 @@ impl DriveErrorType {
     pub fn drive_error(status: u16) -> Option<DriveError> {
         let error_type = DriveErrorType::from_u16(status);
         if error_type.is_some() {
-            let error_t = error_type
-                .expect("Drive Request Error found originally but unknown error occurred");
-            return Some(DriveError {
+            let error_t = match error_type {
+                Some(t) => t,
+                None => {
+                    return Some(DriveError::new(
+                        DriveErrorType::BadRequest.as_str(),
+                        DriveErrorType::BadRequest,
+                        400,
+                    ));
+                }
+            };
+
+            Some(DriveError {
                 error_info: String::from(error_t.as_str()),
                 error_type: error_t,
                 code: status,
