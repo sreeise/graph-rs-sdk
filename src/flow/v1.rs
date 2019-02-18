@@ -186,7 +186,6 @@ impl AccountType {
 ///```
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AuthFlow {
-    config_name: String,
     scopes: Vec<String>,
     params: HashMap<String, String>,
     allow_reset: bool,
@@ -202,8 +201,8 @@ impl fmt::Display for AuthFlow {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{:#?}\n{:#?}\n{:#?}\n{:#?}\n{:#?}",
-            self.config_name, self.scopes, self.params, self.allow_reset, self.default_scope
+            "{:#?}\n{:#?}\n{:#?}\n{:#?}",
+            self.scopes, self.params, self.allow_reset, self.default_scope
         )
     }
 }
@@ -211,7 +210,6 @@ impl fmt::Display for AuthFlow {
 impl AuthFlow {
     pub fn new(default_scope: bool) -> AuthFlow {
         AuthFlow {
-            config_name: String::from("AuthFlow"),
             scopes: Vec::new(),
             params: HashMap::new(),
             allow_reset: false,
@@ -226,7 +224,6 @@ impl AuthFlow {
 
     pub fn web_client(default_scope: bool) -> AuthFlow {
         AuthFlow {
-            config_name: String::from("AuthFlow"),
             scopes: Vec::new(),
             params: HashMap::new(),
             allow_reset: false,
@@ -241,7 +238,6 @@ impl AuthFlow {
 
     pub fn native_client() -> AuthFlow {
         AuthFlow {
-            config_name: String::from("AuthFlow"),
             scopes: Vec::new(),
             params: HashMap::new(),
             allow_reset: false,
@@ -1053,6 +1049,7 @@ impl AuthFlow {
             .expect(FlowErrorType::missing_param("access_code").message.as_str())
             .clone();
 
+
         let token_url = self
             .params
             .get("TOKEN_URL")
@@ -1085,7 +1082,7 @@ impl AuthFlow {
             .build()
             .expect("could not construct reqwest builder");
 
-        let mut res = client
+        let mut response = client
             .post(url)
             .header(header::AUTHORIZATION, access_code)
             .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
@@ -1097,10 +1094,14 @@ impl AuthFlow {
                     .as_str(),
             );
 
-        let json_value = self.parse_request(&mut res);
+        let json_value = self.parse_request(&mut response);
 
         if let Some(json) = json_value {
             self.deserialize_access_token(json);
+
+            if self.access_token.is_some() {
+                self.req_error = None;
+            }
         }
 
         if !can_change {
@@ -1123,15 +1124,12 @@ impl AuthFlow {
             let mut json_str = String::from("");
             response
                 .read_to_string(&mut json_str)
-                .expect("Could not transform response to a string");
+                .expect("Could not read response to a string");
 
-            let parsed_json = json::parse(json_str.as_str()).expect(
-                FlowErrorType::match_error_type(FlowErrorType::BadRequest)
-                    .message
-                    .as_str(),
-            );
-
-            Some(parsed_json)
+            match json::parse(json_str.as_str()) {
+                Ok(json_value) => Some(json_value) ,
+                Err(e) => None,
+            }
         }
     }
 
@@ -1141,95 +1139,52 @@ impl AuthFlow {
         // different parse errors are consistently thrown with very little information on
         // the cause. Thus, make sure the values are actually in the request by individually
         // checking each.
-        if !json_value["access_token"].is_null()
-            && !json_value["expires_in"].is_null()
-            && !json_value["token_type"].is_null()
-            && !json_value["scope"].is_null()
-        {
-            let token_type = json_value["token_type"].as_str().expect(
-                FlowErrorType::json_prev_parsed_error("token_type")
-                    .message
-                    .as_str(),
-            );
-            let expires_in = json_value["expires_in"].as_i64().expect(
-                FlowErrorType::json_prev_parsed_error("expires_in")
-                    .message
-                    .as_str(),
-            );
-            let scope = json_value["scope"].as_str().expect(
-                FlowErrorType::json_prev_parsed_error("scope")
-                    .message
-                    .as_str(),
-            );
-            let access_token = json_value["access_token"].as_str().expect(
-                FlowErrorType::json_prev_parsed_error("access_token")
-                    .message
-                    .as_str(),
-            );
-
-            let mut access_token: AccessToken = AccessToken::new(
-                token_type,
-                expires_in,
-                scope,
-                access_token,
-                None,
-                None,
-                None,
-            );
-
-            if !json_value["refresh_token"].is_null() {
-                access_token.set_refresh_token(
-                    json_value["refresh_token"].as_str().expect(
-                        FlowErrorType::json_prev_parsed_error("refresh_token")
-                            .message
-                            .as_str(),
-                    ),
-                );
-            } else if self.get_access_token().is_some() {
-                // If there is no refresh token in the request but there was a
-                // previous refresh token then use the the previous token
-                // as it can be used to request multiple access tokens.
-                let prev_access_token = self.get_access_token().unwrap();
-                if let Some(refresh_token) = prev_access_token.get_refresh_token() {
-                    access_token.set_refresh_token(refresh_token.as_str());
-                }
-            }
-
-            if !json_value["user_id"].is_null() {
-                access_token.set_user_id(
-                    json_value["user_id"].as_str().expect(
-                        FlowErrorType::json_prev_parsed_error("user_id")
-                            .message
-                            .as_str(),
-                    ),
-                );
-            }
-
-            if !json_value["id_token"].is_null() {
-                access_token.set_id_token(
-                    json_value["id_token"].as_str().expect(
-                        FlowErrorType::json_prev_parsed_error("id_token")
-                            .message
-                            .as_str(),
-                    ),
-                );
-            }
-            self.set_access_token(access_token);
+        let mut ac = AccessToken::default();
+        if let Some(token_type) = json_value["token_type"].as_str() {
+            ac.set_token_type(token_type);
         }
+
+        if let Some(expires_in) = json_value["expires_in"].as_i64() {
+            ac.set_expires_in(expires_in);
+        }
+
+        if let Some(scope) = json_value["scope"].as_str() {
+            ac.set_scope(scope);
+        }
+
+        if let Some(access_token) = json_value["access_token"].as_str() {
+            ac.set_access_token(access_token);
+        }
+
+        if let Some(refresh) = json_value["refresh_token"].as_str() {
+            ac.set_refresh_token(refresh);
+        } else if let Some(current) =  self.get_access_token() {
+            // If there is no refresh token in the request but there was a
+            // previous refresh token then use the the previous token
+            // as it can be used to request multiple access tokens.
+            if let Some(refresh_token) = current.get_refresh_token() {
+                ac.set_refresh_token(refresh_token.as_str());
+            }
+        }
+
+        if let Some(user_id) = json_value["user_id"].as_str() {
+            ac.set_user_id(user_id);
+        }
+
+        if let Some(id_token) = json_value["id_token"].as_str() {
+            ac.set_id_token(id_token);
+        }
+
+        self.set_access_token(ac);
     }
 
     /// Automatic conversion to Drive
     pub fn into_drive(&mut self) -> Option<Drive> {
-        Some(Drive::new(
-            self.get_access_token()
-                .expect(
-                    FlowErrorType::match_error_type(FlowErrorType::MissingParam)
-                        .message
-                        .as_str(),
-                )
-                .get_access_token()
-                .as_str(),
-        ))
+        if let Some(access_token) = self.get_access_token() {
+            return Some(Drive::new(access_token.get_access_token().as_str()))
+        }
+
+        return None
     }
 
     /// Check if the values have been set

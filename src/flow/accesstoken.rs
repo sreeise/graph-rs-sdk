@@ -42,7 +42,7 @@ use std::io;
 ///```
 /// The refresh token is optional and depends upon whether it was requested.
 /// Currently this is not available to be set for the AccessToken.
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AccessToken {
     token_type: String,
     expires_in: i64,
@@ -74,6 +74,7 @@ impl AccessToken {
         }
     }
 
+
     pub fn get_expires_in(&self) -> i64 {
         self.expires_in.clone()
     }
@@ -100,6 +101,22 @@ impl AccessToken {
 
     pub fn set_refresh_token(&mut self, refresh_token: &str) {
         self.refresh_token = Some(refresh_token.into());
+    }
+
+    pub fn set_token_type(&mut self, token_type: &str) {
+        self.token_type = token_type.to_string();
+    }
+
+    pub fn set_expires_in(&mut self, expires_in: i64) {
+        self.expires_in = expires_in;
+    }
+
+    pub fn set_scope(&mut self, scope: &str) {
+        self.scope = scope.to_string();
+    }
+
+    pub fn set_access_token(&mut self, access_token: &str) {
+        self.access_token = access_token.to_string();
     }
 
     pub fn set_user_id(&mut self, user_id: &str) {
