@@ -1,5 +1,77 @@
 use std;
 use std::fmt;
+use std::io;
+use std::num;
+use std::error;
+use std::error::Error;
+use core::option;
+use std::string;
+
+
+#[derive(Debug)]
+pub enum OAuthError {
+    Io(io::Error),
+    Parse(num::ParseIntError),
+    ParseString(string::ParseError),
+}
+
+impl fmt::Display for OAuthError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            // Both underlying errors already impl `Display`, so we defer to
+            // their implementations.
+            OAuthError::Io(ref err) => write!(f, "IO error: {}", err),
+            OAuthError::Parse(ref err) => write!(f, "Parse error: {}", err),
+            OAuthError::ParseString(ref err) => write!(f, "Parse string error: {}", err),
+        }
+    }
+}
+
+impl error::Error for OAuthError {
+    fn description(&self) -> &str {
+        // Both underlying errors already impl `Error`, so we defer to their
+        // implementations.
+        match *self {
+            OAuthError::Io(ref err) => err.description(),
+            // Normally we can just write `err.description()`, but the error
+            // type has a concrete method called `description`, which conflicts
+            // with the trait method. For now, we must explicitly call
+            // `description` through the `Error` trait.
+            OAuthError::Parse(ref err) => error::Error::description(err),
+            OAuthError::ParseString(ref err) => error::Error::description(err),
+        }
+    }
+
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match *self {
+            // N.B. Both of these implicitly cast `err` from their concrete
+            // types (either `&io::Error` or `&num::ParseIntError`)
+            // to a trait object `&Error`. This works because both error types
+            // implement `Error`.
+            OAuthError::Io(ref err) => Some(err),
+            OAuthError::Parse(ref err) => Some(err),
+            OAuthError::ParseString(ref err) => Some(err),
+        }
+    }
+}
+
+impl From<io::Error> for OAuthError {
+    fn from(err: io::Error) -> OAuthError {
+        OAuthError::Io(err)
+    }
+}
+
+impl From<num::ParseIntError> for OAuthError {
+    fn from(err: num::ParseIntError) -> OAuthError {
+        OAuthError::Parse(err)
+    }
+}
+
+impl From<string::ParseError> for OAuthError {
+    fn from(err: string::ParseError) -> OAuthError {
+        OAuthError::ParseString(err)
+    }
+}
 
 pub enum FlowErrorType {
     MissingParam,

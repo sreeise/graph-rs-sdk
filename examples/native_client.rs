@@ -16,6 +16,7 @@ Grant the application the following scopes:
 More info can be found here: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/drive_get?view=odsp-graph-online
 */
 
+#[allow(dead_code)]
 fn main() {
     let mut auth_flow = native_client();
 
@@ -40,6 +41,7 @@ fn main() {
     */
 }
 
+#[allow(dead_code)]
 fn get_auth_flow() -> AuthFlow {
     // native_client() sets using the default scopes to false
     // and therefore requires adding scopes manually. This can
@@ -57,6 +59,7 @@ fn get_auth_flow() -> AuthFlow {
     auth_flow
 }
 
+#[allow(dead_code)]
 fn native_client() -> AuthFlow {
     let mut auth_flow = get_auth_flow();
     auth_flow
@@ -67,10 +70,11 @@ fn native_client() -> AuthFlow {
         .add_scope("wl.offline_access"); // wl.offline_access will cause the request to return
                                          // a refresh token as well.
 
-    auth_flow.use_default_auth_url(AccountType::Account);
+    auth_flow.use_default_auth_url(AccountType::Personal);
     auth_flow
 }
 
+#[allow(dead_code)]
 fn set_code_request_token(access_code: &str) {
     let mut auth_flow = native_client();
 

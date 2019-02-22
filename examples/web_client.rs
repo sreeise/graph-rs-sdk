@@ -38,7 +38,7 @@ fn web_client() -> AuthFlow {
         // Or whatever you set the redirect to for a web client.
         .set_redirect_uri("http://localhost:8000/redirect")
         .set_client_secret("<CLIENT_SECRET>");
-    auth_flow.use_default_auth_url(AccountType::Account);
+    auth_flow.use_default_auth_url(AccountType::Personal);
     auth_flow
 }
 

@@ -59,20 +59,23 @@ use std::io;
 use std::process::Command;
 use std::result;
 use std::thread;
-
+use json::JsonValue;
+use reqwest::Response;
+use std::io::Read;
+use crate::flow::error::OAuthError;
+use url::ParseError;
+use notify::Error;
 use reqwest::header;
 use url::form_urlencoded;
 
 use crate::drive::error::DriveError;
 use crate::drive::error::DriveErrorType;
+use crate::drive::onedrive::OneDrive;
 use crate::drive::Drive;
 use crate::flow::accesstoken::AccessToken;
-use crate::flow::encode::encode_url;
 use crate::flow::encode::UrlEncode;
 use crate::flow::error::FlowErrorType;
-use json::JsonValue;
-use reqwest::Response;
-use std::io::Read;
+
 
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
@@ -110,35 +113,29 @@ pub enum FlowStatus {
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub enum AuthUrl {
-    AccountAuth,
-    AccountToken,
-    GraphAuth,
-    GraphToken,
-}
-
-impl AuthUrl {
-    pub fn as_str(&self) -> &'static str {
-        match *self {
-            AuthUrl::AccountAuth => "https://login.live.com/oauth20_authorize.srf?",
-            AuthUrl::AccountToken => "https://login.live.com/oauth20_token.srf",
-            AuthUrl::GraphAuth => "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?",
-            AuthUrl::GraphToken => "https://login.microsoftonline.com/common/oauth2/v2.0/token",
-        }
-    }
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum AccountType {
-    Account,
-    Graph,
+    Personal,
+    Business,
 }
 
 impl AccountType {
     pub fn as_str(&self) -> &'static str {
         match *self {
-            AccountType::Account => "Account",
-            AccountType::Graph => "Graph",
+            AccountType::Personal => "Personal",
+            AccountType::Business => "Business",
+        }
+    }
+
+    pub fn validation_urls(&self) -> (&str, &str) {
+        match self {
+            AccountType::Personal => (
+                "https://login.live.com/oauth20_authorize.srf?",
+                "https://login.live.com/oauth20_token.srf",
+            ),
+            AccountType::Business => (
+                "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?",
+                "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+            ),
         }
     }
 }
@@ -180,7 +177,7 @@ impl AccountType {
 ///        .set_redirect_uri("http://localhost:8000/redirect")
 ///        .set_client_secret("client_secret");
 ///
-///    auth_flow.use_default_auth_url(AccountType::Account);
+///    auth_flow.use_default_auth_url(AccountType::Personal);
 ///
 ///    assert_eq!(auth_flow.get_auth_url().unwrap(), "https://login.live.com/oauth20_authorize.srf?");
 ///```
@@ -215,7 +212,7 @@ impl AuthFlow {
             allow_reset: false,
             default_scope,
             default_auth: false,
-            auth_type: AccountType::Account,
+            auth_type: AccountType::Personal,
             access_token: None,
             public_client: false,
             req_error: None,
@@ -229,7 +226,7 @@ impl AuthFlow {
             allow_reset: false,
             default_scope,
             default_auth: false,
-            auth_type: AccountType::Account,
+            auth_type: AccountType::Personal,
             access_token: None,
             public_client: false,
             req_error: None,
@@ -243,11 +240,27 @@ impl AuthFlow {
             allow_reset: false,
             default_scope: false,
             default_auth: false,
-            auth_type: AccountType::Account,
+            auth_type: AccountType::Personal,
             access_token: None,
             public_client: true,
             req_error: None,
         }
+    }
+
+    pub fn business_account(&mut self) -> &mut AuthFlow {
+        self.auth_type = AccountType::Business;
+        let urls = AccountType::Business.validation_urls();
+        self.set_auth_url(urls.0);
+        self.set_token_url(urls.1);
+        self
+    }
+
+    pub fn personal_account(&mut self) -> &mut AuthFlow {
+        self.auth_type = AccountType::Personal;
+        let urls = AccountType::Personal.validation_urls();
+        self.set_auth_url(urls.0);
+        self.set_token_url(urls.1);
+        self
     }
 
     /// Set the client id of a request
@@ -395,12 +408,8 @@ impl AuthFlow {
     }
 
     fn set_config(&mut self, config_key: &str, config_value: &str) -> &mut AuthFlow {
-        if !self.params.contains_key(config_key) || self.allow_reset {
-            self.params
-                .insert(config_key.to_string(), config_value.to_string());
-        } else {
-            AuthFlow::print_reset_error(config_key);
-        }
+        self.params
+            .insert(config_key.to_string(), config_value.to_string());
         self
     }
 
@@ -437,13 +446,6 @@ impl AuthFlow {
         self.allow_reset = allow_reset;
     }
 
-    fn print_reset_error(config_to_reset: &str) {
-        println!(
-            "\nERROR:\n{} has already been set, call allow_reset(true) to change {}\n",
-            config_to_reset, config_to_reset
-        );
-    }
-
     // Join the scopes when manually setting them versus
     // using the default url: https://graph.microsoft.com/.default
     // default_auth must be set to false.
@@ -457,33 +459,17 @@ impl AuthFlow {
 
     pub fn use_default_auth_url(&mut self, auth_version: AccountType) -> &mut AuthFlow {
         match auth_version {
-            AccountType::Account => {
-                if !self.allow_reset {
-                    self.allow_reset(true);
-                    self.default_auth = true;
-                    self.auth_type = AccountType::Account;
-                    self.set_auth_url(AuthUrl::AccountAuth.as_str());
-                    self.set_token_url(AuthUrl::AccountToken.as_str());
-                    self.allow_reset(false);
-                } else {
-                    self.auth_type = AccountType::Account;
-                    self.set_auth_url(AuthUrl::AccountAuth.as_str());
-                    self.set_token_url(AuthUrl::AccountToken.as_str());
-                }
+            AccountType::Personal => {
+                self.auth_type = AccountType::Personal;
+                let urls = AccountType::Personal.validation_urls();
+                self.set_auth_url(urls.0);
+                self.set_token_url(urls.1);
             }
-            AccountType::Graph => {
-                if !self.allow_reset {
-                    self.allow_reset(true);
-                    self.default_auth = true;
-                    self.auth_type = AccountType::Graph;
-                    self.set_auth_url(AuthUrl::GraphAuth.as_str());
-                    self.set_token_url(AuthUrl::GraphToken.as_str());
-                    self.allow_reset(false);
-                } else {
-                    self.auth_type = AccountType::Graph;
-                    self.set_auth_url(AuthUrl::GraphAuth.as_str());
-                    self.set_token_url(AuthUrl::GraphToken.as_str());
-                }
+            AccountType::Business => {
+                self.auth_type = AccountType::Business;
+                let urls = AccountType::Business.validation_urls();
+                self.set_auth_url(urls.0);
+                self.set_token_url(urls.1);
             }
         };
         self
@@ -667,7 +653,7 @@ impl AuthFlow {
     ///     .set_redirect_uri("https://login.microsoftonline.com/common/oauth2/nativeclient")
     ///     .add_scope("Files.Read");
     ///
-    /// auth_flow.use_default_auth_url(AccountType::Account);
+    /// auth_flow.use_default_auth_url(AccountType::Personal);
     ///
     /// let code_flow_url = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
     /// assert_eq!(code_flow_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
@@ -734,9 +720,9 @@ impl AuthFlow {
 
     fn build_default_auth(&mut self, flow_type: FlowType) -> String {
         let auth_url = match self.auth_type {
-            AccountType::Account => match flow_type {
+            AccountType::Personal => match flow_type {
                 FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
-                    let mut url = String::from(AuthUrl::AccountAuth.as_str());
+                    let mut url = String::from(AccountType::Personal.validation_urls().0);
                     let encoded_body =
                         UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type));
                     url.push_str(encoded_body.as_str());
@@ -746,9 +732,9 @@ impl AuthFlow {
                     UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
                 }
             },
-            AccountType::Graph => match flow_type {
+            AccountType::Business => match flow_type {
                 FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
-                    let mut url = String::from(AuthUrl::GraphAuth.as_str());
+                    let mut url = String::from(    AccountType::Personal.validation_urls().0);
                     let encoded_body =
                         UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type));
                     url.push_str(encoded_body.as_str());
@@ -991,6 +977,7 @@ impl AuthFlow {
                 .expect("Could not open browser");
         });
 
+        // TODO: The handler will more than likely cause a block on the main thread if handled here?
         // Make sure threads spawn and finish
         handle
             .join()
@@ -1048,26 +1035,15 @@ impl AuthFlow {
     ///     println!("{:#?}", at.get_access_token());
     /// }
     /// ```
-    pub fn request_access_token(&mut self) -> &mut AuthFlow {
+    pub fn request_access_token(&mut self) -> Result<(), OAuthError> {
         let code_body = self
             .build(FlowType::GrantTypeAuthCode)
             .expect("Could not build GrantTypeAuthCode");
 
-        let access_code = self
-            .params
-            .get("CODE")
-            .expect(FlowErrorType::missing_param("access_code").message.as_str())
-            .clone();
+        let token_url = self.params.get("TOKEN_URL").clone().expect("Missing Token URL");
+        let access_code = self.params.get("CODE").clone().expect("Missing Access Code");
 
-        let access_token_url = self
-            .params
-            .get("TOKEN_URL")
-            .expect(FlowErrorType::missing_param("token_url").message.as_str())
-            .clone();
-
-        self.req_to_access_token(&access_token_url, &access_code, code_body)
-            .expect("Unknown error requesting access token.");
-        self
+        self.request_from_body(code_body, token_url.to_string(), access_code.to_string())
     }
 
     /// Refreshes the access token in AuthFlow
@@ -1079,75 +1055,57 @@ impl AuthFlow {
     /// ```rust,ignore
     /// auth_flow.refresh_access_token();
     /// ```
-    pub fn refresh_access_token(&mut self) -> &mut AuthFlow {
+    pub fn refresh_access_token(&mut self) -> Result<(), OAuthError>  {
         let code_body = self
             .build(FlowType::GrantTypeRefreshToken)
             .expect("Could not build GrantTypeRefreshToken");
 
-        let access_code = self
-            .params
-            .get("CODE")
-            .expect(FlowErrorType::missing_param("access_code").message.as_str())
-            .clone();
+        let token_url = self.params.get("TOKEN_URL").clone().expect("Missing Token URL");
+        let access_code = self.params.get("CODE").clone().expect("Missing Access Code");
 
-        let token_url = self
-            .params
-            .get("TOKEN_URL")
-            .expect(FlowErrorType::missing_param("token_url").message.as_str())
-            .clone();
+        self.request_from_body(code_body, token_url.to_string(), access_code.to_string())
+    }
 
-        self.req_to_access_token(&token_url, &access_code, code_body)
-            .expect(
-                FlowErrorType::match_error_type(FlowErrorType::BadRequest)
-                    .message
-                    .as_str(),
-            );
-
-        self
+    pub fn request_from_body(&mut self, code_body: String, token_url: String, access_code: String) -> Result<(), OAuthError> {
+        self.parse_access_token(&token_url, &access_code, code_body)
     }
 
     /// Call the request for an access token.
-    fn req_to_access_token(
+    fn parse_access_token(
         &mut self,
         url: &str,
         access_code: &str,
         code_body: String,
-    ) -> io::Result<()> {
-        let can_change = self.allow_reset;
-        if !can_change {
-            self.allow_reset(true);
-        }
-
+    ) -> Result<(), OAuthError> {
         let client = reqwest::Client::builder()
             .build()
             .expect("could not construct reqwest builder");
 
-        let mut response = client
+        let response = client
             .post(url)
             .header(header::AUTHORIZATION, access_code)
             .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
             .body(code_body)
             .send()
-            .expect(
-                FlowErrorType::match_error_type(FlowErrorType::BadRequest)
-                    .message
-                    .as_str(),
-            );
+            .ok();
 
-        let json_value = self.parse_request(&mut response);
+        if let Some(mut t) = response {
+            let json_value = self.parse_request(&mut t);
 
-        if let Some(json) = json_value {
-            self.deserialize_access_token(json);
+            if let Some(json) = json_value {
+                self.deserialize_access_token(json);
 
-            if self.access_token.is_some() {
-                self.req_error = None;
+                if self.access_token.is_some() {
+                    self.req_error = None;
+                } else {
+                    self.req_error = Some(DriveError::new(
+                        DriveErrorType::BadRequest.as_str(),
+                        DriveErrorType::BadRequest,
+                        400
+                    ));
+                }
             }
         }
-
-        if !can_change {
-            self.allow_reset(false);
-        }
-
         Ok(())
     }
 
@@ -1222,6 +1180,16 @@ impl AuthFlow {
     pub fn into_drive(&mut self) -> Option<Drive> {
         if let Some(access_token) = self.get_access_token() {
             return Some(Drive::new(access_token.get_access_token().as_str()));
+        }
+
+        return None;
+    }
+
+    pub fn into_one_drive(&mut self) -> Option<Drive> {
+        if let Some(access_token) = self.get_access_token() {
+            let token = access_token.get_access_token();
+            let one_drive = OneDrive::new("drivefolder", token);
+            return Some(one_drive);
         }
 
         return None;

@@ -2,10 +2,11 @@
 use rust_onedrive::drive::base::driveitem::DriveItem;
 use rust_onedrive::drive::base::value::Value;
 use rust_onedrive::drive::endpoint::DriveEndPoint;
-use rust_onedrive::drive::QueryString;
+use rust_onedrive::drive::query_string::QueryString;
 use rust_onedrive::flow::v1::AuthFlow;
 use rust_onedrive::process::jsonio::JsonFile;
 
+#[allow(dead_code)]
 fn expand_example() {
     // See native_client.rs and web_client.rs for getting access_token/refresh_tokens and
     // using serde_json to save AuthFlow to a file.
@@ -20,6 +21,7 @@ fn expand_example() {
     }
 }
 
+#[allow(dead_code)]
 fn search_example() {
     // See native_client.rs and web_client.rs for getting access_token/refresh_tokens and
     // using serde_json to save AuthFlow to a file.

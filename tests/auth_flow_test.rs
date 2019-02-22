@@ -1,7 +1,6 @@
 use rust_onedrive::flow::accesstoken::AccessToken;
 use rust_onedrive::flow::v1::AccountType;
 use rust_onedrive::flow::v1::AuthFlow;
-use rust_onedrive::flow::v1::AuthUrl;
 use rust_onedrive::flow::v1::FlowType;
 use rust_onedrive::process::jsonio::JsonFile;
 use std::fs;
@@ -152,27 +151,27 @@ fn use_default_auth_test() {
         .set_client_secret("CLDIE3F")
         .set_token_url("https://www.example.com/token"); // Should'nt be used
 
-    auth_flow.use_default_auth_url(AccountType::Account);
+    auth_flow.use_default_auth_url(AccountType::Personal);
     assert_eq!(
         auth_flow.get_auth_url().unwrap(),
-        AuthUrl::AccountAuth.as_str()
+        AccountType::Personal.validation_urls().0
     );
     assert_eq!(
         auth_flow.get_token_url().unwrap(),
-        AuthUrl::AccountToken.as_str()
+        AccountType::Personal.validation_urls().1
     );
 
     let auth_url = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
     assert_eq!(auth_url, "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect");
 
-    auth_flow.use_default_auth_url(AccountType::Graph);
+    auth_flow.use_default_auth_url(AccountType::Business);
     assert_eq!(
         auth_flow.get_auth_url().unwrap(),
-        AuthUrl::GraphAuth.as_str()
+        AccountType::Business.validation_urls().0
     );
     assert_eq!(
         auth_flow.get_token_url().unwrap(),
-        AuthUrl::GraphToken.as_str()
+        AccountType::Business.validation_urls().1
     );
 
     let auth_url2 = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
@@ -187,7 +186,7 @@ fn default_encode_set() {
         .set_redirect_uri("https://login.microsoftonline.com/common/oauth2/nativeclient")
         .add_scope("Files.Read");
 
-    auth_flow.use_default_auth_url(AccountType::Account);
+    auth_flow.use_default_auth_url(AccountType::Personal);
 
     let code_flow_url = auth_flow.build_auth(FlowType::AuthorizeCodeFlow);
     assert_eq!(code_flow_url, "https://login.live.com/oauth20_authorize.srf?client_id=CLIENT_ID&scope=Files.Read&response_type=code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient");
@@ -213,7 +212,7 @@ fn form_url_encoded() {
         .add_scope("Read.Write")
         .add_scope("wl.offline_access")
         .add_scope("Read.Write.All");
-    native_flow.use_default_auth_url(AccountType::Account);
+    native_flow.use_default_auth_url(AccountType::Personal);
 
     let authorize_code_flow_form_encoded =
         native_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
@@ -241,7 +240,7 @@ fn form_url_encoded_default_scopes() {
         .set_client_secret("CLDIE3F")
         .set_access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
         .set_redirect_uri("http://localhost:8888/redirect");
-    web_flow.use_default_auth_url(AccountType::Account);
+    web_flow.use_default_auth_url(AccountType::Personal);
 
     let web_code_flow_default_scopes =
         web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);
@@ -263,7 +262,7 @@ fn form_url_encoded_manual_scopes() {
         .add_scope("Read.Write")
         .add_scope("wl.offline_access")
         .add_scope("Read.Write.All");
-    web_flow.use_default_auth_url(AccountType::Account);
+    web_flow.use_default_auth_url(AccountType::Personal);
 
     let web_code_flow_manual_scopes =
         web_flow.build_auth_using_form_urlencoded(FlowType::AuthorizeCodeFlow);

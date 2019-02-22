@@ -16,15 +16,21 @@ pub mod watchevent;
 #[macro_use]
 pub mod query_string;
 pub mod base;
+pub mod driveaction;
+pub mod driveresource;
+pub mod onedrive;
 
 use crate::drive::base::driveinfo::DriveInfo;
 use crate::drive::base::driveitem::DriveItem;
 use crate::drive::base::value::Value;
 use crate::drive::baseitem::BaseItem;
+use crate::drive::driveaction::DriveAction;
+use crate::drive::driveresource::DriveResource;
 use crate::drive::endpoint::DriveEndPoint;
 use crate::drive::endpoint::EP;
 use crate::drive::error::DriveError;
 use crate::drive::error::DriveErrorType;
+use crate::drive::query_string::QueryString;
 
 use reqwest::*;
 use std;
@@ -42,46 +48,28 @@ pub trait DriveSerDe<T> {
     fn deserialize_from_file(path: &str) -> io::Result<T>;
 }
 
-/// Query string trait for building graph requests with select and expand query strings
-///
-/// # See Also:
-/// [Query Documentation](https://docs.microsoft.com/en-us/graph/query-parameters)
-/// [Query Documentation Continued](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties)
-pub trait QueryString {
-    fn select(&mut self, end_point: DriveEndPoint, query: &Vec<&str>) -> BaseItem<DriveItem>;
-    fn select_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String;
-    fn expand(
-        &mut self,
-        end_point: DriveEndPoint,
-        expand_item: &str,
-        query: &Vec<&str>,
-    ) -> BaseItem<Value>;
-    fn expand_url(&self, end_point: DriveEndPoint, expand_item: &str, query: &Vec<&str>) -> String;
-    fn filter(&mut self, end_point: DriveEndPoint, query_str: &Vec<&str>) -> BaseItem<DriveItem>;
-    fn filter_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String;
-    fn order_by(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem>;
-    fn order_by_url(&self, end_point: DriveEndPoint, query: &str) -> String;
-    fn search(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem>;
-    fn search_url(&self, end_point: DriveEndPoint, query_str: &str) -> String;
-    fn format_url(&self, end_point: DriveEndPoint, query_str: &str) -> String;
-    fn format(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem>;
-    // TODO: Fix skip() and top() url formatting.
-    fn skip(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse;
-    fn top(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse;
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct Drive {
+    access_token: String,
 }
 
-pub trait DriveRequest {
-    fn request(&mut self, end_point: DriveEndPoint) -> DriveResponse;
-    fn resource_request(
-        &mut self,
-        resource: DriveResource,
-        drive_action: DriveAction,
-        resource_id: &str,
-        item_id: &str,
-    ) -> std::result::Result<Response, reqwest::Error>;
+impl Drive {
+    /// Construct a new Drive struct for accessing drive resources
+    ///
+    /// # Example
+    /// ```
+    /// use rust_onedrive::drive::Drive;
+    ///
+    ///  // The Drive struct requires the access token to make
+    ///  // authenticated requests to microsoft graph.
+    /// let mut drive = Drive::new("B32484FJL;ASFJ");
+    /// ```
+    pub fn new(access_token: &str) -> Drive {
+        Drive {
+            access_token: String::from(access_token),
+        }
+    }
 
-    fn get_with_url(&self, url: String) -> DriveResponse;
-    fn post_with_url(&self, url: String) -> DriveResponse;
     fn build_request(
         &self,
         url: &str,
@@ -112,142 +100,49 @@ pub trait DriveRequest {
             _ => unimplemented!(),
         }
     }
-}
 
-/// A drive resource is the top level drive and describes where the item requested
-/// originates from.
-///
-/// # See Also:
-/// [Documentation on Drive Resources](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/addressing-driveitems?view=odsp-graph-online)
-/// [Documentation on Drive Resources Continued](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/drive_get?view=odsp-graph-online)
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum DriveResource {
-    Drives,
-    Groups,
-    Sites,
-    Users,
-    Me,
-}
-
-impl DriveResource {
-    pub fn to_string(&self) -> String {
-        match self {
-            DriveResource::Drives => String::from("/drives"),
-            DriveResource::Groups => String::from("/groups"),
-            DriveResource::Sites => String::from("/sites"),
-            DriveResource::Users => String::from("/users"),
-            DriveResource::Me => String::from("/me"),
-        }
+    /// A drive request can make a request to any of the end points on the DriveEndPoint enum
+    fn request(&mut self, end_point: DriveEndPoint) -> DriveResponse {
+        let client = reqwest::Client::builder().build()?;
+        client
+            .get(DriveEndPoint::build(end_point).as_str())
+            .header(header::AUTHORIZATION, self.access_token.as_str())
+            .header(header::CONTENT_TYPE, "application/json")
+            .send()
     }
 
-    pub fn action_url(
-        &self,
-        drive_id: Option<&str>,
-        item_id: &str,
+    fn resource_request(
+        &mut self,
+        resource: DriveResource,
         drive_action: DriveAction,
-    ) -> String {
-        match self {
-            DriveResource::Drives => format!(
-                "{}/drives/{}/items/{}/{}",
-                GRAPH_ENDPOINT,
-                drive_id.expect("Expected drive_id for DriveResource::Drives"),
-                item_id,
-                drive_action.as_str()
-            ),
-            DriveResource::Groups => format!(
-                "{}/groups/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
-                drive_id.expect("Expected drive_id for DriveResource::Groups"),
-                item_id,
-                drive_action.as_str()
-            ),
-            DriveResource::Sites => format!(
-                "{}/sites/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
-                drive_id.expect("Expected drive_id for DriveResource::Sites"),
-                item_id,
-                drive_action.as_str()
-            ),
-            DriveResource::Users => format!(
-                "{}/users/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
-                drive_id.expect("Expected drive_id for DriveResource::Users"),
-                item_id,
-                drive_action.as_str()
-            ),
-            DriveResource::Me => format!(
-                "{}/me/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
-                item_id,
-                drive_action.as_str()
-            ),
-        }
+        resource_id: &str,
+        item_id: &str,
+    ) -> DriveResponse {
+        let url = self.resource_drive_item_url(resource, drive_action, resource_id, item_id);
+        self.build_request(
+            url.as_str(),
+            "GET",
+            "application/json",
+            self.access_token.as_str(),
+        )
     }
-}
 
-/// Enum for describing what action to take in a drive request
-/// such as uploading and item or downloading an item.
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum DriveAction {
-    CheckIn,
-    CheckOut,
-    Copy,
-    CreateFolder,
-    Delete,
-    Download,
-    GetItem,
-    GetItemRoot,
-    ListChildren,
-    Move,
-    Upload,
-    CreateUploadSession,
-    ListVersions,
-    TrackChanges,
-    Preview,
-    Activities,
-}
-
-impl DriveAction {
-    pub fn as_str(&self) -> &str {
-        match *self {
-            DriveAction::CheckIn => "checkin",
-            DriveAction::CheckOut => "checkout",
-            DriveAction::Copy => "copy",
-            DriveAction::ListVersions => "versions",
-            DriveAction::TrackChanges => "delta",
-            DriveAction::Download | DriveAction::Upload => "content",
-            DriveAction::CreateUploadSession => "createUploadSession",
-            DriveAction::ListChildren | DriveAction::CreateFolder => "children",
-            DriveAction::Preview => "preview",
-            DriveAction::Activities => "activities",
-            DriveAction::Move
-            | DriveAction::GetItem
-            | DriveAction::GetItemRoot
-            | DriveAction::Delete => "",
-        }
+    fn get_with_url(&self, url: String) -> DriveResponse {
+        self.build_request(
+            url.as_str(),
+            "GET",
+            "application/json",
+            self.access_token.as_str(),
+        )
     }
-}
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Drive {
-    access_token: String,
-}
-
-impl Drive {
-    /// Construct a new Drive struct for accessing drive resources
-    ///
-    /// # Example
-    /// ```
-    /// use rust_onedrive::drive::Drive;
-    ///
-    ///  // The Drive struct requires the access token to make
-    ///  // authenticated requests to microsoft graph.
-    /// let mut drive = Drive::new("B32484FJL;ASFJ");
-    /// ```
-    pub fn new(access_token: &str) -> Drive {
-        Drive {
-            access_token: String::from(access_token),
-        }
+    fn post_with_url(&self, url: String) -> DriveResponse {
+        self.build_request(
+            url.as_str(),
+            "POST",
+            "application/json",
+            self.access_token.as_str(),
+        )
     }
 
     #[allow(dead_code)]
@@ -397,7 +292,9 @@ impl Drive {
     ///
     /// # Example
     /// ```
-    /// use rust_onedrive::drive::{Drive, DriveAction, DriveResource};
+    /// use rust_onedrive::drive::Drive;
+    /// use rust_onedrive::drive::driveaction::DriveAction;
+    /// use rust_onedrive::drive::driveresource::DriveResource;
     ///
     ///     let mut drive = Drive::new("Dfsdf");
     ///     let drive_item_url = drive.resource_drive_item_url(
@@ -737,52 +634,6 @@ impl EP for Drive {
     /// ```
     fn special_music_child(&mut self) -> BaseItem<DriveItem> {
         self.base_item(DriveEndPoint::SpecialMusicChild)
-    }
-}
-
-impl DriveRequest for Drive {
-    /// A drive request can make a request to any of the end points on the DriveEndPoint enum
-    fn request(&mut self, end_point: DriveEndPoint) -> DriveResponse {
-        let client = reqwest::Client::builder().build()?;
-        client
-            .get(DriveEndPoint::build(end_point).as_str())
-            .header(header::AUTHORIZATION, self.access_token.as_str())
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()
-    }
-
-    fn resource_request(
-        &mut self,
-        resource: DriveResource,
-        drive_action: DriveAction,
-        resource_id: &str,
-        item_id: &str,
-    ) -> DriveResponse {
-        let url = self.resource_drive_item_url(resource, drive_action, resource_id, item_id);
-        self.build_request(
-            url.as_str(),
-            "GET",
-            "application/json",
-            self.access_token.as_str(),
-        )
-    }
-
-    fn get_with_url(&self, url: String) -> DriveResponse {
-        self.build_request(
-            url.as_str(),
-            "GET",
-            "application/json",
-            self.access_token.as_str(),
-        )
-    }
-
-    fn post_with_url(&self, url: String) -> DriveResponse {
-        self.build_request(
-            url.as_str(),
-            "POST",
-            "application/json",
-            self.access_token.as_str(),
-        )
     }
 }
 
