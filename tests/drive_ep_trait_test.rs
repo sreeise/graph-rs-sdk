@@ -1,9 +1,10 @@
-use rust_onedrive::drive::driveitem::DriveInfo;
-use rust_onedrive::drive::driveitem::DriveItem;
-use rust_onedrive::drive::driveitem::FileSystemInfo;
-use rust_onedrive::drive::driveitem::ParentReference;
-use rust_onedrive::drive::driveitem::Quota;
-use rust_onedrive::drive::driveitem::Value;
+use rust_onedrive::drive::base::driveinfo::DriveInfo;
+use rust_onedrive::drive::base::driveitem::DriveItem;
+use rust_onedrive::drive::base::value::Value;
+use rust_onedrive::drive::base::quota::Quota;
+use rust_onedrive::drive::base::filesysteminfo::FileSystemInfo;
+use rust_onedrive::drive::base::parentreference::ParentReference;
+
 use rust_onedrive::process::jsonio::JsonFile;
 
 #[test]

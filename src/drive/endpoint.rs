@@ -19,9 +19,10 @@ Special folders are one of:
         Description: The Music folder.
 */
 
+use crate::drive::base::driveinfo::DriveInfo;
+use crate::drive::base::driveitem::DriveItem;
+use crate::drive::base::value::Value;
 use crate::drive::baseitem::BaseItem;
-use crate::drive::driveitem::Value;
-use crate::drive::driveitem::{DriveInfo, DriveItem};
 use crate::drive::GRAPH_ENDPOINT;
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
@@ -89,6 +90,13 @@ impl DriveEndPoint {
             DriveEndPoint::SpecialMusic => "/me/drive/special/music",
             DriveEndPoint::SpecialMusicChild => "/me/drive/special/music/children",
         }
+    }
+
+    pub fn as_url(&self) -> String {
+        let endpoint = self.as_str();
+        let mut url = GRAPH_ENDPOINT.to_string();
+        url.push_str(endpoint);
+        url
     }
 
     pub fn build(endpoint: DriveEndPoint) -> String {

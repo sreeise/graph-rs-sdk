@@ -1,6 +1,6 @@
-use crate::drive::driveitem::DriveInfo;
-use crate::drive::driveitem::DriveItem;
-use crate::drive::driveitem::Value;
+use crate::drive::base::driveinfo::DriveInfo;
+use crate::drive::base::driveitem::DriveItem;
+use crate::drive::base::value::Value;
 use crate::drive::error::DriveError;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

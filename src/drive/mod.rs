@@ -9,18 +9,18 @@ Authorization: bearer {token}
 */
 
 pub mod baseitem;
-pub mod driveitem;
 pub mod endpoint;
 pub mod error;
 pub mod headers;
 pub mod watchevent;
 #[macro_use]
 pub mod query_string;
+pub mod base;
 
+use crate::drive::base::driveinfo::DriveInfo;
+use crate::drive::base::driveitem::DriveItem;
+use crate::drive::base::value::Value;
 use crate::drive::baseitem::BaseItem;
-use crate::drive::driveitem::DriveInfo;
-use crate::drive::driveitem::DriveItem;
-use crate::drive::driveitem::Value;
 use crate::drive::endpoint::DriveEndPoint;
 use crate::drive::endpoint::EP;
 use crate::drive::error::DriveError;
@@ -942,10 +942,12 @@ impl QueryString for Drive {
         base_item
     }
 
+    #[allow(unused_variables)]
     fn skip(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse {
         unimplemented!();
     }
 
+    #[allow(unused_variables)]
     fn top(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse {
         unimplemented!();
     }
