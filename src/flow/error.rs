@@ -1,12 +1,10 @@
 use std;
+use std::error;
+use std::error::Error;
 use std::fmt;
 use std::io;
 use std::num;
-use std::error;
-use std::error::Error;
-use core::option;
 use std::string;
-
 
 #[derive(Debug)]
 pub enum OAuthError {

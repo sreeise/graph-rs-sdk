@@ -69,8 +69,8 @@ pub trait EP {
 }
 
 impl DriveEndPoint {
-    pub fn as_str(&self) -> &str {
-        match *self {
+    pub fn as_str(self) -> &'static str {
+        match self {
             DriveEndPoint::Drive => "/drive",
             DriveEndPoint::DriveMe => "/me/drive",
             DriveEndPoint::DriveRoot => "/drive/root",
@@ -92,7 +92,7 @@ impl DriveEndPoint {
         }
     }
 
-    pub fn as_url(&self) -> String {
+    pub fn as_url(self) -> String {
         let endpoint = self.as_str();
         let mut url = GRAPH_ENDPOINT.to_string();
         url.push_str(endpoint);

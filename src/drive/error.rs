@@ -109,7 +109,7 @@ impl DriveErrorType {
     pub fn drive_error(status: u16) -> Option<DriveError> {
         let error_type = DriveErrorType::from_u16(status);
         if error_type.is_some() {
-            let error_t = match error_type {
+            let error_type = match error_type {
                 Some(t) => t,
                 None => {
                     return Some(DriveError::new(
@@ -119,10 +119,10 @@ impl DriveErrorType {
                     ));
                 }
             };
-
-            Some(DriveError {
-                error_info: String::from(error_t.as_str()),
-                error_type: error_t,
+            // String::from(error_t.as_str()); error_t; status;
+            return Some(DriveError {
+                error_info: String::from(error_type.as_str()),
+                error_type,
                 code: status,
             });
         }

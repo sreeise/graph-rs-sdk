@@ -53,19 +53,17 @@ CODE FLOW
         &code={code}&grant_type=authorization_code
 */
 
+use crate::flow::error::OAuthError;
 use core::fmt;
+use json::JsonValue;
+use reqwest::header;
+use reqwest::Response;
 use std::collections::HashMap;
 use std::io;
+use std::io::Read;
 use std::process::Command;
 use std::result;
 use std::thread;
-use json::JsonValue;
-use reqwest::Response;
-use std::io::Read;
-use crate::flow::error::OAuthError;
-use url::ParseError;
-use notify::Error;
-use reqwest::header;
 use url::form_urlencoded;
 
 use crate::drive::error::DriveError;
@@ -76,7 +74,6 @@ use crate::flow::accesstoken::AccessToken;
 use crate::flow::encode::UrlEncode;
 use crate::flow::error::FlowErrorType;
 
-
 #[derive(Debug, Copy, Clone)]
 pub enum FlowType {
     AuthorizeTokenFlow,
@@ -86,8 +83,8 @@ pub enum FlowType {
 }
 
 impl FlowType {
-    fn as_str(&self) -> &'static str {
-        match *self {
+    fn as_str(self) -> &'static str {
+        match self {
             FlowType::AuthorizeTokenFlow => "token",
             FlowType::AuthorizeCodeFlow => "code",
             FlowType::GrantTypeRefreshToken => "refresh_token",
@@ -119,14 +116,14 @@ pub enum AccountType {
 }
 
 impl AccountType {
-    pub fn as_str(&self) -> &'static str {
-        match *self {
+    pub fn as_str(self) -> &'static str {
+        match self {
             AccountType::Personal => "Personal",
             AccountType::Business => "Business",
         }
     }
 
-    pub fn validation_urls(&self) -> (&str, &str) {
+    pub fn validation_urls(self) -> (&'static str, &'static str) {
         match self {
             AccountType::Personal => (
                 "https://login.live.com/oauth20_authorize.srf?",
@@ -368,27 +365,27 @@ impl AuthFlow {
     }
 
     pub fn get_client_id(&self) -> Option<&String> {
-        self.params.get("CLIENT_ID").clone()
+        self.params.get("CLIENT_ID")
     }
 
     pub fn get_client_secret(&self) -> Option<&String> {
-        self.params.get("CLIENT_SECRET").clone()
+        self.params.get("CLIENT_SECRET")
     }
 
     pub fn get_auth_url(&self) -> Option<&String> {
-        self.params.get("AUTH_URL").clone()
+        self.params.get("AUTH_URL")
     }
 
     pub fn get_token_url(&self) -> Option<&String> {
-        self.params.get("TOKEN_URL").clone()
+        self.params.get("TOKEN_URL")
     }
 
     pub fn get_redirect_uri(&self) -> Option<&String> {
-        self.params.get("REDIRECT_URI").clone()
+        self.params.get("REDIRECT_URI")
     }
 
     pub fn get_access_code(&self) -> Option<&String> {
-        self.params.get("CODE").clone()
+        self.params.get("CODE")
     }
 
     pub fn get_refresh_token(&self) -> Option<String> {
@@ -498,13 +495,11 @@ impl AuthFlow {
             FlowType::AuthorizeTokenFlow | FlowType::AuthorizeCodeFlow => {
                 Some(self.build_auth(to_build))
             }
-            FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => Some(
-                self.build_grant_request(to_build).expect(
-                    FlowErrorType::missing_param(to_build.as_str())
-                        .message
-                        .as_str(),
-                ),
-            ),
+            FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => {
+                Some(self.build_grant_request(to_build).unwrap_or_else(|_| {
+                    panic!(FlowErrorType::missing_param(to_build.as_str()).message)
+                }))
+            }
         }
     }
 
@@ -693,12 +688,12 @@ impl AuthFlow {
         if self.default_auth {
             self.build_default_auth(flow_type)
         } else {
-            let auth_url = match flow_type {
+            match flow_type {
                 FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
                     if let Some(url) = self.get_auth_url() {
                         let mut auth_url = url.to_string();
-                        if !auth_url.ends_with("?") {
-                            auth_url.push_str("?")
+                        if !auth_url.ends_with('?') {
+                            auth_url.push('?')
                         }
 
                         let encoded_body = UrlEncode::uri_utf8_percent_encode(
@@ -713,13 +708,12 @@ impl AuthFlow {
                 FlowType::GrantTypeAuthCode | FlowType::GrantTypeRefreshToken => {
                     UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
                 }
-            };
-            auth_url
+            }
         }
     }
 
     fn build_default_auth(&mut self, flow_type: FlowType) -> String {
-        let auth_url = match self.auth_type {
+        match self.auth_type {
             AccountType::Personal => match flow_type {
                 FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
                     let mut url = String::from(AccountType::Personal.validation_urls().0);
@@ -734,7 +728,7 @@ impl AuthFlow {
             },
             AccountType::Business => match flow_type {
                 FlowType::AuthorizeCodeFlow | FlowType::AuthorizeTokenFlow => {
-                    let mut url = String::from(    AccountType::Personal.validation_urls().0);
+                    let mut url = String::from(AccountType::Personal.validation_urls().0);
                     let encoded_body =
                         UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type));
                     url.push_str(encoded_body.as_str());
@@ -744,9 +738,7 @@ impl AuthFlow {
                     UrlEncode::uri_utf8_percent_encode(&self.build_query(flow_type))
                 }
             },
-        };
-
-        auth_url
+        }
     }
 
     /// Builds the URL for a request based upon FlowType
@@ -812,12 +804,12 @@ impl AuthFlow {
     ///     &redirect_uri={redirect_uri}
     /// ```
     pub fn build_auth_using_form_urlencoded(&mut self, flow_type: FlowType) -> String {
-        let uri = match flow_type {
+        match flow_type {
             FlowType::AuthorizeCodeFlow => {
                 let encoded = self.form_url_encoded_body(FlowType::AuthorizeCodeFlow);
                 let mut auth_url = self.get_auth_url().unwrap().to_string();
-                if !auth_url.ends_with("?") {
-                    auth_url.push_str("?");
+                if !auth_url.ends_with('?') {
+                    auth_url.push('?');
                 }
                 auth_url.push_str(&encoded);
                 auth_url
@@ -825,8 +817,8 @@ impl AuthFlow {
             FlowType::AuthorizeTokenFlow => {
                 let encoded = self.form_url_encoded_body(FlowType::AuthorizeTokenFlow);
                 let mut auth_url = self.get_auth_url().unwrap().to_string();
-                if !auth_url.ends_with("?") {
-                    auth_url.push_str("?");
+                if !auth_url.ends_with('?') {
+                    auth_url.push('?');
                 }
                 auth_url.push_str(&encoded);
                 auth_url
@@ -835,9 +827,7 @@ impl AuthFlow {
             FlowType::GrantTypeRefreshToken => {
                 self.form_url_encoded_body(FlowType::GrantTypeRefreshToken)
             }
-        };
-
-        uri
+        }
     }
 
     // FlowType::GrantTypeAuthCode
@@ -855,7 +845,7 @@ impl AuthFlow {
     // client_id={client_id}&redirect_uri={redirect_uri}&refresh_token={refresh_token}
     // &grant_type=refresh_token
     pub fn form_url_encoded_body(&self, flow_type: FlowType) -> String {
-        let auth_url = match flow_type {
+        match flow_type {
             FlowType::AuthorizeTokenFlow | FlowType::AuthorizeCodeFlow => {
                 if self.default_scope {
                     form_urlencoded::Serializer::new(String::from(""))
@@ -889,9 +879,9 @@ impl AuthFlow {
                         .append_pair(
                             "code",
                             self.get_access_code()
-                                .expect(
-                                    FlowErrorType::missing_param("access_code").message.as_str(),
-                                )
+                                .unwrap_or_else(|| {
+                                    panic!(FlowErrorType::missing_param("access_code").message)
+                                })
                                 .as_str(),
                         )
                         .append_pair("grant_type", "authorization_code")
@@ -904,9 +894,9 @@ impl AuthFlow {
                         .append_pair(
                             "code",
                             self.get_access_code()
-                                .expect(
-                                    FlowErrorType::missing_param("access_code").message.as_str(),
-                                )
+                                .unwrap_or_else(|| {
+                                    panic!(FlowErrorType::missing_param("access_code").message)
+                                })
                                 .as_str(),
                         )
                         .append_pair("grant_type", "authorization_code")
@@ -921,11 +911,9 @@ impl AuthFlow {
                         .append_pair(
                             "refresh_token",
                             self.get_refresh_token()
-                                .expect(
-                                    FlowErrorType::missing_param("refresh_token")
-                                        .message
-                                        .as_str(),
-                                )
+                                .unwrap_or_else(|| {
+                                    panic!(FlowErrorType::missing_param("refresh_token").message)
+                                })
                                 .as_str(),
                         )
                         .append_pair("grant_type", "refresh_token")
@@ -938,19 +926,16 @@ impl AuthFlow {
                         .append_pair(
                             "refresh_token",
                             self.get_refresh_token()
-                                .expect(
-                                    FlowErrorType::missing_param("refresh_token")
-                                        .message
-                                        .as_str(),
-                                )
+                                .unwrap_or_else(|| {
+                                    panic!(FlowErrorType::missing_param("refresh_token").message)
+                                })
                                 .as_str(),
                         )
                         .append_pair("grant_type", "refresh_token")
                         .finish()
                 }
             }
-        };
-        auth_url
+        }
     }
 
     /// Open the browser to the authentication page. Once the user signs in the
@@ -1040,8 +1025,8 @@ impl AuthFlow {
             .build(FlowType::GrantTypeAuthCode)
             .expect("Could not build GrantTypeAuthCode");
 
-        let token_url = self.params.get("TOKEN_URL").clone().expect("Missing Token URL");
-        let access_code = self.params.get("CODE").clone().expect("Missing Access Code");
+        let token_url = self.params.get("TOKEN_URL").expect("Missing Token URL");
+        let access_code = self.params.get("CODE").expect("Missing Access Code");
 
         self.request_from_body(code_body, token_url.to_string(), access_code.to_string())
     }
@@ -1055,18 +1040,23 @@ impl AuthFlow {
     /// ```rust,ignore
     /// auth_flow.refresh_access_token();
     /// ```
-    pub fn refresh_access_token(&mut self) -> Result<(), OAuthError>  {
+    pub fn refresh_access_token(&mut self) -> Result<(), OAuthError> {
         let code_body = self
             .build(FlowType::GrantTypeRefreshToken)
             .expect("Could not build GrantTypeRefreshToken");
 
-        let token_url = self.params.get("TOKEN_URL").clone().expect("Missing Token URL");
-        let access_code = self.params.get("CODE").clone().expect("Missing Access Code");
+        let token_url = self.params.get("TOKEN_URL").expect("Missing Token URL");
+        let access_code = self.params.get("CODE").expect("Missing Access Code");
 
         self.request_from_body(code_body, token_url.to_string(), access_code.to_string())
     }
 
-    pub fn request_from_body(&mut self, code_body: String, token_url: String, access_code: String) -> Result<(), OAuthError> {
+    pub fn request_from_body(
+        &mut self,
+        code_body: String,
+        token_url: String,
+        access_code: String,
+    ) -> Result<(), OAuthError> {
         self.parse_access_token(&token_url, &access_code, code_body)
     }
 
@@ -1101,7 +1091,7 @@ impl AuthFlow {
                     self.req_error = Some(DriveError::new(
                         DriveErrorType::BadRequest.as_str(),
                         DriveErrorType::BadRequest,
-                        400
+                        400,
                     ));
                 }
             }
@@ -1182,7 +1172,7 @@ impl AuthFlow {
             return Some(Drive::new(access_token.get_access_token().as_str()));
         }
 
-        return None;
+        None
     }
 
     pub fn into_one_drive(&mut self) -> Option<Drive> {
@@ -1192,7 +1182,7 @@ impl AuthFlow {
             return Some(one_drive);
         }
 
-        return None;
+        None
     }
 
     /// Check if the values have been set

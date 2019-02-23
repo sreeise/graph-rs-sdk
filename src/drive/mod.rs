@@ -214,7 +214,7 @@ impl Drive {
             ),
             DriveResource::Me => {
                 if drive_action == DriveAction::Download {
-                    if item_id.ends_with(":") {
+                    if item_id.ends_with(':') {
                         format!("{}/me/drive/root/{}/{}", GRAPH_ENDPOINT, item_id, rt,)
                     } else {
                         format!("{}/me/drive/items/{}/{}", GRAPH_ENDPOINT, item_id, rt,)
@@ -399,8 +399,7 @@ impl Drive {
                 None => None,
             };
 
-            let base_item = BaseItem::new(None, drive_error);
-            base_item
+            BaseItem::new(None, drive_error)
         } else {
             let req = match response.text() {
                 Ok(t) => t,
@@ -449,7 +448,7 @@ impl Drive {
     fn req_to_string_pretty(&mut self, endpoint: DriveEndPoint) -> Option<String> {
         let mut drive_req = self
             .request(endpoint)
-            .expect(DriveErrorType::BadRequest.as_str());
+            .unwrap_or_else(|_| panic!(DriveErrorType::BadRequest.as_str().to_string()));
 
         if DriveErrorType::is_error(drive_req.status().as_u16()) {
             let error_type = DriveErrorType::from_u16(drive_req.status().as_u16());
@@ -659,10 +658,9 @@ impl QueryString for Drive {
     ///     println!("{:#?}", &base_item.error); // DriveError
     /// }
     /// ```
-    fn select(&mut self, end_point: DriveEndPoint, query: &Vec<&str>) -> BaseItem<DriveItem> {
+    fn select(&mut self, end_point: DriveEndPoint, query: &[&str]) -> BaseItem<DriveItem> {
         let url = self.select_url(end_point, query);
-        let base_item = self.base_item_from_url(url.as_str());
-        base_item
+        self.base_item_from_url(url.as_str())
     }
 
     /// Query String Select
@@ -683,7 +681,7 @@ impl QueryString for Drive {
     ///   println!("{:#?}", req); // -> Head of response
     ///   println!("{:#?}", req.text()); // -> Body of response
     /// ```
-    fn select_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String {
+    fn select_url(&self, end_point: DriveEndPoint, query: &[&str]) -> String {
         let query_str = query.join(",").clone();
         odata_query!(
             DriveEndPoint::build(end_point),
@@ -716,15 +714,14 @@ impl QueryString for Drive {
         &mut self,
         end_point: DriveEndPoint,
         expand_item: &str,
-        query: &Vec<&str>,
+        query: &[&str],
     ) -> BaseItem<Value> {
         let url = self.expand_url(end_point, expand_item, query);
-        let base_item = self.base_item_from_url(url.as_str());
-        base_item
+        self.base_item_from_url(url.as_str())
     }
 
     /// Get the URL string for a expand query string
-    fn expand_url(&self, end_point: DriveEndPoint, expand_item: &str, query: &Vec<&str>) -> String {
+    fn expand_url(&self, end_point: DriveEndPoint, expand_item: &str, query: &[&str]) -> String {
         let query_str = query.join(",").clone();
         odata_query!(
             DriveEndPoint::build(end_point),
@@ -736,13 +733,12 @@ impl QueryString for Drive {
         )
     }
 
-    fn filter(&mut self, end_point: DriveEndPoint, query: &Vec<&str>) -> BaseItem<DriveItem> {
+    fn filter(&mut self, end_point: DriveEndPoint, query: &[&str]) -> BaseItem<DriveItem> {
         let url = self.filter_url(end_point, query);
-        let base_item = self.base_item_from_url(url.as_str());
-        base_item
+        self.base_item_from_url(url.as_str())
     }
 
-    fn filter_url(&self, end_point: DriveEndPoint, query: &Vec<&str>) -> String {
+    fn filter_url(&self, end_point: DriveEndPoint, query: &[&str]) -> String {
         let query_str = query.join(" ").clone();
         odata_query!(
             DriveEndPoint::build(end_point),
@@ -753,8 +749,7 @@ impl QueryString for Drive {
 
     fn order_by(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem> {
         let url = self.order_by_url(end_point, query_str);
-        let base_item = self.base_item_from_url(url.as_str());
-        base_item
+        self.base_item_from_url(url.as_str())
     }
 
     fn order_by_url(&self, end_point: DriveEndPoint, query_str: &str) -> String {
@@ -767,8 +762,7 @@ impl QueryString for Drive {
 
     fn search(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem> {
         let url = self.search_url(end_point, query_str);
-        let base_item = self.base_item_from_url(url.as_str());
-        base_item
+        self.base_item_from_url(url.as_str())
     }
 
     fn search_url(&self, end_point: DriveEndPoint, query_str: &str) -> String {
@@ -789,8 +783,7 @@ impl QueryString for Drive {
 
     fn format(&mut self, end_point: DriveEndPoint, query_str: &str) -> BaseItem<DriveItem> {
         let url = self.format_url(end_point, query_str);
-        let base_item = self.base_item_from_url(url.as_str());
-        base_item
+        self.base_item_from_url(url.as_str())
     }
 
     #[allow(unused_variables)]

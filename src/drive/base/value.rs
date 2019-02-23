@@ -141,7 +141,7 @@ impl Value {
     }
 
     pub fn size(&self) -> Option<i64> {
-        self.size.clone()
+        self.size
     }
 
     pub fn web_url(&self) -> Option<String> {

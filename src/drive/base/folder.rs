@@ -13,7 +13,7 @@ impl Folder {
     }
 
     pub fn child_count(&self) -> Option<i64> {
-        self.child_count.clone()
+        self.child_count
     }
 
     pub fn view(&self) -> Option<View> {

@@ -75,7 +75,7 @@ impl AccessToken {
     }
 
     pub fn get_expires_in(&self) -> i64 {
-        self.expires_in.clone()
+        self.expires_in
     }
 
     pub fn get_scopes(&self) -> String {
@@ -131,7 +131,7 @@ impl AccessToken {
         Ok(access_token)
     }
 
-    pub fn is_expired(&mut self) -> bool {
+    pub fn is_expired(&self) -> bool {
         unimplemented!();
     }
 }

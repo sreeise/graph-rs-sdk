@@ -4,7 +4,7 @@ use rust_onedrive::drive::Drive;
 
 #[test]
 fn query_string_tests() {
-    let mut drive = Drive::new("");
+    let drive = Drive::new("");
     let vec = vec!["name", "size"];
 
     assert_eq!(

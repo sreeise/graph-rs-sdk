@@ -36,9 +36,7 @@ impl UrlEncode {
     }
 
     pub fn uri_utf8_percent_encode(uri: &str) -> String {
-        let encoded =
-            utf8_percent_encode(uri, ONEDRIVE_AUTH_RESERVED_ENCODE_SET).collect::<String>();
-        encoded
+        utf8_percent_encode(uri, ONEDRIVE_AUTH_RESERVED_ENCODE_SET).collect::<String>()
     }
 
     pub fn scheme(&mut self, scheme: &str) -> &mut UrlEncode {
@@ -78,8 +76,7 @@ impl UrlEncode {
                     .as_str(),
             );
             domain.push_str(self.url_params.get("HOST").expect("Host not set").as_str());
-            let complete_url = encode_url(domain.as_str(), url_string.as_str());
-            String::from(complete_url)
+            encode_url(domain.as_str(), url_string.as_str())
         } else {
             let mut url_string = String::from(
                 self.url_params
@@ -95,7 +92,7 @@ impl UrlEncode {
                     .expect("Query not set")
                     .as_str(),
             );
-            String::from(url_string)
+            url_string
         }
     }
 }
