@@ -1,4 +1,5 @@
-use rust_onedrive::flow::accesstoken::AccessToken;
+use graph_oauth::oauth::AccessToken;
+use graph_oauth::oauth::OAuth;
 
 #[test]
 fn get_method() {

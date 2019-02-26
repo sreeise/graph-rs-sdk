@@ -1,0 +1,20 @@
+[package]
+name = "graph-oauth"
+version = "0.1.0"
+authors = ["sreeise"]
+edition = "2018"
+license = "MIT"
+
+[dependencies.url]
+git = "https://github.com/servo/rust-url"
+features = ["query_encoding"]
+
+[dependencies]
+log = "0.4.0"
+env_logger = "0.6.0"
+reqwest = "0.9.6"
+serde = "1.0.88"
+serde_json = "1.0.38"
+serde_derive = "1.0.88"
+base64 = "0.10.1"
+derive_builder = "0.7.1"

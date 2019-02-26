@@ -33,10 +33,10 @@ impl DriveAction {
             DriveAction::ListChildren | DriveAction::CreateFolder => "children",
             DriveAction::Preview => "preview",
             DriveAction::Activities => "activities",
-            DriveAction::Move
-            | DriveAction::GetItem
-            | DriveAction::GetItemRoot
-            | DriveAction::Delete => "",
+            DriveAction::Move |
+            DriveAction::GetItem |
+            DriveAction::GetItemRoot |
+            DriveAction::Delete => "",
         }
     }
 }

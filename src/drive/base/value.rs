@@ -52,6 +52,7 @@ pub struct Value {
 }
 
 impl Value {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         _odata_context: Option<String>,
         _odata_type: Option<String>,

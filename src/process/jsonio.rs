@@ -1,10 +1,8 @@
-use serde;
 use serde_json;
 use std;
 use std::fs;
 use std::fs::File;
 use std::fs::OpenOptions;
-use std::io;
 use std::io::prelude::*;
 use std::io::ErrorKind;
 use std::path::Path;
@@ -19,18 +17,21 @@ impl JsonFile {
     ///
     /// * `path` - Path to a file and the file name itself.
     /// * `data_struct` - The struct to write to a file in json format.
-    pub fn json_file<T, P: AsRef<Path>>(path: P, data_struct: &T) -> io::Result<()>
+    pub fn json_file<T, P: AsRef<Path>>(path: P, data_struct: &T) -> std::io::Result<()>
     where
         T: serde::Serialize,
     {
-        JsonFile::remove_file(&path).unwrap();
+        if Path::new(path.as_ref()).exists() {
+            JsonFile::remove_file(&path).unwrap();
+        }
         let mut file = OpenOptions::new()
             .create(true)
             .write(true)
             .read(true)
             .open(&path)
             .expect("Could not write to file");
-        let serialized = serde_json::to_string(data_struct)?;
+
+        let serialized = serde_json::to_string(data_struct).expect("Error serializing struct");
         file.write_all(serialized.as_bytes())?;
         file.sync_all()?;
         Ok(())
@@ -38,11 +39,11 @@ impl JsonFile {
 
     /// Writes the struct given, data_struct, to a new JSON file.
     /// Panics if the file is already created.
-    pub fn new_json_file<T, P: AsRef<Path>>(path: P, data_struct: &T) -> io::Result<()>
+    pub fn new_json_file<T, P: AsRef<Path>>(path: P, data_struct: &T) -> std::io::Result<()>
     where
         T: serde::Serialize,
     {
-        OpenOptions::new()
+        let mut file = OpenOptions::new()
             .create_new(true)
             .write(true)
             .open(&path)
@@ -58,15 +59,14 @@ impl JsonFile {
             })
             .expect("Could not write to file");
 
-        let serialized = serde_json::to_string(data_struct).expect("Error serializing struct");
-        let mut file = OpenOptions::new().read(true).write(true).open(&path)?;
+        let serialized = serde_json::to_string(&data_struct).expect("Error serializing struct");
         file.write_all(serialized.as_bytes())?;
         file.sync_all()?;
         Ok(())
     }
 
     /// Returns a data structure form a file.
-    pub fn from_file<T, P: AsRef<Path>>(path: P) -> io::Result<T>
+    pub fn from_file<T, P: AsRef<Path>>(path: P) -> std::io::Result<T>
     where
         for<'de> T: serde::Deserialize<'de>,
     {
@@ -77,7 +77,7 @@ impl JsonFile {
 
     /// Returns a vec of data structures for every file in a directory. All files
     /// in the directory given should be a serialized data structure of the same type.
-    pub fn from_dir_as_vec<T, P: AsRef<Path>>(dir: P) -> io::Result<Vec<T>>
+    pub fn from_dir_as_vec<T, P: AsRef<Path>>(dir: P) -> std::io::Result<Vec<T>>
     where
         std::string::String: std::convert::From<P>,
         for<'de> T: serde::Deserialize<'de>,
@@ -98,7 +98,7 @@ impl JsonFile {
         Ok(t_vec)
     }
 
-    fn remove_file<P: AsRef<Path>>(path: P) -> io::Result<()> {
+    fn remove_file<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
         if path.as_ref().exists() {
             fs::remove_file(path)?;
         }

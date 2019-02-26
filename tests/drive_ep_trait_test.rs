@@ -4,7 +4,6 @@ use rust_onedrive::drive::base::filesysteminfo::FileSystemInfo;
 use rust_onedrive::drive::base::parentreference::ParentReference;
 use rust_onedrive::drive::base::quota::Quota;
 use rust_onedrive::drive::base::value::Value;
-
 use rust_onedrive::process::jsonio::JsonFile;
 
 #[test]

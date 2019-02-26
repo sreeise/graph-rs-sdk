@@ -54,6 +54,8 @@ pub enum DriveErrorType {
     BandwidthLimitExceeded,
 }
 
+impl DriveErrorType {}
+
 impl DriveErrorType {
     pub fn as_str(&self) -> &str {
         match *self {
@@ -117,7 +119,7 @@ impl DriveErrorType {
                         DriveErrorType::BadRequest,
                         400,
                     ));
-                }
+                },
             };
             // String::from(error_t.as_str()); error_t; status;
             return Some(DriveError {

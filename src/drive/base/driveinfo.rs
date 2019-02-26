@@ -30,6 +30,7 @@ pub struct DriveInfo {
 }
 
 impl DriveInfo {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         _odata_context: Option<String>,
         created_date_time: Option<String>,

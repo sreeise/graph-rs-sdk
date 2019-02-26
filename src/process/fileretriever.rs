@@ -2,7 +2,6 @@ use reqwest::*;
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::copy;
-use std::io::prelude::*;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::mpsc;
@@ -15,7 +14,7 @@ impl FileRetriever {
         // Create the directory if it does not exist.
         if let Some(location) = directory.as_ref().to_str() {
             if !Path::new(&location).exists() {
-                fs::create_dir_all(&directory);
+                fs::create_dir_all(&directory).ok().unwrap_or_default();
             }
         }
 
@@ -33,25 +32,25 @@ impl FileRetriever {
                     .expect("Error performing one of create, write, or read path given.");
                 copy(&mut result.1, &mut file_writer)
                     .expect("Unknown error copying response contents.");
-                sender.send(Some(result.0));
+                sender
+                    .send(Some(result.0))
+                    .expect("Error sending PathBuf from download.");
             });
             handle.join().expect("Thread could not be joined");
 
-            let result = receiver.recv();
-            match result {
+            return match receiver.recv() {
                 Ok(t) => t,
                 Err(_) => None,
-            }
-        } else {
-            None
+            };
         }
+        None
     }
 
     pub fn download_as<P: AsRef<Path>>(directory: P, target: &str, name: &str) -> Option<PathBuf> {
         // Create the directory if it does not exist.
         if let Some(location) = directory.as_ref().to_str() {
             if !Path::new(&location).exists() {
-                fs::create_dir_all(&directory);
+                fs::create_dir_all(&directory).unwrap_or_default();
             }
         }
 
@@ -69,18 +68,16 @@ impl FileRetriever {
                     .expect("Error performing one of create, write, or read path given.");
                 copy(&mut result.1, &mut file_writer)
                     .expect("Unknown error copying response contents.");
-                sender.send(Some(result.0));
+                sender.send(Some(result.0)).unwrap_or_default();
             });
             handle.join().expect("Thread could not be joined");
 
-            let result = receiver.recv();
-            match result {
+            return match receiver.recv() {
                 Ok(t) => t,
                 Err(_) => None,
-            }
-        } else {
-            None
+            };
         }
+        None
     }
 
     pub fn fetch_url<P: AsRef<Path>>(

@@ -14,9 +14,9 @@ pub struct OneDrive {
 }
 
 impl OneDrive {
-    pub fn new(root_path: &str, access_token: String) -> Drive {
+    pub fn new_drive(root_path: &str, access_token: String) -> Drive {
         if !Path::new(&root_path).exists() {
-            fs::create_dir_all(&root_path);
+            fs::create_dir_all(&root_path).unwrap_or_default();
         }
 
         let mut drive = Drive::new(&access_token);
@@ -41,7 +41,7 @@ impl OneDrive {
             .write(true)
             .open(&path)
             .unwrap();
-        file.sync_data();
+        file.sync_data().unwrap_or_default();
 
         let mut perms = fs::metadata(&path).unwrap().permissions();
         perms.set_readonly(true);

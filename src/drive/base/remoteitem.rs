@@ -36,6 +36,7 @@ pub struct RemoteItem {
 }
 
 impl RemoteItem {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         created_date_time: Option<String>,
         id: Option<String>,

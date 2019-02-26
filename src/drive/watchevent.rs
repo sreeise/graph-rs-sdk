@@ -1,8 +1,7 @@
-extern crate notify;
-
 use self::notify::raw_watcher;
 use self::notify::Op;
 use self::notify::RawEvent;
+use notify;
 use notify::{RecursiveMode, Watcher};
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
@@ -87,7 +86,7 @@ impl DriveWatcher {
                         self.add_drive_event(current_event);
                     }
                     self.current_event = Some(drive_event);
-                }
+                },
                 Ok(event) => {
                     println!("{:?}", event);
 
@@ -97,11 +96,11 @@ impl DriveWatcher {
                         cookie: event.cookie,
                     };
                     self.events.push(Some(drive_event));
-                }
+                },
                 Err(e) => {
                     println!("watch error: {:?}", e);
                     self.error_events.push(e);
-                }
+                },
             }
         }
     }
@@ -135,7 +134,7 @@ impl DriveWatcher {
                     self.add_drive_event(current_event);
                 }
                 self.current_event = Some(drive_event);
-            }
+            },
             Ok(event) => {
                 println!("{:?}", event);
 
@@ -145,11 +144,11 @@ impl DriveWatcher {
                     cookie: event.cookie,
                 };
                 self.events.push(Some(drive_event));
-            }
+            },
             Err(e) => {
                 println!("watch error: {:?}", e);
                 self.error_events.push(e);
-            }
+            },
         }
     }
 }

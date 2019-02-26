@@ -1,4 +1,5 @@
-use rust_onedrive::flow::v1::{AccountType, AuthFlow};
+use graph_oauth::oauth::OAuth;
+use graph_oauth::oauth::OAuthParam;
 use rust_onedrive::process::jsonio::JsonFile;
 
 /*
@@ -18,31 +19,31 @@ More info can be found here: https://docs.microsoft.com/en-us/onedrive/developer
 
 #[allow(dead_code)]
 fn main() {
-    let mut auth_flow = native_client();
+    let _oauth = native_client();
 
     // Run this first, then get the code from the browser URL. Afterward,
     // comment out the browser_flow() method below and run set_code_request_token(your_access_token).
-    auth_flow.browser_flow().unwrap();
+    //  oauth.browser_sign_in().unwrap();
 
     /*
     browser_flow() opens users default browser to the authentication page
-    for Microsoft Accounts. AuthFlow knows what to open by
+    for Microsoft Accounts. OAuth knows what to open by
     the AccountType specified in native_client().
 
     Note that browser_flow() runs in different thread so the main thread
     is not blocked.
 
     Upon sign in, the page will redirect to the redirect given in
-    get_auth_flow(). This redirect is specific to the URI set
+    get_oauth(). This redirect is specific to the URI set
     in the microsoft application portal. The redirect URI will
-    return with a code. This code needs to be set in AuthFlow
+    return with a code. This code needs to be set in OAuth
     to make an access token request. Get the code from the
     browser url bar and
     */
 }
 
 #[allow(dead_code)]
-fn get_auth_flow() -> AuthFlow {
+fn get_oauth() -> OAuth {
     // native_client() sets using the default scopes to false
     // and therefore requires adding scopes manually. This can
     // be changed by the method: use_default_scope(true)
@@ -50,57 +51,58 @@ fn get_auth_flow() -> AuthFlow {
     // Native clients also automatically prevent using a client_id in
     // the request. An authentication request will get rejected
     // if a native client is the caller. Only web clients use client_id.
-    let mut auth_flow = AuthFlow::native_client();
+    let mut oauth = OAuth::default();
     // There are other possible URI's for the redirect URI. This is set in
     // the Microsoft application portal
-    auth_flow
-        .set_client_id("<CLIENT ID>")
-        .set_redirect_uri("https://login.microsoftonline.com/common/oauth2/nativeclient");
-    auth_flow
+    oauth
+        .client_id("<CLIENT ID>")
+        .redirect_url("https://login.microsoftonline.com/common/oauth2/nativeclient");
+    oauth
 }
 
 #[allow(dead_code)]
-fn native_client() -> AuthFlow {
-    let mut auth_flow = get_auth_flow();
-    auth_flow
+fn native_client() -> OAuth {
+    let mut oauth = get_oauth();
+    // wl.offline_access will cause the request to return
+    // a refresh token as well.
+    oauth
         .add_scope("Files.Read")
         .add_scope("Files.ReadWrite")
         .add_scope("Files.Read.All")
         .add_scope("Files.ReadWrite.All")
-        .add_scope("wl.offline_access"); // wl.offline_access will cause the request to return
-                                         // a refresh token as well.
-
-    auth_flow.use_default_auth_url(AccountType::Personal);
-    auth_flow
+        .add_scope("wl.offline_access");
+    oauth.for_common_accounts();
+    oauth
 }
 
 #[allow(dead_code)]
 fn set_code_request_token(access_code: &str) {
-    let mut auth_flow = native_client();
+    let mut oauth = native_client();
 
     // Set the access code that will be used to request an
     // access token and/or refresh token.
-    auth_flow.set_access_code(access_code);
+    oauth.access_code(access_code);
 
     // Makes the POST request for an access token/refresh token.
     // This is stored in the struct AccessToken.
-    auth_flow.request_access_token();
+    match oauth.request_access_token() {
+        Ok(_) => println!("Sucess!"),
+        Err(e) => println!("Error: {:#?}", e),
+    }
 
-    // If there is an issue with the request, AuthFlow stores
+    // If there is an issue with the request, OAuth stores
     // the error for the last request in the field req_error
     // which holds an Option<DriveError>. DriveError holds
     // the status code, error type such as BadRequest, and the
     // error info/reason.
-    if auth_flow.req_error.is_some() {
-        println!("{:#?}", auth_flow.req_error); // Some(DriveError)
-    } else {
-        // Stores AuthFlow as json using serde_json.
-        JsonFile::json_file("examples/native_client_flow.json", &auth_flow).unwrap();
-        println!("{:#?}", &auth_flow);
+    if oauth.get(OAuthParam::AccessToken).is_some() {
+        // Stores OAuth as json using serde_json.
+        JsonFile::json_file("examples/native_client_flow.json", &oauth).unwrap();
+        println!("{:#?}", &oauth);
     }
     /*
-    To get AuthFlow back from the json file run:
+    To get OAuth back from the json file run:
 
-    let mut auth_flow: AuthFlow = JsonFile::from_file("example/auth_flow.json").unwrap();
+    let mut oauth: OAuth = JsonFile::from_file("example/oauth.json").unwrap();
     */
 }

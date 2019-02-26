@@ -31,7 +31,7 @@ use crate::drive::endpoint::EP;
 use crate::drive::error::DriveError;
 use crate::drive::error::DriveErrorType;
 use crate::drive::query_string::QueryString;
-
+use graph_oauth::oauth::OAuth;
 use reqwest::*;
 use std;
 use std::io;
@@ -87,7 +87,7 @@ impl Drive {
                     .send()
                     .expect("Error with request to microsoft graph");
                 Ok(res)
-            }
+            },
             "POST" => {
                 let res = client
                     .post(url)
@@ -96,7 +96,7 @@ impl Drive {
                     .send()
                     .expect("Error with request to microsoft graph");
                 Ok(res)
-            }
+            },
             _ => unimplemented!(),
         }
     }
@@ -111,6 +111,7 @@ impl Drive {
             .send()
     }
 
+    #[allow(dead_code)]
     fn resource_request(
         &mut self,
         resource: DriveResource,
@@ -127,6 +128,7 @@ impl Drive {
         )
     }
 
+    #[allow(dead_code)]
     fn get_with_url(&self, url: String) -> DriveResponse {
         self.build_request(
             url.as_str(),
@@ -136,6 +138,7 @@ impl Drive {
         )
     }
 
+    #[allow(dead_code)]
     fn post_with_url(&self, url: String) -> DriveResponse {
         self.build_request(
             url.as_str(),
@@ -164,10 +167,10 @@ impl Drive {
         match drive_action {
             DriveAction::GetItemRoot | DriveAction::TrackChanges => {
                 Drive::root_resource_url(resource, drive_action, resource_id, item_id)
-            }
+            },
             DriveAction::GetItem | DriveAction::Delete | DriveAction::Move => {
                 Drive::no_drive_action_url(resource, resource_id, item_id)
-            }
+            },
             _ => Drive::with_drive_action_url(resource, drive_action, resource_id, item_id),
         }
     }
@@ -189,10 +192,10 @@ impl Drive {
             DriveAction::ListChildren | DriveAction::CreateFolder => "children",
             DriveAction::Preview => "preview",
             DriveAction::Activities => "activities",
-            DriveAction::Move
-            | DriveAction::GetItem
-            | DriveAction::GetItemRoot
-            | DriveAction::Delete => "",
+            DriveAction::Move |
+            DriveAction::GetItem |
+            DriveAction::GetItemRoot |
+            DriveAction::Delete => "",
         };
 
         match resource {
@@ -222,7 +225,7 @@ impl Drive {
                 } else {
                     format!("{}/me/drive/items/{}/{}", GRAPH_ENDPOINT, item_id, rt,)
                 }
-            }
+            },
         }
     }
 
@@ -236,16 +239,16 @@ impl Drive {
             match resource {
                 DriveResource::Drives => {
                     format!("{}/drives/{}/drive/root/delta", GRAPH_ENDPOINT, resource_id)
-                }
+                },
                 DriveResource::Users => {
                     format!("{}/users/{}/drive/root/delta", GRAPH_ENDPOINT, resource_id)
-                }
+                },
                 DriveResource::Sites => {
                     format!("{}/sites/{}/drive/root/delta", GRAPH_ENDPOINT, resource_id)
-                }
+                },
                 DriveResource::Groups => {
                     format!("{}/groups/{}/drive/root/delta", GRAPH_ENDPOINT, resource_id)
-                }
+                },
                 DriveResource::Me => format!("{}/me/drive/root/delta", GRAPH_ENDPOINT,),
             }
         } else {
@@ -315,10 +318,10 @@ impl Drive {
         match drive_action {
             DriveAction::GetItemRoot | DriveAction::TrackChanges => {
                 Drive::root_resource_url(resource, drive_action, resource_id, item_id)
-            }
+            },
             DriveAction::GetItem | DriveAction::Delete | DriveAction::Move => {
                 Drive::no_drive_action_url(resource, resource_id, item_id)
-            }
+            },
             _ => Drive::with_drive_action_url(resource, drive_action, resource_id, item_id),
         }
     }
@@ -412,7 +415,7 @@ impl Drive {
                             400,
                         )),
                     );
-                }
+                },
             };
 
             let parsed_req = match json::parse(req.as_str()) {
@@ -426,7 +429,7 @@ impl Drive {
                             400,
                         )),
                     );
-                }
+                },
             };
 
             let pretty_str = parsed_req.pretty(1);
@@ -445,6 +448,7 @@ impl Drive {
     }
 
     /// Parses calls to the drive/graph api into a prettified JSON string.
+    #[allow(dead_code)]
     fn req_to_string_pretty(&mut self, endpoint: DriveEndPoint) -> Option<String> {
         let mut drive_req = self
             .request(endpoint)
@@ -649,7 +653,7 @@ impl QueryString for Drive {
     /// # Example
     /// ```rust,ignore
     ///
-    /// let mut drive = new Drive("ACCESS_TOKEN");
+    /// let mut drive = new Drive("AccessToken");
     ///
     /// let base_item = drive.select(DriveEndPoint::Drive, &vec!["name", "size"]);
     /// if !base_item.error.is_some() {
@@ -794,5 +798,21 @@ impl QueryString for Drive {
     #[allow(unused_variables)]
     fn top(&self, end_point: DriveEndPoint, query_str: &str) -> DriveResponse {
         unimplemented!();
+    }
+}
+
+impl From<OAuth> for Drive {
+    fn from(oauth: OAuth) -> Self {
+        match oauth.get_access_token() {
+            Some(t) => {
+                let ac = t.try_borrow_mut();
+                if let Ok(rt) = ac {
+                    let token = rt.clone();
+                    Drive::new(&token.get_access_token());
+                }
+            },
+            None => panic!("Missing Access Token"),
+        }
+        panic!("Missing Access Token");
     }
 }
