@@ -30,7 +30,7 @@ pub enum OAuthParam {
     RefreshToken = 0b1101101,
     ResponseMode = 0b1101110,
     AppIdResource = 0b1101111,
-    STATE = 0b1110000,
+    State = 0b1110000,
     ResponseType = 0b1110001,
     GrantType = 0b1110010,
     RedirectUri = 0b1110011,
@@ -58,7 +58,7 @@ impl OAuthParam {
             OAuthParam::ResponseMode => "response_mode",
             OAuthParam::ResponseType => "response_type",
             OAuthParam::AppIdResource => "app_id_resource",
-            OAuthParam::STATE => "state",
+            OAuthParam::State => "state",
             OAuthParam::GrantType => "grant_type",
         }
     }
@@ -78,7 +78,7 @@ impl OAuthParam {
             OAuthParam::ResponseMode => OAuthCredential::ResponseMode(self.as_alias().into()),
             OAuthParam::ResponseType => OAuthCredential::ResponseType(self.as_alias().into()),
             OAuthParam::AppIdResource => OAuthCredential::AppIdResource(self.as_alias().into()),
-            OAuthParam::STATE => OAuthCredential::State(self.as_alias().into()),
+            OAuthParam::State => OAuthCredential::State(self.as_alias().into()),
             OAuthParam::GrantType => OAuthCredential::GrantType(self.as_alias().into()),
         }
     }
@@ -324,7 +324,7 @@ impl OAuth {
 
     pub fn state(&mut self, state: &str) -> &mut OAuth {
         self.cred.insert(
-            OAuthParam::STATE.hash(),
+            OAuthParam::State.hash(),
             OAuthCredential::State(state.into()),
         );
         self
