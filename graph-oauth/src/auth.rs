@@ -19,21 +19,20 @@ define_encode_set! {
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize, Hash)]
 pub enum OAuthParam {
-    ClientId = 0b1100101,
-    ClientSecret = 0b1100110,
-    SignInUrl = 0b1100111,
-    AccessTokenURL = 0b1101000,
-    RefreshTokenURL = 0b1101001,
-    AccessCode = 0b1101010,
-    CODE = 0b1101011,
-    AccessToken = 0b1101100,
-    RefreshToken = 0b1101101,
-    ResponseMode = 0b1101110,
-    AppIdResource = 0b1101111,
-    State = 0b1110000,
-    ResponseType = 0b1110001,
-    GrantType = 0b1110010,
-    RedirectUri = 0b1110011,
+    ClientId,
+    ClientSecret,
+    SignInUrl,
+    AccessTokenURL,
+    RefreshTokenURL,
+    AccessCode,
+    AccessToken,
+    RefreshToken,
+    ResponseMode,
+    AppIdResource,
+    State,
+    ResponseType,
+    GrantType,
+    RedirectUri,
 }
 
 impl OAuthParam {
@@ -52,7 +51,6 @@ impl OAuthParam {
             OAuthParam::RefreshTokenURL => "refresh_token_url",
             OAuthParam::RedirectUri => "redirect_uri",
             OAuthParam::AccessCode => "code",
-            OAuthParam::CODE => "code",
             OAuthParam::AccessToken => "access_token",
             OAuthParam::RefreshToken => "refresh_token",
             OAuthParam::ResponseMode => "response_mode",
@@ -72,7 +70,6 @@ impl OAuthParam {
             OAuthParam::RefreshTokenURL => OAuthCredential::RefreshTokenURL(self.as_alias().into()),
             OAuthParam::RedirectUri => OAuthCredential::RedirectURI(self.as_alias().into()),
             OAuthParam::AccessCode => OAuthCredential::AccessCode(self.as_alias().into()),
-            OAuthParam::CODE => OAuthCredential::Code(self.as_alias().into()),
             OAuthParam::AccessToken => OAuthCredential::AccessToken(self.as_alias().into()),
             OAuthParam::RefreshToken => OAuthCredential::RefreshToken(self.as_alias().into()),
             OAuthParam::ResponseMode => OAuthCredential::ResponseMode(self.as_alias().into()),
@@ -97,7 +94,6 @@ pub enum OAuthCredential {
     RefreshTokenURL(String),
     RedirectURI(String),
     AccessCode(String),
-    Code(String),
     AccessToken(String),
     RefreshToken(String),
     ResponseMode(String),
@@ -117,7 +113,6 @@ impl OAuthCredential {
             OAuthCredential::AccessTokenURL(s) => s.as_str(),
             OAuthCredential::RefreshTokenURL(s) => s.as_str(),
             OAuthCredential::AccessCode(s) => s.as_str(),
-            OAuthCredential::Code(s) => s.as_str(),
             OAuthCredential::ResponseMode(s) => s.as_str(),
             OAuthCredential::AppIdResource(s) => s.as_str(),
             OAuthCredential::RefreshToken(s) => s.as_str(),
@@ -143,7 +138,6 @@ impl OAuthCredential {
             OAuthCredential::AccessTokenURL(s) => to_hash(s),
             OAuthCredential::RefreshTokenURL(s) => to_hash(s),
             OAuthCredential::AccessCode(s) => to_hash(s),
-            OAuthCredential::Code(s) => to_hash(s),
             OAuthCredential::ResponseMode(s) => to_hash(s),
             OAuthCredential::AppIdResource(s) => to_hash(s),
             OAuthCredential::RefreshToken(s) => to_hash(s),
@@ -163,7 +157,6 @@ impl OAuthCredential {
             OAuthCredential::RefreshTokenURL(_) => "refresh_token_url",
             OAuthCredential::RedirectURI(_) => "redirect_uri",
             OAuthCredential::AccessCode(_) => "code",
-            OAuthCredential::Code(_) => "code",
             OAuthCredential::AccessToken(_) => "access_token",
             OAuthCredential::RefreshToken(_) => "refresh_token",
             OAuthCredential::ResponseMode(_) => "response_mode",
@@ -638,7 +631,7 @@ impl OAuth {
                     return OAuth::error_from::<String>(OAuthParam::AccessToken);
                 }
             },
-            None => OAuth::error_from::<String>(OAuthParam::RefreshToken),
+            None => OAuth::error_from::<String>(OAuthParam::AccessToken),
         }
     }
 
@@ -721,7 +714,7 @@ impl OAuth {
                     &parameter)
                     .as_str(),
             )),
-            OAuthParam::AccessToken | OAuthParam::CODE => Err(OAuthError::error_kind(
+            OAuthParam::AccessToken => Err(OAuthError::error_kind(
                 ErrorKind::NotFound,
                 "MISSING, INVALID, OR MALFORMED PARAMETER: AccessToken",
             )),
