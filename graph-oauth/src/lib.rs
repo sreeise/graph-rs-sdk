@@ -9,7 +9,8 @@ mod auth;
 mod encode;
 mod granttypes;
 mod graphheaders;
-mod jwt;
+pub mod jwt;
+mod discovery;
 mod oautherror;
 mod stdop;
 
@@ -19,7 +20,12 @@ pub mod oauth {
     pub use crate::auth::OAuth;
     pub use crate::auth::OAuthCredential;
     pub use crate::auth::OAuthParam;
-    pub use crate::jwt::JWTKeys;
-    pub use crate::jwt::SigningKeys;
+    pub use crate::discovery::JWTKeys;
+    pub use crate::discovery::SigningKeys;
     pub use crate::oautherror::OAuthError;
 }
+
+pub mod op {
+    pub use crate::stdop::StdOp;
+}
+
