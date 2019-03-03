@@ -19,6 +19,19 @@ macro_rules! odata_query {
     };
 }
 
+// TODO: Change QueryString to use enum.
+#[allow(dead_code)]
+enum QueryType {
+    Select,
+    Expand,
+    Filter,
+    OrderBy,
+    Search,
+    Format,
+    Skip,
+    Top,
+}
+
 /// Query string trait for building graph requests with select and expand query strings
 ///
 /// # See Also:

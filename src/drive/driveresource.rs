@@ -33,41 +33,61 @@ impl DriveResource {
         item_id: &str,
         drive_action: DriveAction,
     ) -> String {
-        match self {
-            DriveResource::Drives => format!(
-                "{}/drives/{}/items/{}/{}",
-                GRAPH_ENDPOINT,
-                drive_id.expect("Expected drive_id for DriveResource::Drives"),
-                item_id,
-                drive_action.as_str()
-            ),
-            DriveResource::Groups => format!(
-                "{}/groups/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
-                drive_id.expect("Expected drive_id for DriveResource::Groups"),
-                item_id,
-                drive_action.as_str()
-            ),
-            DriveResource::Sites => format!(
-                "{}/sites/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
-                drive_id.expect("Expected drive_id for DriveResource::Sites"),
-                item_id,
-                drive_action.as_str()
-            ),
-            DriveResource::Users => format!(
-                "{}/users/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
-                drive_id.expect("Expected drive_id for DriveResource::Users"),
-                item_id,
-                drive_action.as_str()
-            ),
-            DriveResource::Me => format!(
+        let d_id = match drive_id {
+            Some(t) => t,
+            None => return format!(
                 "{}/me/drive/items/{}/{}",
                 GRAPH_ENDPOINT,
                 item_id,
                 drive_action.as_str()
-            ),
+            )
+        };
+
+        match self {
+            DriveResource::Drives => {
+               format!(
+                    "{}/drives/{}/items/{}/{}",
+                    GRAPH_ENDPOINT,
+                    d_id,
+                    item_id,
+                    drive_action.as_str()
+                )
+            },
+            DriveResource::Groups => {
+                format!(
+                    "{}/groups/{}/drive/items/{}/{}",
+                    GRAPH_ENDPOINT,
+                    d_id,
+                    item_id,
+                    drive_action.as_str()
+                )
+            }
+            DriveResource::Sites => {
+             format!(
+                    "{}/sites/{}/drive/items/{}/{}",
+                    GRAPH_ENDPOINT,
+                    d_id,
+                    item_id,
+                    drive_action.as_str()
+                )
+            },
+            DriveResource::Users => {
+                format!(
+                        "{}/users/{}/drive/items/{}/{}",
+                        GRAPH_ENDPOINT,
+                        d_id,
+                        item_id,
+                        drive_action.as_str()
+                    )
+            },
+            DriveResource::Me => {
+                format!(
+                    "{}/me/drive/items/{}/{}",
+                    GRAPH_ENDPOINT,
+                    item_id,
+                    drive_action.as_str()
+                )
+            },
         }
     }
 }

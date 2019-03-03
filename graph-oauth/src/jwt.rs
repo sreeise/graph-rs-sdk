@@ -19,12 +19,6 @@ impl Header {
     }
 }
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct JWT {
-    key: String,
-    header: Option<Header>,
-}
-
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Algorithm {
     HS256,
@@ -53,8 +47,12 @@ impl Algorithm {
             _ => Err(OAuthError::error_kind(ErrorKind::NotFound, "Not an Algorithm Type")),
         }
     }
+}
 
-
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct JWT {
+    key: String,
+    header: Option<Header>,
 }
 
 impl JWT {
@@ -70,6 +68,7 @@ impl JWT {
     }
 
 
+    // https://tools.ietf.org/html/rfc7519#section-7.2
     /*
     7.2.  Validating a JWT
 
@@ -130,7 +129,6 @@ impl JWT {
    validated, unless the algorithms used in the JWT are acceptable to
    the application, it SHOULD reject the JWT.
     */
-    // https://tools.ietf.org/html/rfc7519#section-7.2
     pub fn validate(&mut self) -> std::result::Result<(), OAuthError> {
         // Step 1. Verify that the JWT contains at least one period ('.') character.
         if !self.key.contains('.') {

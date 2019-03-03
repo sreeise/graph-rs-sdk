@@ -25,18 +25,18 @@ impl<T> BaseItem<T> {
 
 impl BaseItem<DriveInfo> {
     pub fn item(&self) -> Option<DriveInfo> {
-        self.item.clone()
+        self.item.to_owned()
     }
 }
 
 impl BaseItem<DriveItem> {
     pub fn item(&self) -> Option<DriveItem> {
-        self.item.clone()
+        self.item.to_owned()
     }
 }
 
 impl BaseItem<Value> {
     pub fn item(&self) -> Option<Value> {
-        self.item.clone()
+        self.item.to_owned()
     }
 }
