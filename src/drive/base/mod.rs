@@ -2,6 +2,7 @@ pub mod application;
 pub mod createdby;
 pub mod driveinfo;
 pub mod driveitem;
+pub mod facet;
 pub mod file;
 pub mod filesysteminfo;
 pub mod folder;
@@ -20,7 +21,6 @@ pub mod sharedby;
 pub mod sharepointid;
 pub mod specialfolder;
 pub mod user;
-pub mod value;
 pub mod view;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

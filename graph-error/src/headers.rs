@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HeaderInfo {
     url: String,
@@ -5,6 +6,7 @@ pub struct HeaderInfo {
     headers: Headers,
 }
 
+#[allow(dead_code)]
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Headers {
     #[serde(rename = "cache-control")]

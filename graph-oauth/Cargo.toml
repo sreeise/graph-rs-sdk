@@ -4,17 +4,26 @@ version = "0.1.0"
 authors = ["sreeise"]
 edition = "2018"
 license = "MIT"
+# To be removed when the project is more stable.
+publish = false
 
 [dependencies.url]
 git = "https://github.com/servo/rust-url"
 features = ["query_encoding"]
 
 [dependencies]
-log = "0.4.0"
-env_logger = "0.6.0"
 reqwest = "0.9.6"
 serde = "1.0.88"
 serde_json = "1.0.38"
 serde_derive = "1.0.88"
 base64 = "0.10.1"
-derive_builder = "0.7.1"
+strum_macros = "0.14.0"
+strum = "0.14.0"
+jsonwebtoken = "5.0.1"
+rust-crypto = "0.2.36"
+openssl = "0.10.19"
+log = "0.4.6"
+pretty_env_logger = "0.3.0"
+jsonfile = { path = "../jsonfile" }
+graph-error = { path = "../graph-error" }
+serde_urlencoded = "0.5.4"

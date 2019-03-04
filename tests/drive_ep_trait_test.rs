@@ -1,10 +1,10 @@
+use jsonfile::JsonFile;
 use rust_onedrive::drive::base::driveinfo::DriveInfo;
 use rust_onedrive::drive::base::driveitem::DriveItem;
+use rust_onedrive::drive::base::facet::Value;
 use rust_onedrive::drive::base::filesysteminfo::FileSystemInfo;
 use rust_onedrive::drive::base::parentreference::ParentReference;
 use rust_onedrive::drive::base::quota::Quota;
-use rust_onedrive::drive::base::value::Value;
-use rust_onedrive::process::jsonio::JsonFile;
 
 #[test]
 fn drive() {
@@ -65,7 +65,7 @@ fn shared_with_me() {
     let drive_info: DriveItem =
         JsonFile::from_file("test_files/drive_ep/shared_with_me.json").unwrap();
 
-    let drive_value = drive_info.value().unwrap();
+    let drive_value = drive_info.clone().value().unwrap();
     assert_eq!(drive_value.len(), 2);
 
     let parent_ref = drive_value[0].remote_item().unwrap().parent_reference();

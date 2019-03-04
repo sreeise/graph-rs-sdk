@@ -28,7 +28,7 @@ Of the portions that are implemented there are also examples and docs. Run:
 
 Tests are run on travis ci and can be run locally through cargo like normal Rust builds:
 
-    cargo test
+    cargo test -all
 
 ### Use - subject to change.
 

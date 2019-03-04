@@ -1,6 +1,7 @@
+use graph_oauth::oauth::Credential;
 use graph_oauth::oauth::OAuth;
-use graph_oauth::oauth::OAuthParam;
-use rust_onedrive::process::jsonio::JsonFile;
+
+use jsonfile::JsonFile;
 
 /*
 The following example shows authenticating an application to use the OneDrive REST API
@@ -70,8 +71,9 @@ fn native_client() -> OAuth {
         .add_scope("Files.ReadWrite")
         .add_scope("Files.Read.All")
         .add_scope("Files.ReadWrite.All")
-        .add_scope("wl.offline_access");
-    oauth.for_common_accounts();
+        .add_scope("wl.offline_access")
+        .authorize_url("https://login.live.com/oauth20_authorize.srf?")
+        .access_token_url("https://login.live.com/oauth20_token.srf");
     oauth
 }
 
@@ -95,7 +97,7 @@ fn set_code_request_token(access_code: &str) {
     // which holds an Option<DriveError>. DriveError holds
     // the status code, error type such as BadRequest, and the
     // error info/reason.
-    if oauth.get(OAuthParam::AccessToken).is_some() {
+    if oauth.get(Credential::AccessToken).is_some() {
         // Stores OAuth as json using serde_json.
         JsonFile::json_file("examples/native_client_flow.json", &oauth).unwrap();
         println!("{:#?}", &oauth);

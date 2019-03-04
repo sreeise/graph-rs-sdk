@@ -1,4 +1,3 @@
-use reqwest::*;
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::copy;
@@ -6,6 +5,8 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::thread;
+
+use reqwest::*;
 
 pub struct FileRetriever;
 

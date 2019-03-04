@@ -1,10 +1,26 @@
 use core::num;
+use graph_error::{GraphError, RequestError};
+use reqwest::Response;
 use std::error;
 use std::error::Error;
 use std::fmt;
 use std::io;
-use std::string;
+use std::io::ErrorKind;
 use std::str::Utf8Error;
+use std::string;
+
+pub type OAuthReq<T> = Result<T, OAuthError>;
+
+pub trait OAuthResult<T> {
+    fn from_response(t: &mut Response) -> OAuthReq<T>
+    where
+        T: serde::Serialize,
+        for<'de> T: serde::Deserialize<'de>,
+    {
+        let t: T = t.json()?;
+        Ok(t)
+    }
+}
 
 /// Error implementation for OAuth
 #[derive(Debug)]
@@ -16,12 +32,22 @@ pub enum OAuthError {
     ReqwestError(reqwest::Error),
     SerdeError(serde_json::error::Error),
     DecodeError(base64::DecodeError),
+    GraphError(GraphError),
+    RequestError(RequestError),
 }
 
 impl OAuthError {
     pub fn error_kind(error_kind: io::ErrorKind, message: &str) -> Self {
         let e = io::Error::new(error_kind, message);
         OAuthError::from(e)
+    }
+
+    pub fn none_error<T>(msg: &str) -> std::result::Result<T, OAuthError> {
+        Err(OAuthError::error_kind(ErrorKind::NotFound, msg))
+    }
+
+    pub fn invalid_data<T>(msg: &str) -> std::result::Result<T, OAuthError> {
+        Err(OAuthError::error_kind(ErrorKind::InvalidData, msg))
     }
 }
 
@@ -35,6 +61,8 @@ impl fmt::Display for OAuthError {
             OAuthError::ReqwestError(ref err) => write!(f, "Request error: {}", err),
             OAuthError::SerdeError(ref err) => write!(f, "Serde error: {}", err),
             OAuthError::DecodeError(ref err) => write!(f, "Base 64 decode error: {}", err),
+            OAuthError::GraphError(ref err) => write!(f, "Graph error: {}", err),
+            OAuthError::RequestError(ref err) => write!(f, "Graph error: {}", err),
         }
     }
 }
@@ -49,6 +77,8 @@ impl error::Error for OAuthError {
             OAuthError::ReqwestError(ref err) => err.description(),
             OAuthError::SerdeError(ref err) => err.description(),
             OAuthError::DecodeError(ref err) => err.description(),
+            OAuthError::GraphError(ref err) => err.description(),
+            OAuthError::RequestError(ref err) => err.description(),
         }
     }
 
@@ -61,6 +91,8 @@ impl error::Error for OAuthError {
             OAuthError::ReqwestError(ref err) => Some(err),
             OAuthError::SerdeError(ref err) => Some(err),
             OAuthError::DecodeError(ref err) => Some(err),
+            OAuthError::RequestError(ref err) => Some(err),
+            OAuthError::GraphError(_) => unimplemented!(),
         }
     }
 }
@@ -101,9 +133,28 @@ impl From<base64::DecodeError> for OAuthError {
     }
 }
 
-
 impl From<Utf8Error> for OAuthError {
     fn from(err: Utf8Error) -> OAuthError {
         OAuthError::Utf8Error(err)
+    }
+}
+
+impl From<ErrorKind> for OAuthError {
+    fn from(err: ErrorKind) -> Self {
+        let e = io::Error::new(err, "");
+        OAuthError::from(e)
+    }
+}
+
+impl From<GraphError> for OAuthError {
+    fn from(err: GraphError) -> Self {
+        let e = io::Error::new(ErrorKind::InvalidData, err);
+        OAuthError::from(e)
+    }
+}
+
+impl From<RequestError> for OAuthError {
+    fn from(err: RequestError) -> Self {
+        err.into()
     }
 }

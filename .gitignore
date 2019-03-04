@@ -9,3 +9,4 @@ Cargo.lock
 
 # For testing in development
 src/bin
+runner

@@ -1,12 +1,12 @@
 use graph_oauth::oauth::OAuth;
-use rust_onedrive::process::jsonio::JsonFile;
+use jsonfile::JsonFile;
 
 fn main() {
     let mut oauth = web_client();
 
     // Run this first, then get the code from the browser URL. Afterward,
     // comment out the the browser_sign_in() method below and run set_code_request_token(your_access_token).
-    oauth.browser_sign_in();
+    oauth.browser_sign_in().unwrap();
 
     /*
     browser_flow() opens users default browser to the authentication page
@@ -36,10 +36,10 @@ fn web_client() -> OAuth {
         .client_id("<CLIENT_ID>")
         // Or whatever you set the redirect to for a web client.
         .redirect_url("http://localhost:8000/redirect")
-        .client_secret("<CLIENT_SECRET>");
+        .client_secret("<CLIENT_SECRET>")
+        .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?")
+        .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token?");
 
-    // Sets the URLs for the `common` tenant type
-    oauth.for_common_native_accounts();
     oauth
 }
 

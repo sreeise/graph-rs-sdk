@@ -1,67 +1,23 @@
-use crate::oautherror::OAuthError;
-use crate::stdop::StdOp;
 use std::collections::HashMap;
 
-#[derive(Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
-pub struct SigningKeys {
-    authorization_endpoint: String,
-    token_endpoint: String,
-    token_endpoint_auth_methods_supported: Vec<String>,
-    jwks_uri: String,
-    response_modes_supported: Vec<String>,
-    subject_types_supported: Vec<String>,
-    id_token_signing_alg_values_supported: Vec<String>,
-    http_logout_supported: bool,
-    frontchannel_logout_supported: bool,
-    end_session_endpoint: String,
-    response_types_supported: Vec<String>,
-    scopes_supported: Vec<String>,
-    issuer: String,
-    claims_supported: Vec<String>,
-    microsoft_multi_refresh_token: bool,
-    check_session_iframe: String,
-    userinfo_endpoint: String,
-    #[serde(skip)]
-    tenant_region_scope: String,
-    cloud_instance_name: String,
-    cloud_graph_host_name: String,
-    msgraph_host: String,
-    rbac_url: String,
-}
-
-impl SigningKeys {
-    pub fn new() -> Result<SigningKeys, OAuthError> {
-        let client = reqwest::Client::builder().build().unwrap();
-        let url = String::from(
-            "https://login.microsoftonline.com/common/.well-known/openid-configuration",
-        );
-        let response = client.get(&url).send();
-
-        match response {
-            Ok(mut t) => {
-                let keys: SigningKeys = t.json()?;
-                Ok(keys)
-            },
-            Err(e) => Err(OAuthError::from(e)),
-        }
-    }
-}
+use graph_error::RequestError;
+use graph_oauth::op::StdOp;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Keys {
     #[serde(skip_serializing_if = "Option::is_none")]
-    kty: Option<String>,
+    pub kty: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "use")]
-    _use: Option<String>,
+    pub _use: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    kid: Option<String>,
+    pub kid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     x5t: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    n: Option<String>,
+    pub n: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    e: Option<String>,
+    pub e: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     x5c: Option<Vec<String>>,
 }
@@ -88,7 +44,8 @@ pub struct JWTKeys {
 }
 
 impl JWTKeys {
-    pub fn discovery() -> Result<JWTKeys, OAuthError> {
+    #[allow(dead_code)]
+    pub fn discovery() -> Result<JWTKeys, RequestError> {
         let client = reqwest::Client::builder().build().unwrap();
         let url = String::from("https://login.microsoftonline.com/common/discovery/keys");
         let response = client.get(&url).send();
@@ -98,14 +55,16 @@ impl JWTKeys {
                 let keys: JWTKeys = t.json()?;
                 Ok(keys)
             },
-            Err(e) => Err(OAuthError::from(e)),
+            Err(e) => Err(RequestError::from(e)),
         }
     }
 
+    #[allow(dead_code)]
     pub fn keys(&self) -> Vec<Keys> {
         self.keys.to_vec()
     }
 
+    #[allow(dead_code)]
     pub fn key_map(&mut self) -> Vec<HashMap<String, String>> {
         let mut vec: Vec<HashMap<String, String>> = Vec::new();
         for key in self.keys.iter() {

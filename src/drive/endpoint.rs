@@ -19,11 +19,15 @@ Special folders are one of:
         Description: The Music folder.
 */
 
-use crate::drive::base::driveinfo::DriveInfo;
 use crate::drive::base::driveitem::DriveItem;
-use crate::drive::base::value::Value;
-use crate::drive::baseitem::BaseItem;
-use crate::drive::GRAPH_ENDPOINT;
+
+use crate::drive::item::Item;
+use crate::drive::{Drive, ItemResult, GRAPH_ENDPOINT};
+
+/*
+pub struct DI<U: Item<U>>(Result<U, RequestError>);
+pub type ItemResult<T> = DI<T>;
+*/
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub enum DriveEndPoint {
@@ -45,27 +49,6 @@ pub enum DriveEndPoint {
     SpecialAppRootChild,
     SpecialMusic,
     SpecialMusicChild,
-}
-
-pub trait EP {
-    fn drive(&mut self) -> BaseItem<DriveInfo>;
-    fn drive_me(&mut self) -> BaseItem<DriveInfo>;
-    fn drive_root(&mut self) -> BaseItem<Value>;
-    fn drive_root_me(&mut self) -> BaseItem<Value>;
-    fn drive_root_child(&mut self) -> BaseItem<DriveItem>;
-    fn drive_changes(&mut self) -> BaseItem<DriveItem>;
-    fn shared_with_me(&mut self) -> BaseItem<DriveItem>;
-    fn drive_recent(&mut self) -> BaseItem<DriveItem>;
-    fn special_documents(&mut self) -> BaseItem<Value>;
-    fn special_documents_child(&mut self) -> BaseItem<DriveItem>;
-    fn special_photos(&mut self) -> BaseItem<Value>;
-    fn special_photos_child(&mut self) -> BaseItem<DriveItem>;
-    fn special_cameraroll(&mut self) -> BaseItem<Value>;
-    fn special_cameraroll_child(&mut self) -> BaseItem<DriveItem>;
-    fn special_approot(&mut self) -> BaseItem<Value>;
-    fn special_approot_child(&mut self) -> BaseItem<DriveItem>;
-    fn special_music(&mut self) -> BaseItem<Value>;
-    fn special_music_child(&mut self) -> BaseItem<DriveItem>;
 }
 
 impl DriveEndPoint {
@@ -103,5 +86,174 @@ impl DriveEndPoint {
         let mut url = GRAPH_ENDPOINT.to_string();
         url.push_str(endpoint.as_str());
         url
+    }
+}
+
+pub trait EP: Item {
+    fn drive(&mut self) -> ItemResult<DriveItem>;
+    fn drive_me(&mut self) -> ItemResult<DriveItem>;
+    fn drive_root(&mut self) -> ItemResult<DriveItem>;
+    fn drive_root_me(&mut self) -> ItemResult<DriveItem>;
+    fn drive_root_child(&mut self) -> ItemResult<DriveItem>;
+    fn drive_changes(&mut self) -> ItemResult<DriveItem>;
+    fn shared_with_me(&mut self) -> ItemResult<DriveItem>;
+    fn drive_recent(&mut self) -> ItemResult<DriveItem>;
+    fn special_documents(&mut self) -> ItemResult<DriveItem>;
+    fn special_documents_child(&mut self) -> ItemResult<DriveItem>;
+    fn special_photos(&mut self) -> ItemResult<DriveItem>;
+    fn special_photos_child(&mut self) -> ItemResult<DriveItem>;
+    fn special_cameraroll(&mut self) -> ItemResult<DriveItem>;
+    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem>;
+    fn special_approot(&mut self) -> ItemResult<DriveItem>;
+    fn special_approot_child(&mut self) -> ItemResult<DriveItem>;
+    fn special_music(&mut self) -> ItemResult<DriveItem>;
+    fn special_music_child(&mut self) -> ItemResult<DriveItem>;
+}
+
+/// Automatically requests the DriveEndPoint given in the function name and returns the struct
+/// of that request. The structs may be of different types listed here by function name:
+impl EP for Drive {
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_me(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn drive(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::Drive)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn drive_me(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::DriveMe)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_root(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn drive_root(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::DriveRoot)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_root_me(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn drive_root_me(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::DriveRootMe)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_root_child(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn drive_root_child(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::DriveRootChild)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn shared_with_me(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn drive_changes(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::DriveChanges)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_recent(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn shared_with_me(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SharedWithMe)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_recent(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn drive_recent(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::DriveRecent)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_documents(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn special_documents(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SpecialDocuments)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_documents_child(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn special_documents_child(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SpecialDocumentsChild)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_photos(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn special_photos(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SpecialPhotos)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_photos_child(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn special_photos_child(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SpecialPhotosChild)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_cameraroll(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn special_cameraroll(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SpecialCameraRoll)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SpecialCameraRollChild)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_approot(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn special_approot(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SpecialAppRoot)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_approot_child(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn special_approot_child(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SpecialAppRootChild)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///     fn special_music(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn special_music(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SpecialMusic)
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_music_child(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn special_music_child(&mut self) -> ItemResult<DriveItem> {
+        self.drive_item(DriveEndPoint::SpecialMusicChild)
     }
 }

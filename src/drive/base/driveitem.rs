@@ -1,7 +1,9 @@
-use crate::drive::base::value::Value;
+use crate::drive::base::driveinfo::DriveInfo;
+use crate::drive::base::facet::Value;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct DriveItem {
+    drive_info: Option<DriveInfo>,
     #[serde(rename = "@odata.context")]
     _odata_context: Option<String>,
     #[serde(rename = "@odata.nextLink")]
@@ -11,11 +13,13 @@ pub struct DriveItem {
 
 impl DriveItem {
     pub fn new(
+        drive_info: Option<DriveInfo>,
         data_context: Option<String>,
         next_link: Option<String>,
         value: Option<Vec<Value>>,
     ) -> DriveItem {
         DriveItem {
+            drive_info,
             _odata_context: data_context,
             _odata_next_link: next_link,
             value,

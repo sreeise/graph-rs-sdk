@@ -1,0 +1,12 @@
+[package]
+name = "jsonfile"
+version = "0.1.0"
+authors = ["sreeise <reeisesean@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+serde = "1.0.88"
+serde_json = "1.0.38"
+serde_derive = "1.0.88"
+base64 = "0.10.1"
+graph-error = { path = "../graph-error" }

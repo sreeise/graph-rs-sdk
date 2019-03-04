@@ -3,6 +3,7 @@ use std::any::TypeId;
 use std::option;
 
 /// Methods for checking type ids of generic types.
+/// This is mostly used internally to cut down on matching Option types.
 trait GenericTypeId {
     fn type_id_ref_of<T: std::any::Any>(_: &T) -> std::any::TypeId {
         TypeId::of::<T>()
@@ -19,6 +20,7 @@ impl<T> OptionType for Option<T> where T: std::marker::Sized {}
 impl<T> OptionType for &Option<T> where T: std::marker::Sized {}
 
 /// Useful methods for the Rust standard library Option.
+/// This is mostly used internally to cut down on matching Option types.
 #[derive(Debug, Eq, PartialEq)]
 pub struct StdOp;
 
@@ -31,8 +33,16 @@ impl StdOp {
         t.map(std::string::ToString::to_string).or(None)
     }
 
+    pub fn from_u32(t: option::Option<u32>) -> u32 {
+        t.unwrap_or(0)
+    }
+
     pub fn convert_to_string(t: option::Option<String>) -> String {
         t.map(|t| t.to_string()).unwrap_or_default()
+    }
+
+    pub fn op_ref_to_string(t: option::Option<&String>) -> String {
+        t.map(std::string::ToString::to_string).unwrap_or_default()
     }
 
     /// Evaluates whether T in &Option<T> is the same type as U in &Option<U>

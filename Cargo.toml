@@ -5,10 +5,14 @@ authors = ["sreeise"]
 edition = "2018"
 readme = "README.md"
 license = "MIT"
+# To be removed when the project is more stable.
+publish = false
 
 [workspace]
 members = [
     "graph-oauth",
+    "jsonfile",
+    "graph-error",
 ]
 
 [dependencies.url]
@@ -19,12 +23,27 @@ features = ["query_encoding"]
 serde = "1.0.88"
 serde_json = "1.0.38"
 serde_derive = "1.0.88"
+serde-transcode = "1.1.0"
 reqwest = "0.9.6"
 encoding = "0.2.33"
 json = "0.11.13"
 notify = "4.0.0"
 base64 = "0.10.1"
+strum_macros = "0.14.0"
+strum = "0.14.0"
 graph-oauth = { path = "./graph-oauth" }
+jsonfile = { path = "./jsonfile" }
+graph-error = { path = "./graph-error" }
 
 [badges]
 travis-ci = { repository = "https://github.com/sreeise/rust-onedrive", branch = "master" }
+
+[profile.release]
+debug = false
+
+[profile.bench]
+debug = false
+
+[profile.dev]
+opt-level = 0
+debug = true

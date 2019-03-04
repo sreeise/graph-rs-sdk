@@ -1,3 +1,5 @@
+use std::io;
+
 use crate::drive::base::createdby::CreatedBy;
 use crate::drive::base::file::File;
 use crate::drive::base::filesysteminfo::FileSystemInfo;
@@ -9,7 +11,6 @@ use crate::drive::base::photo::Photo;
 use crate::drive::base::remoteitem::RemoteItem;
 use crate::drive::base::specialfolder::SpecialFolder;
 use crate::drive::base::Root;
-use std::io;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Value {
@@ -41,7 +42,7 @@ pub struct Value {
     folder: Option<Folder>,
     #[serde(rename = "specialFolder")]
     special_folder: Option<SpecialFolder>,
-    #[serde(rename = "@microsoft.graph.downloadUrl")]
+    #[serde(rename = "@microsoft.graph-error.downloadUrl")]
     _microsoft_graph_download_url: Option<String>,
     file: Option<File>,
     image: Option<Image>,

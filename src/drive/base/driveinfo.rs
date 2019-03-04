@@ -4,9 +4,6 @@ use crate::drive::base::owner::Owner;
 use crate::drive::base::quota::Quota;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Root {}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DriveInfo {
     #[serde(rename = "@odata.context")]
     _odata_context: Option<String>,

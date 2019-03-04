@@ -1,31 +1,26 @@
 #![feature(custom_attribute)]
 #[macro_use]
 extern crate serde_derive;
+extern crate strum;
 #[macro_use]
-extern crate derive_builder;
+extern crate strum_macros;
 
 mod accesstoken;
 mod auth;
+pub mod commons;
 mod encode;
-mod granttypes;
-mod graphheaders;
 pub mod jwt;
-mod discovery;
 mod oautherror;
 mod stdop;
 
 pub mod oauth {
     pub use crate::accesstoken::AccessToken;
-    pub use crate::accesstoken::AccessTokenBuilder;
+    pub use crate::auth::Credential;
     pub use crate::auth::OAuth;
     pub use crate::auth::OAuthCredential;
-    pub use crate::auth::OAuthParam;
-    pub use crate::discovery::JWTKeys;
-    pub use crate::discovery::SigningKeys;
-    pub use crate::oautherror::OAuthError;
+    pub use crate::oautherror::{OAuthError, OAuthReq};
 }
 
 pub mod op {
     pub use crate::stdop::StdOp;
 }
-
