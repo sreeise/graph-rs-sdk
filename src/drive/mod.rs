@@ -12,7 +12,6 @@ pub mod baseitem;
 pub mod endpoint;
 pub mod error;
 pub mod headers;
-pub mod watchevent;
 #[macro_use]
 pub mod query_string;
 pub mod base;
