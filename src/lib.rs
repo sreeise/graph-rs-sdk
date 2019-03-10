@@ -15,3 +15,11 @@ pub extern crate encoding;
 
 pub mod drive;
 pub mod process;
+
+pub mod oauth {
+   pub use graph_oauth::*;
+}
+
+pub mod error {
+    pub use graph_error::*;
+}
