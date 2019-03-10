@@ -1,6 +1,5 @@
 use graph_oauth::oauth::Credential;
 use graph_oauth::oauth::OAuth;
-
 use jsonfile::JsonFile;
 
 /*

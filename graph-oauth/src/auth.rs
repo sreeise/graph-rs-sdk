@@ -383,6 +383,7 @@ impl OAuth {
     pub fn username(&mut self, u: &str) -> &mut OAuth {
         self.insert(OAuthCredential::Username(u.into()))
     }
+
     /// Set the response mode.
     ///
     /// # Example
@@ -410,6 +411,19 @@ impl OAuth {
     /// ```
     pub fn access_token(&mut self, ac: AccessToken) {
         self.access_token.replace(RefCell::new(ac));
+    }
+
+    /// Set the response mode.
+    ///
+    /// # Example
+    /// ```
+    /// use graph_oauth::oauth::OAuth;
+    ///
+    /// let mut oauth = OAuth::new();
+    /// oauth.grant_type("token");
+    /// ```
+    pub fn grant_type(&mut self, s: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::GrantType(s.into()))
     }
 
     pub fn scope(&mut self, s: &str) -> &mut OAuth {
@@ -833,8 +847,17 @@ impl OAuth {
         }
     }
 
-    pub fn browser_sign_in_url(&self, url: &str) -> std::result::Result<(), std::io::Error> {
-        Command::new("xdg-open").arg(url).spawn()?;
+    pub fn browser_sign_in_url(&self, url: String) -> std::result::Result<(), OAuthError> {
+        thread::spawn(move || {
+            let url = url.as_str();
+            Command::new("xdg-open")
+                .arg(&url)
+                .spawn()
+                .map_err(OAuthError::from)
+                .unwrap()
+        })
+        .join()
+        .unwrap();
         Ok(())
     }
 }
@@ -871,7 +894,7 @@ impl OAuth {
         }
         url.push_str(encoder.finish().as_str());
 
-        self.browser_sign_in_url(&url).map_err(OAuthError::from)
+        self.browser_sign_in_url(url).map_err(OAuthError::from)
     }
 }
 

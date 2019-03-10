@@ -49,8 +49,15 @@ pub struct MicrosoftSigningKeysV2 {
 }
 
 pub trait Discovery {
-    type V1Keys = MicrosoftSigningKeysV1;
-    type V2Keys = MicrosoftSigningKeysV2;
+    type Keys;
+}
+
+impl Discovery for MicrosoftSigningKeysV1 {
+    type Keys = MicrosoftSigningKeysV1;
+}
+
+impl Discovery for MicrosoftSigningKeysV2 {
+    type Keys = MicrosoftSigningKeysV2;
 }
 
 pub enum GraphDiscovery {

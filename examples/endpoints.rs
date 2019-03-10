@@ -1,4 +1,4 @@
-use rust_onedrive::drive::endpoint::DriveEndPoint;
+use rust_onedrive::drive::DriveEndPoint;
 
 pub fn main() {
     assert_eq!(

@@ -1,5 +1,5 @@
-use crate::drive::base::group::Group;
-use crate::drive::base::user::User;
+use crate::drive::drive_item::group::Group;
+use crate::drive::drive_item::user::User;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Owner {

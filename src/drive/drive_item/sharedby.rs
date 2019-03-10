@@ -1,4 +1,4 @@
-use crate::drive::base::user::User;
+use crate::drive::drive_item::user::User;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SharedBy {

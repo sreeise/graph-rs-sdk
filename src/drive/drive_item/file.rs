@@ -1,4 +1,4 @@
-use crate::drive::base::hashes::Hashes;
+use crate::drive::drive_item::hashes::Hashes;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct File {

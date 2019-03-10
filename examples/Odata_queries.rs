@@ -1,10 +1,10 @@
 use graph_oauth::oauth::OAuth;
 use jsonfile::JsonFile;
 #[allow(unused_imports)]
-use rust_onedrive::drive::base::driveitem::DriveItem;
-use rust_onedrive::drive::endpoint::DriveEndPoint;
+use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::query_string::QueryString;
 use rust_onedrive::drive::Drive;
+use rust_onedrive::drive::DriveEndPoint;
 
 #[allow(dead_code)]
 fn expand_example() {

@@ -1,5 +1,5 @@
-use crate::drive::base::driveinfo::DriveInfo;
-use crate::drive::base::facet::Value;
+use crate::drive::drive_item::driveinfo::DriveInfo;
+use crate::drive::drive_item::facet::Value;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct DriveItem {

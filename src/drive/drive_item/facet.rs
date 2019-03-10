@@ -1,16 +1,16 @@
 use std::io;
 
-use crate::drive::base::createdby::CreatedBy;
-use crate::drive::base::file::File;
-use crate::drive::base::filesysteminfo::FileSystemInfo;
-use crate::drive::base::folder::Folder;
-use crate::drive::base::image::Image;
-use crate::drive::base::lastmodifiedby::LastModifiedBy;
-use crate::drive::base::parentreference::ParentReference;
-use crate::drive::base::photo::Photo;
-use crate::drive::base::remoteitem::RemoteItem;
-use crate::drive::base::specialfolder::SpecialFolder;
-use crate::drive::base::Root;
+use crate::drive::drive_item::createdby::CreatedBy;
+use crate::drive::drive_item::file::File;
+use crate::drive::drive_item::filesysteminfo::FileSystemInfo;
+use crate::drive::drive_item::folder::Folder;
+use crate::drive::drive_item::image::Image;
+use crate::drive::drive_item::lastmodifiedby::LastModifiedBy;
+use crate::drive::drive_item::parentreference::ParentReference;
+use crate::drive::drive_item::photo::Photo;
+use crate::drive::drive_item::remoteitem::RemoteItem;
+use crate::drive::drive_item::specialfolder::SpecialFolder;
+use crate::drive::drive_item::Root;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Value {

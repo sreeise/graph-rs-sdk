@@ -1,5 +1,5 @@
-use rust_onedrive::drive::driveaction::DriveAction;
-use rust_onedrive::drive::driveresource::DriveResource;
+use rust_onedrive::drive::DriveAction;
+use rust_onedrive::drive::DriveResource;
 
 #[test]
 fn drive_action_url() {

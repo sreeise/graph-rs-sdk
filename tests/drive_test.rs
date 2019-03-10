@@ -1,8 +1,8 @@
-use rust_onedrive::drive::driveaction::DriveAction;
-use rust_onedrive::drive::driveresource::DriveResource;
-use rust_onedrive::drive::endpoint::DriveEndPoint;
 use rust_onedrive::drive::query_string::QueryString;
 use rust_onedrive::drive::Drive;
+use rust_onedrive::drive::DriveAction;
+use rust_onedrive::drive::DriveEndPoint;
+use rust_onedrive::drive::DriveResource;
 
 #[test]
 fn checkin_test() {

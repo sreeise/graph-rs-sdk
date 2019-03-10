@@ -1,5 +1,5 @@
 /*
-Implements the base drive endpoints including special folders shown below.
+Implements the drive_item drive endpoints including special folders shown below.
 
 Special folders are one of:
     1. Documents:
@@ -19,7 +19,7 @@ Special folders are one of:
         Description: The Music folder.
 */
 
-use crate::drive::base::driveitem::DriveItem;
+use crate::drive::drive_item::driveitem::DriveItem;
 
 use crate::drive::item::Item;
 use crate::drive::{Drive, ItemResult, GRAPH_ENDPOINT};

@@ -1,11 +1,11 @@
-use crate::drive::base::createdby::CreatedBy;
-use crate::drive::base::file::File;
-use crate::drive::base::filesysteminfo::FileSystemInfo;
-use crate::drive::base::lastmodifiedby::LastModifiedBy;
-use crate::drive::base::package::Package;
-use crate::drive::base::parentreference::ParentReference;
-use crate::drive::base::shared::Shared;
-use crate::drive::base::sharepointid::SharePointIds;
+use crate::drive::drive_item::createdby::CreatedBy;
+use crate::drive::drive_item::file::File;
+use crate::drive::drive_item::filesysteminfo::FileSystemInfo;
+use crate::drive::drive_item::lastmodifiedby::LastModifiedBy;
+use crate::drive::drive_item::package::Package;
+use crate::drive::drive_item::parentreference::ParentReference;
+use crate::drive::drive_item::shared::Shared;
+use crate::drive::drive_item::sharepointid::SharePointIds;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RemoteItem {

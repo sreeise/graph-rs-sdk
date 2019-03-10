@@ -1,7 +1,7 @@
-use crate::drive::base::createdby::CreatedBy;
-use crate::drive::base::lastmodifiedby::LastModifiedBy;
-use crate::drive::base::owner::Owner;
-use crate::drive::base::quota::Quota;
+use crate::drive::drive_item::createdby::CreatedBy;
+use crate::drive::drive_item::lastmodifiedby::LastModifiedBy;
+use crate::drive::drive_item::owner::Owner;
+use crate::drive::drive_item::quota::Quota;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DriveInfo {

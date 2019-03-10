@@ -8,26 +8,29 @@ Your app provides the access token in each request, through an HTTP header:
 Authorization: bearer {token}
 */
 
-use crate::drive::driveaction::DriveAction;
-use crate::drive::driveresource::DriveResource;
 use graph_error::RequestError;
 use graph_oauth::oauth::OAuth;
 use reqwest::*;
 use std;
 
-pub mod endpoint;
+mod drive_item;
+mod driveaction;
+mod driveresource;
+mod endpoint;
+mod item;
+
 #[macro_use]
 pub mod query_string;
-pub mod base;
 pub mod discovery;
-pub mod driveaction;
-pub mod driveresource;
-pub mod item;
+
+pub use crate::drive::drive_item::*;
+pub use crate::drive::driveaction::DriveAction;
+pub use crate::drive::driveresource::DriveResource;
+pub use crate::drive::endpoint::{DriveEndPoint, EP};
+pub use crate::drive::item::Item;
 
 pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
-
 pub type DriveResponse = std::result::Result<Response, RequestError>;
-pub type UrlResult = std::io::Result<String>;
 pub type ItemResult<T> = std::result::Result<T, RequestError>;
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -268,8 +271,8 @@ impl Drive {
     /// # Example
     /// ```
     /// use rust_onedrive::drive::Drive;
-    /// use rust_onedrive::drive::driveaction::DriveAction;
-    /// use rust_onedrive::drive::driveresource::DriveResource;
+    /// use rust_onedrive::drive::DriveAction;
+    /// use rust_onedrive::drive::DriveResource;
     ///
     ///     let mut drive = Drive::new("Dfsdf");
     ///     let drive_item_url = drive.resource_drive_item_url(

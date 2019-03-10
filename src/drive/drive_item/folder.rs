@@ -1,4 +1,4 @@
-use crate::drive::base::view::View;
+use crate::drive::drive_item::view::View;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Folder {
