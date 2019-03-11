@@ -1,7 +1,6 @@
 use crate::accesstoken::AccessToken;
 use crate::encode::Encoder;
-use crate::oautherror::OAuthResult;
-pub use crate::oautherror::{OAuthError, OAuthReq};
+use crate::oautherror::OAuthError;
 use graph_error::GraphError;
 use reqwest::header;
 use reqwest::Response;
@@ -16,10 +15,11 @@ use std::string::ToString;
 use std::thread;
 use std::thread::JoinHandle;
 use strum::IntoEnumIterator;
+use transform_request::Transform;
 use url::form_urlencoded;
 use url::percent_encoding::USERINFO_ENCODE_SET;
 
-pub type ReqSend = reqwest::Result<Response>;
+pub type OAuthReq<T> = Result<T, OAuthError>;
 
 /// OAuthCredential list fields representing common OAuth credentials needed
 /// to perform authentication in various formats such as token flow and
@@ -93,25 +93,50 @@ impl OAuthCredential {
         to_hash(self.to_string())
     }
 
-    pub fn as_str(&self) -> &str {
+    pub fn fn_on_inner<F, T>(&self, f: F) -> T
+    where
+        F: Fn(&String) -> T,
+    {
         match self {
-            OAuthCredential::ClientId(s) => s.as_str(),
-            OAuthCredential::RedirectURI(s) => s.as_str(),
-            OAuthCredential::ClientSecret(s) => s.as_str(),
-            OAuthCredential::AuthorizeURL(s) => s.as_str(),
-            OAuthCredential::AccessTokenURL(s) => s.as_str(),
-            OAuthCredential::RefreshTokenURL(s) => s.as_str(),
-            OAuthCredential::AccessCode(s) => s.as_str(),
-            OAuthCredential::ResponseMode(s) => s.as_str(),
-            OAuthCredential::RefreshToken(s) => s.as_str(),
-            OAuthCredential::AccessToken(s) => s.as_str(),
-            OAuthCredential::State(s) => s.as_str(),
-            OAuthCredential::ResponseType(s) => s.as_str(),
-            OAuthCredential::GrantType(s) => s.as_str(),
-            OAuthCredential::Nonce(s) => s.as_str(),
-            OAuthCredential::Username(s) => s.as_str(),
-            OAuthCredential::Password(s) => s.as_str(),
-            OAuthCredential::Scopes(s) => s.as_str(),
+            OAuthCredential::ClientId(s) => f(s),
+            OAuthCredential::RedirectURI(s) => f(s),
+            OAuthCredential::ClientSecret(s) => f(s),
+            OAuthCredential::AuthorizeURL(s) => f(s),
+            OAuthCredential::AccessTokenURL(s) => f(s),
+            OAuthCredential::RefreshTokenURL(s) => f(s),
+            OAuthCredential::AccessCode(s) => f(s),
+            OAuthCredential::ResponseMode(s) => f(s),
+            OAuthCredential::RefreshToken(s) => f(s),
+            OAuthCredential::AccessToken(s) => f(s),
+            OAuthCredential::State(s) => f(s),
+            OAuthCredential::ResponseType(s) => f(s),
+            OAuthCredential::GrantType(s) => f(s),
+            OAuthCredential::Nonce(s) => f(s),
+            OAuthCredential::Username(s) => f(s),
+            OAuthCredential::Password(s) => f(s),
+            OAuthCredential::Scopes(s) => f(s),
+        }
+    }
+
+    pub fn inner_to_string(&self) -> String {
+        match self {
+            OAuthCredential::ClientId(s) => s.to_string(),
+            OAuthCredential::ClientSecret(s) => s.to_string(),
+            OAuthCredential::RedirectURI(s) => s.to_string(),
+            OAuthCredential::AuthorizeURL(s) => s.to_string(),
+            OAuthCredential::AccessTokenURL(s) => s.to_string(),
+            OAuthCredential::RefreshTokenURL(s) => s.to_string(),
+            OAuthCredential::AccessCode(s) => s.to_string(),
+            OAuthCredential::ResponseMode(s) => s.to_string(),
+            OAuthCredential::RefreshToken(s) => s.to_string(),
+            OAuthCredential::AccessToken(s) => s.to_string(),
+            OAuthCredential::State(s) => s.to_string(),
+            OAuthCredential::ResponseType(s) => s.to_string(),
+            OAuthCredential::GrantType(s) => s.to_string(),
+            OAuthCredential::Nonce(s) => s.to_string(),
+            OAuthCredential::Username(s) => s.to_string(),
+            OAuthCredential::Password(s) => s.to_string(),
+            OAuthCredential::Scopes(s) => s.to_string(),
         }
     }
 
@@ -144,7 +169,7 @@ impl OAuthCredential {
     }
 
     pub fn alias(&self) -> &'static str {
-        match self {
+        match *self {
             OAuthCredential::ClientId(_) => "client_id",
             OAuthCredential::ClientSecret(_) => "client_secret",
             OAuthCredential::AuthorizeURL(_) => "sign_in_url",
@@ -223,8 +248,9 @@ impl OAuth {
         self
     }
 
-    pub fn remove(&mut self, oac: OAuthCredential) -> &mut OAuth {
-        self.cred.remove(&oac.hash_alias());
+    pub fn remove(&mut self, c: Credential) -> &mut OAuth {
+        let oac = OAuthCredential::from(c);
+        self.cred.remove_entry(&oac.hash_alias());
         self
     }
 
@@ -476,15 +502,15 @@ impl OAuth {
     ///
     /// let a = oauth.get(Credential::AuthorizeURL);
     /// ```
-    pub fn get(&self, c: Credential) -> Option<&str> {
-        let t = self
-            .cred
-            .iter()
-            .find(|v| v.0 == &OAuthCredential::from(c).hash());
-        match t {
-            Some(e) => Some(e.1.as_str()),
-            None => None,
-        }
+    pub fn get(&self, c: Credential) -> Option<String> {
+        let t = self.cred.get(&OAuthCredential::from(c).hash_alias());
+
+        let oac = match t {
+            Some(t) => t,
+            None => return None,
+        };
+        let s: String = oac.inner_to_string();
+        Some(s.to_string())
     }
 
     /// Check if an OAuth credential has already been set.
@@ -519,7 +545,7 @@ impl OAuth {
     pub fn custom(&mut self, key: &str, value: &str) -> &mut OAuth {
         if let Some(c) = &self.custom_cred {
             let mut c_clone = c.borrow_mut();
-            let mut hm = HashMap::new();
+            let mut hm: HashMap<String, String> = HashMap::new();
             hm.insert(key.into(), value.into());
             c_clone.push(hm);
         } else {
@@ -541,7 +567,7 @@ impl OAuth {
                     "&",
                     OAuthCredential::from(x).alias(),
                     "=",
-                    self.get(x).unwrap(),
+                    self.get(x).unwrap().as_str(),
                 ]
                 .join("")
             })
@@ -555,7 +581,12 @@ impl OAuth {
         self.access_token.clone()
     }
 
-    pub fn request_json(&self, url: &str, access_code: &str, code_body: &str) -> ReqSend {
+    pub fn request_json(
+        &self,
+        url: &str,
+        access_code: &str,
+        code_body: &str,
+    ) -> OAuthReq<Response> {
         let client = reqwest::Client::builder().build()?;
 
         client
@@ -564,11 +595,12 @@ impl OAuth {
             .header(header::CONTENT_TYPE, "application/json")
             .body(code_body.to_string())
             .send()
+            .map_err(OAuthError::from)
     }
 
     /// RFC 6750: https://www.rfc-editor.org/rfc/rfc6750.txt - Authorization Request Header Field
     #[allow(dead_code)]
-    fn request(&self, url: &str, access_code: &str, code_body: &str) -> ReqSend {
+    fn request(&self, url: &str, access_code: &str, code_body: &str) -> OAuthReq<Response> {
         let client = reqwest::Client::builder().build()?;
 
         client
@@ -577,22 +609,18 @@ impl OAuth {
             .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
             .body(code_body.to_string())
             .send()
+            .map_err(OAuthError::from)
     }
 
     pub fn request_access_token(&mut self) -> OAuthReq<()> {
         // The request URL.
-        let url = self
-            .get(Credential::AccessTokenURL)
-            .ok_or_else(|| OAuth::credential_error(Credential::AccessTokenURL))?;
-
-        let access_code = self
-            .get(Credential::AccessCode)
-            .ok_or_else(|| OAuth::credential_error(Credential::AccessCode))?;
+        let url = self.get_or_else(Credential::AccessTokenURL)?;
+        let access_code = self.get_or_else(Credential::AccessCode)?;
 
         // The request body.
         let uri = self.encoded_access_token_uri()?;
 
-        let mut response = self.request(url, access_code, uri.as_str())?;
+        let mut response = self.request(&url, &access_code, &uri)?;
         let status = response.status().as_u16();
 
         if GraphError::is_error(status) {
@@ -608,14 +636,8 @@ impl OAuth {
     /// Request an new AccessToken using the refresh token.
     pub fn request_refresh_token(&mut self) -> OAuthReq<()> {
         // The request URL.
-        let url = self
-            .get(Credential::AccessTokenURL)
-            .ok_or_else(|| OAuth::credential_error(Credential::AccessTokenURL))?;
-
-        let access_code = self
-            .get(Credential::AccessCode)
-            .ok_or_else(|| OAuth::credential_error(Credential::AccessCode))?;
-
+        let url = self.get_or_else(Credential::AccessTokenURL)?;
+        let access_code = self.get_or_else(Credential::AccessCode)?;
         // The request body.
         let uri = self.encoded_access_token_uri()?;
 
@@ -627,8 +649,14 @@ impl OAuth {
 
         let ac_mut = current_ac.into_inner();
 
-        let mut response = self.request_json(url, access_code, uri.as_str())?;
-        let mut ac: AccessToken = AccessToken::from_response(&mut response)?;
+        let mut response = self.request_json(&url, &access_code, uri.as_str())?;
+        let mut ac: AccessToken = AccessToken::transform(&mut response)?;
+
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(OAuthError::from(GraphError::from(status)));
+        }
+
         if let Some(t) = ac_mut.get_refresh_token() {
             ac.refresh_token(Some(t.as_str()));
         }
@@ -675,7 +703,7 @@ impl OAuth {
         match self.get(param) {
             Some(t) => {
                 let s = OAuthCredential::from(param);
-                encoder.append_pair(s.alias(), t);
+                encoder.append_pair(s.alias(), &t);
                 Ok(())
             },
             None => OAuth::error_from::<()>(param),
@@ -685,18 +713,15 @@ impl OAuth {
     pub fn get_refresh_token(&self) -> OAuthReq<String> {
         match self.get_access_token() {
             Some(t) => {
-                let ac = t.try_borrow_mut();
-                if let Ok(rt) = ac {
-                    let token = rt.clone();
-                    let refresh = token.get_refresh_token();
-                    if let Some(t) = refresh {
-                        return Ok(t);
-                    } else {
-                        return OAuth::error_from::<String>(Credential::RefreshToken);
-                    }
-                } else {
-                    return OAuth::error_from::<String>(Credential::AccessToken);
-                }
+                let refresh_token = t
+                    .try_borrow_mut()
+                    .and_then(|at| {
+                        let token = at.clone();
+                        let refresh = token.get_refresh_token().unwrap();
+                        Ok(refresh)
+                    })
+                    .map_err(OAuthError::from);
+                refresh_token
             },
             None => OAuth::error_from::<String>(Credential::AccessToken),
         }
@@ -732,11 +757,11 @@ impl OAuth {
             Credential::AccessTokenURL => {
                 // https://tools.ietf.org/html/rfc6749#section-4.1.3
                 if let Some(t) = self.get(Credential::ResponseMode) {
-                    encoder.append_pair("response_mode", t);
+                    encoder.append_pair("response_mode", &t);
                 }
 
                 if let Some(t) = self.get(Credential::ResponseType) {
-                    encoder.append_pair("response_type", t);
+                    encoder.append_pair("response_type", &t);
                 } else {
                     encoder.append_pair("response_type", "token");
                 }
@@ -747,28 +772,13 @@ impl OAuth {
             Credential::RefreshTokenURL => {
                 // https://tools.ietf.org/html/rfc6749#section-6
                 if let Some(t) = self.get(Credential::ResponseType) {
-                    encoder.append_pair("response_type", t);
+                    encoder.append_pair("response_type", &t);
                 } else {
                     encoder.append_pair("response_type", "token");
                 }
 
-                match self.get_access_token() {
-                    Some(t) => {
-                        let ac = t.try_borrow_mut();
-                        if let Ok(rt) = ac {
-                            let token = rt.clone();
-                            let refresh = token.get_refresh_token();
-                            if let Some(t) = refresh {
-                                encoder.append_pair("refresh_token", &t);
-                            } else {
-                                return OAuth::error_from::<String>(Credential::RefreshToken);
-                            }
-                        } else {
-                            return OAuth::error_from::<String>(Credential::AccessToken);
-                        }
-                    },
-                    None => return OAuth::error_from::<String>(Credential::AccessToken),
-                }
+                let refresh_token = self.get_refresh_token()?;
+                encoder.append_pair("refresh_token", &refresh_token);
 
                 if self.contains(Credential::GrantType) {
                     self.set_encode_pair(Credential::GrantType, &mut encoder)?;
@@ -788,7 +798,8 @@ impl OAuth {
     fn credential_to_pair(&self, c: OAuthCredential) -> String {
         let mut encoder = form_urlencoded::Serializer::new(String::new());
         let key = c.alias();
-        let value = c.as_str();
+        let value = c.to_string();
+        let value = value.as_str();
         encoder.append_pair(key, value);
         encoder.finish()
     }
@@ -807,7 +818,7 @@ impl OAuth {
 
 // OAuth impl for error handling.
 impl OAuth {
-    fn error_from<T>(c: Credential) -> std::result::Result<T, OAuthError> {
+    fn error_from<T>(c: Credential) -> Result<T, OAuthError> {
         Err(OAuth::credential_error(c))
     }
 
@@ -816,6 +827,10 @@ impl OAuth {
             ErrorKind::NotFound,
             format!("MISSING OR INVALID: {:#?}", c).as_str(),
         )
+    }
+
+    fn get_or_else(&self, c: Credential) -> Result<String, OAuthError> {
+        self.get(c).ok_or_else(|| OAuth::credential_error(c))
     }
 }
 
@@ -936,7 +951,7 @@ impl OAuth {
                     let key = OAuthCredential::from(x);
                     let v = vec!["&", key.alias(), "="];
                     s.push_str(v.join("").as_str());
-                    s.push_str(Encoder::utf8_percent_encode(t, USERINFO_ENCODE_SET).as_str())
+                    s.push_str(Encoder::utf8_percent_encode(&t, USERINFO_ENCODE_SET).as_str())
                 }
             });
 
@@ -957,15 +972,12 @@ impl OAuth {
             .get(Credential::Username)
             .ok_or_else(|| OAuth::credential_error(Credential::Username))?;
 
-        pairs.insert("username".into(), username.into());
-        pairs.insert("password".into(), pw.into());
+        pairs.insert("username".into(), username);
+        pairs.insert("password".into(), pw);
 
         if self.contains(Credential::ClientId) {
-            let ci = self
-                .get(Credential::ClientId)
-                .ok_or_else(|| OAuth::credential_error(Credential::ClientId))?;
-
-            pairs.insert("client_id".into(), ci.into());
+            let ci = self.get_or_else(Credential::ClientId)?;
+            pairs.insert("client_id".into(), ci);
         }
 
         match Encoder::utf8_url_encode_pairs(pairs, USERINFO_ENCODE_SET) {
@@ -998,16 +1010,11 @@ impl OAuth {
 
         self.encoded_custom_credentials(&mut encoder);
 
-        let url = self
-            .get(Credential::AccessTokenURL)
-            .ok_or_else(|| OAuth::credential_error(Credential::AccessTokenURL))?;
-
-        let access_code = self
-            .get(Credential::AccessCode)
-            .ok_or_else(|| OAuth::credential_error(Credential::AccessCode))?;
+        let url = self.get_or_else(Credential::AccessTokenURL)?;
+        let access_code = self.get_or_else(Credential::AccessCode)?;
 
         let body = encoder.finish();
-        let mut response = self.request(url, access_code, body.as_str())?;
+        let mut response = self.request(&url, &access_code, body.as_str())?;
         let at: AccessToken = response.json()?;
         self.access_token(at);
         Ok(())

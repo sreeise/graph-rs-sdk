@@ -8,10 +8,10 @@ Your app provides the access token in each request, through an HTTP header:
 Authorization: bearer {token}
 */
 
-use graph_error::RequestError;
 use graph_oauth::oauth::OAuth;
 use reqwest::*;
 use std;
+use transform_request::RequestError;
 
 mod drive_item;
 mod driveaction;
@@ -25,11 +25,15 @@ pub mod discovery;
 
 pub use crate::drive::drive_item::*;
 pub use crate::drive::driveaction::DriveAction;
+use crate::drive::driveitem::DriveItem;
 pub use crate::drive::driveresource::DriveResource;
 pub use crate::drive::endpoint::{DriveEndPoint, EP};
 pub use crate::drive::item::Item;
+use serde_json::Value;
+use transform_request::Transform;
 
 pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
+pub static GRAPH_ENDPOINT_BETA: &str = "https://graph.microsoft.com/beta";
 pub type DriveResponse = std::result::Result<Response, RequestError>;
 pub type ItemResult<T> = std::result::Result<T, RequestError>;
 
@@ -339,5 +343,27 @@ impl From<OAuth> for Drive {
             None => panic!("Missing Access Token"),
         }
         panic!("Missing Access Token");
+    }
+}
+
+impl Item<DriveItem> for Drive {
+    fn token(&self) -> &str {
+        self.access_token.as_str()
+    }
+
+    fn item(&self, r: &mut Response) -> ItemResult<DriveItem> {
+        let drive_item: DriveItem = DriveItem::transform(r)?;
+        Ok(drive_item)
+    }
+}
+
+impl Item<Value> for Drive {
+    fn token(&self) -> &str {
+        self.access_token.as_str()
+    }
+
+    fn item(&self, r: &mut Response) -> ItemResult<Value> {
+        let value: Value = r.json()?;
+        Ok(value)
     }
 }

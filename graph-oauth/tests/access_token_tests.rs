@@ -3,6 +3,37 @@ use graph_oauth::oauth::Credential;
 use graph_oauth::oauth::OAuth;
 use jsonfile::JsonFile;
 use std::fs;
+use std::path::Path;
+
+#[derive(Debug, Default)]
+struct CleanUp {
+    // As in rm -r file for Linux or in other words remove the file.
+    rm_f: Vec<String>,
+}
+
+impl CleanUp {
+    pub fn new<F>(f: F) -> CleanUp
+    where
+        F: Fn(),
+    {
+        f();
+        CleanUp::default()
+    }
+
+    fn rm_files(&mut self, s: String) {
+        self.rm_f.push(s);
+    }
+}
+
+impl Drop for CleanUp {
+    fn drop(&mut self) {
+        for s in &self.rm_f {
+            if Path::new(s.as_str()).exists() {
+                fs::remove_file(Path::new(s.as_str())).unwrap();
+            }
+        }
+    }
+}
 
 #[test]
 fn get_method() {
@@ -17,7 +48,6 @@ fn get_method() {
     assert_eq!(access_token.get_token_type(), "bearer");
     assert_eq!(access_token.get_access_token(), "ASODFIUJ34KJ;LADSK");
     assert_eq!(access_token.get_scopes(), "offline");
-
     assert_eq!(access_token.get_refresh_token(), Some("eyJh...9323".into()));
 }
 
@@ -35,6 +65,13 @@ fn access_token_field_encoding() {
 #[test]
 fn oauth_json_file() {
     let file_location = "./test_files/test_file.json";
+    let mut clean_up = CleanUp::new(|| {
+        if Path::new(file_location).exists() {
+            fs::remove_file(Path::new(file_location)).unwrap();
+        }
+    });
+
+    clean_up.rm_files(file_location.into());
 
     let mut oauth = OAuth::new();
     oauth
@@ -67,16 +104,14 @@ fn oauth_json_file() {
     assert_eq!(&oauth, &oauth_from_file);
     assert_eq!(
         oauth_from_file.get(Credential::ClientId),
-        Some("bb301aaa-1201-4259-a230923fds32")
+        Some("bb301aaa-1201-4259-a230923fds32".into())
     );
     assert_eq!(
         oauth_from_file.get(Credential::RedirectURI),
-        Some("http://localhost:8888/redirect")
+        Some("http://localhost:8888/redirect".into())
     );
     assert_eq!(
         oauth_from_file.get(Credential::AuthorizeURL),
-        Some("https://example.com/oauth2/v2.0/authorize")
+        Some("https://example.com/oauth2/v2.0/authorize".into())
     );
-
-    fs::remove_file(&file_location).unwrap();
 }

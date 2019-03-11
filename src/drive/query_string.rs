@@ -19,41 +19,14 @@ macro_rules! odata_query {
     };
 }
 
-// TODO: Change QueryString to use enum.
-#[allow(dead_code)]
-#[derive(Display, Debug)]
-pub enum QueryType<'u, 'a, 's> {
-    #[strum(serialize = "?$select=")]
-    Select(&'u str, &'a [&'s str]),
-    #[strum(serialize = "&expand=")]
-    Expand(&'u str, &'a [&'s str]),
-    #[strum(serialize = "&filter=")]
-    Filter(&'u str, &'a [&'s str]),
-    OrderBy,
-    Search,
-    Format,
-    Skip,
-    Top,
-}
-
-impl<'u, 'a, 's> QueryType<'u, 'a, 's> {
-    pub fn to_query_string(&self) -> String {
-        match self {
-            QueryType::Select(s, vec) => {
-                let query_str = vec.join(",").clone();
-                odata_query!(s.to_string(), self.to_string(), query_str.to_string())
-            },
-            _ => unimplemented!(),
-        }
-    }
-}
+// TODO: Change QueryString to use macros. Most implement the same types so this could be done with only 1 or 2 macros.
 
 /// Query string trait for building graph-error requests with select and expand query strings
 ///
 /// # See Also:
 /// [Query Documentation](https://docs.microsoft.com/en-us/graph/query-parameters)
 /// [Query Documentation Continued](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties)
-pub trait QueryString: Item {
+pub trait QueryString {
     fn select(&mut self, end_point: DriveEndPoint, query: &[&str]) -> ItemResult<DriveItem>;
     fn select_url(&self, end_point: DriveEndPoint, query: &[&str]) -> String;
     fn expand(

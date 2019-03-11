@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate serde_derive;
-use graph_error::RequestError;
 use serde_json;
 use std::ffi::OsStr;
 use std::fs;
@@ -9,6 +8,7 @@ use std::fs::OpenOptions;
 use std::io::prelude::*;
 use std::io::ErrorKind;
 use std::path::Path;
+use transform_request::RequestError;
 
 #[derive(Serialize, Deserialize)]
 pub struct JsonFile;

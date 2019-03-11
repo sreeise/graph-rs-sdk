@@ -1,6 +1,6 @@
 use core::num;
-use graph_error::{GraphError, RequestError};
-use reqwest::Response;
+use graph_error::GraphError;
+use std::cell::BorrowMutError;
 use std::error;
 use std::error::Error;
 use std::fmt;
@@ -8,19 +8,7 @@ use std::io;
 use std::io::ErrorKind;
 use std::str::Utf8Error;
 use std::string;
-
-pub type OAuthReq<T> = Result<T, OAuthError>;
-
-pub trait OAuthResult<T> {
-    fn from_response(t: &mut Response) -> OAuthReq<T>
-    where
-        T: serde::Serialize,
-        for<'de> T: serde::Deserialize<'de>,
-    {
-        let t: T = t.json()?;
-        Ok(t)
-    }
-}
+use transform_request::RequestError;
 
 /// Error implementation for OAuth
 #[derive(Debug)]
@@ -34,6 +22,7 @@ pub enum OAuthError {
     DecodeError(base64::DecodeError),
     GraphError(GraphError),
     RequestError(RequestError),
+    BorrowMutError(BorrowMutError),
 }
 
 impl OAuthError {
@@ -63,6 +52,7 @@ impl fmt::Display for OAuthError {
             OAuthError::DecodeError(ref err) => write!(f, "Base 64 decode error: {}", err),
             OAuthError::GraphError(ref err) => write!(f, "Graph error: {}", err),
             OAuthError::RequestError(ref err) => write!(f, "Graph error: {}", err),
+            OAuthError::BorrowMutError(ref err) => write!(f, "Graph error: {}", err),
         }
     }
 }
@@ -79,6 +69,7 @@ impl error::Error for OAuthError {
             OAuthError::DecodeError(ref err) => err.description(),
             OAuthError::GraphError(ref err) => err.description(),
             OAuthError::RequestError(ref err) => err.description(),
+            OAuthError::BorrowMutError(ref err) => err.description(),
         }
     }
 
@@ -93,6 +84,7 @@ impl error::Error for OAuthError {
             OAuthError::DecodeError(ref err) => Some(err),
             OAuthError::RequestError(ref err) => Some(err),
             OAuthError::GraphError(_) => unimplemented!(),
+            OAuthError::BorrowMutError(ref err) => Some(err),
         }
     }
 }
@@ -156,5 +148,11 @@ impl From<GraphError> for OAuthError {
 impl From<RequestError> for OAuthError {
     fn from(err: RequestError) -> Self {
         err.into()
+    }
+}
+
+impl From<BorrowMutError> for OAuthError {
+    fn from(err: BorrowMutError) -> Self {
+        OAuthError::BorrowMutError(err)
     }
 }

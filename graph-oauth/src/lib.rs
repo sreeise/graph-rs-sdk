@@ -18,7 +18,7 @@ pub mod oauth {
     pub use crate::auth::Credential;
     pub use crate::auth::OAuth;
     pub use crate::auth::OAuthCredential;
-    pub use crate::oautherror::{OAuthError, OAuthReq};
+    pub use crate::oautherror::OAuthError;
 }
 
 pub mod op {

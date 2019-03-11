@@ -13,6 +13,7 @@ members = [
     "graph-oauth",
     "jsonfile",
     "graph-error",
+    "transform-request",
 ]
 
 [dependencies.url]
@@ -31,6 +32,7 @@ notify = "4.0.0"
 base64 = "0.10.1"
 strum_macros = "0.14.0"
 strum = "0.14.0"
+transform-request = { path = "./transform-request" }
 graph-oauth = { path = "./graph-oauth" }
 jsonfile = { path = "./jsonfile" }
 graph-error = { path = "./graph-error" }

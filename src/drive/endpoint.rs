@@ -89,7 +89,7 @@ impl DriveEndPoint {
     }
 }
 
-pub trait EP: Item {
+pub trait EP: Item<DriveItem> {
     fn drive(&mut self) -> ItemResult<DriveItem>;
     fn drive_me(&mut self) -> ItemResult<DriveItem>;
     fn drive_root(&mut self) -> ItemResult<DriveItem>;

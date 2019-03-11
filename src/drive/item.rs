@@ -1,15 +1,22 @@
-use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::endpoint::DriveEndPoint;
-use crate::drive::{Drive, ItemResult};
-use graph_error::{GraphError, RequestError};
+use crate::drive::ItemResult;
 use reqwest::{header, Response};
+use serde_json::Value;
+use transform_request::RequestError;
 
-pub trait Item: serde::Serialize + for<'de> serde::Deserialize<'de> {
-    type DI: serde::Serialize + for<'de> serde::Deserialize<'de>;
-
+pub trait Item<T>
+where
+    T: serde::Serialize + for<'de> serde::Deserialize<'de>,
+{
     fn token(&self) -> &str;
+    fn item(&self, r: &mut Response) -> ItemResult<T>;
 
-    fn request(&mut self, end_point: DriveEndPoint) -> std::result::Result<Response, RequestError> {
+    fn value(r: &mut Response) -> ItemResult<Value> {
+        let v: Value = r.json()?;
+        Ok(v)
+    }
+
+    fn end_point(&mut self, end_point: DriveEndPoint) -> Result<Response, RequestError> {
         let client = reqwest::Client::builder().build()?;
         client
             .get(DriveEndPoint::build(end_point).as_str())
@@ -19,44 +26,53 @@ pub trait Item: serde::Serialize + for<'de> serde::Deserialize<'de> {
             .map_err(RequestError::from)
     }
 
-    fn get(&self, url: &str) -> ItemResult<Self::DI> {
+    fn get(&self, url: &str) -> ItemResult<T> {
         let client = reqwest::Client::builder().build()?;
-        let response = client
+        let mut response = client
             .get(url)
             .header(header::AUTHORIZATION, self.token())
             .header(header::CONTENT_TYPE, "application/json")
-            .send();
+            .send()?;
 
-        match response {
-            Ok(mut t) => {
-                let status = t.status().as_u16();
-                if GraphError::is_error(status) {
-                    return Err(RequestError::from(GraphError::from(status)));
-                }
-
-                let keys: Self::DI = t.json()?;
-                Ok(keys)
-            },
-            Err(e) => Err(RequestError::from(e)),
-        }
+        self.item(&mut response)
     }
 
-    fn drive_item(&mut self, end_point: DriveEndPoint) -> ItemResult<Self::DI> {
-        let response = self.request(end_point);
-        match response {
-            Ok(mut t) => {
-                let item: Self::DI = t.json()?;
-                Ok(item)
-            },
-            Err(e) => Err(e),
-        }
+    fn post(&self, url: &str) -> ItemResult<T> {
+        let client = reqwest::Client::builder().build()?;
+        let mut response = client
+            .post(url)
+            .header(header::AUTHORIZATION, self.token())
+            .header(header::CONTENT_TYPE, "application/json")
+            .send()?;
+
+        self.item(&mut response)
     }
-}
 
-impl Item for Drive {
-    type DI = DriveItem;
+    fn put(&self, url: &str) -> ItemResult<T> {
+        let client = reqwest::Client::builder().build()?;
+        let mut response = client
+            .put(url)
+            .header(header::AUTHORIZATION, self.token())
+            .header(header::CONTENT_TYPE, "text/plain")
+            .send()?;
 
-    fn token(&self) -> &str {
-        self.access_token.as_str()
+        self.item(&mut response)
+    }
+
+    fn patch(&self, url: &str) -> ItemResult<T> {
+        let client = reqwest::Client::builder().build()?;
+        let mut response = client
+            .patch(url)
+            .header(header::AUTHORIZATION, self.token())
+            .header(header::CONTENT_TYPE, "application/json")
+            .send()?;
+
+        self.item(&mut response)
+    }
+
+    fn drive_item(&mut self, end_point: DriveEndPoint) -> ItemResult<T> {
+        let mut response: Response = self.end_point(end_point)?;
+        let value: T = response.json()?;
+        Ok(value)
     }
 }

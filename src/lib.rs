@@ -1,6 +1,5 @@
 #![feature(associated_type_defaults)]
 pub extern crate strum;
-#[macro_use]
 pub extern crate strum_macros;
 #[macro_use]
 pub extern crate serde_derive;
@@ -19,9 +18,9 @@ pub mod process;
 pub mod oauth {
     pub use graph_error::ErrorType;
     pub use graph_error::GraphError;
-    pub use graph_error::RequestError;
     pub use graph_oauth::commons;
     pub use graph_oauth::jwt;
     pub use graph_oauth::oauth::*;
     pub use graph_oauth::op;
+    pub use transform_request;
 }

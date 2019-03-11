@@ -26,4 +26,4 @@ log = "0.4.6"
 pretty_env_logger = "0.3.0"
 jsonfile = { path = "../jsonfile" }
 graph-error = { path = "../graph-error" }
-serde_urlencoded = "0.5.4"
+transform-request = { path = "../transform-request" }

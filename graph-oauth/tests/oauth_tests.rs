@@ -19,6 +19,20 @@ fn get_oauth() -> OAuth {
 }
 
 #[test]
+fn remove_credential() {
+    let mut oauth = get_oauth();
+    assert_eq!(oauth.get(Credential::ClientId).is_some(), true);
+    oauth.remove(Credential::ClientId);
+    assert_eq!(oauth.get(Credential::ClientId).is_some(), false);
+    oauth.client_id("client_id");
+    assert_ne!(oauth.get(Credential::ClientId).is_some(), false);
+
+    assert_eq!(oauth.get(Credential::RedirectURI).is_some(), true);
+    oauth.remove(Credential::RedirectURI);
+    assert_eq!(oauth.get(Credential::RedirectURI).is_some(), false);
+}
+
+#[test]
 fn setters() {
     let mut oauth = OAuth::new();
     oauth

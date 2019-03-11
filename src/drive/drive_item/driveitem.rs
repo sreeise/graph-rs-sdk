@@ -1,7 +1,11 @@
 use crate::drive::drive_item::driveinfo::DriveInfo;
 use crate::drive::drive_item::facet::Value;
+use graph_error::GraphError;
+use reqwest::Response;
+use serde::{Deserialize, Serialize};
+use transform_request::{RequestError, Transform};
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct DriveItem {
     drive_info: Option<DriveInfo>,
     #[serde(rename = "@odata.context")]
@@ -35,10 +39,48 @@ impl DriveItem {
     }
 
     pub fn value_idx(&self, idx: usize) -> Value {
-        let value = self
-            .value
-            .to_owned()
-            .expect("Could not get Value struct from DriveItem");
+        let value = self.value.to_owned().unwrap();
         value[idx].clone()
+    }
+}
+
+impl Transform<&mut Response> for DriveItem {
+    type Err = RequestError;
+
+    fn transform(rhs: &mut Response) -> Result<Self, Self::Err>
+    where
+        Self: Serialize + for<'de> Deserialize<'de>,
+    {
+        let status = rhs.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(RequestError::from(GraphError::from(status)));
+        }
+
+        let drive_item: DriveItem = rhs.json()?;
+        Ok(drive_item)
+    }
+}
+
+impl Transform<String> for DriveItem {
+    type Err = RequestError;
+
+    fn transform(rhs: String) -> Result<Self, Self::Err>
+    where
+        Self: Serialize + for<'de> Deserialize<'de>,
+    {
+        let drive_item: DriveItem = serde_json::from_str(&rhs)?;
+        Ok(drive_item)
+    }
+}
+
+impl Transform<&str> for DriveItem {
+    type Err = RequestError;
+
+    fn transform(rhs: &str) -> Result<Self, Self::Err>
+    where
+        Self: Serialize + for<'de> Deserialize<'de>,
+    {
+        let drive_item: DriveItem = serde_json::from_str(rhs)?;
+        Ok(drive_item)
     }
 }
