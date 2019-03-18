@@ -1,6 +1,6 @@
 use crate::stdop::StdOp;
-//use chrono::Duration;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
+use chrono_humanize::HumanTime;
 use reqwest::Response;
 use serde_json;
 use transform_request::prelude::*;
@@ -13,11 +13,17 @@ use transform_request::prelude::*;
 /// requests can use the provided Transform trait implementations for
 /// converting from a reqwest::Response to an AccessToken:
 ///
+///
+/// An access token represents the metadata for a OAuth 2.0 access token.
+/// The token_type, expires_in, scope, and access_token fields are required.
+/// The access_token field is the field normally used to make authenticated
+/// queries.
+///
 /// # Example
 /// ```rust,ignore
 /// let access_token = AccessToken::from(response); // -> AccessToken from response or AccessToken::default()
 /// // or
-/// use crate::oautherror::OAuthResult;
+/// use rust_onedrive::oauth::AccessToken;
 /// let access_token = AccessToken::transform(response); // -> Result<AccessToken, OAuthError>
 /// ```
 ///
@@ -33,10 +39,17 @@ pub struct AccessToken {
     user_id: Option<String>,
     id_token: Option<String>,
     state: Option<String>,
-    timestamp: Option<DateTime<Utc>>,
+    timestamp: DateTime<Utc>,
 }
 
 impl AccessToken {
+    /// Create a new AccessToken.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    /// let access_token = AccessToken::new("Bearer", 3600, "Read Read.Write", "ASODFIUJ34KJ;LADSK");
+    /// ```
     #[allow(clippy::too_many_arguments)]
     pub fn new(token_type: &str, expires_in: i64, scope: &str, access_token: &str) -> AccessToken {
         AccessToken {
@@ -48,74 +61,213 @@ impl AccessToken {
             user_id: None,
             id_token: None,
             state: None,
-            timestamp: Some(Utc::now()),
+            timestamp: Utc::now(),
         }
     }
 
+    /// Set the token type.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// access_token.token_type("Bearer");
+    /// ```
     pub fn token_type(&mut self, s: &str) -> &mut AccessToken {
         self.token_type = s.into();
         self
     }
 
+    /// Set the expies in time. This should usually be done in seconds.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// access_token.expires_in(3600);
+    /// ```
     pub fn expires_in(&mut self, expires_in: i64) -> &mut AccessToken {
         self.expires_in = expires_in;
+        self.timestamp = Utc::now() + Duration::seconds(expires_in);
         self
     }
 
+    /// Set the scope.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// access_token.scope("Read Read.Write");
+    /// ```
     pub fn scope(&mut self, s: &str) -> &mut AccessToken {
         self.scope = s.into();
         self
     }
 
+    /// Set the access token.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// access_token.access_token("ASODFIUJ34KJ;LADSK");
+    /// ```
     pub fn access_token(&mut self, s: &str) -> &mut AccessToken {
         self.access_token = s.into();
         self
     }
 
+    /// Set the refresh token.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// access_token.refresh_token(Some("#ASOD323U5342"));
+    /// ```
     pub fn refresh_token(&mut self, s: Option<&str>) -> &mut AccessToken {
         self.refresh_token = StdOp::from(s);
         self
     }
 
+    /// Set the user id.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// access_token.user_id(Some("user_id"));
+    /// ```
     pub fn user_id(&mut self, s: Option<&str>) -> &mut AccessToken {
         self.user_id = StdOp::from(s);
         self
     }
 
+    /// Set the id token.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// access_token.id_token(Some("id_token"));
+    /// ```
     pub fn id_token(&mut self, s: Option<&str>) -> &mut AccessToken {
         self.id_token = StdOp::from(s);
         self
     }
 
+    /// Set the state.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// access_token.state(Some("state"));
+    /// ```
     pub fn state(&mut self, s: Option<&str>) -> &mut AccessToken {
         self.state = StdOp::from(s);
         self
     }
 
+    /// Reset the access token timestmap.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// access_token.timestamp();
+    /// // The timestamp is in UTC.
+    /// ```
     pub fn timestamp(&mut self) {
-        self.timestamp = Some(Utc::now());
+        self.timestamp = Utc::now();
     }
 
+    /// Get the token type.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// println!("{:#?}", access_token.get_token_type());
+    /// ```
     pub fn get_token_type(&self) -> &str {
         self.token_type.as_str()
     }
 
+    /// Set the user id.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// // This is the original amount that was set not the difference.
+    /// // To get the difference you can use access_token.elapsed().
+    /// println!("{:#?}", access_token.get_expires_in());
+    /// ```
     pub fn get_expires_in(&self) -> i64 {
         self.expires_in
     }
 
+    /// Get the scopes.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// println!("{:#?}", access_token.get_scopes());
+    /// ```
     pub fn get_scopes(&self) -> &str {
         self.scope.as_str()
     }
 
+    /// Get the access token.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// println!("{:#?}", access_token.get_access_token());
+    /// ```
     pub fn get_access_token(&self) -> &str {
         self.access_token.as_str()
     }
 
+    /// Get the user id.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// println!("{:#?}", access_token.get_user_id());
+    /// ```
     pub fn get_user_id(&self) -> Option<String> {
         self.user_id.clone()
     }
 
+    /// Get the refresh token.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// println!("{:#?}", access_token.get_refresh_token());
+    /// ```
     pub fn get_refresh_token(self) -> Option<String> {
         match self.refresh_token {
             Some(t) => Some(t.clone()),
@@ -123,23 +275,75 @@ impl AccessToken {
         }
     }
 
+    /// Get the id token.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// println!("{:#?}", access_token.get_id_token());
+    /// ```
     pub fn get_id_token(&self) -> Option<String> {
         self.id_token.clone()
     }
 
+    /// Get the state.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// println!("{:#?}", access_token.get_state());
+    /// ```
     pub fn get_state(&self) -> Option<String> {
         self.state.clone()
     }
 
-    pub fn elapsed(&self) -> Option<DateTime<Utc>> {
-        unimplemented!()
-        /*
-        // Maybe something like:
-        println!("{:#?}", self.timestamp);
+    /// Get the timestamp.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// println!("{:#?}", access_token.get_timestamp());
+    /// ```
+    pub fn get_timestamp(&self) -> DateTime<Utc> {
         self.timestamp
-            .unwrap()
-            .checked_sub_signed(Duration::seconds(self.expires_in))
-        */
+    }
+
+    /// Check whether the access token is expired. An access token is considerd
+    /// expired when there is a negative difference between the timestamp set
+    /// for the access token and the expires_in field.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// println!("{:#?}", access_token.is_expired());
+    /// ```
+    pub fn is_expired(&self) -> bool {
+        self.elapsed().le(&HumanTime::from(Duration::seconds(0)))
+    }
+
+    /// Get the time left in seconds until the access token expires.
+    /// See the HumanTime crate. If you just need to know if the access token
+    /// is expired then use the is_expired() message which returns a boolean
+    /// true for the token has expired and false otherwise.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::AccessToken;
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// println!("{:#?}", access_token.elapsed());
+    /// ```
+    pub fn elapsed(&self) -> HumanTime {
+        let ht = HumanTime::from(self.timestamp + Duration::seconds(self.expires_in));
+        ht
     }
 }
 
@@ -154,7 +358,7 @@ impl Default for AccessToken {
             user_id: None,
             id_token: None,
             state: None,
-            timestamp: Some(Utc::now()),
+            timestamp: Utc::now(),
         }
     }
 }
@@ -185,6 +389,8 @@ impl Transform<&str> for AccessToken {
     }
 }
 
+/// Transforms a Result<Response> where response: reqwest::Response
+/// to Result<AccessToken, OAuthError> using serde_json
 impl Transform<Result<reqwest::Response, reqwest::Error>> for AccessToken {
     type Err = RequestError;
 
