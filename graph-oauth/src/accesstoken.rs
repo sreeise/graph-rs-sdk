@@ -39,7 +39,7 @@ pub struct AccessToken {
     user_id: Option<String>,
     id_token: Option<String>,
     state: Option<String>,
-    timestamp: Option<DateTime<Utc>>,
+    timestamp: DateTime<Utc>,
 }
 
 impl AccessToken {
