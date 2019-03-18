@@ -39,7 +39,7 @@ pub struct AccessToken {
     user_id: Option<String>,
     id_token: Option<String>,
     state: Option<String>,
-    timestamp: DateTime<Utc>,
+    timestamp: Option<DateTime<Utc>>,
 }
 
 impl AccessToken {
@@ -61,7 +61,7 @@ impl AccessToken {
             user_id: None,
             id_token: None,
             state: None,
-            timestamp: Utc::now(),
+            timestamp: Some(Utc::now() + Duration::seconds(expires_in)),
         }
     }
 
@@ -90,7 +90,7 @@ impl AccessToken {
     /// ```
     pub fn expires_in(&mut self, expires_in: i64) -> &mut AccessToken {
         self.expires_in = expires_in;
-        self.timestamp = Utc::now() + Duration::seconds(expires_in);
+        self.timestamp = Some(Utc::now() + Duration::seconds(expires_in));
         self
     }
 
@@ -189,7 +189,7 @@ impl AccessToken {
     /// // The timestamp is in UTC.
     /// ```
     pub fn timestamp(&mut self) {
-        self.timestamp = Utc::now();
+        self.timestamp = Some(Utc::now() + Duration::seconds(self.expires_in));
     }
 
     /// Get the token type.
@@ -310,7 +310,7 @@ impl AccessToken {
     /// let mut access_token = AccessToken::default();
     /// println!("{:#?}", access_token.get_timestamp());
     /// ```
-    pub fn get_timestamp(&self) -> DateTime<Utc> {
+    pub fn get_timestamp(&self) -> Option<DateTime<Utc>> {
         self.timestamp
     }
 
@@ -326,7 +326,10 @@ impl AccessToken {
     /// println!("{:#?}", access_token.is_expired());
     /// ```
     pub fn is_expired(&self) -> bool {
-        self.elapsed().le(&HumanTime::from(Duration::seconds(0)))
+        if let Some(human_time) = self.elapsed() {
+           return human_time.le(&HumanTime::from(Duration::seconds(0)));
+        }
+        true
     }
 
     /// Get the time left in seconds until the access token expires.
@@ -341,9 +344,12 @@ impl AccessToken {
     /// let mut access_token = AccessToken::default();
     /// println!("{:#?}", access_token.elapsed());
     /// ```
-    pub fn elapsed(&self) -> HumanTime {
-        let ht = HumanTime::from(self.timestamp + Duration::seconds(self.expires_in));
-        ht
+    pub fn elapsed(&self) -> Option<HumanTime> {
+        if let Some(timestamp) = self.timestamp {
+            let ht = HumanTime::from(timestamp + Duration::seconds(self.expires_in));
+            return Some(ht);
+        }
+        None
     }
 }
 
@@ -358,7 +364,7 @@ impl Default for AccessToken {
             user_id: None,
             id_token: None,
             state: None,
-            timestamp: Utc::now(),
+            timestamp: Some(Utc::now() + Duration::seconds(0)),
         }
     }
 }
