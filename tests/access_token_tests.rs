@@ -2,11 +2,13 @@ use graph_oauth::oauth::AccessToken;
 use graph_oauth::oauth::Credential;
 use graph_oauth::oauth::OAuth;
 use rust_onedrive::transform::*;
-use std::fs;
 use std::path::Path;
+use std::{fs, thread};
 
 mod support;
+
 pub use crate::support::cleanup::CleanUp;
+use std::time::Duration;
 
 #[test]
 fn get_method() {
@@ -87,4 +89,16 @@ fn oauth_json_file() {
         oauth_from_file.get(Credential::AuthorizeURL),
         Some("https://example.com/oauth2/v2.0/authorize".into())
     );
+}
+
+#[test]
+fn is_expired_test() {
+    let mut access_token = AccessToken::default();
+    access_token.expires_in(1);
+    thread::sleep(Duration::from_secs(3));
+    assert_eq!(access_token.is_expired(), true);
+    let mut access_token = AccessToken::default();
+    access_token.expires_in(10);
+    thread::sleep(Duration::from_secs(4));
+    assert_eq!(access_token.is_expired(), false);
 }
