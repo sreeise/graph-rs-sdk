@@ -519,10 +519,6 @@ impl OAuth {
         self.insert(OAuthCredential::PostLogoutRedirectURI(uri.into()))
     }
 
-    pub fn scope(&mut self, s: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::Scopes(s.into()))
-    }
-
     /// Add a scope' for the OAuth URL.
     ///
     /// # Example
