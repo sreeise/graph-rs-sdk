@@ -7,13 +7,21 @@ readme = "README.md"
 license = "MIT"
 # To be removed when the project is more stable.
 publish = false
+exclude = [
+    "test_files/*",
+    "tests/*",
+    "examples/*",
+    "graph-oauth/tests/*",
+    "graph-oauth/tests_files/*"
+]
+keywords = ["onedrive", "graph", "API"]
 
 [workspace]
 members = [
     "graph-oauth",
-    "jsonfile",
     "graph-error",
     "transform-request",
+    "derive_from_to_file",
 ]
 
 [dependencies.url]
@@ -32,10 +40,11 @@ notify = "4.0.0"
 base64 = "0.10.1"
 strum_macros = "0.14.0"
 strum = "0.14.0"
+ring = "0.13.5"
 transform-request = { path = "./transform-request" }
 graph-oauth = { path = "./graph-oauth" }
-jsonfile = { path = "./jsonfile" }
 graph-error = { path = "./graph-error" }
+derive_from_to_file = { path = "./derive_from_to_file" }
 
 [dev-dependencies.rocket_contrib]
 version = "0.4.0"
@@ -49,6 +58,8 @@ serde = "1.0.81"
 serde_json = "1.0.33"
 serde_derive = "1.0.81"
 reqwest = "0.9.6"
+graph-oauth = { path = "./graph-oauth" }
+graph-error = { path = "./graph-error" }
 
 [badges]
 travis-ci = { repository = "https://github.com/sreeise/rust-onedrive", branch = "master" }

@@ -1,73 +1,145 @@
 use rust_onedrive::drive::DriveEndPoint;
 
 #[test]
-fn drive_endpoint_test() {
+fn drive_endpoint_v1_test() {
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::Drive),
+        DriveEndPoint::Drive.to_url(),
         "https://graph.microsoft.com/v1.0/drive"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::DriveMe),
+        DriveEndPoint::DriveMe.to_url(),
         "https://graph.microsoft.com/v1.0/me/drive"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::DriveRoot),
+        DriveEndPoint::DriveRoot.to_url(),
         "https://graph.microsoft.com/v1.0/drive/root"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::DriveRootMe),
+        DriveEndPoint::DriveRootMe.to_url(),
         "https://graph.microsoft.com/v1.0/me/drive/root"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::DriveRootChild),
+        DriveEndPoint::DriveRootChild.to_url(),
         "https://graph.microsoft.com/v1.0/drive/root/children"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SharedWithMe),
+        DriveEndPoint::SharedWithMe.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::DriveRecent),
+        DriveEndPoint::DriveRecent.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/recent"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SpecialDocuments),
+        DriveEndPoint::SpecialDocuments.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/special/documents"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SpecialDocumentsChild),
+        DriveEndPoint::SpecialDocumentsChild.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/special/documents/children"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SpecialPhotos),
+        DriveEndPoint::SpecialPhotos.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/special/photos"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SpecialPhotosChild),
+        DriveEndPoint::SpecialPhotosChild.to_string(),
         "https://graph.microsoft.com/v1.0/me/special/photos/children"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SpecialCameraRoll),
+        DriveEndPoint::SpecialCameraRoll.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/special/cameraroll"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SpecialCameraRollChild),
+        DriveEndPoint::SpecialCameraRollChild.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/special/cameraroll/children"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SpecialAppRoot),
+        DriveEndPoint::SpecialAppRoot.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/special/approot"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SpecialAppRootChild),
+        DriveEndPoint::SpecialAppRootChild.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/special/approot/children"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SpecialMusic),
+        DriveEndPoint::SpecialMusic.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/special/music"
     );
     assert_eq!(
-        DriveEndPoint::build(DriveEndPoint::SpecialMusicChild),
+        DriveEndPoint::SpecialMusicChild.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/special/music/children"
+    );
+}
+
+#[test]
+fn drive_endpoint_beta_test() {
+    assert_eq!(
+        DriveEndPoint::Drive.beta_url(),
+        "https://graph.microsoft.com/beta/drive"
+    );
+    assert_eq!(
+        DriveEndPoint::DriveMe.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive"
+    );
+    assert_eq!(
+        DriveEndPoint::DriveRoot.beta_url(),
+        "https://graph.microsoft.com/beta/drive/root"
+    );
+    assert_eq!(
+        DriveEndPoint::DriveRootMe.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/root"
+    );
+    assert_eq!(
+        DriveEndPoint::DriveRootChild.beta_url(),
+        "https://graph.microsoft.com/beta/drive/root/children"
+    );
+    assert_eq!(
+        DriveEndPoint::SharedWithMe.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/sharedWithMe"
+    );
+    assert_eq!(
+        DriveEndPoint::DriveRecent.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/recent"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialDocuments.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/special/documents"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialDocumentsChild.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/special/documents/children"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialPhotos.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/special/photos"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialPhotosChild.beta_url(),
+        "https://graph.microsoft.com/beta/me/special/photos/children"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialCameraRoll.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/special/cameraroll"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialCameraRollChild.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/special/cameraroll/children"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialAppRoot.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/special/approot"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialAppRootChild.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/special/approot/children"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialMusic.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/special/music"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialMusicChild.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/special/music/children"
     );
 }

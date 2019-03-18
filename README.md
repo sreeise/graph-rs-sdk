@@ -4,15 +4,22 @@
 
 ### OneDrive API - Built with Rust
 
-Still in very early development. OAuth2 authentication is the main priority.
+Disclaimer:
+This project is a work in progress and is not on yet on crates.io. Since a good part of this API is unstable, 
+it should not be used in production.
+ 
+Currently, OAuth2 authentication is the main priority.
 The current implementation is fully built to handle web or native clients for
-personal and business accounts. However, the api is still a work in progress
-and subject to change.
+personal and business accounts. Most of the OAuth parts will stay the same.
+
+Only Linux has been tested to work. Windows and MacOS may work but is not guaranteed.
 
 ### The following is a list of the current work next to be done:
 
     1. JWT validation. See issue/bug https://github.com/sreeise/rust-onedrive/issues/4
     2. Access Token updates based upon expires in field. See https://github.com/sreeise/rust-onedrive/issues/5
+            Timestamps were added to AccessTokens but there is not checks for expiration yet.
+    3. Traits for downloading/moving/uploading and various other actions for drive files.
 
 Requires Rust nightly:
 

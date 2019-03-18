@@ -10,6 +10,10 @@ use reqwest::*;
 
 pub struct FileRetriever;
 
+pub trait FileEvent {
+    fn download<P: AsRef<Path>>(directory: P, target: &str) -> Option<PathBuf>;
+}
+
 impl FileRetriever {
     pub fn download<P: AsRef<Path>>(directory: P, target: &str) -> Option<PathBuf> {
         // Create the directory if it does not exist.

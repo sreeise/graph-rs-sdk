@@ -1,39 +1,12 @@
 use graph_oauth::oauth::AccessToken;
 use graph_oauth::oauth::Credential;
 use graph_oauth::oauth::OAuth;
-use jsonfile::JsonFile;
+use rust_onedrive::transform::*;
 use std::fs;
 use std::path::Path;
 
-#[derive(Debug, Default)]
-struct CleanUp {
-    // As in rm -r file for Linux or in other words remove the file.
-    rm_f: Vec<String>,
-}
-
-impl CleanUp {
-    pub fn new<F>(f: F) -> CleanUp
-    where
-        F: Fn(),
-    {
-        f();
-        CleanUp::default()
-    }
-
-    fn rm_files(&mut self, s: String) {
-        self.rm_f.push(s);
-    }
-}
-
-impl Drop for CleanUp {
-    fn drop(&mut self) {
-        for s in &self.rm_f {
-            if Path::new(s.as_str()).exists() {
-                fs::remove_file(Path::new(s.as_str())).unwrap();
-            }
-        }
-    }
-}
+mod support;
+pub use crate::support::cleanup::CleanUp;
 
 #[test]
 fn get_method() {
@@ -89,14 +62,14 @@ fn oauth_json_file() {
         .user_id(None)
         .id_token(None);
 
-    JsonFile::json_file(&file_location, &oauth).unwrap();
+    oauth.to_file(&file_location).unwrap();
 
     let metadata = fs::metadata(&file_location)
         .expect("Could not get metadata for auth_configs/test_file.json");
     let file_type = metadata.file_type();
     assert_eq!(file_type.is_file(), true);
 
-    let oauth_from_file: OAuth = match JsonFile::from_file(&file_location) {
+    let oauth_from_file: OAuth = match OAuth::from_file(&file_location) {
         Ok(t) => t,
         Err(e) => panic!("Could not get OAuth from file. Error: {:#?}", e),
     };

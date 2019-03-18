@@ -1,11 +1,11 @@
 use crate::drive::drive_item::driveinfo::DriveInfo;
-use crate::drive::drive_item::facet::Value;
+use crate::drive::drive_item::value::Value;
 use graph_error::GraphError;
 use reqwest::Response;
 use serde::{Deserialize, Serialize};
-use transform_request::{RequestError, Transform};
+use transform_request::prelude::*;
 
-#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize, FromFile, ToFile)]
 pub struct DriveItem {
     drive_info: Option<DriveInfo>,
     #[serde(rename = "@odata.context")]

@@ -109,7 +109,7 @@ impl QueryString for Drive {
     fn select_url(&self, end_point: DriveEndPoint, query: &[&str]) -> String {
         let query_str = query.join(",").clone();
         odata_query!(
-            DriveEndPoint::build(end_point),
+            end_point.to_string(),
             "?$select=".to_string(),
             query_str.to_string()
         )
@@ -149,7 +149,7 @@ impl QueryString for Drive {
     fn expand_url(&self, end_point: DriveEndPoint, expand_item: &str, query: &[&str]) -> String {
         let query_str = query.join(",").clone();
         odata_query!(
-            DriveEndPoint::build(end_point),
+            end_point.to_string(),
             "?expand=".to_string(),
             expand_item.to_string(),
             "(select=".to_string(),
@@ -166,7 +166,7 @@ impl QueryString for Drive {
     fn filter_url(&self, end_point: DriveEndPoint, query: &[&str]) -> String {
         let query_str = query.join(" ").clone();
         odata_query!(
-            DriveEndPoint::build(end_point),
+            end_point.to_string(),
             "?$filter=".to_string(),
             query_str.to_string()
         )
@@ -179,7 +179,7 @@ impl QueryString for Drive {
 
     fn order_by_url(&self, end_point: DriveEndPoint, query_str: &str) -> String {
         odata_query!(
-            DriveEndPoint::build(end_point),
+            end_point.to_string(),
             "?$orderby=".to_string(),
             query_str.to_string()
         )
@@ -192,7 +192,7 @@ impl QueryString for Drive {
 
     fn search_url(&self, end_point: DriveEndPoint, query_str: &str) -> String {
         odata_query!(
-            DriveEndPoint::build(end_point),
+            end_point.to_string(),
             "?$search=".to_string(),
             query_str.to_string()
         )
@@ -200,7 +200,7 @@ impl QueryString for Drive {
 
     fn format_url(&self, end_point: DriveEndPoint, query_str: &str) -> String {
         odata_query!(
-            DriveEndPoint::build(end_point),
+            end_point.to_string(),
             "?$format=".to_string(),
             query_str.to_string()
         )

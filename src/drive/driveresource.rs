@@ -1,4 +1,4 @@
-use crate::drive::driveaction::DriveAction;
+use crate::drive::driveaction::DriveEvent;
 use crate::drive::GRAPH_ENDPOINT;
 
 /// A drive resource is the top level drive and describes where the item requested
@@ -31,7 +31,7 @@ impl DriveResource {
         &self,
         drive_id: Option<&str>,
         item_id: &str,
-        drive_action: DriveAction,
+        drive_action: DriveEvent,
     ) -> String {
         let d_id = match drive_id {
             Some(t) => t,

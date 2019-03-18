@@ -2,9 +2,11 @@
 extern crate serde_derive;
 use graph_oauth::commons::Commons;
 use graph_oauth::commons::WellKnown;
-use jsonfile::JsonFile;
+#[macro_use]
+extern crate derive_from_to_file;
+use rust_onedrive::transform::*;
 
-#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile)]
 pub struct MicrosoftSigningKeysV1 {
     issuer: String,
     authorization_endpoint: String,
@@ -23,7 +25,7 @@ pub struct MicrosoftSigningKeysV1 {
     http_logout_supported: bool,
 }
 
-#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile)]
 pub struct MicrosoftSigningKeysV2 {
     authorization_endpoint: String,
     token_endpoint: String,
@@ -56,7 +58,8 @@ fn graph_discovery_v1() {
         Commons::signing_keys("https://login.live.com/.well-known/openid-configuration").unwrap();
 
     let u: MicrosoftSigningKeysV1 =
-        JsonFile::from_file("../test_files/well_known_discovery/graphv1.json").unwrap();
+        MicrosoftSigningKeysV1::from_file("./test_files/well_known_discovery/graphv1.json")
+            .unwrap();
     assert_eq!(t, u);
 }
 
@@ -68,6 +71,7 @@ fn graph_discovery_v2() {
     .unwrap();
 
     let u: MicrosoftSigningKeysV2 =
-        JsonFile::from_file("../test_files/well_known_discovery/graphv2.json").unwrap();
+        MicrosoftSigningKeysV2::from_file("./test_files/well_known_discovery/graphv2.json")
+            .unwrap();
     assert_eq!(t, u);
 }

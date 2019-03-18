@@ -114,11 +114,11 @@ fn refresh_token() {
     oauth.access_token(access_token);
     let body = oauth.encoded_refresh_token_uri().unwrap();
 
-    assert_eq!(body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&response_type=token&refresh_token=32LKLASDKJ&grant_type=refresh_token".to_string());
+    assert_eq!(body, "client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token".to_string());
 }
 
 #[test]
-fn refresh_token_test() {
+fn get_refresh_token() {
     let mut oauth = get_oauth();
     oauth
         .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?")

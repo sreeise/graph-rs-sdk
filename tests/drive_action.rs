@@ -1,4 +1,4 @@
-use rust_onedrive::drive::DriveAction;
+use rust_onedrive::drive::DriveEvent;
 use rust_onedrive::drive::DriveResource;
 
 #[test]
@@ -6,7 +6,7 @@ fn drive_action_url() {
     let check_in_url = DriveResource::Drives.action_url(
         Some("{drive-id}"),
         "{parent-item-id}",
-        DriveAction::CheckIn,
+        DriveEvent::CheckIn,
     );
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/{drive-id}/items/{parent-item-id}/checkin",
@@ -16,7 +16,7 @@ fn drive_action_url() {
     let check_out_url = DriveResource::Drives.action_url(
         Some("{drive-id}"),
         "{parent-item-id}",
-        DriveAction::CheckOut,
+        DriveEvent::CheckOut,
     );
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/{drive-id}/items/{parent-item-id}/checkout",
@@ -29,7 +29,7 @@ fn groups_action_url() {
     let check_in_url = DriveResource::Groups.action_url(
         Some("{drive-id}"),
         "{parent-item-id}",
-        DriveAction::CheckIn,
+        DriveEvent::CheckIn,
     );
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/{drive-id}/drive/items/{parent-item-id}/checkin",
@@ -39,7 +39,7 @@ fn groups_action_url() {
     let check_out_url = DriveResource::Groups.action_url(
         Some("{drive-id}"),
         "{parent-item-id}",
-        DriveAction::CheckOut,
+        DriveEvent::CheckOut,
     );
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/{drive-id}/drive/items/{parent-item-id}/checkout",
@@ -52,7 +52,7 @@ fn sites_action_url() {
     let check_in_url = DriveResource::Sites.action_url(
         Some("{drive-id}"),
         "{parent-item-id}",
-        DriveAction::CheckIn,
+        DriveEvent::CheckIn,
     );
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/{drive-id}/drive/items/{parent-item-id}/checkin",
@@ -62,7 +62,7 @@ fn sites_action_url() {
     let check_out_url = DriveResource::Sites.action_url(
         Some("{drive-id}"),
         "{parent-item-id}",
-        DriveAction::CheckOut,
+        DriveEvent::CheckOut,
     );
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/{drive-id}/drive/items/{parent-item-id}/checkout",
@@ -75,7 +75,7 @@ fn users_action_url() {
     let check_in_url = DriveResource::Users.action_url(
         Some("{drive-id}"),
         "{parent-item-id}",
-        DriveAction::CheckIn,
+        DriveEvent::CheckIn,
     );
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/{drive-id}/drive/items/{parent-item-id}/checkin",
@@ -85,7 +85,7 @@ fn users_action_url() {
     let check_out_url = DriveResource::Users.action_url(
         Some("{drive-id}"),
         "{parent-item-id}",
-        DriveAction::CheckOut,
+        DriveEvent::CheckOut,
     );
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/{drive-id}/drive/items/{parent-item-id}/checkout",
@@ -95,14 +95,14 @@ fn users_action_url() {
 
 #[test]
 fn me_action_url() {
-    let check_in_url = DriveResource::Me.action_url(None, "{parent-item-id}", DriveAction::CheckIn);
+    let check_in_url = DriveResource::Me.action_url(None, "{parent-item-id}", DriveEvent::CheckIn);
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/{parent-item-id}/checkin",
         check_in_url.as_str()
     );
 
     let check_out_url =
-        DriveResource::Me.action_url(None, "{parent-item-id}", DriveAction::CheckOut);
+        DriveResource::Me.action_url(None, "{parent-item-id}", DriveEvent::CheckOut);
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/{parent-item-id}/checkout",
         check_out_url.as_str()

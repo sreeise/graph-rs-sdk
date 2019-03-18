@@ -19,11 +19,13 @@ serde_derive = "1.0.88"
 base64 = "0.10.1"
 strum_macros = "0.14.0"
 strum = "0.14.0"
-jsonwebtoken = "5.0.1"
 rust-crypto = "0.2.36"
 openssl = "0.10.19"
 log = "0.4.6"
+webbrowser = "0.4.0"
+[dependencies]
+chrono = { version = "0.4.6", features = ["serde"] }
 pretty_env_logger = "0.3.0"
-jsonfile = { path = "../jsonfile" }
+derive_from_to_file = { path = "../derive_from_to_file" }
 graph-error = { path = "../graph-error" }
 transform-request = { path = "../transform-request" }

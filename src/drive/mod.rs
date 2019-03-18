@@ -24,20 +24,21 @@ pub mod query_string;
 pub mod discovery;
 
 pub use crate::drive::drive_item::*;
-pub use crate::drive::driveaction::DriveAction;
+pub use crate::drive::driveaction::DriveEvent;
 use crate::drive::driveitem::DriveItem;
 pub use crate::drive::driveresource::DriveResource;
 pub use crate::drive::endpoint::{DriveEndPoint, EP};
-pub use crate::drive::item::Item;
+pub use crate::drive::item::{Download, Item};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use transform_request::Transform;
+use std::io::ErrorKind;
+use transform_request::prelude::*;
 
 pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
 pub static GRAPH_ENDPOINT_BETA: &str = "https://graph.microsoft.com/beta";
-pub type DriveResponse = std::result::Result<Response, RequestError>;
 pub type ItemResult<T> = std::result::Result<T, RequestError>;
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile)]
 pub struct Drive {
     access_token: String,
 }
@@ -58,278 +59,14 @@ impl Drive {
             access_token: String::from(access_token),
         }
     }
-
-    fn build_request(
-        &self,
-        url: &str,
-        request_type: &str,
-        content_type: &str,
-        access_token: &str,
-    ) -> DriveResponse {
-        let client = reqwest::Client::builder().build()?;
-        match request_type {
-            "GET" => {
-                let res = client
-                    .get(url)
-                    .header(header::AUTHORIZATION, access_token)
-                    .header(header::CONTENT_TYPE, content_type)
-                    .send()
-                    .expect("Error with request to microsoft graph-error");
-                Ok(res)
-            },
-            "POST" => {
-                let res = client
-                    .post(url)
-                    .header(header::AUTHORIZATION, access_token)
-                    .header(header::CONTENT_TYPE, content_type)
-                    .send()
-                    .expect("Error with request to microsoft graph-error");
-                Ok(res)
-            },
-            _ => unimplemented!(),
-        }
-    }
-
-    #[allow(dead_code)]
-    fn resource_request(
-        &mut self,
-        resource: DriveResource,
-        drive_action: DriveAction,
-        resource_id: &str,
-        item_id: &str,
-    ) -> DriveResponse {
-        let url = self.resource_drive_item_url(resource, drive_action, resource_id, item_id);
-        self.build_request(
-            url.as_str(),
-            "GET",
-            "application/json",
-            self.access_token.as_str(),
-        )
-    }
-
-    #[allow(dead_code)]
-    fn get_with_url(&self, url: String) -> DriveResponse {
-        self.build_request(
-            url.as_str(),
-            "GET",
-            "application/json",
-            self.access_token.as_str(),
-        )
-    }
-
-    #[allow(dead_code)]
-    fn post_with_url(&self, url: String) -> DriveResponse {
-        self.build_request(
-            url.as_str(),
-            "POST",
-            "application/json",
-            self.access_token.as_str(),
-        )
-    }
-
-    #[allow(dead_code)]
-    fn req_with_url(url: &str, access_token: &str) -> Result<Response> {
-        let client = reqwest::Client::builder().build()?;
-        client
-            .get(url)
-            .header(header::AUTHORIZATION, access_token)
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()
-    }
-
-    pub fn url(
-        resource: DriveResource,
-        drive_action: DriveAction,
-        resource_id: &str,
-        item_id: &str,
-    ) -> String {
-        match drive_action {
-            DriveAction::GetItemRoot | DriveAction::TrackChanges => {
-                Drive::root_resource_url(resource, drive_action, resource_id, item_id)
-            },
-            DriveAction::GetItem | DriveAction::Delete | DriveAction::Move => {
-                Drive::no_drive_action_url(resource, resource_id, item_id)
-            },
-            _ => Drive::with_drive_action_url(resource, drive_action, resource_id, item_id),
-        }
-    }
-
-    pub fn with_drive_action_url(
-        resource: DriveResource,
-        drive_action: DriveAction,
-        resource_id: &str,
-        item_id: &str,
-    ) -> String {
-        let rt = match drive_action {
-            DriveAction::CheckIn => "checkin",
-            DriveAction::CheckOut => "checkout",
-            DriveAction::Copy => "copy",
-            DriveAction::ListVersions => "versions",
-            DriveAction::TrackChanges => "delta",
-            DriveAction::Download | DriveAction::Upload => "content",
-            DriveAction::CreateUploadSession => "createUploadSession",
-            DriveAction::ListChildren | DriveAction::CreateFolder => "children",
-            DriveAction::Preview => "preview",
-            DriveAction::Activities => "activities",
-            DriveAction::Move |
-            DriveAction::GetItem |
-            DriveAction::GetItemRoot |
-            DriveAction::Delete => "",
-        };
-
-        match resource {
-            DriveResource::Drives => format!(
-                "{}/drives/{}/items/{}/{}",
-                GRAPH_ENDPOINT, resource_id, item_id, rt,
-            ),
-            DriveResource::Users => format!(
-                "{}/users/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT, resource_id, item_id, rt,
-            ),
-            DriveResource::Sites => format!(
-                "{}/sites/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT, resource_id, item_id, rt,
-            ),
-            DriveResource::Groups => format!(
-                "{}/groups/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT, resource_id, item_id, rt,
-            ),
-            DriveResource::Me => {
-                if drive_action == DriveAction::Download {
-                    if item_id.ends_with(':') {
-                        format!("{}/me/drive/root/{}/{}", GRAPH_ENDPOINT, item_id, rt,)
-                    } else {
-                        format!("{}/me/drive/items/{}/{}", GRAPH_ENDPOINT, item_id, rt,)
-                    }
-                } else {
-                    format!("{}/me/drive/items/{}/{}", GRAPH_ENDPOINT, item_id, rt,)
-                }
-            },
-        }
-    }
-
-    pub fn root_resource_url(
-        resource: DriveResource,
-        drive_action: DriveAction,
-        resource_id: &str,
-        item_id: &str,
-    ) -> String {
-        if drive_action == DriveAction::TrackChanges {
-            match resource {
-                DriveResource::Drives => {
-                    format!("{}/drives/{}/drive/root/delta", GRAPH_ENDPOINT, resource_id)
-                },
-                DriveResource::Users => {
-                    format!("{}/users/{}/drive/root/delta", GRAPH_ENDPOINT, resource_id)
-                },
-                DriveResource::Sites => {
-                    format!("{}/sites/{}/drive/root/delta", GRAPH_ENDPOINT, resource_id)
-                },
-                DriveResource::Groups => {
-                    format!("{}/groups/{}/drive/root/delta", GRAPH_ENDPOINT, resource_id)
-                },
-                DriveResource::Me => format!("{}/me/drive/root/delta", GRAPH_ENDPOINT,),
-            }
-        } else {
-            match resource {
-                DriveResource::Drives => format!(
-                    "{}/drives/{}/root:/{}",
-                    GRAPH_ENDPOINT, resource_id, item_id,
-                ),
-                DriveResource::Users => format!(
-                    "{}/users/{}/drive/root:/{}",
-                    GRAPH_ENDPOINT, resource_id, item_id,
-                ),
-                DriveResource::Sites => format!(
-                    "{}/sites/{}/drive/root:/{}",
-                    GRAPH_ENDPOINT, resource_id, item_id,
-                ),
-                DriveResource::Groups => format!(
-                    "{}/groups/{}/drive/root:/{}",
-                    GRAPH_ENDPOINT, resource_id, item_id,
-                ),
-                DriveResource::Me => format!("{}/me/drive/root:/{}", GRAPH_ENDPOINT, item_id,),
-            }
-        }
-    }
-
-    /// Change the access_token on a Drive struct.
-    /// Useful when the current access_token has expired
-    ///
-    /// # Example
-    /// ```
-    /// use rust_onedrive::drive::Drive;
-    ///
-    /// let mut drive = Drive::new("B32484FJL;ASFJ");
-    /// drive.token("ALS484FJL;ASFJ");
-    /// ```
-    pub fn token(&mut self, access_token: &str) {
-        self.access_token = String::from(access_token);
-    }
-
-    /// Constructs the url endpoint for a drive item given the drive item resource
-    /// name, drive item type, drive id, and item id
-    ///
-    /// DriveAction must be a mutable reference.
-    ///
-    /// # Example
-    /// ```
-    /// use rust_onedrive::drive::Drive;
-    /// use rust_onedrive::drive::DriveAction;
-    /// use rust_onedrive::drive::DriveResource;
-    ///
-    ///     let mut drive = Drive::new("Dfsdf");
-    ///     let drive_item_url = drive.resource_drive_item_url(
-    ///            DriveResource::Groups,
-    ///            DriveAction::CheckIn,
-    ///            "323",
-    ///            "222"
-    ///        );
-    ///     assert_eq!("https://graph.microsoft.com/v1.0/groups/323/drive/items/222/checkin", drive_item_url);
-    /// ```
-    pub fn resource_drive_item_url(
-        &self,
-        resource: DriveResource,
-        drive_action: DriveAction,
-        resource_id: &str,
-        item_id: &str,
-    ) -> String {
-        match drive_action {
-            DriveAction::GetItemRoot | DriveAction::TrackChanges => {
-                Drive::root_resource_url(resource, drive_action, resource_id, item_id)
-            },
-            DriveAction::GetItem | DriveAction::Delete | DriveAction::Move => {
-                Drive::no_drive_action_url(resource, resource_id, item_id)
-            },
-            _ => Drive::with_drive_action_url(resource, drive_action, resource_id, item_id),
-        }
-    }
-
-    /// Formats URLs where the DriveAction is an empty string or in other words
-    /// a URL doesn't have or end with a DriveAction
-    fn no_drive_action_url(resource: DriveResource, resource_id: &str, item_id: &str) -> String {
-        match resource {
-            DriveResource::Drives => format!(
-                "{}/drives/{}/items/{}",
-                GRAPH_ENDPOINT, resource_id, item_id,
-            ),
-            DriveResource::Users => format!(
-                "{}/users/{}/drive/items/{}",
-                GRAPH_ENDPOINT, resource_id, item_id,
-            ),
-            DriveResource::Sites => format!(
-                "{}/sites/{}/drive/items/{}",
-                GRAPH_ENDPOINT, resource_id, item_id,
-            ),
-            DriveResource::Groups => format!(
-                "{}/groups/{}/drive/items/{}",
-                GRAPH_ENDPOINT, resource_id, item_id,
-            ),
-            DriveResource::Me => format!("{}/me/drive/items/{}", GRAPH_ENDPOINT, item_id,),
-        }
-    }
 }
 
+/// Converts an OAuth instance to a drive.
+/// Panics if OAuth does not contain an access token.
+///
+/// # Better to use Transform over From here.
+/// To avoid unnecessary panics use Drive::transform(OAuth)
+/// which returns Result<Drive, Error>.
 impl From<OAuth> for Drive {
     fn from(oauth: OAuth) -> Self {
         match oauth.get_access_token() {
@@ -346,13 +83,39 @@ impl From<OAuth> for Drive {
     }
 }
 
+/// Converts an OAuth instance to a Result<Drive> on success
+/// or Result<Error> on failure. An Err is returned if there
+/// is no access token in the OAuth instance.
+impl Transform<OAuth> for Drive {
+    type Err = RequestError;
+
+    fn transform(rhs: OAuth) -> std::result::Result<Self, Self::Err>
+    where
+        Self: Serialize + for<'de> Deserialize<'de>,
+    {
+        let access_token = rhs.get_access_token();
+        if let Some(at) = access_token {
+            let at = at.try_borrow_mut();
+            if let Ok(rt) = at {
+                let token = rt.clone();
+                return Ok(Drive::new(token.get_access_token()));
+            }
+        }
+
+        Err(RequestError::error_kind(
+            ErrorKind::InvalidData,
+            "OAuth instance missing access token.",
+        ))
+    }
+}
+
 impl Item<DriveItem> for Drive {
     fn token(&self) -> &str {
         self.access_token.as_str()
     }
 
     fn item(&self, r: &mut Response) -> ItemResult<DriveItem> {
-        let drive_item: DriveItem = DriveItem::transform(r)?;
+        let drive_item = DriveItem::transform(r)?;
         Ok(drive_item)
     }
 }

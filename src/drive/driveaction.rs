@@ -1,7 +1,8 @@
 /// Enum for describing what action to take in a drive request
 /// such as uploading and item or downloading an item.
+/// TODO: This will most likely change to use traits instead of an enum.
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum DriveAction {
+pub enum DriveEvent {
     CheckIn,
     CheckOut,
     Copy,
@@ -20,23 +21,23 @@ pub enum DriveAction {
     Activities,
 }
 
-impl DriveAction {
+impl DriveEvent {
     pub fn as_str(&self) -> &str {
         match *self {
-            DriveAction::CheckIn => "checkin",
-            DriveAction::CheckOut => "checkout",
-            DriveAction::Copy => "copy",
-            DriveAction::ListVersions => "versions",
-            DriveAction::TrackChanges => "delta",
-            DriveAction::Download | DriveAction::Upload => "content",
-            DriveAction::CreateUploadSession => "createUploadSession",
-            DriveAction::ListChildren | DriveAction::CreateFolder => "children",
-            DriveAction::Preview => "preview",
-            DriveAction::Activities => "activities",
-            DriveAction::Move |
-            DriveAction::GetItem |
-            DriveAction::GetItemRoot |
-            DriveAction::Delete => "",
+            DriveEvent::CheckIn => "checkin",
+            DriveEvent::CheckOut => "checkout",
+            DriveEvent::Copy => "copy",
+            DriveEvent::ListVersions => "versions",
+            DriveEvent::TrackChanges => "delta",
+            DriveEvent::Download | DriveEvent::Upload => "content",
+            DriveEvent::CreateUploadSession => "createUploadSession",
+            DriveEvent::ListChildren | DriveEvent::CreateFolder => "children",
+            DriveEvent::Preview => "preview",
+            DriveEvent::Activities => "activities",
+            DriveEvent::Move |
+            DriveEvent::GetItem |
+            DriveEvent::GetItemRoot |
+            DriveEvent::Delete => "",
         }
     }
 }

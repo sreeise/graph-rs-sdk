@@ -1,7 +1,9 @@
 use crate::stdop::StdOp;
+//use chrono::Duration;
+use chrono::{DateTime, Utc};
 use reqwest::Response;
 use serde_json;
-use transform_request::{RequestError, Transform};
+use transform_request::prelude::*;
 
 /// AccessToken that is used for api calls to OneDrive and Graph.
 ///
@@ -21,7 +23,7 @@ use transform_request::{RequestError, Transform};
 ///
 /// Callers who wish to have more flexibility then provided here should use
 /// AccessTokenBuilder.
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, FromFile, ToFile)]
 pub struct AccessToken {
     access_token: String,
     token_type: String,
@@ -31,6 +33,7 @@ pub struct AccessToken {
     user_id: Option<String>,
     id_token: Option<String>,
     state: Option<String>,
+    timestamp: Option<DateTime<Utc>>,
 }
 
 impl AccessToken {
@@ -45,6 +48,7 @@ impl AccessToken {
             user_id: None,
             id_token: None,
             state: None,
+            timestamp: Some(Utc::now()),
         }
     }
 
@@ -88,6 +92,10 @@ impl AccessToken {
         self
     }
 
+    pub fn timestamp(&mut self) {
+        self.timestamp = Some(Utc::now());
+    }
+
     pub fn get_token_type(&self) -> &str {
         self.token_type.as_str()
     }
@@ -122,6 +130,33 @@ impl AccessToken {
     pub fn get_state(&self) -> Option<String> {
         self.state.clone()
     }
+
+    pub fn elapsed(&self) -> Option<DateTime<Utc>> {
+        unimplemented!()
+        /*
+        // Maybe something like:
+        println!("{:#?}", self.timestamp);
+        self.timestamp
+            .unwrap()
+            .checked_sub_signed(Duration::seconds(self.expires_in))
+        */
+    }
+}
+
+impl Default for AccessToken {
+    fn default() -> Self {
+        AccessToken {
+            token_type: String::new(),
+            expires_in: 0,
+            scope: String::new(),
+            access_token: String::new(),
+            refresh_token: None,
+            user_id: None,
+            id_token: None,
+            state: None,
+            timestamp: Some(Utc::now()),
+        }
+    }
 }
 
 /// Transforms &mut reqwest::Response to Result<AccessToken, OAuthError>
@@ -132,7 +167,7 @@ impl Transform<&mut Response> for AccessToken {
     where
         Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
-        let t: Self = rhs.json()?;
+        let t: AccessToken = rhs.json()?;
         Ok(t)
     }
 }

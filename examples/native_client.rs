@@ -1,6 +1,7 @@
+use graph_oauth::oauth::ClientCredentialsGrant;
 use graph_oauth::oauth::Credential;
 use graph_oauth::oauth::OAuth;
-use jsonfile::JsonFile;
+use transform_request::prelude::*;
 
 /*
 The following example shows authenticating an application to use the OneDrive REST API
@@ -98,12 +99,14 @@ fn set_code_request_token(access_code: &str) {
     // error info/reason.
     if oauth.get(Credential::AccessToken).is_some() {
         // Stores OAuth as json using serde_json.
-        JsonFile::json_file("examples/native_client_flow.json", &oauth).unwrap();
+        oauth
+            .to_file("./examples/example_files/native_client_flow.json")
+            .unwrap();
         println!("{:#?}", &oauth);
     }
     /*
     To get OAuth back from the json file run:
 
-    let mut oauth: OAuth = JsonFile::from_file("example/oauth.json").unwrap();
+    let mut oauth: OAuth = OAuth::from_file("example/oauth.json").unwrap();
     */
 }

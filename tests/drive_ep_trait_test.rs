@@ -1,14 +1,14 @@
-use jsonfile::JsonFile;
 use rust_onedrive::drive::driveinfo::DriveInfo;
 use rust_onedrive::drive::driveitem::DriveItem;
-use rust_onedrive::drive::facet::Value;
 use rust_onedrive::drive::filesysteminfo::FileSystemInfo;
 use rust_onedrive::drive::parentreference::ParentReference;
 use rust_onedrive::drive::quota::Quota;
+use rust_onedrive::drive::value::Value;
+use transform_request::prelude::*;
 
 #[test]
 fn drive() {
-    let drive_info: DriveInfo = JsonFile::from_file("test_files/drive_ep/drive.json").unwrap();
+    let drive_info: DriveInfo = DriveInfo::from_file("test_files/drive_ep/drive.json").unwrap();
     assert_eq!(
         drive_info.data_context().unwrap().as_str(),
         "https://graph.microsoft.com/v1.0/$metadata#drives/$entity"
@@ -21,7 +21,7 @@ fn drive() {
 
 #[test]
 fn drive_me() {
-    let drive_info: DriveInfo = JsonFile::from_file("test_files/drive_ep/drive_me.json").unwrap();
+    let drive_info: DriveInfo = DriveInfo::from_file("test_files/drive_ep/drive_me.json").unwrap();
     let quota = Quota::new(
         0,
         1099292078173,
@@ -34,7 +34,7 @@ fn drive_me() {
 
 #[test]
 fn drive_root() {
-    let drive_info: Value = JsonFile::from_file("test_files/drive_ep/drive_root.json").unwrap();
+    let drive_info: Value = Value::from_file("test_files/drive_ep/drive_root.json").unwrap();
     assert_eq!(drive_info.name(), Some(String::from("root")));
     assert_eq!(
         drive_info.web_url(),
@@ -47,7 +47,7 @@ fn drive_root() {
 #[test]
 fn drive_root_child() {
     let drive_info: DriveItem =
-        JsonFile::from_file("test_files/drive_ep/drive_root_child.json").unwrap();
+        DriveItem::from_file("test_files/drive_ep/drive_root_child.json").unwrap();
     let drive_value = drive_info.value().unwrap();
     assert_eq!(drive_value[1].folder().unwrap().child_count(), Some(12));
 }
@@ -55,7 +55,7 @@ fn drive_root_child() {
 #[test]
 fn drive_root_changes() {
     let drive_info: DriveItem =
-        JsonFile::from_file("test_files/drive_ep/drive_root_changes.json").unwrap();
+        DriveItem::from_file("test_files/drive_ep/drive_root_changes.json").unwrap();
     let drive_value = drive_info.value().unwrap();
     assert_eq!(drive_value.len(), 3);
 }
@@ -63,7 +63,7 @@ fn drive_root_changes() {
 #[test]
 fn shared_with_me() {
     let drive_info: DriveItem =
-        JsonFile::from_file("test_files/drive_ep/shared_with_me.json").unwrap();
+        DriveItem::from_file("test_files/drive_ep/shared_with_me.json").unwrap();
 
     let drive_value = drive_info.clone().value().unwrap();
     assert_eq!(drive_value.len(), 2);
@@ -104,7 +104,7 @@ fn shared_with_me() {
 #[test]
 fn drive_item_value_idx_method() {
     let drive_info: DriveItem =
-        JsonFile::from_file("test_files/drive_ep/drive_root_changes.json").unwrap();
+        DriveItem::from_file("test_files/drive_ep/drive_root_changes.json").unwrap();
     let drive_value2 = drive_info.value_idx(2);
     assert_eq!(
         drive_value2.data_type().unwrap().as_str(),

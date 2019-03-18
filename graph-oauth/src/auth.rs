@@ -1,23 +1,22 @@
 use crate::accesstoken::AccessToken;
 use crate::encode::Encoder;
+use crate::grants::{ClientCredentialsGrant, ImplicitGrant};
 use crate::oautherror::OAuthError;
 use graph_error::GraphError;
 use reqwest::header;
 use reqwest::Response;
 use std::cell::RefCell;
-use std::collections::hash_map::DefaultHasher;
-use std::collections::HashMap;
-use std::hash::Hash;
-use std::hash::Hasher;
+use std::collections::btree_map::BTreeMap;
+use std::collections::{hash_map::DefaultHasher, HashMap};
+use std::hash::{Hash, Hasher};
 use std::io::ErrorKind;
-use std::process::Command;
+use std::process::Output;
 use std::string::ToString;
-use std::thread;
-use std::thread::JoinHandle;
 use strum::IntoEnumIterator;
-use transform_request::Transform;
+use transform_request::prelude::*;
 use url::form_urlencoded;
 use url::percent_encoding::USERINFO_ENCODE_SET;
+use webbrowser;
 
 pub type OAuthReq<T> = Result<T, OAuthError>;
 
@@ -43,10 +42,9 @@ pub type OAuthReq<T> = Result<T, OAuthError>;
     EnumIter,
 )]
 #[strum_discriminants(name(Credential))]
-#[strum_discriminants(derive(EnumMessage, Ord, PartialOrd))]
+#[strum_discriminants(derive(Ord, PartialOrd))]
 #[strum_discriminants(derive(Serialize, Deserialize, Hash, EnumIter, ToString))]
 pub enum OAuthCredential {
-    #[strum(detailed_message = "Missing or malformed: client_id")]
     #[strum(serialize = "client_id")]
     ClientId(String),
     #[strum(serialize = "client_secret")]
@@ -81,6 +79,10 @@ pub enum OAuthCredential {
     Password(String),
     #[strum(serialize = "scopes")]
     Scopes(String),
+    #[strum(serialize = "post_logout_redirect_uri")]
+    PostLogoutRedirectURI(String),
+    #[strum(serialize = "logout_url")]
+    LogoutURL(String),
 }
 
 impl OAuthCredential {
@@ -115,6 +117,8 @@ impl OAuthCredential {
             OAuthCredential::Username(s) => f(s),
             OAuthCredential::Password(s) => f(s),
             OAuthCredential::Scopes(s) => f(s),
+            OAuthCredential::LogoutURL(s) => f(s),
+            OAuthCredential::PostLogoutRedirectURI(s) => f(s),
         }
     }
 
@@ -137,6 +141,8 @@ impl OAuthCredential {
             OAuthCredential::Username(s) => s.to_string(),
             OAuthCredential::Password(s) => s.to_string(),
             OAuthCredential::Scopes(s) => s.to_string(),
+            OAuthCredential::LogoutURL(s) => s.to_string(),
+            OAuthCredential::PostLogoutRedirectURI(s) => s.to_string(),
         }
     }
 
@@ -165,6 +171,8 @@ impl OAuthCredential {
             OAuthCredential::Username(s) => to_hash(s),
             OAuthCredential::Password(s) => to_hash(s),
             OAuthCredential::Scopes(s) => to_hash(s),
+            OAuthCredential::LogoutURL(s) => to_hash(s),
+            OAuthCredential::PostLogoutRedirectURI(s) => to_hash(s),
         }
     }
 
@@ -187,6 +195,8 @@ impl OAuthCredential {
             OAuthCredential::Username(_) => "username",
             OAuthCredential::Password(_) => "password",
             OAuthCredential::Scopes(_) => "scope",
+            OAuthCredential::LogoutURL(_) => "logout_url",
+            OAuthCredential::PostLogoutRedirectURI(_) => "post_logout_redirect_uri",
         }
     }
 
@@ -221,15 +231,32 @@ impl From<Credential> for OAuthCredential {
             Credential::Username => OAuthCredential::Username("".into()),
             Credential::Password => OAuthCredential::Password("".into()),
             Credential::Scopes => OAuthCredential::Scopes("".into()),
+            Credential::LogoutURL => OAuthCredential::LogoutURL("".into()),
+            Credential::PostLogoutRedirectURI => OAuthCredential::PostLogoutRedirectURI("".into()),
         }
     }
 }
-
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
+/// # OAuth
+/// An authorization and access token API implementing the OAuth 2.0 authorization
+/// framework. This version is specifically meant for the OneDrive API V1.0
+/// and the Graph beta API.
+///
+/// # Disclaimer
+/// Using this API for other resource owners besides Microsoft may work but
+/// functionality will more then likely be limited.
+///
+/// # Example
+/// ```
+/// use graph_oauth::oauth::OAuth;
+/// let oauth = OAuth::new();
+/// // or
+/// let oauth = OAuth::default();
+/// ```
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile)]
 pub struct OAuth {
     access_token: Option<RefCell<AccessToken>>,
     scopes: Vec<String>,
-    cred: Box<HashMap<u64, OAuthCredential>>,
+    cred: BTreeMap<u64, OAuthCredential>,
     custom_cred: Option<RefCell<Vec<HashMap<String, String>>>>,
 }
 
@@ -238,19 +265,34 @@ impl OAuth {
         OAuth {
             access_token: None,
             scopes: Vec::new(),
-            cred: Box::new(HashMap::new()),
+            cred: BTreeMap::new(),
             custom_cred: None,
         }
     }
     /// Internal method to insert well known oauth credentials.
-    pub fn insert(&mut self, oac: OAuthCredential) -> &mut OAuth {
+    fn insert(&mut self, oac: OAuthCredential) -> &mut OAuth {
         self.cred.insert(oac.hash_alias(), oac);
         self
     }
 
+    /// Remove a previously set credential.
+    ///
+    /// # Example
+    /// ```
+    /// use graph_oauth::oauth::OAuth;
+    /// use graph_oauth::oauth::Credential;
+    ///
+    /// let mut oauth = OAuth::new();
+    ///
+    /// oauth.client_id("client_id");
+    /// assert_eq!(oauth.contains(Credential::ClientId), true);
+    ///
+    /// oauth.remove(Credential::ClientId);
+    /// assert_eq!(oauth.contains(Credential::ClientId), false);
+    /// ```
     pub fn remove(&mut self, c: Credential) -> &mut OAuth {
         let oac = OAuthCredential::from(c);
-        self.cred.remove_entry(&oac.hash_alias());
+        self.cred.remove(&oac.hash_alias());
         self
     }
 
@@ -451,6 +493,31 @@ impl OAuth {
     pub fn grant_type(&mut self, s: &str) -> &mut OAuth {
         self.insert(OAuthCredential::GrantType(s.into()))
     }
+    /// Set the url to send a post request that will log out the user.
+    ///
+    /// # Example
+    /// ```
+    /// use graph_oauth::oauth::OAuth;
+    ///
+    /// let mut oauth = OAuth::new();
+    /// oauth.logout_url("https://example.com/logout?");
+    /// ```
+    pub fn logout_url(&mut self, url: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::LogoutURL(url.into()))
+    }
+
+    /// Set the redirect uri that user will be redirected to after logging out.
+    ///
+    /// # Example
+    /// ```
+    /// use graph_oauth::oauth::OAuth;
+    ///
+    /// let mut oauth = OAuth::new();
+    /// oauth.post_logout_redirect_uri("http://localhost:8080");
+    /// ```
+    pub fn post_logout_redirect_uri(&mut self, uri: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::PostLogoutRedirectURI(uri.into()))
+    }
 
     pub fn scope(&mut self, s: &str) -> &mut OAuth {
         self.insert(OAuthCredential::Scopes(s.into()))
@@ -489,6 +556,22 @@ impl OAuth {
     /// ```
     pub fn get_scopes(&self, sep: &str) -> String {
         self.scopes.join(sep).to_owned()
+    }
+
+    /// Remove a previously added scope.
+    ///
+    /// # Example
+    /// ```
+    /// use graph_oauth::oauth::OAuth;
+    ///
+    /// let mut oauth = OAuth::new();
+    ///
+    /// // the scopes take a separator just like Vec join.
+    ///  oauth.add_scope("scope");
+    ///  oauth.remove_scope("scope");
+    /// ```
+    pub fn remove_scope(&mut self, scope: &str) {
+        self.scopes.retain(|x| x != scope);
     }
 
     /// Get a previously set credential.
@@ -612,59 +695,6 @@ impl OAuth {
             .map_err(OAuthError::from)
     }
 
-    pub fn request_access_token(&mut self) -> OAuthReq<()> {
-        // The request URL.
-        let url = self.get_or_else(Credential::AccessTokenURL)?;
-        let access_code = self.get_or_else(Credential::AccessCode)?;
-
-        // The request body.
-        let uri = self.encoded_access_token_uri()?;
-
-        let mut response = self.request(&url, &access_code, &uri)?;
-        let status = response.status().as_u16();
-
-        if GraphError::is_error(status) {
-            return Err(OAuthError::from(GraphError::from(status)));
-        } else {
-            let ac: AccessToken = response.json()?;
-            self.access_token(ac);
-        }
-
-        Ok(())
-    }
-
-    /// Request an new AccessToken using the refresh token.
-    pub fn request_refresh_token(&mut self) -> OAuthReq<()> {
-        // The request URL.
-        let url = self.get_or_else(Credential::AccessTokenURL)?;
-        let access_code = self.get_or_else(Credential::AccessCode)?;
-        // The request body.
-        let uri = self.encoded_access_token_uri()?;
-
-        let cur_ac = self.access_token.clone();
-        let current_ac = match cur_ac {
-            Some(t) => t,
-            None => return OAuth::error_from::<()>(Credential::AccessToken),
-        };
-
-        let ac_mut = current_ac.into_inner();
-
-        let mut response = self.request_json(&url, &access_code, uri.as_str())?;
-        let mut ac: AccessToken = AccessToken::transform(&mut response)?;
-
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(OAuthError::from(GraphError::from(status)));
-        }
-
-        if let Some(t) = ac_mut.get_refresh_token() {
-            ac.refresh_token(Some(t.as_str()));
-        }
-
-        self.access_token(ac);
-        Ok(())
-    }
-
     pub fn encoded_refresh_token_uri(&self) -> std::result::Result<String, OAuthError> {
         self.encode_form_uri(Credential::RefreshTokenURL)
     }
@@ -678,21 +708,15 @@ impl OAuth {
     }
 
     fn encode_url(&self, parameter: Credential) -> OAuthReq<String> {
-        if let Some(url) = self.get(parameter) {
-            let mut url = url.to_string();
-            if !url.ends_with('?') {
-                url.push('?');
-            }
+        let mut url = self.get_or_else(parameter)?;
 
-            match self.encode_form_uri(parameter) {
-                Ok(t) => url.push_str(t.to_string().as_str()),
-                Err(e) => return Err(e),
-            }
-
-            return Ok(url);
+        if !url.ends_with('?') {
+            url.push('?');
         }
 
-        OAuth::error_from(parameter)
+        let uri = self.encode_form_uri(parameter)?;
+        url.push_str(uri.as_str());
+        Ok(url)
     }
 
     fn set_encode_pair(
@@ -712,17 +736,14 @@ impl OAuth {
 
     pub fn get_refresh_token(&self) -> OAuthReq<String> {
         match self.get_access_token() {
-            Some(t) => {
-                let refresh_token = t
-                    .try_borrow_mut()
-                    .and_then(|at| {
-                        let token = at.clone();
-                        let refresh = token.get_refresh_token().unwrap();
-                        Ok(refresh)
-                    })
-                    .map_err(OAuthError::from);
-                refresh_token
-            },
+            Some(token) => token
+                .try_borrow_mut()
+                .and_then(|at| {
+                    let token = at.clone();
+                    let refresh = token.get_refresh_token().unwrap();
+                    Ok(refresh)
+                })
+                .map_err(OAuthError::from),
             None => OAuth::error_from::<String>(Credential::AccessToken),
         }
     }
@@ -771,12 +792,6 @@ impl OAuth {
             },
             Credential::RefreshTokenURL => {
                 // https://tools.ietf.org/html/rfc6749#section-6
-                if let Some(t) = self.get(Credential::ResponseType) {
-                    encoder.append_pair("response_type", &t);
-                } else {
-                    encoder.append_pair("response_type", "token");
-                }
-
                 let refresh_token = self.get_refresh_token()?;
                 encoder.append_pair("refresh_token", &refresh_token);
 
@@ -814,11 +829,41 @@ impl OAuth {
             }
         }
     }
+
+    pub fn v1_logout(&mut self) -> OAuthReq<Output> {
+        let mut url = self.get_or_else(Credential::LogoutURL)?;
+        if !url.ends_with('?') {
+            url.push('?');
+        }
+        let client_id = self.get_or_else(Credential::ClientId)?;
+        url.push_str("&client_id=");
+        url.push_str(client_id.as_str());
+        url.push_str("&redirect_uri=");
+        if let Some(redirect) = self.get(Credential::PostLogoutRedirectURI) {
+            url.push_str(redirect.as_str());
+        } else if let Some(redirect) = self.get(Credential::RedirectURI) {
+            url.push_str(redirect.as_str());
+        }
+
+        //client.get(url.as_str()).send().map_err(OAuthError::from)
+        self.browser_sign_in_url(url)
+    }
+
+    pub fn v2_logout(&self) -> OAuthReq<Output> {
+        let mut url = self.get_or_else(Credential::LogoutURL)?;
+        if let Some(redirect) = self.get(Credential::PostLogoutRedirectURI) {
+            url.push_str(redirect.as_str());
+        } else {
+            let redirect_uri = self.get_or_else(Credential::RedirectURI)?;
+            url.push_str(redirect_uri.as_str());
+        }
+        self.browser_sign_in_url(url)
+    }
 }
 
 // OAuth impl for error handling.
 impl OAuth {
-    fn error_from<T>(c: Credential) -> Result<T, OAuthError> {
+    pub fn error_from<T>(c: Credential) -> Result<T, OAuthError> {
         Err(OAuth::credential_error(c))
     }
 
@@ -835,81 +880,16 @@ impl OAuth {
 }
 
 impl OAuth {
-    pub fn browser_sign_in(&mut self) -> std::result::Result<(), std::io::Error> {
-        let u = self.encoded_sign_in_url().unwrap();
-        let handle = thread::spawn(move || {
-            let url = u.as_str();
-            Command::new("xdg-open").arg(url).spawn().unwrap();
-        });
-
-        handle.join().unwrap();
-        Ok(())
-    }
-
-    pub fn browser_sign_in_spawn(&mut self) -> Option<JoinHandle<()>> {
+    pub fn browser_sign_in(&mut self) -> Result<Output, OAuthError> {
         match self.encoded_sign_in_url() {
-            Ok(t) => Some(thread::spawn(move || {
-                let url = t.as_str();
-                Command::new("xdg-open")
-                    .arg(url)
-                    .spawn()
-                    .expect("Could not open browser");
-            })),
-            Err(e) => {
-                println!("{:#?}", e);
-                None
-            },
+            Ok(t) => self.browser_sign_in_url(t),
+            Err(e) => Err(e),
         }
     }
 
-    pub fn browser_sign_in_url(&self, url: String) -> std::result::Result<(), OAuthError> {
-        thread::spawn(move || {
-            let url = url.as_str();
-            Command::new("xdg-open")
-                .arg(&url)
-                .spawn()
-                .map_err(OAuthError::from)
-                .unwrap()
-        })
-        .join()
-        .unwrap();
-        Ok(())
-    }
-}
-
-impl OAuth {
-    pub fn authorization_request(&mut self) -> Result<(), OAuthError> {
-        // https://tools.ietf.org/html/rfc6749#section-4.1.1
-        let mut encoder = form_urlencoded::Serializer::new(String::new());
-        let vec_pairs = vec![
-            Credential::ClientId,
-            Credential::RedirectURI,
-            Credential::ResponseType,
-            Credential::ResponseMode,
-            Credential::State,
-        ];
-
-        self.form_encode_pairs(vec_pairs, &mut encoder)
-            .map_err(OAuthError::from)?;
-        if !self.scopes.is_empty() {
-            encoder.append_pair("scope", self.scopes.join(" ").as_str());
-        }
-
-        if self.get(Credential::ResponseType).is_none() {
-            encoder.append_pair("response_type", "code");
-        }
-
-        if self.get(Credential::ResponseMode).is_none() {
-            encoder.append_pair("response_mode", "query");
-        }
-
-        let mut url = self.get(Credential::AuthorizeURL).unwrap().to_string();
-        if !url.ends_with('?') {
-            url.push('?');
-        }
-        url.push_str(encoder.finish().as_str());
-
-        self.browser_sign_in_url(url).map_err(OAuthError::from)
+    pub fn browser_sign_in_url(&self, url: String) -> std::result::Result<Output, OAuthError> {
+        let url = url.as_str();
+        webbrowser::open(url).map_err(OAuthError::from)
     }
 }
 
@@ -989,34 +969,142 @@ impl OAuth {
             Err(e) => Err(e),
         }
     }
+}
 
-    pub fn implicit_grant(&mut self) -> OAuthReq<()> {
-        // https://tools.ietf.org/html/rfc6749#section-4.2
+impl ClientCredentialsGrant for OAuth {
+    fn authorization_request(&mut self) -> OAuthReq<Output> {
+        // https://tools.ietf.org/html/rfc6749#section-4.1.1
         let mut encoder = form_urlencoded::Serializer::new(String::new());
-        let mut vec_pairs = vec![
+        let vec_pairs = vec![
             Credential::ClientId,
             Credential::RedirectURI,
             Credential::ResponseType,
+            Credential::ResponseMode,
         ];
 
-        if self.contains(Credential::State) {
-            vec_pairs.push(Credential::State);
-        }
-        self.form_encode_pairs(vec_pairs, &mut encoder)?;
-        let scope = self.get_scopes(" ");
-        if !scope.is_empty() {
-            encoder.append_pair("scope", scope.as_str());
+        self.form_encode_pairs(vec_pairs, &mut encoder)
+            .map_err(OAuthError::from)?;
+
+        if let Some(state) = self.get(Credential::State) {
+            encoder.append_pair("state", state.as_str());
         }
 
-        self.encoded_custom_credentials(&mut encoder);
+        if !self.scopes.is_empty() {
+            encoder.append_pair("scope", self.scopes.join(" ").as_str());
+        }
 
+        if self.get(Credential::ResponseType).is_none() {
+            encoder.append_pair("response_type", "code");
+        }
+
+        if self.get(Credential::ResponseMode).is_none() {
+            encoder.append_pair("response_mode", "query");
+        }
+
+        let mut url = self.get(Credential::AuthorizeURL).unwrap().to_string();
+        if !url.ends_with('?') {
+            url.push('?');
+        }
+        url.push_str(encoder.finish().as_str());
+
+        self.browser_sign_in_url(url)
+    }
+
+    fn request_access_token(&mut self) -> OAuthReq<()> {
+        // The request URL.
         let url = self.get_or_else(Credential::AccessTokenURL)?;
         let access_code = self.get_or_else(Credential::AccessCode)?;
 
-        let body = encoder.finish();
-        let mut response = self.request(&url, &access_code, body.as_str())?;
-        let at: AccessToken = response.json()?;
-        self.access_token(at);
+        // The request body.
+        let uri = self.encoded_access_token_uri()?;
+
+        let mut response = self.request(&url, &access_code, &uri)?;
+
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(OAuthError::from(GraphError::from(status)));
+        } else {
+            let mut ac: AccessToken = response.json()?;
+            ac.timestamp();
+            self.access_token(ac);
+        }
+
         Ok(())
+    }
+
+    fn request_refresh_token(&mut self) -> Result<(), OAuthError> {
+        let mut encoder = form_urlencoded::Serializer::new(String::new());
+        let vec_pairs = vec![Credential::ClientId, Credential::RedirectURI];
+
+        self.form_encode_pairs(vec_pairs, &mut encoder)
+            .map_err(OAuthError::from)?;
+
+        if self.contains(Credential::ClientSecret) {
+            encoder.append_pair(
+                "client_secret",
+                self.get_or_else(Credential::ClientSecret)?.as_str(),
+            );
+        }
+
+        let refresh_token = self.get_refresh_token()?;
+        encoder.append_pair("refresh_token", refresh_token.as_str());
+        encoder.append_pair("grant_type", "refresh_token");
+
+        let url = self.get_or_else(Credential::RefreshTokenURL)?;
+        let access_code = self.get_or_else(Credential::AccessCode)?;
+        let body = encoder.finish();
+
+        let mut response = self.request(&url, &access_code, &body)?;
+
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(OAuthError::from(GraphError::from(status)));
+        } else {
+            let mut ac: AccessToken = response.json()?;
+            ac.refresh_token(Some(refresh_token.clone().as_str()));
+            ac.timestamp();
+            self.access_token(ac);
+        }
+
+        Ok(())
+    }
+}
+
+impl ImplicitGrant for OAuth {
+    fn request_access_token(&mut self) -> OAuthReq<Output> {
+        // https://tools.ietf.org/html/rfc6749#section-4.2
+        let mut encoder = form_urlencoded::Serializer::new(String::new());
+        let mut map = HashMap::new();
+        let client_id = self.get_or_else(Credential::ClientId)?;
+        let redirect_uri = self.get_or_else(Credential::RedirectURI)?;
+
+        map.insert("client_id", client_id.as_str());
+        map.insert("redirect_uri", redirect_uri.as_str());
+
+        let scope = self.get_scopes(" ");
+        if !scope.is_empty() {
+            if scope.contains("offline_access") || scope.contains("wl.offline_access") {
+                return Err(OAuthError::error_kind(
+                    ErrorKind::InvalidData,
+                    "Implicit grant types cannot use offline access scopes",
+                ));
+            }
+            map.insert("scope", scope.as_str());
+        }
+
+        map.insert("response_type", "token");
+        map.iter().for_each(|(key, value)| {
+            encoder.append_pair(*key, *value);
+        });
+
+        let mut url = self.get_or_else(Credential::AuthorizeURL)?;
+        if !url.ends_with('?') {
+            url.push('?');
+        }
+
+        let body = encoder.finish();
+        url.push_str(body.as_str());
+
+        self.browser_sign_in_url(url)
     }
 }

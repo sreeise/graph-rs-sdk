@@ -22,7 +22,7 @@ Special folders are one of:
 use crate::drive::drive_item::driveitem::DriveItem;
 
 use crate::drive::item::Item;
-use crate::drive::{Drive, ItemResult, GRAPH_ENDPOINT};
+use crate::drive::{Drive, ItemResult, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
 
 /*
 pub struct DI<U: Item<U>>(Result<U, RequestError>);
@@ -75,21 +75,33 @@ impl DriveEndPoint {
         }
     }
 
-    pub fn as_url(self) -> String {
+    pub fn to_url(self) -> String {
         let endpoint = self.as_str();
         let mut url = GRAPH_ENDPOINT.to_string();
         url.push_str(endpoint);
         url
     }
 
-    pub fn build(endpoint: DriveEndPoint) -> String {
-        let mut url = GRAPH_ENDPOINT.to_string();
-        url.push_str(endpoint.as_str());
+    pub fn beta_url(self) -> String {
+        let mut url = GRAPH_ENDPOINT_BETA.to_string();
+        url.push_str(self.as_str());
         url
     }
 }
 
-pub trait EP: Item<DriveItem> {
+impl From<DriveEndPoint> for String {
+    fn from(dep: DriveEndPoint) -> Self {
+        dep.to_url()
+    }
+}
+
+impl ToString for DriveEndPoint {
+    fn to_string(&self) -> String {
+        self.to_url()
+    }
+}
+
+pub trait EP {
     fn drive(&mut self) -> ItemResult<DriveItem>;
     fn drive_me(&mut self) -> ItemResult<DriveItem>;
     fn drive_root(&mut self) -> ItemResult<DriveItem>;
@@ -118,7 +130,7 @@ impl EP for Drive {
     ///    fn drive_me(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::Drive)
+        self.get(DriveEndPoint::Drive.to_url().as_str())
     }
 
     /// # Example
@@ -126,7 +138,7 @@ impl EP for Drive {
     ///    fn drive(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_me(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::DriveMe)
+        self.get(DriveEndPoint::DriveMe.to_url().as_str())
     }
 
     /// # Example
@@ -134,7 +146,7 @@ impl EP for Drive {
     ///    fn drive_root(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_root(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::DriveRoot)
+        self.get(DriveEndPoint::DriveRoot.to_url().as_str())
     }
 
     /// # Example
@@ -142,7 +154,7 @@ impl EP for Drive {
     ///    fn drive_root_me(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_root_me(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::DriveRootMe)
+        self.get(DriveEndPoint::DriveRootMe.to_url().as_str())
     }
 
     /// # Example
@@ -150,7 +162,7 @@ impl EP for Drive {
     ///    fn drive_root_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_root_child(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::DriveRootChild)
+        self.get(DriveEndPoint::DriveRootChild.to_url().as_str())
     }
 
     /// # Example
@@ -158,7 +170,7 @@ impl EP for Drive {
     ///    fn shared_with_me(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_changes(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::DriveChanges)
+        self.get(DriveEndPoint::DriveChanges.to_url().as_str())
     }
 
     /// # Example
@@ -166,7 +178,7 @@ impl EP for Drive {
     ///    fn drive_recent(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn shared_with_me(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SharedWithMe)
+        self.get(DriveEndPoint::SharedWithMe.to_url().as_str())
     }
 
     /// # Example
@@ -174,7 +186,7 @@ impl EP for Drive {
     ///    fn drive_recent(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_recent(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::DriveRecent)
+        self.get(DriveEndPoint::DriveRecent.to_url().as_str())
     }
 
     /// # Example
@@ -182,7 +194,7 @@ impl EP for Drive {
     ///    fn special_documents(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_documents(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SpecialDocuments)
+        self.get(DriveEndPoint::SpecialDocuments.to_url().as_str())
     }
 
     /// # Example
@@ -190,7 +202,7 @@ impl EP for Drive {
     ///    fn special_documents_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_documents_child(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SpecialDocumentsChild)
+        self.get(DriveEndPoint::SpecialDocumentsChild.to_url().as_str())
     }
 
     /// # Example
@@ -198,7 +210,7 @@ impl EP for Drive {
     ///    fn special_photos(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_photos(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SpecialPhotos)
+        self.get(DriveEndPoint::SpecialPhotos.to_url().as_str())
     }
 
     /// # Example
@@ -206,7 +218,7 @@ impl EP for Drive {
     ///    fn special_photos_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_photos_child(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SpecialPhotosChild)
+        self.get(DriveEndPoint::SpecialPhotosChild.to_url().as_str())
     }
 
     /// # Example
@@ -214,7 +226,7 @@ impl EP for Drive {
     ///    fn special_cameraroll(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_cameraroll(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SpecialCameraRoll)
+        self.get(DriveEndPoint::SpecialCameraRoll.to_url().as_str())
     }
 
     /// # Example
@@ -222,7 +234,7 @@ impl EP for Drive {
     ///    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SpecialCameraRollChild)
+        self.get(DriveEndPoint::SpecialCameraRollChild.to_url().as_str())
     }
 
     /// # Example
@@ -230,7 +242,7 @@ impl EP for Drive {
     ///    fn special_approot(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_approot(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SpecialAppRoot)
+        self.get(DriveEndPoint::SpecialAppRoot.to_url().as_str())
     }
 
     /// # Example
@@ -238,7 +250,7 @@ impl EP for Drive {
     ///    fn special_approot_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_approot_child(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SpecialAppRootChild)
+        self.get(DriveEndPoint::SpecialAppRootChild.to_url().as_str())
     }
 
     /// # Example
@@ -246,7 +258,7 @@ impl EP for Drive {
     ///     fn special_music(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_music(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SpecialMusic)
+        self.get(DriveEndPoint::SpecialMusic.to_url().as_str())
     }
 
     /// # Example
@@ -254,6 +266,6 @@ impl EP for Drive {
     ///    fn special_music_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_music_child(&mut self) -> ItemResult<DriveItem> {
-        self.drive_item(DriveEndPoint::SpecialMusicChild)
+        self.get(DriveEndPoint::SpecialMusicChild.to_url().as_str())
     }
 }

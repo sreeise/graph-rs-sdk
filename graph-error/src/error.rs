@@ -43,21 +43,6 @@ impl std::fmt::Display for GraphError {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ErrorInfo {
-    code: String,
-    message: String,
-    #[serde(rename = "innerError")]
-    inner_error: InnerError,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct InnerError {
-    #[serde(rename = "request-id")]
-    request_id: String,
-    date: String,
-}
-
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ErrorType {
     BadRequest,
@@ -136,44 +121,6 @@ impl ErrorType {
             509 => Some(ErrorType::BandwidthLimitExceeded),
             _ => None,
         }
-    }
-
-    /// Returns the matching GraphError for a u16 wrapped
-    /// in an option.
-    ///
-    /// # Example
-    /// ```
-    /// use graph_error::GraphError;
-    /// use graph_error::ErrorType;
-    ///
-    /// let error: Option<GraphError> = ErrorType::graph_error(400);
-    /// assert_eq!(
-    ///     Some(GraphError::new(ErrorType::BadRequest.as_str(),
-    ///         ErrorType::BadRequest,
-    ///         400)),
-    ///     error
-    /// );
-    /// ```
-    pub fn graph_error(status: u16) -> Option<GraphError> {
-        let error_type = ErrorType::from_u16(status);
-        if error_type.is_some() {
-            let error_type = match error_type {
-                Some(t) => t,
-                None => {
-                    return Some(GraphError::new(
-                        ErrorType::BadRequest.as_str(),
-                        ErrorType::BadRequest,
-                        400,
-                    ));
-                },
-            };
-            return Some(GraphError {
-                error_info: String::from(error_type.as_str()),
-                error_type,
-                code: status,
-            });
-        }
-        None
     }
 
     pub fn is_error(status: u16) -> bool {

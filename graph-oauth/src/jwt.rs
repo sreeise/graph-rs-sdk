@@ -356,8 +356,6 @@ impl JWT {
         Ok(vec)
     }
 
-
-
     pub fn decode_claims(&mut self) -> std::result::Result<Map<String, Value>, OAuthError> {
         // 10.  Verify that the resulting octet sequence is a UTF-8-encoded
         //     representation of a completely valid JSON object conforming to
@@ -397,5 +395,4 @@ impl JWT {
     pub fn verify_with_claims(&self, claims: Vec<Claim>) -> Result<(), OAuthError> {
         unimplemented!()
     }
-
 }

@@ -2,8 +2,9 @@ use crate::drive::drive_item::createdby::CreatedBy;
 use crate::drive::drive_item::lastmodifiedby::LastModifiedBy;
 use crate::drive::drive_item::owner::Owner;
 use crate::drive::drive_item::quota::Quota;
+use transform_request::prelude::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromFile, ToFile)]
 pub struct DriveInfo {
     #[serde(rename = "@odata.context")]
     _odata_context: Option<String>,

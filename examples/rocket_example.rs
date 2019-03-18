@@ -10,12 +10,12 @@ extern crate reqwest;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
 use rust_onedrive::drive::driveitem::DriveItem;
-use rust_onedrive::drive::ItemResult;
 use rust_onedrive::drive::{Drive, EP};
-use rust_onedrive::jsonfile::JsonFile;
-use rust_onedrive::oauth::OAuth;
+use rust_onedrive::oauth::{ClientCredentialsGrant, OAuth};
 use std::thread;
 use std::time::Duration;
+use transform_request::RequestError;
+use transform_request::{FromFile, ToFile};
 
 /*
 This example shows using Rocket to authenticate with Microsoft OneDrive,
@@ -152,7 +152,11 @@ fn oauth_web_client() -> OAuth {
         .authorize_url("https://login.live.com/oauth20_authorize.srf?")
         .access_token_url("https://login.live.com/oauth20_token.srf")
         .refresh_token_url("https://login.live.com/oauth20_token.srf")
-        .response_mode("query");
+        .response_mode("query")
+        .logout_url("https://login.live.com/oauth20_logout.srf?")
+        // If this is not set, the redirect_url given above will be used for the logout redirect.
+        // See logout.rs for an example.
+        .post_logout_redirect_uri("http://localhost:8000/redirect");
     oauth
 }
 
@@ -168,7 +172,7 @@ fn redirect(code: &RawStr) -> String {
     String::from("Successfully Logged In! You can close your browser.")
 }
 
-pub fn set_and_req_access_code(access_code: &str) -> ItemResult<()> {
+pub fn set_and_req_access_code(access_code: &str) -> std::result::Result<(), RequestError> {
     let mut oauth = oauth_web_client();
     oauth.response_type("token");
     oauth.access_code(access_code);
@@ -178,7 +182,7 @@ pub fn set_and_req_access_code(access_code: &str) -> ItemResult<()> {
     println!("{:#?}", &oauth);
 
     // Save our configuration to a file so we can retrieve it from other requests.
-    JsonFile::json_file("./examples/example_files/web_oauth.json", &oauth)
+    oauth.to_file("./examples/example_files/web_oauth.json")
 }
 // Methods for calling the Graph API.
 
@@ -201,13 +205,15 @@ pub fn set_and_req_access_code(access_code: &str) -> ItemResult<()> {
 // CAREFUL: This may contain sensitive information!
 #[get("/drive/recent", format = "application/json")]
 fn recent() {
-    let oauth: OAuth = JsonFile::from_file("./examples/example_files/web_oauth.json").unwrap();
+    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
     let mut drive = Drive::from(oauth);
     let result = drive.drive_recent();
     match result {
-        Ok(t) => {
-            println!("{:#?}", &t);
-            JsonFile::json_file("./examples/example_files/drive_recent.json", &t).unwrap();
+        Ok(drive_item) => {
+            println!("{:#?}", &drive_item);
+            drive_item
+                .to_file("./examples/example_files/drive_recent.json")
+                .unwrap();
         },
         Err(e) => println!("{:#?}", e),
     };
@@ -215,6 +221,6 @@ fn recent() {
 
 fn recent_from_file() {
     let item: DriveItem =
-        JsonFile::from_file("./examples/example_files/drive_recent.json").unwrap();
+        DriveItem::from_file("./examples/example_files/drive_recent.json").unwrap();
     println!("{:#?}", &item);
 }

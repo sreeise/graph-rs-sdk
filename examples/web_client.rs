@@ -1,5 +1,6 @@
+use graph_oauth::oauth::ClientCredentialsGrant;
 use graph_oauth::oauth::OAuth;
-use jsonfile::JsonFile;
+use transform_request::prelude::*;
 
 fn main() {
     let mut oauth = web_client();
@@ -34,9 +35,9 @@ fn web_client() -> OAuth {
     let mut oauth = OAuth::default();
     oauth
         .client_id("<CLIENT_ID>")
+        .client_secret("<CLIENT_SECRET>")
         // Or whatever you set the redirect to for a web client.
         .redirect_url("http://localhost:8000/redirect")
-        .client_secret("<CLIENT_SECRET>")
         .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?")
         .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token?");
 
@@ -62,9 +63,9 @@ fn set_code_request_token(access_code: &str) {
             Stores OAuth as json using serde_json.
 
             To get OAuth back from the json file run:
-            let mut oauth: OAuth = JsonFile::from_file("example/oauth.json").unwrap();
+            let mut oauth: OAuth = OAuth::from_file("example/oauth.json").unwrap();
             */
-            JsonFile::json_file("example/web_client_flow.json", &oauth).unwrap();
+            oauth.to_file("example/web_client_flow.json").unwrap();
         },
         Err(e) => println!("There was an error: {:#?}", e),
     }
