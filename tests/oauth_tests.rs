@@ -1,4 +1,5 @@
 use graph_oauth::oauth::{AccessToken, Credential, OAuth};
+use strum::IntoEnumIterator;
 
 fn at() -> AccessToken {
     let mut access_token = AccessToken::new("access_token", 3600, "Read.Write", "asfasf");
@@ -16,6 +17,76 @@ fn get_oauth() -> OAuth {
         .refresh_token_url("https://www.example.com/token?")
         .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
     oauth
+}
+
+#[test]
+fn oauth_parameters_from_credential() {
+    let mut oauth = OAuth::new();
+    oauth
+        .client_id("client_id")
+        .client_secret("client_secret")
+        .authorize_url("https://example.com/authorize?")
+        .access_token_url("https://example.com/token?")
+        .refresh_token_url("https://example.com/token?")
+        .redirect_url("https://example.com/redirect?")
+        .access_code("ADSLFJL4L3")
+        .response_mode("response_mode")
+        .response_type("response_type")
+        .state("state")
+        .grant_type("grant_type")
+        .nonce("nonce")
+        .logout_url("https://example.com/logout?")
+        .post_logout_redirect_uri("https://example.com/redirect?");
+
+    Credential::iter().for_each(|credential| {
+        if oauth.contains(credential) {
+            match credential {
+                Credential::ClientId => assert_eq!(oauth.get(credential), Some("client_id".into())),
+                Credential::ClientSecret => {
+                    assert_eq!(oauth.get(credential), Some("client_secret".into()))
+                },
+                Credential::AuthorizeURL => assert_eq!(
+                    oauth.get(credential),
+                    Some("https://example.com/authorize?".into())
+                ),
+                Credential::AccessTokenURL => assert_eq!(
+                    oauth.get(credential),
+                    Some("https://example.com/token?".into())
+                ),
+                Credential::RefreshTokenURL => assert_eq!(
+                    oauth.get(credential),
+                    Some("https://example.com/token?".into())
+                ),
+                Credential::RedirectURI => assert_eq!(
+                    oauth.get(credential),
+                    Some("https://example.com/redirect?".into())
+                ),
+                Credential::AccessCode => {
+                    assert_eq!(oauth.get(credential), Some("ADSLFJL4L3".into()))
+                },
+                Credential::ResponseMode => {
+                    assert_eq!(oauth.get(credential), Some("response_mode".into()))
+                },
+                Credential::ResponseType => {
+                    assert_eq!(oauth.get(credential), Some("response_type".into()))
+                },
+                Credential::State => assert_eq!(oauth.get(credential), Some("state".into())),
+                Credential::GrantType => {
+                    assert_eq!(oauth.get(credential), Some("grant_type".into()))
+                },
+                Credential::Nonce => assert_eq!(oauth.get(credential), Some("nonce".into())),
+                Credential::LogoutURL => assert_eq!(
+                    oauth.get(credential),
+                    Some("https://example.com/logout?".into())
+                ),
+                Credential::PostLogoutRedirectURI => assert_eq!(
+                    oauth.get(credential),
+                    Some("https://example.com/redirect?".into())
+                ),
+                _ => {},
+            }
+        }
+    });
 }
 
 #[test]

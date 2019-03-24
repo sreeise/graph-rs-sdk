@@ -72,7 +72,7 @@
 //! println!("{:#?}", drive_item);
 //! ```
 
-
+#![feature(try_trait)]
 #![feature(associated_type_defaults)]
 pub extern crate strum;
 pub extern crate strum_macros;
@@ -94,7 +94,6 @@ pub mod process;
 pub mod oauth {
     pub use graph_error::ErrorType;
     pub use graph_error::GraphError;
-    pub use graph_oauth::commons;
     pub use graph_oauth::jwt;
     pub use graph_oauth::oauth::*;
     pub use graph_oauth::op;

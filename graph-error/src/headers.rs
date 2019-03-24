@@ -33,7 +33,7 @@ pub struct Headers {
 }
 
 /// The headers in an API request.
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GraphHeaders {
     url: String,
     status: u16,

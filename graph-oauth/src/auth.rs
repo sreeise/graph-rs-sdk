@@ -2,7 +2,7 @@ use crate::accesstoken::AccessToken;
 use crate::encode::Encoder;
 use crate::grants::{ClientCredentialsGrant, ImplicitGrant};
 use crate::oautherror::OAuthError;
-use graph_error::GraphError;
+use graph_error::{GraphError, GraphHeaders};
 use reqwest::header;
 use reqwest::Response;
 use std::cell::RefCell;
@@ -40,48 +40,34 @@ pub type OAuthReq<T> = Result<T, OAuthError>;
     EnumDiscriminants,
     EnumMessage,
     EnumIter,
+    EnumString,
 )]
 #[strum_discriminants(name(Credential))]
 #[strum_discriminants(derive(Ord, PartialOrd))]
 #[strum_discriminants(derive(Serialize, Deserialize, Hash, EnumIter, ToString))]
+#[strum(serialize_all = "snake_case")]
 pub enum OAuthCredential {
-    #[strum(serialize = "client_id")]
     ClientId(String),
-    #[strum(serialize = "client_secret")]
     ClientSecret(String),
     #[strum(serialize = "sign_in_url")]
     AuthorizeURL(String),
     #[strum(serialize = "access_token_url")]
     AccessTokenURL(String),
-    #[strum(serialize = "refresh_token_url")]
     RefreshTokenURL(String),
-    #[strum(serialize = "redirect_uri")]
     RedirectURI(String),
     #[strum(serialize = "code")]
     AccessCode(String),
-    #[strum(serialize = "access_token")]
     AccessToken(String),
-    #[strum(serialize = "refresh_token")]
     RefreshToken(String),
-    #[strum(serialize = "response_mode")]
     ResponseMode(String),
-    #[strum(serialize = "state")]
     State(String),
-    #[strum(serialize = "response_type")]
     ResponseType(String),
-    #[strum(serialize = "grant_type")]
     GrantType(String),
-    #[strum(serialize = "nonce")]
     Nonce(String),
-    #[strum(serialize = "username")]
     Username(String),
-    #[strum(serialize = "password")]
     Password(String),
-    #[strum(serialize = "scopes")]
     Scopes(String),
-    #[strum(serialize = "post_logout_redirect_uri")]
     PostLogoutRedirectURI(String),
-    #[strum(serialize = "logout_url")]
     LogoutURL(String),
 }
 
@@ -261,6 +247,21 @@ pub struct OAuth {
 }
 
 impl OAuth {
+    /// Create a new OAuth instance.
+    ///
+    /// # Example
+    /// ```
+    /// use graph_oauth::oauth::OAuth;
+    /// use graph_oauth::oauth::Credential;
+    ///
+    /// let mut oauth = OAuth::new();
+    ///
+    /// oauth.client_id("client_id")
+    ///     .client_secret("client_secret");
+    ///
+    /// println!("{:#?}", oauth.get(Credential::ClientId));
+    /// println!("{:#?}", oauth.get(Credential::ClientSecret));
+    /// ```
     pub fn new() -> OAuth {
         OAuth {
             access_token: None,
@@ -269,8 +270,25 @@ impl OAuth {
             custom_cred: None,
         }
     }
-    /// Internal method to insert well known oauth credentials.
-    fn insert(&mut self, oac: OAuthCredential) -> &mut OAuth {
+
+    /// Insert oauth credentials using the OAuthCredential enum.
+    /// This method is used internally for each of the setter methods.
+    /// Callers can optionally use this method to set credentials instead
+    /// of the individual setter methods.
+    ///
+    /// # Example
+    /// ```
+    /// use graph_oauth::oauth::OAuth;
+    /// use graph_oauth::oauth::OAuthCredential;
+    /// use graph_oauth::oauth::Credential;
+    ///
+    /// let mut oauth = OAuth::new();
+    ///
+    /// oauth.insert(OAuthCredential::AuthorizeURL("https://example.com".into()));
+    /// assert_eq!(oauth.contains(Credential::AuthorizeURL), true);
+    /// println!("{:#?}", oauth.get(Credential::AuthorizeURL));
+    /// ```
+    pub fn insert(&mut self, oac: OAuthCredential) -> &mut OAuth {
         self.cred.insert(oac.hash_alias(), oac);
         self
     }
@@ -636,21 +654,6 @@ impl OAuth {
         }
 
         self
-    }
-
-    pub fn some_to_vec(&self) -> Vec<String> {
-        Credential::iter()
-            .filter(|x| self.get(*x).is_some())
-            .map(|x| {
-                [
-                    "&",
-                    OAuthCredential::from(x).alias(),
-                    "=",
-                    self.get(x).unwrap().as_str(),
-                ]
-                .join("")
-            })
-            .collect()
     }
 }
 
@@ -1018,7 +1021,10 @@ impl ClientCredentialsGrant for OAuth {
 
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
-            return Err(OAuthError::from(GraphError::from(status)));
+            let mut graph_error = GraphError::from(status);
+            let graph_headers = GraphHeaders::from(&mut response);
+            graph_error.set_headers(graph_headers);
+            return Err(OAuthError::from(graph_error));
         } else {
             let mut ac: AccessToken = response.json()?;
             ac.timestamp();
@@ -1054,7 +1060,10 @@ impl ClientCredentialsGrant for OAuth {
 
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
-            return Err(OAuthError::from(GraphError::from(status)));
+            let mut graph_error = GraphError::from(status);
+            let graph_headers = GraphHeaders::from(&mut response);
+            graph_error.set_headers(graph_headers);
+            return Err(OAuthError::from(graph_error));
         } else {
             let mut ac: AccessToken = response.json()?;
             ac.refresh_token(Some(refresh_token.clone().as_str()));

@@ -1,10 +1,10 @@
 use rust_onedrive::drive::query_string::QueryString;
-use rust_onedrive::drive::Drive;
+use rust_onedrive::drive::{Drive, DriveVersion};
 use rust_onedrive::drive::DriveEndPoint;
 
 #[test]
 fn query_string_tests() {
-    let drive = Drive::new("");
+    let drive = Drive::new("", DriveVersion::V1);
     let vec = vec!["name", "size"];
 
     assert_eq!(
