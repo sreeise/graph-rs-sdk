@@ -75,9 +75,16 @@ impl DriveEndPoint {
         }
     }
 
-    pub fn to_url(self) -> String {
+    pub fn v1_url(self) -> String {
         let endpoint = self.as_str();
         let mut url = GRAPH_ENDPOINT.to_string();
+        url.push_str(endpoint);
+        url
+    }
+
+    pub fn url(self, host: &str) -> String {
+        let endpoint = self.as_str();
+        let mut url = String::from(host);
         url.push_str(endpoint);
         url
     }
@@ -91,13 +98,13 @@ impl DriveEndPoint {
 
 impl From<DriveEndPoint> for String {
     fn from(dep: DriveEndPoint) -> Self {
-        dep.to_url()
+        dep.v1_url()
     }
 }
 
 impl ToString for DriveEndPoint {
     fn to_string(&self) -> String {
-        self.to_url()
+        self.v1_url()
     }
 }
 
@@ -130,7 +137,7 @@ impl EP for Drive {
     ///    fn drive_me(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::Drive.to_url().as_str())
+        self.get(DriveEndPoint::Drive.url(self.version.as_str()).as_str())
     }
 
     /// # Example
@@ -138,7 +145,7 @@ impl EP for Drive {
     ///    fn drive(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_me(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::DriveMe.to_url().as_str())
+        self.get(DriveEndPoint::DriveMe.url(self.version.as_str()).as_str())
     }
 
     /// # Example
@@ -146,7 +153,11 @@ impl EP for Drive {
     ///    fn drive_root(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_root(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::DriveRoot.to_url().as_str())
+        self.get(
+            DriveEndPoint::DriveRoot
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -154,7 +165,11 @@ impl EP for Drive {
     ///    fn drive_root_me(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_root_me(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::DriveRootMe.to_url().as_str())
+        self.get(
+            DriveEndPoint::DriveRootMe
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -162,7 +177,11 @@ impl EP for Drive {
     ///    fn drive_root_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_root_child(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::DriveRootChild.to_url().as_str())
+        self.get(
+            DriveEndPoint::DriveRootChild
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -170,7 +189,11 @@ impl EP for Drive {
     ///    fn shared_with_me(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_changes(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::DriveChanges.to_url().as_str())
+        self.get(
+            DriveEndPoint::DriveChanges
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -178,7 +201,11 @@ impl EP for Drive {
     ///    fn drive_recent(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn shared_with_me(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SharedWithMe.to_url().as_str())
+        self.get(
+            DriveEndPoint::SharedWithMe
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -186,7 +213,11 @@ impl EP for Drive {
     ///    fn drive_recent(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_recent(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::DriveRecent.to_url().as_str())
+        self.get(
+            DriveEndPoint::DriveRecent
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -194,7 +225,11 @@ impl EP for Drive {
     ///    fn special_documents(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_documents(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SpecialDocuments.to_url().as_str())
+        self.get(
+            DriveEndPoint::SpecialDocuments
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -202,7 +237,11 @@ impl EP for Drive {
     ///    fn special_documents_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_documents_child(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SpecialDocumentsChild.to_url().as_str())
+        self.get(
+            DriveEndPoint::SpecialDocumentsChild
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -210,7 +249,11 @@ impl EP for Drive {
     ///    fn special_photos(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_photos(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SpecialPhotos.to_url().as_str())
+        self.get(
+            DriveEndPoint::SpecialPhotos
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -218,7 +261,11 @@ impl EP for Drive {
     ///    fn special_photos_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_photos_child(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SpecialPhotosChild.to_url().as_str())
+        self.get(
+            DriveEndPoint::SpecialPhotosChild
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -226,7 +273,11 @@ impl EP for Drive {
     ///    fn special_cameraroll(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_cameraroll(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SpecialCameraRoll.to_url().as_str())
+        self.get(
+            DriveEndPoint::SpecialCameraRoll
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -234,7 +285,11 @@ impl EP for Drive {
     ///    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SpecialCameraRollChild.to_url().as_str())
+        self.get(
+            DriveEndPoint::SpecialCameraRollChild
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -242,7 +297,11 @@ impl EP for Drive {
     ///    fn special_approot(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_approot(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SpecialAppRoot.to_url().as_str())
+        self.get(
+            DriveEndPoint::SpecialAppRoot
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -250,7 +309,11 @@ impl EP for Drive {
     ///    fn special_approot_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_approot_child(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SpecialAppRootChild.to_url().as_str())
+        self.get(
+            DriveEndPoint::SpecialAppRootChild
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -258,7 +321,11 @@ impl EP for Drive {
     ///     fn special_music(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_music(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SpecialMusic.to_url().as_str())
+        self.get(
+            DriveEndPoint::SpecialMusic
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 
     /// # Example
@@ -266,6 +333,10 @@ impl EP for Drive {
     ///    fn special_music_child(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn special_music_child(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::SpecialMusicChild.to_url().as_str())
+        self.get(
+            DriveEndPoint::SpecialMusicChild
+                .url(self.version.as_str())
+                .as_str(),
+        )
     }
 }

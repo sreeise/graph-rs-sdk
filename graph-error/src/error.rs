@@ -1,17 +1,25 @@
+use crate::GraphHeaders;
 use std::error::Error;
 use std::fmt;
 use std::string::ToString;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GraphError {
+    pub headers: Option<GraphHeaders>,
     pub error_info: String,
     pub error_type: ErrorType,
     pub code: u16,
 }
 
 impl GraphError {
-    pub fn new(error_info: &str, error_type: ErrorType, code: u16) -> GraphError {
+    pub fn new(
+        headers: Option<GraphHeaders>,
+        error_info: &str,
+        error_type: ErrorType,
+        code: u16,
+    ) -> GraphError {
         GraphError {
+            headers,
             error_info: error_info.to_string(),
             error_type,
             code,
@@ -20,6 +28,18 @@ impl GraphError {
 
     pub fn is_error(status: u16) -> bool {
         ErrorType::from_u16(status).is_some()
+    }
+
+    pub fn set_headers(&mut self, headers: GraphHeaders) {
+        self.headers = Some(headers);
+    }
+
+    pub fn set_error(&mut self, code: u16) -> Result<(), GraphError> {
+        let error_type = ErrorType::from_u16(code).unwrap();
+        self.error_info = error_type.to_string();
+        self.error_type = error_type;
+        self.code = code;
+        Ok(())
     }
 }
 
@@ -142,6 +162,7 @@ impl From<u16> for GraphError {
     fn from(err: u16) -> Self {
         let error_type = ErrorType::from_u16(err).unwrap();
         GraphError {
+            headers: None,
             error_info: error_type.to_string(),
             error_type,
             code: err,

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use graph_oauth::op::StdOp;
+use crate::stdop::StdOp;
 use transform_request::RequestError;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]

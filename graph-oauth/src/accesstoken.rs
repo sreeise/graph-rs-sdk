@@ -50,7 +50,6 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     /// let access_token = AccessToken::new("Bearer", 3600, "Read Read.Write", "ASODFIUJ34KJ;LADSK");
     /// ```
-    #[allow(clippy::too_many_arguments)]
     pub fn new(token_type: &str, expires_in: i64, scope: &str, access_token: &str) -> AccessToken {
         AccessToken {
             token_type: token_type.into(),
@@ -327,7 +326,7 @@ impl AccessToken {
     /// ```
     pub fn is_expired(&self) -> bool {
         if let Some(human_time) = self.elapsed() {
-           return human_time.le(&HumanTime::from(Duration::seconds(0)));
+            return human_time.le(&HumanTime::from(Duration::seconds(0)));
         }
         true
     }
