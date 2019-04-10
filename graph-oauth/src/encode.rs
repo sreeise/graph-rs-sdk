@@ -47,6 +47,7 @@ impl Encoder {
         url
     }
 
+    #[allow(dead_code)]
     pub fn utf8_url_encode_pairs<T>(
         pairs: HashMap<String, String>,
         encode_set: T,

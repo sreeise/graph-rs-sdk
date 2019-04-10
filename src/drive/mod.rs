@@ -22,6 +22,7 @@ mod item;
 #[macro_use]
 pub mod query_string;
 
+use crate::drive;
 pub use crate::drive::drive_item::*;
 pub use crate::drive::driveaction::DriveEvent;
 pub use crate::drive::driveresource::DriveResource;
@@ -30,9 +31,8 @@ pub use crate::drive::item::{Download, Item};
 use crate::process::fileretriever::FileRetriever;
 use serde::{Deserialize, Serialize};
 use std::io::ErrorKind;
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 use transform_request::prelude::*;
-use crate::drive;
 
 pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
 pub static GRAPH_ENDPOINT_BETA: &str = "https://graph.microsoft.com/beta";
@@ -100,16 +100,9 @@ impl Drive {
 impl From<OAuth> for Drive {
     fn from(oauth: OAuth) -> Self {
         match oauth.get_access_token() {
-            Some(t) => {
-                let ac = t.try_borrow_mut();
-                if let Ok(rt) = ac {
-                    let token = rt.clone();
-                    return Drive::new(token.get_access_token(), DriveVersion::V1);
-                }
-            },
+            Some(t) => Drive::new(t.get_access_token(), DriveVersion::V1),
             None => panic!("Missing Access Token"),
         }
-        panic!("Missing Access Token");
     }
 }
 
@@ -124,12 +117,9 @@ impl Transform<OAuth> for Drive {
         Self: Serialize + for<'de> Deserialize<'de>,
     {
         let access_token = rhs.get_access_token();
-        if let Some(at) = access_token {
-            let at = at.try_borrow_mut();
-            if let Ok(rt) = at {
-                let token = rt.clone();
-                return Ok(Drive::new(token.get_access_token(), DriveVersion::V1));
-            }
+
+        if let Some(token) = access_token {
+            return Ok(Drive::new(token.get_access_token(), DriveVersion::V1));
         }
 
         Err(RequestError::error_kind(
@@ -153,8 +143,7 @@ impl Download for Drive {
     ) -> ItemResult<PathBuf> {
         match value.microsoft_graph_download_url() {
             Some(download_url) => {
-                let path_buf =
-                    FileRetriever::download(directory, download_url.as_str()).unwrap();
+                let path_buf = FileRetriever::download(directory, download_url.as_str()).unwrap();
                 return Ok(path_buf);
             },
             None => {

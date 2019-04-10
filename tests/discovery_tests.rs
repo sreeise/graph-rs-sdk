@@ -1,5 +1,5 @@
 use graph_oauth::oauth::wellknown::{Commons, WellKnown};
-use graph_oauth::oauth::{Credential, OAuth};
+use graph_oauth::oauth::{OAuth, OAuthCredential};
 use rust_onedrive::oauth::graphdiscovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
@@ -49,19 +49,19 @@ fn graph_discovery_oauth_v1() {
         MicrosoftSigningKeysV1::from_file("./test_files/well_known_discovery/graphv1.json")
             .unwrap();
     assert_eq!(
-        oauth.get(Credential::AuthorizeURL),
+        oauth.get(OAuthCredential::AuthorizeURL),
         Some(keys.authorization_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(Credential::AccessTokenURL),
+        oauth.get(OAuthCredential::AccessTokenURL),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(Credential::RefreshTokenURL),
+        oauth.get(OAuthCredential::RefreshTokenURL),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(Credential::LogoutURL),
+        oauth.get(OAuthCredential::LogoutURL),
         Some(keys.end_session_endpoint.to_string())
     );
 }
@@ -72,19 +72,19 @@ fn graph_discovery_oauth_v2() {
         MicrosoftSigningKeysV2::from_file("./test_files/well_known_discovery/graphv2.json")
             .unwrap();
     assert_eq!(
-        oauth.get(Credential::AuthorizeURL),
+        oauth.get(OAuthCredential::AuthorizeURL),
         Some(keys.authorization_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(Credential::AccessTokenURL),
+        oauth.get(OAuthCredential::AccessTokenURL),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(Credential::RefreshTokenURL),
+        oauth.get(OAuthCredential::RefreshTokenURL),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(Credential::LogoutURL),
+        oauth.get(OAuthCredential::LogoutURL),
         Some(keys.end_session_endpoint.to_string())
     );
 }

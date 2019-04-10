@@ -16,5 +16,5 @@ fn main() {
     // configuration time when setting values for OAuth. However, this will disregard
     // all other parameters for the MicrosoftSigningKeys. Use this if you do not
     // need the other values.
-    let oauth: OAuth = GraphDiscovery::V1.oauth().unwrap();
+    let _oauth: OAuth = GraphDiscovery::V1.oauth().unwrap();
 }

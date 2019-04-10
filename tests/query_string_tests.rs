@@ -1,6 +1,6 @@
 use rust_onedrive::drive::query_string::QueryString;
-use rust_onedrive::drive::{Drive, DriveVersion};
 use rust_onedrive::drive::DriveEndPoint;
+use rust_onedrive::drive::{Drive, DriveVersion};
 
 #[test]
 fn query_string_tests() {

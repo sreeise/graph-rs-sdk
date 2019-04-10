@@ -1,6 +1,6 @@
 use graph_oauth::oauth::ClientCredentialsGrant;
-use graph_oauth::oauth::Credential;
 use graph_oauth::oauth::OAuth;
+use graph_oauth::oauth::OAuthCredential;
 use transform_request::prelude::*;
 
 /*
@@ -97,7 +97,7 @@ fn set_code_request_token(access_code: &str) {
     // which holds an Option<DriveError>. DriveError holds
     // the status code, error type such as BadRequest, and the
     // error info/reason.
-    if oauth.get(Credential::AccessToken).is_some() {
+    if oauth.get(OAuthCredential::AccessToken).is_some() {
         // Stores OAuth as json using serde_json.
         oauth
             .to_file("./examples/example_files/native_client_flow.json")

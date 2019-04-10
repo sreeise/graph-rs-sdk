@@ -1,7 +1,11 @@
+use crate::oautherror::OAuthError;
 use crate::stdop::StdOp;
 use chrono::{DateTime, Duration, Utc};
 use chrono_humanize::HumanTime;
+use graph_error::{GraphError, GraphHeaders};
+use reqwest::RequestBuilder;
 use reqwest::Response;
+use serde::{Deserialize, Serialize};
 use serde_json;
 use transform_request::prelude::*;
 
@@ -406,6 +410,26 @@ impl Transform<Result<reqwest::Response, reqwest::Error>> for AccessToken {
         let mut r: Response = rhs?;
         let t: AccessToken = r.json()?;
         Ok(t)
+    }
+}
+
+impl Transform<RequestBuilder> for AccessToken {
+    type Err = OAuthError;
+
+    fn transform(rhs: RequestBuilder) -> Result<Self, Self::Err>
+    where
+        Self: Serialize + for<'de> Deserialize<'de>,
+    {
+        let mut res = rhs.send()?;
+        let status = res.status().as_u16();
+        if GraphError::is_error(status) {
+            let mut graph_error = GraphError::from(status);
+            let graph_headers = GraphHeaders::from(&mut res);
+            graph_error.set_headers(graph_headers);
+            return Err(OAuthError::from(graph_error));
+        }
+        let access_token: AccessToken = AccessToken::transform(&mut res)?;
+        Ok(access_token)
     }
 }
 

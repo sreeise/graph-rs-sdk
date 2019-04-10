@@ -139,7 +139,9 @@ impl FileRetriever {
                 let dir = directory.as_ref().join(name);
                 Ok((dir, response))
             },
-            None => Err(RequestError::none_err("could not get file name from response")),
+            None => Err(RequestError::none_err(
+                "could not get file name from response",
+            )),
         }
     }
 }

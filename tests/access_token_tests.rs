@@ -1,6 +1,6 @@
 use graph_oauth::oauth::AccessToken;
-use graph_oauth::oauth::Credential;
 use graph_oauth::oauth::OAuth;
+use graph_oauth::oauth::OAuthCredential;
 use rust_onedrive::transform::*;
 use std::path::Path;
 use std::{fs, thread};
@@ -78,15 +78,15 @@ fn oauth_json_file() {
 
     assert_eq!(&oauth, &oauth_from_file);
     assert_eq!(
-        oauth_from_file.get(Credential::ClientId),
+        oauth_from_file.get(OAuthCredential::ClientId),
         Some("bb301aaa-1201-4259-a230923fds32".into())
     );
     assert_eq!(
-        oauth_from_file.get(Credential::RedirectURI),
+        oauth_from_file.get(OAuthCredential::RedirectURI),
         Some("http://localhost:8888/redirect".into())
     );
     assert_eq!(
-        oauth_from_file.get(Credential::AuthorizeURL),
+        oauth_from_file.get(OAuthCredential::AuthorizeURL),
         Some("https://example.com/oauth2/v2.0/authorize".into())
     );
 }

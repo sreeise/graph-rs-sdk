@@ -1,9 +1,9 @@
-use rust_onedrive::drive::Drive;
-use rust_onedrive::oauth::OAuth;
-use rust_onedrive::drive::EP;
-use rust_onedrive::transform::*;
 use rust_onedrive::drive::driveitem::DriveItem;
+use rust_onedrive::drive::Drive;
 use rust_onedrive::drive::Item;
+use rust_onedrive::drive::EP;
+use rust_onedrive::oauth::OAuth;
+use rust_onedrive::transform::*;
 
 fn main() {
     let oauth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
@@ -45,6 +45,8 @@ fn special_docs_child(drive: &mut Drive) {
 fn use_get(drive: &mut Drive) {
     // Using the REST methods requires specifying the type.
     // You could also use Serde's Value here as well.
-    let drive_item: DriveItem = drive.get("https://graph.microsoft.com/v1.0/drive/root/children").unwrap();
+    let drive_item: DriveItem = drive
+        .get("https://graph.microsoft.com/v1.0/drive/root/children")
+        .unwrap();
     println!("{:#?}", drive_item);
 }

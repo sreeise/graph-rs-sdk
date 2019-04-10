@@ -153,11 +153,7 @@ impl EP for Drive {
     ///    fn drive_root(&mut self) -> ItemResult<DriveItem>
     /// ```
     fn drive_root(&mut self) -> ItemResult<DriveItem> {
-        self.get(
-            DriveEndPoint::DriveRoot
-                .url(self.version.as_str())
-                .as_str(),
-        )
+        self.get(DriveEndPoint::DriveRoot.url(self.version.as_str()).as_str())
     }
 
     /// # Example
