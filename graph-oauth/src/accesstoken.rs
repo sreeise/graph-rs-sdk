@@ -8,6 +8,7 @@ use reqwest::Response;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use transform_request::prelude::*;
+use crate::jwt::JWT;
 
 /// AccessToken that is used for api calls to OneDrive and Graph.
 ///
@@ -353,6 +354,11 @@ impl AccessToken {
             return Some(ht);
         }
         None
+    }
+
+    pub fn is_valid_jwt(&self) -> bool {
+        let mut jwt = JWT::new(&self.access_token);
+        !jwt.validate().is_err()
     }
 }
 

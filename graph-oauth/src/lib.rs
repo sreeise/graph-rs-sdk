@@ -10,7 +10,6 @@ extern crate derive_from_to_file;
 
 mod accesstoken;
 mod auth;
-mod builder;
 mod discovery;
 mod encode;
 mod grants;
@@ -22,7 +21,6 @@ pub mod oauth {
     pub use crate::accesstoken::AccessToken;
     pub use crate::auth::OAuth;
     pub use crate::auth::OAuthCredential;
-    pub use crate::builder::Builder;
     pub use crate::discovery::graphdiscovery;
     pub use crate::discovery::jwtkeys;
     pub use crate::discovery::wellknown;

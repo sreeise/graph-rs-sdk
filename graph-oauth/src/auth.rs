@@ -689,7 +689,6 @@ impl ClientCredentialsGrant for OAuth {
     }
 
     fn request_access_token(&mut self) -> OAuthReq<()> {
-        // The request URL.
         let mut encoder = form_urlencoded::Serializer::new(String::new());
 
         self.insert(OAuthCredential::ResponseType, "token".into());
