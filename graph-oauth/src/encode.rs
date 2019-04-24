@@ -1,8 +1,8 @@
+use crate::auth::OAuthCredential;
 use crate::oautherror::OAuthError;
 use std::collections::HashMap;
 use url::form_urlencoded;
 use url::percent_encoding::{utf8_percent_encode, EncodeSet};
-use crate::auth::OAuthCredential;
 
 #[derive(Debug)]
 pub struct Encoder {
@@ -89,14 +89,16 @@ impl EncodeBuilder {
 
     pub fn client_id(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::ClientId.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::ClientId.alias(), value);
         }
         self
     }
 
     pub fn client_secret(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::ClientSecret.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::ClientSecret.alias(), value);
         }
         self
     }
@@ -124,63 +126,72 @@ impl EncodeBuilder {
 
     pub fn redirect_uri(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::RedirectURI.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::RedirectURI.alias(), value);
         }
         self
     }
 
     pub fn code(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::AccessCode.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::AccessCode.alias(), value);
         }
         self
     }
 
     pub fn access_token(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::AccessToken.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::AccessToken.alias(), value);
         }
         self
     }
 
     pub fn refresh_token(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::RefreshToken.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::RefreshToken.alias(), value);
         }
         self
     }
 
     pub fn response_mode(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::ResponseMode.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::ResponseMode.alias(), value);
         }
         self
     }
 
     pub fn state(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::State.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::State.alias(), value);
         }
         self
     }
 
     pub fn response_type(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::ResponseType.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::ResponseType.alias(), value);
         }
         self
     }
 
     pub fn grant_type(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::GrantType.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::GrantType.alias(), value);
         }
         self
     }
 
     pub fn nonce(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::Nonce.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::Nonce.alias(), value);
         }
         self
     }
@@ -194,13 +205,15 @@ impl EncodeBuilder {
 
     pub fn post_logout_redirect_uri(&mut self, value: &str) -> &mut Self {
         if !value.is_empty() {
-            self.serializer.append_pair(OAuthCredential::PostLogoutRedirectURI.alias(), value);
+            self.serializer
+                .append_pair(OAuthCredential::PostLogoutRedirectURI.alias(), value);
         }
         self
     }
 
     pub fn logout_url(&mut self, value: &str) -> &mut Self {
-        self.serializer.append_pair(OAuthCredential::LogoutURL.alias(), value);
+        self.serializer
+            .append_pair(OAuthCredential::LogoutURL.alias(), value);
         self
     }
 
@@ -219,7 +232,10 @@ impl EncodeBuilder {
 
     pub fn build_body(&mut self) -> String {
         if !self.scopes.is_empty() {
-            self.serializer.append_pair(OAuthCredential::Scopes.alias(), self.scopes.join(" ").as_str());
+            self.serializer.append_pair(
+                OAuthCredential::Scopes.alias(),
+                self.scopes.join(" ").as_str(),
+            );
         }
         self.serializer.finish()
     }

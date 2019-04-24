@@ -1,8 +1,9 @@
-use graph_oauth::oauth::{EncodeBuilder};
+use graph_oauth::oauth::EncodeBuilder;
 
 fn main() {
     let mut encode_builder = EncodeBuilder::new();
-    encode_builder.authorize_url("https://login.live.com/oauth20_authorize.srf?")
+    encode_builder
+        .authorize_url("https://login.live.com/oauth20_authorize.srf?")
         .redirect_uri("http://localhost:8000/redirect")
         .response_type("code")
         .response_mode("query")

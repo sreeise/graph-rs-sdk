@@ -599,14 +599,17 @@ impl OAuth {
         let mut encoder = form_urlencoded::Serializer::new(String::new());
         self.insert(OAuthCredential::ResponseType, "code".into());
         self.insert(OAuthCredential::ResponseMode, "query".into());
-        self.form_encode_credentials(vec![
-            OAuthCredential::ClientId,
-            OAuthCredential::ClientSecret,
-            OAuthCredential::RedirectURI,
-            OAuthCredential::State,
-            OAuthCredential::ResponseMode,
-            OAuthCredential::ResponseType,
-        ], &mut encoder);
+        self.form_encode_credentials(
+            vec![
+                OAuthCredential::ClientId,
+                OAuthCredential::ClientSecret,
+                OAuthCredential::RedirectURI,
+                OAuthCredential::State,
+                OAuthCredential::ResponseMode,
+                OAuthCredential::ResponseType,
+            ],
+            &mut encoder,
+        );
 
         if !self.scopes.is_empty() {
             encoder.append_pair("scope", self.scopes.join(" ").as_str());
