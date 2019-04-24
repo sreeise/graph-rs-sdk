@@ -1,3 +1,4 @@
+use crate::jwt::JWT;
 use crate::oautherror::OAuthError;
 use crate::stdop::StdOp;
 use chrono::{DateTime, Duration, Utc};
@@ -8,7 +9,6 @@ use reqwest::Response;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use transform_request::prelude::*;
-use crate::jwt::JWT;
 
 /// AccessToken that is used for api calls to OneDrive and Graph.
 ///

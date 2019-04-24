@@ -599,15 +599,15 @@ impl OAuth {
         let mut encoder = form_urlencoded::Serializer::new(String::new());
         self.insert(OAuthCredential::ResponseType, "code".into());
         self.insert(OAuthCredential::ResponseMode, "query".into());
-        let vec = vec![
+        self.form_encode_credentials(vec![
             OAuthCredential::ClientId,
             OAuthCredential::ClientSecret,
             OAuthCredential::RedirectURI,
             OAuthCredential::State,
             OAuthCredential::ResponseMode,
             OAuthCredential::ResponseType,
-        ];
-        self.form_encode_credentials(vec, &mut encoder);
+        ], &mut encoder);
+
         if !self.scopes.is_empty() {
             encoder.append_pair("scope", self.scopes.join(" ").as_str());
         }
@@ -621,17 +621,19 @@ impl OAuth {
 
     pub fn encoded_access_token_uri(&mut self) -> OAuthReq<String> {
         let mut encoder = form_urlencoded::Serializer::new(String::new());
-
         self.insert(OAuthCredential::ResponseType, "token".into());
         self.insert(OAuthCredential::GrantType, "authorization_code".into());
-        self.form_encode_credentials(vec![
-            OAuthCredential::ClientId,
-            OAuthCredential::ClientSecret,
-            OAuthCredential::RedirectURI,
-            OAuthCredential::ResponseType,
-            OAuthCredential::GrantType,
-            OAuthCredential::AccessCode,
-        ], &mut encoder);
+        self.form_encode_credentials(
+            vec![
+                OAuthCredential::ClientId,
+                OAuthCredential::ClientSecret,
+                OAuthCredential::RedirectURI,
+                OAuthCredential::ResponseType,
+                OAuthCredential::GrantType,
+                OAuthCredential::AccessCode,
+            ],
+            &mut encoder,
+        );
 
         let body = encoder.finish();
         return Ok(body);
@@ -642,14 +644,16 @@ impl OAuth {
         self.insert(OAuthCredential::GrantType, "refresh_token".into());
         let refresh_token = self.get_refresh_token().unwrap();
         encoder.append_pair("refresh_token", &refresh_token);
-
-        self.form_encode_credentials(vec![
-            OAuthCredential::ClientId,
-            OAuthCredential::ClientSecret,
-            OAuthCredential::RedirectURI,
-            OAuthCredential::GrantType,
-            OAuthCredential::AccessCode,
-        ], &mut encoder);
+        self.form_encode_credentials(
+            vec![
+                OAuthCredential::ClientId,
+                OAuthCredential::ClientSecret,
+                OAuthCredential::RedirectURI,
+                OAuthCredential::GrantType,
+                OAuthCredential::AccessCode,
+            ],
+            &mut encoder,
+        );
 
         let body = encoder.finish();
         return Ok(body);
@@ -662,14 +666,17 @@ impl ClientCredentialsGrant for OAuth {
         let mut encoder = form_urlencoded::Serializer::new(String::new());
         self.insert(OAuthCredential::ResponseType, "code".into());
         self.insert(OAuthCredential::ResponseMode, "query".into());
-        self.form_encode_credentials(vec![
-            OAuthCredential::ClientId,
-            OAuthCredential::ClientSecret,
-            OAuthCredential::RedirectURI,
-            OAuthCredential::State,
-            OAuthCredential::ResponseMode,
-            OAuthCredential::ResponseType,
-        ], &mut encoder);
+        self.form_encode_credentials(
+            vec![
+                OAuthCredential::ClientId,
+                OAuthCredential::ClientSecret,
+                OAuthCredential::RedirectURI,
+                OAuthCredential::State,
+                OAuthCredential::ResponseMode,
+                OAuthCredential::ResponseType,
+            ],
+            &mut encoder,
+        );
 
         if !self.scopes.is_empty() {
             encoder.append_pair("scope", self.scopes.join(" ").as_str());
@@ -689,14 +696,17 @@ impl ClientCredentialsGrant for OAuth {
 
         self.insert(OAuthCredential::ResponseType, "token".into());
         self.insert(OAuthCredential::GrantType, "authorization_code".into());
-        self.form_encode_credentials(vec![
-            OAuthCredential::ClientId,
-            OAuthCredential::ClientSecret,
-            OAuthCredential::RedirectURI,
-            OAuthCredential::ResponseType,
-            OAuthCredential::GrantType,
-            OAuthCredential::AccessCode,
-        ], &mut encoder);
+        self.form_encode_credentials(
+            vec![
+                OAuthCredential::ClientId,
+                OAuthCredential::ClientSecret,
+                OAuthCredential::RedirectURI,
+                OAuthCredential::ResponseType,
+                OAuthCredential::GrantType,
+                OAuthCredential::AccessCode,
+            ],
+            &mut encoder,
+        );
 
         let body = encoder.finish();
         let url = self.get_or_else(OAuthCredential::AccessTokenURL).unwrap();
@@ -717,13 +727,16 @@ impl ClientCredentialsGrant for OAuth {
         let refresh_token = self.get_refresh_token()?;
         encoder.append_pair("refresh_token", &refresh_token);
 
-        self.form_encode_credentials(vec![
-            OAuthCredential::ClientId,
-            OAuthCredential::ClientSecret,
-            OAuthCredential::RedirectURI,
-            OAuthCredential::GrantType,
-            OAuthCredential::AccessCode,
-        ], &mut encoder);
+        self.form_encode_credentials(
+            vec![
+                OAuthCredential::ClientId,
+                OAuthCredential::ClientSecret,
+                OAuthCredential::RedirectURI,
+                OAuthCredential::GrantType,
+                OAuthCredential::AccessCode,
+            ],
+            &mut encoder,
+        );
 
         let url = self.get_or_else(OAuthCredential::RefreshTokenURL)?;
         let body = encoder.finish();
