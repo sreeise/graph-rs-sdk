@@ -563,7 +563,7 @@ impl OAuth {
         match self.get_access_token() {
             Some(token) => match token.get_refresh_token() {
                 Some(t) => return Ok(t),
-                None => return OAuth::error_from::<String>(OAuthCredential::AccessToken),
+                None => return OAuth::error_from::<String>(OAuthCredential::RefreshToken),
             },
             None => OAuth::error_from::<String>(OAuthCredential::AccessToken),
         }
