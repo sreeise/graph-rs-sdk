@@ -27,6 +27,7 @@ pub mod oauth {
     pub use crate::grants::ClientCredentialsGrant;
     pub use crate::grants::ImplicitGrant;
     pub use crate::oautherror::OAuthError;
+    pub use crate::encode::EncodeBuilder;
 }
 
 pub mod op {
