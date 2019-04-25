@@ -7,6 +7,8 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use transform_request::RequestError;
+use crate::drive::drive_item::driveitem::DriveItem;
+use crate::transform::*;
 
 pub trait Item {
     fn token(&self) -> &str;
