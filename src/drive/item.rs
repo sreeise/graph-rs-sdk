@@ -1,7 +1,4 @@
-use crate::drive;
-use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::ItemResult;
-use crate::transform::*;
 use reqwest::{header, Client, Response};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -9,6 +6,7 @@ use std::path::{Path, PathBuf};
 use transform_request::RequestError;
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::transform::*;
+use crate::drive;
 
 pub trait Item {
     fn token(&self) -> &str;
