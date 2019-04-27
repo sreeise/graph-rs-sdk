@@ -1,6 +1,10 @@
 /// Enum for describing what action to take in a drive request
 /// such as uploading and item or downloading an item.
-/// TODO: This will most likely change to use traits instead of an enum.
+///
+/// These names are defined by their URL query for API calls.
+///
+/// # See Also:
+/// [Documentation on Drive Items and API Events](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/driveitem?view=odsp-graph-online#methods)
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DriveEvent {
     CheckIn,
