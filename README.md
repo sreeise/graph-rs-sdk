@@ -16,26 +16,28 @@ Only Linux has been tested to work. Windows and MacOS may work but is not guaran
 
 ### The following is a list of the current work next to be done:
 
-    1. JWT validation. See issue/bug https://github.com/sreeise/rust-onedrive/issues/4
-    2. Access Token updates based upon expires in field. See https://github.com/sreeise/rust-onedrive/issues/5
-            Timestamps were added to AccessTokens but there is not checks for expiration yet.
-    3. Traits for downloading/moving/uploading and various other actions for drive files.
+    1. Continue to integrate custom OAuth credentials.
+    2. Traits for downloading/moving/uploading and various other actions for drive files.
 
 Requires Rust nightly:
 
-    rustup install nightly
-    cd rust-onedrive
-    rustup override set nightly
+    $ rustup install nightly && cd rust-onedrive && rustup override set nightly
+
+### Formatting
+
+Cargo fmt is used for formatting. 
+
+    $ cargo fmt
 
 ### Tests and Docs
 
 Of the portions that are implemented there are also examples and docs. Run: 
 
-    cargo doc
+    $ cargo doc --no-deps --open
 
 Tests are run on travis ci and can be run locally through cargo like normal Rust builds:
 
-    cargo test -all
+    $ cargo test -all
 
 ### Use - subject to change.
 
