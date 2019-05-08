@@ -1,4 +1,4 @@
-use graph_oauth::oauth::AccessToken;
+use rust_onedrive::oauth::AccessToken;
 use std::thread;
 use std::time::Duration;
 

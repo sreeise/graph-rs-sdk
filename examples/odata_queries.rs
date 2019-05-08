@@ -1,4 +1,4 @@
-use graph_oauth::oauth::OAuth;
+use rust_onedrive::oauth::OAuth;
 #[allow(unused_imports)]
 use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::query_string::QueryString;

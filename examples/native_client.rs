@@ -1,6 +1,6 @@
-use graph_oauth::oauth::ClientCredentialsGrant;
-use graph_oauth::oauth::OAuth;
-use graph_oauth::oauth::OAuthCredential;
+use rust_onedrive::oauth::ClientCredentialsGrant;
+use rust_onedrive::oauth::OAuth;
+use rust_onedrive::oauth::OAuthCredential;
 use transform_request::prelude::*;
 
 /*
