@@ -135,67 +135,6 @@ pub struct Payload {
     iat: Option<u32>,
 }
 
-/*
- 7.2.  Validating a JWT
-
-When validating a JWT, the following steps are performed.  The order
-of the steps is not significant in cases where there are no
-dependencies between the inputs and outputs of the steps.  If any of
-the listed steps fail, then the JWT MUST be rejected -- that is,
-treated by the application as an invalid input.
-
-1.   Verify that the JWT contains at least one period ('.')
-     character.
-
-2.   Let the Encoded JOSE Header be the portion of the JWT before the
-     first period ('.') character.
-
-3.   Base64url decode the Encoded JOSE Header following the
-     restriction that no line breaks, whitespace, or other additional
-     characters have been used.
-
-4.   Verify that the resulting octet sequence is a UTF-8-encoded
-     representation of a completely valid JSON object conforming to
-     RFC 7159 [RFC7159]; let the JOSE Header be this JSON object.
-
-5.   Verify that the resulting JOSE Header includes only parameters
-     and values whose syntax and semantics are both understood and
-     supported or that are specified as being ignored when not
-     understood.
-
-6.   Determine whether the JWT is a JWS or a JWE using any of the
-     methods described in Section 9 of [JWE].
-
-7.   Depending upon whether the JWT is a JWS or JWE, there are two
-     cases:
-
-     *  If the JWT is a JWS, follow the steps specified in [JWS] for
-        validating a JWS.  Let the Message be the result of base64url
-        decoding the JWS Payload.
-
-     *  Else, if the JWT is a JWE, follow the steps specified in
-        [JWE] for validating a JWE.  Let the Message be the resulting
-        plaintext.
-
-8.   If the JOSE Header contains a "cty" (content type) value of
-     "JWT", then the Message is a JWT that was the subject of nested
-     signing or encryption operations.  In this case, return to Step
-     1, using the Message as the JWT.
-
-9.   Otherwise, base64url decode the Message following the
-     restriction that no line breaks, whitespace, or other additional
-     characters have been used.
-
-10.  Verify that the resulting octet sequence is a UTF-8-encoded
-     representation of a completely valid JSON object conforming to
-     RFC 7159 [RFC7159]; let the JWT Claims Set be this JSON object.
-
-Finally, note that it is an application decision which algorithms may
-be used in a given context.  Even if a JWT can be successfully
-validated, unless the algorithms used in the JWT are acceptable to
-the application, it SHOULD reject the JWT.
- */
-
 /// Partial JSON web token (JWT) verification for RFC 7619
 ///
 /// The JWT implementation does not implement full JWT verification.
@@ -232,8 +171,7 @@ impl JWT {
         Ok(())
     }
 
-    // 1. Verify that the JWT contains at least one period ('.')
-    // character.
+    // Step 1.
     #[allow(dead_code)]
     fn contains_period(&self) -> Result<(), OAuthError> {
         if !self.key.contains('.') {
@@ -242,7 +180,7 @@ impl JWT {
         Ok(())
     }
 
-    // Step 2. Let the Encoded JOSE Header be the portion of the JWT before the first period ('.') character.
+    // Step 2.
     #[allow(dead_code)]
     fn encoded_header(&self) -> Result<&str, OAuthError> {
         let index = match self.key.find('.') {
@@ -254,8 +192,7 @@ impl JWT {
         Ok(header)
     }
 
-    // Step 3. Base64url decode the Encoded JOSE Header following the restriction that no
-    // line breaks, whitespace, or other additional characters have been used.
+    // Step 3.
     #[allow(dead_code)]
     fn base64_url_decode_header(&self) -> Result<Vec<u8>, OAuthError> {
         let header = self.encoded_header()?;
@@ -263,9 +200,7 @@ impl JWT {
         Ok(header)
     }
 
-    // Step 4. Verify that the resulting octet sequence is a UTF-8-encoded representation of a
-    // completely valid JSON object conforming to RFC 7159 [RFC7159]; let the JOSE
-    // Header be this JSON object.
+    // Step 4.
     #[allow(dead_code)]
     fn utf8_encode(&self) -> Result<String, OAuthError> {
         let header = self.base64_url_decode_header()?;
@@ -273,10 +208,7 @@ impl JWT {
         Ok(utf8_str.to_string())
     }
 
-    // Step 5. Verify that the resulting JOSE Header includes only parameters
-    // and values whose syntax and semantics are both understood and
-    // supported or that are specified as being ignored when not
-    // understood.
+    // Step 5.
     #[allow(dead_code)]
     fn header_as_json(&self) -> Result<Header, OAuthError> {
         let utf8_encoded = self.utf8_encode()?;
@@ -284,20 +216,15 @@ impl JWT {
         Ok(jwt_header)
     }
 
-    // Step 6. Determine whether the JWT is a JWS or a JWE using any of the
-    // methods described in Section 9 of [JWE].
+    // Step 6.
     pub fn type_of(&self) -> Option<JWTType> {
         let count = self.key.matches('.').count();
         JWTType::type_from(count)
     }
 
-    // Those implementing this library should do key verification
-    // at steps 7.1 and 7.2. This is not provided here.
+    // Steps 7.
 
-    // 8.   If the JOSE Header contains a "cty" (content type) value of
-    //     "JWT", then the Message is a JWT that was the subject of nested
-    //     signing or encryption operations.  In this case, return to Step
-    //     1, using the Message as the JWT.
+    // Step 8.
     fn message_jwt(&mut self) -> Result<(), OAuthError> {
         let v_claim = self.decode_payload()?;
         let claims = v_claim.iter().find(|v| v.key == "cty");
@@ -306,10 +233,7 @@ impl JWT {
                 let mut jwt = JWT::new(value);
                 jwt.validate()?
             } else {
-                // 9. Otherwise, base64url decode the Message following the
-                // restriction that no line breaks, whitespace, or other additional
-                // characters have been used.
-
+                // Step 9.
             }
         }
         Ok(())
@@ -317,26 +241,20 @@ impl JWT {
 
     // TODO: Continue breaking apart steps as needed and remove this method.
     pub fn decode_header(&self) -> Result<Header, OAuthError> {
-        // Step 2. Let the Encoded JOSE Header be the portion of the JWT before the first period ('.') character.
+        // Step 2.
         let index = match self.key.find('.') {
             Some(t) => t,
             None => return OAuthError::invalid_data("Invalid Key"),
         };
 
-        // Step 3. Base64url decode the Encoded JOSE Header following the restriction that no
-        // line breaks, whitespace, or other additional characters have been used.
+        // Step 3.
         let header = &self.key[..index];
         let header = base64::decode_config(&header, base64::URL_SAFE_NO_PAD)?;
 
-        // Step 4. Verify that the resulting octet sequence is a UTF-8-encoded representation of a
-        // completely valid JSON object conforming to RFC 7159 [RFC7159]; let the JOSE
-        // Header be this JSON object.
+        // Step 4.
         let utf8_header = std::str::from_utf8(&header)?;
 
-        // Step 5. Verify that the resulting JOSE Header includes only parameters
-        // and values whose syntax and semantics are both understood and
-        // supported or that are specified as being ignored when not
-        // understood.
+        // Step 5.
         let value = utf8_header.to_owned();
         let jwt_header: Header = serde_json::from_str(&value)?;
 
@@ -356,10 +274,8 @@ impl JWT {
         Ok(vec)
     }
 
+    // Step 10.
     pub fn decode_claims(&mut self) -> std::result::Result<Map<String, Value>, OAuthError> {
-        // 10.  Verify that the resulting octet sequence is a UTF-8-encoded
-        //     representation of a completely valid JSON object conforming to
-        //     RFC 7159 [RFC7159]; let the JWT Claims Set be this JSON object.
         let key_vec: Vec<&str> = self.key.split('.').collect();
         let payload = key_vec.get(1);
 
