@@ -1,4 +1,4 @@
-use graph_oauth::oauth::EncodeBuilder;
+use rust_onedrive::oauth::EncodeBuilder;
 
 fn main() {
     let mut encode_builder = EncodeBuilder::new();

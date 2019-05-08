@@ -50,7 +50,7 @@ impl FileRetriever {
                     Ok(t) => Ok(t.unwrap()),
                     Err(e) => Err(RequestError::from(e)),
                 };
-            },
+            }
             Err(e) => Err(e),
         }
     }
@@ -90,7 +90,7 @@ impl FileRetriever {
                     Ok(t) => Ok(t.unwrap()),
                     Err(e) => Err(RequestError::from(e)),
                 };
-            },
+            }
             Err(e) => Err(e),
         }
     }
@@ -106,13 +106,13 @@ impl FileRetriever {
             .path_segments()
             .and_then(std::iter::Iterator::last)
             .and_then(|name| if name.is_empty() { None } else { Some(name) })
-        {
-            Some(name) => {
-                let dir = directory.as_ref().join(name);
-                Ok((dir, response))
-            },
-            None => Err(RequestError::none_err("url path segments")),
-        }
+            {
+                Some(name) => {
+                    let dir = directory.as_ref().join(name);
+                    Ok((dir, response))
+                }
+                None => Err(RequestError::none_err("url path segments")),
+            }
     }
 
     fn fetch_url_as<P: AsRef<Path>>(
@@ -138,7 +138,7 @@ impl FileRetriever {
             Some(name) => {
                 let dir = directory.as_ref().join(name);
                 Ok((dir, response))
-            },
+            }
             None => Err(RequestError::none_err(
                 "could not get file name from response",
             )),
