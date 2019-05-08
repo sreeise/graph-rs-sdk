@@ -239,7 +239,6 @@ impl JWT {
         Ok(())
     }
 
-    // TODO: Continue breaking apart steps as needed and remove this method.
     pub fn decode_header(&self) -> Result<Header, OAuthError> {
         // Step 2.
         let index = match self.key.find('.') {

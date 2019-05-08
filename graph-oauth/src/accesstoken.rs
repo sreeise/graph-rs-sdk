@@ -358,7 +358,7 @@ impl AccessToken {
 
     pub fn is_valid_jwt(&self) -> bool {
         let mut jwt = JWT::new(&self.access_token);
-        !jwt.validate().is_err()
+        jwt.validate().is_ok()
     }
 }
 

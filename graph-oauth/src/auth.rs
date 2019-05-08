@@ -42,8 +42,8 @@ pub enum OAuthCredential {
 }
 
 impl OAuthCredential {
-    pub fn alias(&self) -> &'static str {
-        match *self {
+    pub fn alias(self) -> &'static str {
+        match self {
             OAuthCredential::ClientId => "client_id",
             OAuthCredential::ClientSecret => "client_secret",
             OAuthCredential::AuthorizeURL => "sign_in_url",
@@ -64,7 +64,7 @@ impl OAuthCredential {
         }
     }
 
-    pub fn hash_alias(&self) -> u64 {
+    pub fn hash_alias(self) -> u64 {
         let to_hash = move |value: &str| {
             let mut s = DefaultHasher::new();
             value.hash(&mut s);
@@ -559,8 +559,8 @@ impl OAuth {
     pub fn get_refresh_token(&self) -> OAuthReq<String> {
         match self.get_access_token() {
             Some(token) => match token.get_refresh_token() {
-                Some(t) => return Ok(t),
-                None => return OAuth::error_from::<String>(OAuthCredential::RefreshToken),
+                Some(t) => Ok(t),
+                None => OAuth::error_from::<String>(OAuthCredential::RefreshToken),
             },
             None => OAuth::error_from::<String>(OAuthCredential::AccessToken),
         }
@@ -584,12 +584,11 @@ impl OAuth {
     fn client(&self, url: &str, code_body: &str, content_type: &str) -> RequestBuilder {
         let client = reqwest::Client::builder().build().unwrap();
         let access_code = self.get(OAuthCredential::AccessCode).unwrap();
-        let rb = client
+        client
             .post(url)
             .header(header::AUTHORIZATION, access_code.as_str())
             .header(header::CONTENT_TYPE, content_type)
-            .body(code_body.to_string());
-        rb
+            .body(code_body.to_string())
     }
 
     pub fn encoded_authorization_url(&mut self) -> OAuthReq<String> {
@@ -616,7 +615,7 @@ impl OAuth {
             url.push('?');
         }
         url.push_str(encoder.finish().as_str());
-        return Ok(url);
+        Ok(url)
     }
 
     pub fn encoded_access_token_uri(&mut self) -> OAuthReq<String> {
@@ -636,7 +635,7 @@ impl OAuth {
         );
 
         let body = encoder.finish();
-        return Ok(body);
+        Ok(body)
     }
 
     pub fn encoded_refresh_token_uri(&mut self) -> OAuthReq<String> {
@@ -656,7 +655,7 @@ impl OAuth {
         );
 
         let body = encoder.finish();
-        return Ok(body);
+        Ok(body)
     }
 }
 

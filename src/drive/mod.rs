@@ -144,7 +144,7 @@ impl Download for Drive {
         match value.microsoft_graph_download_url() {
             Some(download_url) => {
                 let path_buf = FileRetriever::download(directory, download_url.as_str()).unwrap();
-                return Ok(path_buf);
+                Ok(path_buf)
             },
             None => {
                 let client = reqwest::Client::builder()
@@ -182,7 +182,7 @@ impl Download for Drive {
                     .send()?;
 
                 let path_buf = FileRetriever::download(directory, res.url().as_str())?;
-                return Ok(path_buf);
+                Ok(path_buf)
             },
         }
     }

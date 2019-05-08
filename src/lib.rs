@@ -92,16 +92,16 @@ pub mod drive;
 pub mod process;
 
 pub mod prelude {
+    pub use crate::drive::driveitem::DriveItem;
+    pub use crate::drive::query_string::QueryString;
+    pub use crate::drive::Download;
     pub use crate::drive::Drive;
     pub use crate::drive::DriveEndPoint;
-    pub use crate::drive::DriveVersion;
     pub use crate::drive::DriveEvent;
     pub use crate::drive::DriveResource;
-    pub use crate::drive::driveitem::DriveItem;
-    pub use crate::drive::ItemResult;
-    pub use crate::drive::query_string::QueryString;
+    pub use crate::drive::DriveVersion;
     pub use crate::drive::Item;
-    pub use crate::drive::Download;
+    pub use crate::drive::ItemResult;
     pub use crate::transform::*;
 }
 
