@@ -17,9 +17,6 @@ pub type OAuthReq<T> = Result<T, OAuthError>;
 /// OAuthCredential list fields representing common OAuth credentials needed
 /// to perform authentication in various formats such as token flow and
 /// client credentials flow.
-///
-/// OAuthCredential is also represented by the enum Credential in order to
-/// reference these fields without having to pass a String value.
 
 #[derive(
     Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize, EnumIter,
