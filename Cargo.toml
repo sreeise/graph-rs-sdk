@@ -33,12 +33,10 @@ serde_derive = "1.0.88"
 serde-transcode = "1.1.0"
 reqwest = "0.9.6"
 encoding = "0.2.33"
-json = "0.11.13"
 notify = "4.0.0"
 base64 = "0.10.1"
 strum_macros = "0.14.0"
 strum = "0.14.0"
-ring = "0.13.5"
 openssl-sys = "0.9"
 openssl = { version = "^0.10", features = ["vendored"] }
 transform-request = { path = "./transform-request" }

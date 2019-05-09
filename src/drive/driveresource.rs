@@ -6,6 +6,7 @@ use crate::drive::GRAPH_ENDPOINT;
 ///
 /// # See Also:
 /// [Documentation on Drive Resources](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/addressing-driveitems?view=odsp-graph-online)
+///
 /// [Documentation on Drive Resources Continued](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/drive_get?view=odsp-graph-online)
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DriveResource {
@@ -16,17 +17,31 @@ pub enum DriveResource {
     Me,
 }
 
-impl DriveResource {
-    pub fn to_string(&self) -> String {
+impl AsRef<str> for DriveResource {
+    fn as_ref(&self) -> &str {
         match self {
-            DriveResource::Drives => String::from("/drives"),
-            DriveResource::Groups => String::from("/groups"),
-            DriveResource::Sites => String::from("/sites"),
-            DriveResource::Users => String::from("/users"),
-            DriveResource::Me => String::from("/me"),
+            DriveResource::Drives => "/drives",
+            DriveResource::Groups =>"/groups",
+            DriveResource::Sites => "/sites",
+            DriveResource::Users => "/users",
+            DriveResource::Me => "/me",
         }
     }
+}
 
+impl ToString for DriveResource {
+    fn to_string(&self) -> String {
+        match self {
+            DriveResource::Drives => self.as_ref().into(),
+            DriveResource::Groups => self.as_ref().into(),
+            DriveResource::Sites => self.as_ref().into(),
+            DriveResource::Users => self.as_ref().into(),
+            DriveResource::Me => self.as_ref().into(),
+        }
+    }
+}
+
+impl DriveResource {
     pub fn action_url(
         &self,
         drive_id: Option<&str>,
