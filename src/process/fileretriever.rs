@@ -12,10 +12,6 @@ use transform_request::RequestError;
 
 pub struct FileRetriever;
 
-pub trait FileEvent {
-    fn download<P: AsRef<Path>>(directory: P, target: &str) -> ItemResult<PathBuf>;
-}
-
 impl FileRetriever {
     pub fn download<P: AsRef<Path>>(directory: P, target: &str) -> ItemResult<PathBuf> {
         // Create the directory if it does not exist.

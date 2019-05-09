@@ -514,10 +514,8 @@ impl OAuth {
 
 impl OAuth {
     pub fn browser_sign_in(&mut self) -> Result<Output, OAuthError> {
-        match self.get_or_else(OAuthCredential::AuthorizeURL) {
-            Ok(t) => self.browser_sign_in_url(t),
-            Err(e) => Err(e),
-        }
+        let url = self.encoded_authorization_url()?;
+        self.browser_sign_in_url(url)
     }
 
     pub fn browser_sign_in_url(&self, url: String) -> std::result::Result<Output, OAuthError> {
@@ -530,17 +528,21 @@ impl OAuth {
         if !url.ends_with('?') {
             url.push('?');
         }
-        let client_id = self.get_or_else(OAuthCredential::ClientId)?;
-        url.push_str("&client_id=");
-        url.push_str(client_id.as_str());
-        url.push_str("&redirect_uri=");
+
+        let mut vec = vec![
+            url,
+            "&client_id=".to_string(),
+            self.get_or_else(OAuthCredential::ClientId)?,
+            "&redirect_uri=".to_string(),
+        ];
+
         if let Some(redirect) = self.get(OAuthCredential::PostLogoutRedirectURI) {
-            url.push_str(redirect.as_str());
+            vec.push(redirect)
         } else if let Some(redirect) = self.get(OAuthCredential::RedirectURI) {
-            url.push_str(redirect.as_str());
+            vec.push(redirect);
         }
 
-        webbrowser::open(url.as_str()).map_err(OAuthError::from)
+        webbrowser::open(vec.join("").as_str()).map_err(OAuthError::from)
     }
 
     pub fn v2_logout(&self) -> OAuthReq<Output> {
