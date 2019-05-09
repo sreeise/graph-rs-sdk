@@ -11,8 +11,6 @@ exclude = [
     "test_files/*",
     "tests/*",
     "examples/*",
-    "graph-oauth/tests/*",
-    "graph-oauth/tests_files/*"
 ]
 keywords = ["onedrive", "graph", "API"]
 
@@ -68,10 +66,3 @@ travis-ci = { repository = "https://github.com/sreeise/rust-onedrive", branch = 
 
 [profile.release]
 debug = false
-
-[profile.bench]
-debug = false
-
-[profile.dev]
-opt-level = 0
-debug = true

@@ -72,10 +72,21 @@ impl Encoder {
     }
 }
 
+#[derive(Debug)]
 pub struct EncodeBuilder {
     serializer: form_urlencoded::Serializer<String>,
     scopes: Vec<String>,
     url: Option<String>,
+}
+
+impl Default for EncodeBuilder {
+    fn default() -> Self {
+        EncodeBuilder {
+            serializer: form_urlencoded::Serializer::new(String::new()),
+            scopes: Vec::new(),
+            url: None,
+        }
+    }
 }
 
 impl EncodeBuilder {

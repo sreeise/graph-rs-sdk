@@ -24,10 +24,10 @@ fn drive_me() {
     let drive_info: DriveInfo = DriveInfo::from_file("test_files/drive_ep/drive_me.json").unwrap();
     let quota = Quota::new(
         0,
-        1099292078173,
+        1_099_292_078_173,
         "normal".to_string(),
-        1099511627776,
-        106330475,
+        1_099_511_627_776,
+        106_330_475,
     );
     assert_eq!(drive_info.quota().unwrap(), quota);
 }

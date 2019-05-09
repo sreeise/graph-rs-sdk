@@ -46,11 +46,11 @@ impl FileRetriever {
                 });
                 handle.join().expect("Thread could not be joined");
 
-                return match receiver.recv() {
+                match receiver.recv() {
                     Ok(t) => Ok(t.unwrap()),
                     Err(e) => Err(RequestError::from(e)),
-                };
-            }
+                }
+            },
             Err(e) => Err(e),
         }
     }
@@ -86,11 +86,11 @@ impl FileRetriever {
                 });
                 handle.join().expect("Thread could not be joined");
 
-                return match receiver.recv() {
+                match receiver.recv() {
                     Ok(t) => Ok(t.unwrap()),
                     Err(e) => Err(RequestError::from(e)),
-                };
-            }
+                }
+            },
             Err(e) => Err(e),
         }
     }

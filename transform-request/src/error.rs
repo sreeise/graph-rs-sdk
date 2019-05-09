@@ -33,7 +33,7 @@ impl RequestError {
             "Retrieving the value for: {:#?} has resulted in a None value",
             message
         );
-        return RequestError::error_kind(ErrorKind::InvalidData, string.as_str());
+        RequestError::error_kind(ErrorKind::InvalidData, string.as_str())
     }
 }
 

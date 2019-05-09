@@ -22,14 +22,12 @@ fn file_to_string(path: &str) -> String {
 
 #[get("/v1.0/me/drive/root/children")]
 fn drive_root() -> String {
-    let contents = file_to_string("test_files/item_test/drive_root_children.json");
-    contents
+    file_to_string("test_files/item_test/drive_root_children.json")
 }
 
 #[get("/v1.0/me/drive/recent")]
 fn drive_recent() -> String {
-    let contents = file_to_string("test_files/item_test/drive_recent.json");
-    contents
+    file_to_string("test_files/item_test/drive_recent.json")
 }
 
 fn rocket() -> Rocket {
