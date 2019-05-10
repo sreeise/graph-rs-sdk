@@ -156,6 +156,23 @@ fn sign_in_code_url() {
 }
 
 #[test]
+fn sign_in_code_url_with_state() {
+    // Test the sign in url with a manually set response type.
+    let mut oauth = OAuth::new();
+    oauth
+        .authorize_url("https://example.com/oauth2/v2.0/authorize")
+        .client_id("bb301aaa-1201-4259-a230923fds32")
+        .redirect_url("http://localhost:8888/redirect")
+        .response_type("code")
+        .state("state");
+    oauth.add_scope("https://graph.microsoft.com/.default");
+
+    let u = oauth.encoded_authorization_url().unwrap();
+    let s = "https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&state=state&response_mode=query&response_type=code&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default".to_string();
+    assert_eq!(u, s);
+}
+
+#[test]
 fn access_token() {
     let mut oauth = OAuth::new();
     oauth

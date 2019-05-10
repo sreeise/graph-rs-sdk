@@ -49,7 +49,7 @@ impl Error for GraphError {
     }
 
     fn source<'a>(&'a self) -> Option<&(dyn Error + 'static)> {
-        unimplemented!()
+        None
     }
 }
 

@@ -61,42 +61,28 @@ Disclaimer/Important Info:
 This example is meant for testing and is not meant to be production ready or complete.
 */
 fn main() {
-    // Get the OAuth instance specified in the method oauth_web_client() below.
-    let mut oauth = oauth_web_client();
-    // The url used is the same url given in method: OAuth::authorize_url()
-    // Or you can optionally use oauth.browser_sign_in_url("https://login.live.com/oauth20_authorize.srf?");
-    oauth.browser_sign_in().unwrap();
+    // The client_id and client_secret must be changed in the oauth_web_client()
+    // method before running this example.
 
-    rocket::ignite()
-        .mount("/", routes![redirect, recent])
-        .launch();
-}
-
-// Use this in the main method if the browser is redirecting
-// before Rocket has fully started. The redirect url
-// contains the access code to request an access token. The access code
-// is appended to the end of the redirect URL.
-// Rocket is used to retrieve this code from the URL.
-// In cases where the user is redirected automatically
-// such as when the user is already signed in, Rocket may
-// not have started up completely.
-fn with_browser_thread() {
-    // Spawn the browser in a different thread or it may
-    // block Rocket from starting.
-    let code_handle = thread::spawn(|| {
+    // Spawn the browser to sign in within a different thread that waits until
+    // rocket has started. Otherwise, the redirect from sign in may happen
+    // before rocket has started.
+    let handle = thread::spawn(|| {
         // Block the new thread and give enough time for rocket to completely start.
         thread::sleep(Duration::from_secs(2));
         // Get the oauth client and request a browser sign in
         // The url used is the same url given in method: OAuth::authorize_url()
-        // Or you can optionally use oauth.browser_sign_in_url("https://login.live.com/oauth20_authorize.srf?");
+        // You can optionally use oauth.browser_sign_in() which uses the
+        // same URL mentioned above. The query is built from the values passed to
+        // OAuth such as client_id.
         let mut oauth = oauth_web_client();
-        oauth.browser_sign_in().unwrap();
+        oauth.request_authorization().unwrap();
     });
 
     rocket::ignite()
         .mount("/", routes![redirect, recent])
         .launch();
-    code_handle.join().unwrap();
+    handle.join().unwrap();
 }
 
 // Methods for authenticating with the Graph API
@@ -174,7 +160,11 @@ fn redirect(code: &RawStr) -> String {
 
 pub fn set_and_req_access_code(access_code: &str) -> std::result::Result<(), RequestError> {
     let mut oauth = oauth_web_client();
+    // The response type is automatically set to token and the grant type is automatically
+    // set to authorization_code if either of these were not previously set.
+    // This is done here as an example.
     oauth.response_type("token");
+    oauth.grant_type("authorization_code");
     oauth.access_code(access_code);
     oauth.request_access_token().unwrap();
 
