@@ -513,7 +513,8 @@ impl OAuth {
 impl OAuth {
     pub fn browser_sign_in(&mut self) -> Result<Output, OAuthError> {
         let url = self.encoded_authorization_url()?;
-        self.open_in_browser(url)
+        self.browser_sign_in_url(url)
+
     }
 
     pub fn open_in_browser(&self, url: String) -> std::result::Result<Output, OAuthError> {
@@ -645,7 +646,6 @@ impl OAuth {
             ],
             &mut encoder,
         );
-
         Ok(encoder.finish())
     }
 
@@ -668,7 +668,6 @@ impl OAuth {
             ],
             &mut encoder,
         );
-
         Ok(encoder.finish())
     }
 }
