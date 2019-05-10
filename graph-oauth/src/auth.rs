@@ -103,7 +103,6 @@ pub struct OAuth {
     scopes: Vec<String>,
     credentials: BTreeMap<String, String>,
     custom_credentials: BTreeMap<String, String>,
-    encoded: BTreeMap<String, String>,
 }
 
 impl OAuth {
@@ -128,7 +127,6 @@ impl OAuth {
             scopes: Vec::new(),
             credentials: BTreeMap::new(),
             custom_credentials: BTreeMap::new(),
-            encoded: BTreeMap::new(),
         }
     }
 
@@ -515,10 +513,10 @@ impl OAuth {
 impl OAuth {
     pub fn browser_sign_in(&mut self) -> Result<Output, OAuthError> {
         let url = self.encoded_authorization_url()?;
-        self.browser_sign_in_url(url)
+        self.open_in_browser(url)
     }
 
-    pub fn browser_sign_in_url(&self, url: String) -> std::result::Result<Output, OAuthError> {
+    pub fn open_in_browser(&self, url: String) -> std::result::Result<Output, OAuthError> {
         let url = url.as_str();
         webbrowser::open(url).map_err(OAuthError::from)
     }
@@ -541,8 +539,7 @@ impl OAuth {
         } else if let Some(redirect) = self.get(OAuthCredential::RedirectURI) {
             vec.push(redirect);
         }
-
-        webbrowser::open(vec.join("").as_str()).map_err(OAuthError::from)
+        self.open_in_browser(vec.join(""))
     }
 
     pub fn v2_logout(&self) -> OAuthReq<Output> {
@@ -553,7 +550,7 @@ impl OAuth {
             let redirect_uri = self.get_or_else(OAuthCredential::RedirectURI)?;
             url.push_str(redirect_uri.as_str());
         }
-        webbrowser::open(url.as_str()).map_err(OAuthError::from)
+        self.open_in_browser(url)
     }
 }
 
@@ -583,20 +580,26 @@ impl OAuth {
             });
     }
 
-    fn client(&self, url: &str, code_body: &str, content_type: &str) -> RequestBuilder {
-        let client = reqwest::Client::builder().build().unwrap();
-        let access_code = self.get(OAuthCredential::AccessCode).unwrap();
-        client
+    fn client(&self, url: &str, code_body: &str, content_type: &str) -> OAuthReq<RequestBuilder> {
+        let client = reqwest::Client::builder().build()?;
+        let access_code = self.get_or_else(OAuthCredential::AccessCode)?;
+        Ok(client
             .post(url)
             .header(header::AUTHORIZATION, access_code.as_str())
             .header(header::CONTENT_TYPE, content_type)
-            .body(code_body.to_string())
+            .body(code_body.to_string()))
     }
 
     pub fn encoded_authorization_url(&mut self) -> OAuthReq<String> {
         let mut encoder = form_urlencoded::Serializer::new(String::new());
-        self.insert(OAuthCredential::ResponseType, "code".into());
-        self.insert(OAuthCredential::ResponseMode, "query".into());
+        let _ = self
+            .credentials
+            .entry(OAuthCredential::ResponseType.alias().to_string())
+            .or_insert_with(|| "code".to_string());
+        let _ = self
+            .credentials
+            .entry(OAuthCredential::ResponseMode.alias().to_string())
+            .or_insert_with(|| "query".to_string());
         self.form_encode_credentials(
             vec![
                 OAuthCredential::ClientId,
@@ -612,6 +615,7 @@ impl OAuth {
         if !self.scopes.is_empty() {
             encoder.append_pair("scope", self.scopes.join(" ").as_str());
         }
+
         let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
         if !url.ends_with('?') {
             url.push('?');
@@ -622,8 +626,14 @@ impl OAuth {
 
     pub fn encoded_access_token_uri(&mut self) -> OAuthReq<String> {
         let mut encoder = form_urlencoded::Serializer::new(String::new());
-        self.insert(OAuthCredential::ResponseType, "token".into());
-        self.insert(OAuthCredential::GrantType, "authorization_code".into());
+        let _ = self
+            .credentials
+            .entry(OAuthCredential::ResponseType.alias().to_string())
+            .or_insert_with(|| "token".to_string());
+        let _ = self
+            .credentials
+            .entry(OAuthCredential::GrantType.alias().to_string())
+            .or_insert_with(|| "authorization_code".to_string());
         self.form_encode_credentials(
             vec![
                 OAuthCredential::ClientId,
@@ -636,13 +646,16 @@ impl OAuth {
             &mut encoder,
         );
 
-        let body = encoder.finish();
-        Ok(body)
+        Ok(encoder.finish())
     }
 
     pub fn encoded_refresh_token_uri(&mut self) -> OAuthReq<String> {
         let mut encoder = form_urlencoded::Serializer::new(String::new());
-        self.insert(OAuthCredential::GrantType, "refresh_token".into());
+        let _ = self
+            .credentials
+            .entry(OAuthCredential::GrantType.alias().to_string())
+            .or_insert_with(|| "refresh_token".to_string());
+
         let refresh_token = self.get_refresh_token().unwrap();
         encoder.append_pair("refresh_token", &refresh_token);
         self.form_encode_credentials(
@@ -656,97 +669,40 @@ impl OAuth {
             &mut encoder,
         );
 
-        let body = encoder.finish();
-        Ok(body)
+        Ok(encoder.finish())
     }
 }
 
 impl ClientCredentialsGrant for OAuth {
     fn request_authorization(&mut self) -> OAuthReq<Output> {
         // https://tools.ietf.org/html/rfc6749#section-4.1.1
-        let mut encoder = form_urlencoded::Serializer::new(String::new());
-        self.insert(OAuthCredential::ResponseType, "code".into());
-        self.insert(OAuthCredential::ResponseMode, "query".into());
-        self.form_encode_credentials(
-            vec![
-                OAuthCredential::ClientId,
-                OAuthCredential::ClientSecret,
-                OAuthCredential::RedirectURI,
-                OAuthCredential::State,
-                OAuthCredential::ResponseMode,
-                OAuthCredential::ResponseType,
-            ],
-            &mut encoder,
-        );
-
-        if !self.scopes.is_empty() {
-            encoder.append_pair("scope", self.scopes.join(" ").as_str());
-        }
-
-        let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
-        if !url.ends_with('?') {
-            url.push('?');
-        }
-
-        url.push_str(encoder.finish().as_str());
-        webbrowser::open(url.as_str()).map_err(OAuthError::from)
+        let url = self.encoded_authorization_url()?;
+        self.open_in_browser(url)
     }
 
     fn request_access_token(&mut self) -> OAuthReq<()> {
-        let mut encoder = form_urlencoded::Serializer::new(String::new());
-
-        self.insert(OAuthCredential::ResponseType, "token".into());
-        self.insert(OAuthCredential::GrantType, "authorization_code".into());
-        self.form_encode_credentials(
-            vec![
-                OAuthCredential::ClientId,
-                OAuthCredential::ClientSecret,
-                OAuthCredential::RedirectURI,
-                OAuthCredential::ResponseType,
-                OAuthCredential::GrantType,
-                OAuthCredential::AccessCode,
-            ],
-            &mut encoder,
-        );
-
-        let body = encoder.finish();
         let url = self.get_or_else(OAuthCredential::AccessTokenURL).unwrap();
+        let body = self.encoded_access_token_uri()?;
 
         let builder = self.client(
             url.as_str(),
             body.as_str(),
             "application/x-www-form-urlencoded",
-        );
+        )?;
         let access_token = AccessToken::transform(builder)?;
         self.access_token(access_token);
         Ok(())
     }
 
     fn request_refresh_token(&mut self) -> OAuthReq<()> {
-        let mut encoder = form_urlencoded::Serializer::new(String::new());
-        self.insert(OAuthCredential::GrantType, "refresh_token".into());
-        let refresh_token = self.get_refresh_token()?;
-        encoder.append_pair("refresh_token", &refresh_token);
-
-        self.form_encode_credentials(
-            vec![
-                OAuthCredential::ClientId,
-                OAuthCredential::ClientSecret,
-                OAuthCredential::RedirectURI,
-                OAuthCredential::GrantType,
-                OAuthCredential::AccessCode,
-            ],
-            &mut encoder,
-        );
-
         let url = self.get_or_else(OAuthCredential::RefreshTokenURL)?;
-        let body = encoder.finish();
+        let body = self.encoded_refresh_token_uri()?;
 
         let builder = self.client(
             url.as_str(),
             body.as_str(),
             "application/x-www-form-urlencoded",
-        );
+        )?;
         let access_token = AccessToken::transform(builder)?;
         self.access_token(access_token);
         Ok(())
@@ -788,6 +744,6 @@ impl ImplicitGrant for OAuth {
         let body = encoder.finish();
         url.push_str(body.as_str());
 
-        self.browser_sign_in_url(url)
+        self.open_in_browser(url)
     }
 }

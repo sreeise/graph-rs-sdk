@@ -51,8 +51,8 @@ impl fmt::Display for OAuthError {
             OAuthError::SerdeError(ref err) => write!(f, "Serde error: {}", err),
             OAuthError::DecodeError(ref err) => write!(f, "Base 64 decode error: {}", err),
             OAuthError::GraphError(ref err) => write!(f, "Graph error: {}", err),
-            OAuthError::RequestError(ref err) => write!(f, "Graph error: {}", err),
-            OAuthError::BorrowMutError(ref err) => write!(f, "Graph error: {}", err),
+            OAuthError::RequestError(ref err) => write!(f, "Request error: {}", err),
+            OAuthError::BorrowMutError(ref err) => write!(f, "Borrow Mut Error error: {}", err),
         }
     }
 }
@@ -83,7 +83,7 @@ impl error::Error for OAuthError {
             OAuthError::SerdeError(ref err) => Some(err),
             OAuthError::DecodeError(ref err) => Some(err),
             OAuthError::RequestError(ref err) => Some(err),
-            OAuthError::GraphError(_) => unimplemented!(),
+            OAuthError::GraphError(ref err) => Some(err),
             OAuthError::BorrowMutError(ref err) => Some(err),
         }
     }
@@ -140,8 +140,7 @@ impl From<ErrorKind> for OAuthError {
 
 impl From<GraphError> for OAuthError {
     fn from(err: GraphError) -> Self {
-        let e = io::Error::new(ErrorKind::InvalidData, err);
-        OAuthError::from(e)
+        OAuthError::GraphError(err)
     }
 }
 

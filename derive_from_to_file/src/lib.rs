@@ -24,7 +24,7 @@ pub fn derive_from_file(input: proc_macro::TokenStream) -> proc_macro::TokenStre
         }
     };
 
-    proc_macro::TokenStream::from(expanded).into()
+    proc_macro::TokenStream::from(expanded)
 }
 
 /// ToFile derive for the transform_request::ToFile trait.

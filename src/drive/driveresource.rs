@@ -21,7 +21,7 @@ impl AsRef<str> for DriveResource {
     fn as_ref(&self) -> &str {
         match self {
             DriveResource::Drives => "/drives",
-            DriveResource::Groups =>"/groups",
+            DriveResource::Groups => "/groups",
             DriveResource::Sites => "/sites",
             DriveResource::Users => "/users",
             DriveResource::Me => "/me",
