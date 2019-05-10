@@ -185,7 +185,7 @@ impl OAuth {
         self.credentials.contains_key(key)
     }
 
-    /// Check if an OAuth credential has already been set.
+    /// Remove a field from OAuth.
     ///
     /// # Example
     /// ```
@@ -205,7 +205,7 @@ impl OAuth {
         self
     }
 
-    /// Check if an OAuth credential has already been set.
+    /// Set the client id for an OAuth request.
     ///
     /// # Example
     /// ```
@@ -219,7 +219,7 @@ impl OAuth {
         self.insert(OAuthCredential::ClientId, client_id.into())
     }
 
-    /// Set the client secret for an OAuth request.
+    /// Set the state for an OAuth request.
     ///
     /// # Example
     /// ```
@@ -246,8 +246,7 @@ impl OAuth {
         self.insert(OAuthCredential::ClientSecret, value.into())
     }
 
-    /// Set the auth url of a request
-    /// Set the authorization URL for OAuth.
+    /// Set the authorization URL.
     ///
     /// # Example
     /// ```
@@ -260,7 +259,7 @@ impl OAuth {
         self.insert(OAuthCredential::AuthorizeURL, value.into())
     }
 
-    /// Set the token url of a request for OAuth
+    /// Set the access token url of a request for OAuth
     ///
     /// # Example
     /// ```
@@ -273,7 +272,7 @@ impl OAuth {
         self.insert(OAuthCredential::AccessTokenURL, value.into())
     }
 
-    /// Set the token url of a request for OAuth
+    /// Set the refresh token url of a request for OAuth
     ///
     /// # Example
     /// ```
@@ -286,7 +285,7 @@ impl OAuth {
         self.insert(OAuthCredential::RefreshTokenURL, value.into())
     }
 
-    /// Set the redirect uri of a request
+    /// Set the redirect url of a request
     ///
     /// # Example
     /// ```
@@ -299,7 +298,7 @@ impl OAuth {
         self.insert(OAuthCredential::RedirectURI, value.into())
     }
 
-    /// Set the redirect uri.
+    /// Set the access code.
     ///
     /// # Example
     /// ```
@@ -325,7 +324,7 @@ impl OAuth {
         self.insert(OAuthCredential::ResponseMode, value.into())
     }
 
-    /// Set the response mode.
+    /// Set the response type.
     ///
     /// # Example
     /// ```
@@ -338,7 +337,7 @@ impl OAuth {
         self.insert(OAuthCredential::ResponseType, value.into())
     }
 
-    /// Set the response mode.
+    /// Set the nonce.
     ///
     /// # Example
     /// ```
@@ -351,7 +350,7 @@ impl OAuth {
         self.insert(OAuthCredential::Nonce, value.into())
     }
 
-    /// Set the response mode.
+    /// Set the grant_type.
     ///
     /// # Example
     /// ```
@@ -407,7 +406,7 @@ impl OAuth {
         self
     }
 
-    /// Add a scope' for the OAuth URL.
+    /// Get the scopes.
     ///
     /// # Example
     /// ```
@@ -513,8 +512,7 @@ impl OAuth {
 impl OAuth {
     pub fn browser_sign_in(&mut self) -> Result<Output, OAuthError> {
         let url = self.encoded_authorization_url()?;
-        self.browser_sign_in_url(url)
-
+        self.open_in_browser(url)
     }
 
     pub fn open_in_browser(&self, url: String) -> std::result::Result<Output, OAuthError> {
