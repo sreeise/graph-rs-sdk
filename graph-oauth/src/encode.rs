@@ -5,9 +5,7 @@ use url::form_urlencoded;
 use url::percent_encoding::{utf8_percent_encode, EncodeSet};
 
 #[derive(Debug)]
-pub struct Encoder {
-    builder: form_urlencoded::Serializer<String>,
-}
+pub struct Encoder {}
 
 impl Encoder {
     #[allow(dead_code)]

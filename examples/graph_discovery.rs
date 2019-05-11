@@ -18,3 +18,10 @@ fn main() {
     // need the other values.
     let _oauth: OAuth = GraphDiscovery::V1.oauth().unwrap();
 }
+
+#[allow(dead_code)]
+fn tenant_discovery() {
+    let _oauth: OAuth = GraphDiscovery::Tenant("<YOUR_TENANT_ID>".into())
+        .oauth()
+        .unwrap();
+}

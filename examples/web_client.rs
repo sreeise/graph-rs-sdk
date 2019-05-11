@@ -6,8 +6,8 @@ fn main() {
     let mut oauth = web_client();
 
     // Run this first, then get the code from the browser URL. Afterward,
-    // comment out the the browser_sign_in() method below and run set_code_request_token(your_access_token).
-    oauth.browser_sign_in().unwrap();
+    // comment out the the request_authorization() method below and run set_code_request_token(your_access_token).
+    oauth.request_authorization().unwrap();
 
     /*
     browser_flow() opens users default browser to the authentication page

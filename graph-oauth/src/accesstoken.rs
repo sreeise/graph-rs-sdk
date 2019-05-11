@@ -1,3 +1,4 @@
+use crate::idtoken::IdToken;
 use crate::jwt::JWT;
 use crate::oautherror::OAuthError;
 use crate::stdop::StdOp;
@@ -42,7 +43,7 @@ pub struct AccessToken {
     scope: String,
     refresh_token: Option<String>,
     user_id: Option<String>,
-    id_token: Option<String>,
+    id_token: Option<IdToken>,
     state: Option<String>,
     timestamp: Option<DateTime<Utc>>,
 }
@@ -158,13 +159,13 @@ impl AccessToken {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::AccessToken;
+    /// # use graph_oauth::oauth::{AccessToken, IdToken};
     ///
     /// let mut access_token = AccessToken::default();
-    /// access_token.id_token(Some("id_token"));
+    /// access_token.id_token(Some(IdToken::new("12345")));
     /// ```
-    pub fn id_token(&mut self, s: Option<&str>) -> &mut AccessToken {
-        self.id_token = StdOp::from(s);
+    pub fn id_token(&mut self, s: Option<IdToken>) -> &mut AccessToken {
+        self.id_token = s;
         self
     }
 
@@ -173,6 +174,7 @@ impl AccessToken {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::AccessToken;
+    /// # use graph_oauth::oauth::IdToken;
     ///
     /// let mut access_token = AccessToken::default();
     /// access_token.state(Some("state"));
@@ -288,7 +290,7 @@ impl AccessToken {
     /// let mut access_token = AccessToken::default();
     /// println!("{:#?}", access_token.get_id_token());
     /// ```
-    pub fn get_id_token(&self) -> Option<String> {
+    pub fn get_id_token(&self) -> Option<IdToken> {
         self.id_token.clone()
     }
 
@@ -407,14 +409,21 @@ impl Transform<&str> for AccessToken {
 /// Transforms a Result<Response> where response: reqwest::Response
 /// to Result<AccessToken, OAuthError> using serde_json
 impl Transform<Result<reqwest::Response, reqwest::Error>> for AccessToken {
-    type Err = RequestError;
+    type Err = OAuthError;
 
     fn transform(rhs: Result<reqwest::Response, reqwest::Error>) -> Result<Self, Self::Err>
     where
         Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
-        let mut r: Response = rhs?;
-        let t: AccessToken = r.json()?;
+        let mut response: Response = rhs?;
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            let mut graph_error = GraphError::from(status);
+            let graph_headers = GraphHeaders::from(&mut response);
+            graph_error.set_headers(graph_headers);
+            return Err(OAuthError::from(graph_error));
+        }
+        let t: AccessToken = response.json()?;
         Ok(t)
     }
 }
@@ -426,15 +435,8 @@ impl Transform<RequestBuilder> for AccessToken {
     where
         Self: Serialize + for<'de> Deserialize<'de>,
     {
-        let mut res = rhs.send()?;
-        let status = res.status().as_u16();
-        if GraphError::is_error(status) {
-            let mut graph_error = GraphError::from(status);
-            let graph_headers = GraphHeaders::from(&mut res);
-            graph_error.set_headers(graph_headers);
-            return Err(OAuthError::from(graph_error));
-        }
-        let access_token: AccessToken = AccessToken::transform(&mut res)?;
+        let mut response = rhs.send()?;
+        let access_token: AccessToken = AccessToken::transform(&mut response)?;
         Ok(access_token)
     }
 }

@@ -163,20 +163,14 @@ impl JWT {
     }
 
     pub fn validate(&mut self) -> Result<(), OAuthError> {
-        self.contains_period()?;
+        // Step 1.
+        if !self.key.contains('.') {
+            return OAuthError::invalid_data("Invalid Key");
+        }
         let header = self.decode_header()?;
         self.header = Some(header);
         self.message_jwt()?;
 
-        Ok(())
-    }
-
-    // Step 1.
-    #[allow(dead_code)]
-    fn contains_period(&self) -> Result<(), OAuthError> {
-        if !self.key.contains('.') {
-            return OAuthError::invalid_data("Invalid Key");
-        }
         Ok(())
     }
 

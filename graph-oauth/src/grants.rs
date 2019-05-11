@@ -1,16 +1,22 @@
 use crate::auth::OAuthReq;
-use crate::oautherror::OAuthError;
-use reqwest::{RequestBuilder, Response};
 use std::process::Output;
+
+pub enum GrantRequest {
+    Authorization,
+    AccessToken,
+    RefreshToken,
+}
+
+pub enum GrantType {
+    ClientCredentials(GrantRequest),
+    Implicit(GrantRequest),
+    OpenId(GrantRequest),
+}
 
 pub trait ClientCredentialsGrant {
     fn request_authorization(&mut self) -> OAuthReq<Output>;
     fn request_access_token(&mut self) -> OAuthReq<()>;
     fn request_refresh_token(&mut self) -> OAuthReq<()>;
-
-    fn send(&mut self, builder: RequestBuilder) -> OAuthReq<Response> {
-        builder.send().map_err(OAuthError::from)
-    }
 }
 
 pub trait ImplicitGrant {
@@ -18,5 +24,6 @@ pub trait ImplicitGrant {
 }
 
 pub trait OpenId {
-    fn request_authorization(&mut self);
+    fn request_authorization(&mut self) -> OAuthReq<Output>;
+    fn request_access_token(&mut self) -> OAuthReq<()>;
 }
