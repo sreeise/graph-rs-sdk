@@ -1,9 +1,10 @@
 use crate::accesstoken::AccessToken;
-use crate::grants::{ClientCredentialsGrant, ImplicitGrant};
+use crate::grants::{ClientCredentialsGrant, GrantRequest, GrantType, ImplicitGrant, OpenId};
+use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
 use reqwest::{header, RequestBuilder};
 use std::collections::btree_map::BTreeMap;
-use std::collections::{hash_map::DefaultHasher, HashMap};
+use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::io::ErrorKind;
 use std::process::Output;
@@ -33,9 +34,13 @@ pub enum OAuthCredential {
     RefreshToken,
     ResponseMode,
     State,
+    SessionState,
     ResponseType,
     GrantType,
     Nonce,
+    Prompt,
+    IdToken,
+    Resource,
     Scopes,
     PostLogoutRedirectURI,
     LogoutURL,
@@ -56,8 +61,12 @@ impl OAuthCredential {
             OAuthCredential::ResponseMode => "response_mode",
             OAuthCredential::ResponseType => "response_type",
             OAuthCredential::State => "state",
+            OAuthCredential::SessionState => "session_state",
             OAuthCredential::GrantType => "grant_type",
             OAuthCredential::Nonce => "nonce",
+            OAuthCredential::Prompt => "prompt",
+            OAuthCredential::IdToken => "id_token",
+            OAuthCredential::Resource => "resource",
             OAuthCredential::Scopes => "scope",
             OAuthCredential::LogoutURL => "logout_url",
             OAuthCredential::PostLogoutRedirectURI => "post_logout_redirect_uri",
@@ -147,8 +156,15 @@ impl OAuth {
     /// println!("{:#?}", oauth.get(OAuthCredential::AuthorizeURL));
     /// ```
     pub fn insert(&mut self, oac: OAuthCredential, value: String) -> &mut OAuth {
-        self.credentials.insert(oac.alias().to_string(), value);
+        self.credentials
+            .insert(oac.alias().to_string(), value.trim().to_string());
         self
+    }
+
+    pub fn entry(&mut self, oac: OAuthCredential, value: &str) -> &mut String {
+        self.credentials
+            .entry(oac.alias().to_string())
+            .or_insert_with(|| value.to_string())
     }
 
     /// Get a previously set credential.
@@ -350,6 +366,42 @@ impl OAuth {
         self.insert(OAuthCredential::Nonce, value.into())
     }
 
+    /// Set the prompt for open id.
+    ///
+    /// # Example
+    /// ```
+    /// use graph_oauth::oauth::OAuth;
+    ///
+    /// let mut oauth = OAuth::new();
+    /// oauth.prompt("login");
+    /// ```
+    pub fn prompt(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::Prompt, value.into())
+    }
+
+    /// Set id token for open id.
+    ///
+    /// # Example
+    /// ```
+    /// use graph_oauth::oauth::{OAuth, IdToken};
+    ///
+    /// let mut oauth = OAuth::new();
+    /// oauth.id_token(IdToken::new("1345"));
+    /// ```
+    pub fn id_token(&mut self, value: IdToken) -> &mut OAuth {
+        self.insert(OAuthCredential::IdToken, value.get_id_token());
+        if let Some(code) = value.get_code() {
+            self.insert(OAuthCredential::AccessCode, code);
+        }
+        if let Some(state) = value.get_state() {
+            let _ = self.entry(OAuthCredential::State, state.as_str());
+        }
+        if let Some(session_state) = value.get_session_state() {
+            self.insert(OAuthCredential::SessionState, session_state);
+        }
+        self.insert(OAuthCredential::IdToken, value.get_id_token())
+    }
+
     /// Set the grant_type.
     ///
     /// # Example
@@ -510,11 +562,6 @@ impl OAuth {
 }
 
 impl OAuth {
-    pub fn browser_sign_in(&mut self) -> Result<Output, OAuthError> {
-        let url = self.encoded_authorization_url()?;
-        self.open_in_browser(url)
-    }
-
     pub fn open_in_browser(&self, url: String) -> std::result::Result<Output, OAuthError> {
         let url = url.as_str();
         webbrowser::open(url).map_err(OAuthError::from)
@@ -571,9 +618,11 @@ impl OAuth {
     ) {
         pairs
             .iter()
-            .filter(|oac| self.contains_key(oac.alias()))
+            .filter(|oac| self.contains_key(oac.alias()) || oac.alias().eq("scope"))
             .for_each(|oac| {
-                if let Some(val) = self.get(oac.clone()) {
+                if oac.alias().eq("scope") && !self.scopes.is_empty() {
+                    encoder.append_pair("scope", self.scopes.join(" ").as_str());
+                } else if let Some(val) = self.get(oac.clone()) {
                     encoder.append_pair(oac.alias(), val.as_str());
                 }
             });
@@ -589,100 +638,159 @@ impl OAuth {
             .body(code_body.to_string()))
     }
 
-    pub fn encoded_authorization_url(&mut self) -> OAuthReq<String> {
+    pub fn encode_uri(&mut self, grant_type: GrantType) -> OAuthReq<String> {
         let mut encoder = form_urlencoded::Serializer::new(String::new());
-        let _ = self
-            .credentials
-            .entry(OAuthCredential::ResponseType.alias().to_string())
-            .or_insert_with(|| "code".to_string());
-        let _ = self
-            .credentials
-            .entry(OAuthCredential::ResponseMode.alias().to_string())
-            .or_insert_with(|| "query".to_string());
-        self.form_encode_credentials(
-            vec![
-                OAuthCredential::ClientId,
-                OAuthCredential::ClientSecret,
-                OAuthCredential::RedirectURI,
-                OAuthCredential::State,
-                OAuthCredential::ResponseMode,
-                OAuthCredential::ResponseType,
-            ],
-            &mut encoder,
-        );
+        match grant_type {
+            GrantType::ClientCredentials(request_type) => match request_type {
+                GrantRequest::Authorization => {
+                    let _ = self.entry(OAuthCredential::ResponseType, "code");
+                    let _ = self.entry(OAuthCredential::ResponseMode, "query");
+                    self.form_encode_credentials(
+                        vec![
+                            OAuthCredential::ClientId,
+                            OAuthCredential::ClientSecret,
+                            OAuthCredential::RedirectURI,
+                            OAuthCredential::State,
+                            OAuthCredential::ResponseMode,
+                            OAuthCredential::ResponseType,
+                            OAuthCredential::Scopes,
+                        ],
+                        &mut encoder,
+                    );
 
-        if !self.scopes.is_empty() {
-            encoder.append_pair("scope", self.scopes.join(" ").as_str());
+                    let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
+                    if !url.ends_with('?') {
+                        url.push('?');
+                    }
+                    url.push_str(encoder.finish().as_str());
+                    Ok(url)
+                },
+                GrantRequest::AccessToken => {
+                    let _ = self.entry(OAuthCredential::ResponseType, "token");
+                    let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                    self.form_encode_credentials(
+                        vec![
+                            OAuthCredential::ClientId,
+                            OAuthCredential::ClientSecret,
+                            OAuthCredential::RedirectURI,
+                            OAuthCredential::ResponseType,
+                            OAuthCredential::GrantType,
+                            OAuthCredential::AccessCode,
+                        ],
+                        &mut encoder,
+                    );
+                    Ok(encoder.finish())
+                },
+                GrantRequest::RefreshToken => {
+                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                    let refresh_token = self.get_refresh_token()?;
+                    encoder.append_pair("refresh_token", &refresh_token);
+                    self.form_encode_credentials(
+                        vec![
+                            OAuthCredential::ClientId,
+                            OAuthCredential::ClientSecret,
+                            OAuthCredential::RedirectURI,
+                            OAuthCredential::GrantType,
+                            OAuthCredential::AccessCode,
+                        ],
+                        &mut encoder,
+                    );
+                    Ok(encoder.finish())
+                },
+            },
+            GrantType::Implicit(request_type) => match request_type {
+                GrantRequest::Authorization |
+                GrantRequest::AccessToken |
+                GrantRequest::RefreshToken => {
+                    if !self.scopes.is_empty() &&
+                        (self.scopes.contains(&"offline_access".to_string()) ||
+                            self.scopes.contains(&"wl.offline_access".to_string()))
+                    {
+                        return Err(OAuthError::error_kind(
+                            ErrorKind::InvalidData,
+                            "Implicit grant types cannot use offline access scopes",
+                        ));
+                    }
+
+                    let _ = self.entry(OAuthCredential::ResponseType, "token");
+                    self.form_encode_credentials(
+                        vec![
+                            OAuthCredential::ClientId,
+                            OAuthCredential::RedirectURI,
+                            OAuthCredential::Scopes,
+                            OAuthCredential::ResponseType,
+                        ],
+                        &mut encoder,
+                    );
+                    let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
+                    if !url.ends_with('?') {
+                        url.push('?');
+                    }
+                    url.push_str(encoder.finish().as_str());
+                    Ok(url)
+                },
+            },
+            GrantType::OpenId(request_type) => match request_type {
+                GrantRequest::Authorization => {
+                    let _ = self.entry(OAuthCredential::ResponseMode, "form_post");
+                    self.form_encode_credentials(
+                        vec![
+                            OAuthCredential::ClientId,
+                            OAuthCredential::ResponseType,
+                            OAuthCredential::RedirectURI,
+                            OAuthCredential::ResponseMode,
+                            OAuthCredential::Scopes,
+                            OAuthCredential::State,
+                            OAuthCredential::Nonce,
+                            OAuthCredential::Prompt,
+                            OAuthCredential::Resource,
+                        ],
+                        &mut encoder,
+                    );
+
+                    let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
+                    if !url.ends_with('?') {
+                        url.push('?');
+                    }
+                    url.push_str(encoder.finish().as_str());
+                    Ok(url)
+                },
+                GrantRequest::AccessToken => {
+                    let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                    self.form_encode_credentials(
+                        vec![
+                            OAuthCredential::ClientId,
+                            OAuthCredential::ClientSecret,
+                            OAuthCredential::ResponseType,
+                            OAuthCredential::RedirectURI,
+                            OAuthCredential::ResponseMode,
+                            OAuthCredential::Scopes,
+                            OAuthCredential::State,
+                            OAuthCredential::Nonce,
+                            OAuthCredential::Resource,
+                        ],
+                        &mut encoder,
+                    );
+                    Ok(encoder.finish())
+                },
+                GrantRequest::RefreshToken => unimplemented!(),
+            },
         }
-
-        let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
-        if !url.ends_with('?') {
-            url.push('?');
-        }
-        url.push_str(encoder.finish().as_str());
-        Ok(url)
-    }
-
-    pub fn encoded_access_token_uri(&mut self) -> OAuthReq<String> {
-        let mut encoder = form_urlencoded::Serializer::new(String::new());
-        let _ = self
-            .credentials
-            .entry(OAuthCredential::ResponseType.alias().to_string())
-            .or_insert_with(|| "token".to_string());
-        let _ = self
-            .credentials
-            .entry(OAuthCredential::GrantType.alias().to_string())
-            .or_insert_with(|| "authorization_code".to_string());
-        self.form_encode_credentials(
-            vec![
-                OAuthCredential::ClientId,
-                OAuthCredential::ClientSecret,
-                OAuthCredential::RedirectURI,
-                OAuthCredential::ResponseType,
-                OAuthCredential::GrantType,
-                OAuthCredential::AccessCode,
-            ],
-            &mut encoder,
-        );
-        Ok(encoder.finish())
-    }
-
-    pub fn encoded_refresh_token_uri(&mut self) -> OAuthReq<String> {
-        let mut encoder = form_urlencoded::Serializer::new(String::new());
-        let _ = self
-            .credentials
-            .entry(OAuthCredential::GrantType.alias().to_string())
-            .or_insert_with(|| "refresh_token".to_string());
-
-        let refresh_token = self.get_refresh_token().unwrap();
-        encoder.append_pair("refresh_token", &refresh_token);
-        self.form_encode_credentials(
-            vec![
-                OAuthCredential::ClientId,
-                OAuthCredential::ClientSecret,
-                OAuthCredential::RedirectURI,
-                OAuthCredential::GrantType,
-                OAuthCredential::AccessCode,
-            ],
-            &mut encoder,
-        );
-        Ok(encoder.finish())
     }
 }
 
 impl ClientCredentialsGrant for OAuth {
     fn request_authorization(&mut self) -> OAuthReq<Output> {
         // https://tools.ietf.org/html/rfc6749#section-4.1.1
-        let url = self.encoded_authorization_url()?;
+        let url = self.encode_uri(GrantType::ClientCredentials(GrantRequest::Authorization))?;
         self.open_in_browser(url)
     }
 
     fn request_access_token(&mut self) -> OAuthReq<()> {
-        let url = self.get_or_else(OAuthCredential::AccessTokenURL).unwrap();
-        let body = self.encoded_access_token_uri()?;
-
+        let url = self.get_or_else(OAuthCredential::AccessTokenURL)?;
+        let body = self.encode_uri(GrantType::ClientCredentials(GrantRequest::AccessToken))?;
         let builder = self.client(
-            url.as_str(),
+            url.trim(),
             body.as_str(),
             "application/x-www-form-urlencoded",
         )?;
@@ -693,10 +801,9 @@ impl ClientCredentialsGrant for OAuth {
 
     fn request_refresh_token(&mut self) -> OAuthReq<()> {
         let url = self.get_or_else(OAuthCredential::RefreshTokenURL)?;
-        let body = self.encoded_refresh_token_uri()?;
-
+        let body = self.encode_uri(GrantType::ClientCredentials(GrantRequest::RefreshToken))?;
         let builder = self.client(
-            url.as_str(),
+            url.trim(),
             body.as_str(),
             "application/x-www-form-urlencoded",
         )?;
@@ -709,38 +816,27 @@ impl ClientCredentialsGrant for OAuth {
 impl ImplicitGrant for OAuth {
     fn request_access_token(&mut self) -> OAuthReq<Output> {
         // https://tools.ietf.org/html/rfc6749#section-4.2
-        let mut encoder = form_urlencoded::Serializer::new(String::new());
-        let mut map = HashMap::new();
-        let client_id = self.get_or_else(OAuthCredential::ClientId)?;
-        let redirect_uri = self.get_or_else(OAuthCredential::RedirectURI)?;
-
-        map.insert("client_id", client_id.as_str());
-        map.insert("redirect_uri", redirect_uri.as_str());
-
-        let scope = self.get_scopes(" ");
-        if !scope.is_empty() {
-            if scope.contains("offline_access") || scope.contains("wl.offline_access") {
-                return Err(OAuthError::error_kind(
-                    ErrorKind::InvalidData,
-                    "Implicit grant types cannot use offline access scopes",
-                ));
-            }
-            map.insert("scope", scope.as_str());
-        }
-
-        map.insert("response_type", "token");
-        map.iter().for_each(|(key, value)| {
-            encoder.append_pair(*key, *value);
-        });
-
-        let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
-        if !url.ends_with('?') {
-            url.push('?');
-        }
-
-        let body = encoder.finish();
-        url.push_str(body.as_str());
-
+        let url = self.encode_uri(GrantType::Implicit(GrantRequest::AccessToken))?;
         self.open_in_browser(url)
+    }
+}
+
+impl OpenId for OAuth {
+    fn request_authorization(&mut self) -> OAuthReq<Output> {
+        let url = self.encode_uri(GrantType::OpenId(GrantRequest::Authorization))?;
+        self.open_in_browser(url)
+    }
+
+    fn request_access_token(&mut self) -> OAuthReq<()> {
+        let url = self.get_or_else(OAuthCredential::AccessTokenURL)?;
+        let body = self.encode_uri(GrantType::OpenId(GrantRequest::AccessToken))?;
+        let builder = self.client(
+            url.trim(),
+            body.as_str(),
+            "application/x-www-form-urlencoded",
+        )?;
+        let access_token = AccessToken::transform(builder)?;
+        self.access_token(access_token);
+        Ok(())
     }
 }

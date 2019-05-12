@@ -73,7 +73,12 @@ impl GraphDiscovery {
                 Ok(t)
             },
             GraphDiscovery::Tenant(tenant) => {
-                let t: T = Commons::signing_keys(tenant.as_str())?;
+                let url = vec![
+                    "https://login.microsoftonline.com/",
+                    &tenant,
+                    "/.well-known/openid-configuration",
+                ];
+                let t: T = Commons::signing_keys(url.join("").as_str())?;
                 Ok(t)
             },
         }
@@ -109,7 +114,12 @@ impl GraphDiscovery {
                 Ok(oauth)
             },
             GraphDiscovery::Tenant(tenant) => {
-                let k: MicrosoftSigningKeysV2 = Commons::signing_keys(tenant.as_str())?;
+                let url = vec![
+                    "https://login.microsoftonline.com/",
+                    &tenant,
+                    "/.well-known/openid-configuration",
+                ];
+                let k: MicrosoftSigningKeysV2 = Commons::signing_keys(url.join("").as_str())?;
                 oauth
                     .authorize_url(k.authorization_endpoint.as_str())
                     .access_token_url(k.token_endpoint.as_str())

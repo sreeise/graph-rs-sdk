@@ -13,6 +13,7 @@ mod auth;
 mod discovery;
 mod encode;
 mod grants;
+mod idtoken;
 pub mod jwt;
 mod oautherror;
 mod stdop;
@@ -25,8 +26,13 @@ pub mod oauth {
     pub use crate::discovery::jwtkeys;
     pub use crate::discovery::wellknown;
     pub use crate::encode::EncodeBuilder;
+    pub use crate::encode::Encoder;
     pub use crate::grants::ClientCredentialsGrant;
+    pub use crate::grants::GrantRequest;
+    pub use crate::grants::GrantType;
     pub use crate::grants::ImplicitGrant;
+    pub use crate::grants::OpenId;
+    pub use crate::idtoken::IdToken;
     pub use crate::oautherror::OAuthError;
 }
 

@@ -46,7 +46,7 @@ pub struct JWTKeys {
 impl JWTKeys {
     #[allow(dead_code)]
     pub fn discovery() -> Result<JWTKeys, RequestError> {
-        let client = reqwest::Client::builder().build().unwrap();
+        let client = reqwest::Client::builder().build()?;
         let url = String::from("https://login.microsoftonline.com/common/discovery/keys");
         let response = client.get(&url).send();
 
