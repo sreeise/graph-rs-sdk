@@ -31,7 +31,10 @@ pub mod oauth {
     pub use crate::grants::GrantRequest;
     pub use crate::grants::GrantType;
     pub use crate::grants::ImplicitGrant;
-    pub use crate::grants::OpenId;
+    pub use crate::grants::OpenIdConnect;
+    pub use crate::grants::TokenFlow;
+    pub use crate::grants::CodeFlow;
+    pub use crate::grants::AuthorizationCodeGrant;
     pub use crate::idtoken::IdToken;
     pub use crate::oautherror::OAuthError;
 }

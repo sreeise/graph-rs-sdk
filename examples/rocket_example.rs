@@ -11,7 +11,7 @@ use rocket::http::RawStr;
 use rocket_codegen::routes;
 use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::{Drive, EP};
-use rust_onedrive::oauth::{ClientCredentialsGrant, OAuth};
+use rust_onedrive::oauth::{CodeFlow, OAuth};
 use std::thread;
 use std::time::Duration;
 use transform_request::RequestError;
@@ -28,10 +28,7 @@ as the related information for the Microsoft Graph/OneDrive API
 The examples below have been built to work for the Microsoft Graph API V1 and V2
 for personal and business Microsoft accounts. Using Azure AD may work but
 this has not been tested. This example goes through the OAuth code flow
-for Microsoft accounts. This type of authentication would normally
-run on a server where you can listen for the url being redirected to
-after authentication. The is the same redirect url that will be specified
-below when creating the OAuth instance in method oauth_web_client().
+for Microsoft accounts.
 
 Setup:
 

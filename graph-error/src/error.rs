@@ -2,6 +2,7 @@ use crate::GraphHeaders;
 use std::error::Error;
 use std::fmt;
 use std::string::ToString;
+use reqwest::Response;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GraphError {
@@ -167,5 +168,14 @@ impl From<u16> for GraphError {
             error_type,
             code: err,
         }
+    }
+}
+
+impl From<&mut Response> for GraphError {
+    fn from(r: &mut Response) -> Self {
+        let status = r.status().as_u16();
+        let mut graph_error = GraphError::from(status);
+        graph_error.set_headers(GraphHeaders::from(r));
+        graph_error
     }
 }

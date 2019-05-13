@@ -1,4 +1,4 @@
-use rust_onedrive::oauth::ClientCredentialsGrant;
+use rust_onedrive::oauth::CodeFlow;
 use rust_onedrive::oauth::OAuth;
 use rust_onedrive::oauth::OAuthCredential;
 use transform_request::prelude::*;
@@ -20,53 +20,29 @@ More info can be found here: https://docs.microsoft.com/en-us/onedrive/developer
 
 #[allow(dead_code)]
 fn main() {
-    let _oauth = native_client();
-
+    // For token and code flows, native clients use the same credentials
+    // as web clients except for a client id. First open the browser
+    // and get the user to sign in.
+    let mut oauth = native_client();
+    oauth.request_authorization().unwrap();
     // Run this first, then get the code from the browser URL. Afterward,
     // comment out the browser_flow() method below and run set_code_request_token(your_access_token).
     //  oauth.browser_sign_in().unwrap();
 
-    /*
-    browser_flow() opens users default browser to the authentication page
-    for Microsoft Accounts. OAuth knows what to open by
-    the AccountType specified in native_client().
 
-    Note that browser_flow() runs in different thread so the main thread
-    is not blocked.
-
-    Upon sign in, the page will redirect to the redirect given in
-    get_oauth(). This redirect is specific to the URI set
-    in the microsoft application portal. The redirect URI will
-    return with a code. This code needs to be set in OAuth
-    to make an access token request. Get the code from the
-    browser url bar and
-    */
-}
-
-#[allow(dead_code)]
-fn get_oauth() -> OAuth {
-    // native_client() sets using the default scopes to false
-    // and therefore requires adding scopes manually. This can
-    // be changed by the method: use_default_scope(true)
-
-    // Native clients also automatically prevent using a client_id in
-    // the request. An authentication request will get rejected
-    // if a native client is the caller. Only web clients use client_id.
-    let mut oauth = OAuth::default();
-    // There are other possible URI's for the redirect URI. This is set in
-    // the Microsoft application portal
-    oauth
-        .client_id("<CLIENT ID>")
-        .redirect_url("https://login.microsoftonline.com/common/oauth2/nativeclient");
-    oauth
 }
 
 #[allow(dead_code)]
 fn native_client() -> OAuth {
-    let mut oauth = get_oauth();
+    let mut oauth = OAuth::new();
     // wl.offline_access will cause the request to return
     // a refresh token as well.
+    // The authorization url will be https://login.live.com/oauth20_desktop.srf
+    // for mobile and desktop applications. Additionally, mobile and desktop clients
+    // do not use a client secret.
     oauth
+        .client_id("<CLIENT ID>")
+        .redirect_url("https://login.microsoftonline.com/common/oauth2/nativeclient")
         .add_scope("Files.Read")
         .add_scope("Files.ReadWrite")
         .add_scope("Files.Read.All")

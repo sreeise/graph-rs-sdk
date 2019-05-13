@@ -9,7 +9,7 @@ extern crate reqwest;
 
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use rust_onedrive::oauth::{ClientCredentialsGrant, OAuth};
+use rust_onedrive::oauth::{CodeFlow, OAuth};
 use std::thread;
 use std::time::Duration;
 use transform_request::RequestError;
@@ -17,7 +17,7 @@ use transform_request::ToFile;
 
 /*
 This example shows using Rocket to authenticate with Microsoft OneDrive that
-includes authorization with a state parameter in the request query
+includes authorization with a state parameter in the request query.
 
 If you have not set up an application to call the Graph API for OneDrive
 API then you will want to first read through the information in rocket_example.rs
@@ -66,9 +66,6 @@ fn main() {
         thread::sleep(Duration::from_secs(2));
         // Get the oauth client and request a browser sign in
         // The url used is the same url given in method: OAuth::authorize_url()
-        // You can optionally use oauth.browser_sign_in() which uses the
-        // same URL mentioned above. The query is built from the values passed to
-        // OAuth such as client_id.
         let mut oauth = oauth_web_client();
         oauth.request_authorization().unwrap();
     });

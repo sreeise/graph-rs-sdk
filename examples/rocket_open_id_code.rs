@@ -9,21 +9,25 @@ extern crate reqwest;
 use graph_oauth::oauth::{IdToken, OAuth};
 use rocket::Data;
 use rocket_codegen::routes;
-use rust_onedrive::oauth::OpenId;
+use rust_onedrive::oauth::OpenIdConnect;
 use rust_onedrive::transform::Transform;
 use std::io::Read;
 use std::thread;
 use std::time::Duration;
 use transform_request::ToFile;
 
+// Note: The open id connect grant is a work in progress.
+
 // Create an OAuth struct with the needed credentials.
 fn oauth_open_id() -> OAuth {
     let mut oauth = OAuth::new();
-    oauth.authorize_url("https://login.microsoftonline.com/<YOUR_TENANT or other Microsoft values such as common>/oauth2/authorize")
-        .redirect_url("http://localhost:8000/redirect")
-        .access_token_url("https://login.microsoftonline.com/<YOUR_TENANT or other Microsoft values such as common>/oauth2/token")
-        .refresh_token_url("https://login.microsoftonline.com/<YOUR_TENANT or other Microsoft values such as common>/oauth2/token")
+    oauth
         .client_id("<YOUR_CLIENT_ID>")
+        .client_secret("<YOUR_CLIENT_SECRET>")
+        .authorize_url("https://login.microsoftonline.com/<YOUR_TENANT or other Microsoft values such as common>/oauth2/v2.0/authorize")
+        .redirect_url("http://localhost:8000/redirect")
+        .access_token_url("https://login.microsoftonline.com/<YOUR_TENANT or other Microsoft values such as common>/oauth2/v2.0/token")
+        .refresh_token_url("https://login.microsoftonline.com/<YOUR_TENANT or other Microsoft values such as common>/oauth2/v2.0/token")
         .response_type("id_token code")
         .response_mode("form_post")
         .add_scope("openid")
@@ -46,7 +50,7 @@ fn main() {
         // The full name syntax is used here so it does not clash with methods
         // in the other grant types.
         let mut oauth = oauth_open_id();
-        OpenId::request_authorization(&mut oauth).unwrap();
+        OpenIdConnect::request_authorization(&mut oauth).unwrap();
     });
 
     rocket::ignite().mount("/", routes![redirect]).launch();
@@ -66,10 +70,13 @@ fn redirect(id_token: Data) {
     // and pass the IdToken to OAuth.
     let token: IdToken = IdToken::transform(s).unwrap();
     println!("IdToken:\n{:#?}\n", token);
-    //  println!("{:#?}", state);
     let mut oauth = oauth_open_id();
     oauth.id_token(token);
+    access_token(&mut oauth);
+}
 
+pub fn access_token(oauth: &mut OAuth) {
+    OpenIdConnect::request_access_token( oauth).unwrap();
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("OAuth:\n{:#?}\n", &oauth);
     oauth

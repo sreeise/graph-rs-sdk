@@ -7,6 +7,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use transform_request::RequestError;
+use graph_error::GraphError;
 
 pub trait Item {
     fn token(&self) -> &str;
@@ -15,16 +16,25 @@ pub trait Item {
     where
         T: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
+        if GraphError::is_error(r.status().as_u16()) {
+            return Err(RequestError::from(GraphError::from(r)))
+        }
         let item: T = r.json()?;
         Ok(item)
     }
 
     fn drive_item(&self, r: &mut Response) -> ItemResult<DriveItem> {
+        if GraphError::is_error(r.status().as_u16()) {
+            return Err(RequestError::from(GraphError::from(r)))
+        }
         let drive_item = DriveItem::transform(r)?;
         Ok(drive_item)
     }
 
     fn value(r: &mut Response) -> ItemResult<Value> {
+        if GraphError::is_error(r.status().as_u16()) {
+            return Err(RequestError::from(GraphError::from(r)))
+        }
         let v: Value = r.json()?;
         Ok(v)
     }

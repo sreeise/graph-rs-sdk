@@ -1,37 +1,8 @@
-use rust_onedrive::oauth::ClientCredentialsGrant;
+use rust_onedrive::oauth::CodeFlow;
 use rust_onedrive::oauth::OAuth;
 use transform_request::prelude::*;
 
-fn main() {
-    let mut oauth = web_client();
-
-    // Run this first, then get the code from the browser URL. Afterward,
-    // comment out the the request_authorization() method below and run set_code_request_token(your_access_token).
-    oauth.request_authorization().unwrap();
-
-    /*
-    browser_flow() opens users default browser to the authentication page
-    for Microsoft Accounts. OAuth knows what to open by
-    the AccountType specified in native_client().
-
-    Note that browser_flow() runs in different thread so the main thread
-    is not blocked.
-
-    Upon sign in, the page will redirect to the redirect given in
-    get_oauth(). This redirect is specific to the URI set
-    in the microsoft application portal. The redirect URI will
-    return with a code. This code needs to be set in OAuth
-    to make an access token request. Get the code from the
-    browser url bar and
-    */
-}
-
 fn web_client() -> OAuth {
-    // Setting true in the new() method here tells OAuth
-    // to use the default scopes that are set in the application portal.
-    // A Microsoft URL that can retrieve these scopes is then used instead and
-    // makes it easier to set up OAuth. The scopes can still be implemented
-    // manually by setting OAuth::new to false and using method add_scope()
     let mut oauth = OAuth::default();
     oauth
         .client_id("<CLIENT_ID>")
@@ -42,6 +13,15 @@ fn web_client() -> OAuth {
         .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token?");
 
     oauth
+}
+
+fn main() {
+    let mut oauth = web_client();
+    // request_authorization() opens users default browser to the authentication page
+    // Run this first, then get the code from the browser URL. Afterward,
+    // comment out the the request_authorization() method below and run
+    // set_code_request_token(your_access_token).
+    oauth.request_authorization().unwrap();
 }
 
 #[allow(dead_code)]

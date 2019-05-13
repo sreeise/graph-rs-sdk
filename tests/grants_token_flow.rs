@@ -2,7 +2,7 @@ use graph_oauth::oauth::{GrantRequest, GrantType};
 use rust_onedrive::oauth::OAuth;
 
 #[test]
-pub fn implicit_grant_url() {
+pub fn token_flow_url() {
     let mut oauth = OAuth::new();
     oauth
         .authorize_url("https://login.live.com/oauth20_authorize.srf?")
@@ -12,8 +12,8 @@ pub fn implicit_grant_url() {
         .redirect_url("http://localhost:8888/redirect")
         .response_type("code");
     let url = oauth
-        .encode_uri(GrantType::Implicit(GrantRequest::AccessToken))
+        .encode_uri(GrantType::TokenFlow(GrantRequest::Authorization))
         .unwrap();
-    let test_url = "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&scope=Read+Read.Write&response_type=code";
+    let test_url = "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&response_type=code&scope=Read+Read.Write";
     assert_eq!(test_url, url);
 }

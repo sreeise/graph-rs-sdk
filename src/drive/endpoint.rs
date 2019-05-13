@@ -39,6 +39,7 @@ pub enum DriveEndPoint {
     DriveChanges,
     SharedWithMe,
     DriveRecent,
+    DriveActivities,
     SpecialDocuments,
     SpecialDocumentsChild,
     SpecialPhotos,
@@ -62,6 +63,7 @@ impl DriveEndPoint {
             DriveEndPoint::DriveChanges => "/drive/root/delta",
             DriveEndPoint::SharedWithMe => "/me/drive/sharedWithMe",
             DriveEndPoint::DriveRecent => "/me/drive/recent",
+            DriveEndPoint::DriveActivities => "/drive/activities",
             DriveEndPoint::SpecialDocuments => "/me/drive/special/documents",
             DriveEndPoint::SpecialDocumentsChild => "/me/drive/special/documents/children",
             DriveEndPoint::SpecialPhotos => "/me/drive/special/photos",
@@ -117,6 +119,7 @@ pub trait EP {
     fn drive_changes(&mut self) -> ItemResult<DriveItem>;
     fn shared_with_me(&mut self) -> ItemResult<DriveItem>;
     fn drive_recent(&mut self) -> ItemResult<DriveItem>;
+    fn drive_activities(&mut self) -> ItemResult<DriveItem>;
     fn special_documents(&mut self) -> ItemResult<DriveItem>;
     fn special_documents_child(&mut self) -> ItemResult<DriveItem>;
     fn special_photos(&mut self) -> ItemResult<DriveItem>;
@@ -211,6 +214,18 @@ impl EP for Drive {
     fn drive_recent(&mut self) -> ItemResult<DriveItem> {
         self.get(
             DriveEndPoint::DriveRecent
+                .url(self.version.as_str())
+                .as_str(),
+        )
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn drive_activities(&mut self) -> ItemResult<DriveItem>
+    /// ```
+    fn drive_activities(&mut self) -> ItemResult<DriveItem> {
+        self.get(
+            DriveEndPoint::DriveActivities
                 .url(self.version.as_str())
                 .as_str(),
         )
