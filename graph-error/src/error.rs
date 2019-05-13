@@ -1,8 +1,8 @@
 use crate::GraphHeaders;
+use reqwest::Response;
 use std::error::Error;
 use std::fmt;
 use std::string::ToString;
-use reqwest::Response;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GraphError {

@@ -28,8 +28,6 @@ fn main() {
     // Run this first, then get the code from the browser URL. Afterward,
     // comment out the browser_flow() method below and run set_code_request_token(your_access_token).
     //  oauth.browser_sign_in().unwrap();
-
-
 }
 
 #[allow(dead_code)]

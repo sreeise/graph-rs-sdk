@@ -2,12 +2,12 @@ use crate::drive;
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::ItemResult;
 use crate::transform::*;
+use graph_error::GraphError;
 use reqwest::{header, Client, Response};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use transform_request::RequestError;
-use graph_error::GraphError;
 
 pub trait Item {
     fn token(&self) -> &str;
@@ -17,7 +17,7 @@ pub trait Item {
         T: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
         if GraphError::is_error(r.status().as_u16()) {
-            return Err(RequestError::from(GraphError::from(r)))
+            return Err(RequestError::from(GraphError::from(r)));
         }
         let item: T = r.json()?;
         Ok(item)
@@ -25,7 +25,7 @@ pub trait Item {
 
     fn drive_item(&self, r: &mut Response) -> ItemResult<DriveItem> {
         if GraphError::is_error(r.status().as_u16()) {
-            return Err(RequestError::from(GraphError::from(r)))
+            return Err(RequestError::from(GraphError::from(r)));
         }
         let drive_item = DriveItem::transform(r)?;
         Ok(drive_item)
@@ -33,7 +33,7 @@ pub trait Item {
 
     fn value(r: &mut Response) -> ItemResult<Value> {
         if GraphError::is_error(r.status().as_u16()) {
-            return Err(RequestError::from(GraphError::from(r)))
+            return Err(RequestError::from(GraphError::from(r)));
         }
         let v: Value = r.json()?;
         Ok(v)

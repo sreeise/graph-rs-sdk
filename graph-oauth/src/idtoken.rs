@@ -1,10 +1,10 @@
 use crate::oautherror::OAuthError;
 use serde::{Deserialize, Serialize};
-use transform_request::prelude::*;
 use std::str::FromStr;
+use transform_request::prelude::*;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, FromFile, ToFile)]
-#[serde(rename="id_token")]
+#[serde(rename = "id_token")]
 pub struct IdToken {
     code: Option<String>,
     id_token: String,
@@ -71,8 +71,8 @@ impl Transform<&str> for IdToken {
     type Err = OAuthError;
 
     fn transform(rhs: &str) -> Result<Self, Self::Err>
-        where
-            Self: Serialize + for<'de> Deserialize<'de>,
+    where
+        Self: Serialize + for<'de> Deserialize<'de>,
     {
         let id_token: IdToken = IdToken::from_str(rhs)?;
         Ok(id_token)
@@ -83,8 +83,8 @@ impl FromStr for IdToken {
     type Err = OAuthError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let vec: Vec<&str> = s.split_terminator("&").collect();
-        if vec.len() < 1 {
+        let vec: Vec<&str> = s.split_terminator('&').collect();
+        if vec.is_empty() {
             return OAuthError::invalid_data("Could not parse string into id_token");
         }
 

@@ -1,5 +1,8 @@
 use crate::accesstoken::AccessToken;
-use crate::grants::{AuthorizationCodeGrant, ClientCredentialsGrant, GrantRequest, GrantType, ImplicitGrant, OpenIdConnect, TokenFlow, CodeFlow};
+use crate::grants::{
+    AuthorizationCodeGrant, ClientCredentialsGrant, CodeFlow, GrantRequest, GrantType,
+    ImplicitGrant, OpenIdConnect, TokenFlow,
+};
 use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
 use reqwest::{header, RequestBuilder};
@@ -705,7 +708,9 @@ impl OAuth {
         let mut encoder = Serializer::new(String::new());
         match grant_type {
             GrantType::TokenFlow(request_type) => match request_type {
-                GrantRequest::Authorization | GrantRequest::AccessToken | GrantRequest::RefreshToken => {
+                GrantRequest::Authorization |
+                GrantRequest::AccessToken |
+                GrantRequest::RefreshToken => {
                     self.form_encode_credentials(
                         vec![
                             OAuthCredential::ClientId,
@@ -721,7 +726,7 @@ impl OAuth {
                     }
                     url.push_str(encoder.finish().as_str());
                     Ok(url)
-                }
+                },
             },
             GrantType::CodeFlow(request_type) => match request_type {
                 GrantRequest::Authorization => {
@@ -854,7 +859,10 @@ impl OAuth {
                 },
                 GrantRequest::AccessToken | GrantRequest::RefreshToken => {
                     let _ = self.entry(OAuthCredential::GrantType, "client_credentials");
-                    let _ = self.entry(OAuthCredential::ClientAssertionType, "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+                    let _ = self.entry(
+                        OAuthCredential::ClientAssertionType,
+                        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                    );
                     self.form_encode_credentials(
                         vec![
                             OAuthCredential::ClientId,

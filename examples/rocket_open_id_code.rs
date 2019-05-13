@@ -76,7 +76,7 @@ fn redirect(id_token: Data) {
 }
 
 pub fn access_token(oauth: &mut OAuth) {
-    OpenIdConnect::request_access_token( oauth).unwrap();
+    OpenIdConnect::request_access_token(oauth).unwrap();
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("OAuth:\n{:#?}\n", &oauth);
     oauth

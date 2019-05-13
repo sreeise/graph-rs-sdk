@@ -30,7 +30,8 @@ fn sign_in_code_url_with_state() {
         .state("state");
     oauth.add_scope("https://graph.microsoft.com/.default");
     let u = oauth
-        .encode_uri(GrantType::CodeFlow(GrantRequest::Authorization)).unwrap();
+        .encode_uri(GrantType::CodeFlow(GrantRequest::Authorization))
+        .unwrap();
     let s = "https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&state=state&response_mode=query&response_type=code&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default".to_string();
     assert_eq!(u, s);
 }

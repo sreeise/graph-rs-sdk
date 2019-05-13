@@ -1,6 +1,6 @@
 language: rust
 before_script:
-  - rustup component add clippy
+  - rustup component add clippy --toolchain=nightly || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
 script:
   - cargo clippy -- -D warnings
   - cargo build --verbose --all
