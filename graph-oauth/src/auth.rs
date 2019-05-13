@@ -125,7 +125,6 @@ pub struct OAuth {
     access_token: Option<AccessToken>,
     scopes: Vec<String>,
     credentials: BTreeMap<String, String>,
-    custom_credentials: BTreeMap<String, String>,
 }
 
 impl OAuth {
@@ -149,7 +148,6 @@ impl OAuth {
             access_token: None,
             scopes: Vec::new(),
             credentials: BTreeMap::new(),
-            custom_credentials: BTreeMap::new(),
         }
     }
 
@@ -554,24 +552,6 @@ impl OAuth {
     /// ```
     pub fn remove_scope(&mut self, scope: &str) {
         self.scopes.retain(|x| x != scope);
-    }
-
-    /// Set a custom OAuth credential.
-    ///
-    /// # Example
-    /// ```
-    /// use graph_oauth::oauth::OAuth;
-    ///
-    /// let mut oauth = OAuth::new();
-    ///
-    /// // Used in the body of the request as: &key=value
-    /// oauth.custom("key", "value");
-    /// // For instance:
-    /// oauth.custom("nonce", "1234");
-    /// ```
-    pub fn custom(&mut self, key: &str, value: &str) -> &mut OAuth {
-        self.custom_credentials.insert(key.into(), value.into());
-        self
     }
 
     /// Set the access token.

@@ -16,7 +16,7 @@ Only Linux has been tested to work. Windows and MacOS may work but is not guaran
 
 ### The following is a list of the current work next to be done:
 
-    1. Continue to integrate custom OAuth credentials.
+    1. OAuth 2.0 grant types.
     2. Traits for downloading/moving/uploading and various other actions for drive files.
 
 Requires Rust nightly:
