@@ -1,5 +1,5 @@
 use graph_oauth::oauth::wellknown::{Commons, WellKnown};
-use graph_oauth::oauth::{OAuth, OAuthCredential};
+use graph_oauth::oauth::{GrantType, OAuth, OAuthCredential};
 use rust_onedrive::oauth::graphdiscovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
@@ -44,7 +44,7 @@ fn signing_keys_v2() {
 }
 
 fn graph_discovery_oauth_v1() {
-    let oauth: OAuth = GraphDiscovery::V1.oauth().unwrap();
+    let oauth: OAuth = GraphDiscovery::V1.oauth(GrantType::CodeFlow).unwrap();
     let keys: MicrosoftSigningKeysV1 =
         MicrosoftSigningKeysV1::from_file("./test_files/well_known_discovery/graphv1.json")
             .unwrap();
@@ -67,7 +67,9 @@ fn graph_discovery_oauth_v1() {
 }
 
 fn graph_discovery_oauth_v2() {
-    let oauth: OAuth = GraphDiscovery::V2.oauth().unwrap();
+    let oauth: OAuth = GraphDiscovery::V2
+        .oauth(GrantType::AuthorizationCode)
+        .unwrap();
     let keys: MicrosoftSigningKeysV2 =
         MicrosoftSigningKeysV2::from_file("./test_files/well_known_discovery/graphv2.json")
             .unwrap();

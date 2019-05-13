@@ -3,13 +3,23 @@
 //! and receive an access token. This access token can then be used
 //! in the drive module to make OneDrive resource requests.
 //!
+//! As an example, pass an access token to request a resource from the OneDrive API and
+//! the version of OneDrive that you want to use. V1 is the OneDrive version 1 API and
+//! V2 is the Graph API.
 //! # Example
 //! ```
-//! // For better understanding see the examples directory.
-//! use rust_onedrive::oauth::OAuth;
-//! use rust_onedrive::oauth::ClientCredentialsGrant;
+//! use rust_onedrive::drive::{Drive, DriveVersion};
+//! let drive = Drive::new("access_token", DriveVersion::V1);
+//! ```
 //!
-//! let mut oauth = OAuth::new();
+//! The graph-oauth crate was created for use with rust-onedrive to
+//! authorize users and get access tokens.
+//! # Example
+//! ```
+//! // For better understanding see the examples directory and the graph-oauth crate.
+//! use rust_onedrive::oauth::OAuth;
+//!
+//! let mut oauth = OAuth::authorization_code_grant();
 //! oauth.client_id("client_id")
 //!     .client_secret("client_secret")
 //!     .redirect_url("http://localhost:8000")
@@ -24,7 +34,9 @@
 //!
 //!
 //! Users can then authenticate in the browser using:
-//! oauth.browser_sign_in().unwrap();
+//! ```rust,ignore
+//! oauth.request_authorization();
+//! ```
 //! After the user has authenticated they will be redirected to the redirect url
 //! given above. Per the client credentials grant a temporary access code will be
 //! appended onto the end of redirect url. This code can then be used to request
@@ -33,29 +45,19 @@
 //! Currently there is no other way to authenticate and get long term access tokens
 //! for OneDrive except through the browser.
 //!
-//!
-//!
-//! # Exmaple
-//! ```rust,ignore
-//! // This will use the url given for the authorize_url() method above
-//! // and open it in the users default browser. For a good exmaple
-//! // see examples/rocket_example.rs
-//!
-//! oauth.browser_sign_in().unwrap();
-//! ```
-//!
-//!
 //! # Example
 //! ```
 //! # use rust_onedrive::oauth::OAuth;
-//! # let mut oauth = OAuth::new();
+//! # let mut oauth = OAuth::authorization_code_grant();
 //! oauth.access_code("temporary access code");
 //!
 //! ```
 //!
 //!
 //! The access token can then be requested by calling:
-//! request_access_token(),
+//! ```rust,ignore
+//! oauth.request_access_token(),
+//! ```
 //!
 //! Once the access token has been retrieved the drive module
 //! can be used to make authenticated requests to the OneDrive v1.0
@@ -65,7 +67,6 @@
 //! # Example
 //! ```rust,ignore
 //! use rust_onedrive::Drive
-//! oauth.request_access_token().unwrap();
 //!
 //! let mut drive = Drive::from(oauth).unwrap();
 //! let drive_item: DriveItem = drive.recent().unwrap();

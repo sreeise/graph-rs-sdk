@@ -1,9 +1,8 @@
-use rust_onedrive::oauth::CodeFlow;
-use rust_onedrive::oauth::OAuth;
+use rust_onedrive::oauth::{Grant, OAuth};
 use transform_request::prelude::*;
 
 fn web_client() -> OAuth {
-    let mut oauth = OAuth::default();
+    let mut oauth = OAuth::code_flow();
     oauth
         .client_id("<CLIENT_ID>")
         .client_secret("<CLIENT_SECRET>")

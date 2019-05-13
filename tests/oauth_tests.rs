@@ -1,21 +1,11 @@
 use graph_oauth::oauth::{OAuth, OAuthCredential};
 use strum::IntoEnumIterator;
 
-fn get_oauth() -> OAuth {
-    let mut oauth = OAuth::new();
-    oauth
-        .client_id("bb301aaa-1201-4259-a230923fds32")
-        .redirect_url("http://localhost:8888/redirect")
-        .client_secret("CLDIE3F")
-        .authorize_url("https://www.example.com/authorize?")
-        .refresh_token_url("https://www.example.com/token?")
-        .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
-    oauth
-}
-
 #[test]
 fn oauth_parameters_from_credential() {
-    let mut oauth = OAuth::new();
+    // Doesn't matter the flow here as this is for testing
+    // that the credentials are entered/retrieved correctly.
+    let mut oauth = OAuth::code_flow();
     oauth
         .client_id("client_id")
         .client_secret("client_secret")
@@ -89,7 +79,16 @@ fn oauth_parameters_from_credential() {
 
 #[test]
 fn remove_credential() {
-    let mut oauth = get_oauth();
+    // Doesn't matter the flow here as this is for testing
+    // that the credentials are entered/retrieved correctly.
+    let mut oauth = OAuth::code_flow();
+    oauth
+        .client_id("bb301aaa-1201-4259-a230923fds32")
+        .redirect_url("http://localhost:8888/redirect")
+        .client_secret("CLDIE3F")
+        .authorize_url("https://www.example.com/authorize?")
+        .refresh_token_url("https://www.example.com/token?")
+        .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
     assert_eq!(oauth.get(OAuthCredential::ClientId).is_some(), true);
     oauth.remove(OAuthCredential::ClientId);
     assert_eq!(oauth.get(OAuthCredential::ClientId).is_some(), false);
@@ -103,7 +102,9 @@ fn remove_credential() {
 
 #[test]
 fn setters() {
-    let mut oauth = OAuth::new();
+    // Doesn't matter the flow here as this is for testing
+    // that the credentials are entered/retrieved correctly.
+    let mut oauth = OAuth::code_flow();
     oauth
         .client_id("client_id")
         .client_secret("client_secret")

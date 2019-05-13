@@ -2,7 +2,7 @@ use rust_onedrive::oauth::OAuth;
 use rust_onedrive::transform::{FromFile, ToFile};
 
 fn main() {
-    let oauth = OAuth::default();
+    let oauth = OAuth::token_flow();
     oauth
         .to_file("./examples/example_files/oauth.json")
         .unwrap();

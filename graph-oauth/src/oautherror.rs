@@ -1,3 +1,5 @@
+use crate::auth::{OAuthCredential, OAuthReq};
+use crate::grants::{GrantRequest, GrantType};
 use core::num;
 use graph_error::GraphError;
 use std::cell::BorrowMutError;
@@ -37,6 +39,22 @@ impl OAuthError {
 
     pub fn invalid_data<T>(msg: &str) -> std::result::Result<T, OAuthError> {
         Err(OAuthError::error_kind(ErrorKind::InvalidData, msg))
+    }
+
+    pub fn error_from<T>(c: OAuthCredential) -> Result<T, OAuthError> {
+        Err(OAuthError::credential_error(c))
+    }
+
+    pub fn credential_error(c: OAuthCredential) -> OAuthError {
+        OAuthError::error_kind(
+            ErrorKind::NotFound,
+            format!("MISSING OR INVALID: {:#?}", c).as_str(),
+        )
+    }
+
+    pub fn grant_error<T>(grant: GrantType, grant_request: GrantRequest, msg: &str) -> OAuthReq<T> {
+        let error_str = format!("There was an error for the grant: {:#?} when executing a request for: {:#?}\nError: {:#?}", grant, grant_request, msg);
+        OAuthError::invalid_data(error_str.as_str())
     }
 }
 

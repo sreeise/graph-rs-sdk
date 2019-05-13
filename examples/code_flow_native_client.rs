@@ -1,6 +1,4 @@
-use rust_onedrive::oauth::CodeFlow;
-use rust_onedrive::oauth::OAuth;
-use rust_onedrive::oauth::OAuthCredential;
+use rust_onedrive::oauth::{Grant, OAuth, OAuthCredential};
 use transform_request::prelude::*;
 
 /*
@@ -32,7 +30,7 @@ fn main() {
 
 #[allow(dead_code)]
 fn native_client() -> OAuth {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuth::code_flow();
     // wl.offline_access will cause the request to return
     // a refresh token as well.
     // The authorization url will be https://login.live.com/oauth20_desktop.srf

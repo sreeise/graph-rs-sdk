@@ -6,10 +6,9 @@ extern crate rocket;
 #[macro_use]
 extern crate serde_json;
 extern crate reqwest;
-use graph_oauth::oauth::{IdToken, OAuth};
 use rocket::Data;
 use rocket_codegen::routes;
-use rust_onedrive::oauth::OpenIdConnect;
+use rust_onedrive::oauth::{Grant, IdToken, OAuth};
 use rust_onedrive::transform::Transform;
 use std::io::Read;
 use std::thread;
@@ -20,7 +19,7 @@ use transform_request::ToFile;
 
 // Create an OAuth struct with the needed credentials.
 fn oauth_open_id() -> OAuth {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuth::open_id_connect();
     oauth
         .client_id("<YOUR_CLIENT_ID>")
         .client_secret("<YOUR_CLIENT_SECRET>")
@@ -50,7 +49,7 @@ fn main() {
         // The full name syntax is used here so it does not clash with methods
         // in the other grant types.
         let mut oauth = oauth_open_id();
-        OpenIdConnect::request_authorization(&mut oauth).unwrap();
+        oauth.request_authorization().unwrap();
     });
 
     rocket::ignite().mount("/", routes![redirect]).launch();
@@ -76,7 +75,7 @@ fn redirect(id_token: Data) {
 }
 
 pub fn access_token(oauth: &mut OAuth) {
-    OpenIdConnect::request_access_token(oauth).unwrap();
+    oauth.request_access_token().unwrap();
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("OAuth:\n{:#?}\n", &oauth);
     oauth

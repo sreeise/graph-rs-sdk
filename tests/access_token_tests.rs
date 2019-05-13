@@ -48,7 +48,7 @@ fn oauth_json_file() {
 
     clean_up.rm_files(file_location.into());
 
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuth::code_flow();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_url("http://localhost:8888/redirect")
