@@ -43,7 +43,7 @@ pub struct AccessToken {
     scope: String,
     refresh_token: Option<String>,
     user_id: Option<String>,
-    id_token: Option<IdToken>,
+    id_token: Option<String>,
     state: Option<String>,
     timestamp: Option<DateTime<Utc>>,
 }
@@ -162,9 +162,9 @@ impl AccessToken {
     /// # use graph_oauth::oauth::{AccessToken, IdToken};
     ///
     /// let mut access_token = AccessToken::default();
-    /// access_token.id_token(Some(IdToken::new("12345")));
+    /// access_token.id_token(Some("id_token".into()));
     /// ```
-    pub fn id_token(&mut self, s: Option<IdToken>) -> &mut AccessToken {
+    pub fn id_token(&mut self, s: Option<String>) -> &mut AccessToken {
         self.id_token = s;
         self
     }
@@ -303,7 +303,7 @@ impl AccessToken {
     /// let mut access_token = AccessToken::default();
     /// println!("{:#?}", access_token.get_id_token());
     /// ```
-    pub fn get_id_token(&self) -> Option<IdToken> {
+    pub fn get_id_token(&self) -> Option<String> {
         self.id_token.clone()
     }
 
