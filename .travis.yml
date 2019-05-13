@@ -2,7 +2,7 @@ language: rust
 before_script:
   - rustup component add clippy
 script:
-  - cargo clippy -- -D warnings
+  - cargo clippy
   - cargo build --verbose --all
   - cargo test --verbose --all
 rust:

@@ -35,12 +35,12 @@ pub fn test_open_id_url() {
 }
 
 #[test]
-pub fn test_access_token_uri() {
+pub fn test_access_code_uri() {
     let mut oauth = oauth();
     oauth.response_type("id_token code");
     let url_access_token = oauth
-        .encode_uri(GrantType::OpenId(GrantRequest::AccessToken))
+        .encode_uri(GrantType::OpenId(GrantRequest::Authorization))
         .unwrap();
-    let test_url_access_token = "client_id=6731de76-14a6-49ae-97bc-6eba6914391e&response_type=id_token+code&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_mode=form_post&scope=openid&state=12345&nonce=7362CAEA-9CA5-4B43-9BA3-34D7C303EBA7";
+    let test_url_access_token = "https://login.microsoftonline.com/common/oauth2/authorize?client_id=6731de76-14a6-49ae-97bc-6eba6914391e&response_type=id_token+code&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_mode=form_post&scope=openid&state=12345&nonce=7362CAEA-9CA5-4B43-9BA3-34D7C303EBA7";
     assert_eq!(test_url_access_token, url_access_token);
 }

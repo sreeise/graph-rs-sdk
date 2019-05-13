@@ -169,6 +169,19 @@ impl AccessToken {
         self
     }
 
+    /// Set the id token.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::{AccessToken, IdToken};
+    ///
+    /// let mut access_token = AccessToken::default();
+    /// access_token.with_id_token(IdToken::new("id_token", "code", "state", "session_state"));
+    /// ```
+    pub fn with_id_token(&mut self, id_token: IdToken) {
+        self.id_token = Some(id_token.get_id_token());
+    }
+
     /// Set the state.
     ///
     /// # Example
