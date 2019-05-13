@@ -1057,4 +1057,17 @@ impl OpenIdConnect for OAuth {
         self.access_token(access_token);
         Ok(())
     }
+
+    fn request_access_token(&mut self) -> OAuthReq<()> {
+        let url = self.get_or_else(OAuthCredential::AccessTokenURL)?;
+        let body = self.encode_uri(GrantType::OpenId(GrantRequest::AccessToken))?;
+        let builder = self.client(
+            url.trim(),
+            body.as_str(),
+            "application/x-www-form-urlencoded",
+        )?;
+        let access_token = AccessToken::transform(builder)?;
+        self.access_token(access_token);
+        Ok(())
+    }
 }
