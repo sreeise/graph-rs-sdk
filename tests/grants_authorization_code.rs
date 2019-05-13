@@ -1,0 +1,70 @@
+use rust_onedrive::oauth::{AccessToken, GrantRequest, OAuth};
+use url::{Host, Url};
+
+#[test]
+pub fn authorization_url() {
+    let mut oauth = OAuth::authorization_code_grant();
+    oauth
+        .authorize_url("https://login.microsoftonline.com/common/oauth2/authorize")
+        .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
+        .response_type("code")
+        .redirect_url("http://localhost:8080")
+        .response_mode("query")
+        .response_type("code")
+        .add_scope("Read.Write")
+        .state("12345")
+        .prompt("login")
+        .code_challenge_method("plain")
+        .code_challenge("code_challenge")
+        .domain_hint("consumers");
+
+    let url = oauth.encode_uri(GrantRequest::Authorization).unwrap();
+    let test_url = "https://login.microsoftonline.com/common/oauth2/authorize?client_id=6731de76-14a6-49ae-97bc-6eba6914391e&redirect_uri=http%3A%2F%2Flocalhost%3A8080&state=12345&response_mode=query&response_type=code&scope=Read.Write&prompt=login&domain_hint=consumers&code_challenge=code_challenge&code_challenge_method=plain";
+    let parsed_url = Url::parse(url.as_str()).unwrap();
+
+    assert!(parsed_url.scheme() == "https");
+    assert_eq!(
+        parsed_url.host(),
+        Some(Host::Domain("login.microsoftonline.com"))
+    );
+    assert_eq!(test_url, url);
+}
+
+#[test]
+fn access_token_uri() {
+    let mut oauth = OAuth::authorization_code_grant();
+    oauth
+        .client_id("bb301aaa-1201-4259-a230923fds32")
+        .client_secret("CLDIE3F")
+        .redirect_url("http://localhost:8888/redirect")
+        .grant_type("authorization_code")
+        .add_scope("Read.Write")
+        .add_scope("Fall.Down")
+        .access_code("11201a230923f-4259-a230011201a230923f")
+        .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
+        .code_verifier("bb301aaab3011201a230923f-4259-a230923fds32");
+    let test_url = "client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&scope=Read.Write+Fall.Down&grant_type=authorization_code&code_verifier=bb301aaab3011201a230923f-4259-a230923fds32";
+    let url = oauth.encode_uri(GrantRequest::AccessToken).unwrap();
+    assert_eq!(test_url, url);
+}
+
+#[test]
+fn refresh_token_uri() {
+    let mut oauth = OAuth::authorization_code_grant();
+    oauth
+        .client_id("bb301aaa-1201-4259-a230923fds32")
+        .client_secret("CLDIE3F")
+        .redirect_url("http://localhost:8888/redirect")
+        .grant_type("refresh_token")
+        .add_scope("Read.Write")
+        .add_scope("Fall.Down")
+        .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
+
+    let mut access_token = AccessToken::new("access_token", 3600, "Read.Write Fall.Down", "asfasf");
+    access_token.refresh_token(Some("32LKLASDKJ"));
+    oauth.access_token(access_token);
+
+    let body = oauth.encode_uri(GrantRequest::RefreshToken).unwrap();
+    let test_url = "refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&grant_type=refresh_token&scope=Read.Write+Fall.Down";
+    assert_eq!(test_url, body);
+}

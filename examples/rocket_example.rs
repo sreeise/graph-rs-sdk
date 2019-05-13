@@ -7,19 +7,20 @@ extern crate rocket;
 extern crate serde_json;
 extern crate reqwest;
 
+use rust_onedrive::oauth::{Grant, OAuth};
 use rocket::http::RawStr;
 use rocket_codegen::routes;
 use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::{Drive, EP};
-use rust_onedrive::oauth::{CodeFlow, OAuth};
 use std::thread;
 use std::time::Duration;
-use transform_request::RequestError;
 use transform_request::{FromFile, ToFile};
 
 /*
 This example shows using Rocket to authenticate with Microsoft OneDrive,
 and then requesting drive resources from the Graph API.
+
+This example uses the code flow: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online
 
 If you have not set up an application to call the Graph API for OneDrive
 API then you will want to read through the following setup information as well
@@ -73,7 +74,7 @@ fn main() {
         // same URL mentioned above. The query is built from the values passed to
         // OAuth such as client_id.
         let mut oauth = oauth_web_client();
-        oauth.request_authorization().unwrap();
+        let _ = oauth.request_authorization().unwrap();
     });
 
     rocket::ignite()
@@ -122,7 +123,7 @@ The scopes given below will allow you to access most of the needed items for
 the Graph OneDrive API.
 */
 fn oauth_web_client() -> OAuth {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuth::code_flow();
     oauth
         .client_id("<YOUR_CLIENT_ID>")
         .client_secret("<YOUR_CLIENT_SECRET>")
@@ -135,7 +136,7 @@ fn oauth_web_client() -> OAuth {
         .authorize_url("https://login.live.com/oauth20_authorize.srf?")
         .access_token_url("https://login.live.com/oauth20_token.srf")
         .refresh_token_url("https://login.live.com/oauth20_token.srf")
-        .response_mode("query")
+        .response_type("code")
         .logout_url("https://login.live.com/oauth20_logout.srf?")
         // If this is not set, the redirect_url given above will be used for the logout redirect.
         // See logout.rs for an example.
@@ -150,12 +151,12 @@ fn redirect(code: &RawStr) -> String {
     // Set the access code and request an access token.
     // Callers should handle the Result from requesting an access token
     // in case of an error here.
-    set_and_req_access_code(code).unwrap();
+    set_and_req_access_code(code);
     // Generic login page response. Note
     String::from("Successfully Logged In! You can close your browser.")
 }
 
-pub fn set_and_req_access_code(access_code: &str) -> std::result::Result<(), RequestError> {
+pub fn set_and_req_access_code(access_code: &str) {
     let mut oauth = oauth_web_client();
     // The response type is automatically set to token and the grant type is automatically
     // set to authorization_code if either of these were not previously set.
@@ -169,7 +170,9 @@ pub fn set_and_req_access_code(access_code: &str) -> std::result::Result<(), Req
     println!("{:#?}", &oauth);
 
     // Save our configuration to a file so we can retrieve it from other requests.
-    oauth.to_file("./examples/example_files/web_oauth.json")
+    oauth
+        .to_file("./examples/example_files/web_oauth.json")
+        .unwrap();
 }
 // Methods for calling the Graph API.
 

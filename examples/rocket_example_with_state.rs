@@ -9,15 +9,16 @@ extern crate reqwest;
 
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use rust_onedrive::oauth::{CodeFlow, OAuth};
+use rust_onedrive::oauth::{Grant, OAuth};
 use std::thread;
 use std::time::Duration;
-use transform_request::RequestError;
 use transform_request::ToFile;
 
 /*
 This example shows using Rocket to authenticate with Microsoft OneDrive that
 includes authorization with a state parameter in the request query.
+
+This example uses the code flow: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online
 
 If you have not set up an application to call the Graph API for OneDrive
 API then you will want to first read through the information in rocket_example.rs
@@ -32,7 +33,7 @@ on how to set up an application.
 
 // Create an OAuth struct with the needed credentials.
 fn oauth_web_client() -> OAuth {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuth::code_flow();
     oauth
         .client_id("<YOUR_CLIENT_ID>")
         .client_secret("<YOUR_CLIENT_SECRET>")
@@ -86,16 +87,12 @@ fn redirect(code: &RawStr, state: &RawStr) -> String {
     // Set the access code and request an access token.
     // Callers should handle the Result from requesting an access token
     // in case of an error here.
-    set_and_req_access_code(code, state).unwrap();
-
+    set_and_req_access_code(code, state);
     // Generic login page response.
     String::from("Successfully Logged In! You can close your browser.")
 }
 
-pub fn set_and_req_access_code(
-    access_code: &str,
-    state: &str,
-) -> std::result::Result<(), RequestError> {
+pub fn set_and_req_access_code(access_code: &str, state: &str) {
     let mut oauth = oauth_web_client();
     oauth.response_type("token");
     oauth.state(state);
@@ -108,5 +105,7 @@ pub fn set_and_req_access_code(
     println!("{:#?}", &oauth);
 
     // Save our configuration to a file so we can retrieve it for other requests.
-    oauth.to_file("./examples/example_files/web_oauth.json")
+    oauth
+        .to_file("./examples/example_files/web_oauth.json")
+        .unwrap();
 }
