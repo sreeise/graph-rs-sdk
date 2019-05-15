@@ -660,7 +660,7 @@ impl OAuth {
     /// oauth.access_token(access_token);
     ///
     /// let refresh_token = oauth.get_refresh_token().unwrap();
-    /// println!("{:#?}", access_token);
+    /// println!("{:#?}", refresh_token);
     /// ```
     pub fn get_refresh_token(&self) -> OAuthReq<String> {
         match self.get_access_token() {
