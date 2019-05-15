@@ -1,0 +1,12 @@
+[package]
+name = "drive-test-tools"
+version = "0.1.0"
+authors = ["sreeise"]
+edition = "2018"
+
+[dependencies.url]
+git = "https://github.com/servo/rust-url"
+features = ["query_encoding"]
+
+[dependencies]
+rust-onedrive = { path = "../" }

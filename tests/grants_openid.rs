@@ -7,7 +7,7 @@ pub fn oauth() -> OAuth {
         .authorize_url("https://login.microsoftonline.com/common/oauth2/authorize")
         .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
         .response_type("id_token")
-        .redirect_url("http://localhost:8080")
+        .redirect_uri("http://localhost:8080")
         .response_mode("form_post")
         .add_scope("openid")
         .state("12345")

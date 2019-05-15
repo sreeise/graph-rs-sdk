@@ -12,7 +12,7 @@ fn oauth_parameters_from_credential() {
         .authorize_url("https://example.com/authorize?")
         .access_token_url("https://example.com/token?")
         .refresh_token_url("https://example.com/token?")
-        .redirect_url("https://example.com/redirect?")
+        .redirect_uri("https://example.com/redirect?")
         .access_code("ADSLFJL4L3")
         .response_mode("response_mode")
         .response_type("response_type")
@@ -20,6 +20,13 @@ fn oauth_parameters_from_credential() {
         .grant_type("grant_type")
         .nonce("nonce")
         .prompt("login")
+        .session_state("session_state")
+        .client_assertion("client_assertion")
+        .client_assertion_type("client_assertion_type")
+        .code_verifier("code_verifier")
+        .login_hint("login_hint")
+        .domain_hint("domain_hint")
+        .resource("resource")
         .logout_url("https://example.com/logout?")
         .post_logout_redirect_uri("https://example.com/redirect?");
 
@@ -71,6 +78,21 @@ fn oauth_parameters_from_credential() {
                     Some("https://example.com/redirect?".into())
                 ),
                 OAuthCredential::Prompt => assert_eq!(oauth.get(credential), Some("login".into())),
+                OAuthCredential::SessionState => {
+                    assert_eq!(oauth.get(credential), Some("session_state".into()))
+                },
+                OAuthCredential::ClientAssertion => {
+                    assert_eq!(oauth.get(credential), Some("client_assertion".into()))
+                },
+                OAuthCredential::ClientAssertionType => {
+                    assert_eq!(oauth.get(credential), Some("client_assertion_type".into()))
+                },
+                OAuthCredential::CodeVerifier => {
+                    assert_eq!(oauth.get(credential), Some("code_verifier".into()))
+                },
+                OAuthCredential::Resource => {
+                    assert_eq!(oauth.get(credential), Some("resource".into()))
+                },
                 _ => {},
             }
         }
@@ -84,7 +106,7 @@ fn remove_credential() {
     let mut oauth = OAuth::code_flow();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
-        .redirect_url("http://localhost:8888/redirect")
+        .redirect_uri("http://localhost:8888/redirect")
         .client_secret("CLDIE3F")
         .authorize_url("https://www.example.com/authorize?")
         .refresh_token_url("https://www.example.com/token?")
@@ -111,7 +133,7 @@ fn setters() {
         .authorize_url("https://example.com/authorize")
         .refresh_token_url("https://example.com/token")
         .access_token_url("https://example.com/token")
-        .redirect_url("https://example.com/redirect")
+        .redirect_uri("https://example.com/redirect")
         .access_code("access_code");
 
     let test_setter = |c: OAuthCredential, s: &str| {

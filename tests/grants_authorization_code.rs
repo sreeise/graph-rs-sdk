@@ -1,4 +1,5 @@
-use rust_onedrive::oauth::{AccessToken, GrantRequest, OAuth};
+use drive_test_tools::oauth::OAuthTestTool;
+use rust_onedrive::oauth::{AccessToken, GrantRequest, OAuth, OAuthCredential};
 use url::{Host, Url};
 
 #[test]
@@ -8,7 +9,7 @@ pub fn authorization_url() {
         .authorize_url("https://login.microsoftonline.com/common/oauth2/authorize")
         .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
         .response_type("code")
-        .redirect_url("http://localhost:8080")
+        .redirect_uri("http://localhost:8080")
         .response_mode("query")
         .response_type("code")
         .add_scope("Read.Write")
@@ -22,7 +23,7 @@ pub fn authorization_url() {
     let test_url = "https://login.microsoftonline.com/common/oauth2/authorize?client_id=6731de76-14a6-49ae-97bc-6eba6914391e&redirect_uri=http%3A%2F%2Flocalhost%3A8080&state=12345&response_mode=query&response_type=code&scope=Read.Write&prompt=login&domain_hint=consumers&code_challenge=code_challenge&code_challenge_method=plain";
     let parsed_url = Url::parse(url.as_str()).unwrap();
 
-    assert!(parsed_url.scheme() == "https");
+    assert_eq!(parsed_url.scheme(), "https");
     assert_eq!(
         parsed_url.host(),
         Some(Host::Domain("login.microsoftonline.com"))
@@ -36,7 +37,7 @@ fn access_token_uri() {
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .client_secret("CLDIE3F")
-        .redirect_url("http://localhost:8888/redirect")
+        .redirect_uri("http://localhost:8888/redirect")
         .grant_type("authorization_code")
         .add_scope("Read.Write")
         .add_scope("Fall.Down")
@@ -54,7 +55,7 @@ fn refresh_token_uri() {
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .client_secret("CLDIE3F")
-        .redirect_url("http://localhost:8888/redirect")
+        .redirect_uri("http://localhost:8888/redirect")
         .grant_type("refresh_token")
         .add_scope("Read.Write")
         .add_scope("Fall.Down")
@@ -67,4 +68,60 @@ fn refresh_token_uri() {
     let body = oauth.encode_uri(GrantRequest::RefreshToken).unwrap();
     let test_url = "refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&grant_type=refresh_token&scope=Read.Write+Fall.Down";
     assert_eq!(test_url, body);
+}
+
+#[test]
+pub fn access_token_body_contains() {
+    let mut oauth = OAuth::authorization_code_grant();
+    oauth
+        .authorize_url("https://login.microsoftonline.com/common/oauth2/authorize")
+        .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
+        .redirect_uri("http://localhost:8080")
+        .add_scope("Read.Write")
+        .response_mode("query")
+        .response_type("code")
+        .state("12345")
+        .prompt("login")
+        .login_hint("value")
+        .domain_hint("consumers")
+        .code_challenge_method("plain")
+        .code_challenge("code_challenge")
+        .code_verifier("code_verifier")
+        .client_assertion("client_assertion")
+        .client_assertion_type("client_assertion_type")
+        .session_state("session_state")
+        .logout_url("https://login.live.com/oauth20_logout.srf?")
+        .post_logout_redirect_uri("http://localhost:8000/redirect");;
+
+    let not_included = vec![
+        OAuthCredential::CodeVerifier,
+        OAuthCredential::ClientAssertion,
+        OAuthCredential::ClientAssertionType,
+        OAuthCredential::SessionState,
+        OAuthCredential::LogoutURL,
+        OAuthCredential::PostLogoutRedirectURI,
+    ];
+
+    let vec_included = vec![
+        OAuthCredential::ClientId,
+        OAuthCredential::RedirectURI,
+        OAuthCredential::State,
+        OAuthCredential::ResponseMode,
+        OAuthCredential::ResponseType,
+        OAuthCredential::Scopes,
+        OAuthCredential::Prompt,
+        OAuthCredential::DomainHint,
+        OAuthCredential::LoginHint,
+        OAuthCredential::CodeChallenge,
+        OAuthCredential::CodeChallengeMethod,
+    ];
+
+    OAuthTestTool::oauth_contains_credentials(&mut oauth, &vec_included);
+    OAuthTestTool::oauth_contains_credentials(&mut oauth, &not_included);
+    OAuthTestTool::oauth_query_uri_test(
+        &mut oauth,
+        GrantRequest::Authorization,
+        vec_included,
+        not_included,
+    );
 }

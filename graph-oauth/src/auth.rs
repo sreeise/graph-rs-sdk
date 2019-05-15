@@ -55,7 +55,7 @@ impl OAuthCredential {
         match self {
             OAuthCredential::ClientId => "client_id",
             OAuthCredential::ClientSecret => "client_secret",
-            OAuthCredential::AuthorizeURL => "sign_in_url",
+            OAuthCredential::AuthorizeURL => "authorization_url",
             OAuthCredential::AccessTokenURL => "access_token_url",
             OAuthCredential::RefreshTokenURL => "refresh_token_url",
             OAuthCredential::RedirectURI => "redirect_uri",
@@ -290,6 +290,9 @@ impl OAuth {
     /// println!("{:#?}", oauth.contains(OAuthCredential::Nonce));
     /// ```
     pub fn contains(&self, t: OAuthCredential) -> bool {
+        if t == OAuthCredential::Scopes {
+            return !self.scopes.is_empty();
+        }
         self.credentials.contains_key(t.alias())
     }
 
@@ -396,9 +399,9 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # let mut oauth = OAuth::code_flow();
-    /// oauth.redirect_url("https://localhost:8888/redirect");
+    /// oauth.redirect_uri("https://localhost:8888/redirect");
     /// ```
-    pub fn redirect_url(&mut self, value: &str) -> &mut OAuth {
+    pub fn redirect_uri(&mut self, value: &str) -> &mut OAuth {
         self.insert(OAuthCredential::RedirectURI, value.into())
     }
 
@@ -475,15 +478,27 @@ impl OAuth {
     pub fn id_token(&mut self, value: IdToken) -> &mut OAuth {
         self.insert(OAuthCredential::IdToken, value.get_id_token());
         if let Some(code) = value.get_code() {
-            self.insert(OAuthCredential::AccessCode, code);
+            self.access_code(code.as_str());
         }
         if let Some(state) = value.get_state() {
             let _ = self.entry(OAuthCredential::State, state.as_str());
         }
         if let Some(session_state) = value.get_session_state() {
-            self.insert(OAuthCredential::SessionState, session_state);
+            self.session_state(session_state.as_str());
         }
         self.insert(OAuthCredential::IdToken, value.get_id_token())
+    }
+
+    /// Set the session state.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::code_flow();
+    /// oauth.session_state("session-state");
+    /// ```
+    pub fn session_state(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::SessionState, value.into())
     }
 
     /// Set the grant_type.
@@ -496,6 +511,18 @@ impl OAuth {
     /// ```
     pub fn grant_type(&mut self, value: &str) -> &mut OAuth {
         self.insert(OAuthCredential::GrantType, value.into())
+    }
+
+    /// Set the resource.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::code_flow();
+    /// oauth.resource("resource");
+    /// ```
+    pub fn resource(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::Resource, value.into())
     }
 
     /// Set the grant_type.
@@ -544,6 +571,42 @@ impl OAuth {
     /// ```
     pub fn code_challenge_method(&mut self, value: &str) -> &mut OAuth {
         self.insert(OAuthCredential::CodeChallengeMethod, value.into())
+    }
+
+    /// Set the login hint.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::code_flow();
+    /// oauth.login_hint("login_hint");
+    /// ```
+    pub fn login_hint(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::LoginHint, value.into())
+    }
+
+    /// Set the client assertion.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::code_flow();
+    /// oauth.client_assertion("client_assertion");
+    /// ```
+    pub fn client_assertion(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::ClientAssertion, value.into())
+    }
+
+    /// Set the client assertion type.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::code_flow();
+    /// oauth.client_assertion_type("client_assertion_type");
+    /// ```
+    pub fn client_assertion_type(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::ClientAssertionType, value.into())
     }
 
     /// Set the url to send a post request that will log out the user.

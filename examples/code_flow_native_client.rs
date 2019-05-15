@@ -38,7 +38,7 @@ fn native_client() -> OAuth {
     // do not use a client secret.
     oauth
         .client_id("<CLIENT ID>")
-        .redirect_url("https://login.microsoftonline.com/common/oauth2/nativeclient")
+        .redirect_uri("https://login.microsoftonline.com/common/oauth2/nativeclient")
         .add_scope("Files.Read")
         .add_scope("Files.ReadWrite")
         .add_scope("Files.Read.All")

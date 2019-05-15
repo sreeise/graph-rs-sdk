@@ -7,7 +7,7 @@ fn sign_in_code_url() {
     oauth
         .authorize_url("https://login.live.com/oauth20_authorize.srf?")
         .client_id("bb301aaa-1201-4259-a230923fds32")
-        .redirect_url("http://localhost:8888/redirect")
+        .redirect_uri("http://localhost:8888/redirect")
         .response_type("code")
         .add_scope("https://graph.microsoft.com/.default");
     let u = oauth.encode_uri(GrantRequest::Authorization).unwrap();
@@ -23,7 +23,7 @@ fn sign_in_code_url_with_state() {
     oauth
         .authorize_url("https://example.com/oauth2/v2.0/authorize")
         .client_id("bb301aaa-1201-4259-a230923fds32")
-        .redirect_url("http://localhost:8888/redirect")
+        .redirect_uri("http://localhost:8888/redirect")
         .response_type("code")
         .state("state");
     oauth.add_scope("https://graph.microsoft.com/.default");
@@ -37,7 +37,7 @@ fn access_token() {
     let mut oauth = OAuth::code_flow();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
-        .redirect_url("http://localhost:8888/redirect")
+        .redirect_uri("http://localhost:8888/redirect")
         .client_secret("CLDIE3F")
         .authorize_url("https://www.example.com/token")
         .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
@@ -61,7 +61,7 @@ fn refresh_token() {
     let mut oauth = OAuth::code_flow();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
-        .redirect_url("http://localhost:8888/redirect")
+        .redirect_uri("http://localhost:8888/redirect")
         .client_secret("CLDIE3F")
         .authorize_url("https://www.example.com/token")
         .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
@@ -79,7 +79,7 @@ fn get_refresh_token() {
     let mut oauth = OAuth::code_flow();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
-        .redirect_url("http://localhost:8888/redirect")
+        .redirect_uri("http://localhost:8888/redirect")
         .client_secret("CLDIE3F")
         .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
         .refresh_token_url("https://www.example.com/token?")
@@ -103,7 +103,7 @@ fn multi_scope() {
         .add_scope("Files.Read.All")
         .add_scope("Files.ReadWrite.All")
         .add_scope("wl.offline_access")
-        .redirect_url("http://localhost:8000/redirect")
+        .redirect_uri("http://localhost:8000/redirect")
         .authorize_url("https://login.live.com/oauth20_authorize.srf?")
         .access_token_url("https://login.live.com/oauth20_token.srf")
         .refresh_token_url("https://login.live.com/oauth20_token.srf")

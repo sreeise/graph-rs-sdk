@@ -1,14 +1,11 @@
+use drive_test_tools::support::cleanup::CleanUp;
 use graph_oauth::oauth::AccessToken;
 use graph_oauth::oauth::OAuth;
 use graph_oauth::oauth::OAuthCredential;
 use rust_onedrive::transform::*;
 use std::path::Path;
-use std::{fs, thread};
-
-mod support;
-
-pub use crate::support::cleanup::CleanUp;
 use std::time::Duration;
+use std::{fs, thread};
 
 #[test]
 fn get_method() {
@@ -51,7 +48,7 @@ fn oauth_json_file() {
     let mut oauth = OAuth::code_flow();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
-        .redirect_url("http://localhost:8888/redirect")
+        .redirect_uri("http://localhost:8888/redirect")
         .authorize_url("https://example.com/oauth2/v2.0/authorize");
 
     let mut builder = AccessToken::default();
