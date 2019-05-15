@@ -4,10 +4,11 @@ use rust_onedrive::drive::Drive;
 use rust_onedrive::drive::EP;
 use rust_onedrive::oauth::OAuth;
 use rust_onedrive::transform::*;
+use std::convert::TryFrom;
 
 fn main() {
     let oauth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let mut drive = Drive::from(oauth);
+    let mut drive = Drive::try_from(oauth).unwrap();
     let drive_item: DriveItem = drive.drive_root_child().unwrap();
     // DriveItem stores a Vec consisting of Values that are resources in a users drive
     // such as documents, folders, etc.
