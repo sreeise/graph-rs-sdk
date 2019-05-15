@@ -7,11 +7,12 @@ extern crate rocket;
 extern crate serde_json;
 extern crate reqwest;
 
-use rust_onedrive::oauth::{Grant, OAuth};
 use rocket::http::RawStr;
 use rocket_codegen::routes;
 use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::{Drive, EP};
+use rust_onedrive::oauth::{Grant, OAuth};
+use std::convert::TryFrom;
 use std::thread;
 use std::time::Duration;
 use transform_request::{FromFile, ToFile};
@@ -196,7 +197,7 @@ pub fn set_and_req_access_code(access_code: &str) {
 #[get("/drive/recent", format = "application/json")]
 fn recent() {
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let mut drive = Drive::from(oauth);
+    let mut drive = Drive::try_from(oauth).unwrap();
     let result = drive.drive_recent();
     match result {
         Ok(drive_item) => {

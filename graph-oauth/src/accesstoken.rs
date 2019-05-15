@@ -9,6 +9,7 @@ use reqwest::RequestBuilder;
 use reqwest::Response;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use std::convert::TryFrom;
 use transform_request::prelude::*;
 
 /// AccessToken that is used for api calls to OneDrive and Graph.
@@ -395,7 +396,7 @@ impl Default for AccessToken {
 
 /// Transforms &mut reqwest::Response to Result<AccessToken, OAuthError>
 impl Transform<&mut Response> for AccessToken {
-    type Err = RequestError;
+    type Err = OAuthError;
 
     fn transform(rhs: &mut Response) -> Result<Self, Self::Err>
     where
@@ -408,7 +409,7 @@ impl Transform<&mut Response> for AccessToken {
 
 /// Transforms a JSON &str to Result<AccessToken, OAuthError> using serde_json
 impl Transform<&str> for AccessToken {
-    type Err = RequestError;
+    type Err = OAuthError;
 
     fn transform(rhs: &str) -> Result<Self, Self::Err>
     where
@@ -454,59 +455,31 @@ impl Transform<RequestBuilder> for AccessToken {
     }
 }
 
-/// Converts a reqwest crate &mut reqwest::Response to an AccessToken.
-/// The Result<Response> should come from an API call for an access token.
-///
-/// Errors will return the default AccessToken. Callers should only
-/// use this method is they are ok with receiving a default access token
-/// or you are sure that the response will result in an AccessToken.
-///
-/// In most circumstances, callers should use the AccessToken::transform(&mut response)
-/// from the OAuthResultTrait implemented by AccessToken.
-impl From<&mut reqwest::Response> for AccessToken {
-    fn from(response: &mut reqwest::Response) -> Self {
-        let t: AccessToken = match response.json() {
-            Ok(t) => t,
-            Err(_) => return AccessToken::default(),
-        };
-        t
+impl TryFrom<RequestBuilder> for AccessToken {
+    type Error = OAuthError;
+
+    fn try_from(value: RequestBuilder) -> Result<Self, Self::Error> {
+        let mut response = value.send()?;
+        let access_token: AccessToken = AccessToken::transform(&mut response)?;
+        Ok(access_token)
     }
 }
 
-/// Converts a reqwest crate Result<reqwest::Response, reqwest::Error> to an AccessToken.
-/// The Result<Response> should come from an API call for an access token.
-///
-/// Errors will return the default AccessToken. Callers should only
-/// use this method is they are ok with receiving a default access token
-/// or you are sure that the response will result in an AccessToken.
-///
-/// In most circumstances, callers should use the AccessToken::transform(&mut response)
-/// from the OAuthResultTrait implemented by AccessToken.
-/// This will return a Result<AccessToken, OAuthError>
-impl From<Result<reqwest::Response, reqwest::Error>> for AccessToken {
-    fn from(result: Result<reqwest::Response, reqwest::Error>) -> Self {
-        let mut r: Response = match result {
-            Ok(t) => t,
-            Err(_) => return AccessToken::default(),
-        };
-        AccessToken::from(&mut r)
+impl TryFrom<Result<reqwest::Response, reqwest::Error>> for AccessToken {
+    type Error = OAuthError;
+
+    fn try_from(value: Result<Response, reqwest::Error>) -> Result<Self, Self::Error> {
+        AccessToken::transform(value)
     }
 }
 
-/// Converts a JSON str to an AccessToken using the serde_json crate.
-///
-/// Errors will return the default AccessToken. Callers should only
-/// use this method is they are ok with receiving a default access token
-/// or you are sure that the response will result in an AccessToken.
-///
-/// In most circumstances, callers should use the AccessToken::transform(&str)
-/// from the OAuthResultTrait implemented by AccessToken.
-/// This will return a Result<AccessToken, OAuthError>
-impl From<&str> for AccessToken {
-    fn from(s: &str) -> Self {
-        match serde_json::from_str(s) {
-            Ok(t) => t,
-            Err(_) => AccessToken::default(),
-        }
+impl TryFrom<&mut Response> for AccessToken {
+    type Error = OAuthError;
+
+    fn try_from(value: &mut Response) -> Result<Self, Self::Error>
+    where
+        Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
+    {
+        AccessToken::transform(value)
     }
 }

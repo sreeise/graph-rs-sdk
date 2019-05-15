@@ -30,6 +30,7 @@ pub use crate::drive::endpoint::{DriveEndPoint, EP};
 pub use crate::drive::item::{Download, Item};
 use crate::process::fileretriever::FileRetriever;
 use serde::{Deserialize, Serialize};
+use std::convert::TryFrom;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use transform_request::prelude::*;
@@ -91,21 +92,6 @@ impl Drive {
     }
 }
 
-/// Converts an OAuth instance to a drive.
-/// Panics if OAuth does not contain an access token.
-///
-/// # Better to use Transform over From here.
-/// To avoid unnecessary panics use Drive::transform(OAuth)
-/// which returns Result<Drive, Error>.
-impl From<OAuth> for Drive {
-    fn from(oauth: OAuth) -> Self {
-        match oauth.get_access_token() {
-            Some(t) => Drive::new(t.get_access_token(), DriveVersion::V1),
-            None => panic!("Missing Access Token"),
-        }
-    }
-}
-
 /// Converts an OAuth instance to a Result<Drive> on success
 /// or Result<Error> on failure. An Err is returned if there
 /// is no access token in the OAuth instance.
@@ -126,6 +112,14 @@ impl Transform<OAuth> for Drive {
             ErrorKind::InvalidData,
             "OAuth instance missing access token.",
         ))
+    }
+}
+
+impl TryFrom<OAuth> for Drive {
+    type Error = RequestError;
+
+    fn try_from(value: OAuth) -> std::result::Result<Self, Self::Error> {
+        Drive::transform(value)
     }
 }
 
