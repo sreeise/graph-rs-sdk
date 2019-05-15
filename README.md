@@ -8,20 +8,25 @@ Disclaimer:
 This project is a work in progress and is not on yet on crates.io. Since a good part of this API is unstable, 
 it should not be used in production.
  
-Currently, OAuth2 authentication is the main priority.
-The current implementation is fully built to handle web or native clients for
-personal and business accounts. Most of the OAuth parts will stay the same.
-
 Only Linux has been tested to work. Windows and MacOS may work but is not guaranteed.
 
-### The following is a list of the current work next to be done:
+### Building
+Normal Rust build using cargo
 
-    1. OAuth 2.0 grant types.
-    2. Traits for downloading/moving/uploading and various other actions for drive files.
+    $ cargo build
 
-Requires Rust nightly:
+### Requires Rust nightly
 
-    $ rustup install nightly && cd rust-onedrive && rustup override set nightly
+The nightly version is set in the rust-toolchain file.
+
+### Clippy Lints
+
+Clippy runs in the CI tests and is required to pass. More info
+on clippy can be found here: https://github.com/rust-lang/rust-clippy
+
+    $ cd rust-onedrive
+    $ rustup component add clippy
+    $ cargo clippy --all
 
 ### Formatting
 
