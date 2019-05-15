@@ -7,7 +7,7 @@ fn web_client() -> OAuth {
         .client_id("<CLIENT_ID>")
         .client_secret("<CLIENT_SECRET>")
         // Or whatever you set the redirect to for a web client.
-        .redirect_url("http://localhost:8000/redirect")
+        .redirect_uri("http://localhost:8000/redirect")
         .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?")
         .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token?");
 

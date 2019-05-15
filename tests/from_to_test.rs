@@ -1,10 +1,9 @@
+use drive_test_tools::support::cleanup::CleanUp;
 use rust_onedrive::drive::driveitem::DriveItem;
 use std::ffi::OsStr;
+use std::fs;
 use std::path::Path;
 use transform_request::prelude::*;
-mod support;
-pub use crate::support::cleanup::CleanUp;
-use std::fs;
 
 #[test]
 fn drive_item_from_to() {

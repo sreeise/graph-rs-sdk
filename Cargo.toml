@@ -11,6 +11,7 @@ exclude = [
     "test_files/*",
     "tests/*",
     "examples/*",
+    "drive_test_tools/*"
 ]
 keywords = ["onedrive", "graph", "API"]
 
@@ -20,6 +21,7 @@ members = [
     "graph-error",
     "transform-request",
     "derive_from_to_file",
+    "drive-test-tools",
 ]
 
 [dependencies.url]
@@ -58,6 +60,7 @@ serde_derive = "1.0.81"
 reqwest = "0.9.6"
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
+drive-test-tools = { path = "./drive-test-tools" }
 
 [badges]
 travis-ci = { repository = "https://github.com/sreeise/rust-onedrive", branch = "master" }

@@ -22,7 +22,7 @@
 //! let mut oauth = OAuth::authorization_code_grant();
 //! oauth.client_id("client_id")
 //!     .client_secret("client_secret")
-//!     .redirect_url("http://localhost:8000")
+//!     .redirect_uri("http://localhost:8000")
 //!     .add_scope("Files.Read")
 //!     .add_scope("Files.ReadWrite")
 //!     .add_scope("Files.Read.All")

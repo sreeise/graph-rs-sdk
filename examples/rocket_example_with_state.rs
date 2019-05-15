@@ -42,7 +42,7 @@ fn oauth_web_client() -> OAuth {
         .add_scope("Files.Read.All")
         .add_scope("Files.ReadWrite.All")
         .add_scope("wl.offline_access")
-        .redirect_url("http://localhost:8000/redirect")
+        .redirect_uri("http://localhost:8000/redirect")
         .authorize_url("https://login.live.com/oauth20_authorize.srf?")
         .access_token_url("https://login.live.com/oauth20_token.srf")
         .refresh_token_url("https://login.live.com/oauth20_token.srf")
