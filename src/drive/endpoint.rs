@@ -1,34 +1,11 @@
-/*
-Implements the drive_item drive endpoints including special folders shown below.
-
-Special folders are one of:
-    1. Documents:
-        Name: documents
-        Description: The Documents folder.
-    2. Photos
-        Name: photos
-        Description: The Photos folder.
-    3. Camera Roll:
-        Name: cameraroll
-        Description: The Camera Roll Backup folder.
-    4. App Root:
-        Name: approot
-        Description: The application's personal folder. Usually in /Apps/{Application Name}
-    5. Music:
-        Name: music
-        Description: The Music folder.
-*/
-
 use crate::drive::drive_item::driveitem::DriveItem;
-
 use crate::drive::item::Item;
-use crate::drive::{Drive, ItemResult, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
+use crate::drive::{Drive, DriveVersion, ItemResult, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
 
-/*
-pub struct DI<U: Item<U>>(Result<U, RequestError>);
-pub type ItemResult<T> = DI<T>;
-*/
-
+/// Implements well known or special folder paths.
+///
+/// # See
+/// [Special Folders](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/drive_get_specialfolder?view=odsp-graph-online)
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub enum DriveEndPoint {
     Drive,
@@ -89,6 +66,13 @@ impl DriveEndPoint {
         let mut url = String::from(host);
         url.push_str(endpoint);
         url
+    }
+
+    pub fn use_version(self, version: DriveVersion) -> String {
+        match version {
+            DriveVersion::V1 => self.v1_url(),
+            DriveVersion::V2 => self.beta_url(),
+        }
     }
 
     pub fn beta_url(self) -> String {
