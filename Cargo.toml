@@ -40,6 +40,7 @@ base64 = "0.10.1"
 strum_macros = "0.14.0"
 strum = "0.14.0"
 openssl-sys = "0.9"
+rayon = "1.0.3"
 openssl = { version = "^0.10", features = ["vendored"] }
 transform-request = { path = "./transform-request" }
 graph-oauth = { path = "./graph-oauth" }

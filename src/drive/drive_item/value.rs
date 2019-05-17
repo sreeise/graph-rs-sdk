@@ -43,7 +43,7 @@ pub struct Value {
     folder: Option<Folder>,
     #[serde(rename = "specialFolder")]
     special_folder: Option<SpecialFolder>,
-    #[serde(rename = "@microsoft.graph-error.downloadUrl")]
+    #[serde(rename = "microsoft_graph_download_url")]
     _microsoft_graph_download_url: Option<String>,
     file: Option<File>,
     image: Option<Image>,

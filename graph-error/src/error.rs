@@ -1,7 +1,9 @@
 use crate::GraphHeaders;
 use reqwest::Response;
+use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt;
+use std::io::ErrorKind;
 use std::string::ToString;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -60,6 +62,17 @@ impl std::fmt::Display for GraphError {
             f,
             "\nError Code: {:#?}\nError Message: {:#?}",
             &self.code, &self.error_info
+        )
+    }
+}
+
+impl Default for GraphError {
+    fn default() -> Self {
+        GraphError::new(
+            None,
+            ErrorType::BadRequest.as_str(),
+            ErrorType::BadRequest,
+            400,
         )
     }
 }
@@ -159,23 +172,35 @@ impl ToString for ErrorType {
 /// This method will panic with a NoneError if there is no corresponding u16 to match.
 /// Only use this method if you are sure the u16 given will match
 /// or you if the method results with a panic.
-impl From<u16> for GraphError {
-    fn from(err: u16) -> Self {
-        let error_type = ErrorType::from_u16(err).unwrap();
-        GraphError {
+
+impl TryFrom<u16> for GraphError {
+    type Error = std::io::Error;
+
+    fn try_from(value: u16) -> Result<Self, Self::Error> {
+        if !GraphError::is_error(value) {
+            return Err(std::io::Error::new(
+                ErrorKind::InvalidInput,
+                "u16 given is not a graph error.",
+            ));
+        }
+
+        let error_type = ErrorType::from_u16(value).unwrap();
+        Ok(GraphError {
             headers: None,
             error_info: error_type.to_string(),
             error_type,
-            code: err,
-        }
+            code: value,
+        })
     }
 }
 
-impl From<&mut Response> for GraphError {
-    fn from(r: &mut Response) -> Self {
-        let status = r.status().as_u16();
-        let mut graph_error = GraphError::from(status);
-        graph_error.set_headers(GraphHeaders::from(r));
-        graph_error
+impl TryFrom<&mut Response> for GraphError {
+    type Error = std::io::Error;
+
+    fn try_from(value: &mut Response) -> Result<Self, Self::Error> {
+        let status = value.status().as_u16();
+        let mut graph_error = GraphError::try_from(status)?;
+        graph_error.set_headers(GraphHeaders::from(value));
+        Ok(graph_error)
     }
 }

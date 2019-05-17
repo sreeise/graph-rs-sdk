@@ -432,7 +432,7 @@ impl Transform<Result<reqwest::Response, reqwest::Error>> for AccessToken {
         let mut response: Response = rhs?;
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
-            let mut graph_error = GraphError::from(status);
+            let mut graph_error = GraphError::try_from(status)?;
             let graph_headers = GraphHeaders::from(&mut response);
             graph_error.set_headers(graph_headers);
             return Err(OAuthError::from(graph_error));

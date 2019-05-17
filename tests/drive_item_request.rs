@@ -8,6 +8,7 @@ use rocket::Rocket;
 use rocket_codegen::routes;
 use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::filesysteminfo::FileSystemInfo;
+use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
 pub use transform_request::prelude::*;
@@ -42,7 +43,7 @@ fn rocket_request(request: &str) -> DriveItem {
     let client = Client::new(rocket()).expect("valid rocket instance");
     let mut response = client.get(request).dispatch();
     assert_eq!(response.status(), Status::Ok);
-    let drive_item: DriveItem = DriveItem::transform(response.body_string().unwrap()).unwrap();
+    let drive_item: DriveItem = DriveItem::try_from(response.body_string().unwrap()).unwrap();
     drive_item
 }
 

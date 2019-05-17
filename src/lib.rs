@@ -90,19 +90,23 @@ pub extern crate serde_json;
 pub extern crate derive_from_to_file;
 
 pub mod drive;
-pub mod process;
+mod io;
 
 pub mod prelude {
     pub use crate::drive::driveitem::DriveItem;
     pub use crate::drive::query_string::QueryString;
+    pub use crate::drive::value::Value;
     pub use crate::drive::Download;
+    pub use crate::drive::DownloadFormat;
     pub use crate::drive::Drive;
     pub use crate::drive::DriveEndPoint;
     pub use crate::drive::DriveEvent;
+    pub use crate::drive::DriveEventPath;
     pub use crate::drive::DriveResource;
     pub use crate::drive::DriveVersion;
     pub use crate::drive::Item;
     pub use crate::drive::ItemResult;
+    pub use crate::drive::PathBuilder;
     pub use crate::drive::EP;
     pub use crate::transform::*;
 }
@@ -117,4 +121,9 @@ pub mod oauth {
 
 pub mod transform {
     pub use transform_request::prelude::*;
+}
+
+pub mod fetch {
+    pub use crate::io::fetch::Fetch;
+    pub use crate::io::iotools::IOTools;
 }
