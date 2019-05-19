@@ -25,14 +25,16 @@ pub mod query_string;
 use crate::drive;
 pub use crate::drive::drive_item::*;
 pub use crate::drive::driveaction::{DownloadFormat, DriveEvent};
-pub use crate::drive::driveresource::DriveEventPath;
 pub use crate::drive::driveresource::DriveResource;
+pub use crate::drive::driveresource::ResourceBuilder;
 pub use crate::drive::endpoint::{DriveEndPoint, EP};
 pub use crate::drive::item::{Download, Item};
 pub use crate::drive::pathbuilder::PathBuilder;
 use crate::fetch::Fetch;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+use std::fmt;
+use std::fmt::{Display, Formatter};
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use transform_request::prelude::*;
@@ -40,18 +42,24 @@ use transform_request::prelude::*;
 pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
 pub static GRAPH_ENDPOINT_BETA: &str = "https://graph.microsoft.com/beta";
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DriveVersion {
     V1,
     V2,
 }
 
-impl ToString for DriveVersion {
-    fn to_string(&self) -> String {
+impl AsRef<str> for DriveVersion {
+    fn as_ref(&self) -> &str {
         match self {
-            DriveVersion::V1 => GRAPH_ENDPOINT.to_string(),
-            DriveVersion::V2 => GRAPH_ENDPOINT_BETA.to_string(),
+            DriveVersion::V1 => GRAPH_ENDPOINT,
+            DriveVersion::V2 => GRAPH_ENDPOINT_BETA,
         }
+    }
+}
+
+impl Display for DriveVersion {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_ref())
     }
 }
 
@@ -86,8 +94,8 @@ impl Drive {
         self.version = version.to_string();
     }
 
-    pub fn host(&self) -> String {
-        self.version.to_string()
+    pub fn get_version(&self) -> &String {
+        &self.version
     }
 
     fn token(&self) -> &str {
@@ -131,6 +139,14 @@ impl TryFrom<OAuth> for Drive {
 impl Item for Drive {
     fn token(&self) -> &str {
         self.token()
+    }
+
+    fn drive_version(&self) -> DriveVersion {
+        if self.version.eq(GRAPH_ENDPOINT) {
+            DriveVersion::V1
+        } else {
+            DriveVersion::V2
+        }
     }
 }
 
@@ -191,7 +207,11 @@ impl Download for Drive {
                     None => return Err(RequestError::none_err("Missing item id or download URL")),
                 };
 
-                let url = DriveResource::Me.item_resource(item_id.as_str(), DriveEvent::Download);
+                let url = DriveResource::Me.item_resource(
+                    self.drive_version(),
+                    item_id.as_str(),
+                    DriveEvent::Download,
+                );
                 let res = client.get(url.as_str()).bearer_auth(self.token()).send()?;
                 Ok(self.fetch(directory, res.url().as_str())?)
             },
@@ -256,8 +276,11 @@ impl Download for Drive {
             None => return Err(RequestError::none_err("Missing item id or download URL")),
         };
 
-        let mut url =
-            DriveResource::Drives.item_resource(item_id.as_str(), DriveEvent::DownloadAndFormat);
+        let mut url = DriveResource::Drives.item_resource(
+            self.drive_version(),
+            item_id.as_str(),
+            DriveEvent::DownloadAndFormat,
+        );
         url.push_str(format.as_ref());
         let res = client.get(url.as_str()).bearer_auth(self.token()).send()?;
         Ok(self.fetch(directory, res.url().as_str())?)

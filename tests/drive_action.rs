@@ -1,9 +1,10 @@
-use rust_onedrive::drive::DriveResource;
 use rust_onedrive::drive::{DownloadFormat, DriveEvent};
+use rust_onedrive::drive::{DriveResource, DriveVersion};
 
 #[test]
 fn drive_action_url() {
     let check_in_url = DriveResource::Drives.drive_item_resource(
+        DriveVersion::V1,
         "{drive-id}",
         "{parent-item-id}",
         DriveEvent::CheckIn,
@@ -14,6 +15,7 @@ fn drive_action_url() {
     );
 
     let check_out_url = DriveResource::Drives.drive_item_resource(
+        DriveVersion::V1,
         "{drive-id}",
         "{parent-item-id}",
         DriveEvent::CheckOut,
@@ -27,6 +29,7 @@ fn drive_action_url() {
 #[test]
 fn groups_action_url() {
     let check_in_url = DriveResource::Groups.drive_item_resource(
+        DriveVersion::V1,
         "{drive-id}",
         "{parent-item-id}",
         DriveEvent::CheckIn,
@@ -37,6 +40,7 @@ fn groups_action_url() {
     );
 
     let check_out_url = DriveResource::Groups.drive_item_resource(
+        DriveVersion::V1,
         "{drive-id}",
         "{parent-item-id}",
         DriveEvent::CheckOut,
@@ -50,6 +54,7 @@ fn groups_action_url() {
 #[test]
 fn sites_action_url() {
     let check_in_url = DriveResource::Sites.drive_item_resource(
+        DriveVersion::V1,
         "{drive-id}",
         "{parent-item-id}",
         DriveEvent::CheckIn,
@@ -60,6 +65,7 @@ fn sites_action_url() {
     );
 
     let check_out_url = DriveResource::Sites.drive_item_resource(
+        DriveVersion::V1,
         "{drive-id}",
         "{parent-item-id}",
         DriveEvent::CheckOut,
@@ -73,6 +79,7 @@ fn sites_action_url() {
 #[test]
 fn users_action_url() {
     let check_in_url = DriveResource::Users.drive_item_resource(
+        DriveVersion::V1,
         "{drive-id}",
         "{parent-item-id}",
         DriveEvent::CheckIn,
@@ -83,6 +90,7 @@ fn users_action_url() {
     );
 
     let check_out_url = DriveResource::Users.drive_item_resource(
+        DriveVersion::V1,
         "{drive-id}",
         "{parent-item-id}",
         DriveEvent::CheckOut,
@@ -95,13 +103,15 @@ fn users_action_url() {
 
 #[test]
 fn me_action_url() {
-    let check_in_url = DriveResource::Me.item_resource("{parent-item-id}", DriveEvent::CheckIn);
+    let check_in_url =
+        DriveResource::Me.item_resource(DriveVersion::V1, "{parent-item-id}", DriveEvent::CheckIn);
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/{parent-item-id}/checkin",
         check_in_url.as_str()
     );
 
-    let check_out_url = DriveResource::Me.item_resource("{parent-item-id}", DriveEvent::CheckOut);
+    let check_out_url =
+        DriveResource::Me.item_resource(DriveVersion::V1, "{parent-item-id}", DriveEvent::CheckOut);
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/{parent-item-id}/checkout",
         check_out_url.as_str()
@@ -110,14 +120,22 @@ fn me_action_url() {
 
 #[test]
 fn download_format() {
-    let url = DriveResource::Drives.item_resource("{item-id}", DriveEvent::DownloadAndFormat);
+    let url = DriveResource::Drives.item_resource(
+        DriveVersion::V1,
+        "{item-id}",
+        DriveEvent::DownloadAndFormat,
+    );
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drive/items/{item-id}/content?format=",
         url.as_str()
     );
 
     let pdf = vec![
-        DriveResource::Drives.item_resource("{item-id}", DriveEvent::DownloadAndFormat),
+        DriveResource::Drives.item_resource(
+            DriveVersion::V1,
+            "{item-id}",
+            DriveEvent::DownloadAndFormat,
+        ),
         DownloadFormat::PDF.as_ref().into(),
     ];
     assert_eq!(
@@ -126,7 +144,11 @@ fn download_format() {
     );
 
     let jpg = vec![
-        DriveResource::Drives.item_resource("{item-id}", DriveEvent::DownloadAndFormat),
+        DriveResource::Drives.item_resource(
+            DriveVersion::V1,
+            "{item-id}",
+            DriveEvent::DownloadAndFormat,
+        ),
         DownloadFormat::JPG.as_ref().into(),
     ];
     assert_eq!(
@@ -135,7 +157,11 @@ fn download_format() {
     );
 
     let html = vec![
-        DriveResource::Drives.item_resource("{item-id}", DriveEvent::DownloadAndFormat),
+        DriveResource::Drives.item_resource(
+            DriveVersion::V1,
+            "{item-id}",
+            DriveEvent::DownloadAndFormat,
+        ),
         DownloadFormat::HTML.as_ref().into(),
     ];
     assert_eq!(
@@ -144,7 +170,11 @@ fn download_format() {
     );
 
     let glb = vec![
-        DriveResource::Drives.item_resource("{item-id}", DriveEvent::DownloadAndFormat),
+        DriveResource::Drives.item_resource(
+            DriveVersion::V1,
+            "{item-id}",
+            DriveEvent::DownloadAndFormat,
+        ),
         DownloadFormat::GLB.as_ref().into(),
     ];
     assert_eq!(
