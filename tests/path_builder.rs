@@ -1,6 +1,7 @@
 use rust_onedrive::drive::{
-    DriveEndPoint, DriveEvent, DriveEventPath, DriveResource, DriveVersion, PathBuilder,
+    DriveEndPoint, DriveEvent, DriveResource, DriveVersion, PathBuilder, ResourceBuilder,
 };
+use std::convert::TryFrom;
 
 #[test]
 fn test_path_builder_host() {
@@ -39,26 +40,24 @@ fn from_drive_version() {
 
 #[test]
 fn from_drive_event_path() {
-    let event_path = DriveEventPath::new(
-        DriveVersion::V1,
-        DriveResource::Drives,
-        DriveEvent::Download,
-        "1234",
-    );
-    let mut pb: PathBuilder = event_path.into();
+    let mut event_path = ResourceBuilder::new(DriveVersion::V1);
+    event_path
+        .resource(DriveResource::Drives)
+        .drive_event(DriveEvent::Download)
+        .item_id("1234");
+    let mut pb: PathBuilder = PathBuilder::try_from(event_path).unwrap();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drive/items/1234/content",
         pb.build()
     );
 
-    let mut event_path2 = DriveEventPath::new(
-        DriveVersion::V1,
-        DriveResource::Drives,
-        DriveEvent::Download,
-        "1234",
-    );
-    event_path2.drive_id("3232093-2320-2387429378");
-    let mut pb2: PathBuilder = event_path2.into();
+    let mut event_path2 = ResourceBuilder::new(DriveVersion::V1);
+    event_path2
+        .drive_event(DriveEvent::Download)
+        .resource(DriveResource::Drives)
+        .item_id("1234")
+        .drive_id("3232093-2320-2387429378");
+    let mut pb2: PathBuilder = PathBuilder::try_from(event_path2).unwrap();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/3232093-2320-2387429378/items/1234/content",
         pb2.build()

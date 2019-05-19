@@ -1,5 +1,6 @@
 use crate::drive::driveaction::DriveEvent;
-use crate::drive::{DriveVersion, GRAPH_ENDPOINT};
+use crate::drive::{DriveVersion, ItemResult};
+use transform_request::RequestError;
 
 /// A drive resource is the top level drive and describes where the item requested
 /// originates from.
@@ -18,12 +19,12 @@ pub enum DriveResource {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct DriveEventPath {
+pub struct ResourceBuilder {
     version: DriveVersion,
-    resource: DriveResource,
+    resource: Option<DriveResource>,
     drive_id: Option<String>,
-    item_id: String,
-    drive_event: DriveEvent,
+    item_id: Option<String>,
+    drive_event: Option<DriveEvent>,
 }
 
 impl AsRef<str> for DriveResource {
@@ -51,35 +52,40 @@ impl ToString for DriveResource {
 }
 
 impl DriveResource {
-    pub fn item_resource(self, item_id: &str, drive_action: DriveEvent) -> String {
+    pub fn item_resource(
+        self,
+        version: DriveVersion,
+        item_id: &str,
+        drive_action: DriveEvent,
+    ) -> String {
         match self {
             DriveResource::Drives => format!(
                 "{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
+                version,
                 item_id,
                 drive_action.as_str()
             ),
             DriveResource::Groups => format!(
                 "{}/groups/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
+                version,
                 item_id,
                 drive_action.as_str()
             ),
             DriveResource::Sites => format!(
                 "{}/sites/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
+                version,
                 item_id,
                 drive_action.as_str()
             ),
             DriveResource::Users => format!(
                 "{}/users/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
+                version,
                 item_id,
                 drive_action.as_str()
             ),
             DriveResource::Me => format!(
                 "{}/me/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
+                version,
                 item_id,
                 drive_action.as_str()
             ),
@@ -88,6 +94,7 @@ impl DriveResource {
 
     pub fn drive_item_resource(
         self,
+        version: DriveVersion,
         drive_id: &str,
         item_id: &str,
         drive_action: DriveEvent,
@@ -95,35 +102,35 @@ impl DriveResource {
         match self {
             DriveResource::Drives => format!(
                 "{}/drives/{}/items/{}/{}",
-                GRAPH_ENDPOINT,
+                version,
                 drive_id,
                 item_id,
                 drive_action.as_str()
             ),
             DriveResource::Groups => format!(
                 "{}/groups/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
+                version,
                 drive_id,
                 item_id,
                 drive_action.as_str()
             ),
             DriveResource::Sites => format!(
                 "{}/sites/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
+                version,
                 drive_id,
                 item_id,
                 drive_action.as_str()
             ),
             DriveResource::Users => format!(
                 "{}/users/{}/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
+                version,
                 drive_id,
                 item_id,
                 drive_action.as_str()
             ),
             DriveResource::Me => format!(
                 "{}/me/drive/items/{}/{}",
-                GRAPH_ENDPOINT,
+                version,
                 item_id,
                 drive_action.as_str()
             ),
@@ -131,43 +138,88 @@ impl DriveResource {
     }
 }
 
-impl DriveEventPath {
-    pub fn new(
-        version: DriveVersion,
-        resource: DriveResource,
-        drive_event: DriveEvent,
-        item_id: &str,
-    ) -> DriveEventPath {
-        DriveEventPath {
+impl ResourceBuilder {
+    pub fn new(version: DriveVersion) -> ResourceBuilder {
+        ResourceBuilder {
             version,
-            resource,
+            resource: None,
             drive_id: None,
-            item_id: item_id.into(),
-            drive_event,
+            item_id: None,
+            drive_event: None,
         }
     }
 
-    pub fn drive_id(&mut self, id: &str) {
+    pub fn drive_id(&mut self, id: &str) -> &mut Self {
         self.drive_id = Some(id.into());
+        self
     }
 
-    pub fn get_drive_version(&self) -> &DriveVersion {
-        &self.version
+    pub fn drive_version(&mut self, version: DriveVersion) -> &mut Self {
+        self.version = version;
+        self
     }
 
-    pub fn get_drive_resource(&self) -> &DriveResource {
-        &self.resource
+    pub fn item_id(&mut self, item_id: &str) -> &mut Self {
+        self.item_id = Some(item_id.into());
+        self
     }
 
-    pub fn get_drive_event(&self) -> &DriveEvent {
-        &self.drive_event
+    pub fn resource(&mut self, resource: DriveResource) -> &mut Self {
+        self.resource = Some(resource);
+        self
+    }
+
+    pub fn drive_event(&mut self, drive_event: DriveEvent) -> &mut Self {
+        self.drive_event = Some(drive_event);
+        self
+    }
+
+    pub fn get_drive_version(&self) -> DriveVersion {
+        self.version
+    }
+
+    pub fn get_drive_resource(&self) -> Option<&DriveResource> {
+        self.resource.as_ref()
+    }
+
+    pub fn get_drive_event(&self) -> Option<&DriveEvent> {
+        self.drive_event.as_ref()
     }
 
     pub fn get_drive_id(&self) -> Option<&String> {
         self.drive_id.as_ref()
     }
 
-    pub fn get_item_id(&self) -> &String {
-        &self.item_id
+    pub fn get_item_id(&self) -> Option<&String> {
+        self.item_id.as_ref()
+    }
+
+    pub fn build(&self) -> ItemResult<String> {
+        if let Some(drive_id) = self.get_drive_id() {
+            Ok(self
+                .get_drive_resource()
+                .ok_or_else(|| RequestError::none_err("Missing DriveResource"))?
+                .drive_item_resource(
+                    self.get_drive_version(),
+                    drive_id,
+                    self.get_item_id()
+                        .ok_or_else(|| RequestError::none_err("Missing item id"))?,
+                    self.get_drive_event()
+                        .ok_or_else(|| RequestError::none_err("Missing DriveEvent"))?
+                        .clone(),
+                ))
+        } else {
+            Ok(self
+                .get_drive_resource()
+                .ok_or_else(|| RequestError::none_err("Missing DriveResource"))?
+                .item_resource(
+                    self.get_drive_version(),
+                    self.get_item_id()
+                        .ok_or_else(|| RequestError::none_err("Missing item id"))?,
+                    self.get_drive_event()
+                        .ok_or_else(|| RequestError::none_err("Missing DriveEvent"))?
+                        .clone(),
+                ))
+        }
     }
 }

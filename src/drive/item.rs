@@ -1,7 +1,7 @@
 use crate::drive;
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::driveaction::DownloadFormat;
-use crate::drive::ItemResult;
+use crate::drive::{DriveVersion, ItemResult};
 use graph_error::GraphError;
 use reqwest::{header, Client, RequestBuilder, Response};
 use std::collections::HashMap;
@@ -13,6 +13,8 @@ pub trait Item {
     /// The token() method should return a bearer token to make
     /// authenticated calls to the OneDrive API.
     fn token(&self) -> &str;
+
+    fn drive_version(&self) -> DriveVersion;
 
     fn item<T>(&self, r: &mut Response) -> ItemResult<T>
     where

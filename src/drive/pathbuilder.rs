@@ -1,10 +1,11 @@
-use crate::drive::driveresource::DriveEventPath;
+use crate::drive::driveresource::ResourceBuilder;
 use crate::drive::{DriveEndPoint, DriveResource, DriveVersion};
 use rayon::iter::{
     IntoParallelIterator, IntoParallelRefIterator, IntoParallelRefMutIterator, ParallelExtend,
     ParallelIterator,
 };
 use std::collections::btree_map::BTreeMap;
+use std::convert::TryFrom;
 use std::iter::Iterator;
 use transform_request::prelude::*;
 use url::form_urlencoded::Serializer;
@@ -138,21 +139,10 @@ impl From<DriveVersion> for PathBuilder {
     }
 }
 
-impl From<DriveEventPath> for PathBuilder {
-    fn from(drive_path: DriveEventPath) -> Self {
-        if let Some(drive_id) = drive_path.get_drive_id() {
-            let s = drive_path.get_drive_resource().drive_item_resource(
-                drive_id.as_str(),
-                drive_path.get_item_id().as_str(),
-                drive_path.get_drive_event().clone(),
-            );
-            PathBuilder::from(s)
-        } else {
-            let s = drive_path.get_drive_resource().item_resource(
-                drive_path.get_item_id().as_str(),
-                drive_path.get_drive_event().clone(),
-            );
-            PathBuilder::from(s)
-        }
+impl TryFrom<ResourceBuilder> for PathBuilder {
+    type Error = RequestError;
+
+    fn try_from(value: ResourceBuilder) -> Result<Self, Self::Error> {
+        Ok(PathBuilder::from(value.build()?))
     }
 }
