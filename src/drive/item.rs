@@ -1,9 +1,10 @@
 use crate::drive;
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::driveaction::DownloadFormat;
-use crate::drive::{DriveVersion, ItemResult};
+use crate::drive::{DriveEvent, DriveResource, DriveVersion, ItemResult, ResourceBuilder};
+use crate::fetch::Fetch;
 use graph_error::GraphError;
-use reqwest::{header, Client, RequestBuilder, Response};
+use reqwest::{header, Client, RedirectPolicy, RequestBuilder, Response};
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
@@ -139,21 +140,186 @@ pub trait Item {
 
         self.item(&mut response)
     }
-}
 
-pub trait Download: Item {
-    // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content?view=odsp-graph-online
+    /// Check-in a checkout DriveItem resource, which makes the version
+    /// of the document available to others.
+    ///
+    /// # See
+    /// [Check-in](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkin?view=odsp-graph-online)
+    fn check_in(
+        &self,
+        resource: &mut ResourceBuilder,
+        comment: &str,
+        check_in_as: Option<&str>,
+    ) -> ItemResult<()> {
+        resource.drive_event(DriveEvent::CheckIn);
+        let url = resource.build()?;
+        let mut map = HashMap::new();
+        map.insert("comment", comment);
+        if let Some(check_in) = check_in_as {
+            map.insert("checkInAs", check_in);
+        }
+
+        let mut response = self
+            .client()?
+            .post(url.as_str())
+            .bearer_auth(self.token())
+            .json(&map)
+            .header(header::CONTENT_TYPE, "application/json")
+            .send()?;
+
+        self.item(&mut response)
+    }
+
+    /// Check-out a driveItem resource to prevent others from editing the document,
+    /// and your changes from being visible until the documented is checked-in.
+    ///
+    /// # See
+    /// [Check-out](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkout?view=odsp-graph-online)
+    fn check_out(&self, resource: &mut ResourceBuilder) -> ItemResult<()> {
+        resource.drive_event(DriveEvent::CheckOut);
+        let url = resource.build()?;
+        let mut response = self
+            .client()?
+            .post(url.as_str())
+            .bearer_auth(self.token())
+            .send()?;
+
+        self.item(&mut response)
+    }
+
+    /// Download files from the OneDrive API.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// use rust_onedrive::prelude::*;
+    ///
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// let drive_item: DriveItem = drive.drive_root_child().unwrap();
+    /// let vec: Vec<Value> = drive_item.value().unwrap();
+    ///
+    /// let mut value = vec
+    ///     .iter()
+    ///     .find(|s| s.name() == Some("rust.docx"))
+    ///     .unwrap()
+    ///     .clone();
+    ///
+    /// drive.download("/home/drive", &mut value).unwrap();
+    /// ```
+    ///
+    /// Requires the directory to download to and the drive::Value to download. The Value
+    /// struct stores a download URL that can be used. If the download url is None, then
+    /// the item's id (also in the Value struct) is used to download the item.
+    ///
+    /// # See
+    /// [Downloading Drive Items](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content?view=odsp-graph-online)
     fn download<P: AsRef<Path>>(
         &self,
         directory: P,
         value: &mut drive::value::Value,
-    ) -> ItemResult<PathBuf>;
+    ) -> ItemResult<PathBuf> {
+        match value.microsoft_graph_download_url() {
+            // First check for a download URL in the drive::Value itself, If found use this
+            // to download the file.
+            Some(download_url) => Ok(Fetch::file(directory, download_url.as_str(), self.token())?),
+            // If there is no download URL, then a request to get a download URL
+            // will be made. If successful, the request will be redirected to the URL
+            // of the download.
+            None => {
+                let client = reqwest::Client::builder()
+                    .redirect(RedirectPolicy::custom(|attempt| {
+                        // There should be only 1 redirect to download a drive item.
+                        if attempt.previous().len() > 1 {
+                            return attempt.too_many_redirects();
+                        }
+                        attempt.stop()
+                    }))
+                    .build()
+                    .map_err(RequestError::from)?;
 
-    // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content_format?view=odsp-graph-online
+                // In order for the OneDrive API to know which item we need, the request
+                // must include the id for the item being downloaded: /{item-id}/content
+                let item_id = match value.id() {
+                    Some(t) => t,
+                    None => return Err(RequestError::none_err("Missing item id or download URL")),
+                };
+
+                let url = DriveResource::Me.item_resource(
+                    self.drive_version(),
+                    item_id.as_str(),
+                    DriveEvent::Download,
+                );
+                let res = client.get(url.as_str()).bearer_auth(self.token()).send()?;
+                Ok(Fetch::file(directory, res.url().as_str(), self.token())?)
+            },
+        }
+    }
+
+    /// Download files from the OneDrive API in the format given. The format given
+    /// must be one of:
+    /// # Example
+    /// ```rust,ignore
+    /// DownloadFormat::GLB => "glb",
+    /// DownloadFormat::HTML => "html",
+    /// DownloadFormat::JPG => "jpg",
+    /// DownloadFormat::PDF => "pdf",
+    /// ```
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// use rust_onedrive::prelude::*;
+    ///
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// let drive_item: DriveItem = drive.drive_root_child().unwrap();
+    /// let vec: Vec<Value> = drive_item.value().unwrap();
+    ///
+    /// let mut value = vec
+    ///     .iter()
+    ///     .find(|s| s.name() == Some("rust.docx"))
+    ///     .unwrap()
+    ///     .clone();
+    ///
+    /// drive.download_format("/home/drive", &mut value, DownloadFormat::PDF).unwrap();
+    /// ```
+    ///
+    /// Requires the directory to download, the drive::Value, and the format. The Value
+    /// struct stores a download URL that can be used. If the download url is None, then
+    /// the item's id (also in the Value struct) is used to download the item.
+    ///
+    /// # See
+    /// [Download Formats](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content_format?view=odsp-graph-online)
     fn download_format<P: AsRef<Path>>(
         &self,
         directory: P,
         value: &mut drive::value::Value,
         format: DownloadFormat,
-    ) -> ItemResult<PathBuf>;
+    ) -> ItemResult<PathBuf> {
+        // A formatted download always uses a redirect to get the item.
+        let client = reqwest::Client::builder()
+            .redirect(RedirectPolicy::custom(|attempt| {
+                // There should be only 1 redirect to download a drive item.
+                if attempt.previous().len() > 1 {
+                    return attempt.too_many_redirects();
+                }
+                attempt.stop()
+            }))
+            .build()
+            .map_err(RequestError::from)?;
+
+        // In order for the OneDrive API to know which item we need, the request
+        // must include the id for the item being downloaded: /{item-id}/content
+        let item_id = match value.id() {
+            Some(t) => t,
+            None => return Err(RequestError::none_err("Missing item id or download URL")),
+        };
+
+        let mut url = DriveResource::Drives.item_resource(
+            self.drive_version(),
+            item_id.as_str(),
+            DriveEvent::DownloadAndFormat,
+        );
+        url.push_str(format.as_ref());
+        let res = client.get(url.as_str()).bearer_auth(self.token()).send()?;
+        Ok(Fetch::file(directory, res.url().as_str(), self.token())?)
+    }
 }
