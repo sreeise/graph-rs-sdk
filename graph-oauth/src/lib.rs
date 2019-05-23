@@ -29,6 +29,7 @@
 //! let oauth_open_id = OAuth::open_id_connect();
 //! ```
 
+#![feature(vec_remove_item)]
 #![feature(try_trait)]
 #![feature(custom_attribute)]
 #[macro_use]
