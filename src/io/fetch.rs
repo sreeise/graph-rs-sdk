@@ -1,6 +1,5 @@
 use crate::drive::ItemResult;
 use crate::io::iotools::IOTools;
-use crate::prelude::Item;
 use graph_error::GraphError;
 use reqwest::*;
 use std::convert::TryFrom;
@@ -12,16 +11,18 @@ use std::sync::mpsc;
 use std::thread;
 use transform_request::RequestError;
 
-pub trait Fetch: Item {
+pub struct Fetch;
+
+impl Fetch {
     fn file_response<P: AsRef<Path>>(
-        &self,
         directory: P,
         target_url: &str,
+        bearer_token: &str,
     ) -> ItemResult<(PathBuf, Response)> {
         let client = reqwest::Client::builder()
             .build()
             .map_err(RequestError::from)?;
-        let mut response = client.get(target_url).bearer_auth(self.token()).send()?;
+        let mut response = client.get(target_url).bearer_auth(bearer_token).send()?;
 
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
@@ -30,11 +31,10 @@ pub trait Fetch: Item {
             ));
         }
 
-        self.parse_response(directory, response)
+        Fetch::parse_response(directory, response)
     }
 
     fn parse_response<P: AsRef<Path>>(
-        &self,
         directory: P,
         response: Response,
     ) -> ItemResult<(PathBuf, Response)> {
@@ -52,7 +52,7 @@ pub trait Fetch: Item {
         }
     }
 
-    fn copy(&self, mut response: (PathBuf, Response)) -> ItemResult<PathBuf> {
+    fn copy(mut response: (PathBuf, Response)) -> ItemResult<PathBuf> {
         // Fetch the request which returns a PathBuf (result.0) and Response (result.1).
         // If the request is successful copy its contents to the new file.
         let (sender, receiver) = mpsc::channel();
@@ -74,13 +74,17 @@ pub trait Fetch: Item {
         }
     }
 
-    fn fetch<P: AsRef<Path>>(&self, directory: P, target: &str) -> ItemResult<PathBuf> {
+    pub fn file<P: AsRef<Path>>(
+        directory: P,
+        target: &str,
+        bearer_token: &str,
+    ) -> ItemResult<PathBuf> {
         // Create the directory if it does not exist.
         IOTools::create_dir(directory.as_ref())?;
 
         // Request file and if successful copy file contents to new file.
-        match self.file_response(directory, target) {
-            Ok(result) => self.copy(result),
+        match Fetch::file_response(directory, target, bearer_token) {
+            Ok(result) => Fetch::copy(result),
             Err(e) => Err(e),
         }
     }
