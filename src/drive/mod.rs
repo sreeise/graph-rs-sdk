@@ -26,7 +26,7 @@ pub use crate::drive::driveaction::{DownloadFormat, DriveEvent};
 pub use crate::drive::driveresource::DriveResource;
 pub use crate::drive::driveresource::ResourceBuilder;
 pub use crate::drive::endpoint::{DriveEndPoint, EP};
-pub use crate::drive::item::Item;
+pub use crate::drive::item::{Item, ItemResponse};
 pub use crate::drive::pathbuilder::PathBuilder;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
