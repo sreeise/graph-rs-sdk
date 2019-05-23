@@ -1,5 +1,6 @@
 use drive_test_tools::oauth::OAuthTestTool;
-use rust_onedrive::oauth::{AccessToken, GrantRequest, OAuth, OAuthCredential};
+use graph_oauth::oauth::GrantType;
+use rust_onedrive::oauth::{AccessToken, GrantRequest, OAuth};
 use url::{Host, Url};
 
 #[test]
@@ -91,37 +92,10 @@ pub fn access_token_body_contains() {
         .client_assertion_type("client_assertion_type")
         .session_state("session_state")
         .logout_url("https://login.live.com/oauth20_logout.srf?")
-        .post_logout_redirect_uri("http://localhost:8000/redirect");;
+        .post_logout_redirect_uri("http://localhost:8000/redirect");
 
-    let not_included = vec![
-        OAuthCredential::CodeVerifier,
-        OAuthCredential::ClientAssertion,
-        OAuthCredential::ClientAssertionType,
-        OAuthCredential::SessionState,
-        OAuthCredential::LogoutURL,
-        OAuthCredential::PostLogoutRedirectURI,
-    ];
-
-    let vec_included = vec![
-        OAuthCredential::ClientId,
-        OAuthCredential::RedirectURI,
-        OAuthCredential::State,
-        OAuthCredential::ResponseMode,
-        OAuthCredential::ResponseType,
-        OAuthCredential::Scopes,
-        OAuthCredential::Prompt,
-        OAuthCredential::DomainHint,
-        OAuthCredential::LoginHint,
-        OAuthCredential::CodeChallenge,
-        OAuthCredential::CodeChallengeMethod,
-    ];
-
+    let vec_included =
+        GrantType::AuthorizationCode.available_credentials(GrantRequest::Authorization);
     OAuthTestTool::oauth_contains_credentials(&mut oauth, &vec_included);
-    OAuthTestTool::oauth_contains_credentials(&mut oauth, &not_included);
-    OAuthTestTool::oauth_query_uri_test(
-        &mut oauth,
-        GrantRequest::Authorization,
-        vec_included,
-        not_included,
-    );
+    OAuthTestTool::oauth_query_uri_test(&mut oauth, GrantRequest::Authorization, vec_included);
 }
