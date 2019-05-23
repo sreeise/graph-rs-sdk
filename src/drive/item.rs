@@ -10,6 +10,30 @@ use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 use transform_request::RequestError;
 
+#[derive(Debug)]
+pub struct ItemResponse {
+    status: u16,
+    response: Response,
+}
+
+impl ItemResponse {
+    pub fn new(status: u16, response: Response) -> ItemResponse {
+        ItemResponse { status, response }
+    }
+
+    pub fn status(&self) -> u16 {
+        self.status
+    }
+
+    pub fn response(&self) -> &Response {
+        &self.response
+    }
+
+    pub fn success(&self) -> bool {
+        self.status == 204
+    }
+}
+
 pub trait Item {
     /// The token() method should return a bearer token to make
     /// authenticated calls to the OneDrive API.
@@ -82,65 +106,6 @@ pub trait Item {
         self.item(&mut response)
     }
 
-    fn get_with_body<T>(&self, url: &str, body: &HashMap<String, String>) -> ItemResult<T>
-    where
-        T: serde::Serialize + for<'de> serde::Deserialize<'de>,
-    {
-        let mut response = self
-            .client()?
-            .get(url)
-            .bearer_auth(self.token())
-            .header(header::CONTENT_TYPE, "application/json")
-            .form(body)
-            .send()?;
-
-        self.item(&mut response)
-    }
-
-    fn post<T>(&self, url: &str, body: &'static str) -> ItemResult<T>
-    where
-        T: serde::Serialize + for<'de> serde::Deserialize<'de>,
-    {
-        let mut response = self
-            .client()?
-            .post(url)
-            .bearer_auth(self.token())
-            .header(header::CONTENT_TYPE, "application/json")
-            .body(body)
-            .send()?;
-
-        self.item(&mut response)
-    }
-
-    fn put<T>(&self, url: &str, body: &'static str) -> ItemResult<T>
-    where
-        T: serde::Serialize + for<'de> serde::Deserialize<'de>,
-    {
-        let mut response = self
-            .client()?
-            .put(url)
-            .bearer_auth(self.token())
-            .header(header::CONTENT_TYPE, "text/plain")
-            .body(body)
-            .send()?;
-
-        self.item(&mut response)
-    }
-
-    fn patch<T>(&self, url: &str) -> ItemResult<T>
-    where
-        T: serde::Serialize + for<'de> serde::Deserialize<'de>,
-    {
-        let mut response = self
-            .client()?
-            .patch(url)
-            .bearer_auth(self.token())
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()?;
-
-        self.item(&mut response)
-    }
-
     /// Check-in a checkout DriveItem resource, which makes the version
     /// of the document available to others.
     ///
@@ -148,19 +113,26 @@ pub trait Item {
     /// [Check-in](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkin?view=odsp-graph-online)
     fn check_in(
         &self,
-        resource: &mut ResourceBuilder,
+        drive_id: &str,
+        item_id: &str,
         comment: &str,
         check_in_as: Option<&str>,
-    ) -> ItemResult<()> {
-        resource.drive_event(DriveEvent::CheckIn);
-        let url = resource.build()?;
+        resource: DriveResource,
+    ) -> ItemResult<ItemResponse> {
+        let mut builder = ResourceBuilder::new(self.drive_version());
+        builder
+            .drive_event(DriveEvent::CheckIn)
+            .item_id(item_id)
+            .drive_id(drive_id)
+            .resource(resource);
+        let url = builder.build()?;
         let mut map = HashMap::new();
         map.insert("comment", comment);
         if let Some(check_in) = check_in_as {
             map.insert("checkInAs", check_in);
         }
 
-        let mut response = self
+        let response = self
             .client()?
             .post(url.as_str())
             .bearer_auth(self.token())
@@ -168,7 +140,7 @@ pub trait Item {
             .header(header::CONTENT_TYPE, "application/json")
             .send()?;
 
-        self.item(&mut response)
+        Ok(ItemResponse::new(response.status().as_u16(), response))
     }
 
     /// Check-out a driveItem resource to prevent others from editing the document,
@@ -176,16 +148,26 @@ pub trait Item {
     ///
     /// # See
     /// [Check-out](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkout?view=odsp-graph-online)
-    fn check_out(&self, resource: &mut ResourceBuilder) -> ItemResult<()> {
-        resource.drive_event(DriveEvent::CheckOut);
-        let url = resource.build()?;
-        let mut response = self
+    fn check_out(
+        &self,
+        drive_id: &str,
+        item_id: &str,
+        resource: DriveResource,
+    ) -> ItemResult<ItemResponse> {
+        let mut builder = ResourceBuilder::new(self.drive_version());
+        builder
+            .drive_event(DriveEvent::CheckOut)
+            .item_id(item_id)
+            .drive_id(drive_id)
+            .resource(resource);
+        let url = builder.build()?;
+        let response = self
             .client()?
             .post(url.as_str())
             .bearer_auth(self.token())
             .send()?;
 
-        self.item(&mut response)
+        Ok(ItemResponse::new(response.status().as_u16(), response))
     }
 
     /// Download files from the OneDrive API.
