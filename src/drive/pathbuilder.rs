@@ -1,5 +1,6 @@
 use crate::drive::driveresource::ResourceBuilder;
-use crate::drive::{DriveEndPoint, DriveResource, DriveVersion};
+use crate::drive::item::Item;
+use crate::drive::{Drive, DriveEndPoint, DriveResource, DriveVersion};
 use rayon::iter::{
     IntoParallelIterator, IntoParallelRefIterator, IntoParallelRefMutIterator, ParallelExtend,
     ParallelIterator,
@@ -138,6 +139,12 @@ impl From<DriveEndPoint> for PathBuilder {
 impl From<DriveVersion> for PathBuilder {
     fn from(version: DriveVersion) -> Self {
         PathBuilder::from(version.to_string())
+    }
+}
+
+impl From<&Drive> for PathBuilder {
+    fn from(drive: &Drive) -> Self {
+        PathBuilder::from(drive.drive_version())
     }
 }
 

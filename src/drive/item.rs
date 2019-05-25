@@ -1,7 +1,9 @@
 use crate::drive;
 use crate::drive::drive_item::driveitem::DriveItem;
-use crate::drive::driveaction::DownloadFormat;
-use crate::drive::{DriveEvent, DriveResource, DriveVersion, ItemResult, ResourceBuilder};
+use crate::drive::driveaction::{DownloadFormat, EventProgress};
+use crate::drive::{
+    DriveEvent, DriveItemCopy, DriveResource, DriveVersion, ItemResult, ResourceBuilder,
+};
 use crate::fetch::Fetch;
 use graph_error::GraphError;
 use reqwest::{header, Client, RedirectPolicy, RequestBuilder, Response};
@@ -12,20 +14,51 @@ use transform_request::RequestError;
 
 #[derive(Debug)]
 pub struct ItemResponse {
+    event: DriveEvent,
     response: Response,
 }
 
 impl ItemResponse {
-    pub fn new(response: Response) -> ItemResponse {
-        ItemResponse { response }
+    pub fn new(event: DriveEvent, response: Response) -> ItemResponse {
+        ItemResponse { event, response }
+    }
+
+    pub fn drive_event(&self) -> DriveEvent {
+        self.event
     }
 
     pub fn status(&self) -> u16 {
         self.response.status().as_u16()
     }
 
-    pub fn success(&self) -> bool {
-        self.status() == 204
+    pub fn event_progress(&mut self) -> ItemResult<Option<EventProgress>> {
+        let headers = self.response.headers();
+        // The location header contains the URL for monitoring progress.
+        let option_location: Option<&reqwest::header::HeaderValue> = headers.get(header::LOCATION);
+        if let Some(location) = option_location {
+            let location_str = location.to_str().map_err(RequestError::from)?;
+            let client = reqwest::Client::builder().build()?;
+            let mut response = client.get(location_str).send()?;
+
+            let status = response.status().as_u16();
+            if GraphError::is_error(status) {
+                return Err(RequestError::from(
+                    GraphError::try_from(status).unwrap_or_default(),
+                ));
+            }
+
+            let progress: EventProgress = response.json()?;
+            Ok(Some(progress))
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub fn success(&mut self) -> bool {
+        match self.event {
+            DriveEvent::Copy => self.status() == 202,
+            _ => self.status() == 204,
+        }
     }
 
     pub fn response(&self) -> &Response {
@@ -146,7 +179,14 @@ pub trait Item {
             .header(header::CONTENT_TYPE, "application/json")
             .send()?;
 
-        Ok(ItemResponse::new(response))
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(RequestError::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        Ok(ItemResponse::new(DriveEvent::CheckIn, response))
     }
 
     /// Check-out a driveItem resource to prevent others from editing the document,
@@ -173,7 +213,118 @@ pub trait Item {
             .bearer_auth(self.token())
             .send()?;
 
-        Ok(ItemResponse::new(response))
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(RequestError::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        Ok(ItemResponse::new(DriveEvent::CheckOut, response))
+    }
+
+    fn copy_request(
+        &self,
+        value: drive::value::Value,
+        parent_reference_copy: DriveItemCopy,
+    ) -> ItemResult<RequestBuilder> {
+        let url = parent_reference_copy.drive_resource().drive_item_resource(
+            self.drive_version(),
+            value
+                .parent_reference()
+                .ok_or_else(|| RequestError::none_err("value parent_reference"))?
+                .drive_id()
+                .ok_or_else(|| RequestError::none_err("value parent_reference drive_id"))?
+                .as_str(),
+            value
+                .id()
+                .ok_or_else(|| RequestError::none_err("value item_id"))?
+                .as_str(),
+            DriveEvent::Copy,
+        );
+
+        let pr_json = parent_reference_copy.as_json()?;
+        let client = reqwest::Client::builder()
+            .redirect(RedirectPolicy::custom(|attempt| {
+                // There should be only 1 redirect to get the monitor status response.
+                if attempt.previous().len() > 1 {
+                    return attempt.too_many_redirects();
+                }
+                attempt.stop()
+            }))
+            .build()
+            .map_err(RequestError::from)?;
+        println!("Body: {:#?}", &pr_json);
+        let response = client
+            .post(url.as_str())
+            .body(pr_json)
+            .header(header::CONTENT_TYPE, "application/json")
+            .bearer_auth(self.token());
+        Ok(response)
+    }
+
+    /// Asynchronously creates a copy of an driveItem (including any children), under a
+    /// new parent item or with a new name.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// use rust_onedrive::prelude::*;
+    /// use rust_onedrive::drive::parentreference::ParentReference;
+    ///
+    /// static DRIVE_FILE: &str = "YOUR_DRIVE_FILE_NAME";
+    /// static DRIVE_FILE_COPY_NAME: &str = "FILE_NAME_OF_COPY";
+    ///
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
+    ///
+    /// // The file or folder that you want to copy.
+    /// let value: Value = drive_item.find_by_name(DRIVE_FILE).unwrap();
+    ///
+    /// let parent_ref = ParentReference::new(None, None, None, Some("/drive/root:/Documents".into()));
+    /// let prc = DriveItemCopy::new(
+    ///     parent_ref,
+    ///     Some(DRIVE_FILE_COPY_NAME.into()),
+    ///     DriveResource::Drives,
+    /// );
+    ///
+    /// let mut item_response: ItemResponse = drive.copy(value, prc).unwrap();
+    /// println!("{:#?}", &item_response);
+    ///
+    /// // Get the progress of the copy event.
+    /// println!("{:#?}", &item_response.event_progress());
+    /// ```
+    /// # See
+    /// [Copy a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_copy?view=odsp-graph-online)
+    fn copy(
+        &self,
+        value: drive::value::Value,
+        drive_item_copy: DriveItemCopy,
+    ) -> ItemResult<ItemResponse> {
+        let url = drive_item_copy.drive_resource().drive_item_resource(
+            self.drive_version(),
+            value
+                .parent_reference()
+                .ok_or_else(|| RequestError::none_err("value parent_reference"))?
+                .drive_id()
+                .ok_or_else(|| RequestError::none_err("value parent_reference drive_id"))?
+                .as_str(),
+            value
+                .id()
+                .ok_or_else(|| RequestError::none_err("value item_id"))?
+                .as_str(),
+            DriveEvent::Copy,
+        );
+
+        let pr_json = drive_item_copy.as_json()?;
+        let response = self
+            .client()?
+            .post(url.as_str())
+            .body(pr_json)
+            .header(header::CONTENT_TYPE, "application/json")
+            .bearer_auth(self.token())
+            .send()?;
+
+        Ok(ItemResponse::new(DriveEvent::Copy, response))
     }
 
     /// Delete a DriveItem by using its ID. Note that deleting items using this
@@ -248,7 +399,14 @@ pub trait Item {
             .bearer_auth(self.token())
             .send()?;
 
-        Ok(ItemResponse::new(response))
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(RequestError::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        Ok(ItemResponse::new(DriveEvent::Delete, response))
     }
 
     /// Delete a DriveItem by the item's Value. This method will use the Me endpoint to make
@@ -291,7 +449,14 @@ pub trait Item {
             .bearer_auth(self.token())
             .send()?;
 
-        Ok(ItemResponse::new(response))
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(RequestError::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        Ok(ItemResponse::new(DriveEvent::Delete, response))
     }
 
     /// Download files from the OneDrive API.

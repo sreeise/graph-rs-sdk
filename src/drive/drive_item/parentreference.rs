@@ -1,10 +1,14 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ParentReference {
     #[serde(rename = "driveId")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     drive_id: Option<String>,
     #[serde(rename = "driveType")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     drive_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     path: Option<String>,
 }
 
