@@ -14,7 +14,9 @@ use url::Url;
 /// A URL/URI builder for the OneDrive API.
 ///
 /// Includes various conversion for use with rust-onedrive.
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile)]
+#[derive(
+    Debug, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile, FromYamlFile, ToYamlFile,
+)]
 pub struct PathBuilder {
     scheme: String,
     host: String,

@@ -36,7 +36,19 @@ use transform_request::prelude::*;
 ///
 /// Callers who wish to have more flexibility then provided here should use
 /// AccessTokenBuilder.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, FromFile, ToFile)]
+#[derive(
+    Debug,
+    Clone,
+    Eq,
+    PartialEq,
+    Serialize,
+    Deserialize,
+    Hash,
+    FromFile,
+    ToFile,
+    FromYamlFile,
+    ToYamlFile,
+)]
 pub struct AccessToken {
     access_token: String,
     token_type: String,

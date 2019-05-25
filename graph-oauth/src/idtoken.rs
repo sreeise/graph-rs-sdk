@@ -3,7 +3,20 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use transform_request::prelude::*;
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, FromFile, ToFile)]
+#[derive(
+    Debug,
+    Default,
+    Clone,
+    Eq,
+    PartialEq,
+    Serialize,
+    Deserialize,
+    Hash,
+    FromFile,
+    ToFile,
+    FromYamlFile,
+    ToYamlFile,
+)]
 #[serde(rename = "id_token")]
 pub struct IdToken {
     code: Option<String>,

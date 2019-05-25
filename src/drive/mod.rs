@@ -61,7 +61,9 @@ impl Display for DriveVersion {
 
 pub type ItemResult<T> = std::result::Result<T, RequestError>;
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile)]
+#[derive(
+    Debug, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile, FromYamlFile, ToYamlFile,
+)]
 pub struct Drive {
     access_token: String,
     version: String,

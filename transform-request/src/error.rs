@@ -17,6 +17,7 @@ pub enum RequestError {
     Utf8Error(Utf8Error),
     ReqwestError(reqwest::Error),
     SerdeError(serde_json::error::Error),
+    SerdeYamlError(serde_yaml::Error),
     DecodeError(base64::DecodeError),
     GraphError(GraphError),
     RecvError(mpsc::RecvError),
@@ -46,6 +47,7 @@ impl fmt::Display for RequestError {
             RequestError::Utf8Error(ref err) => write!(f, "Base 64 decode error: {}", err),
             RequestError::ReqwestError(ref err) => write!(f, "Request error: {}", err),
             RequestError::SerdeError(ref err) => write!(f, "Serde error: {}", err),
+            RequestError::SerdeYamlError(ref err) => write!(f, "Serde yaml error: {}", err),
             RequestError::DecodeError(ref err) => write!(f, "Base64 decode error: {}", err),
             RequestError::GraphError(ref err) => write!(f, "Graph error: {}", err),
             RequestError::RecvError(ref err) => write!(f, "Recv error: {}", err),
@@ -62,6 +64,7 @@ impl error::Error for RequestError {
             RequestError::Utf8Error(ref err) => err.description(),
             RequestError::ReqwestError(ref err) => err.description(),
             RequestError::SerdeError(ref err) => err.description(),
+            RequestError::SerdeYamlError(ref err) => err.description(),
             RequestError::DecodeError(ref err) => err.description(),
             RequestError::GraphError(ref err) => err.description(),
             RequestError::RecvError(ref err) => err.description(),
@@ -76,6 +79,7 @@ impl error::Error for RequestError {
             RequestError::Utf8Error(ref err) => Some(err),
             RequestError::ReqwestError(ref err) => Some(err),
             RequestError::SerdeError(ref err) => Some(err),
+            RequestError::SerdeYamlError(ref err) => Some(err),
             RequestError::DecodeError(ref err) => Some(err),
             RequestError::RecvError(ref err) => Some(err),
             RequestError::GraphError(_) => None,
@@ -110,6 +114,12 @@ impl From<reqwest::Error> for RequestError {
 impl From<serde_json::error::Error> for RequestError {
     fn from(err: serde_json::error::Error) -> RequestError {
         RequestError::SerdeError(err)
+    }
+}
+
+impl From<serde_yaml::Error> for RequestError {
+    fn from(err: serde_yaml::Error) -> RequestError {
+        RequestError::SerdeYamlError(err)
     }
 }
 
