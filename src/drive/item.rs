@@ -223,46 +223,6 @@ pub trait Item {
         Ok(ItemResponse::new(DriveEvent::CheckOut, response))
     }
 
-    fn copy_request(
-        &self,
-        value: drive::value::Value,
-        parent_reference_copy: DriveItemCopy,
-    ) -> ItemResult<RequestBuilder> {
-        let url = parent_reference_copy.drive_resource().drive_item_resource(
-            self.drive_version(),
-            value
-                .parent_reference()
-                .ok_or_else(|| RequestError::none_err("value parent_reference"))?
-                .drive_id()
-                .ok_or_else(|| RequestError::none_err("value parent_reference drive_id"))?
-                .as_str(),
-            value
-                .id()
-                .ok_or_else(|| RequestError::none_err("value item_id"))?
-                .as_str(),
-            DriveEvent::Copy,
-        );
-
-        let pr_json = parent_reference_copy.as_json()?;
-        let client = reqwest::Client::builder()
-            .redirect(RedirectPolicy::custom(|attempt| {
-                // There should be only 1 redirect to get the monitor status response.
-                if attempt.previous().len() > 1 {
-                    return attempt.too_many_redirects();
-                }
-                attempt.stop()
-            }))
-            .build()
-            .map_err(RequestError::from)?;
-        println!("Body: {:#?}", &pr_json);
-        let response = client
-            .post(url.as_str())
-            .body(pr_json)
-            .header(header::CONTENT_TYPE, "application/json")
-            .bearer_auth(self.token());
-        Ok(response)
-    }
-
     /// Asynchronously creates a copy of an driveItem (including any children), under a
     /// new parent item or with a new name.
     ///
