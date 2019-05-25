@@ -1,6 +1,8 @@
 use crate::drive::driveresource::ResourceBuilder;
 use crate::drive::item::Item;
 use crate::drive::{Drive, DriveEndPoint, DriveResource, DriveVersion};
+use from_to_file::*;
+use graph_error::GraphFailure;
 use rayon::iter::{
     IntoParallelIterator, IntoParallelRefIterator, IntoParallelRefMutIterator, ParallelExtend,
     ParallelIterator,
@@ -8,16 +10,13 @@ use rayon::iter::{
 use std::collections::btree_map::BTreeMap;
 use std::convert::TryFrom;
 use std::iter::Iterator;
-use transform_request::prelude::*;
 use url::form_urlencoded::Serializer;
 use url::Url;
 
 /// A URL/URI builder for the OneDrive API.
 ///
 /// Includes various conversion for use with rust-onedrive.
-#[derive(
-    Debug, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile, FromYamlFile, ToYamlFile,
-)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
 pub struct PathBuilder {
     scheme: String,
     host: String,
@@ -149,7 +148,7 @@ impl From<&Drive> for PathBuilder {
 }
 
 impl TryFrom<ResourceBuilder> for PathBuilder {
-    type Error = RequestError;
+    type Error = GraphFailure;
 
     fn try_from(value: ResourceBuilder) -> Result<Self, Self::Error> {
         Ok(PathBuilder::from(value.build()?))

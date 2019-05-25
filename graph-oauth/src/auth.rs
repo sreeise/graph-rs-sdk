@@ -3,14 +3,15 @@ use crate::grants::{Grant, GrantRequest, GrantType};
 use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
 use crate::oauthtools::OAuthTooling;
+use from_to_file::*;
+use graph_error::GraphFailure;
 use std::collections::btree_map::BTreeMap;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::process::Output;
-use transform_request::prelude::*;
 use url::form_urlencoded::Serializer;
 
-pub type OAuthReq<T> = Result<T, OAuthError>;
+pub type OAuthReq<T> = Result<T, GraphFailure>;
 
 /// OAuthCredential list fields representing common OAuth credentials needed
 /// to perform authentication in various formats such as token flow and
@@ -28,8 +29,7 @@ pub type OAuthReq<T> = Result<T, OAuthError>;
     Serialize,
     Deserialize,
     EnumIter,
-    FromYamlFile,
-    ToYamlFile,
+    FromToFile,
 )]
 pub enum OAuthCredential {
     ClientId,
@@ -145,9 +145,7 @@ impl ToString for OAuthCredential {
 /// let oauth_implicit = OAuth::implicit_grant();
 /// let oauth_open_id = OAuth::open_id_connect();
 /// ```
-#[derive(
-    Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile, FromYamlFile, ToYamlFile,
-)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
 pub struct OAuth {
     access_token: Option<AccessToken>,
     scopes: Vec<String>,
@@ -819,7 +817,7 @@ impl OAuth {
 }
 
 impl OAuth {
-    fn get_or_else(&self, c: OAuthCredential) -> Result<String, OAuthError> {
+    fn get_or_else(&self, c: OAuthCredential) -> OAuthReq<String> {
         self.get(c).ok_or_else(|| OAuthError::credential_error(c))
     }
 

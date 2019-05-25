@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::stdop::StdOp;
-use transform_request::RequestError;
+use graph_error::GraphFailure;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Keys {
@@ -45,7 +45,7 @@ pub struct JWTKeys {
 
 impl JWTKeys {
     #[allow(dead_code)]
-    pub fn discovery() -> Result<JWTKeys, RequestError> {
+    pub fn discovery() -> Result<JWTKeys, GraphFailure> {
         let client = reqwest::Client::builder().build()?;
         let url = String::from("https://login.microsoftonline.com/common/discovery/keys");
         let response = client.get(&url).send();
@@ -55,7 +55,7 @@ impl JWTKeys {
                 let keys: JWTKeys = t.json()?;
                 Ok(keys)
             },
-            Err(e) => Err(RequestError::from(e)),
+            Err(e) => Err(GraphFailure::from(e)),
         }
     }
 

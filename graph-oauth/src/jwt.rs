@@ -1,5 +1,7 @@
+use crate::auth::OAuthReq;
 use crate::oautherror::OAuthError;
 use base64;
+use graph_error::GraphFailure;
 use serde_json::Map;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -93,7 +95,7 @@ pub enum Algorithm {
 }
 
 impl FromStr for Algorithm {
-    type Err = OAuthError;
+    type Err = GraphFailure;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
@@ -108,7 +110,7 @@ impl FromStr for Algorithm {
             "ES512" => Ok(Algorithm::ES512),
             "PS256" => Ok(Algorithm::PS256),
             "PS384" => Ok(Algorithm::PS384),
-            _ => Err(OAuthError::error_kind(
+            _ => Err(GraphFailure::error_kind(
                 ErrorKind::NotFound,
                 "Not an Algorithm Type",
             )),
@@ -162,7 +164,7 @@ impl JWT {
         self.header.clone()
     }
 
-    pub fn validate(&mut self) -> Result<(), OAuthError> {
+    pub fn validate(&mut self) -> OAuthReq<()> {
         // Step 1.
         if !self.key.contains('.') {
             return OAuthError::invalid_data("Invalid Key");
@@ -176,7 +178,7 @@ impl JWT {
 
     // Step 2.
     #[allow(dead_code)]
-    fn encoded_header(&self) -> Result<&str, OAuthError> {
+    fn encoded_header(&self) -> OAuthReq<&str> {
         let index = match self.key.find('.') {
             Some(t) => t,
             None => return OAuthError::invalid_data("Invalid Key"),
@@ -188,7 +190,7 @@ impl JWT {
 
     // Step 3.
     #[allow(dead_code)]
-    fn base64_url_decode_header(&self) -> Result<Vec<u8>, OAuthError> {
+    fn base64_url_decode_header(&self) -> OAuthReq<Vec<u8>> {
         let header = self.encoded_header()?;
         let header = base64::decode_config(&header, base64::URL_SAFE_NO_PAD)?;
         Ok(header)
@@ -196,7 +198,7 @@ impl JWT {
 
     // Step 4.
     #[allow(dead_code)]
-    fn utf8_encode(&self) -> Result<String, OAuthError> {
+    fn utf8_encode(&self) -> OAuthReq<String> {
         let header = self.base64_url_decode_header()?;
         let utf8_str = std::str::from_utf8(&header)?;
         Ok(utf8_str.to_string())
@@ -204,7 +206,7 @@ impl JWT {
 
     // Step 5.
     #[allow(dead_code)]
-    fn header_as_json(&self) -> Result<Header, OAuthError> {
+    fn header_as_json(&self) -> OAuthReq<Header> {
         let utf8_encoded = self.utf8_encode()?;
         let jwt_header: Header = serde_json::from_str(&utf8_encoded)?;
         Ok(jwt_header)
@@ -219,7 +221,7 @@ impl JWT {
     // Steps 7.
 
     // Step 8.
-    fn message_jwt(&mut self) -> Result<(), OAuthError> {
+    fn message_jwt(&mut self) -> OAuthReq<()> {
         let v_claim = self.decode_payload()?;
         let claims = v_claim.iter().find(|v| v.key == "cty");
         if let Some(c) = claims {
@@ -233,7 +235,7 @@ impl JWT {
         Ok(())
     }
 
-    pub fn decode_header(&self) -> Result<Header, OAuthError> {
+    pub fn decode_header(&self) -> OAuthReq<Header> {
         // Step 2.
         let index = match self.key.find('.') {
             Some(t) => t,
@@ -254,7 +256,7 @@ impl JWT {
         Ok(jwt_header)
     }
 
-    fn decode_payload(&mut self) -> Result<Vec<Claim>, OAuthError> {
+    fn decode_payload(&mut self) -> OAuthReq<Vec<Claim>> {
         let mut vec: Vec<Claim> = Vec::new();
         let map = self.decode_claims()?;
 
@@ -268,7 +270,7 @@ impl JWT {
     }
 
     // Step 10.
-    pub fn decode_claims(&mut self) -> std::result::Result<Map<String, Value>, OAuthError> {
+    pub fn decode_claims(&mut self) -> OAuthReq<Map<String, Value>> {
         let key_vec: Vec<&str> = self.key.split('.').collect();
         let payload = key_vec.get(1);
 
@@ -285,7 +287,7 @@ impl JWT {
     }
 
     #[allow(dead_code)]
-    fn has_duplicates(&mut self, claims: Vec<Claim>) -> Result<(), OAuthError> {
+    fn has_duplicates(&mut self, claims: Vec<Claim>) -> OAuthReq<()> {
         // https://tools.ietf.org/html/rfc7515#section-5.2
         // Step 4  this restriction includes that the same
         // Header Parameter name also MUST NOT occur in distinct JSON object
@@ -301,7 +303,7 @@ impl JWT {
     }
 
     #[allow(dead_code, unused_variables)]
-    pub fn verify_with_claims(&self, claims: Vec<Claim>) -> Result<(), OAuthError> {
+    pub fn verify_with_claims(&self, claims: Vec<Claim>) -> OAuthReq<()> {
         unimplemented!()
     }
 }

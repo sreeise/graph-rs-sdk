@@ -8,9 +8,9 @@ Your app provides the access token in each request, through an HTTP header:
 Authorization: bearer {token}
 */
 
+use graph_error::GraphFailure;
 use graph_oauth::oauth::OAuth;
 use std;
-use transform_request::RequestError;
 
 mod drive_item;
 mod driveaction;
@@ -27,12 +27,11 @@ pub use crate::drive::driveresource::{DriveResource, ResourceBuilder};
 pub use crate::drive::endpoint::{DriveEndPoint, EP};
 pub use crate::drive::item::{Item, ItemResponse};
 pub use crate::drive::pathbuilder::PathBuilder;
-use serde::{Deserialize, Serialize};
+use from_to_file::*;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::io::ErrorKind;
-use transform_request::prelude::*;
 
 pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
 pub static GRAPH_ENDPOINT_BETA: &str = "https://graph.microsoft.com/beta";
@@ -58,11 +57,9 @@ impl Display for DriveVersion {
     }
 }
 
-pub type ItemResult<T> = std::result::Result<T, RequestError>;
+pub type ItemResult<T> = std::result::Result<T, GraphFailure>;
 
-#[derive(
-    Debug, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile, FromYamlFile, ToYamlFile,
-)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
 pub struct Drive {
     access_token: String,
     version: String,
@@ -100,34 +97,20 @@ impl Drive {
     }
 }
 
-/// Converts an OAuth instance to a Result<Drive> on success
-/// or Result<Error> on failure. An Err is returned if there
-/// is no access token in the OAuth instance.
-impl Transform<OAuth> for Drive {
-    type Err = RequestError;
+impl TryFrom<OAuth> for Drive {
+    type Error = GraphFailure;
 
-    fn transform(rhs: OAuth) -> std::result::Result<Self, Self::Err>
-    where
-        Self: Serialize + for<'de> Deserialize<'de>,
-    {
-        let access_token = rhs.get_access_token();
+    fn try_from(value: OAuth) -> std::result::Result<Self, Self::Error> {
+        let access_token = value.get_access_token();
 
         if let Some(token) = access_token {
             return Ok(Drive::new(token.get_access_token(), DriveVersion::V1));
         }
 
-        Err(RequestError::error_kind(
+        Err(GraphFailure::error_kind(
             ErrorKind::InvalidData,
             "OAuth instance missing access token.",
         ))
-    }
-}
-
-impl TryFrom<OAuth> for Drive {
-    type Error = RequestError;
-
-    fn try_from(value: OAuth) -> std::result::Result<Self, Self::Error> {
-        Drive::transform(value)
     }
 }
 

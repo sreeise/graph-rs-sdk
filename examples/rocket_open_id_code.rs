@@ -6,14 +6,14 @@ extern crate rocket;
 #[macro_use]
 extern crate serde_json;
 extern crate reqwest;
+use from_to_file::*;
 use rocket::Data;
 use rocket_codegen::routes;
 use rust_onedrive::oauth::{Grant, IdToken, OAuth};
-use rust_onedrive::transform::Transform;
+use std::convert::TryFrom;
 use std::io::Read;
 use std::thread;
 use std::time::Duration;
-use transform_request::ToFile;
 
 // Note: The open id connect grant is a work in progress.
 
@@ -62,12 +62,12 @@ fn redirect(id_token: Data) {
     let mut s = String::new();
     id_token.open().read_to_string(&mut s).unwrap();
     // Print the string for debugging in case the attempt to deserialize the response
-    // in the transform method below does not work..
+    // in the TryFrom method below does not work..
     println!("Token response:\n{:#?}\n", s);
 
-    // Transform the String to an IdToken
+    // Use the TryFrom impl to get an IdToken from a string
     // and pass the IdToken to OAuth.
-    let token: IdToken = IdToken::transform(s).unwrap();
+    let token: IdToken = IdToken::try_from(s).unwrap();
     println!("IdToken:\n{:#?}\n", token);
     let mut oauth = oauth_open_id();
     oauth.id_token(token);
@@ -79,6 +79,6 @@ pub fn access_token(oauth: &mut OAuth) {
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("OAuth:\n{:#?}\n", &oauth);
     oauth
-        .to_file("./examples/example_files/web_oauth.json")
+        .to_json_file("./examples/example_files/web_oauth.json")
         .unwrap();
 }

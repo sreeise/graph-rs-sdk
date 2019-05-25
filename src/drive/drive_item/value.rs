@@ -11,20 +11,9 @@ use crate::drive::drive_item::photo::Photo;
 use crate::drive::drive_item::remoteitem::RemoteItem;
 use crate::drive::drive_item::specialfolder::SpecialFolder;
 use crate::drive::drive_item::Root;
-use transform_request::prelude::*;
+use from_to_file::*;
 
-#[derive(
-    Default,
-    Debug,
-    Clone,
-    PartialEq,
-    Serialize,
-    Deserialize,
-    FromFile,
-    ToFile,
-    FromYamlFile,
-    ToYamlFile,
-)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile)]
 pub struct Value {
     #[serde(rename = "@odata.context")]
     _odata_context: Option<String>,

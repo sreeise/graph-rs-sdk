@@ -1,9 +1,9 @@
 use drive_test_tools::support::cleanup::CleanUp;
+use from_to_file::*;
 use rust_onedrive::drive::driveitem::DriveItem;
 use std::ffi::OsStr;
 use std::fs;
 use std::path::Path;
-use transform_request::prelude::*;
 
 #[test]
 fn drive_item_from_to_json() {
@@ -17,7 +17,7 @@ fn drive_item_from_to_json() {
 
     clean_up.rm_files(file_location.into());
 
-    drive_item.to_file(file_location).unwrap();
+    drive_item.to_json_file(file_location).unwrap();
     let path = Path::new(file_location);
 
     let parent = path.parent();
@@ -42,7 +42,7 @@ fn drive_item_from_to_yaml() {
 
     clean_up.rm_files(file_location.into());
 
-    drive_item.to_file(file_location).unwrap();
+    drive_item.to_json_file(file_location).unwrap();
     let path = Path::new(file_location);
 
     let parent = path.parent();

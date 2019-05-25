@@ -1,5 +1,5 @@
+use from_to_file::*;
 use rust_onedrive::oauth::{Grant, OAuth};
-use transform_request::prelude::*;
 
 fn web_client() -> OAuth {
     let mut oauth = OAuth::code_flow();
@@ -42,9 +42,9 @@ fn set_code_request_token(access_code: &str) {
             Stores OAuth as json using serde_json.
 
             To get OAuth back from the json file run:
-            let mut oauth: OAuth = OAuth::from_file("example/oauth.json").unwrap();
+            let mut oauth: OAuth = OAuth::from_json_file("example/oauth.json").unwrap();
             */
-            oauth.to_file("example/web_client_flow.json").unwrap();
+            oauth.to_json_file("example/web_client_flow.json").unwrap();
         },
         Err(e) => println!("There was an error: {:#?}", e),
     }

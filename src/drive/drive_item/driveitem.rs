@@ -1,26 +1,15 @@
 use crate::drive::drive_item::driveinfo::DriveInfo;
 use crate::drive::drive_item::value::Value;
 use crate::drive::ItemResult;
+use from_to_file::*;
 use graph_error::GraphError;
+use graph_error::GraphFailure;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
 use reqwest::Response;
-use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
-use transform_request::prelude::*;
 
-#[derive(
-    Default,
-    Debug,
-    PartialEq,
-    Clone,
-    Serialize,
-    Deserialize,
-    FromFile,
-    ToFile,
-    FromYamlFile,
-    ToYamlFile,
-)]
+#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize, FromToFile)]
 pub struct DriveItem {
     drive_info: Option<DriveInfo>,
     #[serde(rename = "@odata.context")]
@@ -79,7 +68,7 @@ impl DriveItem {
             let v: Vec<Option<String>> = vec.clone().into_par_iter().map(|i| i.name()).collect();
             return Ok(v);
         }
-        Err(RequestError::none_err("No available file names"))
+        Err(GraphFailure::none_err("No available file names"))
     }
 
     pub fn find_by_name(&mut self, name: &str) -> Option<Value> {
@@ -102,12 +91,12 @@ impl DriveItem {
 }
 
 impl TryFrom<&mut Response> for DriveItem {
-    type Error = RequestError;
+    type Error = GraphFailure;
 
     fn try_from(value: &mut Response) -> Result<Self, Self::Error> {
         let status = value.status().as_u16();
         if GraphError::is_error(status) {
-            return Err(RequestError::from(GraphError::try_from(status)?));
+            return Err(GraphFailure::from(GraphError::try_from(status)?));
         }
 
         let drive_item: DriveItem = value.json()?;
@@ -116,7 +105,7 @@ impl TryFrom<&mut Response> for DriveItem {
 }
 
 impl TryFrom<String> for DriveItem {
-    type Error = RequestError;
+    type Error = GraphFailure;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let drive_item: DriveItem = serde_json::from_str(&value)?;
@@ -124,14 +113,11 @@ impl TryFrom<String> for DriveItem {
     }
 }
 
-impl Transform<&str> for DriveItem {
-    type Err = RequestError;
+impl TryFrom<&str> for DriveItem {
+    type Error = GraphFailure;
 
-    fn transform(rhs: &str) -> Result<Self, Self::Err>
-    where
-        Self: Serialize + for<'de> Deserialize<'de>,
-    {
-        let drive_item: DriveItem = serde_json::from_str(rhs)?;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let drive_item: DriveItem = serde_json::from_str(value)?;
         Ok(drive_item)
     }
 }

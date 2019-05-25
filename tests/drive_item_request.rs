@@ -2,6 +2,7 @@
 #[macro_use]
 extern crate rocket;
 
+pub use from_to_file::*;
 use rocket::http::Status;
 use rocket::local::Client;
 use rocket::Rocket;
@@ -12,7 +13,6 @@ use rust_onedrive::drive::filesysteminfo::FileSystemInfo;
 use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
-pub use transform_request::prelude::*;
 
 fn file_to_string(path: &str) -> String {
     let mut file = File::open(path).expect("Unable to open the file");
@@ -97,9 +97,9 @@ fn drive_root_item() {
         Some(file_system_info)
     );
 
-    let drive_item_from_file: DriveItem =
-        DriveItem::from_file("test_files/item_test/drive_root_children.json").unwrap();
-    assert_eq!(drive_item_from_file, drive_item);
+    let drive_item_from_json_file: DriveItem =
+        DriveItem::from_json_file("test_files/item_test/drive_root_children.json").unwrap();
+    assert_eq!(drive_item_from_json_file, drive_item);
 }
 
 #[test]

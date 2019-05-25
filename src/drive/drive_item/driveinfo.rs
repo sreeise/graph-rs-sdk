@@ -2,23 +2,13 @@ use crate::drive::drive_item::createdby::CreatedBy;
 use crate::drive::drive_item::lastmodifiedby::LastModifiedBy;
 use crate::drive::drive_item::owner::Owner;
 use crate::drive::drive_item::quota::Quota;
+use from_to_file::*;
 use graph_error::GraphError;
+use graph_error::GraphFailure;
 use reqwest::Response;
 use std::convert::TryFrom;
-use transform_request::prelude::*;
 
-#[derive(
-    Default,
-    Debug,
-    Clone,
-    PartialEq,
-    Serialize,
-    Deserialize,
-    FromFile,
-    ToFile,
-    FromYamlFile,
-    ToYamlFile,
-)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile)]
 pub struct DriveInfo {
     #[serde(rename = "@odata.context")]
     _odata_context: Option<String>,
@@ -119,12 +109,12 @@ impl DriveInfo {
 }
 
 impl TryFrom<&mut Response> for DriveInfo {
-    type Error = RequestError;
+    type Error = GraphFailure;
 
     fn try_from(value: &mut Response) -> Result<Self, Self::Error> {
         let status = value.status().as_u16();
         if GraphError::is_error(status) {
-            return Err(RequestError::from(GraphError::try_from(status)?));
+            return Err(GraphFailure::from(GraphError::try_from(status)?));
         }
 
         let drive_item: DriveInfo = value.json()?;
@@ -133,7 +123,7 @@ impl TryFrom<&mut Response> for DriveInfo {
 }
 
 impl TryFrom<String> for DriveInfo {
-    type Error = RequestError;
+    type Error = GraphFailure;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let drive_item: DriveInfo = serde_json::from_str(&value)?;

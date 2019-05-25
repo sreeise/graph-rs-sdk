@@ -2,12 +2,12 @@ use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::Drive;
 use rust_onedrive::drive::Item;
 use rust_onedrive::drive::EP;
+use rust_onedrive::from_to::*;
 use rust_onedrive::oauth::OAuth;
-use rust_onedrive::transform::*;
 use std::convert::TryFrom;
 
 fn main() {
-    let oauth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
+    let oauth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
     let mut drive = Drive::try_from(oauth).unwrap();
 
     // You can pick a function below to query common OneDrive resources.

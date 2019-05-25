@@ -1,22 +1,10 @@
 use crate::oautherror::OAuthError;
-use serde::{Deserialize, Serialize};
+use from_to_file::*;
+use graph_error::GraphFailure;
+use std::convert::TryFrom;
 use std::str::FromStr;
-use transform_request::prelude::*;
 
-#[derive(
-    Debug,
-    Default,
-    Clone,
-    Eq,
-    PartialEq,
-    Serialize,
-    Deserialize,
-    Hash,
-    FromFile,
-    ToFile,
-    FromYamlFile,
-    ToYamlFile,
-)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, FromToFile)]
 #[serde(rename = "id_token")]
 pub struct IdToken {
     code: Option<String>,
@@ -68,32 +56,26 @@ impl IdToken {
     }
 }
 
-impl Transform<String> for IdToken {
-    type Err = OAuthError;
+impl TryFrom<String> for IdToken {
+    type Error = OAuthError;
 
-    fn transform(rhs: String) -> Result<Self, Self::Err>
-    where
-        Self: Serialize + for<'de> Deserialize<'de>,
-    {
-        let id_token: IdToken = IdToken::from_str(rhs.as_str())?;
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        let id_token: IdToken = IdToken::from_str(value.as_str())?;
         Ok(id_token)
     }
 }
 
-impl Transform<&str> for IdToken {
-    type Err = OAuthError;
+impl TryFrom<&str> for IdToken {
+    type Error = GraphFailure;
 
-    fn transform(rhs: &str) -> Result<Self, Self::Err>
-    where
-        Self: Serialize + for<'de> Deserialize<'de>,
-    {
-        let id_token: IdToken = IdToken::from_str(rhs)?;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let id_token: IdToken = IdToken::from_str(value)?;
         Ok(id_token)
     }
 }
 
 impl FromStr for IdToken {
-    type Err = OAuthError;
+    type Err = GraphFailure;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let vec: Vec<&str> = s.split_terminator('&').collect();
