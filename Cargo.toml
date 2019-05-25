@@ -19,7 +19,7 @@ keywords = ["onedrive", "graph", "API"]
 members = [
     "graph-oauth",
     "graph-error",
-    "transform-request",
+    "from_to_file",
     "derive_from_to_file",
     "drive-test-tools",
 ]
@@ -43,7 +43,7 @@ strum = "0.14.0"
 openssl-sys = "0.9"
 rayon = "1.0.3"
 openssl = { version = "^0.10", features = ["vendored"] }
-transform-request = { path = "./transform-request" }
+from_to_file = { path = "./from_to_file" }
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
 derive_from_to_file = { path = "./derive_from_to_file" }

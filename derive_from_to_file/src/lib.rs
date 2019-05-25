@@ -1,4 +1,4 @@
-#![recursion_limit = "128"]
+#![recursion_limit = "256"]
 extern crate proc_macro;
 extern crate quote;
 extern crate serde_derive;
@@ -6,39 +6,17 @@ use quote::quote;
 use syn::parse_macro_input;
 use syn::DeriveInput;
 
-/// FromFile derive for the transform_request::FromFile trait.
-#[proc_macro_derive(FromFile)]
-pub fn derive_from_file(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+#[proc_macro_derive(FromToFile)]
+pub fn derive_from_to(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
 
     let expanded = quote! {
-        impl transform_request::FromFile for #name {
-            type Err = transform_request::RequestError;
-
-            fn from_file<P: AsRef<std::path::Path>>(path: P) -> std::result::Result<Self, Self::Err> {
-                let f = std::fs::File::open(path)?;
-                let self_as_json = serde_json::from_reader(f)?;
-                Ok(self_as_json)
-            }
-        }
-    };
-
-    proc_macro::TokenStream::from(expanded)
-}
-
-/// ToFile derive for the transform_request::ToFile trait.
-#[proc_macro_derive(ToFile)]
-pub fn derive_to_file(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    let name = &input.ident;
-
-    let expanded = quote! {
-        impl transform_request::ToFile for #name {
-            type Err = transform_request::RequestError;
+        impl from_to_file::FromToFile for #name {
+            type Err = graph_error::GraphFailure;
             type Output = ();
 
-            fn to_file<P: AsRef<std::path::Path>>(&self, path: P) -> std::result::Result<Self::Output, Self::Err> {
+            fn to_json_file<P: AsRef<std::path::Path>>(&self, path: P) -> std::result::Result<Self::Output, Self::Err> {
                 if path.as_ref().exists() {
                     std::fs::remove_file(&path)?;
                 }
@@ -49,43 +27,12 @@ pub fn derive_to_file(input: proc_macro::TokenStream) -> proc_macro::TokenStream
                 file.sync_all()?;
                 Ok(())
             }
-        }
-    };
 
-    proc_macro::TokenStream::from(expanded)
-}
-
-/// FromYamlFile derive for the transform_request::FromYamlFile trait.
-#[proc_macro_derive(FromYamlFile)]
-pub fn derive_from_yaml(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    let name = &input.ident;
-
-    let expanded = quote! {
-        impl transform_request::FromYamlFile for #name {
-            type Err = transform_request::RequestError;
-
-            fn from_yaml_file<P: AsRef<std::path::Path>>(path: P) -> std::result::Result<Self, Self::Err> {
+            fn from_json_file<P: AsRef<std::path::Path>>(path: P) -> std::result::Result<Self, Self::Err> {
                 let f = std::fs::File::open(path)?;
-                let self_as_json = serde_yaml::from_reader(f)?;
+                let self_as_json = serde_json::from_reader(f)?;
                 Ok(self_as_json)
             }
-        }
-    };
-
-    proc_macro::TokenStream::from(expanded)
-}
-
-/// ToYamlFile derive for the transform_request::ToYamlFile trait.
-#[proc_macro_derive(ToYamlFile)]
-pub fn derive_to_yaml_file(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    let name = &input.ident;
-
-    let expanded = quote! {
-        impl transform_request::ToYamlFile for #name {
-            type Err = transform_request::RequestError;
-            type Output = ();
 
             fn to_yaml_file<P: AsRef<std::path::Path>>(&self, path: P) -> std::result::Result<Self::Output, Self::Err> {
                 if path.as_ref().exists() {
@@ -97,6 +44,12 @@ pub fn derive_to_yaml_file(input: proc_macro::TokenStream) -> proc_macro::TokenS
                 file.write_all(serialized.as_bytes())?;
                 file.sync_all()?;
                 Ok(())
+            }
+
+            fn from_yaml_file<P: AsRef<std::path::Path>>(path: P) -> std::result::Result<Self, Self::Err> {
+                let f = std::fs::File::open(path)?;
+                let self_as_json = serde_yaml::from_reader(f)?;
+                Ok(self_as_json)
             }
         }
     };

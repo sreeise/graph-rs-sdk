@@ -1,6 +1,7 @@
 use crate::drive::ItemResult;
 use crate::io::iotools::IOTools;
 use graph_error::GraphError;
+use graph_error::GraphFailure;
 use reqwest::*;
 use std::convert::TryFrom;
 use std::fs::OpenOptions;
@@ -9,7 +10,6 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::thread;
-use transform_request::RequestError;
 
 pub struct Fetch;
 
@@ -21,12 +21,12 @@ impl Fetch {
     ) -> ItemResult<(PathBuf, Response)> {
         let client = reqwest::Client::builder()
             .build()
-            .map_err(RequestError::from)?;
+            .map_err(GraphFailure::from)?;
         let mut response = client.get(target_url).bearer_auth(bearer_token).send()?;
 
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
-            return Err(RequestError::from(
+            return Err(GraphFailure::from(
                 GraphError::try_from(&mut response).unwrap_or_default(),
             ));
         }
@@ -48,7 +48,7 @@ impl Fetch {
                 let dir = directory.as_ref().join(name);
                 Ok((dir, response))
             },
-            None => Err(RequestError::none_err("Unknown error downloading file")),
+            None => Err(GraphFailure::none_err("Unknown error downloading file")),
         }
     }
 
@@ -70,7 +70,7 @@ impl Fetch {
         handle.join().expect("Thread could not be joined");
         match receiver.recv() {
             Ok(t) => Ok(t.unwrap()),
-            Err(e) => Err(RequestError::from(e)),
+            Err(e) => Err(GraphFailure::from(e)),
         }
     }
 

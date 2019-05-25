@@ -1,6 +1,6 @@
 use crate::drive::driveaction::DriveEvent;
 use crate::drive::{DriveVersion, ItemResult};
-use transform_request::RequestError;
+use graph_error::GraphFailure;
 
 /// A drive resource is the top level drive and describes where the item requested
 /// originates from.
@@ -198,26 +198,26 @@ impl ResourceBuilder {
         if let Some(drive_id) = self.get_drive_id() {
             Ok(self
                 .get_drive_resource()
-                .ok_or_else(|| RequestError::none_err("Missing DriveResource"))?
+                .ok_or_else(|| GraphFailure::none_err("Missing DriveResource"))?
                 .drive_item_resource(
                     self.get_drive_version(),
                     drive_id,
                     self.get_item_id()
-                        .ok_or_else(|| RequestError::none_err("Missing item id"))?,
+                        .ok_or_else(|| GraphFailure::none_err("Missing item id"))?,
                     self.get_drive_event()
-                        .ok_or_else(|| RequestError::none_err("Missing DriveEvent"))?
+                        .ok_or_else(|| GraphFailure::none_err("Missing DriveEvent"))?
                         .clone(),
                 ))
         } else {
             Ok(self
                 .get_drive_resource()
-                .ok_or_else(|| RequestError::none_err("Missing DriveResource"))?
+                .ok_or_else(|| GraphFailure::none_err("Missing DriveResource"))?
                 .item_resource(
                     self.get_drive_version(),
                     self.get_item_id()
-                        .ok_or_else(|| RequestError::none_err("Missing item id"))?,
+                        .ok_or_else(|| GraphFailure::none_err("Missing item id"))?,
                     self.get_drive_event()
-                        .ok_or_else(|| RequestError::none_err("Missing DriveEvent"))?
+                        .ok_or_else(|| GraphFailure::none_err("Missing DriveEvent"))?
                         .clone(),
                 ))
         }

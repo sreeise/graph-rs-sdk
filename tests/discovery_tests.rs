@@ -1,19 +1,19 @@
 use graph_oauth::oauth::wellknown::{Commons, WellKnown};
 use graph_oauth::oauth::{GrantType, OAuth, OAuthCredential};
+use rust_onedrive::from_to::*;
 use rust_onedrive::oauth::graphdiscovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
-use rust_onedrive::transform::*;
 
 #[test]
 fn signing_keys() {
     let v1_keys: MicrosoftSigningKeysV1 = GraphDiscovery::V1.signing_keys().unwrap();
     v1_keys
-        .to_file("./test_files/well_known_discovery/graphv1.json")
+        .to_json_file("./test_files/well_known_discovery/graphv1.json")
         .unwrap();
     let v2_keys: MicrosoftSigningKeysV2 = GraphDiscovery::V2.signing_keys().unwrap();
     v2_keys
-        .to_file("./test_files/well_known_discovery/graphv2.json")
+        .to_json_file("./test_files/well_known_discovery/graphv2.json")
         .unwrap();
     signing_keys_v1();
     signing_keys_v2();
@@ -26,7 +26,7 @@ fn signing_keys_v1() {
         Commons::signing_keys("https://login.live.com/.well-known/openid-configuration").unwrap();
 
     let u: MicrosoftSigningKeysV1 =
-        MicrosoftSigningKeysV1::from_file("./test_files/well_known_discovery/graphv1.json")
+        MicrosoftSigningKeysV1::from_json_file("./test_files/well_known_discovery/graphv1.json")
             .unwrap();
     assert_eq!(t, u);
 }
@@ -38,7 +38,7 @@ fn signing_keys_v2() {
     .unwrap();
 
     let u: MicrosoftSigningKeysV2 =
-        MicrosoftSigningKeysV2::from_file("./test_files/well_known_discovery/graphv2.json")
+        MicrosoftSigningKeysV2::from_json_file("./test_files/well_known_discovery/graphv2.json")
             .unwrap();
     assert_eq!(t, u);
 }
@@ -46,7 +46,7 @@ fn signing_keys_v2() {
 fn graph_discovery_oauth_v1() {
     let oauth: OAuth = GraphDiscovery::V1.oauth(GrantType::CodeFlow).unwrap();
     let keys: MicrosoftSigningKeysV1 =
-        MicrosoftSigningKeysV1::from_file("./test_files/well_known_discovery/graphv1.json")
+        MicrosoftSigningKeysV1::from_json_file("./test_files/well_known_discovery/graphv1.json")
             .unwrap();
     assert_eq!(
         oauth.get(OAuthCredential::AuthorizeURL),
@@ -71,7 +71,7 @@ fn graph_discovery_oauth_v2() {
         .oauth(GrantType::AuthorizationCode)
         .unwrap();
     let keys: MicrosoftSigningKeysV2 =
-        MicrosoftSigningKeysV2::from_file("./test_files/well_known_discovery/graphv2.json")
+        MicrosoftSigningKeysV2::from_json_file("./test_files/well_known_discovery/graphv2.json")
             .unwrap();
     assert_eq!(
         oauth.get(OAuthCredential::AuthorizeURL),

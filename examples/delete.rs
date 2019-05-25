@@ -16,7 +16,7 @@ fn main() {
 // The method used here is: Drive::delete_by_value().
 pub fn delete_item_by_value(item_name: &str) {
     // Create a new Drive instance.
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
+    let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
     let mut drive: Drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
@@ -37,7 +37,7 @@ pub fn delete_item_by_value(item_name: &str) {
 // This is done here by calling the Drive::drive() method which returns a DriveInfo.
 // The method used here is: Drive::delete().
 pub fn delete_by_item_id_and_drive_id(item_name: &str) {
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
+    let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
     let mut drive: Drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.

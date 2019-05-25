@@ -15,7 +15,7 @@ fn main() {
 }
 
 fn copy_item() {
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
+    let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
     let mut drive: Drive = Drive::try_from(oauth).unwrap();
 
     let mut drive_item: DriveItem = drive.drive_root_child().unwrap();

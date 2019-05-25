@@ -1,5 +1,5 @@
+use from_to_file::*;
 use rust_onedrive::oauth::{Grant, OAuth, OAuthCredential};
-use transform_request::prelude::*;
 
 /*
 The following example shows authenticating an application to use the OneDrive REST API
@@ -72,13 +72,13 @@ fn set_code_request_token(access_code: &str) {
     if oauth.get(OAuthCredential::AccessToken).is_some() {
         // Stores OAuth as json using serde_json.
         oauth
-            .to_file("./examples/example_files/native_client_flow.json")
+            .to_json_file("./examples/example_files/native_client_flow.json")
             .unwrap();
         println!("{:#?}", &oauth);
     }
     /*
     To get OAuth back from the json file run:
 
-    let mut oauth: OAuth = OAuth::from_file("example/oauth.json").unwrap();
+    let mut oauth: OAuth = OAuth::from_json_file("example/oauth.json").unwrap();
     */
 }

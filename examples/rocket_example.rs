@@ -7,6 +7,7 @@ extern crate rocket;
 extern crate serde_json;
 extern crate reqwest;
 
+use from_to_file::*;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
 use rust_onedrive::drive::driveitem::DriveItem;
@@ -15,7 +16,6 @@ use rust_onedrive::oauth::{Grant, OAuth};
 use std::convert::TryFrom;
 use std::thread;
 use std::time::Duration;
-use transform_request::{FromFile, ToFile};
 
 /*
 This example shows using Rocket to authenticate with Microsoft OneDrive,
@@ -172,17 +172,17 @@ pub fn set_and_req_access_code(access_code: &str) {
 
     // Save our configuration to a file so we can retrieve it from other requests.
     oauth
-        .to_file("./examples/example_files/web_oauth.json")
+        .to_json_file("./examples/example_files/web_oauth.json")
         .unwrap();
 }
 // Methods for calling the Graph API.
 
 // This method gets gets recent drive items from the API.
 // All OneDrive requests result in the same struct:
-//      Result<DriveItem, RequestError>
+//      Result<DriveItem, GraphFailure>
 //
 // where DriveItem holds all the recent items you requested if the request is successful.
-// If there is an error, then a RequestError will be returned. RequestError will also store
+// If there is an error, then a GraphFailure will be returned. GraphFailure will also store
 // an error from the Graph API if error originated from there. Errors for the Graph API
 // can be found here: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/errors?view=odsp-graph-online
 //
@@ -192,18 +192,18 @@ pub fn set_and_req_access_code(access_code: &str) {
 //
 // Curl: curl http://localhost:8000/drive/recent
 // This will store the drive item in examples/example_files/drive_recent.json.
-// You can use method recent_from_file() to get and print the stored drive item.
+// You can use method from_json_file() to get and print the stored drive item.
 // CAREFUL: This may contain sensitive information!
 #[get("/drive/recent", format = "application/json")]
 fn recent() {
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
+    let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
     let mut drive = Drive::try_from(oauth).unwrap();
     let result = drive.drive_recent();
     match result {
         Ok(drive_item) => {
             println!("{:#?}", &drive_item);
             drive_item
-                .to_file("./examples/example_files/drive_recent.json")
+                .to_json_file("./examples/example_files/drive_recent.json")
                 .unwrap();
         },
         Err(e) => println!("{:#?}", e),
@@ -212,6 +212,6 @@ fn recent() {
 
 fn recent_from_file() {
     let item: DriveItem =
-        DriveItem::from_file("./examples/example_files/drive_recent.json").unwrap();
+        DriveItem::from_json_file("./examples/example_files/drive_recent.json").unwrap();
     println!("{:#?}", &item);
 }

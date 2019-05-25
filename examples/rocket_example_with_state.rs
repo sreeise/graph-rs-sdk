@@ -7,12 +7,12 @@ extern crate rocket;
 extern crate serde_json;
 extern crate reqwest;
 
+use from_to_file::*;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
 use rust_onedrive::oauth::{Grant, OAuth};
 use std::thread;
 use std::time::Duration;
-use transform_request::ToFile;
 
 /*
 This example shows using Rocket to authenticate with Microsoft OneDrive that
@@ -106,6 +106,6 @@ pub fn set_and_req_access_code(access_code: &str, state: &str) {
 
     // Save our configuration to a file so we can retrieve it for other requests.
     oauth
-        .to_file("./examples/example_files/web_oauth.json")
+        .to_json_file("./examples/example_files/web_oauth.json")
         .unwrap();
 }

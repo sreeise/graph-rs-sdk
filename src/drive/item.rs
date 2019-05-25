@@ -6,11 +6,11 @@ use crate::drive::{
 };
 use crate::fetch::Fetch;
 use graph_error::GraphError;
+use graph_error::GraphFailure;
 use reqwest::{header, Client, RedirectPolicy, RequestBuilder, Response};
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
-use transform_request::RequestError;
 
 #[derive(Debug)]
 pub struct ItemResponse {
@@ -36,13 +36,13 @@ impl ItemResponse {
         // The location header contains the URL for monitoring progress.
         let option_location: Option<&reqwest::header::HeaderValue> = headers.get(header::LOCATION);
         if let Some(location) = option_location {
-            let location_str = location.to_str().map_err(RequestError::from)?;
+            let location_str = location.to_str().map_err(GraphFailure::from)?;
             let client = reqwest::Client::builder().build()?;
             let mut response = client.get(location_str).send()?;
 
             let status = response.status().as_u16();
             if GraphError::is_error(status) {
-                return Err(RequestError::from(
+                return Err(GraphFailure::from(
                     GraphError::try_from(status).unwrap_or_default(),
                 ));
             }
@@ -85,7 +85,7 @@ pub trait Item {
         T: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
         if GraphError::is_error(r.status().as_u16()) {
-            return Err(RequestError::from(
+            return Err(GraphFailure::from(
                 GraphError::try_from(r).unwrap_or_default(),
             ));
         }
@@ -98,7 +98,7 @@ pub trait Item {
     /// returns the error.
     fn drive_item(&self, r: &mut Response) -> ItemResult<DriveItem> {
         if GraphError::is_error(r.status().as_u16()) {
-            return Err(RequestError::from(
+            return Err(GraphFailure::from(
                 GraphError::try_from(r).unwrap_or_default(),
             ));
         }
@@ -111,7 +111,7 @@ pub trait Item {
     /// returns the error.
     fn value(r: &mut Response) -> ItemResult<serde_json::Value> {
         if GraphError::is_error(r.status().as_u16()) {
-            return Err(RequestError::from(
+            return Err(GraphFailure::from(
                 GraphError::try_from(r).unwrap_or_default(),
             ));
         }
@@ -119,10 +119,10 @@ pub trait Item {
         Ok(v)
     }
 
-    fn client(&self) -> Result<Client, RequestError> {
+    fn client(&self) -> Result<Client, GraphFailure> {
         reqwest::Client::builder()
             .build()
-            .map_err(RequestError::from)
+            .map_err(GraphFailure::from)
     }
 
     /// A request builder for REST requests with the authorization header
@@ -181,7 +181,7 @@ pub trait Item {
 
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
-            return Err(RequestError::from(
+            return Err(GraphFailure::from(
                 GraphError::try_from(status).unwrap_or_default(),
             ));
         }
@@ -215,7 +215,7 @@ pub trait Item {
 
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
-            return Err(RequestError::from(
+            return Err(GraphFailure::from(
                 GraphError::try_from(status).unwrap_or_default(),
             ));
         }
@@ -264,13 +264,13 @@ pub trait Item {
             self.drive_version(),
             value
                 .parent_reference()
-                .ok_or_else(|| RequestError::none_err("value parent_reference"))?
+                .ok_or_else(|| GraphFailure::none_err("value parent_reference"))?
                 .drive_id()
-                .ok_or_else(|| RequestError::none_err("value parent_reference drive_id"))?
+                .ok_or_else(|| GraphFailure::none_err("value parent_reference drive_id"))?
                 .as_str(),
             value
                 .id()
-                .ok_or_else(|| RequestError::none_err("value item_id"))?
+                .ok_or_else(|| GraphFailure::none_err("value item_id"))?
                 .as_str(),
             DriveEvent::Copy,
         );
@@ -361,7 +361,7 @@ pub trait Item {
 
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
-            return Err(RequestError::from(
+            return Err(GraphFailure::from(
                 GraphError::try_from(status).unwrap_or_default(),
             ));
         }
@@ -393,13 +393,13 @@ pub trait Item {
             self.drive_version(),
             value
                 .parent_reference()
-                .ok_or_else(|| RequestError::none_err("value parent_reference"))?
+                .ok_or_else(|| GraphFailure::none_err("value parent_reference"))?
                 .drive_id()
-                .ok_or_else(|| RequestError::none_err("value parent_reference drive_id"))?
+                .ok_or_else(|| GraphFailure::none_err("value parent_reference drive_id"))?
                 .as_str(),
             value
                 .id()
-                .ok_or_else(|| RequestError::none_err("value item_id"))?
+                .ok_or_else(|| GraphFailure::none_err("value item_id"))?
                 .as_str(),
             DriveEvent::Delete,
         );
@@ -411,7 +411,7 @@ pub trait Item {
 
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
-            return Err(RequestError::from(
+            return Err(GraphFailure::from(
                 GraphError::try_from(status).unwrap_or_default(),
             ));
         }
@@ -463,13 +463,13 @@ pub trait Item {
                         attempt.stop()
                     }))
                     .build()
-                    .map_err(RequestError::from)?;
+                    .map_err(GraphFailure::from)?;
 
                 // In order for the OneDrive API to know which item we need, the request
                 // must include the id for the item being downloaded: /{item-id}/content
                 let item_id = match value.id() {
                     Some(t) => t,
-                    None => return Err(RequestError::none_err("Missing item id or download URL")),
+                    None => return Err(GraphFailure::none_err("Missing item id or download URL")),
                 };
 
                 let url = DriveResource::Me.item_resource(
@@ -530,13 +530,13 @@ pub trait Item {
                 attempt.stop()
             }))
             .build()
-            .map_err(RequestError::from)?;
+            .map_err(GraphFailure::from)?;
 
         // In order for the OneDrive API to know which item we need, the request
         // must include the id for the item being downloaded: /{item-id}/content
         let item_id = match value.id() {
             Some(t) => t,
-            None => return Err(RequestError::none_err("Missing item id or download URL")),
+            None => return Err(GraphFailure::none_err("Missing item id or download URL")),
         };
 
         let mut url = DriveResource::Drives.item_resource(

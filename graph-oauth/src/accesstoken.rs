@@ -1,23 +1,21 @@
 use crate::idtoken::IdToken;
 use crate::jwt::JWT;
-use crate::oautherror::OAuthError;
 use crate::stdop::StdOp;
 use chrono::{DateTime, Duration, Utc};
 use chrono_humanize::HumanTime;
-use graph_error::{GraphError, GraphHeaders};
+use from_to_file::*;
+use graph_error::{GraphError, GraphFailure, GraphHeaders};
 use reqwest::RequestBuilder;
 use reqwest::Response;
-use serde::{Deserialize, Serialize};
 use serde_json;
 use std::convert::TryFrom;
-use transform_request::prelude::*;
 
 /// AccessToken that is used for api calls to OneDrive and Graph.
 ///
 /// The implementation of AccessToken is very generic. Callers should
 /// utilize the builder: oauth::AccessTokenBuilder or use OAuth which
 /// sets AccessTokens automatically. Those who wish to make their own
-/// requests can use the provided Transform trait implementations for
+/// requests can use the provided TryFrom trait implementations for
 /// converting from a reqwest::Response to an AccessToken:
 ///
 ///
@@ -28,27 +26,13 @@ use transform_request::prelude::*;
 ///
 /// # Example
 /// ```rust,ignore
-/// let access_token = AccessToken::from(response); // -> AccessToken from response or AccessToken::default()
-/// // or
 /// use rust_onedrive::oauth::AccessToken;
-/// let access_token = AccessToken::transform(response); // -> Result<AccessToken, OAuthError>
+/// let access_token = AccessToken::try_from(&mut response); // -> Result<AccessToken, OAuthError>
 /// ```
 ///
 /// Callers who wish to have more flexibility then provided here should use
 /// AccessTokenBuilder.
-#[derive(
-    Debug,
-    Clone,
-    Eq,
-    PartialEq,
-    Serialize,
-    Deserialize,
-    Hash,
-    FromFile,
-    ToFile,
-    FromYamlFile,
-    ToYamlFile,
-)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, FromToFile)]
 pub struct AccessToken {
     access_token: String,
     token_type: String,
@@ -406,92 +390,49 @@ impl Default for AccessToken {
     }
 }
 
-/// Transforms &mut reqwest::Response to Result<AccessToken, OAuthError>
-impl Transform<&mut Response> for AccessToken {
-    type Err = OAuthError;
+impl TryFrom<&str> for AccessToken {
+    type Error = GraphFailure;
 
-    fn transform(rhs: &mut Response) -> Result<Self, Self::Err>
-    where
-        Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
-    {
-        let t: AccessToken = rhs.json()?;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let t: AccessToken = serde_json::from_str(value)?;
         Ok(t)
-    }
-}
-
-/// Transforms a JSON &str to Result<AccessToken, OAuthError> using serde_json
-impl Transform<&str> for AccessToken {
-    type Err = OAuthError;
-
-    fn transform(rhs: &str) -> Result<Self, Self::Err>
-    where
-        Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
-    {
-        let t: AccessToken = serde_json::from_str(rhs)?;
-        Ok(t)
-    }
-}
-
-/// Transforms a Result<Response> where response: reqwest::Response
-/// to Result<AccessToken, OAuthError> using serde_json
-impl Transform<Result<reqwest::Response, reqwest::Error>> for AccessToken {
-    type Err = OAuthError;
-
-    fn transform(rhs: Result<reqwest::Response, reqwest::Error>) -> Result<Self, Self::Err>
-    where
-        Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
-    {
-        let mut response: Response = rhs?;
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            let mut graph_error = GraphError::try_from(status)?;
-            let graph_headers = GraphHeaders::from(&mut response);
-            graph_error.set_headers(graph_headers);
-            return Err(OAuthError::from(graph_error));
-        }
-        let t: AccessToken = response.json()?;
-        Ok(t)
-    }
-}
-
-impl Transform<RequestBuilder> for AccessToken {
-    type Err = OAuthError;
-
-    fn transform(rhs: RequestBuilder) -> Result<Self, Self::Err>
-    where
-        Self: Serialize + for<'de> Deserialize<'de>,
-    {
-        let mut response = rhs.send()?;
-        let access_token: AccessToken = AccessToken::transform(&mut response)?;
-        Ok(access_token)
     }
 }
 
 impl TryFrom<RequestBuilder> for AccessToken {
-    type Error = OAuthError;
+    type Error = GraphFailure;
 
     fn try_from(value: RequestBuilder) -> Result<Self, Self::Error> {
         let mut response = value.send()?;
-        let access_token: AccessToken = AccessToken::transform(&mut response)?;
+        let access_token: AccessToken = AccessToken::try_from(&mut response)?;
         Ok(access_token)
     }
 }
 
 impl TryFrom<Result<reqwest::Response, reqwest::Error>> for AccessToken {
-    type Error = OAuthError;
+    type Error = GraphFailure;
 
     fn try_from(value: Result<Response, reqwest::Error>) -> Result<Self, Self::Error> {
-        AccessToken::transform(value)
+        let mut response = value?;
+        AccessToken::try_from(&mut response)
     }
 }
 
 impl TryFrom<&mut Response> for AccessToken {
-    type Error = OAuthError;
+    type Error = GraphFailure;
 
     fn try_from(value: &mut Response) -> Result<Self, Self::Error>
     where
         Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
-        AccessToken::transform(value)
+        let status = value.status().as_u16();
+        if GraphError::is_error(status) {
+            let mut graph_error = GraphError::try_from(status)?;
+            let graph_headers = GraphHeaders::from(value);
+            graph_error.set_headers(graph_headers);
+            return Err(GraphFailure::from(graph_error));
+        }
+        let t: AccessToken = value.json()?;
+        Ok(t)
     }
 }

@@ -1,8 +1,8 @@
 use crate::accesstoken::AccessToken;
 use crate::auth::OAuthReq;
 use reqwest::{header, RequestBuilder};
+use std::convert::TryFrom;
 use std::process::Output;
-use transform_request::Transform;
 
 pub struct OAuthTooling;
 
@@ -34,13 +34,13 @@ impl OAuthTooling {
 
     pub fn bearer_access_token(url: &str, body: &str, access_code: &str) -> OAuthReq<AccessToken> {
         let builder = OAuthTooling::bearer_request_builder(url.trim(), body, access_code)?;
-        let access_token = AccessToken::transform(builder)?;
+        let access_token = AccessToken::try_from(builder)?;
         Ok(access_token)
     }
 
     pub fn post_access_token(url: &str, body: &str) -> OAuthReq<AccessToken> {
         let builder = OAuthTooling::token_request_builder(url.trim(), body)?;
-        let access_token = AccessToken::transform(builder)?;
+        let access_token = AccessToken::try_from(builder)?;
         Ok(access_token)
     }
 }

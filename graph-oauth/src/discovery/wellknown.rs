@@ -1,8 +1,8 @@
-use crate::oauth::OAuthError;
+use graph_error::GraphFailure;
 use serde;
 
 pub trait WellKnown {
-    fn signing_keys<T>(url: &str) -> Result<T, OAuthError>
+    fn signing_keys<T>(url: &str) -> Result<T, GraphFailure>
     where
         T: serde::Serialize,
         for<'de> T: serde::Deserialize<'de>;
@@ -12,7 +12,7 @@ pub trait WellKnown {
 pub struct Commons;
 
 impl WellKnown for Commons {
-    fn signing_keys<T>(url: &str) -> Result<T, OAuthError>
+    fn signing_keys<T>(url: &str) -> Result<T, GraphFailure>
     where
         T: serde::Serialize,
         for<'de> T: serde::Deserialize<'de>,
@@ -25,7 +25,7 @@ impl WellKnown for Commons {
                 let keys: T = t.json()?;
                 Ok(keys)
             },
-            Err(e) => Err(OAuthError::from(e)),
+            Err(e) => Err(GraphFailure::from(e)),
         }
     }
 }
