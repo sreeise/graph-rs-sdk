@@ -55,7 +55,7 @@ pub fn derive_to_file(input: proc_macro::TokenStream) -> proc_macro::TokenStream
     proc_macro::TokenStream::from(expanded)
 }
 
-/// FromFile derive for the transform_request::FromFile trait.
+/// FromYamlFile derive for the transform_request::FromYamlFile trait.
 #[proc_macro_derive(FromYamlFile)]
 pub fn derive_from_yaml(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -76,7 +76,7 @@ pub fn derive_from_yaml(input: proc_macro::TokenStream) -> proc_macro::TokenStre
     proc_macro::TokenStream::from(expanded)
 }
 
-/// ToFile derive for the transform_request::ToFile trait.
+/// ToYamlFile derive for the transform_request::ToYamlFile trait.
 #[proc_macro_derive(ToYamlFile)]
 pub fn derive_to_yaml_file(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

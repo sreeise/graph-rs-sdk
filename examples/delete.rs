@@ -28,7 +28,7 @@ pub fn delete_item_by_value(item_name: &str) {
     // Delete the item by value. This method will use the Values's id and the
     // drive_id stored withing the Value's parent_reference to send a request
     // to delete the item.
-    let response: ItemResponse = drive.delete_by_value(value).unwrap();
+    let mut response: ItemResponse = drive.delete_by_value(value).unwrap();
     println!("{:#?}", response);
     println!("\nItem was deleted: {:#?}", response.success());
 }
@@ -72,7 +72,7 @@ pub fn delete_by_item_id_and_drive_id(item_name: &str) {
     // it may be better to use the delete_by_value method which will make sure to use
     // the correct drive id. However, this method, always uses the DriveResource::Drives
     // URL. This may change in the future.
-    let response: ItemResponse = drive
+    let mut response: ItemResponse = drive
         .delete(drive_id.as_str(), item_id.as_str(), DriveResource::Drives)
         .unwrap();
     println!("{:#?}", response);

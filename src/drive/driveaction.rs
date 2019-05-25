@@ -1,3 +1,7 @@
+use crate::drive::parentreference::ParentReference;
+use crate::drive::DriveResource;
+use crate::drive::ItemResult;
+
 /// Enum for describing what action to take in a drive request
 /// such as uploading and item or downloading an item.
 ///
@@ -75,5 +79,82 @@ impl AsRef<str> for DownloadFormat {
             DownloadFormat::JPG => "jpg",
             DownloadFormat::PDF => "pdf",
         }
+    }
+}
+
+// Used for copy events.
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+struct ParentReferenceCopy {
+    parent_reference: ParentReference,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
+}
+
+impl ParentReferenceCopy {
+    pub fn new(pr: ParentReference, name: Option<String>) -> ParentReferenceCopy {
+        ParentReferenceCopy {
+            parent_reference: pr,
+            name,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct DriveItemCopy {
+    parent_reference: ParentReference,
+    name: Option<String>,
+    drive_resource: DriveResource,
+}
+
+impl DriveItemCopy {
+    pub fn new(
+        parent_reference: ParentReference,
+        name: Option<String>,
+        drive_resource: DriveResource,
+    ) -> DriveItemCopy {
+        println!("{:#?}", &parent_reference);
+        DriveItemCopy {
+            parent_reference,
+            name,
+            drive_resource,
+        }
+    }
+
+    pub fn drive_resource(&self) -> DriveResource {
+        self.drive_resource
+    }
+
+    pub fn as_json(&self) -> ItemResult<String> {
+        if let Some(name) = &self.name {
+            let prc = ParentReferenceCopy::new(self.parent_reference.clone(), Some(name.clone()));
+            let s = serde_json::to_string_pretty(&prc)?;
+            Ok(s)
+        } else {
+            let prc = ParentReferenceCopy::new(self.parent_reference.clone(), None);
+            let s = serde_json::to_string_pretty(&prc)?;
+            Ok(s)
+        }
+    }
+}
+
+/// The progress status of long running events.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct EventProgress {
+    pub operation: Option<String>,
+    #[serde(rename = "percentageComplete")]
+    pub percentage_complete: f64,
+    #[serde(rename = "resourceId")]
+    resource_id: Option<String>,
+    pub status: String,
+}
+
+impl EventProgress {
+    #[allow(dead_code)]
+    pub fn resource_id(&self) -> Option<String> {
+        self.resource_id.clone()
+    }
+
+    pub fn is_completed(&self) -> bool {
+        self.status.as_str() == "completed"
     }
 }

@@ -1054,7 +1054,10 @@ impl Grant for OAuth {
     fn request_access_token(&mut self) -> OAuthReq<()> {
         let url = self.get_or_else(OAuthCredential::AccessTokenURL)?;
         let body = self.encode_uri(GrantRequest::AccessToken)?;
-        let access_token = OAuthTooling::post_access_token(url.as_str(), body.as_str())?;
+        let mut access_token = OAuthTooling::post_access_token(url.as_str(), body.as_str())?;
+        if let Ok(refresh_token) = self.get_refresh_token() {
+            access_token.refresh_token(Some(refresh_token.as_str()));
+        }
         self.access_token(access_token);
         Ok(())
     }
@@ -1062,7 +1065,10 @@ impl Grant for OAuth {
     fn request_refresh_token(&mut self) -> OAuthReq<()> {
         let url = self.get_or_else(OAuthCredential::RefreshTokenURL)?;
         let body = self.encode_uri(GrantRequest::RefreshToken)?;
-        let access_token = OAuthTooling::post_access_token(url.as_str(), body.as_str())?;
+        let mut access_token = OAuthTooling::post_access_token(url.as_str(), body.as_str())?;
+        if let Ok(refresh_token) = self.get_refresh_token() {
+            access_token.refresh_token(Some(refresh_token.as_str()));
+        }
         self.access_token(access_token);
         Ok(())
     }

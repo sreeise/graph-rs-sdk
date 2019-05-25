@@ -101,6 +101,7 @@ pub mod prelude {
     pub use crate::drive::Drive;
     pub use crate::drive::DriveEndPoint;
     pub use crate::drive::DriveEvent;
+    pub use crate::drive::DriveItemCopy;
     pub use crate::drive::DriveResource;
     pub use crate::drive::DriveVersion;
     pub use crate::drive::Item;

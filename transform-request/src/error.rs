@@ -16,6 +16,7 @@ pub enum RequestError {
     ParseString(string::ParseError),
     Utf8Error(Utf8Error),
     ReqwestError(reqwest::Error),
+    ReqwestHeaderToStr(reqwest::header::ToStrError),
     SerdeError(serde_json::error::Error),
     SerdeYamlError(serde_yaml::Error),
     DecodeError(base64::DecodeError),
@@ -46,6 +47,7 @@ impl fmt::Display for RequestError {
             RequestError::ParseString(ref err) => write!(f, "Parse string error: {}", err),
             RequestError::Utf8Error(ref err) => write!(f, "Base 64 decode error: {}", err),
             RequestError::ReqwestError(ref err) => write!(f, "Request error: {}", err),
+            RequestError::ReqwestHeaderToStr(ref err) => write!(f, "Request error: {}", err),
             RequestError::SerdeError(ref err) => write!(f, "Serde error: {}", err),
             RequestError::SerdeYamlError(ref err) => write!(f, "Serde yaml error: {}", err),
             RequestError::DecodeError(ref err) => write!(f, "Base64 decode error: {}", err),
@@ -63,6 +65,7 @@ impl error::Error for RequestError {
             RequestError::ParseString(ref err) => error::Error::description(err),
             RequestError::Utf8Error(ref err) => err.description(),
             RequestError::ReqwestError(ref err) => err.description(),
+            RequestError::ReqwestHeaderToStr(ref err) => err.description(),
             RequestError::SerdeError(ref err) => err.description(),
             RequestError::SerdeYamlError(ref err) => err.description(),
             RequestError::DecodeError(ref err) => err.description(),
@@ -78,6 +81,7 @@ impl error::Error for RequestError {
             RequestError::ParseString(ref err) => Some(err),
             RequestError::Utf8Error(ref err) => Some(err),
             RequestError::ReqwestError(ref err) => Some(err),
+            RequestError::ReqwestHeaderToStr(ref err) => Some(err),
             RequestError::SerdeError(ref err) => Some(err),
             RequestError::SerdeYamlError(ref err) => Some(err),
             RequestError::DecodeError(ref err) => Some(err),
@@ -108,6 +112,12 @@ impl From<string::ParseError> for RequestError {
 impl From<reqwest::Error> for RequestError {
     fn from(err: reqwest::Error) -> RequestError {
         RequestError::ReqwestError(err)
+    }
+}
+
+impl From<reqwest::header::ToStrError> for RequestError {
+    fn from(err: reqwest::header::ToStrError) -> RequestError {
+        RequestError::ReqwestHeaderToStr(err)
     }
 }
 

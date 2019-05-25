@@ -22,9 +22,8 @@ mod pathbuilder;
 pub mod query_string;
 
 pub use crate::drive::drive_item::*;
-pub use crate::drive::driveaction::{DownloadFormat, DriveEvent};
-pub use crate::drive::driveresource::DriveResource;
-pub use crate::drive::driveresource::ResourceBuilder;
+pub use crate::drive::driveaction::{DownloadFormat, DriveEvent, DriveItemCopy, EventProgress};
+pub use crate::drive::driveresource::{DriveResource, ResourceBuilder};
 pub use crate::drive::endpoint::{DriveEndPoint, EP};
 pub use crate::drive::item::{Item, ItemResponse};
 pub use crate::drive::pathbuilder::PathBuilder;
