@@ -1,0 +1,34 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#drives/$entity",
+  "createdDateTime": "2017-07-27T02:32:33Z",
+  "description": "",
+  "id": "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+  "lastModifiedDateTime": "2017-08-06T01:23:51Z",
+  "name": "Documents",
+  "webUrl": "https://m365x214355.sharepoint.com/Shared%20Documents",
+  "driveType": "documentLibrary",
+  "createdBy": {
+    "user": {
+      "displayName": "System Account"
+    }
+  },
+  "lastModifiedBy": {
+    "user": {
+      "email": "provisioninguser1@m365x214355.onmicrosoft.com",
+      "displayName": "Provisioning User"
+    }
+  },
+  "owner": {
+    "group": {
+      "id": "43a63cc2-582b-4d81-a79d-1591f91d5558",
+      "displayName": "Company Administrator"
+    }
+  },
+  "quota": {
+    "deleted": 0,
+    "remaining": 27486888062119,
+    "state": "normal",
+    "total": 27487790694400,
+    "used": 305435615
+  }
+}

@@ -35,6 +35,10 @@ fn drive_endpoint_v1_test() {
         "https://graph.microsoft.com/v1.0/drive/activities"
     );
     assert_eq!(
+        DriveEndPoint::SpecialFolder.to_string(),
+        "https://graph.microsoft.com/v1.0/me/drive/special"
+    );
+    assert_eq!(
         DriveEndPoint::SpecialDocuments.to_string(),
         "https://graph.microsoft.com/v1.0/me/drive/special/documents"
     );
@@ -109,6 +113,10 @@ fn drive_endpoint_beta_test() {
     assert_eq!(
         DriveEndPoint::DriveActivities.beta_url(),
         "https://graph.microsoft.com/beta/drive/activities"
+    );
+    assert_eq!(
+        DriveEndPoint::SpecialFolder.beta_url(),
+        "https://graph.microsoft.com/beta/me/drive/special"
     );
     assert_eq!(
         DriveEndPoint::SpecialDocuments.beta_url(),
