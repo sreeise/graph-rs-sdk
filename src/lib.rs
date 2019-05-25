@@ -86,6 +86,7 @@ pub extern crate graph_oauth;
 pub extern crate reqwest;
 pub extern crate serde;
 pub extern crate serde_json;
+pub extern crate serde_yaml;
 #[macro_use]
 pub extern crate derive_from_to_file;
 

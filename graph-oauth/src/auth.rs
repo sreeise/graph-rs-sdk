@@ -17,7 +17,19 @@ pub type OAuthReq<T> = Result<T, OAuthError>;
 /// client credentials flow.
 
 #[derive(
-    Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize, EnumIter,
+    Debug,
+    Copy,
+    Clone,
+    Ord,
+    PartialOrd,
+    Eq,
+    PartialEq,
+    Hash,
+    Serialize,
+    Deserialize,
+    EnumIter,
+    FromYamlFile,
+    ToYamlFile,
 )]
 pub enum OAuthCredential {
     ClientId,
@@ -133,7 +145,9 @@ impl ToString for OAuthCredential {
 /// let oauth_implicit = OAuth::implicit_grant();
 /// let oauth_open_id = OAuth::open_id_connect();
 /// ```
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile)]
+#[derive(
+    Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, ToFile, FromYamlFile, ToYamlFile,
+)]
 pub struct OAuth {
     access_token: Option<AccessToken>,
     scopes: Vec<String>,

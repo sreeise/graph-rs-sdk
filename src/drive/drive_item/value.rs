@@ -13,7 +13,18 @@ use crate::drive::drive_item::specialfolder::SpecialFolder;
 use crate::drive::drive_item::Root;
 use transform_request::prelude::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromFile, ToFile)]
+#[derive(
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Serialize,
+    Deserialize,
+    FromFile,
+    ToFile,
+    FromYamlFile,
+    ToYamlFile,
+)]
 pub struct Value {
     #[serde(rename = "@odata.context")]
     _odata_context: Option<String>,

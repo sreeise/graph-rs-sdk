@@ -45,3 +45,34 @@ where
     type Err: Error;
     fn from_file<P: AsRef<Path>>(path: P) -> std::result::Result<Self, Self::Err>;
 }
+
+/// Writes a data struct to a given yaml file. The struct must implement
+/// serde_derive Serialize and Deserialize.
+/// # Arguments
+///
+/// * `path` - Path to a file and the file name itself.
+pub trait ToYamlFile<RHS = Self>
+where
+    Self: serde::Serialize,
+    for<'de> Self: serde::Deserialize<'de>,
+{
+    type Err: Error;
+    type Output;
+
+    fn to_yaml_file<P: AsRef<Path>>(&self, path: P)
+        -> std::result::Result<Self::Output, Self::Err>;
+}
+
+/// Returns a struct from a given yaml file. The struct must implement
+/// serde_derive Serialize and Deserialize.
+/// # Arguments
+///
+/// * `path` - Path to a file and the file name itself.
+pub trait FromYamlFile<RHS = Self>
+where
+    Self: serde::Serialize,
+    for<'de> Self: serde::Deserialize<'de>,
+{
+    type Err: Error;
+    fn from_yaml_file<P: AsRef<Path>>(path: P) -> std::result::Result<Self, Self::Err>;
+}

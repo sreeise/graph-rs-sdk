@@ -9,7 +9,18 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use transform_request::prelude::*;
 
-#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize, FromFile, ToFile)]
+#[derive(
+    Default,
+    Debug,
+    PartialEq,
+    Clone,
+    Serialize,
+    Deserialize,
+    FromFile,
+    ToFile,
+    FromYamlFile,
+    ToYamlFile,
+)]
 pub struct DriveItem {
     drive_info: Option<DriveInfo>,
     #[serde(rename = "@odata.context")]
