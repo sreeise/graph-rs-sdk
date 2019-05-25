@@ -877,7 +877,7 @@ impl OAuth {
                     Ok(encoder.finish())
                 },
                 GrantRequest::RefreshToken => {
-                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                    self.insert(OAuthCredential::GrantType, "refresh_token".into());
                     let refresh_token = self.get_refresh_token()?;
                     encoder.append_pair("refresh_token", &refresh_token);
                     self.form_encode_credentials(
@@ -904,9 +904,9 @@ impl OAuth {
                 },
                 GrantRequest::AccessToken | GrantRequest::RefreshToken => {
                     if request_type == GrantRequest::AccessToken {
-                        let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                        self.insert(OAuthCredential::GrantType, "authorization_code".into());
                     } else {
-                        let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                        self.insert(OAuthCredential::GrantType, "refresh_token".into());
                         encoder.append_pair("refresh_token", &self.get_refresh_token()?);
                     }
                     self.form_encode_credentials(

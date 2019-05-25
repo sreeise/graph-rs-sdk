@@ -34,6 +34,10 @@ impl DriveItem {
         }
     }
 
+    pub fn drive_info(&self) -> Option<DriveInfo> {
+        self.drive_info.clone()
+    }
+
     pub fn data_context(&self) -> Option<String> {
         self._odata_context.clone()
     }
@@ -65,6 +69,24 @@ impl DriveItem {
             return Ok(v);
         }
         Err(RequestError::none_err("No available file names"))
+    }
+
+    pub fn find_by_name(&mut self, name: &str) -> Option<Value> {
+        if let Some(vec) = self.value() {
+            if let Some(value) = vec.iter().find(|s| s.name() == Some(name.into())) {
+                return Some(value.clone());
+            }
+        }
+        None
+    }
+
+    pub fn find_by_id(&mut self, id: &str) -> Option<Value> {
+        if let Some(vec) = self.value() {
+            if let Some(value) = vec.iter().find(|s| s.id() == Some(id.into())) {
+                return Some(value.clone());
+            }
+        }
+        None
     }
 }
 

@@ -1,4 +1,5 @@
 use crate::drive::drive_item::driveitem::DriveItem;
+use crate::drive::driveinfo::DriveInfo;
 use crate::drive::item::Item;
 use crate::drive::{Drive, DriveVersion, ItemResult, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
 
@@ -17,6 +18,7 @@ pub enum DriveEndPoint {
     SharedWithMe,
     DriveRecent,
     DriveActivities,
+    SpecialFolder,
     SpecialDocuments,
     SpecialDocumentsChild,
     SpecialPhotos,
@@ -41,6 +43,7 @@ impl DriveEndPoint {
             DriveEndPoint::SharedWithMe => "/me/drive/sharedWithMe",
             DriveEndPoint::DriveRecent => "/me/drive/recent",
             DriveEndPoint::DriveActivities => "/drive/activities",
+            DriveEndPoint::SpecialFolder => "/me/drive/special",
             DriveEndPoint::SpecialDocuments => "/me/drive/special/documents",
             DriveEndPoint::SpecialDocumentsChild => "/me/drive/special/documents/children",
             DriveEndPoint::SpecialPhotos => "/me/drive/special/photos",
@@ -95,7 +98,7 @@ impl ToString for DriveEndPoint {
 }
 
 pub trait EP {
-    fn drive(&mut self) -> ItemResult<DriveItem>;
+    fn drive(&mut self) -> ItemResult<DriveInfo>;
     fn drive_me(&mut self) -> ItemResult<DriveItem>;
     fn drive_root(&mut self) -> ItemResult<DriveItem>;
     fn drive_root_me(&mut self) -> ItemResult<DriveItem>;
@@ -104,6 +107,7 @@ pub trait EP {
     fn shared_with_me(&mut self) -> ItemResult<DriveItem>;
     fn drive_recent(&mut self) -> ItemResult<DriveItem>;
     fn drive_activities(&mut self) -> ItemResult<DriveItem>;
+    fn special_folder(&mut self, folder_name: &str) -> ItemResult<DriveItem>;
     fn special_documents(&mut self) -> ItemResult<DriveItem>;
     fn special_documents_child(&mut self) -> ItemResult<DriveItem>;
     fn special_photos(&mut self) -> ItemResult<DriveItem>;
@@ -123,7 +127,7 @@ impl EP for Drive {
     /// ```rust,ignore
     ///    fn drive_me(&mut self) -> ItemResult<DriveItem>
     /// ```
-    fn drive(&mut self) -> ItemResult<DriveItem> {
+    fn drive(&mut self) -> ItemResult<DriveInfo> {
         self.get(DriveEndPoint::Drive.url(self.version.as_str()).as_str())
     }
 
@@ -213,6 +217,18 @@ impl EP for Drive {
                 .url(self.version.as_str())
                 .as_str(),
         )
+    }
+
+    /// # Example
+    /// ```rust,ignore
+    ///    fn special_folder(&mut self, folder_name: &str) -> ItemResult<DriveItem>
+    ///    let drive_item: DriveItem = drive.special_folder("my_folder").unwrap();
+    /// ```
+    fn special_folder(&mut self, folder_name: &str) -> ItemResult<DriveItem> {
+        let mut endpoint = DriveEndPoint::SpecialFolder.to_string();
+        endpoint.push('/');
+        endpoint.push_str(folder_name);
+        self.get(endpoint.as_str())
     }
 
     /// # Example

@@ -12,25 +12,31 @@ use transform_request::RequestError;
 
 #[derive(Debug)]
 pub struct ItemResponse {
-    status: u16,
     response: Response,
 }
 
 impl ItemResponse {
-    pub fn new(status: u16, response: Response) -> ItemResponse {
-        ItemResponse { status, response }
+    pub fn new(response: Response) -> ItemResponse {
+        ItemResponse { response }
     }
 
     pub fn status(&self) -> u16 {
-        self.status
+        self.response.status().as_u16()
+    }
+
+    pub fn success(&self) -> bool {
+        self.status() == 204
     }
 
     pub fn response(&self) -> &Response {
         &self.response
     }
 
-    pub fn success(&self) -> bool {
-        self.status == 204
+    pub fn error(&self) -> Option<GraphError> {
+        if GraphError::is_error(self.status()) {
+            return Some(GraphError::try_from(self.status()).unwrap_or_default());
+        }
+        None
     }
 }
 
@@ -140,7 +146,7 @@ pub trait Item {
             .header(header::CONTENT_TYPE, "application/json")
             .send()?;
 
-        Ok(ItemResponse::new(response.status().as_u16(), response))
+        Ok(ItemResponse::new(response))
     }
 
     /// Check-out a driveItem resource to prevent others from editing the document,
@@ -167,7 +173,125 @@ pub trait Item {
             .bearer_auth(self.token())
             .send()?;
 
-        Ok(ItemResponse::new(response.status().as_u16(), response))
+        Ok(ItemResponse::new(response))
+    }
+
+    /// Delete a DriveItem by using its ID. Note that deleting items using this
+    /// method will move the items to the recycle bin instead of permanently deleting the item.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// use rust_onedrive::drive::{Drive, DriveVersion, ItemResponse, DriveResource};
+    /// use rust_onedrive::drive::driveitem::DriveItem;
+    /// use rust_onedrive::drive::value::Value;
+    /// use rust_onedrive::drive::driveinfo::DriveInfo;
+    ///
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    ///
+    /// // Call the API. drive_root_child is the files in the users main documents folder.
+    /// let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
+    ///
+    /// // Find the file based on it's name.
+    /// let value = drive_item.find_by_name("YOUR FILE NAME WITH EXTENSION SUCH AS: my_file.txt").unwrap();
+    ///
+    /// // Get the drive id from the DriveInfo metadata.
+    /// let drive_info: DriveInfo = drive.drive().unwrap();
+    /// let drive_id = drive_info.id().unwrap();
+    ///
+    /// // Get the item id from the files value metadata.
+    /// let item_id = value.id().unwrap();
+    ///
+    /// // Delete the item based on the type of drive using DriveResource.
+    /// // This can be one of:
+    /// //    DriveResource::Drives,
+    /// //    DriveResource::Groups,
+    /// //    DriveResource::Sites,
+    /// //    DriveResource::Users,
+    /// //    DriveResource::Me,
+    /// //
+    /// // The DriveResource changes the URL being used to make the request.
+    /// // For instance, given an item id of 1234 and a drive id of 1, the URL for
+    /// // drives and users would look like:
+    /// //
+    /// // DriveResource::Drives => "https://graph.microsoft.com/v1.0/drives/1/items/1234/"
+    /// // DriveResource::Users => https://graph.microsoft.com/v1.0/users/1/drive/items/1234/
+    /// //
+    /// // Note: DriveResource::Me does not use the drive_id, so while this is an option
+    /// // it may be better to use the delete_by_value method which will make sure to use
+    /// // the correct drive id. However, this method, always uses the DriveResource::Drives
+    /// // URL. This may change in the future.
+    /// let response: ItemResponse = drive
+    ///      .delete(drive_id.as_str(), item_id.as_str(), DriveResource::Drives)
+    ///      .unwrap();
+    /// println!("{:#?}", response);
+    /// println!("\nItem was deleted: {:#?}", response.success());
+    /// ```
+    ///
+    /// # See
+    /// [Delete a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_delete?view=odsp-graph-online)
+    fn delete(
+        &self,
+        drive_id: &str,
+        item_id: &str,
+        resource: DriveResource,
+    ) -> ItemResult<ItemResponse> {
+        let mut builder = ResourceBuilder::new(self.drive_version());
+        builder
+            .drive_event(DriveEvent::Delete)
+            .item_id(item_id)
+            .drive_id(drive_id)
+            .resource(resource);
+        let url = builder.build()?;
+        let response = self
+            .client()?
+            .delete(url.as_str())
+            .bearer_auth(self.token())
+            .send()?;
+
+        Ok(ItemResponse::new(response))
+    }
+
+    /// Delete a DriveItem by the item's Value. This method will use the Me endpoint to make
+    /// the request. Note that deleting items using this method will move the items to the
+    /// recycle bin instead of permanently deleting the item.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// use rust_onedrive::drive::{Drive, DriveVersion, ItemResponse};
+    /// use rust_onedrive::drive::driveitem::DriveItem;
+    /// use rust_onedrive::drive::value::Value;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    ///
+    /// let mut drive_item: DriveItem = drive.drive_recent().unwrap();
+    /// let value: Value = drive_item.find_by_name("YOUR FILE NAME WITH EXTENSION SUCH AS: my_file.txt").unwrap();
+    /// let item_response: ItemResponse = drive.delete_by_value(value).unwrap();
+    /// println!("Item was deleted: {:#?}", item_response.success());
+    /// ```
+    ///
+    /// # See
+    /// [Delete a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_delete?view=odsp-graph-online)
+    fn delete_by_value(&self, value: drive::value::Value) -> ItemResult<ItemResponse> {
+        let url = DriveResource::Drives.drive_item_resource(
+            self.drive_version(),
+            value
+                .parent_reference()
+                .ok_or_else(|| RequestError::none_err("value parent_reference"))?
+                .drive_id()
+                .ok_or_else(|| RequestError::none_err("value parent_reference drive_id"))?
+                .as_str(),
+            value
+                .id()
+                .ok_or_else(|| RequestError::none_err("value item_id"))?
+                .as_str(),
+            DriveEvent::Delete,
+        );
+        let response = self
+            .client()?
+            .delete(url.as_str())
+            .bearer_auth(self.token())
+            .send()?;
+
+        Ok(ItemResponse::new(response))
     }
 
     /// Download files from the OneDrive API.
@@ -175,18 +299,15 @@ pub trait Item {
     /// # Example
     /// ```rust,ignore
     /// use rust_onedrive::prelude::*;
+    /// use std::path::PathBuf;
     ///
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let drive_item: DriveItem = drive.drive_root_child().unwrap();
+    /// let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
     /// let vec: Vec<Value> = drive_item.value().unwrap();
     ///
-    /// let mut value = vec
-    ///     .iter()
-    ///     .find(|s| s.name() == Some("rust.docx"))
-    ///     .unwrap()
-    ///     .clone();
-    ///
-    /// drive.download("/home/drive", &mut value).unwrap();
+    /// let mut value = drive_item.find_by_name("rust.docx").unwrap();
+    /// let path_buf: PathBuf = drive.download("/home/drive", &mut value).unwrap();
+    /// println!("{:#?}", path_buf);
     /// ```
     ///
     /// Requires the directory to download to and the drive::Value to download. The Value
@@ -250,18 +371,16 @@ pub trait Item {
     /// # Example
     /// ```rust,ignore
     /// use rust_onedrive::prelude::*;
+    /// use std::path::PathBuf;
     ///
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let drive_item: DriveItem = drive.drive_root_child().unwrap();
+    /// let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
     /// let vec: Vec<Value> = drive_item.value().unwrap();
     ///
-    /// let mut value = vec
-    ///     .iter()
-    ///     .find(|s| s.name() == Some("rust.docx"))
-    ///     .unwrap()
-    ///     .clone();
+    /// let mut value = drive_item.find_by_name("rust.docx").unwrap();
     ///
-    /// drive.download_format("/home/drive", &mut value, DownloadFormat::PDF).unwrap();
+    /// let path_buf: PathBuf = drive.download_format("/home/drive", &mut value, DownloadFormat::PDF).unwrap();
+    /// println!("{:#?}", path_buf);
     /// ```
     ///
     /// Requires the directory to download, the drive::Value, and the format. The Value

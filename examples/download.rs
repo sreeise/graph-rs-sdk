@@ -1,4 +1,3 @@
-use rust_onedrive::drive;
 use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::Drive;
 use rust_onedrive::drive::EP;
@@ -38,21 +37,14 @@ pub fn download_from_root() {
     let mut drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let drive_item: DriveItem = drive.drive_root_child().unwrap();
+    let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
     // Save the metadata of the files.
     drive_item
         .to_file("./examples/example_files/drive_root_child.json")
         .unwrap();
 
     // Get the Values vec that lists the files.
-    let vec: Vec<drive::value::Value> = drive_item.value().unwrap();
-
-    // Find the file based on it's name.
-    let mut value = vec
-        .iter()
-        .find(|s| s.name() == Some(DRIVE_FILE.into()))
-        .unwrap()
-        .clone();
+    let mut value = drive_item.find_by_name(DRIVE_FILE).unwrap();
 
     // Download the file. The file will be downloaded with the same name.
     let path_buf: PathBuf = drive
@@ -80,7 +72,7 @@ pub fn download_from_root_and_format() {
     let mut drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let drive_item: DriveItem = drive.drive_root_child().unwrap();
+    let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
 
     // Save the metadata of the files.
     drive_item
@@ -88,16 +80,10 @@ pub fn download_from_root_and_format() {
         .unwrap();
 
     // Get the Values vec that lists the files.
-    let vec: Vec<drive::value::Value> = drive_item.value().unwrap();
+    let mut value = drive_item.find_by_name(DRIVE_FILE).unwrap();
 
-    // Find the file based on it's name.
-    let mut value = vec
-        .iter()
-        .find(|s| s.name() == Some(DRIVE_FILE.into()))
-        .unwrap()
-        .clone();
-
-    // Download the file. The file will be downloaded with the same name.
+    // Download the file. Currently, the file may or may not be downloaded with the same
+    // name when downloading by format. This is being worked on in issue #51.
     let path_buf: PathBuf = drive
         .download_format("./examples/example_files", &mut value, DownloadFormat::PDF)
         .unwrap();
