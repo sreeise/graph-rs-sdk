@@ -541,7 +541,7 @@ impl OAuth {
         self.insert(OAuthCredential::Resource, value.into())
     }
 
-    /// Set the grant_type.
+    /// Set the code verifier.
     ///
     /// # Example
     /// ```
@@ -553,7 +553,7 @@ impl OAuth {
         self.insert(OAuthCredential::CodeVerifier, value.into())
     }
 
-    /// Set the grant_type.
+    /// Set the domain hint.
     ///
     /// # Example
     /// ```
