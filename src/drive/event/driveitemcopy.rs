@@ -32,7 +32,6 @@ impl DriveItemCopy {
         name: Option<String>,
         drive_resource: DriveResource,
     ) -> DriveItemCopy {
-        println!("{:#?}", &parent_reference);
         DriveItemCopy {
             parent_reference,
             name,
