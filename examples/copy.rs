@@ -1,3 +1,4 @@
+use rust_onedrive::drive::event::DriveItemCopy;
 use rust_onedrive::drive::parentreference::ParentReference;
 use rust_onedrive::oauth::OAuth;
 use rust_onedrive::prelude::*;

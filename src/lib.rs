@@ -97,11 +97,8 @@ pub mod prelude {
     pub use crate::drive::driveitem::DriveItem;
     pub use crate::drive::query_string::QueryString;
     pub use crate::drive::value::Value;
-    pub use crate::drive::DownloadFormat;
     pub use crate::drive::Drive;
     pub use crate::drive::DriveEndPoint;
-    pub use crate::drive::DriveEvent;
-    pub use crate::drive::DriveItemCopy;
     pub use crate::drive::DriveResource;
     pub use crate::drive::DriveVersion;
     pub use crate::drive::Item;

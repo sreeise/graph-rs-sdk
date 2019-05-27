@@ -1,7 +1,8 @@
 use rust_onedrive::drive::driveitem::DriveItem;
+use rust_onedrive::drive::event::DownloadFormat;
 use rust_onedrive::drive::Drive;
+use rust_onedrive::drive::Item;
 use rust_onedrive::drive::EP;
-use rust_onedrive::drive::{DownloadFormat, Item};
 use rust_onedrive::from_to::*;
 use rust_onedrive::oauth::OAuth;
 use std::convert::TryFrom;
