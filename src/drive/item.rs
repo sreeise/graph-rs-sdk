@@ -1,9 +1,7 @@
 use crate::drive;
-use crate::drive::drive_item::driveitem::DriveItem;
-use crate::drive::driveaction::{DownloadFormat, EventProgress};
-use crate::drive::{
-    DriveEvent, DriveItemCopy, DriveResource, DriveVersion, ItemResult, ResourceBuilder,
-};
+use crate::drive::driveitem::DriveItem;
+use crate::drive::event::{DownloadFormat, DriveEvent, DriveItemCopy, EventProgress, NewFolder};
+use crate::drive::{DriveResource, DriveVersion, ItemResult, PathBuilder, ResourceBuilder};
 use crate::fetch::Fetch;
 use graph_error::GraphError;
 use graph_error::GraphFailure;
@@ -284,7 +282,128 @@ pub trait Item {
             .bearer_auth(self.token())
             .send()?;
 
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(GraphFailure::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
         Ok(ItemResponse::new(DriveEvent::Copy, response))
+    }
+
+    /// Create a new folder or DriveItem in a Drive with a specified parent item.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// use rust_onedrive::oauth::OAuth;
+    /// use rust_onedrive::drive::{Drive, NewFolder, DriveResource, DriveVersion};
+    /// use rust_onedrive::drive::conflictbehavior::ConflictBehavior;
+    ///
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    ///
+    /// // A NewFolder struct specifies the new folders name and the conflict behavior
+    /// // to use in case of a naming conflict. Can be one of rename, fail, or replace.
+    /// let new_folder: NewFolder = NewFolder::new("FOLDER_NAME", ConflictBehavior::Rename);
+    ///
+    /// // Create the folder by referencing the drive id and parent id and the resource.
+    /// // Returns a drive::value::Value which is the new drive item metadata.
+    /// let value = drive
+    ///     .create_folder(new_folder, "A_DRIVE_ID", "A_PARENT_ITEM_ID", DriveResource::Drives)
+    ///     .unwrap();
+    /// println!("{:#?}", value);
+    /// ```
+    ///
+    /// # See
+    /// [Create Folder](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_post_children?view=odsp-graph-online)
+    fn create_folder(
+        &mut self,
+        new_folder: NewFolder,
+        drive_id: &str,
+        parent_id: &str,
+        drive_resource: DriveResource,
+    ) -> ItemResult<drive::value::Value> {
+        let json_string = serde_json::to_string_pretty(&new_folder)?;
+        let url = drive_resource.drive_item_resource(
+            self.drive_version(),
+            drive_id,
+            parent_id,
+            DriveEvent::CreateFolder,
+        );
+        let mut response = self
+            .client()?
+            .post(url.as_str())
+            .body(json_string)
+            .header(header::CONTENT_TYPE, "application/json")
+            .bearer_auth(self.token())
+            .send()?;
+
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(GraphFailure::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        let drive_value: drive::value::Value = response.json()?;
+        Ok(drive_value)
+    }
+
+    /// Create a new folder or DriveItem in a Drive with a specified path.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// use rust_onedrive::oauth::OAuth;
+    /// use rust_onedrive::drive::{Drive, PathBuilder, NewFolder, DriveResource, DriveEndPoint, DriveVersion};
+    /// use rust_onedrive::drive::conflictbehavior::ConflictBehavior;
+    ///
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    ///
+    /// // A NewFolder struct specifies the new folders name and the conflict behavior
+    /// // to use in case of a naming conflict. Can be one of rename, fail, or replace.
+    /// let new_folder: NewFolder = NewFolder::new("FOLDER_NAME", ConflictBehavior::Rename);
+    ///
+    /// // Use the PathBuilder to construct the URL that will be used to call
+    /// // the OneDrive API for creating a folder.
+    /// let mut path_builder: PathBuilder = PathBuilder::from(&drive);
+    ///
+    /// // Use the main root drive location to create the folder in.
+    /// path_builder.drive_endpoint(DriveEndPoint::DriveRootChild);
+    ///
+    /// // Create the folder by referencing the path.
+    /// // Returns a drive::value::Value which is the new drive item metadata.
+    /// let value = drive
+    ///     .create_folder_by_path(new_folder, &mut path_builder)
+    ///     .unwrap();
+    /// println!("{:#?}", value);
+    /// ```
+    ///
+    /// # See
+    /// [Create Folder](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_post_children?view=odsp-graph-online)
+    fn create_folder_by_path(
+        &mut self,
+        new_folder: NewFolder,
+        path_builder: &mut PathBuilder,
+    ) -> ItemResult<drive::value::Value> {
+        let json_string = serde_json::to_string_pretty(&new_folder)?;
+        let url = path_builder.build();
+        let mut response = self
+            .client()?
+            .post(url.as_str())
+            .body(json_string)
+            .header(header::CONTENT_TYPE, "application/json")
+            .bearer_auth(self.token())
+            .send()?;
+
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(GraphFailure::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        let drive_value: drive::value::Value = response.json()?;
+        Ok(drive_value)
     }
 
     /// Delete a DriveItem by using its ID. Note that deleting items using this

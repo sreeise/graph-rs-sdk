@@ -1,5 +1,6 @@
+use rust_onedrive::drive::event::DriveEvent;
 use rust_onedrive::drive::{
-    DriveEndPoint, DriveEvent, DriveResource, DriveVersion, PathBuilder, ResourceBuilder,
+    DriveEndPoint, DriveResource, DriveVersion, PathBuilder, ResourceBuilder,
 };
 use std::convert::TryFrom;
 

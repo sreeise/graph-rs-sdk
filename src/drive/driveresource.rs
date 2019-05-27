@@ -1,4 +1,4 @@
-use crate::drive::driveaction::DriveEvent;
+use crate::drive::event::DriveEvent;
 use crate::drive::{DriveVersion, ItemResult};
 use graph_error::GraphFailure;
 

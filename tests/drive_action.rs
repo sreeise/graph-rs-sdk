@@ -1,4 +1,4 @@
-use rust_onedrive::drive::{DownloadFormat, DriveEvent};
+use rust_onedrive::drive::event::{DownloadFormat, DriveEvent};
 use rust_onedrive::drive::{DriveResource, DriveVersion};
 
 #[test]

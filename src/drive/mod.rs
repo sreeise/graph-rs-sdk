@@ -13,16 +13,15 @@ use graph_oauth::oauth::OAuth;
 use std;
 
 mod drive_item;
-mod driveaction;
 mod driveresource;
 mod endpoint;
 mod item;
 mod pathbuilder;
 #[macro_use]
 pub mod query_string;
+pub mod event;
 
 pub use crate::drive::drive_item::*;
-pub use crate::drive::driveaction::{DownloadFormat, DriveEvent, DriveItemCopy, EventProgress};
 pub use crate::drive::driveresource::{DriveResource, ResourceBuilder};
 pub use crate::drive::endpoint::{DriveEndPoint, EP};
 pub use crate::drive::item::{Item, ItemResponse};
@@ -54,6 +53,12 @@ impl AsRef<str> for DriveVersion {
 impl Display for DriveVersion {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_ref())
+    }
+}
+
+impl Default for DriveVersion {
+    fn default() -> Self {
+        DriveVersion::V1
     }
 }
 
