@@ -1,12 +1,13 @@
 use crate::drive;
 use crate::drive::driveitem::DriveItem;
-use crate::drive::event::{DownloadFormat, DriveEvent, DriveItemCopy, EventProgress, NewFolder};
+use crate::drive::event::{
+    CheckIn, DownloadFormat, DriveEvent, DriveItemCopy, EventProgress, NewFolder,
+};
 use crate::drive::{DriveResource, DriveVersion, ItemResult, PathBuilder, ResourceBuilder};
 use crate::fetch::Fetch;
 use graph_error::GraphError;
 use graph_error::GraphFailure;
 use reqwest::{header, Client, RedirectPolicy, RequestBuilder, Response};
-use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 
@@ -150,10 +151,9 @@ pub trait Item {
     /// [Check-in](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkin?view=odsp-graph-online)
     fn check_in(
         &self,
-        drive_id: &str,
         item_id: &str,
-        comment: &str,
-        check_in_as: Option<&str>,
+        drive_id: &str,
+        check_in: CheckIn,
         resource: DriveResource,
     ) -> ItemResult<ItemResponse> {
         let mut builder = ResourceBuilder::new(self.drive_version());
@@ -163,17 +163,55 @@ pub trait Item {
             .drive_id(drive_id)
             .resource(resource);
         let url = builder.build()?;
-        let mut map = HashMap::new();
-        map.insert("comment", comment);
-        if let Some(check_in) = check_in_as {
-            map.insert("checkInAs", check_in);
-        }
+        let check_in_json = serde_json::to_string(&check_in)?;
 
         let response = self
             .client()?
             .post(url.as_str())
             .bearer_auth(self.token())
-            .json(&map)
+            .body(check_in_json)
+            .header(header::CONTENT_TYPE, "application/json")
+            .send()?;
+
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(GraphFailure::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        Ok(ItemResponse::new(DriveEvent::CheckIn, response))
+    }
+
+    fn check_in_by_value(
+        &self,
+        value: drive::value::Value,
+        check_in: CheckIn,
+        resource: DriveResource,
+    ) -> ItemResult<ItemResponse> {
+        let item_id = value
+            .id()
+            .ok_or_else(|| GraphFailure::none_err("value item id"))?;
+        let pr = value
+            .parent_reference()
+            .ok_or_else(|| GraphFailure::none_err("value item id"))?;
+        let drive_id = pr
+            .drive_id()
+            .ok_or_else(|| GraphFailure::none_err("value parent reference drive id"))?;
+        let mut builder = ResourceBuilder::new(self.drive_version());
+        builder
+            .drive_event(DriveEvent::CheckIn)
+            .item_id(item_id.as_str())
+            .drive_id(drive_id.as_str())
+            .resource(resource);
+        let url = builder.build()?;
+        let check_in_json = serde_json::to_string(&check_in)?;
+
+        let response = self
+            .client()?
+            .post(url.as_str())
+            .bearer_auth(self.token())
+            .body(check_in_json)
             .header(header::CONTENT_TYPE, "application/json")
             .send()?;
 
@@ -194,8 +232,8 @@ pub trait Item {
     /// [Check-out](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkout?view=odsp-graph-online)
     fn check_out(
         &self,
-        drive_id: &str,
         item_id: &str,
+        drive_id: &str,
         resource: DriveResource,
     ) -> ItemResult<ItemResponse> {
         let mut builder = ResourceBuilder::new(self.drive_version());
@@ -209,6 +247,47 @@ pub trait Item {
             .client()?
             .post(url.as_str())
             .bearer_auth(self.token())
+            .header(header::CONTENT_LENGTH, 0)
+            .header(header::CONTENT_TYPE, "application/json")
+            .send()?;
+
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(GraphFailure::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        Ok(ItemResponse::new(DriveEvent::CheckOut, response))
+    }
+
+    fn check_out_by_value(
+        &self,
+        value: drive::value::Value,
+        resource: DriveResource,
+    ) -> ItemResult<ItemResponse> {
+        let item_id = value
+            .id()
+            .ok_or_else(|| GraphFailure::none_err("value item id"))?;
+        let pr = value
+            .parent_reference()
+            .ok_or_else(|| GraphFailure::none_err("value parent reference"))?;
+        let drive_id = pr
+            .drive_id()
+            .ok_or_else(|| GraphFailure::none_err("value parent reference drive id"))?;
+        let mut builder = ResourceBuilder::new(self.drive_version());
+        builder
+            .drive_event(DriveEvent::CheckOut)
+            .item_id(item_id.as_str())
+            .drive_id(drive_id.as_str())
+            .resource(resource);
+        let url = builder.build()?;
+        let response = self
+            .client()?
+            .post(url.as_str())
+            .bearer_auth(self.token())
+            .header(header::CONTENT_LENGTH, 0)
+            .header(header::CONTENT_TYPE, "application/json")
             .send()?;
 
         let status = response.status().as_u16();
