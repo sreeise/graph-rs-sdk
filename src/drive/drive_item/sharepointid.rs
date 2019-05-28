@@ -1,16 +1,23 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[set = "pub set"]
 pub struct SharePointIds {
     #[serde(rename = "listId")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     list_id: Option<String>,
     #[serde(rename = "listItemId")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     list_item_id: Option<String>,
     #[serde(rename = "listItemUniqueId")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     list_item_unique_id: Option<String>,
     #[serde(rename = "siteId")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     site_id: Option<String>,
     #[serde(rename = "siteUrl")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     site_url: Option<String>,
     #[serde(rename = "webId")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     web_id: Option<String>,
 }
 

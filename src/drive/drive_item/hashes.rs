@@ -1,10 +1,14 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[set = "pub set"]
 pub struct Hashes {
     #[serde(rename = "sha1Hash")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     sha1_hash: Option<String>,
     #[serde(rename = "quickXorHash")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     quick_xor_hash: Option<String>,
     #[serde(rename = "crc32Hash")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     crc32_hash: Option<String>,
 }
 

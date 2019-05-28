@@ -1,9 +1,12 @@
 use crate::drive::drive_item::hashes::Hashes;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[set = "pub set"]
 pub struct File {
     #[serde(rename = "mimeType")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     mime_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     hashes: Option<Hashes>,
 }
 

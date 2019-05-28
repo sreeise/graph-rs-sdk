@@ -13,43 +13,66 @@ use crate::drive::drive_item::specialfolder::SpecialFolder;
 use crate::drive::drive_item::Root;
 use from_to_file::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters)]
+#[set = "pub set"]
 pub struct Value {
     #[serde(rename = "@odata.context")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     _odata_context: Option<String>,
     #[serde(rename = "@odata.type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     _odata_type: Option<String>,
     #[serde(rename = "createdDateTime")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     created_date_time: Option<String>,
     #[serde(rename = "cTag")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     c_tag: Option<String>,
     #[serde(rename = "eTag")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     e_tag: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     id: Option<String>,
     #[serde(rename = "lastModifiedDateTime")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     last_modified_date_time: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     size: Option<i64>,
     #[serde(rename = "webUrl")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     web_url: Option<String>,
     #[serde(rename = "createdBy")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     created_by: Option<CreatedBy>,
     #[serde(rename = "lastModifiedBy")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     last_modified_by: Option<LastModifiedBy>,
     #[serde(rename = "parentReference")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     parent_reference: Option<ParentReference>,
     #[serde(rename = "fileSystemInfo")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     file_system_info: Option<FileSystemInfo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     folder: Option<Folder>,
     #[serde(rename = "specialFolder")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     special_folder: Option<SpecialFolder>,
     #[serde(rename = "microsoft_graph_download_url")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     _microsoft_graph_download_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     file: Option<File>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     image: Option<Image>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     photo: Option<Photo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     root: Option<Root>,
     #[serde(rename = "remoteItem")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     remote_item: Option<RemoteItem>,
 }
 

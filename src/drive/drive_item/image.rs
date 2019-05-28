@@ -1,6 +1,9 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[set = "pub set"]
 pub struct Image {
+    #[serde(skip_serializing_if = "Option::is_none")]
     height: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     width: Option<i64>,
 }
 

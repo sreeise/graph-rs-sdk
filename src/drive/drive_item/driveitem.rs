@@ -9,13 +9,18 @@ use rayon::iter::ParallelIterator;
 use reqwest::Response;
 use std::convert::TryFrom;
 
-#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize, FromToFile)]
+#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize, FromToFile, Setters)]
+#[set = "pub set"]
 pub struct DriveItem {
+    #[serde(skip_serializing_if = "Option::is_none")]
     drive_info: Option<DriveInfo>,
     #[serde(rename = "@odata.context")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     _odata_context: Option<String>,
     #[serde(rename = "@odata.nextLink")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     _odata_next_link: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     value: Option<Vec<Value>>,
 }
 

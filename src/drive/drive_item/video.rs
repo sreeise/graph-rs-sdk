@@ -1,4 +1,5 @@
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Getters, Setters)]
+#[set = "pub set"]
 struct Video {
     #[serde(rename = "audioBitsPerSample")]
     audio_bits_per_sample: i64,

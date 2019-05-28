@@ -1,6 +1,8 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[set = "pub set"]
 pub struct Package {
     #[serde(rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     type_field: Option<String>,
 }
 
