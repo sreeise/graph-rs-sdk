@@ -19,6 +19,7 @@ pub enum DriveEvent {
     ListChildren,
     Move,
     Upload,
+    Update,
     CreateUploadSession,
     ListVersions,
     TrackChanges,
@@ -43,7 +44,8 @@ impl DriveEvent {
             DriveEvent::Move |
             DriveEvent::GetItem |
             DriveEvent::GetItemRoot |
-            DriveEvent::Delete => "",
+            DriveEvent::Delete |
+            DriveEvent::Update => "",
         }
     }
 }

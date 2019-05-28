@@ -11,7 +11,10 @@ use crate::drive::drive_item::photo::Photo;
 use crate::drive::drive_item::remoteitem::RemoteItem;
 use crate::drive::drive_item::specialfolder::SpecialFolder;
 use crate::drive::drive_item::Root;
+use crate::drive::event::DriveEvent;
+use crate::drive::{DriveResource, DriveVersion, ItemResult, ResourceBuilder};
 use from_to_file::*;
+use graph_error::GraphFailure;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters)]
 #[set = "pub set"]
@@ -220,5 +223,65 @@ impl Value {
 
     pub fn remote_item(&self) -> Option<RemoteItem> {
         self.remote_item.clone()
+    }
+
+    pub fn uri(
+        &self,
+        drive_version: DriveVersion,
+        drive_resource: DriveResource,
+    ) -> ItemResult<String> {
+        let mut builder = ResourceBuilder::new(drive_version);
+        let ids = self.event_ids()?;
+        if drive_resource.eq(&DriveResource::Me) {
+            let s = builder
+                .item_id(ids.0.as_str())
+                .resource(drive_resource)
+                .build()?;
+            Ok(s)
+        } else {
+            let s = builder
+                .item_id(ids.0.as_str())
+                .drive_id(ids.1.as_str())
+                .resource(drive_resource)
+                .build()?;
+            Ok(s)
+        }
+    }
+
+    pub fn event_uri(
+        &self,
+        drive_version: DriveVersion,
+        drive_resource: DriveResource,
+        drive_event: DriveEvent,
+    ) -> ItemResult<String> {
+        let mut builder = ResourceBuilder::new(drive_version);
+        let ids = self.event_ids()?;
+        if drive_resource.eq(&DriveResource::Me) {
+            Ok(builder
+                .item_id(ids.0.as_str())
+                .resource(drive_resource)
+                .drive_event(drive_event)
+                .build()?)
+        } else {
+            Ok(builder
+                .item_id(ids.0.as_str())
+                .drive_id(ids.1.as_str())
+                .resource(drive_resource)
+                .drive_event(drive_event)
+                .build()?)
+        }
+    }
+
+    pub fn event_ids(&self) -> ItemResult<(String, String)> {
+        let item_id = self
+            .id()
+            .ok_or_else(|| GraphFailure::none_err("value -> id"))?;
+        let pr = self
+            .parent_reference()
+            .ok_or_else(|| GraphFailure::none_err("value -> id"))?;
+        let drive_id = pr
+            .drive_id()
+            .ok_or_else(|| GraphFailure::none_err("value -> parent_reference -> drive_id"))?;
+        Ok((item_id, drive_id))
     }
 }
