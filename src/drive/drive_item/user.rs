@@ -1,8 +1,12 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[set = "pub set"]
 pub struct User {
     #[serde(rename = "displayName")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     display_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     email: Option<String>,
 }
 

@@ -1,6 +1,8 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[set = "pub set"]
 pub struct Photo {
     #[serde(rename = "takenDateTime")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     taken_date_time: Option<String>,
 }
 

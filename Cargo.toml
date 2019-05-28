@@ -42,6 +42,7 @@ strum_macros = "0.14.0"
 strum = "0.14.0"
 openssl-sys = "0.9"
 rayon = "1.0.3"
+getset = "0.0.7"
 openssl = { version = "^0.10", features = ["vendored"] }
 from_to_file = { path = "./from_to_file" }
 graph-oauth = { path = "./graph-oauth" }

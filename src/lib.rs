@@ -89,6 +89,8 @@ pub extern crate serde_json;
 pub extern crate serde_yaml;
 #[macro_use]
 pub extern crate derive_from_to_file;
+#[macro_use]
+extern crate getset;
 
 pub mod drive;
 mod io;

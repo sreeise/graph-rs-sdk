@@ -1,9 +1,12 @@
 use crate::drive::drive_item::view::View;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[set = "pub set"]
 pub struct Folder {
     #[serde(rename = "childCount")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     child_count: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     view: Option<View>,
 }
 
