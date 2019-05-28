@@ -120,6 +120,12 @@ impl GrantType {
                     OAuthCredential::RedirectURI,
                     OAuthCredential::Scopes,
                     OAuthCredential::ResponseType,
+                    OAuthCredential::ResponseMode,
+                    OAuthCredential::State,
+                    OAuthCredential::Nonce,
+                    OAuthCredential::Prompt,
+                    OAuthCredential::LoginHint,
+                    OAuthCredential::DomainHint,
                 ],
             },
             GrantType::OpenId => match grant_request {

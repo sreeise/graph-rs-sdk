@@ -843,7 +843,7 @@ impl OAuth {
         match self.grant {
             GrantType::TokenFlow => match request_type {
                 GrantRequest::Authorization => {
-                    let _ = self.entry(OAuthCredential::ResponseType, "token");
+                    self.insert(OAuthCredential::ResponseType, "token".into());
                     self.form_encode_credentials(
                         GrantType::TokenFlow.available_credentials(GrantRequest::Authorization),
                         &mut encoder,
@@ -865,8 +865,8 @@ impl OAuth {
             },
             GrantType::CodeFlow => match request_type {
                 GrantRequest::Authorization => {
-                    let _ = self.entry(OAuthCredential::ResponseType, "code");
-                    let _ = self.entry(OAuthCredential::ResponseMode, "query");
+                    self.insert(OAuthCredential::ResponseType, "code".into());
+                    self.insert(OAuthCredential::ResponseMode, "query".into());
                     self.form_encode_credentials(
                         GrantType::CodeFlow.available_credentials(GrantRequest::Authorization),
                         &mut encoder,
@@ -880,8 +880,8 @@ impl OAuth {
                     Ok(url)
                 },
                 GrantRequest::AccessToken => {
-                    let _ = self.entry(OAuthCredential::ResponseType, "token");
-                    let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                    self.insert(OAuthCredential::ResponseType, "token".into());
+                    self.insert(OAuthCredential::GrantType, "authorization_code".into());
                     self.form_encode_credentials(
                         GrantType::CodeFlow.available_credentials(GrantRequest::AccessToken),
                         &mut encoder,
@@ -901,8 +901,8 @@ impl OAuth {
             },
             GrantType::AuthorizationCode => match request_type {
                 GrantRequest::Authorization => {
-                    let _ = self.entry(OAuthCredential::ResponseType, "code");
-                    let _ = self.entry(OAuthCredential::ResponseMode, "query");
+                    self.insert(OAuthCredential::ResponseType, "code".into());
+                    self.insert(OAuthCredential::ResponseMode, "query".into());
                     self.form_encode_credentials(
                         GrantType::AuthorizationCode.available_credentials(GrantRequest::Authorization),
                         &mut encoder,
@@ -947,7 +947,7 @@ impl OAuth {
                     // caller is performing the access token request with a shared
                     // secret. If the client secret is not preset, then the access
                     // token request with a certificate is used.
-                    let _ = self.entry(OAuthCredential::GrantType, "client_credentials");
+                    self.insert(OAuthCredential::GrantType, "client_credentials".into());
                     if self.contains(OAuthCredential::ClientSecret) {
                         let mut vec = GrantType::ClientCredentials.available_credentials(GrantRequest::AccessToken);
                         vec.remove_item(&OAuthCredential::ClientAssertion);
@@ -974,7 +974,9 @@ impl OAuth {
             },
             GrantType::Implicit => match request_type {
                 GrantRequest::Authorization => {
-                    let _ = self.entry(OAuthCredential::ResponseType, "token");
+                    if !self.scopes.is_empty() {
+                        let _ = self.entry(OAuthCredential::ResponseType, "token".into());
+                    }
                     self.form_encode_credentials(
                         GrantType::Implicit.available_credentials(GrantRequest::Authorization),
                         &mut encoder,
@@ -1007,7 +1009,7 @@ impl OAuth {
                         );
                     }
                     let _ = self.entry(OAuthCredential::ResponseMode, "form_post");
-                    let _ = self.entry(OAuthCredential::ResponseType, "id_token");
+                    self.insert(OAuthCredential::ResponseType, "id_token".into());
                     self.form_encode_credentials(
                         GrantType::OpenId.available_credentials(GrantRequest::Authorization),
                         &mut encoder,
@@ -1021,7 +1023,7 @@ impl OAuth {
                     Ok(url)
                 },
                 GrantRequest::AccessToken => {
-                    let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                    self.insert(OAuthCredential::GrantType, "authorization_code".into());
                     self.form_encode_credentials(
                         GrantType::OpenId.available_credentials(GrantRequest::AccessToken),
                         &mut encoder,
@@ -1029,7 +1031,7 @@ impl OAuth {
                     Ok(encoder.finish())
                 },
                 GrantRequest::RefreshToken => {
-                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                    self.insert(OAuthCredential::GrantType, "refresh_token".into());
                     let refresh_token = self.get_refresh_token()?;
                     encoder.append_pair("refresh_token", &refresh_token);
                     self.form_encode_credentials(
@@ -1044,11 +1046,52 @@ impl OAuth {
 }
 
 impl Grant for OAuth {
+    /// Make a request for authorization. The default browser for a user
+    /// will be opened to the sign in page where the user will need to
+    /// sign in and agree to any permissions that were set by the provided
+    /// scopes.
     fn request_authorization(&mut self) -> OAuthReq<Output> {
         let url = self.encode_uri(GrantRequest::Authorization)?;
         OAuthTooling::open_in_browser(url.as_str())
     }
 
+    /// Make a request for an access token. The token is stored in OAuth and
+    /// will be used to make for making requests for refresh tokens. The below
+    /// example shows how access tokens are stored and retrieved for OAuth:
+    /// # Example
+    /// ```rust,ignore
+    /// # use graph_oauth::oauth::{OAuth, AccessToken};
+    /// let mut oauth: OAuth = OAuth::code_flow();
+    ///
+    /// // As an example create a random access token.
+    /// let mut access_token = AccessToken::default();
+    /// access_token.access_token("12345");
+    /// // Store the token in OAuth
+    /// oauth.access_token(access_token);
+    /// println!("{:#?}", oauth.get_access_token().unwrap().get_access_token());
+    /// ```
+    ///
+    /// Request an access token.
+    /// # Example
+    /// ```rust,ignore
+    /// use graph_oauth::oauth::{Grant, OAuth};
+    /// let mut oauth: OAuth = OAuth::code_flow();
+    ///
+    /// // This assumes the user has been authenticated and
+    /// // the access_code from the request has been given:
+    /// oauth.access_code("access_code");
+    ///
+    /// // To get an access token a access_token_url is needed and the grant_type
+    /// // should be set to token.
+    /// // There are other parameters that may need to be included depending on the
+    /// // authorization flow chosen.
+    /// // The url below is for the v1.0 drive API. You can also use the Graph URLs as well.
+    /// oauth.access_token_url("https://login.live.com/oauth20_token.srf")
+    ///     .response_type("token")
+    ///     .grant_type("authorization_code");
+    /// // Make a request for an access token.
+    /// oauth.request_access_token()?;
+    /// ```
     fn request_access_token(&mut self) -> OAuthReq<()> {
         let url = self.get_or_else(OAuthCredential::AccessTokenURL)?;
         let body = self.encode_uri(GrantRequest::AccessToken)?;
@@ -1060,6 +1103,8 @@ impl Grant for OAuth {
         Ok(())
     }
 
+    /// Request a refresh token. Assumes an access token has already
+    /// been retrieved.
     fn request_refresh_token(&mut self) -> OAuthReq<()> {
         let url = self.get_or_else(OAuthCredential::RefreshTokenURL)?;
         let body = self.encode_uri(GrantRequest::RefreshToken)?;

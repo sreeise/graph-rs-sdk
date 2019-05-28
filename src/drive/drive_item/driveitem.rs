@@ -51,9 +51,14 @@ impl DriveItem {
         self.value.clone()
     }
 
+    // TODO: This should probably return an Option.
+    // There are a few uses in the test cases and examples that need to be changed.
     pub fn value_idx(&self, idx: usize) -> Value {
-        let value = self.value.to_owned().unwrap();
-        value[idx].clone()
+        if let Some(vec) = &self.value {
+            vec[idx].clone()
+        } else {
+            Value::default()
+        }
     }
 
     pub fn sort_by_name(&mut self) {
@@ -124,5 +129,14 @@ impl TryFrom<&str> for DriveItem {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let drive_item: DriveItem = serde_json::from_str(value)?;
         Ok(drive_item)
+    }
+}
+
+impl IntoIterator for DriveItem {
+    type Item = Value;
+    type IntoIter = ::std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.value.unwrap_or_default().into_iter()
     }
 }

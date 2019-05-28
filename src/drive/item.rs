@@ -1,5 +1,4 @@
 use crate::drive;
-use crate::drive::driveitem::DriveItem;
 use crate::drive::event::{
     CheckIn, DownloadFormat, DriveEvent, DriveItemCopy, EventProgress, NewFolder,
 };
@@ -10,6 +9,34 @@ use graph_error::GraphFailure;
 use reqwest::{header, Client, RedirectPolicy, RequestBuilder, Response};
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
+
+fn drive_item_response<T>(client: RequestBuilder) -> ItemResult<T>
+where
+    T: for<'de> serde::Deserialize<'de>,
+{
+    let mut response = client.send()?;
+    let status = response.status().as_u16();
+    if GraphError::is_error(status) {
+        return Err(GraphFailure::from(
+            GraphError::try_from(status).unwrap_or_default(),
+        ));
+    }
+
+    let t: T = response.json()?;
+    Ok(t)
+}
+
+fn item_response(client: RequestBuilder, drive_event: DriveEvent) -> ItemResult<ItemResponse> {
+    let response = client.send()?;
+    let status = response.status().as_u16();
+    if GraphError::is_error(status) {
+        return Err(GraphFailure::from(
+            GraphError::try_from(status).unwrap_or_default(),
+        ));
+    }
+
+    Ok(ItemResponse::new(drive_event, response))
+}
 
 #[derive(Debug)]
 pub struct ItemResponse {
@@ -92,32 +119,6 @@ pub trait Item {
         Ok(item)
     }
 
-    /// Converts response to a drive item. Checks for errors
-    /// for errors returned from the OneDrive API and if found
-    /// returns the error.
-    fn drive_item(&self, r: &mut Response) -> ItemResult<DriveItem> {
-        if GraphError::is_error(r.status().as_u16()) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(r).unwrap_or_default(),
-            ));
-        }
-        let drive_item = DriveItem::try_from(r)?;
-        Ok(drive_item)
-    }
-
-    /// Converts serde_json Value to a drive item. Checks for errors
-    /// for errors returned from the OneDrive API and if found
-    /// returns the error.
-    fn value(r: &mut Response) -> ItemResult<serde_json::Value> {
-        if GraphError::is_error(r.status().as_u16()) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(r).unwrap_or_default(),
-            ));
-        }
-        let v: serde_json::Value = r.json()?;
-        Ok(v)
-    }
-
     fn client(&self) -> Result<Client, GraphFailure> {
         reqwest::Client::builder()
             .build()
@@ -134,14 +135,12 @@ pub trait Item {
     where
         T: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
-        let mut response = self
-            .client()?
-            .get(url)
-            .bearer_auth(self.token())
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()?;
-
-        self.item(&mut response)
+        drive_item_response(
+            self.client()?
+                .get(url)
+                .bearer_auth(self.token())
+                .header(header::CONTENT_TYPE, "application/json"),
+        )
     }
 
     /// Check-in a checkout DriveItem resource, which makes the version
@@ -165,22 +164,13 @@ pub trait Item {
         let url = builder.build()?;
         let check_in_json = serde_json::to_string(&check_in)?;
 
-        let response = self
+        let rb = self
             .client()?
             .post(url.as_str())
             .bearer_auth(self.token())
             .body(check_in_json)
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()?;
-
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        Ok(ItemResponse::new(DriveEvent::CheckIn, response))
+            .header(header::CONTENT_TYPE, "application/json");
+        item_response(rb, DriveEvent::CheckIn)
     }
 
     fn check_in_by_value(
@@ -207,22 +197,13 @@ pub trait Item {
         let url = builder.build()?;
         let check_in_json = serde_json::to_string(&check_in)?;
 
-        let response = self
+        let rb = self
             .client()?
             .post(url.as_str())
             .bearer_auth(self.token())
             .body(check_in_json)
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()?;
-
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        Ok(ItemResponse::new(DriveEvent::CheckIn, response))
+            .header(header::CONTENT_TYPE, "application/json");
+        item_response(rb, DriveEvent::CheckIn)
     }
 
     /// Check-out a driveItem resource to prevent others from editing the document,
@@ -242,23 +223,16 @@ pub trait Item {
             .item_id(item_id)
             .drive_id(drive_id)
             .resource(resource);
+
         let url = builder.build()?;
-        let response = self
+        let rb = self
             .client()?
             .post(url.as_str())
             .bearer_auth(self.token())
             .header(header::CONTENT_LENGTH, 0)
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()?;
+            .header(header::CONTENT_TYPE, "application/json");
 
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        Ok(ItemResponse::new(DriveEvent::CheckOut, response))
+        item_response(rb, DriveEvent::CheckIn)
     }
 
     fn check_out_by_value(
@@ -275,29 +249,23 @@ pub trait Item {
         let drive_id = pr
             .drive_id()
             .ok_or_else(|| GraphFailure::none_err("value parent reference drive id"))?;
+
         let mut builder = ResourceBuilder::new(self.drive_version());
         builder
             .drive_event(DriveEvent::CheckOut)
             .item_id(item_id.as_str())
             .drive_id(drive_id.as_str())
             .resource(resource);
+
         let url = builder.build()?;
-        let response = self
+        let rb = self
             .client()?
             .post(url.as_str())
             .bearer_auth(self.token())
             .header(header::CONTENT_LENGTH, 0)
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()?;
+            .header(header::CONTENT_TYPE, "application/json");
 
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        Ok(ItemResponse::new(DriveEvent::CheckOut, response))
+        item_response(rb, DriveEvent::CheckOut)
     }
 
     /// Asynchronously creates a copy of an driveItem (including any children), under a
@@ -353,22 +321,14 @@ pub trait Item {
         );
 
         let pr_json = drive_item_copy.as_json()?;
-        let response = self
+        let rb = self
             .client()?
             .post(url.as_str())
             .body(pr_json)
             .header(header::CONTENT_TYPE, "application/json")
-            .bearer_auth(self.token())
-            .send()?;
+            .bearer_auth(self.token());
 
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        Ok(ItemResponse::new(DriveEvent::Copy, response))
+        item_response(rb, DriveEvent::Copy)
     }
 
     /// Create a new folder or DriveItem in a Drive with a specified parent item.
@@ -409,23 +369,13 @@ pub trait Item {
             parent_id,
             DriveEvent::CreateFolder,
         );
-        let mut response = self
-            .client()?
-            .post(url.as_str())
-            .body(json_string)
-            .header(header::CONTENT_TYPE, "application/json")
-            .bearer_auth(self.token())
-            .send()?;
-
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        let drive_value: drive::value::Value = response.json()?;
-        Ok(drive_value)
+        drive_item_response(
+            self.client()?
+                .post(url.as_str())
+                .body(json_string)
+                .header(header::CONTENT_TYPE, "application/json")
+                .bearer_auth(self.token()),
+        )
     }
 
     /// Create a new folder or DriveItem in a Drive with a specified path.
@@ -466,23 +416,13 @@ pub trait Item {
     ) -> ItemResult<drive::value::Value> {
         let json_string = serde_json::to_string_pretty(&new_folder)?;
         let url = path_builder.build();
-        let mut response = self
-            .client()?
-            .post(url.as_str())
-            .body(json_string)
-            .header(header::CONTENT_TYPE, "application/json")
-            .bearer_auth(self.token())
-            .send()?;
-
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        let drive_value: drive::value::Value = response.json()?;
-        Ok(drive_value)
+        drive_item_response(
+            self.client()?
+                .post(url.as_str())
+                .body(json_string)
+                .header(header::CONTENT_TYPE, "application/json")
+                .bearer_auth(self.token()),
+        )
     }
 
     /// Delete a DriveItem by using its ID. Note that deleting items using this
@@ -551,20 +491,11 @@ pub trait Item {
             .drive_id(drive_id)
             .resource(resource);
         let url = builder.build()?;
-        let response = self
+        let builder = self
             .client()?
             .delete(url.as_str())
-            .bearer_auth(self.token())
-            .send()?;
-
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        Ok(ItemResponse::new(DriveEvent::Delete, response))
+            .bearer_auth(self.token());
+        item_response(builder, DriveEvent::Delete)
     }
 
     /// Delete a DriveItem by the item's Value. This method will use the Me endpoint to make
@@ -580,7 +511,7 @@ pub trait Item {
     ///
     /// let mut drive_item: DriveItem = drive.drive_recent().unwrap();
     /// let value: Value = drive_item.find_by_name("YOUR FILE NAME WITH EXTENSION SUCH AS: my_file.txt").unwrap();
-    /// let item_response: ItemResponse = drive.delete_by_value(value).unwrap();
+    /// let mut item_response: ItemResponse = drive.delete_by_value(value).unwrap();
     /// println!("Item was deleted: {:#?}", item_response.success());
     /// ```
     ///
@@ -601,20 +532,11 @@ pub trait Item {
                 .as_str(),
             DriveEvent::Delete,
         );
-        let response = self
+        let builder = self
             .client()?
             .delete(url.as_str())
-            .bearer_auth(self.token())
-            .send()?;
-
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        Ok(ItemResponse::new(DriveEvent::Delete, response))
+            .bearer_auth(self.token());
+        item_response(builder, DriveEvent::Delete)
     }
 
     /// Download files from the OneDrive API.
@@ -745,5 +667,126 @@ pub trait Item {
         url.push_str(format.as_ref());
         let res = client.get(url.as_str()).bearer_auth(self.token()).send()?;
         Ok(Fetch::file(directory, res.url().as_str(), self.token())?)
+    }
+
+    /// Update the metadata for a DriveItem by ID or path.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
+    /// use rust_onedrive::drive::driveitem::DriveItem;
+    /// use rust_onedrive::drive::value::Value;
+    ///
+    /// static DRIVE_FILE: &str = "DRIVE_FILE_NAME.txt";
+    /// static DRIVE_FILE_NEW_NAME: &str = "NEW_DRIVE_FILE_NAME.txt";
+    ///
+    /// // Get the latest metadata for the root drive folder items.
+    /// let mut drive = Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// let mut drive_item: DriveItem = drive.drive_root_child()?;
+    ///
+    /// // Get the value you want to update. The drive::value::Value struct
+    /// // stores metadata about a drive item such as a folder or file.
+    /// let value: Value = drive_item.find_by_name(DRIVE_FILE)?;
+    ///
+    /// // Get the item id of the item that needs updating and the
+    /// // drive id of the drive that houses the item.
+    /// let item_id = value.id().unwrap();
+    /// let drive_id = value.parent_reference().unwrap().drive_id().unwrap();
+    ///
+    ///
+    /// // Create a new drive::value::Value that will be used for the
+    /// // updated items.
+    /// let mut updated_value: Value = Value::default();
+    ///
+    /// // Update the name of the file (or whatever you want to update).
+    /// // Only include the fields that you want updated.
+    /// // Fields that are not included will not be changed.
+    /// updated_value.set_name(Some(DRIVE_FILE_NEW_NAME.into()));
+    ///
+    /// // Make the request to the API. This returns the item
+    /// // with the updated values.
+    /// let updated: Value = drive.update(
+    ///     item_id.as_str(),
+    ///     drive_id.as_str(),
+    ///     updated_value,
+    ///     DriveResource::Me,
+    /// )?;
+    /// println!("{:#?}", updated);
+    /// ```
+    ///
+    /// # See
+    /// [Update DriveItem Properties](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_update?view=odsp-graph-online)
+    fn update(
+        &mut self,
+        item_id: &str,
+        drive_id: &str,
+        new_value: drive::value::Value,
+        drive_resource: DriveResource,
+    ) -> ItemResult<drive::value::Value> {
+        let json_string = serde_json::to_string_pretty(&new_value)?;
+        let url = drive_resource.drive_item_resource(
+            self.drive_version(),
+            drive_id,
+            item_id,
+            DriveEvent::Update,
+        );
+        drive_item_response(
+            self.client()?
+                .patch(url.as_str())
+                .body(json_string)
+                .header(header::CONTENT_TYPE, "application/json")
+                .bearer_auth(self.token()),
+        )
+    }
+
+    /// Update the metadata for a DriveItem by ID or path.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
+    /// use rust_onedrive::drive::driveitem::DriveItem;
+    /// use rust_onedrive::drive::value::Value;
+    ///
+    /// static DRIVE_FILE: &str = "DRIVE_FILE_NAME.txt";
+    /// static DRIVE_FILE_NEW_NAME: &str = "NEW_DRIVE_FILE_NAME.txt";
+    ///
+    /// // Get the latest metadata for the root drive folder items.
+    /// let mut drive = Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// let mut drive_item = drive.drive_root_child()?;
+    ///
+    /// // Get the value you want to update. The drive::value::Value struct
+    /// // stores metadata about a drive item such as a folder or file.
+    /// let current_value: Value = drive_item.find_by_name(DRIVE_FILE)?;
+    ///
+    /// // Create a new drive::value::Value that will be used for the
+    /// // updated items.
+    /// let mut updated_value: Value = Value::default();
+    ///
+    /// // Update the name of the file (or whatever you want to update).
+    /// // Only include the fields that you want updated.
+    /// // Fields that are not included will not be changed.
+    /// updated_value.set_name(Some(DRIVE_FILE_NEW_NAME.into()));
+    ///
+    /// let updated: Value = drive.update_by_value(updated_value, current_value, DriveResource::Me)?;
+    /// println!("{:#?}", updated);
+    /// ```
+    ///
+    /// # See
+    /// [Update DriveItem Properties](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_update?view=odsp-graph-online)
+    fn update_by_value(
+        &mut self,
+        old_value: drive::value::Value,
+        new_value: drive::value::Value,
+        drive_resource: DriveResource,
+    ) -> ItemResult<drive::value::Value> {
+        let json_string = serde_json::to_string_pretty(&new_value)?;
+        let url = old_value.event_uri(self.drive_version(), drive_resource, DriveEvent::Update)?;
+        drive_item_response(
+            self.client()?
+                .patch(url.as_str())
+                .body(json_string)
+                .header(header::CONTENT_TYPE, "application/json")
+                .bearer_auth(self.token()),
+        )
     }
 }
