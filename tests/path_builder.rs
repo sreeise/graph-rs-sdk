@@ -3,6 +3,7 @@ use rust_onedrive::drive::{
     DriveEndPoint, DriveResource, DriveVersion, PathBuilder, ResourceBuilder,
 };
 use std::convert::TryFrom;
+use std::ffi::OsString;
 
 #[test]
 fn test_path_builder_host() {
@@ -62,5 +63,21 @@ fn from_drive_event_path() {
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/3232093-2320-2387429378/items/1234/content",
         pb2.build()
+    );
+}
+
+#[test]
+fn from_drive_path() {
+    let mut pb: PathBuilder = PathBuilder::from(DriveVersion::V1);
+    let mut os_string = OsString::new();
+    os_string.push("example.txt");
+    pb.drive_resource(DriveResource::Drives)
+        .path("1234")
+        .drive_path(os_string)
+        .drive_event(DriveEvent::Upload);
+
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/1234:/example.txt:/content",
+        pb.build()
     );
 }

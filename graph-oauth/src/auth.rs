@@ -975,7 +975,7 @@ impl OAuth {
             GrantType::Implicit => match request_type {
                 GrantRequest::Authorization => {
                     if !self.scopes.is_empty() {
-                        let _ = self.entry(OAuthCredential::ResponseType, "token".into());
+                        let _ = self.entry(OAuthCredential::ResponseType, "token");
                     }
                     self.form_encode_credentials(
                         GrantType::Implicit.available_credentials(GrantRequest::Authorization),

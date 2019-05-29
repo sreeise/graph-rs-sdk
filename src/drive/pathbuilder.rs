@@ -1,4 +1,5 @@
 use crate::drive::driveresource::ResourceBuilder;
+use crate::drive::event::DriveEvent;
 use crate::drive::item::Item;
 use crate::drive::{Drive, DriveEndPoint, DriveResource, DriveVersion};
 use from_to_file::*;
@@ -9,6 +10,7 @@ use rayon::iter::{
 };
 use std::collections::btree_map::BTreeMap;
 use std::convert::TryFrom;
+use std::ffi::OsString;
 use std::iter::Iterator;
 use url::form_urlencoded::Serializer;
 use url::Url;
@@ -65,6 +67,14 @@ impl PathBuilder {
         self
     }
 
+    pub fn os_string(&mut self, os_string: OsString) -> &mut Self {
+        self.path(os_string.to_str().unwrap())
+    }
+
+    pub fn drive_path(&mut self, os_string: OsString) -> &mut Self {
+        self.path(":").os_string(os_string).path(":")
+    }
+
     pub fn query<T>(&mut self, key: T, value: T) -> &mut Self
     where
         T: ToString,
@@ -83,6 +93,10 @@ impl PathBuilder {
         self
     }
 
+    pub fn drive_event(&mut self, event: DriveEvent) -> &mut Self {
+        self.path(event.as_str())
+    }
+
     pub fn build(&mut self) -> String {
         let mut url_vec = vec![self.scheme.as_str(), "://", self.host.as_str()];
 
@@ -90,7 +104,11 @@ impl PathBuilder {
             self.path
                 .par_iter_mut()
                 .filter(|s| !s.starts_with('/'))
-                .for_each(|s| s.insert_str(0, "/"));
+                .for_each(|s| {
+                    if !s.starts_with(':') && !s.ends_with(':') {
+                        s.insert_str(0, "/");
+                    }
+                });
             let p: Vec<&str> = self.path.par_iter().map(|s| &**s).collect();
             url_vec.par_extend(p.into_par_iter());
         }
@@ -114,6 +132,8 @@ impl PathBuilder {
             url
         }
     }
+
+    pub fn build_upload_url() {}
 }
 
 impl From<&str> for PathBuilder {
