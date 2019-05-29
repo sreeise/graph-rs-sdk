@@ -157,3 +157,24 @@ fn setters() {
     test_setter(OAuthCredential::RedirectURI, "https://example.com/redirect");
     test_setter(OAuthCredential::AccessCode, "access_code");
 }
+
+#[test]
+fn insert_str() {
+    let mut oauth = OAuth::code_flow();
+    oauth.insert_str(
+        OAuthCredential::AccessTokenURL,
+        "https://example.com/authorize",
+    );
+    assert!(oauth.contains(OAuthCredential::AccessTokenURL));
+    assert_eq!(
+        oauth.get(OAuthCredential::AccessTokenURL),
+        Some("https://example.com/authorize".into())
+    );
+}
+
+#[test]
+fn credential_entry() {
+    let mut oauth = OAuth::code_flow();
+    let s = oauth.entry(OAuthCredential::AuthorizeURL, "https://example.com");
+    assert_eq!(s, &mut "https://example.com".to_string());
+}

@@ -3,6 +3,7 @@ use crate::grants::{Grant, GrantRequest, GrantType};
 use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
 use crate::oauthtools::OAuthTooling;
+use crate::scopes::Scope;
 use from_to_file::*;
 use graph_error::GraphFailure;
 use std::collections::btree_map::BTreeMap;
@@ -275,10 +276,43 @@ impl OAuth {
         self
     }
 
+    /// Insert oauth credentials using the OAuthCredential enum.
+    /// This method is used internally for each of the setter methods.
+    /// Callers can optionally use this method to set credentials instead
+    /// of the individual setter methods.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::oauth::OAuthCredential;
+    /// # let mut oauth = OAuth::code_flow();
+    /// oauth.insert_str(OAuthCredential::AuthorizeURL, "https://example.com");
+    /// assert_eq!(oauth.contains(OAuthCredential::AuthorizeURL), true);
+    /// println!("{:#?}", oauth.get(OAuthCredential::AuthorizeURL));
+    /// ```
+    pub fn insert_str(&mut self, oac: OAuthCredential, value: &str) -> &mut OAuth {
+        self.credentials
+            .insert(oac.alias().to_string(), value.trim().to_string());
+        self
+    }
+
+    /// Use the Entry API to insert an OAuthCredential. This will use the
+    /// entry API internally to set the credential. If OAuth already
+    /// contains the credential it will not change. If OAuth does
+    /// not contain the credential the given value will be used.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::oauth::OAuthCredential;
+    /// # let mut oauth = OAuth::code_flow();
+    /// let s = oauth.entry(OAuthCredential::AuthorizeURL, "https://example.com");
+    /// assert_eq!(s, &mut "https://example.com".to_string());
+    /// ```
     pub fn entry(&mut self, oac: OAuthCredential, value: &str) -> &mut String {
         self.credentials
             .entry(oac.alias().to_string())
-            .or_insert_with(|| value.to_string())
+            .or_insert_with(|| value.trim().to_string())
     }
 
     /// Get a previously set credential.
@@ -668,14 +702,55 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
+    /// use graph_oauth::scopes::FileScope;
     /// # let mut oauth = OAuth::code_flow();
     ///
     /// oauth.add_scope("Read")
     ///     .add_scope("Write")
     ///     .add_scope("ReadWrite.All");
+    ///
+    /// // Or using the Scope trait
+    /// oauth.add_scope(FileScope::Read)
+    ///       .add_scope(FileScope::ReadWrite);
     /// ```
-    pub fn add_scope(&mut self, scope: &str) -> &mut OAuth {
-        self.scopes.push(String::from(scope));
+    pub fn add_scope<T>(&mut self, scope: T) -> &mut OAuth
+    where
+        T: Scope,
+    {
+        let s = scope.to_string();
+        if !self.scopes.contains(&s.trim().into()) {
+            self.scopes.push(s.trim().into());
+        }
+        self
+    }
+
+    /// Extend scopes.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// use graph_oauth::scopes::FileScope;
+    /// # let mut oauth = OAuth::code_flow();
+    ///
+    /// let scopes1 = vec!["Files.Read", "Files.ReadWrite"];
+    /// oauth.extend_scopes(&scopes1);
+    ///
+    /// // Or using the Scope trait
+    /// let scopes2 = vec![FileScope::ReadSelected, FileScope::ReadWriteSelected];
+    /// oauth.extend_scopes(&scopes2);
+    ///
+    /// assert_eq!(oauth.get_scopes(" "), "Files.Read Files.ReadWrite Files.Read.Selected Files.ReadWrite.Selected");
+    /// ```
+    pub fn extend_scopes<T>(&mut self, scopes: &[T]) -> &mut OAuth
+    where
+        T: Scope,
+    {
+        let s: Vec<String> = scopes
+            .iter()
+            .map(std::string::ToString::to_string)
+            .map(|s| s.trim().to_string())
+            .collect();
+        self.scopes.extend(s);
         self
     }
 
@@ -699,14 +774,49 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::scopes::FileScope;
     /// # let mut oauth = OAuth::code_flow();
     ///
-    /// // the scopes take a separator just like Vec join.
-    ///  oauth.add_scope("scope");
-    ///  oauth.remove_scope("scope");
+    /// oauth.add_scope("scope");
+    /// oauth.remove_scope("scope");
+    ///
+    /// // Or using the Scope trait
+    /// oauth.add_scope(FileScope::ReadWrite);
+    /// assert_eq!(oauth.contains_scope(FileScope::ReadWrite), true);
+    ///
+    /// oauth.remove_scope(FileScope::ReadWrite);
+    /// assert_eq!(oauth.contains_scope(FileScope::ReadWrite), false);
     /// ```
-    pub fn remove_scope(&mut self, scope: &str) {
-        self.scopes.retain(|x| x != scope);
+    pub fn remove_scope<T>(&mut self, scope: T)
+    where
+        T: Scope,
+    {
+        self.scopes.retain(|x| x != &scope.to_string());
+    }
+
+    /// Check if OAuth contains a specific scope.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::scopes::FileScope;
+    /// # let mut oauth = OAuth::code_flow();
+    ///
+    /// oauth.add_scope("Files.Read");
+    /// assert_eq!(oauth.contains_scope("Files.Read"), true);
+    ///
+    /// // Or using the Scope trait
+    /// oauth.add_scope(FileScope::ReadWrite);
+    /// assert_eq!(oauth.contains_scope(FileScope::ReadWrite), true);
+    ///
+    /// oauth.remove_scope(FileScope::ReadWrite);
+    /// assert_eq!(oauth.contains_scope(FileScope::ReadWrite), false);
+    /// ```
+    pub fn contains_scope<T>(&mut self, scope: T) -> bool
+    where
+        T: Scope,
+    {
+        self.scopes.contains(&scope.to_string())
     }
 
     /// Set the access token.
@@ -821,7 +931,7 @@ impl OAuth {
         self.get(c).ok_or_else(|| OAuthError::credential_error(c))
     }
 
-    pub fn form_encode_credentials(
+    fn form_encode_credentials(
         &mut self,
         pairs: Vec<OAuthCredential>,
         encoder: &mut Serializer<String>,

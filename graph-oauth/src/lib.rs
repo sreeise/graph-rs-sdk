@@ -48,6 +48,7 @@ mod idtoken;
 pub mod jwt;
 mod oautherror;
 mod oauthtools;
+pub mod scopes;
 mod stdop;
 
 pub mod oauth {
