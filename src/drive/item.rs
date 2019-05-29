@@ -1,4 +1,5 @@
 use crate::drive;
+use crate::drive::drive_item::parentreference::ParentReference;
 use crate::drive::event::{
     CheckIn, DownloadFormat, DriveEvent, DriveItemCopy, EventProgress, NewFolder,
 };
@@ -8,6 +9,8 @@ use graph_error::GraphError;
 use graph_error::GraphFailure;
 use reqwest::{header, Client, RedirectPolicy, RequestBuilder, Response};
 use std::convert::TryFrom;
+use std::ffi::OsString;
+use std::fs::File;
 use std::path::{Path, PathBuf};
 
 fn drive_item_response<T>(client: RequestBuilder) -> ItemResult<T>
@@ -788,5 +791,129 @@ pub trait Item {
                 .header(header::CONTENT_TYPE, "application/json")
                 .bearer_auth(self.token()),
         )
+    }
+
+    /// Upload content by specifying a drive id and parent id.
+    /// The simple upload API allows you to provide the contents of a new
+    /// file or update the contents of an existing file in a single API call.
+    /// This method only supports files up to 4MB in size.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
+    /// # use rust_onedrive::drive::value::Value;
+    /// static LOCAL_FILE_PATH: &str = "/path/to/file/file.txt";
+    /// static DRIVE_FILE_ID: &str = "DRIVE_ID";
+    /// static DRIVE_PARENT_ID: &str = "PARENT_ID";
+    ///
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    ///
+    /// let value: Value = drive
+    ///     .upload(
+    ///         LOCAL_FILE_PATH,
+    ///         DRIVE_FILE_ID,
+    ///         DRIVE_PARENT_ID,
+    ///         DriveResource::Drives,
+    ///     )
+    ///      .unwrap();
+    /// println!("{:#?}", value);
+    /// ```
+    ///
+    /// # See
+    /// [Upload DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_put_content?view=odsp-graph-online)
+    fn upload(
+        &mut self,
+        file_path: &str,
+        drive_id: &str,
+        parent_id: &str,
+        drive_resource: DriveResource,
+    ) -> ItemResult<drive::value::Value> {
+        let mut path_builder = PathBuilder::from(self.drive_version());
+        match drive_resource {
+            DriveResource::Me => {
+                path_builder.path("me/drive/items").path(parent_id);
+            },
+            DriveResource::Drives => {
+                path_builder
+                    .path("drives")
+                    .path(drive_id)
+                    .path("items")
+                    .path(parent_id);
+            },
+            DriveResource::Sites | DriveResource::Groups | DriveResource::Users => {
+                path_builder
+                    .drive_resource(drive_resource)
+                    .path(drive_id)
+                    .path("drive/items")
+                    .path(parent_id);
+            },
+        }
+        let path = Path::new(&file_path);
+        let os_str = path
+            .file_name()
+            .ok_or_else(|| GraphFailure::none_err("No filename in the file path given"))?;
+        let os_string: OsString = os_str.to_os_string();
+        let file = File::open(file_path)?;
+        path_builder
+            .drive_path(os_string)
+            .drive_event(DriveEvent::Upload);
+        let url = path_builder.build();
+        drive_item_response(
+            self.client()?
+                .put(url.as_str())
+                .bearer_auth(self.token())
+                .body(file),
+        )
+    }
+
+    /// Upload content by specifying a drive id and parent id.
+    /// The simple upload API allows you to provide the contents of a new
+    /// file or update the contents of an existing file in a single API call.
+    /// This method only supports files up to 4MB in size.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
+    /// # use rust_onedrive::drive::value::Value;
+    /// # use rust_onedrive::drive::driveitem::DriveItem;
+    /// # use rust_onedrive::drive::parentreference::ParentReference;
+    /// static LOCAL_FILE_PATH: &str = "/path/to/file/file.txt";
+    ///
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// let mut drive_item: DriveItem = drive.drive_root_child()?;
+    ///
+    /// // Get a parent reference from previous drive items.
+    /// let value: Value = drive_item.find_by_name(drive_file_name)?;
+    /// let parent_reference: ParentReference = value.parent_reference().unwrap();
+    ///
+    /// let value: Value =
+    ///        drive.upload_by_parent_ref(LOCAL_FILE_PATH, &parent_reference, DriveResource::Drives)?;
+    /// println!("{:#?}", value);
+    /// ```
+    ///
+    /// # See
+    /// [Upload DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_put_content?view=odsp-graph-online)
+    fn upload_by_parent_ref(
+        &mut self,
+        file_path: &str,
+        parent_ref: &ParentReference,
+        drive_resource: DriveResource,
+    ) -> ItemResult<drive::value::Value> {
+        let parent_id = parent_ref
+            .id()
+            .ok_or_else(|| GraphFailure::none_err("parent reference id"))?;;
+        if drive_resource.eq(&DriveResource::Me) {
+            self.upload(file_path, "", parent_id.as_str(), drive_resource)
+        } else {
+            let drive_id = parent_ref
+                .drive_id()
+                .ok_or_else(|| GraphFailure::none_err("parent reference drive id"))?;
+            self.upload(
+                file_path,
+                drive_id.as_str(),
+                parent_id.as_str(),
+                drive_resource,
+            )
+        }
     }
 }
