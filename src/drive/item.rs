@@ -138,6 +138,7 @@ pub trait Item {
     where
         T: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
+        assert!(url.starts_with(self.drive_version().as_ref()));
         drive_item_response(
             self.client()?
                 .get(url)
@@ -182,15 +183,7 @@ pub trait Item {
         check_in: CheckIn,
         resource: DriveResource,
     ) -> ItemResult<ItemResponse> {
-        let item_id = value
-            .id()
-            .ok_or_else(|| GraphFailure::none_err("value item id"))?;
-        let pr = value
-            .parent_reference()
-            .ok_or_else(|| GraphFailure::none_err("value item id"))?;
-        let drive_id = pr
-            .drive_id()
-            .ok_or_else(|| GraphFailure::none_err("value parent reference drive id"))?;
+        let (item_id, drive_id) = value.item_event_ids()?;
         let mut builder = ResourceBuilder::new(self.drive_version());
         builder
             .drive_event(DriveEvent::CheckIn)
@@ -243,16 +236,7 @@ pub trait Item {
         value: drive::value::Value,
         resource: DriveResource,
     ) -> ItemResult<ItemResponse> {
-        let item_id = value
-            .id()
-            .ok_or_else(|| GraphFailure::none_err("value item id"))?;
-        let pr = value
-            .parent_reference()
-            .ok_or_else(|| GraphFailure::none_err("value parent reference"))?;
-        let drive_id = pr
-            .drive_id()
-            .ok_or_else(|| GraphFailure::none_err("value parent reference drive id"))?;
-
+        let (item_id, drive_id) = value.item_event_ids()?;
         let mut builder = ResourceBuilder::new(self.drive_version());
         builder
             .drive_event(DriveEvent::CheckOut)

@@ -2,6 +2,10 @@ use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::driveinfo::DriveInfo;
 use crate::drive::item::Item;
 use crate::drive::{Drive, DriveVersion, ItemResult, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
+use crate::drive::value;
+use reqwest::header;
+use std::convert::TryFrom;
+use graph_error::{GraphFailure, GraphError};
 
 /// Implements well known or special folder paths.
 ///
@@ -123,33 +127,60 @@ pub trait EP {
 /// Automatically requests the DriveEndPoint given in the function name and returns the struct
 /// of that request. The structs may be of different types listed here by function name:
 impl EP for Drive {
+    /// Get the drive info of a drive.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn drive_me(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.drive());
     /// ```
     fn drive(&mut self) -> ItemResult<DriveInfo> {
         self.get(DriveEndPoint::Drive.url(self.version.as_str()).as_str())
     }
 
+    /// Get the drive me DriveItem for the currently signed in user. Automatically
+    /// provisions an accounts OneDrive if they do not have one.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn drive(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.drive_me());
     /// ```
     fn drive_me(&mut self) -> ItemResult<DriveItem> {
-        self.get(DriveEndPoint::DriveMe.url(self.version.as_str()).as_str())
+        let v: value::Value = self.get(
+            DriveEndPoint::DriveMe
+                .url(self.version.as_str())
+                .as_str(),
+        )?;
+        Ok(DriveItem::from(v))
     }
 
+    /// Get the drives root folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn drive_root(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.drive_root());
     /// ```
     fn drive_root(&mut self) -> ItemResult<DriveItem> {
         self.get(DriveEndPoint::DriveRoot.url(self.version.as_str()).as_str())
     }
 
+    /// Get the drives root folder for the me endpoint. The me endpoint
+    /// is the currently signed in user.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn drive_root_me(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.drive_root_me());
     /// ```
     fn drive_root_me(&mut self) -> ItemResult<DriveItem> {
         self.get(
@@ -159,9 +190,14 @@ impl EP for Drive {
         )
     }
 
+    /// Get the children of the drives root folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn drive_root_child(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.drive_root_child());
     /// ```
     fn drive_root_child(&mut self) -> ItemResult<DriveItem> {
         self.get(
@@ -171,9 +207,14 @@ impl EP for Drive {
         )
     }
 
+    /// Get drive changes.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn shared_with_me(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.drive_changes());
     /// ```
     fn drive_changes(&mut self) -> ItemResult<DriveItem> {
         self.get(
@@ -183,9 +224,14 @@ impl EP for Drive {
         )
     }
 
+    /// Get drive items that have been shared with an account.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn drive_recent(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.shared_with_me());
     /// ```
     fn shared_with_me(&mut self) -> ItemResult<DriveItem> {
         self.get(
@@ -195,9 +241,14 @@ impl EP for Drive {
         )
     }
 
+    /// Get recent items for a drive.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn drive_recent(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.drive_recent());
     /// ```
     fn drive_recent(&mut self) -> ItemResult<DriveItem> {
         self.get(
@@ -207,9 +258,15 @@ impl EP for Drive {
         )
     }
 
+    /// Get recent activities for a drive. This API may be limited
+    /// to specific accounts.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn drive_activities(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.drive_activities());
     /// ```
     fn drive_activities(&mut self) -> ItemResult<DriveItem> {
         self.get(
@@ -219,33 +276,64 @@ impl EP for Drive {
         )
     }
 
+    /// Get the children of the special documents folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn special_folder(&mut self, folder_name: &str) -> ItemResult<DriveItem>
-    ///    let drive_item: DriveItem = drive.special_folder("my_folder").unwrap();
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_folder("documents"));
     /// ```
     fn special_folder(&mut self, folder_name: &str) -> ItemResult<DriveItem> {
+        // To deserialize a more manual approach is needed here because the response
+        // could either be a single value::Value or multiple value::Value's. DriveItem's
+        // TryFrom impl does the work of checking for a value::Value from a Response.
         let mut endpoint = DriveEndPoint::SpecialFolder.to_string();
         endpoint.push('/');
         endpoint.push_str(folder_name);
-        self.get(endpoint.as_str())
+        let mut response = self.client()?
+            .get(endpoint.as_str())
+            .bearer_auth(self.token())
+            .header(header::CONTENT_TYPE, "application/json")
+            .send()?;
+
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(GraphFailure::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        DriveItem::try_from(&mut response)
     }
 
+    /// Get the special documents folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn special_documents(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_documents());
     /// ```
     fn special_documents(&mut self) -> ItemResult<DriveItem> {
-        self.get(
+        let v: value::Value = self.get(
             DriveEndPoint::SpecialDocuments
                 .url(self.version.as_str())
                 .as_str(),
-        )
+        )?;
+        Ok(DriveItem::from(v))
     }
 
+    /// Get the children of the special documents folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn special_documents_child(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_documents_child());
     /// ```
     fn special_documents_child(&mut self) -> ItemResult<DriveItem> {
         self.get(
@@ -255,21 +343,32 @@ impl EP for Drive {
         )
     }
 
+    /// Get the special photos folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn special_photos(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_photos());
     /// ```
     fn special_photos(&mut self) -> ItemResult<DriveItem> {
-        self.get(
+        let v: value::Value = self.get(
             DriveEndPoint::SpecialPhotos
                 .url(self.version.as_str())
                 .as_str(),
-        )
+        )?;
+        Ok(DriveItem::from(v))
     }
 
+    /// Get the children of the special photos folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn special_photos_child(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_photos_child());
     /// ```
     fn special_photos_child(&mut self) -> ItemResult<DriveItem> {
         self.get(
@@ -279,21 +378,32 @@ impl EP for Drive {
         )
     }
 
+    /// Get the special camera roll folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn special_cameraroll(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_cameraroll());
     /// ```
     fn special_cameraroll(&mut self) -> ItemResult<DriveItem> {
-        self.get(
+        let v: value::Value = self.get(
             DriveEndPoint::SpecialCameraRoll
                 .url(self.version.as_str())
                 .as_str(),
-        )
+        )?;
+        Ok(DriveItem::from(v))
     }
 
+    /// Get the children of the special camera roll folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_cameraroll_child());
     /// ```
     fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem> {
         self.get(
@@ -303,21 +413,32 @@ impl EP for Drive {
         )
     }
 
+    /// Get the special approot folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn special_approot(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_approot());
     /// ```
     fn special_approot(&mut self) -> ItemResult<DriveItem> {
-        self.get(
+        let v: value::Value = self.get(
             DriveEndPoint::SpecialAppRoot
                 .url(self.version.as_str())
                 .as_str(),
-        )
+        )?;
+        Ok(DriveItem::from(v))
     }
 
+    /// Get the children of the special approot folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn special_approot_child(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_approot_child());
     /// ```
     fn special_approot_child(&mut self) -> ItemResult<DriveItem> {
         self.get(
@@ -327,21 +448,32 @@ impl EP for Drive {
         )
     }
 
+    /// Get the special music folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///     fn special_music(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_music());
     /// ```
     fn special_music(&mut self) -> ItemResult<DriveItem> {
-        self.get(
+        let v: value::Value = self.get(
             DriveEndPoint::SpecialMusic
                 .url(self.version.as_str())
                 .as_str(),
-        )
+        )?;
+        Ok(DriveItem::from(v))
     }
 
+    /// Get the children of the special music folder.
+    ///
     /// # Example
     /// ```rust,ignore
-    ///    fn special_music_child(&mut self) -> ItemResult<DriveItem>
+    /// # use rust_onedrive::prelude::Drive;
+    /// # use rust_onedrive::drive::DriveVersion;
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// println!("{:#?}", drive.special_music_child());
     /// ```
     fn special_music_child(&mut self) -> ItemResult<DriveItem> {
         self.get(

@@ -1,0 +1,52 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users('meganbrown%40outlook.com')/drive/special/$entity",
+  "createdDateTime": "2018-01-20T01:37:04.4Z",
+  "cTag": "adDoxNzc4N0U3320938adsly42MzY",
+  "eTag": "aFNsad93FFFAuMA",
+  "id": "189302sal4098740fjhlk34",
+  "lastModifiedDateTime": "2019-01-26T05:47:22.797Z",
+  "name": "Pictures",
+  "size": 0,
+  "webUrl": "https://1drv.ms/a/ewo8df",
+  "createdBy": {
+    "application": {
+      "displayName": "OneDrive website",
+      "id": "aaaaadd"
+    },
+    "user": {
+      "displayName": "Megan Brown",
+      "id": "18883209239932983po29"
+    }
+  },
+  "lastModifiedBy": {
+    "application": {
+      "displayName": "OneDrive website",
+      "id": "aaaaadd"
+    },
+    "user": {
+      "displayName": "Megan Brown",
+      "id": "11183393232532o9343"
+    }
+  },
+  "parentReference": {
+    "driveId": "32023702323543f30298",
+    "driveType": "personal",
+    "id": "2094339432432382",
+    "path": "/drive/root:"
+  },
+  "fileSystemInfo": {
+    "createdDateTime": "2018-01-20T01:37:04.4Z",
+    "lastModifiedDateTime": "2018-01-20T01:37:04.4Z"
+  },
+  "folder": {
+    "childCount": 10,
+    "view": {
+      "viewType": "thumbnails",
+      "sortBy": "takenOrCreatedDateTime",
+      "sortOrder": "ascending"
+    }
+  },
+  "specialFolder": {
+    "name": "photos"
+  }
+}

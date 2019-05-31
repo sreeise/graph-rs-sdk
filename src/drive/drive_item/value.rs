@@ -14,7 +14,9 @@ use crate::drive::drive_item::Root;
 use crate::drive::event::DriveEvent;
 use crate::drive::{DriveResource, DriveVersion, ItemResult, ResourceBuilder};
 use from_to_file::*;
-use graph_error::GraphFailure;
+use graph_error::{GraphFailure, GraphError};
+use reqwest::Response;
+use std::convert::TryFrom;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters)]
 #[set = "pub set"]
@@ -231,7 +233,7 @@ impl Value {
         drive_resource: DriveResource,
     ) -> ItemResult<String> {
         let mut builder = ResourceBuilder::new(drive_version);
-        let ids = self.event_ids()?;
+        let ids = self.item_event_ids()?;
         if drive_resource.eq(&DriveResource::Me) {
             let s = builder
                 .item_id(ids.0.as_str())
@@ -255,7 +257,7 @@ impl Value {
         drive_event: DriveEvent,
     ) -> ItemResult<String> {
         let mut builder = ResourceBuilder::new(drive_version);
-        let ids = self.event_ids()?;
+        let ids = self.item_event_ids()?;
         if drive_resource.eq(&DriveResource::Me) {
             Ok(builder
                 .item_id(ids.0.as_str())
@@ -272,16 +274,45 @@ impl Value {
         }
     }
 
-    pub fn event_ids(&self) -> ItemResult<(String, String)> {
+    pub fn item_event_ids(&self) -> ItemResult<(String, String)> {
         let item_id = self
             .id()
             .ok_or_else(|| GraphFailure::none_err("value -> id"))?;
         let pr = self
             .parent_reference()
-            .ok_or_else(|| GraphFailure::none_err("value -> id"))?;
+            .ok_or_else(|| GraphFailure::none_err("value -> parent_reference"))?;
         let drive_id = pr
             .drive_id()
             .ok_or_else(|| GraphFailure::none_err("value -> parent_reference -> drive_id"))?;
         Ok((item_id, drive_id))
+    }
+
+    pub fn parent_event_ids(&self) -> ItemResult<(String, String)> {
+        let pr = self
+            .parent_reference()
+            .ok_or_else(|| GraphFailure::none_err("value -> parent_reference"))?;
+        let parent_id = pr
+            .id()
+            .ok_or_else(|| GraphFailure::none_err("value -> parent_reference -> id"))?;
+        let drive_id = pr
+            .drive_id()
+            .ok_or_else(|| GraphFailure::none_err("value -> parent_reference -> drive_id"))?;
+        Ok((drive_id, parent_id))
+    }
+}
+
+impl TryFrom<&mut Response> for Value {
+    type Error = GraphFailure;
+
+    fn try_from(response: &mut Response) -> Result<Self, Self::Error> {
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(GraphFailure::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        let v: Value = response.json()?;
+        Ok(v)
     }
 }

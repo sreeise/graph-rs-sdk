@@ -1,6 +1,5 @@
 use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::Drive;
-use rust_onedrive::drive::Item;
 use rust_onedrive::drive::EP;
 use rust_onedrive::from_to::*;
 use rust_onedrive::oauth::OAuth;
@@ -12,15 +11,13 @@ fn main() {
 
     // You can pick a function below to query common OneDrive resources.
     // For more common OneDrive API queries see the EP trait.
-    // In addition, there is standard get/post methods. There is also patch and put methods
-    // but they have not been thoroughly tested.
 
     // This will run all the API requests below.
     drive_root(&mut drive);
     drive_root_children(&mut drive);
     special_docs(&mut drive);
     special_docs_child(&mut drive);
-    use_get(&mut drive);
+    special_folder_selection(&mut drive);
 }
 
 fn drive_root(drive: &mut Drive) {
@@ -43,11 +40,10 @@ fn special_docs_child(drive: &mut Drive) {
     println!("{:#?}", drive_item);
 }
 
-fn use_get(drive: &mut Drive) {
-    // Using the REST methods requires specifying the type.
-    // You could also use Serde's Value here as well.
-    let drive_item: DriveItem = drive
-        .get("https://graph.microsoft.com/v1.0/drive/root/children")
-        .unwrap();
-    println!("{:#?}", drive_item);
+// Specify a special folder name.
+fn special_folder_selection(drive: &mut Drive) {
+    let drive_item: DriveItem = drive.special_folder("documents").unwrap();
+    drive_item.into_iter().for_each(|value| {
+        println!("{:#?}", value);
+    });
 }

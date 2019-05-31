@@ -100,16 +100,44 @@ impl DriveItem {
     }
 }
 
+impl From<DriveInfo> for DriveItem {
+    fn from(drive_info: DriveInfo) -> Self {
+        DriveItem::new(Some(drive_info), None, None, None)
+    }
+}
+
+impl From<Vec<Value>> for DriveItem {
+    fn from(value_vec: Vec<Value>) -> Self {
+        DriveItem::new(None, None, None, Some(value_vec))
+    }
+}
+
+impl From<Value> for DriveItem {
+    fn from(value: Value) -> Self {
+        let mut vec: Vec<Value> = Vec::new();
+        vec.push(value);
+        DriveItem::new(None, None, None, Some(vec))
+    }
+}
+
 impl TryFrom<&mut Response> for DriveItem {
     type Error = GraphFailure;
 
     fn try_from(value: &mut Response) -> Result<Self, Self::Error> {
         let status = value.status().as_u16();
         if GraphError::is_error(status) {
-            return Err(GraphFailure::from(GraphError::try_from(status)?));
+            return Err(GraphFailure::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
         }
 
-        let drive_item: DriveItem = value.json()?;
+        let mut drive_item: DriveItem = value.json()?;
+        if drive_item.value.is_none() {
+            let value: ItemResult<Value>  = value.json().map_err(GraphFailure::from);
+            if value.is_ok() {
+                drive_item.set_value(Some(vec![value?]));
+            }
+        }
         Ok(drive_item)
     }
 }
@@ -118,7 +146,13 @@ impl TryFrom<String> for DriveItem {
     type Error = GraphFailure;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        let drive_item: DriveItem = serde_json::from_str(&value)?;
+        let mut drive_item: DriveItem = serde_json::from_str(&value)?;
+        if drive_item.value.is_none() {
+            let value: ItemResult<Value>  = serde_json::from_str(&value).map_err(GraphFailure::from);
+            if value.is_ok() {
+                drive_item.set_value(Some(vec![value?]));
+            }
+        }
         Ok(drive_item)
     }
 }
@@ -127,7 +161,13 @@ impl TryFrom<&str> for DriveItem {
     type Error = GraphFailure;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let drive_item: DriveItem = serde_json::from_str(value)?;
+        let mut drive_item: DriveItem = serde_json::from_str(value)?;
+        if drive_item.value.is_none() {
+            let value: ItemResult<Value>  = serde_json::from_str(value).map_err(GraphFailure::from);
+            if value.is_ok() {
+                drive_item.set_value(Some(vec![value?]));
+            }
+        }
         Ok(drive_item)
     }
 }

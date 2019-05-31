@@ -30,7 +30,6 @@ use from_to_file::*;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::io::ErrorKind;
 
 pub static GRAPH_ENDPOINT: &str = "https://graph.microsoft.com/v1.0";
 pub static GRAPH_ENDPOINT_BETA: &str = "https://graph.microsoft.com/beta";
@@ -68,6 +67,7 @@ pub type ItemResult<T> = std::result::Result<T, GraphFailure>;
 pub struct Drive {
     access_token: String,
     version: String,
+    drive_version: DriveVersion,
 }
 
 impl Drive {
@@ -82,15 +82,17 @@ impl Drive {
     ///  // The DriveVersion specifies microsoft API version to use.
     /// let mut drive = Drive::new("B32484FJL;ASFJ", DriveVersion::V1);
     /// ```
-    pub fn new(access_token: &str, graph_version: DriveVersion) -> Drive {
+    pub fn new(access_token: &str, version: DriveVersion) -> Drive {
         Drive {
             access_token: String::from(access_token),
-            version: graph_version.to_string(),
+            version: version.to_string(),
+            drive_version: version
         }
     }
 
     pub fn version(&mut self, version: DriveVersion) {
         self.version = version.to_string();
+        self.drive_version = version;
     }
 
     pub fn get_version(&self) -> &String {
@@ -112,10 +114,7 @@ impl TryFrom<OAuth> for Drive {
             return Ok(Drive::new(token.get_access_token(), DriveVersion::V1));
         }
 
-        Err(GraphFailure::error_kind(
-            ErrorKind::InvalidData,
-            "OAuth instance missing access token.",
-        ))
+        Err(GraphFailure::none_err("OAuth instance missing access token."))
     }
 }
 
@@ -125,10 +124,6 @@ impl Item for Drive {
     }
 
     fn drive_version(&self) -> DriveVersion {
-        if self.version.eq(GRAPH_ENDPOINT) {
-            DriveVersion::V1
-        } else {
-            DriveVersion::V2
-        }
+        self.drive_version
     }
 }

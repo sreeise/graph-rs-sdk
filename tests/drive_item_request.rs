@@ -13,6 +13,7 @@ use rust_onedrive::drive::filesysteminfo::FileSystemInfo;
 use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
+use rust_onedrive::drive::value::Value;
 
 fn file_to_string(path: &str) -> String {
     let mut file = File::open(path).expect("Unable to open the file");
@@ -37,8 +38,13 @@ fn drive_recent() -> String {
     file_to_string("test_files/item_test/drive_recent.json")
 }
 
+#[get("/v1.0/me/drive/special/photos")]
+fn special_photo_folder() -> String {
+    file_to_string("test_files/item_test/special_photo_folder.json")
+}
+
 fn rocket() -> Rocket {
-    rocket::ignite().mount("/", routes![drive, drive_root, drive_recent])
+    rocket::ignite().mount("/", routes![drive, drive_root, drive_recent, special_photo_folder])
 }
 
 fn main() {
@@ -106,4 +112,13 @@ fn drive_root_item() {
 fn drive_recent_item() {
     let drive_item = rocket_request_drive_item("/v1.0/me/drive/recent");
     assert_eq!(drive_item.value_idx(1).web_url(), Some("https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/_layouts/15/Doc.aspx?sourcedoc=%7B2964723D-9E45-470E-8FE4-85CEDA9D4018%7D&file=Carbon%20Deposits%20Analysis.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1".into()));
+}
+
+#[test]
+fn drive_special_photo_folder() {
+    let drive_item = rocket_request_drive_item("/v1.0/me/drive/special/photos");
+    let vec: Vec<Value> = drive_item.value().unwrap();
+    assert!(vec.len() > 0);
+    let value = vec.get(0).unwrap();
+    assert_eq!(value.id().unwrap(), "189302sal4098740fjhlk34");
 }
