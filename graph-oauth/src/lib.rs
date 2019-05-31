@@ -48,7 +48,12 @@ mod idtoken;
 pub mod jwt;
 mod oautherror;
 mod oauthtools;
+mod scopes;
 mod stdop;
+
+pub mod scope {
+    pub use crate::scopes::*;
+}
 
 pub mod oauth {
     pub use crate::accesstoken::AccessToken;
@@ -63,6 +68,8 @@ pub mod oauth {
     pub use crate::idtoken::IdToken;
     pub use crate::oautherror::OAuthError;
     pub use crate::oauthtools::OAuthTooling;
+    pub use crate::scope;
+    pub use crate::scope::Scope;
     pub use crate::strum::IntoEnumIterator;
 }
 

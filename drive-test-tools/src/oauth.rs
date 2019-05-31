@@ -1,5 +1,4 @@
-use rust_onedrive::oauth::IntoEnumIterator;
-use rust_onedrive::oauth::{GrantRequest, OAuth, OAuthCredential};
+use rust_onedrive::oauth::{GrantRequest, IntoEnumIterator, OAuth, OAuthCredential};
 use std::borrow::Cow;
 use url::Url;
 
@@ -43,7 +42,7 @@ impl OAuthTestTool {
         for oac in OAuthCredential::iter() {
             if oauth.contains(oac) && includes.contains(&oac) && !not_includes.contains(&oac) {
                 if oac.eq(&OAuthCredential::Scopes) {
-                    let s = oauth.get_scopes(" ");
+                    let s = oauth.join_scopes(" ");
                     cow_cred.push((Cow::from(oac.alias()), Cow::from(s.to_owned())));
                 } else if !oac.eq(&OAuthTestTool::match_grant_credential(grant_request)) {
                     let s = oauth.get(oac).unwrap();
@@ -51,7 +50,7 @@ impl OAuthTestTool {
                 }
             } else if oauth.contains(oac) && not_includes.contains(&oac) {
                 if oac.eq(&OAuthCredential::Scopes) {
-                    let s = oauth.get_scopes(" ");
+                    let s = oauth.join_scopes(" ");
                     cow_cred.push((Cow::from(oac.alias()), Cow::from(s.to_owned())));
                 } else if !oac.eq(&OAuthTestTool::match_grant_credential(grant_request)) {
                     let s = oauth.get(oac).unwrap();
@@ -85,5 +84,69 @@ impl OAuthTestTool {
         for oac in credentials.iter() {
             assert_eq!(oauth.contains(*oac), true);
         }
+    }
+
+    pub fn for_each_scope(s: &[String]) {
+        OAuthTestTool::for_each_fn_scope(OAuthTestTool::join_scopes, s);
+        OAuthTestTool::for_each_fn_scope(OAuthTestTool::contains_scopes, s);
+        OAuthTestTool::for_each_fn_scope(OAuthTestTool::remove_scopes, s);
+        OAuthTestTool::for_each_fn_scope(OAuthTestTool::get_scopes, s);
+        OAuthTestTool::for_each_fn_scope(OAuthTestTool::clear_scopes, s);
+        OAuthTestTool::for_each_fn_scope(OAuthTestTool::distinct_scopes, s);
+    }
+
+    pub fn for_each_fn_scope<F>(mut func: F, scopes: &[String])
+    where
+        F: FnMut(&mut OAuth, &[String]),
+    {
+        let vec_oauth = vec![
+            OAuth::token_flow(),
+            OAuth::code_flow(),
+            OAuth::authorization_code_grant(),
+            OAuth::client_credentials_grant(),
+            OAuth::implicit_grant(),
+            OAuth::open_id_connect(),
+        ];
+        for mut oauth in vec_oauth {
+            oauth.extend_scopes(scopes);
+            func(&mut oauth, scopes)
+        }
+    }
+
+    pub fn join_scopes(oauth: &mut OAuth, s: &[String]) {
+        assert_eq!(s.join(" "), oauth.join_scopes(" "));
+    }
+
+    pub fn contains_scopes(oauth: &mut OAuth, s: &[String]) {
+        for string in s {
+            assert!(oauth.contains_scope(string.as_str()))
+        }
+    }
+
+    pub fn remove_scopes(oauth: &mut OAuth, s: &[String]) {
+        for string in s {
+            oauth.remove_scope(string.as_str());
+            assert!(!oauth.contains_scope(string))
+        }
+    }
+
+    pub fn get_scopes(oauth: &mut OAuth, s: &[String]) {
+        assert_eq!(s, oauth.get_scopes().as_slice())
+    }
+
+    pub fn clear_scopes(oauth: &mut OAuth, s: &[String]) {
+        OAuthTestTool::join_scopes(oauth, s);
+        assert!(!oauth.get_scopes().is_empty());
+        oauth.clear_scopes();
+        assert!(oauth.get_scopes().is_empty())
+    }
+
+    pub fn distinct_scopes(oauth: &mut OAuth, s: &[String]) {
+        assert_eq!(s.len(), oauth.get_scopes().len());
+        let s0 = &s[0];
+        oauth.add_scope(s0.as_str());
+        assert_eq!(s.len(), oauth.get_scopes().len());
+        oauth.extend_scopes(s);
+        assert_eq!(s.len(), oauth.get_scopes().len());
     }
 }

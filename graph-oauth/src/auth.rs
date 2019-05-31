@@ -3,6 +3,7 @@ use crate::grants::{Grant, GrantRequest, GrantType};
 use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
 use crate::oauthtools::OAuthTooling;
+use crate::scope::Scope;
 use from_to_file::*;
 use graph_error::GraphFailure;
 use std::collections::btree_map::BTreeMap;
@@ -668,14 +669,25 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::scope;
     /// # let mut oauth = OAuth::code_flow();
     ///
     /// oauth.add_scope("Read")
     ///     .add_scope("Write")
     ///     .add_scope("ReadWrite.All");
+    ///
+    /// // Or using static scopes
+    /// oauth.add_scope(scope::FILES_READ)
+    ///       .add_scope(scope::FILES_READ_WRITE);
     /// ```
-    pub fn add_scope(&mut self, scope: &str) -> &mut OAuth {
-        self.scopes.push(String::from(scope));
+    pub fn add_scope<T>(&mut self, scope: T) -> &mut OAuth
+    where
+        T: Scope,
+    {
+        let s = scope.to_string();
+        if !self.scopes.contains(&s.trim().into()) {
+            self.scopes.push(s.trim().into());
+        }
         self
     }
 
@@ -684,17 +696,17 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// let mut oauth = OAuth::code_flow();
+    /// oauth.add_scope("Files.Read");
+    /// oauth.add_scope("Files.ReadWrite");
     ///
-    /// // the scopes take a separator just like Vec join.
-    ///  let s = oauth.get_scopes(" ");
-    /// println!("{:#?}", s);
+    /// assert_eq!(&vec!["Files.Read", "Files.ReadWrite"], oauth.get_scopes())
     /// ```
-    pub fn get_scopes(&self, sep: &str) -> String {
-        self.scopes.join(sep).to_owned()
+    pub fn get_scopes(&self) -> &Vec<String> {
+        &self.scopes
     }
 
-    /// Remove a previously added scope.
+    /// Join scopes.
     ///
     /// # Example
     /// ```
@@ -702,11 +714,107 @@ impl OAuth {
     /// # let mut oauth = OAuth::code_flow();
     ///
     /// // the scopes take a separator just like Vec join.
-    ///  oauth.add_scope("scope");
-    ///  oauth.remove_scope("scope");
+    ///  let s = oauth.join_scopes(" ");
+    /// println!("{:#?}", s);
     /// ```
-    pub fn remove_scope(&mut self, scope: &str) {
-        self.scopes.retain(|x| x != scope);
+    pub fn join_scopes(&self, sep: &str) -> String {
+        self.scopes.join(sep).to_owned()
+    }
+
+    /// Extend scopes.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::scope;
+    /// # let mut oauth = OAuth::code_flow();
+    ///
+    /// let scopes1 = vec!["Files.Read", "Files.ReadWrite"];
+    /// oauth.extend_scopes(&scopes1);
+    ///
+    /// // Or using static scopes
+    /// let scopes2 = vec![scope::FILES_READ_SELECTED, scope::FILES_READ_WRITE_SELECTED];
+    /// oauth.extend_scopes(&scopes2);
+    ///
+    /// assert_eq!(oauth.join_scopes(" "), "Files.Read Files.ReadWrite Files.Read.Selected Files.ReadWrite.Selected");
+    /// ```
+    pub fn extend_scopes<T>(&mut self, scopes: &[T]) -> &mut OAuth
+    where
+        T: Scope,
+    {
+        let s: Vec<String> = scopes
+            .iter()
+            .filter(|s| !self.contains_scope(s.as_str().trim()))
+            .map(std::string::ToString::to_string)
+            .map(|s| s.trim().to_string())
+            .collect();
+        self.scopes.extend(s);
+        self
+    }
+
+    /// Check if OAuth contains a specific scope.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::scope;
+    /// # let mut oauth = OAuth::code_flow();
+    ///
+    /// oauth.add_scope("Files.Read");
+    /// assert_eq!(oauth.contains_scope("Files.Read"), true);
+    ///
+    /// // Or using static scopes
+    /// oauth.add_scope(scope::FILES_READ_WRITE);
+    /// assert_eq!(oauth.contains_scope(scope::FILES_READ_WRITE), true);
+    ///
+    /// oauth.remove_scope(scope::FILES_READ_WRITE);
+    /// assert_eq!(oauth.contains_scope(scope::FILES_READ_WRITE), false);
+    /// ```
+    pub fn contains_scope<T>(&self, scope: T) -> bool
+    where
+        T: Scope,
+    {
+        self.scopes.contains(&scope.to_string())
+    }
+
+    /// Remove a previously added scope.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::scope;
+    /// # let mut oauth = OAuth::code_flow();
+    ///
+    /// oauth.add_scope("scope");
+    /// oauth.remove_scope("scope");
+    ///
+    /// // Or using static scopes
+    /// oauth.add_scope(scope::FILES_READ);
+    /// assert_eq!(oauth.contains_scope(scope::FILES_READ), true);
+    ///
+    /// oauth.remove_scope(scope::FILES_READ);
+    /// assert_eq!(oauth.contains_scope(scope::FILES_READ), false);
+    /// ```
+    pub fn remove_scope<T>(&mut self, scope: T)
+    where
+        T: Scope,
+    {
+        self.scopes.retain(|x| x != &scope.to_string());
+    }
+
+    /// Remove all scopes.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::code_flow();
+    /// oauth.add_scope("Files.Read").add_scope("Files.ReadWrite");
+    /// assert_eq!("Files.Read Files.ReadWrite", oauth.join_scopes(" "));
+    /// oauth.clear_scopes();
+    /// assert!(oauth.get_scopes().is_empty());
+    /// ```
+    pub fn clear_scopes(&mut self) {
+        self.scopes.clear();
     }
 
     /// Set the access token.
@@ -821,7 +929,7 @@ impl OAuth {
         self.get(c).ok_or_else(|| OAuthError::credential_error(c))
     }
 
-    pub fn form_encode_credentials(
+    fn form_encode_credentials(
         &mut self,
         pairs: Vec<OAuthCredential>,
         encoder: &mut Serializer<String>,
@@ -831,7 +939,7 @@ impl OAuth {
             .filter(|oac| self.contains_key(oac.alias()) || oac.alias().eq("scope"))
             .for_each(|oac| {
                 if oac.alias().eq("scope") && !self.scopes.is_empty() {
-                    encoder.append_pair("scope", self.scopes.join(" ").as_str());
+                    encoder.append_pair("scope", self.join_scopes(" ").as_str());
                 } else if let Some(val) = self.get(oac.clone()) {
                     encoder.append_pair(oac.alias(), val.as_str());
                 }
