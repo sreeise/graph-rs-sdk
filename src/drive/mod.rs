@@ -86,21 +86,13 @@ impl Drive {
         Drive {
             access_token: String::from(access_token),
             version: version.to_string(),
-            drive_version: version
+            drive_version: version,
         }
     }
 
-    pub fn version(&mut self, version: DriveVersion) {
+    pub fn set_drive_version(&mut self, version: DriveVersion) {
         self.version = version.to_string();
         self.drive_version = version;
-    }
-
-    pub fn get_version(&self) -> &String {
-        &self.version
-    }
-
-    fn token(&self) -> &str {
-        self.access_token.as_str()
     }
 }
 
@@ -114,13 +106,15 @@ impl TryFrom<OAuth> for Drive {
             return Ok(Drive::new(token.get_access_token(), DriveVersion::V1));
         }
 
-        Err(GraphFailure::none_err("OAuth instance missing access token."))
+        Err(GraphFailure::none_err(
+            "OAuth instance missing access token.",
+        ))
     }
 }
 
 impl Item for Drive {
     fn token(&self) -> &str {
-        self.token()
+        self.access_token.as_str()
     }
 
     fn drive_version(&self) -> DriveVersion {

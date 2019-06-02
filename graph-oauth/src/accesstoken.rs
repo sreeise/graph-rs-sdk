@@ -394,8 +394,9 @@ impl TryFrom<&str> for AccessToken {
     type Error = GraphFailure;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let t: AccessToken = serde_json::from_str(value)?;
-        Ok(t)
+        let mut access_token: AccessToken = serde_json::from_str(value)?;
+        access_token.timestamp();
+        Ok(access_token)
     }
 }
 
@@ -432,7 +433,8 @@ impl TryFrom<&mut Response> for AccessToken {
             graph_error.set_headers(graph_headers);
             return Err(GraphFailure::from(graph_error));
         }
-        let t: AccessToken = value.json()?;
-        Ok(t)
+        let mut access_token: AccessToken = value.json()?;
+        access_token.timestamp();
+        Ok(access_token)
     }
 }

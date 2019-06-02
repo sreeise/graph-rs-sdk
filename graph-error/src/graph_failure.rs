@@ -1,7 +1,9 @@
 use crate::error::GraphError;
 use base64;
+use reqwest::Response;
 use serde_json;
 use std::cell::BorrowMutError;
+use std::convert::TryFrom;
 use std::error::Error;
 use std::io::ErrorKind;
 use std::option::NoneError;
@@ -32,15 +34,11 @@ impl GraphFailure {
         GraphFailure::from(e)
     }
 
-    pub fn none_error<T>(msg: &str) -> std::result::Result<T, GraphFailure> {
-        Err(GraphFailure::error_kind(ErrorKind::NotFound, msg))
-    }
-
     pub fn invalid_data<T>(msg: &str) -> std::result::Result<T, GraphFailure> {
         Err(GraphFailure::error_kind(ErrorKind::InvalidData, msg))
     }
 
-    pub fn error_from(msg: &str) -> GraphFailure {
+    pub fn not_found(msg: &str) -> GraphFailure {
         GraphFailure::error_kind(ErrorKind::NotFound, msg)
     }
 
@@ -50,6 +48,16 @@ impl GraphFailure {
             message
         );
         GraphFailure::error_kind(ErrorKind::InvalidData, string.as_str())
+    }
+
+    pub fn err_from(r: &mut Response) -> Option<GraphFailure> {
+        if GraphError::is_error(r.status().as_u16()) {
+            Some(GraphFailure::from(
+                GraphError::try_from(r).unwrap_or_default(),
+            ))
+        } else {
+            None
+        }
     }
 }
 
@@ -184,6 +192,6 @@ impl From<BorrowMutError> for GraphFailure {
 
 impl From<NoneError> for GraphFailure {
     fn from(_: NoneError) -> Self {
-        GraphFailure::error_from("NoneError")
+        GraphFailure::not_found("NoneError")
     }
 }

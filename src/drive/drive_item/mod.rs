@@ -2,6 +2,7 @@ pub mod application;
 pub mod createdby;
 pub mod driveinfo;
 pub mod driveitem;
+pub mod expandchildren;
 pub mod file;
 pub mod filesysteminfo;
 pub mod folder;

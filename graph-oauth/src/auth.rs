@@ -1207,6 +1207,7 @@ impl Grant for OAuth {
         if let Ok(refresh_token) = self.get_refresh_token() {
             access_token.refresh_token(Some(refresh_token.as_str()));
         }
+        access_token.timestamp();
         self.access_token(access_token);
         Ok(())
     }
@@ -1220,6 +1221,7 @@ impl Grant for OAuth {
         if let Ok(refresh_token) = self.get_refresh_token() {
             access_token.refresh_token(Some(refresh_token.as_str()));
         }
+        access_token.timestamp();
         self.access_token(access_token);
         Ok(())
     }
