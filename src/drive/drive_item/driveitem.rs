@@ -133,9 +133,14 @@ impl TryFrom<&mut Response> for DriveItem {
 
         let mut drive_item: DriveItem = value.json()?;
         if drive_item.value.is_none() {
-            let value: ItemResult<Value>  = value.json().map_err(GraphFailure::from);
-            if value.is_ok() {
-                drive_item.set_value(Some(vec![value?]));
+            let v: ItemResult<Value> = value.json().map_err(GraphFailure::from);
+            if v.is_ok() {
+                drive_item.set_value(Some(vec![v?]));
+            } else {
+                let vec_value: ItemResult<Vec<Value>> = value.json().map_err(GraphFailure::from);
+                if vec_value.is_ok() {
+                    drive_item.set_value(Some(vec_value?));
+                }
             }
         }
         Ok(drive_item)
@@ -148,9 +153,15 @@ impl TryFrom<String> for DriveItem {
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let mut drive_item: DriveItem = serde_json::from_str(&value)?;
         if drive_item.value.is_none() {
-            let value: ItemResult<Value>  = serde_json::from_str(&value).map_err(GraphFailure::from);
-            if value.is_ok() {
-                drive_item.set_value(Some(vec![value?]));
+            let v: ItemResult<Value> = serde_json::from_str(&value).map_err(GraphFailure::from);
+            if v.is_ok() {
+                drive_item.set_value(Some(vec![v?]));
+            } else {
+                let vec_value: ItemResult<Vec<Value>> =
+                    serde_json::from_str(&value).map_err(GraphFailure::from);
+                if vec_value.is_ok() {
+                    drive_item.set_value(Some(vec_value?));
+                }
             }
         }
         Ok(drive_item)
@@ -163,9 +174,15 @@ impl TryFrom<&str> for DriveItem {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let mut drive_item: DriveItem = serde_json::from_str(value)?;
         if drive_item.value.is_none() {
-            let value: ItemResult<Value>  = serde_json::from_str(value).map_err(GraphFailure::from);
-            if value.is_ok() {
-                drive_item.set_value(Some(vec![value?]));
+            let v: ItemResult<Value> = serde_json::from_str(&value).map_err(GraphFailure::from);
+            if v.is_ok() {
+                drive_item.set_value(Some(vec![v?]));
+            } else {
+                let vec_value: ItemResult<Vec<Value>> =
+                    serde_json::from_str(&value).map_err(GraphFailure::from);
+                if vec_value.is_ok() {
+                    drive_item.set_value(Some(vec_value?));
+                }
             }
         }
         Ok(drive_item)

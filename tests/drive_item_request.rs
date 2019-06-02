@@ -10,10 +10,10 @@ use rocket_codegen::routes;
 use rust_onedrive::drive::driveinfo::DriveInfo;
 use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::filesysteminfo::FileSystemInfo;
+use rust_onedrive::drive::value::Value;
 use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
-use rust_onedrive::drive::value::Value;
 
 fn file_to_string(path: &str) -> String {
     let mut file = File::open(path).expect("Unable to open the file");
@@ -44,7 +44,10 @@ fn special_photo_folder() -> String {
 }
 
 fn rocket() -> Rocket {
-    rocket::ignite().mount("/", routes![drive, drive_root, drive_recent, special_photo_folder])
+    rocket::ignite().mount(
+        "/",
+        routes![drive, drive_root, drive_recent, special_photo_folder],
+    )
 }
 
 fn main() {

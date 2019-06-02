@@ -1,31 +1,18 @@
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::endpoint::DriveEndPoint;
+use crate::drive::expandchildren::ExpandChildren;
 use crate::drive::item::Item;
 use crate::drive::{Drive, ItemResult};
 use std::string::ToString;
 
-#[macro_export]
-macro_rules! odata_query {
-    (
-        $($query_item:expr),*
-    ) => {
-        {
-            let mut v = Vec::new();
-            $(
-                v.push(format!("{}", $query_item));
-            )*
-            v.join("")
-        }
-    };
-}
-
 macro_rules! convert_query {
     ($drive_end_point:expr, $query:expr, $query_str:expr) => {
-        odata_query!(
+        vec![
             $drive_end_point.to_string(),
             $query.to_string(),
-            $query_str.to_string()
-        )
+            $query_str.to_string(),
+        ]
+        .join("")
     };
 }
 
@@ -70,7 +57,13 @@ pub trait QueryString {
 
     fn select_url(&self, end_point: DriveEndPoint, query: &[&str]) -> String;
 
-    fn expand(&mut self, end_point: DriveEndPoint, expand_item: &str) -> ItemResult<DriveItem>;
+    fn expand(
+        &mut self,
+        end_point: DriveEndPoint,
+        expand_item: &str,
+    ) -> ItemResult<serde_json::Value>;
+
+    fn expand_children(&mut self, end_point: DriveEndPoint) -> ItemResult<ExpandChildren>;
 
     fn expand_url(&self, end_point: DriveEndPoint, expand_item: &str) -> String;
 
@@ -192,8 +185,17 @@ impl QueryString for Drive {
     /// let drive_item: DriveItem = drive.expand(DriveEndPoint::Drive, "children").unwrap();
     /// println!("{:#?}", drive_item);
     /// ```
-    fn expand(&mut self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem> {
+    fn expand(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &str,
+    ) -> ItemResult<serde_json::Value> {
         let url = self.expand_url(end_point, query_str);
+        self.get(url.as_str())
+    }
+
+    fn expand_children(&mut self, end_point: DriveEndPoint) -> ItemResult<ExpandChildren> {
+        let url = self.expand_url(end_point, "children");
         self.get(url.as_str())
     }
 

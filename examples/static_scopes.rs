@@ -1,5 +1,5 @@
-use rust_onedrive::oauth::OAuth;
 use rust_onedrive::oauth::scope;
+use rust_onedrive::oauth::OAuth;
 
 // Use static scopes for OneDrive
 fn main() {

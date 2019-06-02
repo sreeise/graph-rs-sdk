@@ -14,7 +14,7 @@ use crate::drive::drive_item::Root;
 use crate::drive::event::DriveEvent;
 use crate::drive::{DriveResource, DriveVersion, ItemResult, ResourceBuilder};
 use from_to_file::*;
-use graph_error::{GraphFailure, GraphError};
+use graph_error::{GraphError, GraphFailure};
 use reqwest::Response;
 use std::convert::TryFrom;
 

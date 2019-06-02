@@ -1,11 +1,11 @@
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::driveinfo::DriveInfo;
 use crate::drive::item::Item;
-use crate::drive::{Drive, DriveVersion, ItemResult, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
 use crate::drive::value;
+use crate::drive::{Drive, DriveVersion, ItemResult, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
+use graph_error::{GraphError, GraphFailure};
 use reqwest::header;
 use std::convert::TryFrom;
-use graph_error::{GraphFailure, GraphError};
 
 /// Implements well known or special folder paths.
 ///
@@ -151,11 +151,8 @@ impl EP for Drive {
     /// println!("{:#?}", drive.drive_me());
     /// ```
     fn drive_me(&mut self) -> ItemResult<DriveItem> {
-        let v: value::Value = self.get(
-            DriveEndPoint::DriveMe
-                .url(self.version.as_str())
-                .as_str(),
-        )?;
+        let v: value::Value =
+            self.get(DriveEndPoint::DriveMe.url(self.version.as_str()).as_str())?;
         Ok(DriveItem::from(v))
     }
 
@@ -292,7 +289,8 @@ impl EP for Drive {
         let mut endpoint = DriveEndPoint::SpecialFolder.to_string();
         endpoint.push('/');
         endpoint.push_str(folder_name);
-        let mut response = self.client()?
+        let mut response = self
+            .client()?
             .get(endpoint.as_str())
             .bearer_auth(self.token())
             .header(header::CONTENT_TYPE, "application/json")

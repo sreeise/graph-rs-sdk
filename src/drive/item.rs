@@ -18,27 +18,20 @@ where
     T: for<'de> serde::Deserialize<'de>,
 {
     let mut response = client.send()?;
-    let status = response.status().as_u16();
-    if GraphError::is_error(status) {
-        return Err(GraphFailure::from(
-            GraphError::try_from(status).unwrap_or_default(),
-        ));
+    if let Some(err) = GraphFailure::err_from(&mut response) {
+        Err(err)
+    } else {
+        Ok(response.json()?)
     }
-
-    let t: T = response.json()?;
-    Ok(t)
 }
 
 fn item_response(client: RequestBuilder, drive_event: DriveEvent) -> ItemResult<ItemResponse> {
-    let response = client.send()?;
-    let status = response.status().as_u16();
-    if GraphError::is_error(status) {
-        return Err(GraphFailure::from(
-            GraphError::try_from(status).unwrap_or_default(),
-        ));
+    let mut response = client.send()?;
+    if let Some(err) = GraphFailure::err_from(&mut response) {
+        Err(err)
+    } else {
+        Ok(ItemResponse::new(drive_event, response))
     }
-
-    Ok(ItemResponse::new(drive_event, response))
 }
 
 #[derive(Debug)]
