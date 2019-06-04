@@ -44,5 +44,6 @@ fn search_example() {
 
 fn main() {
     expand_example();
+    automatic_expand_children();
     search_example();
 }

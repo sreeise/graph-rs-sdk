@@ -20,6 +20,7 @@ pub mod shared;
 pub mod sharedby;
 pub mod sharepointid;
 pub mod specialfolder;
+pub mod thumbnail;
 pub mod user;
 pub mod value;
 pub mod video;
