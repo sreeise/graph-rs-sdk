@@ -1,5 +1,6 @@
 use crate::drive;
 use crate::drive::drive_item::parentreference::ParentReference;
+use crate::drive::drive_item::thumbnail::ThumbnailCollection;
 use crate::drive::event::{
     CheckIn, DownloadFormat, DriveEvent, DriveItemCopy, EventProgress, NewFolder,
 };
@@ -647,6 +648,112 @@ pub trait Item {
         url.push_str(format.as_ref());
         let res = client.get(url.as_str()).bearer_auth(self.token()).send()?;
         Ok(Fetch::file(directory, res.url().as_str(), self.token())?)
+    }
+
+    /// Retrieve a collection of ThumbnailSet resources for a DriveItem resource.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
+    /// # use rust_onedrive::drive::value::Value;
+    /// # use rust_onedrive::drive::thumbnail::ThumbnailCollection;
+    /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// let collection: ThumbnailCollection = drive.thumbnails("item_id", "drive_id", DriveResource::Drives).unwrap();
+    /// println!("{:#?}", collection);
+    /// ```
+    ///
+    /// # See
+    /// [List Thumbnails for a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_thumbnails?view=odsp-graph-online)
+    fn thumbnails(
+        &mut self,
+        item_id: &str,
+        resource_id: &str,
+        drive_resource: DriveResource,
+    ) -> ItemResult<ThumbnailCollection> {
+        let mut url = String::new();
+        if drive_resource.eq(&DriveResource::Me) {
+            let u =
+                drive_resource.item_resource(self.drive_version(), item_id, DriveEvent::Thumbnails);
+            url.push_str(u.as_str());
+        } else {
+            let u = drive_resource.drive_item_resource(
+                self.drive_version(),
+                resource_id,
+                item_id,
+                DriveEvent::Thumbnails,
+            );
+            url.push_str(u.as_str());
+        }
+        drive_item_response(
+            self.client()?
+                .get(url.as_str())
+                .header(header::CONTENT_TYPE, "application/json")
+                .bearer_auth(self.token()),
+        )
+    }
+
+    /// Retrieve a collection of ThumbnailSet resources for a DriveItem resource.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
+    /// # use rust_onedrive::drive::driveitem::DriveItem;
+    /// # use rust_onedrive::drive::value::Value;
+    /// # use rust_onedrive::drive::thumbnail::ThumbnailCollection;
+    /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    ///
+    /// let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
+    /// let value: Value = drive_item.find_by_name("MY_FILE_NAME").unwrap();
+    ///
+    /// let collection: ThumbnailCollection = drive.thumbnails_by_value(value, DriveResource::Drives).unwrap();
+    /// println!("{:#?}", collection);
+    /// ```
+    ///
+    /// # See
+    /// [List Thumbnails for a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_thumbnails?view=odsp-graph-online)
+    fn thumbnails_by_value(
+        &mut self,
+        value: drive::value::Value,
+        drive_resource: DriveResource,
+    ) -> ItemResult<ThumbnailCollection> {
+        let (item_id, drive_id) = value.item_event_ids().unwrap();
+        self.thumbnails(item_id.as_str(), drive_id.as_str(), drive_resource)
+    }
+
+    /// Retrieve the binary data of a thumbnail.
+    ///
+    /// # See
+    /// [List Thumbnails for a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_thumbnails?view=odsp-graph-online)
+    fn thumbnail_binary(
+        &mut self,
+        item_id: &str,
+        resource_id: &str,
+        thumb_id: &str,
+        size: &str,
+        drive_resource: DriveResource,
+    ) -> ItemResult<String> {
+        let mut host_path = String::new();
+        if drive_resource.eq(&DriveResource::Me) {
+            let u =
+                drive_resource.item_resource(self.drive_version(), item_id, DriveEvent::Thumbnails);
+            host_path.push_str(u.as_str());
+        } else {
+            let u = drive_resource.drive_item_resource(
+                self.drive_version(),
+                resource_id,
+                item_id,
+                DriveEvent::Thumbnails,
+            );
+            host_path.push_str(u.as_str());
+        }
+        let url = vec![host_path.as_str(), "/", thumb_id, "/", size, "/content"].join("");
+        let mut response = self
+            .client()?
+            .get(url.as_str())
+            .header(header::CONTENT_TYPE, "application/json")
+            .bearer_auth(self.token())
+            .send()?;
+        Ok(response.text()?)
     }
 
     /// Update the metadata for a DriveItem by ID or path.

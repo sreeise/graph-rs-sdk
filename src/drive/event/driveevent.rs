@@ -25,6 +25,7 @@ pub enum DriveEvent {
     TrackChanges,
     Preview,
     Activities,
+    Thumbnails,
 }
 
 impl DriveEvent {
@@ -41,6 +42,7 @@ impl DriveEvent {
             DriveEvent::ListChildren | DriveEvent::CreateFolder => "children",
             DriveEvent::Preview => "preview",
             DriveEvent::Activities => "activities",
+            DriveEvent::Thumbnails => "thumbnails",
             DriveEvent::Move |
             DriveEvent::GetItem |
             DriveEvent::GetItemRoot |

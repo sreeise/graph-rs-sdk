@@ -12,6 +12,7 @@ use crate::drive::drive_item::remoteitem::RemoteItem;
 use crate::drive::drive_item::specialfolder::SpecialFolder;
 use crate::drive::drive_item::Root;
 use crate::drive::event::DriveEvent;
+use crate::drive::thumbnail::ThumbnailSet;
 use crate::drive::{DriveResource, DriveVersion, ItemResult, ResourceBuilder};
 use from_to_file::*;
 use graph_error::{GraphError, GraphFailure};
@@ -79,6 +80,8 @@ pub struct Value {
     #[serde(rename = "remoteItem")]
     #[serde(skip_serializing_if = "Option::is_none")]
     remote_item: Option<RemoteItem>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    thumbnails: Option<Vec<ThumbnailSet>>,
 }
 
 impl Value {
@@ -106,6 +109,7 @@ impl Value {
         photo: Option<Photo>,
         root: Option<Root>,
         remote_item: Option<RemoteItem>,
+        thumbnails: Option<Vec<ThumbnailSet>>,
     ) -> Self {
         Value {
             _odata_context,
@@ -130,6 +134,7 @@ impl Value {
             photo,
             root,
             remote_item,
+            thumbnails,
         }
     }
 }
