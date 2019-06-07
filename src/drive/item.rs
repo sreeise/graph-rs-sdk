@@ -499,18 +499,11 @@ pub trait Item {
     /// # See
     /// [Delete a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_delete?view=odsp-graph-online)
     fn delete_by_value(&self, value: drive::value::Value) -> ItemResult<ItemResponse> {
+        let (item_id, drive_id) = value.item_event_ids()?;
         let url = DriveResource::Drives.drive_item_resource(
             self.drive_version(),
-            value
-                .parent_reference()
-                .ok_or_else(|| GraphFailure::none_err("value parent_reference"))?
-                .drive_id()
-                .ok_or_else(|| GraphFailure::none_err("value parent_reference drive_id"))?
-                .as_str(),
-            value
-                .id()
-                .ok_or_else(|| GraphFailure::none_err("value item_id"))?
-                .as_str(),
+            drive_id.as_str(),
+            item_id.as_str(),
             DriveEvent::Delete,
         );
         let builder = self
@@ -648,6 +641,104 @@ pub trait Item {
         url.push_str(format.as_ref());
         let res = client.get(url.as_str()).bearer_auth(self.token()).send()?;
         Ok(Fetch::file(directory, res.url().as_str(), self.token())?)
+    }
+
+    /// Get a DriveItem resource by id.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
+    /// # use rust_onedrive::drive;;
+    /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// let value: drive::value::Value = drive.get_item("ITEM_ID", "RESOURCE_ID", DriveResource::Drives).unwrap();
+    /// println!("{:#?}", value);
+    /// ```
+    ///
+    /// # See
+    /// [Get a DriveItem resource](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get?view=odsp-graph-online)
+    fn get_item(
+        &mut self,
+        item_id: &str,
+        resource_id: &str,
+        drive_resource: DriveResource,
+    ) -> ItemResult<drive::value::Value> {
+        let mut path_builder = PathBuilder::from(self.drive_version());
+        match drive_resource {
+            DriveResource::Me => {
+                path_builder.path("me/drive/items").path(item_id);
+            },
+            DriveResource::Drives => {
+                path_builder
+                    .path("drives")
+                    .path(resource_id)
+                    .path("items")
+                    .path(item_id);
+            },
+            DriveResource::Sites | DriveResource::Groups | DriveResource::Users => {
+                path_builder
+                    .path("drives")
+                    .path(resource_id)
+                    .path("drive/items")
+                    .path(item_id);
+            },
+        }
+        let url = path_builder.build();
+        drive_item_response(
+            self.client()?
+                .get(url.as_str())
+                .bearer_auth(self.token())
+                .header(header::CONTENT_TYPE, "application/json"),
+        )
+    }
+
+    /// Get a DriveItem resource by path.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
+    /// # use rust_onedrive::drive;;
+    /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
+    /// let value: drive::value::Value = drive.get_item_by_path("RESOURCE_ID", "path/to/item.txt", DriveResource::Drives).unwrap();
+    /// println!("{:#?}", value);
+    /// ```
+    ///
+    /// # See
+    /// [Get a DriveItem resource](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get?view=odsp-graph-online)
+    fn get_item_by_path(
+        &mut self,
+        resource_id: &str,
+        path: &str,
+        drive_resource: DriveResource,
+    ) -> ItemResult<drive::value::Value> {
+        let mut path_builder = PathBuilder::from(self.drive_version());
+        let mut item_path = String::new();
+        item_path.push_str("root:/");
+        item_path.push_str(path);
+        match drive_resource {
+            DriveResource::Me => {
+                path_builder.path("me/drive").path(item_path);
+            },
+            DriveResource::Drives => {
+                path_builder
+                    .path("drives")
+                    .path(resource_id)
+                    .path(item_path);
+            },
+            DriveResource::Sites | DriveResource::Groups | DriveResource::Users => {
+                path_builder
+                    .drive_resource(drive_resource)
+                    .path(resource_id)
+                    .path("drive/items")
+                    .path(item_path);
+            },
+        }
+        let url = path_builder.build();
+        drive_item_response(
+            self.client()?
+                .get(url.as_str())
+                .bearer_auth(self.token())
+                .header(header::CONTENT_TYPE, "application/json"),
+        )
     }
 
     /// Retrieve a collection of ThumbnailSet resources for a DriveItem resource.
