@@ -111,7 +111,9 @@ pub trait EP {
     fn shared_with_me(&mut self) -> ItemResult<DriveItem>;
     fn drive_recent(&mut self) -> ItemResult<DriveItem>;
     fn drive_activities(&mut self) -> ItemResult<DriveItem>;
-    fn special_folder(&mut self, folder_name: &str) -> ItemResult<DriveItem>;
+    fn special_folder<T>(&mut self, folder_name: &str) -> ItemResult<T>
+    where
+        for<'de> T: serde::Deserialize<'de>;
     fn special_documents(&mut self) -> ItemResult<DriveItem>;
     fn special_documents_child(&mut self) -> ItemResult<DriveItem>;
     fn special_photos(&mut self) -> ItemResult<DriveItem>;
@@ -282,7 +284,10 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_folder("documents"));
     /// ```
-    fn special_folder(&mut self, folder_name: &str) -> ItemResult<DriveItem> {
+    fn special_folder<T>(&mut self, folder_name: &str) -> ItemResult<T>
+    where
+        for<'de> T: serde::Deserialize<'de>,
+    {
         // To deserialize a more manual approach is needed here because the response
         // could either be a single value::Value or multiple value::Value's. DriveItem's
         // TryFrom impl does the work of checking for a value::Value from a Response.
@@ -303,7 +308,8 @@ impl EP for Drive {
             ));
         }
 
-        DriveItem::try_from(&mut response)
+        let item: T = response.json()?;
+        Ok(item)
     }
 
     /// Get the special documents folder.
