@@ -64,9 +64,14 @@ reqwest = "0.9.6"
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
 drive-test-tools = { path = "./drive-test-tools" }
+criterion = "0.2"
 
 [badges]
 travis-ci = { repository = "https://github.com/sreeise/rust-onedrive", branch = "master" }
 
 [profile.release]
 debug = false
+
+[[bench]]
+name = "oauth"
+harness = false

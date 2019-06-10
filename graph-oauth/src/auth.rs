@@ -270,7 +270,7 @@ impl OAuth {
     /// assert_eq!(oauth.contains(OAuthCredential::AuthorizeURL), true);
     /// println!("{:#?}", oauth.get(OAuthCredential::AuthorizeURL));
     /// ```
-    pub fn insert(&mut self, oac: OAuthCredential, value: String) -> &mut OAuth {
+    pub fn insert(&mut self, oac: OAuthCredential, value: &str) -> &mut OAuth {
         self.credentials
             .insert(oac.alias().to_string(), value.trim().to_string());
         self
@@ -343,8 +343,8 @@ impl OAuth {
     /// # let mut oauth = OAuth::code_flow();
     /// oauth.client_id("client_id");
     /// ```
-    pub fn client_id(&mut self, client_id: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ClientId, client_id.into())
+    pub fn client_id(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::ClientId, value)
     }
 
     /// Set the state for an OAuth request.
@@ -357,7 +357,7 @@ impl OAuth {
     /// oauth.state("1234");
     /// ```
     pub fn state(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::State, value.into())
+        self.insert(OAuthCredential::State, value)
     }
 
     /// Set the client secret for an OAuth request.
@@ -369,7 +369,7 @@ impl OAuth {
     /// oauth.client_secret("client_secret");
     /// ```
     pub fn client_secret(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ClientSecret, value.into())
+        self.insert(OAuthCredential::ClientSecret, value)
     }
 
     /// Set the authorization URL.
@@ -381,7 +381,7 @@ impl OAuth {
     /// oauth.authorize_url("https://example.com/authorize");
     /// ```
     pub fn authorize_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::AuthorizeURL, value.into())
+        self.insert(OAuthCredential::AuthorizeURL, value)
     }
 
     /// Set the access token url of a request for OAuth
@@ -393,7 +393,7 @@ impl OAuth {
     /// oauth.access_token_url("https://example.com/token");
     /// ```
     pub fn access_token_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::AccessTokenURL, value.into())
+        self.insert(OAuthCredential::AccessTokenURL, value)
     }
 
     /// Set the refresh token url of a request for OAuth
@@ -405,7 +405,7 @@ impl OAuth {
     /// oauth.refresh_token_url("https://example.com/token");
     /// ```
     pub fn refresh_token_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::RefreshTokenURL, value.into())
+        self.insert(OAuthCredential::RefreshTokenURL, value)
     }
 
     /// Set the redirect url of a request
@@ -417,7 +417,7 @@ impl OAuth {
     /// oauth.redirect_uri("https://localhost:8888/redirect");
     /// ```
     pub fn redirect_uri(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::RedirectURI, value.into())
+        self.insert(OAuthCredential::RedirectURI, value)
     }
 
     /// Set the access code.
@@ -429,7 +429,7 @@ impl OAuth {
     /// oauth.access_code("LDSF[POK43");
     /// ```
     pub fn access_code(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::AccessCode, value.into())
+        self.insert(OAuthCredential::AccessCode, value)
     }
 
     /// Set the response mode.
@@ -441,7 +441,7 @@ impl OAuth {
     /// oauth.response_mode("query");
     /// ```
     pub fn response_mode(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ResponseMode, value.into())
+        self.insert(OAuthCredential::ResponseMode, value)
     }
 
     /// Set the response type.
@@ -453,7 +453,7 @@ impl OAuth {
     /// oauth.response_type("token");
     /// ```
     pub fn response_type(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ResponseType, value.into())
+        self.insert(OAuthCredential::ResponseType, value)
     }
 
     /// Set the nonce.
@@ -466,7 +466,7 @@ impl OAuth {
     /// oauth.nonce("1234");
     /// ```
     pub fn nonce(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::Nonce, value.into())
+        self.insert(OAuthCredential::Nonce, value)
     }
 
     /// Set the prompt for open id.
@@ -479,7 +479,7 @@ impl OAuth {
     /// oauth.prompt("login");
     /// ```
     pub fn prompt(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::Prompt, value.into())
+        self.insert(OAuthCredential::Prompt, value)
     }
 
     /// Set id token for open id.
@@ -491,7 +491,7 @@ impl OAuth {
     /// oauth.id_token(IdToken::new("1345", "code", "state", "session_state"));
     /// ```
     pub fn id_token(&mut self, value: IdToken) -> &mut OAuth {
-        self.insert(OAuthCredential::IdToken, value.get_id_token());
+        self.insert(OAuthCredential::IdToken, value.get_id_token().as_str());
         if let Some(code) = value.get_code() {
             self.access_code(code.as_str());
         }
@@ -501,7 +501,7 @@ impl OAuth {
         if let Some(session_state) = value.get_session_state() {
             self.session_state(session_state.as_str());
         }
-        self.insert(OAuthCredential::IdToken, value.get_id_token())
+        self.insert(OAuthCredential::IdToken, value.get_id_token().as_str())
     }
 
     /// Set the session state.
@@ -513,7 +513,7 @@ impl OAuth {
     /// oauth.session_state("session-state");
     /// ```
     pub fn session_state(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::SessionState, value.into())
+        self.insert(OAuthCredential::SessionState, value)
     }
 
     /// Set the grant_type.
@@ -525,7 +525,7 @@ impl OAuth {
     /// oauth.grant_type("token");
     /// ```
     pub fn grant_type(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::GrantType, value.into())
+        self.insert(OAuthCredential::GrantType, value)
     }
 
     /// Set the resource.
@@ -537,7 +537,7 @@ impl OAuth {
     /// oauth.resource("resource");
     /// ```
     pub fn resource(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::Resource, value.into())
+        self.insert(OAuthCredential::Resource, value)
     }
 
     /// Set the code verifier.
@@ -549,7 +549,7 @@ impl OAuth {
     /// oauth.code_verifier("code_verifier");
     /// ```
     pub fn code_verifier(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::CodeVerifier, value.into())
+        self.insert(OAuthCredential::CodeVerifier, value)
     }
 
     /// Set the domain hint.
@@ -561,7 +561,7 @@ impl OAuth {
     /// oauth.domain_hint("domain_hint");
     /// ```
     pub fn domain_hint(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::DomainHint, value.into())
+        self.insert(OAuthCredential::DomainHint, value)
     }
 
     /// Set the code challenge.
@@ -573,7 +573,7 @@ impl OAuth {
     /// oauth.code_challenge("code_challenge");
     /// ```
     pub fn code_challenge(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::CodeChallenge, value.into())
+        self.insert(OAuthCredential::CodeChallenge, value)
     }
 
     /// Set the code challenge method.
@@ -585,7 +585,7 @@ impl OAuth {
     /// oauth.code_challenge_method("code_challenge_method");
     /// ```
     pub fn code_challenge_method(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::CodeChallengeMethod, value.into())
+        self.insert(OAuthCredential::CodeChallengeMethod, value)
     }
 
     /// Set the login hint.
@@ -597,7 +597,7 @@ impl OAuth {
     /// oauth.login_hint("login_hint");
     /// ```
     pub fn login_hint(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::LoginHint, value.into())
+        self.insert(OAuthCredential::LoginHint, value)
     }
 
     /// Set the client assertion.
@@ -609,7 +609,7 @@ impl OAuth {
     /// oauth.client_assertion("client_assertion");
     /// ```
     pub fn client_assertion(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ClientAssertion, value.into())
+        self.insert(OAuthCredential::ClientAssertion, value)
     }
 
     /// Set the client assertion type.
@@ -621,7 +621,7 @@ impl OAuth {
     /// oauth.client_assertion_type("client_assertion_type");
     /// ```
     pub fn client_assertion_type(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ClientAssertionType, value.into())
+        self.insert(OAuthCredential::ClientAssertionType, value)
     }
 
     /// Set the url to send a post request that will log out the user.
@@ -633,7 +633,7 @@ impl OAuth {
     /// oauth.logout_url("https://example.com/logout?");
     /// ```
     pub fn logout_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::LogoutURL, value.into())
+        self.insert(OAuthCredential::LogoutURL, value)
     }
 
     /// Set the redirect uri that user will be redirected to after logging out.
@@ -645,7 +645,7 @@ impl OAuth {
     /// oauth.post_logout_redirect_uri("http://localhost:8080");
     /// ```
     pub fn post_logout_redirect_uri(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::PostLogoutRedirectURI, value.into())
+        self.insert(OAuthCredential::PostLogoutRedirectURI, value)
     }
 
     /// Set the admin consent. Only works for specific grants such as
@@ -685,8 +685,9 @@ impl OAuth {
         T: Scope,
     {
         let s = scope.to_string();
-        if !self.scopes.contains(&s.trim().into()) {
-            self.scopes.push(s.trim().into());
+        let s1: String = s.trim().into();
+        if !self.scopes.contains(&s1) {
+            self.scopes.push(s1);
         }
         self
     }
@@ -746,7 +747,6 @@ impl OAuth {
             .iter()
             .filter(|s| !self.contains_scope(s.as_str().trim()))
             .map(std::string::ToString::to_string)
-            .map(|s| s.trim().to_string())
             .collect();
         self.scopes.extend(s);
         self

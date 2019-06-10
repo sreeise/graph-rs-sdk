@@ -43,6 +43,15 @@ Of the portions that are implemented there are also examples and docs. Run:
 Tests are run on travis ci and can be run locally through cargo like normal Rust builds:
 
     $ cargo test -all
+    
+### Benchmarks
+
+Criterion.rs is being used to run benchmarks. The basic commands are the same;
+
+    $ cargo bench
+    
+The benchmark tests are a work in progress and several tests still need to be
+added/worked on.
 
 ### Use - subject to change.
 
