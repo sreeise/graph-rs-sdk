@@ -69,5 +69,10 @@ fn oauth_token_flow_encode_bench(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, oauth_setter_bench, oauth_extend_scopes_bench, oauth_token_flow_encode_bench);
+criterion_group!(
+    benches,
+    oauth_setter_bench,
+    oauth_extend_scopes_bench,
+    oauth_token_flow_encode_bench
+);
 criterion_main!(benches);
