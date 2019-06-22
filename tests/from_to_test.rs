@@ -1,13 +1,13 @@
 use drive_test_tools::support::cleanup::CleanUp;
 use from_to_file::*;
-use rust_onedrive::drive::driveitem::DriveItem;
+use rust_onedrive::drive::driveitemcollection::DriveItemCollection;
 use std::ffi::OsStr;
 use std::fs;
 use std::path::Path;
 
 #[test]
 fn drive_item_from_to_json() {
-    let drive_item = DriveItem::default();
+    let drive_item = DriveItemCollection::default();
     let file_location = "./test_files/test_from_to_drive_item.json";
     let mut clean_up = CleanUp::new(|| {
         if Path::new(file_location).exists() {
@@ -32,7 +32,7 @@ fn drive_item_from_to_json() {
 
 #[test]
 fn drive_item_from_to_yaml() {
-    let drive_item = DriveItem::default();
+    let drive_item = DriveItemCollection::default();
     let file_location = "./test_files/test_from_to_drive_item_yaml.yaml";
     let mut clean_up = CleanUp::new(|| {
         if Path::new(file_location).exists() {

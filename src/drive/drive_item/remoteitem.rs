@@ -1,13 +1,13 @@
 use crate::drive::drive_item::createdby::CreatedBy;
 use crate::drive::drive_item::file::File;
 use crate::drive::drive_item::filesysteminfo::FileSystemInfo;
+use crate::drive::drive_item::itemreference::ItemReference;
 use crate::drive::drive_item::lastmodifiedby::LastModifiedBy;
 use crate::drive::drive_item::package::Package;
-use crate::drive::drive_item::parentreference::ParentReference;
 use crate::drive::drive_item::shared::Shared;
 use crate::drive::drive_item::sharepointid::SharePointIds;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
 #[set = "pub set"]
 pub struct RemoteItem {
     #[serde(rename = "createdDateTime")]
@@ -43,7 +43,7 @@ pub struct RemoteItem {
     last_modified_by: Option<LastModifiedBy>,
     #[serde(rename = "parentReference")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    parent_reference: Option<ParentReference>,
+    parent_reference: Option<ItemReference>,
     #[serde(skip_serializing_if = "Option::is_none")]
     shared: Option<Shared>,
     #[serde(rename = "sharepointIds")]
@@ -66,7 +66,7 @@ impl RemoteItem {
         file_system_info: Option<FileSystemInfo>,
         package: Option<Package>,
         last_modified_by: Option<LastModifiedBy>,
-        parent_reference: Option<ParentReference>,
+        parent_reference: Option<ItemReference>,
         shared: Option<Shared>,
         share_point_ids: Option<SharePointIds>,
     ) -> Self {
@@ -131,7 +131,7 @@ impl RemoteItem {
         self.last_modified_by.clone()
     }
 
-    pub fn parent_reference(&self) -> Option<ParentReference> {
+    pub fn parent_reference(&self) -> Option<ItemReference> {
         self.parent_reference.clone()
     }
 

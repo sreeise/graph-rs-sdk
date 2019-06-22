@@ -1,8 +1,10 @@
-use crate::drive::drive_item::sharedby::SharedBy;
+use crate::drive::drive_item::identityset::IdentitySet;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct Shared {
+    owner: Option<IdentitySet>,
     #[serde(skip_serializing_if = "Option::is_none")]
     scope: Option<String>,
     #[serde(rename = "sharedDateTime")]
@@ -10,33 +12,5 @@ pub struct Shared {
     shared_date_time: Option<String>,
     #[serde(rename = "sharedBy")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    shared_by: Option<SharedBy>,
-}
-
-impl Shared {
-    pub fn new(
-        scope: Option<String>,
-        shared_date_time: Option<String>,
-        shared_by: Option<SharedBy>,
-    ) -> Self {
-        Shared {
-            scope,
-            shared_date_time,
-            shared_by,
-        }
-    }
-}
-
-impl Shared {
-    pub fn scope(&self) -> Option<String> {
-        self.scope.clone()
-    }
-
-    pub fn shared_date_time(&self) -> Option<String> {
-        self.shared_date_time.clone()
-    }
-
-    pub fn shared_by(&self) -> Option<SharedBy> {
-        self.shared_by.clone()
-    }
+    shared_by: Option<IdentitySet>,
 }

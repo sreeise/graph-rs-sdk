@@ -1,6 +1,6 @@
 use crate::drive::drive_item::hashes::Hashes;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
 #[set = "pub set"]
 pub struct File {
     #[serde(rename = "mimeType")]

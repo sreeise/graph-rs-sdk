@@ -1,5 +1,5 @@
 use graph_oauth::oauth::OAuth;
-use rust_onedrive::drive::parentreference::ParentReference;
+use rust_onedrive::drive::itemreference::ItemReference;
 use rust_onedrive::prelude::*;
 use std::convert::TryFrom;
 
@@ -34,7 +34,7 @@ fn upload_file() {
     let mut drive = get_drive().unwrap();
 
     // The API response returns a drive::value::Value representing the uploaded item.
-    let value: Value = drive
+    let value: DriveItem = drive
         .upload(
             LOCAL_FILE_PATH,
             DRIVE_FILE_ID,
@@ -51,16 +51,16 @@ fn upload_file() {
 fn upload_using_parent_reference(drive_file_name: &str) -> ItemResult<()> {
     // Get the latest metadata for the root drive folder items.
     let mut drive: Drive = get_drive()?;
-    let mut drive_item: DriveItem = drive.drive_root_child()?;
+    let mut drive_item: DriveItemCollection = drive.drive_root_child()?;
 
     // Get a drive item Value which stores a parent_reference for the drive id and parent id.
     // The metadata for a drive_root_child is those files that are stored in the drives root
     // folder so choose a file name for a file that resides there.
-    let value: Value = drive_item.find_by_name(drive_file_name)?;
-    let parent_reference: ParentReference = value.parent_reference().unwrap();
+    let value: DriveItem = drive_item.find_by_name(drive_file_name)?;
+    let parent_reference: ItemReference = value.parent_reference().unwrap();
 
     // The API response returns a drive::value::Value representing the uploaded item.
-    let value: Value =
+    let value: DriveItem =
         drive.upload_by_parent_ref(LOCAL_FILE_PATH, &parent_reference, DriveResource::Drives)?;
     println!("{:#?}", value);
     Ok(())

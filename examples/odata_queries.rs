@@ -1,6 +1,6 @@
 use from_to_file::*;
 #[allow(unused_imports)]
-use rust_onedrive::drive::driveitem::DriveItem;
+use rust_onedrive::drive::driveitemcollection::DriveItemCollection;
 use rust_onedrive::drive::query_string::QueryString;
 use rust_onedrive::drive::Drive;
 use rust_onedrive::drive::DriveEndPoint;

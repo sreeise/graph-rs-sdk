@@ -1,7 +1,7 @@
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/asyncjobstatus?view=odsp-graph-online
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Setters, Getters)]
-#[set = "pub"]
-#[get = "pub get"]
+#[set = "pub set"]
+#[get = "pub"]
 pub struct AsyncJobStatus {
     #[serde(skip_serializing_if = "Option::is_none")]
     operation: Option<String>,

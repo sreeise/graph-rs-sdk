@@ -1,4 +1,4 @@
-use rust_onedrive::drive::driveitem::DriveItem;
+use rust_onedrive::drive::driveitemcollection::DriveItemCollection;
 use rust_onedrive::drive::Drive;
 use rust_onedrive::drive::EP;
 use rust_onedrive::from_to::*;
@@ -21,28 +21,28 @@ fn main() {
 }
 
 fn drive_root(drive: &mut Drive) {
-    let drive_item: DriveItem = drive.drive_root().unwrap();
+    let drive_item: DriveItemCollection = drive.drive_root().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn drive_root_children(drive: &mut Drive) {
-    let drive_item: DriveItem = drive.drive_root_child().unwrap();
+    let drive_item: DriveItemCollection = drive.drive_root_child().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn special_docs(drive: &mut Drive) {
-    let drive_item: DriveItem = drive.special_documents().unwrap();
+    let drive_item: DriveItemCollection = drive.special_documents().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn special_docs_child(drive: &mut Drive) {
-    let drive_item: DriveItem = drive.special_documents_child().unwrap();
+    let drive_item: DriveItemCollection = drive.special_documents_child().unwrap();
     println!("{:#?}", drive_item);
 }
 
 // Specify a special folder name.
 fn special_folder_selection(drive: &mut Drive) {
-    let drive_item: DriveItem = drive.special_folder("documents").unwrap();
+    let drive_item: DriveItemCollection = drive.special_folder("documents").unwrap();
     drive_item.into_iter().for_each(|value| {
         println!("{:#?}", value);
     });

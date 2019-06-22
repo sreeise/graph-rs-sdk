@@ -1,5 +1,6 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct View {
     #[serde(rename = "viewType")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -23,17 +24,5 @@ impl View {
             sort_by,
             sort_order,
         }
-    }
-
-    pub fn view_type(&self) -> Option<String> {
-        self.view_type.clone()
-    }
-
-    pub fn sort_by(&self) -> Option<String> {
-        self.sort_by.clone()
-    }
-
-    pub fn sort_order(&self) -> Option<String> {
-        self.sort_order.clone()
     }
 }

@@ -20,7 +20,7 @@ pub fn delete_item_by_value(item_name: &str) {
     let mut drive: Drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
+    let mut drive_item: DriveItemCollection = drive.drive_root_child().unwrap();
 
     // Find the file based on it's name.
     let value = drive_item.find_by_name(item_name).unwrap();
@@ -41,7 +41,7 @@ pub fn delete_by_item_id_and_drive_id(item_name: &str) {
     let mut drive: Drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
+    let mut drive_item: DriveItemCollection = drive.drive_root_child().unwrap();
 
     // Find the file based on it's name.
     let value = drive_item.find_by_name(item_name).unwrap();

@@ -1,5 +1,6 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct User {
     #[serde(rename = "displayName")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -17,17 +18,5 @@ impl User {
             id,
             email,
         }
-    }
-
-    pub fn display_name(&self) -> Option<String> {
-        self.display_name.clone()
-    }
-
-    pub fn id(&self) -> Option<String> {
-        self.display_name.clone()
-    }
-
-    pub fn email(&self) -> Option<String> {
-        self.email.clone()
     }
 }

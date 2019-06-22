@@ -1,6 +1,8 @@
 use std::io::Write;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
+#[derive(
+    Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters,
+)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct Thumbnail {
@@ -17,7 +19,9 @@ pub struct Thumbnail {
     content: Option<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
+#[derive(
+    Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters,
+)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct ThumbnailSet {
@@ -42,7 +46,9 @@ pub struct ThumbnailSet {
     source: Option<Thumbnail>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
+#[derive(
+    Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters,
+)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct ThumbnailCollection {

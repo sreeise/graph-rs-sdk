@@ -1,0 +1,331 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#Collection(driveItem)",
+  "@odata.type": "#microsoft.graph.driveItem",
+  "fileSystemInfo": {
+    "createdDateTime": "2017-07-31T18:56:29Z",
+    "lastModifiedDateTime": "2017-07-31T18:56:29Z"
+  },
+  "audio": {
+    "album": "string",
+    "albumArtist": "string",
+    "artist": "string",
+    "bitrate": 128,
+    "composers": "string",
+    "copyright": "string",
+    "disc": 0,
+    "discCount": 0,
+    "duration": 567,
+    "genre": "string",
+    "hasDrm": false,
+    "isVariableBitrate": false,
+    "title": "string",
+    "track": 1,
+    "trackCount": 16,
+    "year": 2014
+  },
+  "content": null,
+  "cTag": "\"c:{60F36ED0-85CE-4771-B349-E671C691EFCA},0\"",
+  "deleted": {
+    "state": "state"
+  },
+  "description": "description",
+  "file": {
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "hashes": {
+      "quickXorHash": "NOFRcTaJ6M4rMxw2Ws7xou8Lyi0="
+    }
+  },
+  "folder": {
+    "childCount": 0
+  },
+  "image": {
+    "height": 200,
+    "width": 100
+  },
+  "location": {
+    "altitude": 1024.13,
+    "latitude": 26.13246,
+    "longitude": 24.34616
+  },
+  "package": {
+    "type": "oneNote"
+  },
+  "photo": {
+    "takenDateTime": "String (timestamp)"
+  },
+  "publication": {
+    "level": "published | checkout",
+    "versionId": "string"
+  },
+  "remoteItem": {
+    "createdDateTime": "2017-09-15T01:16:07Z",
+    "id": "01BYE5RZ2KXWOTNNU3K5B3AZ4YMANXEMAE",
+    "lastModifiedDateTime": "2017-09-15T01:16:14Z",
+    "name": "Winning ideas.one",
+    "size": 8188,
+    "webDavUrl": "https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/Documents/Notebooks/Megan%20@%20Work/Winning%20ideas.one",
+    "webUrl": "https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/_layouts/15/WopiFrame.aspx?sourcedoc=%7B369DBD4A-9BB6-4357-B067-98601B723004%7D&file=Winning%20ideas.one&action=default&DefaultItemOpen=1",
+    "createdBy": {
+      "user": {
+        "displayName": "Megan Bowen",
+        "email": "MeganB@M365x214355.onmicrosoft.com"
+      }
+    },
+    "file": {
+      "mimeType": "application/msonenote"
+    },
+    "fileSystemInfo": {
+      "createdDateTime": "2017-09-15T01:16:07Z",
+      "lastModifiedDateTime": "2017-09-15T01:16:14Z"
+    },
+    "lastModifiedBy": {
+      "user": {
+        "displayName": "Megan Bowen",
+        "email": "MeganB@M365x214355.onmicrosoft.com"
+      }
+    },
+    "parentReference": {
+      "driveId": "b!-RIj2DuyvEyV1T4NlOaMHk8XkS_I8MdFlUCq1BlcjgmhRfAj3-Z8RY2VpuvV_tpd",
+      "driveType": "business",
+      "id": "01BYE5RZ35EU76DRTYZ5DK5DATNBSRPLC7"
+    },
+    "sharepointIds": {
+      "listId": "23f045a1-e6df-457c-8d95-a6ebd5feda5d",
+      "listItemId": "146",
+      "listItemUniqueId": "369dbd4a-9bb6-4357-b067-98601b723004",
+      "siteId": "d82312f9-b23b-4cbc-95d5-3e0d94e68c1e",
+      "siteUrl": "https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com",
+      "webId": "2f91174f-f0c8-45c7-9540-aad4195c8e09"
+    }
+  },
+  "root": {
+  },
+  "searchResult": {
+    "onClickTelemetryUrl": "url"
+  },
+  "shared": {
+    "owner": null,
+    "scope": "users",
+    "sharedDateTime": "2017-09-02T03:05:34Z",
+    "sharedBy": {
+      "user": {
+        "displayName": "Miriam Graham",
+        "email": "MiriamG@M365x214355.onmicrosoft.com"
+      }
+    }
+  },
+  "sharepointIds": {
+    "listId": "23f045a1-e6df-457c-8d95-a6ebd5feda5d",
+    "listItemId": "146",
+    "listItemUniqueId": "369dbd4a-9bb6-4357-b067-98601b723004",
+    "siteId": "d82312f9-b23b-4cbc-95d5-3e0d94e68c1e",
+    "siteUrl": "https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com",
+    "webId": "2f91174f-f0c8-45c7-9540-aad4195c8e09"
+  },
+  "size": 0,
+  "specialFolder": {
+    "name": "attachments"
+  },
+  "video": {
+    "audioBitsPerSample": 16,
+    "audioChannels": 1,
+    "audioFormat": "AAC",
+    "audioSamplesPerSecond": 44100,
+    "bitrate": 39101896,
+    "duration": 8053,
+    "fourCC": "H264",
+    "frameRate": 239.877,
+    "height": 1280,
+    "width": 720
+  },
+  "webDavUrl": "string",
+  "children": [
+    {
+      "@odata.type": "#microsoft.graph.driveItem",
+      "fileSystemInfo": {
+        "createdDateTime": "2017-09-15T01:16:07Z",
+        "lastModifiedDateTime": "2017-09-15T01:16:14Z"
+      },
+      "content": null,
+      "file": {
+        "mimeType": "application/msonenote"
+      },
+      "remoteItem": {
+        "createdDateTime": "2017-09-15T01:16:07Z",
+        "id": "01BYE5RZ2KXWOTNNU3K5B3AZ4YMANXEMAE",
+        "lastModifiedDateTime": "2017-09-15T01:16:14Z",
+        "name": "Winning ideas.one",
+        "size": 8188,
+        "webDavUrl": "https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/Documents/Notebooks/Megan%20@%20Work/Winning%20ideas.one",
+        "webUrl": "https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/_layouts/15/WopiFrame.aspx?sourcedoc=%7B369DBD4A-9BB6-4357-B067-98601B723004%7D&file=Winning%20ideas.one&action=default&DefaultItemOpen=1",
+        "createdBy": {
+          "user": {
+            "displayName": "Megan Bowen",
+            "email": "MeganB@M365x214355.onmicrosoft.com"
+          }
+        },
+        "file": {
+          "mimeType": "application/msonenote"
+        },
+        "fileSystemInfo": {
+          "createdDateTime": "2017-09-15T01:16:07Z",
+          "lastModifiedDateTime": "2017-09-15T01:16:14Z"
+        },
+        "lastModifiedBy": {
+          "user": {
+            "displayName": "Megan Bowen",
+            "email": "MeganB@M365x214355.onmicrosoft.com"
+          }
+        },
+        "parentReference": {
+          "driveId": "b!-RIj2DuyvEyV1T4NlOaMHk8XkS_I8MdFlUCq1BlcjgmhRfAj3-Z8RY2VpuvV_tpd",
+          "driveType": "business",
+          "id": "01BYE5RZ35EU76DRTYZ5DK5DATNBSRPLC7"
+        },
+        "sharepointIds": {
+          "listId": "23f045a1-e6df-457c-8d95-a6ebd5feda5d",
+          "listItemId": "146",
+          "listItemUniqueId": "369dbd4a-9bb6-4357-b067-98601b723004",
+          "siteId": "d82312f9-b23b-4cbc-95d5-3e0d94e68c1e",
+          "siteUrl": "https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com",
+          "webId": "2f91174f-f0c8-45c7-9540-aad4195c8e09"
+        }
+      },
+      "size": 8188,
+      "id": "01BYE5RZ2KXWOTNNU3K5B3AZ4YMANXEMAE",
+      "createdBy": {
+        "user": {
+          "displayName": "Megan Bowen",
+          "email": "MeganB@M365x214355.onmicrosoft.com"
+        }
+      },
+      "createdDateTime": "2017-09-15T01:16:07Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": "Megan Bowen",
+          "email": "MeganB@M365x214355.onmicrosoft.com"
+        }
+      },
+      "lastModifiedDateTime": "2017-09-15T01:16:14Z",
+      "name": "Winning ideas.one",
+      "webUrl": "https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/_layouts/15/WopiFrame.aspx?sourcedoc=%7B369DBD4A-9BB6-4357-B067-98601B723004%7D&file=Winning%20ideas.one&action=default&DefaultItemOpen=1",
+      "@microsoft.graph.conflictBehavior": null,
+      "@microsoft.graph.downloadUrl": null,
+      "@microsoft.graph.sourceUrl": null
+    }
+  ],
+  "permissions": {
+    "id": "string (identifier)",
+    "grantedTo": {
+      "user": {
+        "id": "1",
+        "email": "email"
+      }
+    },
+    "grantedToIdentities": [
+      {
+      }
+    ],
+    "inheritedFrom": {
+      "driveId": "string",
+      "driveType": "personal | business | documentLibrary",
+      "id": "string",
+      "listId": "string",
+      "name": "string",
+      "path": "string",
+      "shareId": "string",
+      "sharepointIds": {
+      },
+      "siteId": "string"
+    },
+    "invitation": {
+      "email": "string",
+      "invitedBy": {
+      },
+      "signInRequired": true
+    },
+    "link": {
+      "application": {
+      },
+      "type": "view | edit | embed",
+      "scope": "anonymous | organization",
+      "webHtml": "string",
+      "webUrl": "url"
+    },
+    "roles": [
+      "string"
+    ],
+    "shareId": "string"
+  },
+  "thumbnails": [
+    {
+      "id": "string (identifier)",
+      "large": {
+        "height": 1024,
+        "sourceItemId": "string",
+        "url": "string",
+        "width": 1024,
+        "content": "stream"
+      },
+      "medium": {
+        "height": 1024,
+        "sourceItemId": "string",
+        "url": "string",
+        "width": 1024,
+        "content": "stream"
+      },
+      "small": {
+        "height": 1024,
+        "sourceItemId": "string",
+        "url": "string",
+        "width": 1024,
+        "content": "stream"
+      },
+      "source": {
+        "height": 1024,
+        "sourceItemId": "string",
+        "url": "string",
+        "width": 1024,
+        "content": "stream"
+      }
+    }
+  ],
+  "versions": [
+    {
+      "content": {
+      },
+      "id": "string",
+      "lastModifiedDateTime": "2016-01-01T15:20:01.125Z",
+      "size": 12356
+    }
+  ],
+  "id": "01BYE5RZ6QN3ZWBTUFOFD3GSPGOHDJD36K",
+  "createdBy": {
+    "user": {
+      "displayName": "Megan Bowen",
+      "id": "48d31887-5fad-4d73-a9f5-3c356e68a038",
+      "email": "MeganB@M365x214355.onmicrosoft.com"
+    }
+  },
+  "createdDateTime": "2017-07-31T18:56:29Z",
+  "eTag": "\"{60F36ED0-85CE-4771-B349-E671C691EFCA},1\"",
+  "lastModifiedBy": {
+    "user": {
+      "displayName": "Megan Bowen",
+      "id": "48d31887-5fad-4d73-a9f5-3c356e68a038",
+      "email": "MeganB@M365x214355.onmicrosoft.com"
+    }
+  },
+  "lastModifiedDateTime": "2017-07-31T18:56:29Z",
+  "name": "Attachments",
+  "parentReference": {
+    "driveId": "b!-RIj2DuyvEyV1T4NlOaMHk8XkS_I8MdFlUCq1BlcjgmhRfAj3-Z8RY2VpuvV_tpd",
+    "driveType": "business",
+    "id": "01BYE5RZ56Y2GOVW7725BZO354PWSELRRZ",
+    "path": "/drive/root:"
+  },
+  "webUrl": "https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/Documents/Attachments",
+  "@microsoft.graph.conflictBehavior": "string",
+  "@microsoft.graph.downloadUrl": "string",
+  "@microsoft.graph.sourceUrl": "string"
+}
