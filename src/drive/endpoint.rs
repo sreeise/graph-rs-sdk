@@ -1,7 +1,7 @@
-use crate::drive::drive_item::driveitem::DriveItem;
+use crate::drive::drive_item::driveitemcollection::DriveItemCollection;
 use crate::drive::driveinfo::DriveInfo;
+use crate::drive::driveitem::DriveItem;
 use crate::drive::item::Item;
-use crate::drive::value;
 use crate::drive::{Drive, DriveVersion, ItemResult, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
 use graph_error::{GraphError, GraphFailure};
 use reqwest::header;
@@ -103,27 +103,27 @@ impl ToString for DriveEndPoint {
 
 pub trait EP {
     fn drive(&mut self) -> ItemResult<DriveInfo>;
-    fn drive_me(&mut self) -> ItemResult<DriveItem>;
-    fn drive_root(&mut self) -> ItemResult<DriveItem>;
-    fn drive_root_me(&mut self) -> ItemResult<DriveItem>;
-    fn drive_root_child(&mut self) -> ItemResult<DriveItem>;
-    fn drive_changes(&mut self) -> ItemResult<DriveItem>;
-    fn shared_with_me(&mut self) -> ItemResult<DriveItem>;
-    fn drive_recent(&mut self) -> ItemResult<DriveItem>;
-    fn drive_activities(&mut self) -> ItemResult<DriveItem>;
+    fn drive_me(&mut self) -> ItemResult<DriveItemCollection>;
+    fn drive_root(&mut self) -> ItemResult<DriveItemCollection>;
+    fn drive_root_me(&mut self) -> ItemResult<DriveItemCollection>;
+    fn drive_root_child(&mut self) -> ItemResult<DriveItemCollection>;
+    fn drive_changes(&mut self) -> ItemResult<DriveItemCollection>;
+    fn shared_with_me(&mut self) -> ItemResult<DriveItemCollection>;
+    fn drive_recent(&mut self) -> ItemResult<DriveItemCollection>;
+    fn drive_activities(&mut self) -> ItemResult<DriveItemCollection>;
     fn special_folder<T>(&mut self, folder_name: &str) -> ItemResult<T>
     where
         for<'de> T: serde::Deserialize<'de>;
-    fn special_documents(&mut self) -> ItemResult<DriveItem>;
-    fn special_documents_child(&mut self) -> ItemResult<DriveItem>;
-    fn special_photos(&mut self) -> ItemResult<DriveItem>;
-    fn special_photos_child(&mut self) -> ItemResult<DriveItem>;
-    fn special_cameraroll(&mut self) -> ItemResult<DriveItem>;
-    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem>;
-    fn special_approot(&mut self) -> ItemResult<DriveItem>;
-    fn special_approot_child(&mut self) -> ItemResult<DriveItem>;
-    fn special_music(&mut self) -> ItemResult<DriveItem>;
-    fn special_music_child(&mut self) -> ItemResult<DriveItem>;
+    fn special_documents(&mut self) -> ItemResult<DriveItemCollection>;
+    fn special_documents_child(&mut self) -> ItemResult<DriveItemCollection>;
+    fn special_photos(&mut self) -> ItemResult<DriveItemCollection>;
+    fn special_photos_child(&mut self) -> ItemResult<DriveItemCollection>;
+    fn special_cameraroll(&mut self) -> ItemResult<DriveItemCollection>;
+    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItemCollection>;
+    fn special_approot(&mut self) -> ItemResult<DriveItemCollection>;
+    fn special_approot_child(&mut self) -> ItemResult<DriveItemCollection>;
+    fn special_music(&mut self) -> ItemResult<DriveItemCollection>;
+    fn special_music_child(&mut self) -> ItemResult<DriveItemCollection>;
 }
 
 /// Automatically requests the DriveEndPoint given in the function name and returns the struct
@@ -152,10 +152,10 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.drive_me());
     /// ```
-    fn drive_me(&mut self) -> ItemResult<DriveItem> {
-        let v: value::Value =
+    fn drive_me(&mut self) -> ItemResult<DriveItemCollection> {
+        let drive_item: DriveItem =
             self.get(DriveEndPoint::DriveMe.url(self.version.as_str()).as_str())?;
-        Ok(DriveItem::from(v))
+        Ok(DriveItemCollection::from(drive_item))
     }
 
     /// Get the drives root folder.
@@ -167,7 +167,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.drive_root());
     /// ```
-    fn drive_root(&mut self) -> ItemResult<DriveItem> {
+    fn drive_root(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(DriveEndPoint::DriveRoot.url(self.version.as_str()).as_str())
     }
 
@@ -181,7 +181,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.drive_root_me());
     /// ```
-    fn drive_root_me(&mut self) -> ItemResult<DriveItem> {
+    fn drive_root_me(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::DriveRootMe
                 .url(self.version.as_str())
@@ -198,7 +198,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.drive_root_child());
     /// ```
-    fn drive_root_child(&mut self) -> ItemResult<DriveItem> {
+    fn drive_root_child(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::DriveRootChild
                 .url(self.version.as_str())
@@ -215,7 +215,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.drive_changes());
     /// ```
-    fn drive_changes(&mut self) -> ItemResult<DriveItem> {
+    fn drive_changes(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::DriveChanges
                 .url(self.version.as_str())
@@ -232,7 +232,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.shared_with_me());
     /// ```
-    fn shared_with_me(&mut self) -> ItemResult<DriveItem> {
+    fn shared_with_me(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::SharedWithMe
                 .url(self.version.as_str())
@@ -249,7 +249,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.drive_recent());
     /// ```
-    fn drive_recent(&mut self) -> ItemResult<DriveItem> {
+    fn drive_recent(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::DriveRecent
                 .url(self.version.as_str())
@@ -267,7 +267,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.drive_activities());
     /// ```
-    fn drive_activities(&mut self) -> ItemResult<DriveItem> {
+    fn drive_activities(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::DriveActivities
                 .url(self.version.as_str())
@@ -321,13 +321,13 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_documents());
     /// ```
-    fn special_documents(&mut self) -> ItemResult<DriveItem> {
-        let v: value::Value = self.get(
+    fn special_documents(&mut self) -> ItemResult<DriveItemCollection> {
+        let drive_item: DriveItem = self.get(
             DriveEndPoint::SpecialDocuments
                 .url(self.version.as_str())
                 .as_str(),
         )?;
-        Ok(DriveItem::from(v))
+        Ok(DriveItemCollection::from(drive_item))
     }
 
     /// Get the children of the special documents folder.
@@ -339,7 +339,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_documents_child());
     /// ```
-    fn special_documents_child(&mut self) -> ItemResult<DriveItem> {
+    fn special_documents_child(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::SpecialDocumentsChild
                 .url(self.version.as_str())
@@ -356,13 +356,13 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_photos());
     /// ```
-    fn special_photos(&mut self) -> ItemResult<DriveItem> {
-        let v: value::Value = self.get(
+    fn special_photos(&mut self) -> ItemResult<DriveItemCollection> {
+        let drive_item: DriveItem = self.get(
             DriveEndPoint::SpecialPhotos
                 .url(self.version.as_str())
                 .as_str(),
         )?;
-        Ok(DriveItem::from(v))
+        Ok(DriveItemCollection::from(drive_item))
     }
 
     /// Get the children of the special photos folder.
@@ -374,7 +374,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_photos_child());
     /// ```
-    fn special_photos_child(&mut self) -> ItemResult<DriveItem> {
+    fn special_photos_child(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::SpecialPhotosChild
                 .url(self.version.as_str())
@@ -391,13 +391,13 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_cameraroll());
     /// ```
-    fn special_cameraroll(&mut self) -> ItemResult<DriveItem> {
-        let v: value::Value = self.get(
+    fn special_cameraroll(&mut self) -> ItemResult<DriveItemCollection> {
+        let drive_item: DriveItem = self.get(
             DriveEndPoint::SpecialCameraRoll
                 .url(self.version.as_str())
                 .as_str(),
         )?;
-        Ok(DriveItem::from(v))
+        Ok(DriveItemCollection::from(drive_item))
     }
 
     /// Get the children of the special camera roll folder.
@@ -409,7 +409,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_cameraroll_child());
     /// ```
-    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItem> {
+    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::SpecialCameraRollChild
                 .url(self.version.as_str())
@@ -426,13 +426,13 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_approot());
     /// ```
-    fn special_approot(&mut self) -> ItemResult<DriveItem> {
-        let v: value::Value = self.get(
+    fn special_approot(&mut self) -> ItemResult<DriveItemCollection> {
+        let drive_item: DriveItem = self.get(
             DriveEndPoint::SpecialAppRoot
                 .url(self.version.as_str())
                 .as_str(),
         )?;
-        Ok(DriveItem::from(v))
+        Ok(DriveItemCollection::from(drive_item))
     }
 
     /// Get the children of the special approot folder.
@@ -444,7 +444,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_approot_child());
     /// ```
-    fn special_approot_child(&mut self) -> ItemResult<DriveItem> {
+    fn special_approot_child(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::SpecialAppRootChild
                 .url(self.version.as_str())
@@ -461,13 +461,13 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_music());
     /// ```
-    fn special_music(&mut self) -> ItemResult<DriveItem> {
-        let v: value::Value = self.get(
+    fn special_music(&mut self) -> ItemResult<DriveItemCollection> {
+        let drive_item: DriveItem = self.get(
             DriveEndPoint::SpecialMusic
                 .url(self.version.as_str())
                 .as_str(),
         )?;
-        Ok(DriveItem::from(v))
+        Ok(DriveItemCollection::from(drive_item))
     }
 
     /// Get the children of the special music folder.
@@ -479,7 +479,7 @@ impl EP for Drive {
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// println!("{:#?}", drive.special_music_child());
     /// ```
-    fn special_music_child(&mut self) -> ItemResult<DriveItem> {
+    fn special_music_child(&mut self) -> ItemResult<DriveItemCollection> {
         self.get(
             DriveEndPoint::SpecialMusicChild
                 .url(self.version.as_str())

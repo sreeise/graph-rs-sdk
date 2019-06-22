@@ -10,7 +10,7 @@ extern crate reqwest;
 use from_to_file::*;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use rust_onedrive::drive::driveitem::DriveItem;
+use rust_onedrive::drive::driveitemcollection::DriveItemCollection;
 use rust_onedrive::drive::{Drive, EP};
 use rust_onedrive::oauth::{Grant, OAuth};
 use std::convert::TryFrom;
@@ -211,7 +211,7 @@ fn recent() {
 }
 
 fn recent_from_file() {
-    let item: DriveItem =
-        DriveItem::from_json_file("./examples/example_files/drive_recent.json").unwrap();
+    let item: DriveItemCollection =
+        DriveItemCollection::from_json_file("./examples/example_files/drive_recent.json").unwrap();
     println!("{:#?}", &item);
 }

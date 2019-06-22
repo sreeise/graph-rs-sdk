@@ -1,4 +1,4 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
 #[set = "pub set"]
 pub struct Group {
     #[serde(skip_serializing_if = "Option::is_none")]

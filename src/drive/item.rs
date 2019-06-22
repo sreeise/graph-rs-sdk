@@ -1,9 +1,8 @@
 use crate::drive;
-use crate::drive::drive_item::parentreference::ParentReference;
+use crate::drive::drive_item::asyncjobstatus::AsyncJobStatus;
+use crate::drive::drive_item::itemreference::ItemReference;
 use crate::drive::drive_item::thumbnail::ThumbnailCollection;
-use crate::drive::event::{
-    CheckIn, DownloadFormat, DriveEvent, DriveItemCopy, NewFolder,
-};
+use crate::drive::event::{CheckIn, DownloadFormat, DriveEvent, DriveItemCopy, NewFolder};
 use crate::drive::{DriveResource, DriveVersion, ItemResult, PathBuilder, ResourceBuilder};
 use crate::fetch::Fetch;
 use graph_error::GraphError;
@@ -13,7 +12,6 @@ use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::fs::File;
 use std::path::{Path, PathBuf};
-use crate::drive::drive_item::asyncjobstatus::AsyncJobStatus;
 
 fn drive_item_response<T>(client: RequestBuilder) -> ItemResult<T>
 where
@@ -174,7 +172,7 @@ pub trait Item {
 
     fn check_in_by_value(
         &self,
-        value: drive::value::Value,
+        value: drive::driveitem::DriveItem,
         check_in: CheckIn,
         resource: DriveResource,
     ) -> ItemResult<ItemResponse> {
@@ -228,7 +226,7 @@ pub trait Item {
 
     fn check_out_by_value(
         &self,
-        value: drive::value::Value,
+        value: drive::driveitem::DriveItem,
         resource: DriveResource,
     ) -> ItemResult<ItemResponse> {
         let (item_id, drive_id) = value.item_event_ids()?;
@@ -284,21 +282,14 @@ pub trait Item {
     /// [Copy a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_copy?view=odsp-graph-online)
     fn copy(
         &self,
-        value: drive::value::Value,
+        value: drive::driveitem::DriveItem,
         drive_item_copy: DriveItemCopy,
     ) -> ItemResult<ItemResponse> {
+        let (item_id, drive_id) = value.item_event_ids()?;
         let url = drive_item_copy.drive_resource().drive_item_resource(
             self.drive_version(),
-            value
-                .parent_reference()
-                .ok_or_else(|| GraphFailure::none_err("value parent_reference"))?
-                .drive_id()
-                .ok_or_else(|| GraphFailure::none_err("value parent_reference drive_id"))?
-                .as_str(),
-            value
-                .id()
-                .ok_or_else(|| GraphFailure::none_err("value item_id"))?
-                .as_str(),
+            drive_id.as_str(),
+            item_id.as_str(),
             DriveEvent::Copy,
         );
 
@@ -328,7 +319,7 @@ pub trait Item {
     /// let new_folder: NewFolder = NewFolder::new("FOLDER_NAME", ConflictBehavior::Rename);
     ///
     /// // Create the folder by referencing the drive id and parent id and the resource.
-    /// // Returns a drive::value::Value which is the new drive item metadata.
+    /// // Returns a drive::driveitem::DriveItem which is the new drive item metadata.
     /// let value = drive
     ///     .create_folder(new_folder, "A_DRIVE_ID", "A_PARENT_ITEM_ID", DriveResource::Drives)
     ///     .unwrap();
@@ -343,7 +334,7 @@ pub trait Item {
         drive_id: &str,
         parent_id: &str,
         drive_resource: DriveResource,
-    ) -> ItemResult<drive::value::Value> {
+    ) -> ItemResult<drive::driveitem::DriveItem> {
         let json_string = serde_json::to_string_pretty(&new_folder)?;
         let url = drive_resource.drive_item_resource(
             self.drive_version(),
@@ -382,7 +373,7 @@ pub trait Item {
     /// path_builder.drive_endpoint(DriveEndPoint::DriveRootChild);
     ///
     /// // Create the folder by referencing the path.
-    /// // Returns a drive::value::Value which is the new drive item metadata.
+    /// // Returns a drive::driveitem::DriveItem which is the new drive item metadata.
     /// let value = drive
     ///     .create_folder_by_path(new_folder, &mut path_builder)
     ///     .unwrap();
@@ -395,7 +386,7 @@ pub trait Item {
         &mut self,
         new_folder: NewFolder,
         path_builder: &mut PathBuilder,
-    ) -> ItemResult<drive::value::Value> {
+    ) -> ItemResult<drive::driveitem::DriveItem> {
         let json_string = serde_json::to_string_pretty(&new_folder)?;
         let url = path_builder.build();
         drive_item_response(
@@ -414,7 +405,7 @@ pub trait Item {
     /// ```rust,ignore
     /// use rust_onedrive::drive::{Drive, DriveVersion, ItemResponse, DriveResource};
     /// use rust_onedrive::drive::driveitem::DriveItem;
-    /// use rust_onedrive::drive::value::Value;
+    /// use rust_onedrive::drive::driveitem::DriveItem;
     /// use rust_onedrive::drive::driveinfo::DriveInfo;
     ///
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
@@ -488,7 +479,7 @@ pub trait Item {
     /// ```rust,ignore
     /// use rust_onedrive::drive::{Drive, DriveVersion, ItemResponse};
     /// use rust_onedrive::drive::driveitem::DriveItem;
-    /// use rust_onedrive::drive::value::Value;
+    /// use rust_onedrive::drive::driveitem::DriveItem;
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     ///
     /// let mut drive_item: DriveItem = drive.drive_recent().unwrap();
@@ -499,7 +490,7 @@ pub trait Item {
     ///
     /// # See
     /// [Delete a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_delete?view=odsp-graph-online)
-    fn delete_by_value(&self, value: drive::value::Value) -> ItemResult<ItemResponse> {
+    fn delete_by_value(&self, value: drive::driveitem::DriveItem) -> ItemResult<ItemResponse> {
         let (item_id, drive_id) = value.item_event_ids()?;
         let url = DriveResource::Drives.drive_item_resource(
             self.drive_version(),
@@ -539,7 +530,7 @@ pub trait Item {
     fn download<P: AsRef<Path>>(
         &self,
         directory: P,
-        value: &mut drive::value::Value,
+        value: &mut drive::driveitem::DriveItem,
     ) -> ItemResult<PathBuf> {
         match value.microsoft_graph_download_url() {
             // First check for a download URL in the drive::Value itself, If found use this
@@ -612,7 +603,7 @@ pub trait Item {
     fn download_format<P: AsRef<Path>>(
         &self,
         directory: P,
-        value: &mut drive::value::Value,
+        value: &mut drive::driveitem::DriveItem,
         format: DownloadFormat,
     ) -> ItemResult<PathBuf> {
         // A formatted download always uses a redirect to get the item.
@@ -651,7 +642,7 @@ pub trait Item {
     /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
     /// # use rust_onedrive::drive;;
     /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let value: drive::value::Value = drive.get_item("ITEM_ID", "RESOURCE_ID", DriveResource::Drives).unwrap();
+    /// let value: drive::driveitem::DriveItem = drive.get_item("ITEM_ID", "RESOURCE_ID", DriveResource::Drives).unwrap();
     /// println!("{:#?}", value);
     /// ```
     ///
@@ -662,7 +653,7 @@ pub trait Item {
         item_id: &str,
         resource_id: &str,
         drive_resource: DriveResource,
-    ) -> ItemResult<drive::value::Value> {
+    ) -> ItemResult<drive::driveitem::DriveItem> {
         let mut path_builder = PathBuilder::from(self.drive_version());
         match drive_resource {
             DriveResource::Me => {
@@ -699,7 +690,7 @@ pub trait Item {
     /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
     /// # use rust_onedrive::drive;;
     /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let value: drive::value::Value = drive.get_item_by_path("RESOURCE_ID", "path/to/item.txt", DriveResource::Drives).unwrap();
+    /// let value: drive::driveitem::DriveItem = drive.get_item_by_path("RESOURCE_ID", "path/to/item.txt", DriveResource::Drives).unwrap();
     /// println!("{:#?}", value);
     /// ```
     ///
@@ -710,7 +701,7 @@ pub trait Item {
         resource_id: &str,
         path: &str,
         drive_resource: DriveResource,
-    ) -> ItemResult<drive::value::Value> {
+    ) -> ItemResult<drive::driveitem::DriveItem> {
         let mut path_builder = PathBuilder::from(self.drive_version());
         let mut item_path = String::new();
         item_path.push_str("root:/");
@@ -747,7 +738,7 @@ pub trait Item {
     /// # Example
     /// ```rust,ignore
     /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// # use rust_onedrive::drive::value::Value;
+    /// # use rust_onedrive::drive::driveitem::DriveItem;
     /// # use rust_onedrive::drive::thumbnail::ThumbnailCollection;
     /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// let collection: ThumbnailCollection = drive.thumbnails("item_id", "drive_id", DriveResource::Drives).unwrap();
@@ -790,7 +781,7 @@ pub trait Item {
     /// ```rust,ignore
     /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
     /// # use rust_onedrive::drive::driveitem::DriveItem;
-    /// # use rust_onedrive::drive::value::Value;
+    /// # use rust_onedrive::drive::driveitem::DriveItem;
     /// # use rust_onedrive::drive::thumbnail::ThumbnailCollection;
     /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     ///
@@ -805,7 +796,7 @@ pub trait Item {
     /// [List Thumbnails for a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_thumbnails?view=odsp-graph-online)
     fn thumbnails_by_value(
         &mut self,
-        value: drive::value::Value,
+        value: drive::driveitem::DriveItem,
         drive_resource: DriveResource,
     ) -> ItemResult<ThumbnailCollection> {
         let (item_id, drive_id) = value.item_event_ids().unwrap();
@@ -854,7 +845,7 @@ pub trait Item {
     /// ```rust,ignore
     /// use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
     /// use rust_onedrive::drive::driveitem::DriveItem;
-    /// use rust_onedrive::drive::value::Value;
+    /// use rust_onedrive::drive::driveitem::DriveItem;
     ///
     /// static DRIVE_FILE: &str = "DRIVE_FILE_NAME.txt";
     /// static DRIVE_FILE_NEW_NAME: &str = "NEW_DRIVE_FILE_NAME.txt";
@@ -863,7 +854,7 @@ pub trait Item {
     /// let mut drive = Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// let mut drive_item: DriveItem = drive.drive_root_child()?;
     ///
-    /// // Get the value you want to update. The drive::value::Value struct
+    /// // Get the value you want to update. The drive::driveitem::DriveItem struct
     /// // stores metadata about a drive item such as a folder or file.
     /// let value: Value = drive_item.find_by_name(DRIVE_FILE)?;
     ///
@@ -873,7 +864,7 @@ pub trait Item {
     /// let drive_id = value.parent_reference().unwrap().drive_id().unwrap();
     ///
     ///
-    /// // Create a new drive::value::Value that will be used for the
+    /// // Create a new drive::driveitem::DriveItem that will be used for the
     /// // updated items.
     /// let mut updated_value: Value = Value::default();
     ///
@@ -899,9 +890,9 @@ pub trait Item {
         &mut self,
         item_id: &str,
         drive_id: &str,
-        new_value: drive::value::Value,
+        new_value: drive::driveitem::DriveItem,
         drive_resource: DriveResource,
-    ) -> ItemResult<drive::value::Value> {
+    ) -> ItemResult<drive::driveitem::DriveItem> {
         let json_string = serde_json::to_string_pretty(&new_value)?;
         let url = drive_resource.drive_item_resource(
             self.drive_version(),
@@ -924,7 +915,7 @@ pub trait Item {
     /// ```rust,ignore
     /// use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
     /// use rust_onedrive::drive::driveitem::DriveItem;
-    /// use rust_onedrive::drive::value::Value;
+    /// use rust_onedrive::drive::driveitem::DriveItem;
     ///
     /// static DRIVE_FILE: &str = "DRIVE_FILE_NAME.txt";
     /// static DRIVE_FILE_NEW_NAME: &str = "NEW_DRIVE_FILE_NAME.txt";
@@ -933,11 +924,11 @@ pub trait Item {
     /// let mut drive = Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
     /// let mut drive_item = drive.drive_root_child()?;
     ///
-    /// // Get the value you want to update. The drive::value::Value struct
+    /// // Get the value you want to update. The drive::driveitem::DriveItem struct
     /// // stores metadata about a drive item such as a folder or file.
     /// let current_value: Value = drive_item.find_by_name(DRIVE_FILE)?;
     ///
-    /// // Create a new drive::value::Value that will be used for the
+    /// // Create a new drive::driveitem::DriveItem that will be used for the
     /// // updated items.
     /// let mut updated_value: Value = Value::default();
     ///
@@ -954,10 +945,10 @@ pub trait Item {
     /// [Update DriveItem Properties](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_update?view=odsp-graph-online)
     fn update_by_value(
         &mut self,
-        old_value: drive::value::Value,
-        new_value: drive::value::Value,
+        old_value: drive::driveitem::DriveItem,
+        new_value: drive::driveitem::DriveItem,
         drive_resource: DriveResource,
-    ) -> ItemResult<drive::value::Value> {
+    ) -> ItemResult<drive::driveitem::DriveItem> {
         let json_string = serde_json::to_string_pretty(&new_value)?;
         let url = old_value.event_uri(self.drive_version(), drive_resource, DriveEvent::Update)?;
         drive_item_response(
@@ -977,7 +968,7 @@ pub trait Item {
     /// # Example
     /// ```rust,ignore
     /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// # use rust_onedrive::drive::value::Value;
+    /// # use rust_onedrive::drive::driveitem::DriveItem;
     /// static LOCAL_FILE_PATH: &str = "/path/to/file/file.txt";
     /// static DRIVE_FILE_ID: &str = "DRIVE_ID";
     /// static DRIVE_PARENT_ID: &str = "PARENT_ID";
@@ -1003,7 +994,7 @@ pub trait Item {
         drive_id: &str,
         parent_id: &str,
         drive_resource: DriveResource,
-    ) -> ItemResult<drive::value::Value> {
+    ) -> ItemResult<drive::driveitem::DriveItem> {
         let mut path_builder = PathBuilder::from(self.drive_version());
         match drive_resource {
             DriveResource::Me => {
@@ -1050,7 +1041,7 @@ pub trait Item {
     /// # Example
     /// ```rust,ignore
     /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// # use rust_onedrive::drive::value::Value;
+    /// # use rust_onedrive::drive::driveitem::DriveItem;
     /// # use rust_onedrive::drive::driveitem::DriveItem;
     /// # use rust_onedrive::drive::parentreference::ParentReference;
     /// static LOCAL_FILE_PATH: &str = "/path/to/file/file.txt";
@@ -1072,17 +1063,19 @@ pub trait Item {
     fn upload_by_parent_ref(
         &mut self,
         file_path: &str,
-        parent_ref: &ParentReference,
+        parent_ref: &ItemReference,
         drive_resource: DriveResource,
-    ) -> ItemResult<drive::value::Value> {
+    ) -> ItemResult<drive::driveitem::DriveItem> {
         let parent_id = parent_ref
             .id()
+            .clone()
             .ok_or_else(|| GraphFailure::none_err("parent reference id"))?;;
         if drive_resource.eq(&DriveResource::Me) {
             self.upload(file_path, "", parent_id.as_str(), drive_resource)
         } else {
             let drive_id = parent_ref
                 .drive_id()
+                .clone()
                 .ok_or_else(|| GraphFailure::none_err("parent reference drive id"))?;
             self.upload(
                 file_path,

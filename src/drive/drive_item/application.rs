@@ -1,4 +1,5 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+// https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/identity?view=odsp-graph-online
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
 #[set = "pub set"]
 pub struct Application {
     #[serde(rename = "displayName")]

@@ -1,4 +1,4 @@
-use rust_onedrive::drive::driveitem::DriveItem;
+use rust_onedrive::drive::driveitemcollection::DriveItemCollection;
 use rust_onedrive::drive::event::DownloadFormat;
 use rust_onedrive::drive::Drive;
 use rust_onedrive::drive::Item;
@@ -11,7 +11,7 @@ use std::path::PathBuf;
 fn main() {
     let oauth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
     let mut drive = Drive::try_from(oauth).unwrap();
-    let drive_item: DriveItem = drive.drive_root_child().unwrap();
+    let drive_item: DriveItemCollection = drive.drive_root_child().unwrap();
     // DriveItem stores a Vec consisting of Values that are resources in a users drive
     // such as documents, folders, etc.
     println!("{:#?}", drive_item);
@@ -20,9 +20,9 @@ fn main() {
     // If the download is successful, a PathBuf is returned. Note, that the
     // download method is not optimized for large files or folders with many
     // files. This feature is still being worked on.
-    let mut value = drive_item.value_idx(0);
+    let mut drive_item = drive_item.index(0);
     let path_buf: PathBuf = drive
-        .download("./examples/example_files", &mut value)
+        .download("./examples/example_files", &mut drive_item)
         .unwrap();
     println!("{:#?}", path_buf.metadata());
 }
@@ -38,7 +38,7 @@ pub fn download_from_root() {
     let mut drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
+    let mut drive_item: DriveItemCollection = drive.drive_root_child().unwrap();
     // Save the metadata of the files.
     drive_item
         .to_json_file("./examples/example_files/drive_root_child.json")
@@ -73,7 +73,7 @@ pub fn download_from_root_and_format() {
     let mut drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
+    let mut drive_item: DriveItemCollection = drive.drive_root_child().unwrap();
 
     // Save the metadata of the files.
     drive_item

@@ -26,16 +26,15 @@ fn update_item() -> ItemResult<()> {
 
     // Get the value you want to update. The drive::value::Value struct
     // stores metadata about a drive item such as a folder or file.
-    let value: Value = drive_item.find_by_name(DRIVE_FILE)?;
+    let value: DriveItem = drive_item.find_by_name(DRIVE_FILE)?;
 
     // Get the item id of the item that needs updating and the
     // drive id of the drive that houses the item.
-    let item_id = value.id().unwrap();
-    let drive_id = value.parent_reference().unwrap().drive_id().unwrap();
+    let (item_id, drive_id) = value.item_event_ids().unwrap();
 
     // Create a new drive::value::Value that will be used for the
     // updated items.
-    let mut updated_value: Value = Value::default();
+    let mut updated_value: DriveItem = DriveItem::default();
 
     // Update the name of the file (or whatever you want to update).
     // Only include the fields that you want updated.
@@ -44,7 +43,7 @@ fn update_item() -> ItemResult<()> {
 
     // Make the request to the API. This returns the item
     // with the updated values.
-    let updated: Value = drive.update(
+    let updated: DriveItem = drive.update(
         item_id.as_str(),
         drive_id.as_str(),
         updated_value,
@@ -64,18 +63,19 @@ fn update_by_value() -> ItemResult<()> {
 
     // Get the value you want to update. The drive::value::Value struct
     // stores metadata about a drive item such as a folder or file.
-    let current_value: Value = drive_item.find_by_name(DRIVE_FILE)?;
+    let current_value: DriveItem = drive_item.find_by_name(DRIVE_FILE)?;
 
     // Create a new drive::value::Value that will be used for the
     // updated items.
-    let mut updated_value: Value = Value::default();
+    let mut updated_value: DriveItem = DriveItem::default();
 
     // Update the name of the file (or whatever you want to update).
     // Only include the fields that you want updated.
     // Fields that are not included will not be changed.
     updated_value.set_name(Some(DRIVE_FILE_NEW_NAME.into()));
 
-    let updated: Value = drive.update_by_value(updated_value, current_value, DriveResource::Me)?;
+    let updated: DriveItem =
+        drive.update_by_value(updated_value, current_value, DriveResource::Me)?;
 
     println!("{:#?}", updated);
     Ok(())

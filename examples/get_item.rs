@@ -20,7 +20,7 @@ fn get_drive() -> ItemResult<Drive> {
 
 fn get_drive_item(item_id: &str, resource_id: &str) {
     let mut drive = get_drive().unwrap();
-    let drive_item: Value = drive
+    let drive_item: DriveItem = drive
         .get_item(item_id, resource_id, DriveResource::Drives)
         .unwrap();
     println!("{:#?}", drive_item);
@@ -28,7 +28,7 @@ fn get_drive_item(item_id: &str, resource_id: &str) {
 
 fn get_drive_item_path(resource_id: &str, path_to_item: &str) {
     let mut drive = get_drive().unwrap();
-    let drive_item: Value = drive
+    let drive_item: DriveItem = drive
         .get_item_by_path(resource_id, path_to_item, DriveResource::Drives)
         .unwrap();
     println!("{:#?}", drive_item);

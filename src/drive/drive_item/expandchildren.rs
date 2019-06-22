@@ -1,11 +1,12 @@
 use crate::drive::drive_item::Root;
+use crate::drive::driveitem::DriveItem;
 use crate::drive::filesysteminfo::FileSystemInfo;
 use crate::drive::folder::Folder;
 use crate::drive::parentreference::ParentReference;
-use crate::drive::value::Value;
 
 #[derive(Debug, Serialize, Deserialize, Getters, Setters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct ExpandChildren {
     #[serde(rename = "@odata.context")]
     odata_context: String,
@@ -27,5 +28,5 @@ pub struct ExpandChildren {
     #[serde(rename = "children@odata.context")]
     children_odata_context: String,
     #[serde(rename = "children")]
-    children: Vec<Value>,
+    children: Vec<DriveItem>,
 }

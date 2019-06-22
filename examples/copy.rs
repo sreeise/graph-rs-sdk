@@ -1,5 +1,5 @@
 use rust_onedrive::drive::event::DriveItemCopy;
-use rust_onedrive::drive::parentreference::ParentReference;
+use rust_onedrive::drive::itemreference::ItemReference;
 use rust_onedrive::oauth::OAuth;
 use rust_onedrive::prelude::*;
 use std::convert::TryFrom;
@@ -19,22 +19,23 @@ fn copy_item() {
     let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
     let mut drive: Drive = Drive::try_from(oauth).unwrap();
 
-    let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
+    let mut drive_item: DriveItemCollection = drive.drive_root_child().unwrap();
 
     // The file or folder that you want to copy.
-    let value: Value = drive_item.find_by_name(DRIVE_FILE).unwrap();
+    let value: DriveItem = drive_item.find_by_name(DRIVE_FILE).unwrap();
 
-    // The DriveItem copy request uses a ParentReference which contains the metadata
-    // for the drive id and path specifying where the new copy should be placed.
-    // The path below in the ParentReference is typically the same path as the drive item
+    // The DriveItem copy request uses a ItemReference (parent reference) which contains
+    // the metadata for the drive id and path specifying where the new copy should be placed.
+    // The path below in the ItemReference is typically the same path as the drive item
     // requested above so the copy of the item will be placed in the same folder. This can
     // be changed to wherever you would like the copy placed.
-    let parent_ref = ParentReference::new(None, None, None, Some("/drive/root:/Documents".into()));
+    let mut item_ref = ItemReference::default();
+    item_ref.set_path(Some("/drive/root:/Documents".into()));
 
-    // A DriveItemCopy contains takes the parent reference, an optional name for the file copy,
+    // A DriveItemCopy contains takes the ItemReference, an optional name for the file copy,
     // and the drive resource that specifies the url to use for requesting the copy.
     let prc = DriveItemCopy::new(
-        parent_ref,
+        item_ref,
         Some(DRIVE_FILE_COPY_NAME.into()),
         DriveResource::Drives,
     );

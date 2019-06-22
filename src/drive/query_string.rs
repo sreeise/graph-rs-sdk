@@ -1,4 +1,4 @@
-use crate::drive::drive_item::driveitem::DriveItem;
+use crate::drive::driveitemcollection::DriveItemCollection;
 use crate::drive::endpoint::DriveEndPoint;
 use crate::drive::expandchildren::ExpandChildren;
 use crate::drive::item::Item;
@@ -49,11 +49,15 @@ macro_rules! convert_query {
 ///
 /// [Query Documentation Continued](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/optional-query-parameters?view=odsp-graph-online#selecting-properties)
 pub trait QueryString {
-    fn count(&mut self, end_point: DriveEndPoint, query: &str) -> ItemResult<DriveItem>;
+    fn count(&mut self, end_point: DriveEndPoint, query: &str) -> ItemResult<DriveItemCollection>;
 
     fn count_url(&self, end_point: DriveEndPoint, query: &str) -> String;
 
-    fn select(&mut self, end_point: DriveEndPoint, query: &[&str]) -> ItemResult<DriveItem>;
+    fn select(
+        &mut self,
+        end_point: DriveEndPoint,
+        query: &[&str],
+    ) -> ItemResult<DriveItemCollection>;
 
     fn select_url(&self, end_point: DriveEndPoint, query: &[&str]) -> String;
 
@@ -67,27 +71,43 @@ pub trait QueryString {
 
     fn expand_url(&self, end_point: DriveEndPoint, expand_item: &str) -> String;
 
-    fn filter(&mut self, end_point: DriveEndPoint, query_str: &[&str]) -> ItemResult<DriveItem>;
+    fn filter(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &[&str],
+    ) -> ItemResult<DriveItemCollection>;
 
     fn filter_url(&self, end_point: DriveEndPoint, query: &[&str]) -> String;
 
-    fn order_by(&mut self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem>;
+    fn order_by(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &str,
+    ) -> ItemResult<DriveItemCollection>;
 
     fn order_by_url(&self, end_point: DriveEndPoint, query: &str) -> String;
 
-    fn search(&mut self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem>;
+    fn search(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &str,
+    ) -> ItemResult<DriveItemCollection>;
 
     fn search_url(&self, end_point: DriveEndPoint, query_str: &str) -> String;
 
-    fn format(&mut self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem>;
+    fn format(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &str,
+    ) -> ItemResult<DriveItemCollection>;
 
     fn format_url(&self, end_point: DriveEndPoint, query_str: &str) -> String;
 
-    fn skip(&self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem>;
+    fn skip(&self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItemCollection>;
 
     fn skip_url(&self, end_point: DriveEndPoint, query_str: &str) -> String;
 
-    fn top(&self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem>;
+    fn top(&self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItemCollection>;
 
     fn top_url(&self, end_point: DriveEndPoint, query_str: &str) -> String;
 }
@@ -106,7 +126,11 @@ impl QueryString for Drive {
     /// let drive_item: DriveItem = drive.count(DriveEndPoint::DriveRootChild, "2").unwrap();
     /// println!("{:#?}", drive_item);
     /// ```
-    fn count(&mut self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem> {
+    fn count(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &str,
+    ) -> ItemResult<DriveItemCollection> {
         let url = self.count_url(end_point, query_str);
         self.get(url.as_str())
     }
@@ -145,7 +169,11 @@ impl QueryString for Drive {
     /// let drive_item: DriveItem = drive.select(DriveEndPoint::Drive, &vec!["name", "size"]).unwrap();
     /// println!("{:#?}", drive_item);
     /// ```
-    fn select(&mut self, end_point: DriveEndPoint, query_str: &[&str]) -> ItemResult<DriveItem> {
+    fn select(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &[&str],
+    ) -> ItemResult<DriveItemCollection> {
         let url = self.select_url(end_point, query_str);
         self.get(url.as_str())
     }
@@ -229,7 +257,11 @@ impl QueryString for Drive {
     /// let drive_item: DriveItem = drive.filter_url(DriveEndPoint::Drive, &filter_vec).unwrap();
     /// println!("{:#?}", drive_item);
     /// ```
-    fn filter(&mut self, end_point: DriveEndPoint, query_str: &[&str]) -> ItemResult<DriveItem> {
+    fn filter(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &[&str],
+    ) -> ItemResult<DriveItemCollection> {
         let url = self.filter_url(end_point, query_str);
         self.get(url.as_str())
     }
@@ -266,7 +298,11 @@ impl QueryString for Drive {
     /// let drive_item: DriveItem = drive.order_by(DriveEndPoint::Drive, "name"),
     /// println!("{:#?}", drive_item);
     /// ```
-    fn order_by(&mut self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem> {
+    fn order_by(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &str,
+    ) -> ItemResult<DriveItemCollection> {
         let url = self.order_by_url(end_point, query_str);
         self.get(url.as_str())
     }
@@ -302,7 +338,11 @@ impl QueryString for Drive {
     /// let drive_item: DriveItem = drive.search(DriveEndPoint::Drive, "pizza").unwrap();
     /// println!("{:#?}", drive_item);
     /// ```
-    fn search(&mut self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem> {
+    fn search(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &str,
+    ) -> ItemResult<DriveItemCollection> {
         let url = self.search_url(end_point, query_str);
         self.get(url.as_str())
     }
@@ -338,7 +378,11 @@ impl QueryString for Drive {
     /// let drive_item: DriveItem = drive.format(DriveEndPoint::Drive, "json").unwrap();
     /// println!("{:#?}", drive_item);
     /// ```
-    fn format(&mut self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem> {
+    fn format(
+        &mut self,
+        end_point: DriveEndPoint,
+        query_str: &str,
+    ) -> ItemResult<DriveItemCollection> {
         let url = self.format_url(end_point, query_str);
         self.get(url.as_str())
     }
@@ -374,7 +418,7 @@ impl QueryString for Drive {
     /// let drive_item: DriveItem = drive.skip(DriveEndPoint::Drive, "10").unwrap();
     /// println!("{:#?}", drive_item);
     /// ```
-    fn skip(&self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem> {
+    fn skip(&self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItemCollection> {
         let url = self.skip_url(end_point, query_str);
         self.get(url.as_str())
     }
@@ -409,7 +453,7 @@ impl QueryString for Drive {
     /// let drive_item: DriveItem = drive.top(DriveEndPoint::Drive, "2").unwrap();
     /// println!("{:#?}", drive_item);
     /// ```
-    fn top(&self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItem> {
+    fn top(&self, end_point: DriveEndPoint, query_str: &str) -> ItemResult<DriveItemCollection> {
         let url = self.top_url(end_point, query_str);
         self.get(url.as_str())
     }

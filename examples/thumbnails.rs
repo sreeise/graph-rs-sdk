@@ -7,7 +7,7 @@ static DRIVE_FILE: &str = "YOUR_DRIVE_FILE_NAME";
 
 pub fn main() {
     // Replace the default DriveItem with your own.
-    let mut drive_item = DriveItem::default();
+    let mut drive_item = DriveItemCollection::default();
     get_thumbnails(&mut drive_item);
 }
 
@@ -17,9 +17,9 @@ pub fn get_drive() -> Drive {
     drive
 }
 
-pub fn get_thumbnails(drive_item: &mut DriveItem) {
+pub fn get_thumbnails(drive_item: &mut DriveItemCollection) {
     let mut drive = get_drive();
-    let value: Value = drive_item.find_by_name(DRIVE_FILE).unwrap();
+    let value: DriveItem = drive_item.find_by_name(DRIVE_FILE).unwrap();
     let collection: ThumbnailCollection =
         drive.thumbnails_by_value(value, DriveResource::Me).unwrap();
     println!("{:#?}", collection.thumbnails());

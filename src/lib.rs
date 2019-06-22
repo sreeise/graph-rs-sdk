@@ -97,8 +97,8 @@ mod io;
 
 pub mod prelude {
     pub use crate::drive::driveitem::DriveItem;
+    pub use crate::drive::driveitemcollection::DriveItemCollection;
     pub use crate::drive::query_string::QueryString;
-    pub use crate::drive::value::Value;
     pub use crate::drive::Drive;
     pub use crate::drive::DriveEndPoint;
     pub use crate::drive::DriveResource;
