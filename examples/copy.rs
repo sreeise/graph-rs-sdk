@@ -44,19 +44,19 @@ fn copy_item() {
 
     // When an item is copied the response returns a URL in the location header
     // that can be used to monitor the progress. For events that may take longer to finish
-    // such as copying an item, the ItemResponse event_progress() method can be used
+    // such as copying an item, the ItemResponse async_job_status() method can be used
     // to get the metadata returned from the monitor URL. This request returns an
-    // EventProgress struct. Note, it is important to remember that EventProgress
+    // AsyncJobStatus struct. Note, it is important to remember that AsyncJobStatus
     // is only used for specific API requests.
     //
     // The ItemResponse success() method will return true if the status of the
     // request returns 202 which means the request for copying an item is approved.
     // However, this does not mean that the copy event has finished. The
-    // ItemResponse event_progress() should be used to check if the event
+    // ItemResponse async_job_status() should be used to check if the event
     // has finished instead of the success method.
 
     // Wait a few seconds before checking the progress (assuming the file or
     // folder size is small here).
     thread::sleep(Duration::from_secs(5));
-    println!("{:#?}", &item_response.event_progress());
+    println!("{:#?}", &item_response.async_job_status());
 }

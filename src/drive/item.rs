@@ -2,7 +2,7 @@ use crate::drive;
 use crate::drive::drive_item::parentreference::ParentReference;
 use crate::drive::drive_item::thumbnail::ThumbnailCollection;
 use crate::drive::event::{
-    CheckIn, DownloadFormat, DriveEvent, DriveItemCopy, EventProgress, NewFolder,
+    CheckIn, DownloadFormat, DriveEvent, DriveItemCopy, NewFolder,
 };
 use crate::drive::{DriveResource, DriveVersion, ItemResult, PathBuilder, ResourceBuilder};
 use crate::fetch::Fetch;
@@ -13,6 +13,7 @@ use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::fs::File;
 use std::path::{Path, PathBuf};
+use crate::drive::drive_item::asyncjobstatus::AsyncJobStatus;
 
 fn drive_item_response<T>(client: RequestBuilder) -> ItemResult<T>
 where
@@ -54,7 +55,7 @@ impl ItemResponse {
         self.response.status().as_u16()
     }
 
-    pub fn event_progress(&mut self) -> ItemResult<Option<EventProgress>> {
+    pub fn async_job_status(&mut self) -> ItemResult<Option<AsyncJobStatus>> {
         let headers = self.response.headers();
         // The location header contains the URL for monitoring progress.
         let option_location: Option<&reqwest::header::HeaderValue> = headers.get(header::LOCATION);
@@ -70,7 +71,7 @@ impl ItemResponse {
                 ));
             }
 
-            let progress: EventProgress = response.json()?;
+            let progress: AsyncJobStatus = response.json()?;
             Ok(Some(progress))
         } else {
             Ok(None)
