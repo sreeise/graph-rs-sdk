@@ -1,6 +1,8 @@
 # Rust-OneDrive
 
 [![Build Status](https://travis-ci.com/sreeise/rust-onedrive.svg?branch=master)](https://travis-ci.com/sreeise/rust-onedrive)
+[![codecov](https://codecov.io/gh/sreeise/rust-onedrive/branch/master/graph/badge.svg)](https://codecov.io/gh/sreeise/rust-onedrive)
+
 
 ### OneDrive API - Built with Rust
 
