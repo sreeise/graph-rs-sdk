@@ -4,10 +4,8 @@ version = "0.1.0"
 authors = ["sreeise"]
 edition = "2018"
 
-[dependencies.url]
-git = "https://github.com/servo/rust-url"
-features = ["query_encoding"]
-
 [dependencies]
+url = "1.7.2"
+percent-encoding = "1.0.1"
 rust-onedrive = { path = "../" }
 rand = "0.6.5"

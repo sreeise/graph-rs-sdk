@@ -15,23 +15,26 @@ use std::io::Read;
 use std::thread;
 use std::time::Duration;
 
-// Note: The open id connect grant is a work in progress.
-
 // Create an OAuth struct with the needed credentials.
+// See the following link for more info on open ID connect:
+// https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
 fn oauth_open_id() -> OAuth {
     let mut oauth = OAuth::open_id_connect();
     oauth
         .client_id("<YOUR_CLIENT_ID>")
         .client_secret("<YOUR_CLIENT_SECRET>")
-        .authorize_url("https://login.microsoftonline.com/<YOUR_TENANT or other Microsoft values such as common>/oauth2/v2.0/authorize")
+        .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
         .redirect_uri("http://localhost:8000/redirect")
-        .access_token_url("https://login.microsoftonline.com/<YOUR_TENANT or other Microsoft values such as common>/oauth2/v2.0/token")
-        .refresh_token_url("https://login.microsoftonline.com/<YOUR_TENANT or other Microsoft values such as common>/oauth2/v2.0/token")
+        .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
+        .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
         .response_type("id_token code")
         .response_mode("form_post")
         .add_scope("openid")
         .add_scope("Files.Read")
         .add_scope("Files.ReadWrite")
+        .add_scope("Files.Read.All")
+        .add_scope("Files.ReadWrite.All")
+        .add_scope("offline_access")
         .nonce("7362CAEA-9CA5")
         .prompt("login")
         .state("12345");
@@ -57,10 +60,11 @@ fn main() {
 }
 
 #[post("/redirect", data = "<id_token>")]
-fn redirect(id_token: Data) {
+fn redirect(id_token: Data) -> String {
     // Read in the response body to a String
     let mut s = String::new();
     id_token.open().read_to_string(&mut s).unwrap();
+
     // Print the string for debugging in case the attempt to deserialize the response
     // in the TryFrom method below does not work..
     println!("Token response:\n{:#?}\n", s);
@@ -72,6 +76,7 @@ fn redirect(id_token: Data) {
     let mut oauth = oauth_open_id();
     oauth.id_token(token);
     access_token(&mut oauth);
+    String::from("Successfully Logged In! You can close your browser.")
 }
 
 pub fn access_token(oauth: &mut OAuth) {

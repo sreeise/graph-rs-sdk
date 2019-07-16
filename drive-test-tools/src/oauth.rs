@@ -103,7 +103,6 @@ impl OAuthTestTool {
             OAuth::token_flow(),
             OAuth::code_flow(),
             OAuth::authorization_code_grant(),
-            OAuth::client_credentials_grant(),
             OAuth::implicit_grant(),
             OAuth::open_id_connect(),
         ];

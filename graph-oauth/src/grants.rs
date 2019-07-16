@@ -1,3 +1,4 @@
+use crate::accesstoken::AccessToken;
 use crate::auth::{OAuthCredential, OAuthReq};
 use std::process::Output;
 
@@ -17,15 +18,14 @@ pub enum GrantType {
     TokenFlow,
     CodeFlow,
     AuthorizationCode,
-    ClientCredentials,
     Implicit,
     OpenId,
 }
 
 pub trait Grant {
     fn request_authorization(&mut self) -> OAuthReq<Output>;
-    fn request_access_token(&mut self) -> OAuthReq<()>;
-    fn request_refresh_token(&mut self) -> OAuthReq<()>;
+    fn request_access_token(&mut self) -> OAuthReq<AccessToken>;
+    fn request_refresh_token(&mut self) -> OAuthReq<AccessToken>;
 }
 
 impl GrantType {
@@ -96,22 +96,6 @@ impl GrantType {
                     OAuthCredential::Scopes,
                 ],
             },
-            GrantType::ClientCredentials => match grant_request {
-                GrantRequest::Authorization => vec![
-                    OAuthCredential::ClientId,
-                    OAuthCredential::RedirectURI,
-                    OAuthCredential::State,
-                    OAuthCredential::AdminConsent,
-                ],
-                GrantRequest::AccessToken | GrantRequest::RefreshToken => vec![
-                    OAuthCredential::ClientId,
-                    OAuthCredential::Scopes,
-                    OAuthCredential::GrantType,
-                    OAuthCredential::ClientSecret,
-                    OAuthCredential::ClientAssertion,
-                    OAuthCredential::ClientAssertionType,
-                ],
-            },
             GrantType::Implicit => match grant_request {
                 GrantRequest::Authorization |
                 GrantRequest::AccessToken |
@@ -138,6 +122,7 @@ impl GrantType {
                     OAuthCredential::State,
                     OAuthCredential::Nonce,
                     OAuthCredential::Prompt,
+                    OAuthCredential::LoginHint,
                     OAuthCredential::DomainHint,
                     OAuthCredential::Resource,
                 ],

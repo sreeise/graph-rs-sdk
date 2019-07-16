@@ -2,15 +2,15 @@ use crate::accesstoken::AccessToken;
 use crate::grants::{Grant, GrantRequest, GrantType};
 use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
-use crate::oauthtools::OAuthTooling;
 use crate::scope::Scope;
 use from_to_file::*;
 use graph_error::GraphFailure;
+use reqwest::header;
 use std::collections::btree_map::BTreeMap;
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
+use std::convert::TryFrom;
 use std::process::Output;
 use url::form_urlencoded::Serializer;
+use url::Url;
 
 pub type OAuthReq<T> = Result<T, GraphFailure>;
 
@@ -98,16 +98,6 @@ impl OAuthCredential {
             OAuthCredential::AdminConsent => "admin_consent",
         }
     }
-
-    pub fn hash_alias(self) -> u64 {
-        let to_hash = move |value: &str| {
-            let mut s = DefaultHasher::new();
-            value.hash(&mut s);
-            s.finish()
-        };
-
-        to_hash(self.alias())
-    }
 }
 
 impl ToString for OAuthCredential {
@@ -142,7 +132,6 @@ impl ToString for OAuthCredential {
 /// let oauth_token_flow = OAuth::token_flow();
 /// let oauth_code_flow = OAuth::code_flow();
 /// let oauth_auth_grant = OAuth::authorization_code_grant();
-/// let oauth_client_cred = OAuth::client_credentials_grant();
 /// let oauth_implicit = OAuth::implicit_grant();
 /// let oauth_open_id = OAuth::open_id_connect();
 /// ```
@@ -214,20 +203,6 @@ impl OAuth {
         OAuth::new(GrantType::AuthorizationCode)
     }
 
-    /// Create a new OAuth instance for the client credentials grant.
-    ///
-    /// # See
-    /// [Client Credentials Grant for OAuth 2.0](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
-    ///
-    /// # Example
-    /// ```
-    /// use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::client_credentials_grant();
-    /// ```
-    pub fn client_credentials_grant() -> OAuth {
-        OAuth::new(GrantType::ClientCredentials)
-    }
-
     /// Create a new OAuth instance for the implicit grant.
     ///
     /// # See
@@ -271,6 +246,17 @@ impl OAuth {
     /// println!("{:#?}", oauth.get(OAuthCredential::AuthorizeURL));
     /// ```
     pub fn insert(&mut self, oac: OAuthCredential, value: &str) -> &mut OAuth {
+        match oac {
+            OAuthCredential::RefreshTokenURL |
+            OAuthCredential::PostLogoutRedirectURI |
+            OAuthCredential::AccessTokenURL |
+            OAuthCredential::AuthorizeURL |
+            OAuthCredential::LogoutURL => {
+                Url::parse(value).unwrap();
+            },
+            _ => {},
+        }
+
         self.credentials
             .insert(oac.alias().to_string(), value.trim().to_string());
         self
@@ -648,22 +634,6 @@ impl OAuth {
         self.insert(OAuthCredential::PostLogoutRedirectURI, value)
     }
 
-    /// Set the admin consent. Only works for specific grants such as
-    /// the client credentials grant.
-    ///
-    /// # Example
-    /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::client_credentials_grant();
-    /// oauth.admin_consent(true);
-    /// ```
-    pub fn admin_consent(&mut self, value: bool) -> &mut OAuth {
-        if value {
-            return self.insert(OAuthCredential::AdminConsent, "True");
-        }
-        self.insert(OAuthCredential::AdminConsent, "False")
-    }
-
     /// Add a scope' for the OAuth URL.
     ///
     /// # Example
@@ -900,7 +870,7 @@ impl OAuth {
         } else if let Some(redirect) = self.get(OAuthCredential::RedirectURI) {
             vec.push(redirect);
         }
-        OAuthTooling::open_in_browser(vec.join("").as_str())
+        webbrowser::open(vec.join("").as_str()).map_err(GraphFailure::from)
     }
 
     /// Sign the user out using the OneDrive v2.0 endpoint.
@@ -914,13 +884,19 @@ impl OAuth {
     /// ```
     pub fn v2_logout(&self) -> OAuthReq<Output> {
         let mut url = self.get_or_else(OAuthCredential::LogoutURL)?;
+        println!("{:#?}", url);
+        if !url.ends_with('?') {
+            url.push('?');
+        }
         if let Some(redirect) = self.get(OAuthCredential::PostLogoutRedirectURI) {
+            url.push_str("post_logout_redirect_uri=");
             url.push_str(redirect.as_str());
         } else {
             let redirect_uri = self.get_or_else(OAuthCredential::RedirectURI)?;
+            url.push_str("post_logout_redirect_uri=");
             url.push_str(redirect_uri.as_str());
         }
-        OAuthTooling::open_in_browser(url.as_str())
+        webbrowser::open(url.as_str()).map_err(GraphFailure::from)
     }
 }
 
@@ -951,7 +927,7 @@ impl OAuth {
         match self.grant {
             GrantType::TokenFlow => match request_type {
                 GrantRequest::Authorization => {
-                    self.insert(OAuthCredential::ResponseType, "token");
+                    let _ = self.entry(OAuthCredential::ResponseType, "token");
                     self.form_encode_credentials(
                         GrantType::TokenFlow.available_credentials(GrantRequest::Authorization),
                         &mut encoder,
@@ -973,8 +949,8 @@ impl OAuth {
             },
             GrantType::CodeFlow => match request_type {
                 GrantRequest::Authorization => {
-                    self.insert(OAuthCredential::ResponseType, "code");
-                    self.insert(OAuthCredential::ResponseMode, "query");
+                    let _ = self.entry(OAuthCredential::ResponseType, "code");
+                    let _ = self.entry(OAuthCredential::ResponseMode, "query");
                     self.form_encode_credentials(
                         GrantType::CodeFlow.available_credentials(GrantRequest::Authorization),
                         &mut encoder,
@@ -988,8 +964,8 @@ impl OAuth {
                     Ok(url)
                 },
                 GrantRequest::AccessToken => {
-                    self.insert(OAuthCredential::ResponseType, "token");
-                    self.insert(OAuthCredential::GrantType, "authorization_code");
+                    let _ = self.entry(OAuthCredential::ResponseType, "token");
+                    let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
                     self.form_encode_credentials(
                         GrantType::CodeFlow.available_credentials(GrantRequest::AccessToken),
                         &mut encoder,
@@ -997,7 +973,7 @@ impl OAuth {
                     Ok(encoder.finish())
                 },
                 GrantRequest::RefreshToken => {
-                    self.insert(OAuthCredential::GrantType, "refresh_token");
+                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
                     let refresh_token = self.get_refresh_token()?;
                     encoder.append_pair("refresh_token", &refresh_token);
                     self.form_encode_credentials(
@@ -1009,8 +985,8 @@ impl OAuth {
             },
             GrantType::AuthorizationCode => match request_type {
                 GrantRequest::Authorization => {
-                    self.insert(OAuthCredential::ResponseType, "code");
-                    self.insert(OAuthCredential::ResponseMode, "query");
+                    let _ = self.entry(OAuthCredential::ResponseType, "code");
+                    let _ = self.entry(OAuthCredential::ResponseMode, "query");
                     self.form_encode_credentials(
                         GrantType::AuthorizationCode.available_credentials(GrantRequest::Authorization),
                         &mut encoder,
@@ -1024,59 +1000,15 @@ impl OAuth {
                 },
                 GrantRequest::AccessToken | GrantRequest::RefreshToken => {
                     if request_type == GrantRequest::AccessToken {
-                        self.insert(OAuthCredential::GrantType, "authorization_code");
+                        let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
                     } else {
-                        self.insert(OAuthCredential::GrantType, "refresh_token");
+                        let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
                         encoder.append_pair("refresh_token", &self.get_refresh_token()?);
                     }
                     self.form_encode_credentials(
                         GrantType::AuthorizationCode.available_credentials(request_type),
                         &mut encoder,
                     );
-                    Ok(encoder.finish())
-                },
-            },
-            GrantType::ClientCredentials => match request_type {
-                GrantRequest::Authorization => {
-                    self.form_encode_credentials(
-                        GrantType::ClientCredentials.available_credentials(GrantRequest::Authorization),
-                        &mut encoder,
-                    );
-
-                    let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
-                    if !url.ends_with('?') {
-                        url.push('?');
-                    }
-                    url.push_str(encoder.finish().as_str());
-                    Ok(url)
-                },
-                GrantRequest::AccessToken | GrantRequest::RefreshToken => {
-                    // The following assumes that if the client secret is present, then the
-                    // caller is performing the access token request with a shared
-                    // secret. If the client secret is not preset, then the access
-                    // token request with a certificate is used.
-                    self.insert(OAuthCredential::GrantType, "client_credentials");
-                    if self.contains(OAuthCredential::ClientSecret) {
-                        let mut vec = GrantType::ClientCredentials.available_credentials(GrantRequest::AccessToken);
-                        vec.remove_item(&OAuthCredential::ClientAssertion);
-                        vec.remove_item(&OAuthCredential::ClientAssertionType);
-                        self.form_encode_credentials(
-                            vec,
-                            &mut encoder,
-                        );
-                    } else {
-                        let _ = self.entry(
-                            OAuthCredential::ClientAssertionType,
-                            "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-                        );
-                        let mut vec = GrantType::ClientCredentials.available_credentials(GrantRequest::AccessToken);
-                        vec.remove_item(&OAuthCredential::ClientSecret);
-                        self.form_encode_credentials(
-                            vec,
-                            &mut encoder,
-                        );
-                    }
-
                     Ok(encoder.finish())
                 },
             },
@@ -1106,18 +1038,6 @@ impl OAuth {
             },
             GrantType::OpenId => match request_type {
                 GrantRequest::Authorization => {
-                    if !self.scopes.contains(&"openid".into()) {
-                        self.add_scope("openid");
-                    }
-                    if !self.contains(OAuthCredential::Nonce) {
-                        return OAuthError::grant_error(
-                            GrantType::OpenId,
-                            GrantRequest::Authorization,
-                            "Requires nonce parameter.",
-                        );
-                    }
-                    let _ = self.entry(OAuthCredential::ResponseMode, "form_post");
-                    self.insert(OAuthCredential::ResponseType, "id_token");
                     self.form_encode_credentials(
                         GrantType::OpenId.available_credentials(GrantRequest::Authorization),
                         &mut encoder,
@@ -1131,7 +1051,7 @@ impl OAuth {
                     Ok(url)
                 },
                 GrantRequest::AccessToken => {
-                    self.insert(OAuthCredential::GrantType, "authorization_code");
+                    let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
                     self.form_encode_credentials(
                         GrantType::OpenId.available_credentials(GrantRequest::AccessToken),
                         &mut encoder,
@@ -1139,7 +1059,7 @@ impl OAuth {
                     Ok(encoder.finish())
                 },
                 GrantRequest::RefreshToken => {
-                    self.insert(OAuthCredential::GrantType, "refresh_token");
+                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
                     let refresh_token = self.get_refresh_token()?;
                     encoder.append_pair("refresh_token", &refresh_token);
                     self.form_encode_credentials(
@@ -1160,7 +1080,7 @@ impl Grant for OAuth {
     /// scopes.
     fn request_authorization(&mut self) -> OAuthReq<Output> {
         let url = self.encode_uri(GrantRequest::Authorization)?;
-        OAuthTooling::open_in_browser(url.as_str())
+        webbrowser::open(url.as_str()).map_err(GraphFailure::from)
     }
 
     /// Make a request for an access token. The token is stored in OAuth and
@@ -1200,30 +1120,35 @@ impl Grant for OAuth {
     /// // Make a request for an access token.
     /// oauth.request_access_token()?;
     /// ```
-    fn request_access_token(&mut self) -> OAuthReq<()> {
+    fn request_access_token(&mut self) -> OAuthReq<AccessToken> {
         let url = self.get_or_else(OAuthCredential::AccessTokenURL)?;
         let body = self.encode_uri(GrantRequest::AccessToken)?;
-        let mut access_token = OAuthTooling::post_access_token(url.as_str(), body.as_str())?;
-        if let Ok(refresh_token) = self.get_refresh_token() {
-            access_token.refresh_token(Some(refresh_token.as_str()));
-        }
-        access_token.timestamp();
-        self.access_token(access_token);
-        Ok(())
+        let client = reqwest::Client::builder().build()?;
+        let builder = client
+            .post(url.as_str())
+            .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
+            .body(body);
+        let access_token: AccessToken = AccessToken::try_from(builder)?;
+        self.access_token(access_token.clone());
+        Ok(access_token)
     }
 
     /// Request a refresh token. Assumes an access token has already
     /// been retrieved.
-    fn request_refresh_token(&mut self) -> OAuthReq<()> {
+    fn request_refresh_token(&mut self) -> OAuthReq<AccessToken> {
         let url = self.get_or_else(OAuthCredential::RefreshTokenURL)?;
         let body = self.encode_uri(GrantRequest::RefreshToken)?;
-        let mut access_token = OAuthTooling::post_access_token(url.as_str(), body.as_str())?;
+        let client = reqwest::Client::builder().build()?;
+        let builder = client
+            .post(url.as_str())
+            .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
+            .body(body);
+        let mut access_token: AccessToken = AccessToken::try_from(builder)?;
         if let Ok(refresh_token) = self.get_refresh_token() {
             access_token.refresh_token(Some(refresh_token.as_str()));
         }
-        access_token.timestamp();
-        self.access_token(access_token);
-        Ok(())
+        self.access_token(access_token.clone());
+        Ok(access_token)
     }
 }
 

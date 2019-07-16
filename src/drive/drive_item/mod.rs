@@ -51,7 +51,6 @@ pub mod moveaction;
 pub mod numbercolumn;
 pub mod owner;
 pub mod package;
-pub mod parentreference;
 pub mod permissions;
 pub mod personorgroupcolumn;
 pub mod photo;

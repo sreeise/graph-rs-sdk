@@ -24,7 +24,6 @@
 //! let oauth_token_flow = OAuth::token_flow();
 //! let oauth_code_flow = OAuth::code_flow();
 //! let oauth_auth_grant = OAuth::authorization_code_grant();
-//! let oauth_client_cred = OAuth::client_credentials_grant();
 //! let oauth_implicit = OAuth::implicit_grant();
 //! let oauth_open_id = OAuth::open_id_connect();
 //! ```
@@ -47,7 +46,6 @@ mod grants;
 mod idtoken;
 pub mod jwt;
 mod oautherror;
-mod oauthtools;
 mod scopes;
 mod stdop;
 
@@ -67,7 +65,6 @@ pub mod oauth {
     pub use crate::grants::GrantType;
     pub use crate::idtoken::IdToken;
     pub use crate::oautherror::OAuthError;
-    pub use crate::oauthtools::OAuthTooling;
     pub use crate::scope;
     pub use crate::scope::Scope;
     pub use crate::strum::IntoEnumIterator;
