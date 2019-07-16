@@ -4,7 +4,6 @@ use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::driveitemcollection::DriveItemCollection;
 use rust_onedrive::drive::filesysteminfo::FileSystemInfo;
 use rust_onedrive::drive::itemreference::ItemReference;
-use rust_onedrive::drive::parentreference::ParentReference;
 use rust_onedrive::drive::quota::Quota;
 
 #[test]

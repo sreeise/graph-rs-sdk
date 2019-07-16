@@ -1,11 +1,12 @@
 use crate::oautherror::OAuthError;
 use from_to_file::*;
 use graph_error::GraphFailure;
+use std::borrow::Cow;
 use std::convert::TryFrom;
 use std::str::FromStr;
+use url::form_urlencoded;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, FromToFile)]
-#[serde(rename = "id_token")]
 pub struct IdToken {
     code: Option<String>,
     id_token: String,
@@ -78,21 +79,18 @@ impl FromStr for IdToken {
     type Err = GraphFailure;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let vec: Vec<&str> = s.split_terminator('&').collect();
+        let vec: Vec<(Cow<str>, Cow<str>)> = form_urlencoded::parse(s.as_bytes()).collect();
         if vec.is_empty() {
-            return OAuthError::invalid_data("Could not parse string into id_token");
+            return OAuthError::invalid_data("Invalid String. Must be key value pairs.");
         }
-
         let mut id_token = IdToken::default();
-        for string in vec.iter() {
-            if string.starts_with("code=") {
-                id_token.code(&string[5..]);
-            } else if string.starts_with("id_token=") {
-                id_token.id_token(&string[9..]);
-            } else if string.starts_with("state=") {
-                id_token.state(&string[6..]);
-            } else if string.starts_with("session_state=") {
-                id_token.session_state(&string[14..]);
+        for (key, value) in vec.iter() {
+            match key.as_bytes() {
+                b"code" => id_token.code(value.as_ref()),
+                b"id_token" => id_token.id_token(value.as_ref()),
+                b"state" => id_token.state(value.as_ref()),
+                b"session_state" => id_token.session_state(value.as_ref()),
+                _ => return GraphFailure::invalid_data("Invalid key value pair in string."),
             }
         }
         Ok(id_token)

@@ -1,8 +1,8 @@
+use crate::drive::drive_item::itemreference::ItemReference;
 use crate::drive::drive_item::Root;
 use crate::drive::driveitem::DriveItem;
 use crate::drive::filesysteminfo::FileSystemInfo;
 use crate::drive::folder::Folder;
-use crate::drive::parentreference::ParentReference;
 
 #[derive(Debug, Serialize, Deserialize, Getters, Setters)]
 #[set = "pub set"]
@@ -20,7 +20,7 @@ pub struct ExpandChildren {
     web_url: String,
     size: i64,
     #[serde(rename = "parentReference")]
-    parent_reference: ParentReference,
+    parent_reference: ItemReference,
     #[serde(rename = "fileSystemInfo")]
     file_system_info: FileSystemInfo,
     folder: Folder,

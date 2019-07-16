@@ -162,8 +162,6 @@ pub fn set_and_req_access_code(access_code: &str) {
     // The response type is automatically set to token and the grant type is automatically
     // set to authorization_code if either of these were not previously set.
     // This is done here as an example.
-    oauth.response_type("token");
-    oauth.grant_type("authorization_code");
     oauth.access_code(access_code);
     oauth.request_access_token().unwrap();
 
