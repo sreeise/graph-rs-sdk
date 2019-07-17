@@ -43,11 +43,7 @@ impl DriveEvent {
             DriveEvent::Preview => "preview",
             DriveEvent::Activities => "activities",
             DriveEvent::Thumbnails => "thumbnails",
-            DriveEvent::Move |
-            DriveEvent::GetItem |
-            DriveEvent::GetItemRoot |
-            DriveEvent::Delete |
-            DriveEvent::Update => "",
+            _ => "",
         }
     }
 }
