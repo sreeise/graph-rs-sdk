@@ -2,11 +2,10 @@ language: rust
 before_script:
   - rustup component add clippy
 script:
-  - cargo clippy
   - cargo build --verbose --all
   - cargo test --verbose --all
+  - cargo clippy
 rust:
   - nightly
 matrix:
   fast_finish: true
-cache: cargo
