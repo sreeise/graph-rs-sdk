@@ -3,14 +3,16 @@ use crate::drive::drive_item::asyncjobstatus::AsyncJobStatus;
 use crate::drive::drive_item::itemreference::ItemReference;
 use crate::drive::drive_item::thumbnail::ThumbnailCollection;
 use crate::drive::event::{CheckIn, DownloadFormat, DriveEvent, DriveItemCopy, NewFolder};
-use crate::drive::{DriveResource, DriveVersion, ItemResult, PathBuilder, ResourceBuilder};
+use crate::drive::{DriveResource, DriveVersion, ItemResult, ResourceBuilder};
 use crate::fetch::Fetch;
+use crate::prelude::DriveUrl;
 use graph_error::GraphError;
 use graph_error::GraphFailure;
 use reqwest::{header, Client, RedirectPolicy, RequestBuilder, Response};
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::fs::File;
+use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
 fn drive_item_response<T>(client: RequestBuilder) -> ItemResult<T>
@@ -385,13 +387,12 @@ pub trait Item {
     fn create_folder_by_path(
         &mut self,
         new_folder: NewFolder,
-        path_builder: &mut PathBuilder,
+        drive_url: DriveUrl,
     ) -> ItemResult<drive::driveitem::DriveItem> {
         let json_string = serde_json::to_string_pretty(&new_folder)?;
-        let url = path_builder.build();
         drive_item_response(
             self.client()?
-                .post(url.as_str())
+                .post(drive_url.as_str())
                 .body(json_string)
                 .header(header::CONTENT_TYPE, "application/json")
                 .bearer_auth(self.token()),
@@ -654,30 +655,21 @@ pub trait Item {
         resource_id: &str,
         drive_resource: DriveResource,
     ) -> ItemResult<drive::driveitem::DriveItem> {
-        let mut path_builder = PathBuilder::from(self.drive_version());
+        let mut drive_url = DriveUrl::new(self.drive_version());
         match drive_resource {
             DriveResource::Me => {
-                path_builder.path("me/drive/items").path(item_id);
+                drive_url.extend_path(&["me", "drive", "items", item_id]);
             },
             DriveResource::Drives => {
-                path_builder
-                    .path("drives")
-                    .path(resource_id)
-                    .path("items")
-                    .path(item_id);
+                drive_url.extend_path(&["drives", resource_id, "items", item_id]);
             },
             DriveResource::Sites | DriveResource::Groups | DriveResource::Users => {
-                path_builder
-                    .path("drives")
-                    .path(resource_id)
-                    .path("drive/items")
-                    .path(item_id);
+                drive_url.extend_path(&["drives", resource_id, "drive", "items", item_id]);
             },
         }
-        let url = path_builder.build();
         drive_item_response(
             self.client()?
-                .get(url.as_str())
+                .get(drive_url.as_ref())
                 .bearer_auth(self.token())
                 .header(header::CONTENT_TYPE, "application/json"),
         )
@@ -702,32 +694,27 @@ pub trait Item {
         path: &str,
         drive_resource: DriveResource,
     ) -> ItemResult<drive::driveitem::DriveItem> {
-        let mut path_builder = PathBuilder::from(self.drive_version());
-        let mut item_path = String::new();
-        item_path.push_str("root:/");
-        item_path.push_str(path);
+        let mut drive_url = DriveUrl::new(self.drive_version());
         match drive_resource {
             DriveResource::Me => {
-                path_builder.path("me/drive").path(item_path);
+                drive_url.extend_path(&["me", "drive", "root:", path]);
             },
             DriveResource::Drives => {
-                path_builder
-                    .path("drives")
-                    .path(resource_id)
-                    .path(item_path);
+                drive_url.extend_path(&["drives", resource_id, "root:", path]);
             },
             DriveResource::Sites | DriveResource::Groups | DriveResource::Users => {
-                path_builder
-                    .drive_resource(drive_resource)
-                    .path(resource_id)
-                    .path("drive/items")
-                    .path(item_path);
+                drive_url.extend_path(&[
+                    drive_resource.as_ref().trim_matches('/'),
+                    resource_id,
+                    "drives",
+                    "items",
+                    path,
+                ]);
             },
         }
-        let url = path_builder.build();
         drive_item_response(
             self.client()?
-                .get(url.as_str())
+                .get(drive_url.as_ref())
                 .bearer_auth(self.token())
                 .header(header::CONTENT_TYPE, "application/json"),
         )
@@ -995,24 +982,18 @@ pub trait Item {
         parent_id: &str,
         drive_resource: DriveResource,
     ) -> ItemResult<drive::driveitem::DriveItem> {
-        let mut path_builder = PathBuilder::from(self.drive_version());
+        let mut drive_url = DriveUrl::new(self.drive_version());
         match drive_resource {
             DriveResource::Me => {
-                path_builder.path("me/drive/items").path(parent_id);
+                drive_url.extend_path(&["me", "drive", "items", parent_id]);
             },
             DriveResource::Drives => {
-                path_builder
-                    .path("drives")
-                    .path(drive_id)
-                    .path("items")
-                    .path(parent_id);
+                drive_url.extend_path(&["drives", drive_id, "items", parent_id]);
             },
             DriveResource::Sites | DriveResource::Groups | DriveResource::Users => {
-                path_builder
-                    .drive_resource(drive_resource)
-                    .path(drive_id)
-                    .path("drive/items")
-                    .path(parent_id);
+                drive_url
+                    .resource(drive_resource)
+                    .extend_path(&[drive_id, "drive", "items", parent_id]);
             },
         }
         let path = Path::new(&file_path);
@@ -1021,13 +1002,10 @@ pub trait Item {
             .ok_or_else(|| GraphFailure::none_err("No filename in the file path given"))?;
         let os_string: OsString = os_str.to_os_string();
         let file = File::open(file_path)?;
-        path_builder
-            .drive_path(os_string)
-            .drive_event(DriveEvent::Upload);
-        let url = path_builder.build();
+        drive_url.extend_path(&[os_string.to_str().unwrap(), DriveEvent::Upload.as_str()]);
         drive_item_response(
             self.client()?
-                .put(url.as_str())
+                .put(drive_url.as_ref())
                 .bearer_auth(self.token())
                 .body(file),
         )

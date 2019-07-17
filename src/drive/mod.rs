@@ -14,18 +14,18 @@ use std;
 
 mod drive_item;
 mod driveresource;
+mod driveurl;
 mod endpoint;
 mod item;
-mod pathbuilder;
 #[macro_use]
 pub mod query_string;
 pub mod event;
 
 pub use crate::drive::drive_item::*;
 pub use crate::drive::driveresource::{DriveResource, ResourceBuilder};
+pub use crate::drive::driveurl::DriveUrl;
 pub use crate::drive::endpoint::{DriveEndPoint, EP};
 pub use crate::drive::item::{Item, ItemResponse};
-pub use crate::drive::pathbuilder::PathBuilder;
 use from_to_file::*;
 use std::convert::TryFrom;
 use std::fmt;

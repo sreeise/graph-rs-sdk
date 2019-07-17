@@ -102,11 +102,11 @@ pub mod prelude {
     pub use crate::drive::Drive;
     pub use crate::drive::DriveEndPoint;
     pub use crate::drive::DriveResource;
+    pub use crate::drive::DriveUrl;
     pub use crate::drive::DriveVersion;
     pub use crate::drive::Item;
     pub use crate::drive::ItemResponse;
     pub use crate::drive::ItemResult;
-    pub use crate::drive::PathBuilder;
     pub use crate::drive::ResourceBuilder;
     pub use crate::drive::EP;
     pub use crate::from_to::*;

@@ -47,17 +47,15 @@ fn create_folder_by_given_path() {
     // to use in case of a naming conflict. Can be one of rename, fail, or replace.
     let new_folder: NewFolder = NewFolder::new(FOLDER_NAME, ConflictBehavior::Rename);
 
-    // Creates a new PathBuilder by passing a reference of a Drive. The PathBuilder
+    // Creates a new DriveUrl by passing a reference of a Drive. The DriveUrl
     // will use the drive version URL for the Drive as the host URL for the path.
-    let mut path_builder = PathBuilder::from(&drive);
+    let mut drive_url = DriveUrl::from(&drive);
 
     // Use the main root drive location to create the folder in.
-    path_builder.drive_endpoint(DriveEndPoint::DriveRootChild);
+    drive_url.endpoint(DriveEndPoint::DriveRootChild);
 
     // Create the folder by path.
     // Returns a drive::value::Value which is the new drive item metadata.
-    let value = drive
-        .create_folder_by_path(new_folder, &mut path_builder)
-        .unwrap();
+    let value = drive.create_folder_by_path(new_folder, drive_url).unwrap();
     println!("{:#?}", value);
 }
