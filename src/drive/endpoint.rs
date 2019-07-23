@@ -294,8 +294,12 @@ impl EP for Drive {
         let mut endpoint = DriveEndPoint::SpecialFolder.to_string();
         endpoint.push('/');
         endpoint.push_str(folder_name);
-        let mut response = self
-            .client()?
+
+        let client = reqwest::Client::builder()
+            .build()
+            .map_err(GraphFailure::from)?;
+
+        let mut response = client
             .get(endpoint.as_str())
             .bearer_auth(self.token())
             .header(header::CONTENT_TYPE, "application/json")

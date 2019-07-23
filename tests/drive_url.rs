@@ -1,8 +1,6 @@
 use rust_onedrive::drive::event::DriveEvent;
-use rust_onedrive::drive::{DriveEndPoint, DriveResource, DriveVersion, ResourceBuilder};
+use rust_onedrive::drive::{DriveEndPoint, DriveResource, DriveVersion};
 use rust_onedrive::prelude::DriveUrl;
-use std::convert::TryFrom;
-use std::ffi::OsString;
 
 #[test]
 fn from_drive_end_point() {
