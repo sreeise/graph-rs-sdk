@@ -12,7 +12,6 @@ use reqwest::{header, Client, RedirectPolicy, RequestBuilder, Response};
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::fs::File;
-use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
 fn drive_item_response<T>(client: RequestBuilder) -> ItemResult<T>
@@ -34,6 +33,12 @@ fn item_response(client: RequestBuilder, drive_event: DriveEvent) -> ItemResult<
     } else {
         Ok(ItemResponse::new(drive_event, response))
     }
+}
+
+fn client() -> Result<Client, GraphFailure> {
+    reqwest::Client::builder()
+        .build()
+        .map_err(GraphFailure::from)
 }
 
 #[derive(Debug)]
@@ -104,38 +109,13 @@ pub trait Item {
 
     fn drive_version(&self) -> DriveVersion;
 
-    fn item<T>(&self, r: &mut Response) -> ItemResult<T>
-    where
-        T: serde::Serialize + for<'de> serde::Deserialize<'de>,
-    {
-        if GraphError::is_error(r.status().as_u16()) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(r).unwrap_or_default(),
-            ));
-        }
-        let item: T = r.json()?;
-        Ok(item)
-    }
-
-    fn client(&self) -> Result<Client, GraphFailure> {
-        reqwest::Client::builder()
-            .build()
-            .map_err(GraphFailure::from)
-    }
-
-    /// A request builder for REST requests with the authorization header
-    /// included.
-    fn request_builder(&self, url: &str) -> ItemResult<RequestBuilder> {
-        Ok(self.client()?.get(url).bearer_auth(self.token()))
-    }
-
     fn get<T>(&self, url: &str) -> ItemResult<T>
     where
         T: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
         assert!(url.starts_with(self.drive_version().as_ref()));
         drive_item_response(
-            self.client()?
+            client()?
                 .get(url)
                 .bearer_auth(self.token())
                 .header(header::CONTENT_TYPE, "application/json"),
@@ -163,8 +143,7 @@ pub trait Item {
         let url = builder.build()?;
         let check_in_json = serde_json::to_string(&check_in)?;
 
-        let rb = self
-            .client()?
+        let rb = client()?
             .post(url.as_str())
             .bearer_auth(self.token())
             .body(check_in_json)
@@ -188,8 +167,7 @@ pub trait Item {
         let url = builder.build()?;
         let check_in_json = serde_json::to_string(&check_in)?;
 
-        let rb = self
-            .client()?
+        let rb = client()?
             .post(url.as_str())
             .bearer_auth(self.token())
             .body(check_in_json)
@@ -216,8 +194,7 @@ pub trait Item {
             .resource(resource);
 
         let url = builder.build()?;
-        let rb = self
-            .client()?
+        let rb = client()?
             .post(url.as_str())
             .bearer_auth(self.token())
             .header(header::CONTENT_LENGTH, 0)
@@ -240,8 +217,7 @@ pub trait Item {
             .resource(resource);
 
         let url = builder.build()?;
-        let rb = self
-            .client()?
+        let rb = client()?
             .post(url.as_str())
             .bearer_auth(self.token())
             .header(header::CONTENT_LENGTH, 0)
@@ -296,8 +272,7 @@ pub trait Item {
         );
 
         let pr_json = drive_item_copy.as_json()?;
-        let rb = self
-            .client()?
+        let rb = client()?
             .post(url.as_str())
             .body(pr_json)
             .header(header::CONTENT_TYPE, "application/json")
@@ -345,7 +320,7 @@ pub trait Item {
             DriveEvent::CreateFolder,
         );
         drive_item_response(
-            self.client()?
+            client()?
                 .post(url.as_str())
                 .body(json_string)
                 .header(header::CONTENT_TYPE, "application/json")
@@ -391,7 +366,7 @@ pub trait Item {
     ) -> ItemResult<drive::driveitem::DriveItem> {
         let json_string = serde_json::to_string_pretty(&new_folder)?;
         drive_item_response(
-            self.client()?
+            client()?
                 .post(drive_url.as_str())
                 .body(json_string)
                 .header(header::CONTENT_TYPE, "application/json")
@@ -465,10 +440,7 @@ pub trait Item {
             .drive_id(drive_id)
             .resource(resource);
         let url = builder.build()?;
-        let builder = self
-            .client()?
-            .delete(url.as_str())
-            .bearer_auth(self.token());
+        let builder = client()?.delete(url.as_str()).bearer_auth(self.token());
         item_response(builder, DriveEvent::Delete)
     }
 
@@ -499,10 +471,7 @@ pub trait Item {
             item_id.as_str(),
             DriveEvent::Delete,
         );
-        let builder = self
-            .client()?
-            .delete(url.as_str())
-            .bearer_auth(self.token());
+        let builder = client()?.delete(url.as_str()).bearer_auth(self.token());
         item_response(builder, DriveEvent::Delete)
     }
 
@@ -668,7 +637,7 @@ pub trait Item {
             },
         }
         drive_item_response(
-            self.client()?
+            client()?
                 .get(drive_url.as_ref())
                 .bearer_auth(self.token())
                 .header(header::CONTENT_TYPE, "application/json"),
@@ -713,7 +682,7 @@ pub trait Item {
             },
         }
         drive_item_response(
-            self.client()?
+            client()?
                 .get(drive_url.as_ref())
                 .bearer_auth(self.token())
                 .header(header::CONTENT_TYPE, "application/json"),
@@ -755,7 +724,7 @@ pub trait Item {
             url.push_str(u.as_str());
         }
         drive_item_response(
-            self.client()?
+            client()?
                 .get(url.as_str())
                 .header(header::CONTENT_TYPE, "application/json")
                 .bearer_auth(self.token()),
@@ -817,8 +786,7 @@ pub trait Item {
             host_path.push_str(u.as_str());
         }
         let url = vec![host_path.as_str(), "/", thumb_id, "/", size, "/content"].join("");
-        let mut response = self
-            .client()?
+        let mut response = client()?
             .get(url.as_str())
             .header(header::CONTENT_TYPE, "application/json")
             .bearer_auth(self.token())
@@ -888,7 +856,7 @@ pub trait Item {
             DriveEvent::Update,
         );
         drive_item_response(
-            self.client()?
+            client()?
                 .patch(url.as_str())
                 .body(json_string)
                 .header(header::CONTENT_TYPE, "application/json")
@@ -939,7 +907,7 @@ pub trait Item {
         let json_string = serde_json::to_string_pretty(&new_value)?;
         let url = old_value.event_uri(self.drive_version(), drive_resource, DriveEvent::Update)?;
         drive_item_response(
-            self.client()?
+            client()?
                 .patch(url.as_str())
                 .body(json_string)
                 .header(header::CONTENT_TYPE, "application/json")
@@ -1004,7 +972,7 @@ pub trait Item {
         let file = File::open(file_path)?;
         drive_url.extend_path(&[os_string.to_str().unwrap(), DriveEvent::Upload.as_str()]);
         drive_item_response(
-            self.client()?
+            client()?
                 .put(drive_url.as_ref())
                 .bearer_auth(self.token())
                 .body(file),
