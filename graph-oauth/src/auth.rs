@@ -241,31 +241,55 @@ impl OAuth {
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
     /// # let mut oauth = OAuth::code_flow();
-    /// oauth.insert(OAuthCredential::AuthorizeURL, "https://example.com".into());
-    /// assert_eq!(oauth.contains(OAuthCredential::AuthorizeURL), true);
+    /// oauth.insert(OAuthCredential::AuthorizeURL, "https://example.com");
+    /// assert!(oauth.contains(OAuthCredential::AuthorizeURL));
     /// println!("{:#?}", oauth.get(OAuthCredential::AuthorizeURL));
     /// ```
-    pub fn insert(&mut self, oac: OAuthCredential, value: &str) -> &mut OAuth {
+    pub fn insert<V: ToString>(&mut self, oac: OAuthCredential, value: V) -> &mut OAuth {
+        let v = value.to_string();
         match oac {
             OAuthCredential::RefreshTokenURL |
             OAuthCredential::PostLogoutRedirectURI |
             OAuthCredential::AccessTokenURL |
             OAuthCredential::AuthorizeURL |
             OAuthCredential::LogoutURL => {
-                Url::parse(value).unwrap();
+                Url::parse(v.as_ref()).unwrap();
+            },
+            _ => {},
+        }
+
+        self.credentials.insert(oac.to_string(), v);
+        self
+    }
+
+    /// Insert and OAuth credential using the entry trait and
+    /// returning the credential. This internally calls
+    /// `entry.(OAuthCredential).or_insret_with(value)`.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::oauth::OAuthCredential;
+    /// # let mut oauth = OAuth::code_flow();
+    /// let entry = oauth.entry(OAuthCredential::AuthorizeURL, "https://example.com");
+    /// assert_eq!(entry, "https://example.com")
+    /// ```
+    pub fn entry<V: ToString>(&mut self, oac: OAuthCredential, value: V) -> &mut String {
+        let v = value.to_string();
+        match oac {
+            OAuthCredential::RefreshTokenURL |
+            OAuthCredential::PostLogoutRedirectURI |
+            OAuthCredential::AccessTokenURL |
+            OAuthCredential::AuthorizeURL |
+            OAuthCredential::LogoutURL => {
+                Url::parse(v.as_ref()).unwrap();
             },
             _ => {},
         }
 
         self.credentials
-            .insert(oac.alias().to_string(), value.trim().to_string());
-        self
-    }
-
-    pub fn entry(&mut self, oac: OAuthCredential, value: &str) -> &mut String {
-        self.credentials
             .entry(oac.alias().to_string())
-            .or_insert_with(|| value.to_string())
+            .or_insert_with(|| v)
     }
 
     /// Get a previously set credential.
@@ -1155,5 +1179,28 @@ impl Grant for OAuth {
 impl From<GrantType> for OAuth {
     fn from(grant_name: GrantType) -> Self {
         OAuth::new(grant_name)
+    }
+}
+
+/// Extend the OAuth credentials.
+///
+/// # Example
+/// ```
+/// # use graph_oauth::oauth::{OAuth, OAuthCredential};
+/// # use std::collections::HashMap;
+/// # let mut oauth = OAuth::code_flow();
+/// let mut map: HashMap<OAuthCredential, &str> = HashMap::new();
+/// map.insert(OAuthCredential::ClientId, "client_id");
+/// map.insert(OAuthCredential::ClientSecret, "client_secret");
+///
+/// oauth.extend(map);
+/// # assert_eq!(oauth.get(OAuthCredential::ClientId), Some("client_id".to_string()));
+/// # assert_eq!(oauth.get(OAuthCredential::ClientSecret), Some("client_secret".to_string()));
+/// ```
+impl<V: ToString> Extend<(OAuthCredential, V)> for OAuth {
+    fn extend<I: IntoIterator<Item = (OAuthCredential, V)>>(&mut self, iter: I) {
+        iter.into_iter().for_each(|entry| {
+            self.insert(entry.0, entry.1);
+        });
     }
 }
