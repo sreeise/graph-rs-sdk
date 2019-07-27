@@ -111,6 +111,6 @@ fn multi_scope() {
         .logout_url("https://login.live.com/oauth20_logout.srf?");
 
     let url = oauth.encode_uri(GrantRequest::Authorization).unwrap();
-    let test_url = "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fredirect&response_type=code&scope=Files.Read+Files.ReadWrite+Files.Read.All+Files.ReadWrite.All+wl.offline_access";
+    let test_url = "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fredirect&response_type=code&scope=Files.Read+Files.Read.All+Files.ReadWrite+Files.ReadWrite.All+wl.offline_access";
     assert_eq!(test_url, url.as_str())
 }
