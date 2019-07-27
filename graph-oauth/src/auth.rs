@@ -2,11 +2,11 @@ use crate::accesstoken::AccessToken;
 use crate::grants::{Grant, GrantRequest, GrantType};
 use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
-use crate::scope::Scope;
 use from_to_file::*;
 use graph_error::GraphFailure;
 use reqwest::header;
 use std::collections::btree_map::BTreeMap;
+use std::collections::BTreeSet;
 use std::convert::TryFrom;
 use std::process::Output;
 use url::form_urlencoded::Serializer;
@@ -138,7 +138,7 @@ impl ToString for OAuthCredential {
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
 pub struct OAuth {
     access_token: Option<AccessToken>,
-    scopes: Vec<String>,
+    scopes: BTreeSet<String>,
     credentials: BTreeMap<String, String>,
     grant: GrantType,
 }
@@ -155,7 +155,7 @@ impl OAuth {
     pub fn new(grant: GrantType) -> OAuth {
         OAuth {
             access_token: None,
-            scopes: Vec::new(),
+            scopes: BTreeSet::new(),
             credentials: BTreeMap::new(),
             grant,
         }
@@ -674,15 +674,8 @@ impl OAuth {
     /// oauth.add_scope(scope::FILES_READ)
     ///       .add_scope(scope::FILES_READ_WRITE);
     /// ```
-    pub fn add_scope<T>(&mut self, scope: T) -> &mut OAuth
-    where
-        T: Scope,
-    {
-        let s = scope.to_string();
-        let s1: String = s.trim().into();
-        if !self.scopes.contains(&s1) {
-            self.scopes.push(s1);
-        }
+    pub fn add_scope<T: ToString>(&mut self, scope: T) -> &mut OAuth {
+        self.scopes.insert(scope.to_string());
         self
     }
 
@@ -695,9 +688,11 @@ impl OAuth {
     /// oauth.add_scope("Files.Read");
     /// oauth.add_scope("Files.ReadWrite");
     ///
-    /// assert_eq!(&vec!["Files.Read", "Files.ReadWrite"], oauth.get_scopes())
+    /// let scopes = oauth.get_scopes();
+    /// assert!(scopes.contains("Files.Read"));
+    /// assert!(scopes.contains("Files.ReadWrite"));
     /// ```
-    pub fn get_scopes(&self) -> &Vec<String> {
+    pub fn get_scopes(&self) -> &BTreeSet<String> {
         &self.scopes
     }
 
@@ -713,7 +708,11 @@ impl OAuth {
     /// println!("{:#?}", s);
     /// ```
     pub fn join_scopes(&self, sep: &str) -> String {
-        self.scopes.join(sep).to_owned()
+        self.scopes
+            .iter()
+            .map(|s| s.as_str())
+            .collect::<Vec<&str>>()
+            .join(sep)
     }
 
     /// Extend scopes.
@@ -722,6 +721,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::scope;
+    /// # use std::collections::HashSet;
     /// # let mut oauth = OAuth::code_flow();
     ///
     /// let scopes1 = vec!["Files.Read", "Files.ReadWrite"];
@@ -731,18 +731,13 @@ impl OAuth {
     /// let scopes2 = vec![scope::FILES_READ_SELECTED, scope::FILES_READ_WRITE_SELECTED];
     /// oauth.extend_scopes(&scopes2);
     ///
-    /// assert_eq!(oauth.join_scopes(" "), "Files.Read Files.ReadWrite Files.Read.Selected Files.ReadWrite.Selected");
+    /// assert_eq!(oauth.join_scopes(" "), "Files.Read Files.Read.Selected Files.ReadWrite Files.ReadWrite.Selected");
     /// ```
-    pub fn extend_scopes<T>(&mut self, scopes: &[T]) -> &mut OAuth
-    where
-        T: Scope,
-    {
-        let s: Vec<String> = scopes
-            .iter()
-            .filter(|s| !self.contains_scope(s.as_str().trim()))
-            .map(std::string::ToString::to_string)
-            .collect();
-        self.scopes.extend(s);
+    pub fn extend_scopes<T: ToString, I: IntoIterator<Item = (T)>>(
+        &mut self,
+        iter: I,
+    ) -> &mut Self {
+        self.scopes.extend(iter.into_iter().map(|s| s.to_string()));
         self
     }
 
@@ -764,10 +759,7 @@ impl OAuth {
     /// oauth.remove_scope(scope::FILES_READ_WRITE);
     /// assert_eq!(oauth.contains_scope(scope::FILES_READ_WRITE), false);
     /// ```
-    pub fn contains_scope<T>(&self, scope: T) -> bool
-    where
-        T: Scope,
-    {
+    pub fn contains_scope<T: ToString>(&self, scope: T) -> bool {
         self.scopes.contains(&scope.to_string())
     }
 
@@ -789,11 +781,8 @@ impl OAuth {
     /// oauth.remove_scope(scope::FILES_READ);
     /// assert_eq!(oauth.contains_scope(scope::FILES_READ), false);
     /// ```
-    pub fn remove_scope<T>(&mut self, scope: T)
-    where
-        T: Scope,
-    {
-        self.scopes.retain(|x| x != &scope.to_string());
+    pub fn remove_scope<T: AsRef<str>>(&mut self, scope: T) {
+        self.scopes.remove(scope.as_ref());
     }
 
     /// Remove all scopes.

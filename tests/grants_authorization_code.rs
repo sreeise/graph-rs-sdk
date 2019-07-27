@@ -45,7 +45,7 @@ fn access_token_uri() {
         .access_code("11201a230923f-4259-a230011201a230923f")
         .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
         .code_verifier("bb301aaab3011201a230923f-4259-a230923fds32");
-    let test_url = "client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&scope=Read.Write+Fall.Down&grant_type=authorization_code&code_verifier=bb301aaab3011201a230923f-4259-a230923fds32";
+    let test_url = "client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&scope=Fall.Down+Read.Write&grant_type=authorization_code&code_verifier=bb301aaab3011201a230923f-4259-a230923fds32";
     let url = oauth.encode_uri(GrantRequest::AccessToken).unwrap();
     assert_eq!(test_url, url);
 }
@@ -67,7 +67,7 @@ fn refresh_token_uri() {
     oauth.access_token(access_token);
 
     let body = oauth.encode_uri(GrantRequest::RefreshToken).unwrap();
-    let test_url = "refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&grant_type=refresh_token&scope=Read.Write+Fall.Down";
+    let test_url = "refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&grant_type=refresh_token&scope=Fall.Down+Read.Write";
     assert_eq!(test_url, body);
 }
 

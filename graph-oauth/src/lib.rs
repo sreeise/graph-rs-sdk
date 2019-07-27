@@ -66,7 +66,6 @@ pub mod oauth {
     pub use crate::idtoken::IdToken;
     pub use crate::oautherror::OAuthError;
     pub use crate::scope;
-    pub use crate::scope::Scope;
     pub use crate::strum::IntoEnumIterator;
 }
 

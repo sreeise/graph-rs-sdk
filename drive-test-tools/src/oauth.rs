@@ -130,7 +130,15 @@ impl OAuthTestTool {
     }
 
     pub fn get_scopes(oauth: &mut OAuth, s: &[String]) {
-        assert_eq!(s, oauth.get_scopes().as_slice())
+        assert_eq!(
+            s,
+            oauth
+                .get_scopes()
+                .iter()
+                .map(|s| s.as_str())
+                .collect::<Vec<&str>>()
+                .as_slice()
+        )
     }
 
     pub fn clear_scopes(oauth: &mut OAuth, s: &[String]) {
