@@ -1,5 +1,5 @@
 use crate::idtoken::IdToken;
-use crate::jwt::JWT;
+use crate::jwt::JwtParser;
 use crate::stdop::StdOp;
 use chrono::{DateTime, Duration, Utc};
 use chrono_humanize::HumanTime;
@@ -369,8 +369,7 @@ impl AccessToken {
     }
 
     pub fn is_valid_jwt(&self) -> bool {
-        let mut jwt = JWT::new(&self.access_token);
-        jwt.validate().is_ok()
+        JwtParser::parse(&self.access_token).is_ok()
     }
 }
 

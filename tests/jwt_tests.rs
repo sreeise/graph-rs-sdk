@@ -1,21 +1,11 @@
-use graph_oauth::jwt::Algorithm;
-use graph_oauth::jwt::JWT;
-use strum::IntoEnumIterator;
+use graph_oauth::jwt::{Algorithm, JwtParser};
 
 // Tests that a JWT algorithm matches the one given and
 // that the algorithm is not equal to any other possible matches.
 fn test_jwt_validation(key: &str, alg: Algorithm) {
-    let mut jwt = JWT::new(key);
-    jwt.validate().unwrap();
+    let jwt = JwtParser::parse(key).unwrap();
     let algorithm = jwt.header().unwrap().alg();
     assert_eq!(algorithm, alg);
-    for a in Algorithm::iter() {
-        if a != algorithm {
-            assert_ne!(a, algorithm);
-        } else {
-            assert_eq!(a, alg);
-        }
-    }
 }
 
 #[test]
