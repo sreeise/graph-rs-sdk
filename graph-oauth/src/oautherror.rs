@@ -18,12 +18,12 @@ impl OAuthError {
         GraphFailure::from(e)
     }
 
-    pub fn none_error<T>(msg: &str) -> std::result::Result<T, GraphFailure> {
-        Err(GraphFailure::error_kind(ErrorKind::NotFound, msg))
-    }
-
     pub fn invalid_data<T>(msg: &str) -> std::result::Result<T, GraphFailure> {
         Err(OAuthError::error_kind(ErrorKind::InvalidData, msg))
+    }
+
+    pub fn invalid(msg: &str) -> GraphFailure {
+        OAuthError::error_kind(ErrorKind::InvalidData, msg)
     }
 
     pub fn error_from<T>(c: OAuthCredential) -> Result<T, GraphFailure> {

@@ -1,47 +1,49 @@
 use crate::auth::OAuthReq;
 use crate::oautherror::OAuthError;
 use base64;
-use graph_error::GraphFailure;
 use serde_json::Map;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::io::ErrorKind;
 use std::str::FromStr;
 
 /// Enum for the type of JSON web token (JWT).
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub enum JWTType {
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub enum JwtType {
     JWS,
     JWE,
 }
 
-impl JWTType {
-    pub fn type_from(count: usize) -> Option<JWTType> {
+impl JwtType {
+    pub fn type_from(count: usize) -> Option<JwtType> {
         match count {
-            2 => Some(JWTType::JWS),
-            4 => Some(JWTType::JWE),
+            2 => Some(JwtType::JWS),
+            4 => Some(JwtType::JWE),
             _ => None,
         }
     }
 
-    pub fn type_from_str(mem: &str) -> Option<JWTType> {
-        match mem {
-            "payload" => Some(JWTType::JWS),
-            "ciphertext" => Some(JWTType::JWE),
-            _ => None,
-        }
-    }
-
-    pub fn as_str(&self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
-            JWTType::JWE => "JWE",
-            JWTType::JWS => "JWS",
+            JwtType::JWE => "JWE",
+            JwtType::JWS => "JWS",
+        }
+    }
+}
+
+impl FromStr for JwtType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "payload" => Ok(JwtType::JWS),
+            "ciphertext" => Ok(JwtType::JWE),
+            _ => Err(()),
         }
     }
 }
 
 /// Claims in a JSON web token (JWT).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Claim {
     key: String,
     value: Value,
@@ -61,25 +63,9 @@ impl Claim {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Header {
-    typ: Option<String>,
-    alg: Algorithm,
-}
-
-impl Header {
-    pub fn typ(&self) -> Option<String> {
-        self.typ.clone()
-    }
-
-    pub fn alg(&self) -> Algorithm {
-        self.alg.clone()
-    }
-}
-
 /// Algorithms used in JSON web tokens (JWT).
 /// Does not implement a complete set of Algorithms used in JWTs.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, EnumIter)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize, EnumIter)]
 pub enum Algorithm {
     HS256,
     HS384,
@@ -95,7 +81,7 @@ pub enum Algorithm {
 }
 
 impl FromStr for Algorithm {
-    type Err = GraphFailure;
+    type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
@@ -110,141 +96,80 @@ impl FromStr for Algorithm {
             "ES512" => Ok(Algorithm::ES512),
             "PS256" => Ok(Algorithm::PS256),
             "PS384" => Ok(Algorithm::PS384),
-            _ => Err(GraphFailure::error_kind(
-                ErrorKind::NotFound,
-                "Not an Algorithm Type",
-            )),
+            _ => Err(()),
         }
     }
 }
 
-/// Payload types for JSON web tokens (JWT).
-#[derive(Debug, Default, Clone, Eq, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(default)]
-pub struct Payload {
-    alg: Option<String>,
-    enc: Option<String>,
-    zip: Option<String>,
-    exp: Option<u32>,
-    nbf: Option<String>,
-    iss: Option<String>,
-    aud: Option<String>,
-    pm: Option<String>,
-    iti: Option<String>,
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct Header {
     typ: Option<String>,
-    sub: Option<String>,
-    kid: Option<String>,
-    iat: Option<u32>,
+    alg: Algorithm,
 }
 
-/// Partial JSON web token (JWT) verification for RFC 7619
+impl Header {
+    pub fn typ(&self) -> Option<String> {
+        self.typ.clone()
+    }
+
+    pub fn alg(&self) -> Algorithm {
+        self.alg
+    }
+}
+
+
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct JsonWebToken {
+    jwt_type: Option<JwtType>,
+    header: Option<Header>,
+    payload: Option<Vec<Claim>>,
+    signature: Option<String>,
+}
+
+impl JsonWebToken {
+    pub fn header(&self) -> Option<Header> {
+        self.header.clone()
+    }
+
+    pub fn claims(&self) -> Option<Vec<Claim>> {
+        self.payload.clone()
+    }
+
+    pub fn signature(&self) -> Option<&String> {
+        self.signature.as_ref()
+    }
+}
+
+/// TODO(#4): JWT Validation - https://github.com/sreeise/rust-onedrive/issues/4
+///
+/// JSON web token (JWT) verification for RFC 7619
 ///
 /// The JWT implementation does not implement full JWT verification.
 /// The validation here is best effort to follow section 7.2 of RFC 7519 for
 /// JWT validation: https://tools.ietf.org/html/rfc7519#section-7.2
 ///
 /// Callers should not rely on this alone to verify JWTs
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct JWT {
-    key: String,
-    header: Option<Header>,
-    enc: Option<String>,
-}
+pub struct JwtParser;
 
-impl JWT {
-    pub fn new(key: &str) -> JWT {
-        JWT {
-            key: key.into(),
-            header: None,
-            enc: None,
-        }
-    }
-
-    pub fn header(&self) -> Option<Header> {
-        self.header.clone()
-    }
-
-    pub fn validate(&mut self) -> OAuthReq<()> {
+impl JwtParser {
+    pub fn parse(input: &str) -> OAuthReq<JsonWebToken> {
         // Step 1.
-        if !self.key.contains('.') {
+        if !input.contains('.') {
             return OAuthError::invalid_data("Invalid Key");
         }
-        let header = self.decode_header()?;
-        self.header = Some(header);
-        self.message_jwt()?;
 
-        Ok(())
-    }
-
-    // Step 2.
-    #[allow(dead_code)]
-    fn encoded_header(&self) -> OAuthReq<&str> {
-        let index = match self.key.find('.') {
-            Some(t) => t,
-            None => return OAuthError::invalid_data("Invalid Key"),
-        };
-
-        let header = &self.key[..index];
-        Ok(header)
-    }
-
-    // Step 3.
-    #[allow(dead_code)]
-    fn base64_url_decode_header(&self) -> OAuthReq<Vec<u8>> {
-        let header = self.encoded_header()?;
-        let header = base64::decode_config(&header, base64::URL_SAFE_NO_PAD)?;
-        Ok(header)
-    }
-
-    // Step 4.
-    #[allow(dead_code)]
-    fn utf8_encode(&self) -> OAuthReq<String> {
-        let header = self.base64_url_decode_header()?;
-        let utf8_str = std::str::from_utf8(&header)?;
-        Ok(utf8_str.to_string())
-    }
-
-    // Step 5.
-    #[allow(dead_code)]
-    fn header_as_json(&self) -> OAuthReq<Header> {
-        let utf8_encoded = self.utf8_encode()?;
-        let jwt_header: Header = serde_json::from_str(&utf8_encoded)?;
-        Ok(jwt_header)
-    }
-
-    // Step 6.
-    pub fn type_of(&self) -> Option<JWTType> {
-        let count = self.key.matches('.').count();
-        JWTType::type_from(count)
-    }
-
-    // Steps 7.
-
-    // Step 8.
-    fn message_jwt(&mut self) -> OAuthReq<()> {
-        let v_claim = self.decode_payload()?;
-        let claims = v_claim.iter().find(|v| v.key == "cty");
-        if let Some(c) = claims {
-            if let Some(value) = c.value.as_str() {
-                let mut jwt = JWT::new(value);
-                jwt.validate()?
-            } else {
-                // Step 9.
-            }
-        }
-        Ok(())
-    }
-
-    pub fn decode_header(&self) -> OAuthReq<Header> {
         // Step 2.
-        let index = match self.key.find('.') {
-            Some(t) => t,
-            None => return OAuthError::invalid_data("Invalid Key"),
-        };
+        let index = input.find('.')
+            .ok_or_else(|| OAuthError::invalid("Invalid Key"))?;
 
         // Step 3.
-        let header = &self.key[..index];
-        let header = base64::decode_config(&header, base64::URL_SAFE_NO_PAD)?;
+        let header = base64::decode_config(&input[..index], base64::URL_SAFE_NO_PAD)?;
+        for byte in header.iter() {
+            let b = *byte;
+            if b == b'\n' || b == b' ' {
+                return OAuthError::invalid_data("Invalid Key");
+            }
+        }
 
         // Step 4.
         let utf8_header = std::str::from_utf8(&header)?;
@@ -253,25 +178,25 @@ impl JWT {
         let value = utf8_header.to_owned();
         let jwt_header: Header = serde_json::from_str(&value)?;
 
-        Ok(jwt_header)
-    }
+        let mut jwt = JsonWebToken::default();
+        jwt.header = Some(jwt_header);
 
-    fn decode_payload(&mut self) -> OAuthReq<Vec<Claim>> {
-        let mut vec: Vec<Claim> = Vec::new();
-        let map = self.decode_claims()?;
+        // Step 6
+        let count = input.matches('.').count();
+        let jwt_type = JwtType::type_from(count)
+            .ok_or_else(|| OAuthError::invalid("Invalid Key"))?;
 
-        for (i, t) in &map {
-            vec.push(Claim {
-                key: i.to_owned(),
-                value: t.to_owned(),
-            });
+        jwt.jwt_type = Some(jwt_type);
+
+        // Step 7.
+        match jwt_type {
+            JwtType::JWS => {},
+            JwtType::JWE => {},
         }
-        Ok(vec)
-    }
 
-    // Step 10.
-    pub fn decode_claims(&mut self) -> OAuthReq<Map<String, Value>> {
-        let key_vec: Vec<&str> = self.key.split('.').collect();
+        // Step 8.
+        let mut claims: Vec<Claim> = Vec::new();
+        let key_vec: Vec<&str> = input.split('.').collect();
         let payload = key_vec.get(1);
 
         if let Some(p) = payload {
@@ -279,15 +204,32 @@ impl JWT {
             let v_utf8 = std::str::from_utf8(&t)?;
             let v_owned = v_utf8.to_owned();
 
-            let claims: Map<String, Value> = serde_json::from_str(&v_owned)?;
-            return Ok(claims);
+            let claims_map: Map<String, Value> = serde_json::from_str(&v_owned)?;
+
+            for (i, t) in &claims_map {
+                claims.push(Claim {
+                    key: i.to_owned(),
+                    value: t.to_owned(),
+                });
+            }
         };
 
-        Err(OAuthError::error_kind(ErrorKind::InvalidData, "Invalid"))
+        if let Some(c) = claims.iter().find(|v| v.key == "cty") {
+            let cty = c.value.as_str().ok_or_else(|| OAuthError::invalid("Invalid Key"))?;
+            if cty.eq("JWT") {
+                return JwtParser::parse(cty);
+            }
+        } else {
+            // Step 9.
+        }
+        // Step 10.
+
+        jwt.payload = Some(claims);
+        Ok(jwt)
     }
 
     #[allow(dead_code)]
-    fn has_duplicates(&mut self, claims: Vec<Claim>) -> OAuthReq<()> {
+    fn contains_duplicates(&mut self, claims: Vec<Claim>) -> OAuthReq<()> {
         // https://tools.ietf.org/html/rfc7515#section-5.2
         // Step 4  this restriction includes that the same
         // Header Parameter name also MUST NOT occur in distinct JSON object
@@ -300,10 +242,5 @@ impl JWT {
             set.insert(&claim.key, &claim.value);
         }
         Ok(())
-    }
-
-    #[allow(dead_code, unused_variables)]
-    pub fn verify_with_claims(&self, claims: Vec<Claim>) -> OAuthReq<()> {
-        unimplemented!()
     }
 }
