@@ -1,4 +1,3 @@
-use graph_oauth::oauth::GrantType;
 use rust_onedrive::oauth::graphdiscovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
@@ -17,14 +16,12 @@ fn main() {
     // configuration time when setting values for OAuth. However, this will disregard
     // all other parameters for the MicrosoftSigningKeys. Use this if you do not
     // need the other values.
-    let _oauth: OAuth = GraphDiscovery::V1
-        .oauth(GrantType::AuthorizationCode)
-        .unwrap();
+    let _oauth: OAuth = GraphDiscovery::V1.oauth().unwrap();
 }
 
 #[allow(dead_code)]
 fn tenant_discovery() {
     let _oauth: OAuth = GraphDiscovery::Tenant("<YOUR_TENANT_ID>".into())
-        .oauth(GrantType::AuthorizationCode)
+        .oauth()
         .unwrap();
 }

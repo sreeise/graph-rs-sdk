@@ -19,7 +19,7 @@
 //! // For better understanding see the examples directory and the graph-oauth crate.
 //! use rust_onedrive::oauth::OAuth;
 //!
-//! let mut oauth = OAuth::authorization_code_grant();
+//! let mut oauth = OAuth::new();
 //! oauth.client_id("client_id")
 //!     .client_secret("client_secret")
 //!     .redirect_uri("http://localhost:8000")
@@ -48,7 +48,7 @@
 //! # Example
 //! ```
 //! # use rust_onedrive::oauth::OAuth;
-//! # let mut oauth = OAuth::authorization_code_grant();
+//! # let mut oauth = OAuth::new();
 //! oauth.access_code("temporary access code");
 //!
 //! ```
@@ -66,10 +66,8 @@
 //!
 //! # Example
 //! ```rust,ignore
-//! use rust_onedrive::Drive
-//!
-//! let mut drive = Drive::from(oauth).unwrap();
-//! let drive_item: DriveItem = drive.recent().unwrap();
+//! let mut drive: Drive = Drive::try_from(oauth).unwrap();
+//! let drive_item: DriveItemCollection = drive.drive_recent().unwrap();
 //! println!("{:#?}", drive_item);
 //! ```
 

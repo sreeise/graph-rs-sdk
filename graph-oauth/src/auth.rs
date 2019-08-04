@@ -1,12 +1,11 @@
 use crate::accesstoken::AccessToken;
-use crate::grants::{Grant, GrantRequest, GrantType};
+use crate::grants::{GrantRequest, GrantType};
 use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
 use from_to_file::*;
 use graph_error::GraphFailure;
-use reqwest::header;
 use std::collections::btree_map::BTreeMap;
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 use std::convert::TryFrom;
 use std::process::Output;
 use url::form_urlencoded::Serializer;
@@ -125,22 +124,14 @@ impl ToString for OAuthCredential {
 ///
 /// # Example
 /// ```
-/// use graph_oauth::oauth::{OAuth, GrantType};
-/// let oauth = OAuth::new(GrantType::AuthorizationCode);
-///
-/// // or
-/// let oauth_token_flow = OAuth::token_flow();
-/// let oauth_code_flow = OAuth::code_flow();
-/// let oauth_auth_grant = OAuth::authorization_code_grant();
-/// let oauth_implicit = OAuth::implicit_grant();
-/// let oauth_open_id = OAuth::open_id_connect();
+/// use graph_oauth::oauth::OAuth;
+/// let oauth = OAuth::new();
 /// ```
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
 pub struct OAuth {
     access_token: Option<AccessToken>,
     scopes: BTreeSet<String>,
     credentials: BTreeMap<String, String>,
-    grant: GrantType,
 }
 
 impl OAuth {
@@ -150,85 +141,14 @@ impl OAuth {
     /// ```
     /// use graph_oauth::oauth::{OAuth, GrantType};
     ///
-    /// let mut oauth = OAuth::new(GrantType::AuthorizationCode);
+    /// let mut oauth = OAuth::new();
     /// ```
-    pub fn new(grant: GrantType) -> OAuth {
+    pub fn new() -> OAuth {
         OAuth {
             access_token: None,
             scopes: BTreeSet::new(),
             credentials: BTreeMap::new(),
-            grant,
         }
-    }
-
-    /// Create a new OAuth instance for token flow.
-    ///
-    /// # See
-    /// [Microsoft Token Flow Authorizaiton](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online)
-    ///
-    /// # Example
-    /// ```
-    /// use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::token_flow();
-    /// ```
-    pub fn token_flow() -> OAuth {
-        OAuth::new(GrantType::TokenFlow)
-    }
-
-    /// Create a new OAuth instance for code flow.
-    ///
-    /// # See
-    /// [Microsoft Code Flow Authorizaiton](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online)
-    ///
-    /// # Example
-    /// ```
-    /// use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::code_flow();
-    /// ```
-    pub fn code_flow() -> OAuth {
-        OAuth::new(GrantType::CodeFlow)
-    }
-
-    /// Create a new OAuth instance for authorization code grant.
-    ///
-    /// # See
-    /// [Authorization Code Grant for OAuth 2.0](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
-    ///
-    /// # Example
-    /// ```
-    /// use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::authorization_code_grant();
-    /// ```
-    pub fn authorization_code_grant() -> OAuth {
-        OAuth::new(GrantType::AuthorizationCode)
-    }
-
-    /// Create a new OAuth instance for the implicit grant.
-    ///
-    /// # See
-    /// [Implicit Grant for OAuth 2.0](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow)
-    ///
-    /// # Example
-    /// ```
-    /// use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::implicit_grant();
-    /// ```
-    pub fn implicit_grant() -> OAuth {
-        OAuth::new(GrantType::Implicit)
-    }
-
-    /// Create a new OAuth instance for the open id connect grant.
-    ///
-    /// # See
-    /// [Microsoft Open ID Connect](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
-    ///
-    /// # Example
-    /// ```
-    /// use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::open_id_connect();
-    /// ```
-    pub fn open_id_connect() -> OAuth {
-        OAuth::new(GrantType::OpenId)
     }
 
     /// Insert oauth credentials using the OAuthCredential enum.
@@ -240,7 +160,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.insert(OAuthCredential::AuthorizeURL, "https://example.com");
     /// assert!(oauth.contains(OAuthCredential::AuthorizeURL));
     /// println!("{:#?}", oauth.get(OAuthCredential::AuthorizeURL));
@@ -270,7 +190,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// let entry = oauth.entry(OAuthCredential::AuthorizeURL, "https://example.com");
     /// assert_eq!(entry, "https://example.com")
     /// ```
@@ -298,7 +218,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// let a = oauth.get(OAuthCredential::AuthorizeURL);
     /// ```
     pub fn get(&self, oac: OAuthCredential) -> Option<String> {
@@ -311,7 +231,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// println!("{:#?}", oauth.contains(OAuthCredential::Nonce));
     /// ```
     pub fn contains(&self, t: OAuthCredential) -> bool {
@@ -331,7 +251,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.client_id("client_id");
     ///
     /// assert_eq!(oauth.contains(OAuthCredential::ClientId), true);
@@ -350,7 +270,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.client_id("client_id");
     /// ```
     pub fn client_id(&mut self, value: &str) -> &mut OAuth {
@@ -363,7 +283,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.state("1234");
     /// ```
     pub fn state(&mut self, value: &str) -> &mut OAuth {
@@ -375,7 +295,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.client_secret("client_secret");
     /// ```
     pub fn client_secret(&mut self, value: &str) -> &mut OAuth {
@@ -387,7 +307,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.authorize_url("https://example.com/authorize");
     /// ```
     pub fn authorize_url(&mut self, value: &str) -> &mut OAuth {
@@ -399,7 +319,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.access_token_url("https://example.com/token");
     /// ```
     pub fn access_token_url(&mut self, value: &str) -> &mut OAuth {
@@ -411,7 +331,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.refresh_token_url("https://example.com/token");
     /// ```
     pub fn refresh_token_url(&mut self, value: &str) -> &mut OAuth {
@@ -423,7 +343,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.redirect_uri("https://localhost:8888/redirect");
     /// ```
     pub fn redirect_uri(&mut self, value: &str) -> &mut OAuth {
@@ -435,7 +355,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.access_code("LDSF[POK43");
     /// ```
     pub fn access_code(&mut self, value: &str) -> &mut OAuth {
@@ -447,7 +367,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.response_mode("query");
     /// ```
     pub fn response_mode(&mut self, value: &str) -> &mut OAuth {
@@ -459,7 +379,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.response_type("token");
     /// ```
     pub fn response_type(&mut self, value: &str) -> &mut OAuth {
@@ -472,7 +392,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     ///
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.nonce("1234");
     /// ```
     pub fn nonce(&mut self, value: &str) -> &mut OAuth {
@@ -485,7 +405,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     ///
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.prompt("login");
     /// ```
     pub fn prompt(&mut self, value: &str) -> &mut OAuth {
@@ -497,7 +417,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::{OAuth, IdToken};
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.id_token(IdToken::new("1345", "code", "state", "session_state"));
     /// ```
     pub fn id_token(&mut self, value: IdToken) -> &mut OAuth {
@@ -519,7 +439,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.session_state("session-state");
     /// ```
     pub fn session_state(&mut self, value: &str) -> &mut OAuth {
@@ -531,7 +451,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.grant_type("token");
     /// ```
     pub fn grant_type(&mut self, value: &str) -> &mut OAuth {
@@ -543,7 +463,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.resource("resource");
     /// ```
     pub fn resource(&mut self, value: &str) -> &mut OAuth {
@@ -555,7 +475,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.code_verifier("code_verifier");
     /// ```
     pub fn code_verifier(&mut self, value: &str) -> &mut OAuth {
@@ -567,7 +487,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.domain_hint("domain_hint");
     /// ```
     pub fn domain_hint(&mut self, value: &str) -> &mut OAuth {
@@ -579,7 +499,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.code_challenge("code_challenge");
     /// ```
     pub fn code_challenge(&mut self, value: &str) -> &mut OAuth {
@@ -591,7 +511,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.code_challenge_method("code_challenge_method");
     /// ```
     pub fn code_challenge_method(&mut self, value: &str) -> &mut OAuth {
@@ -603,7 +523,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.login_hint("login_hint");
     /// ```
     pub fn login_hint(&mut self, value: &str) -> &mut OAuth {
@@ -615,7 +535,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.client_assertion("client_assertion");
     /// ```
     pub fn client_assertion(&mut self, value: &str) -> &mut OAuth {
@@ -627,7 +547,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.client_assertion_type("client_assertion_type");
     /// ```
     pub fn client_assertion_type(&mut self, value: &str) -> &mut OAuth {
@@ -639,7 +559,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.logout_url("https://example.com/logout?");
     /// ```
     pub fn logout_url(&mut self, value: &str) -> &mut OAuth {
@@ -651,7 +571,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.post_logout_redirect_uri("http://localhost:8080");
     /// ```
     pub fn post_logout_redirect_uri(&mut self, value: &str) -> &mut OAuth {
@@ -664,7 +584,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::scope;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     ///
     /// oauth.add_scope("Read")
     ///     .add_scope("Write")
@@ -684,7 +604,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::code_flow();
+    /// let mut oauth = OAuth::new();
     /// oauth.add_scope("Files.Read");
     /// oauth.add_scope("Files.ReadWrite");
     ///
@@ -701,7 +621,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     ///
     /// // the scopes take a separator just like Vec join.
     ///  let s = oauth.join_scopes(" ");
@@ -722,7 +642,7 @@ impl OAuth {
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::scope;
     /// # use std::collections::HashSet;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     ///
     /// let scopes1 = vec!["Files.Read", "Files.ReadWrite"];
     /// oauth.extend_scopes(&scopes1);
@@ -747,7 +667,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::scope;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     ///
     /// oauth.add_scope("Files.Read");
     /// assert_eq!(oauth.contains_scope("Files.Read"), true);
@@ -769,7 +689,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::scope;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     ///
     /// oauth.add_scope("scope");
     /// oauth.remove_scope("scope");
@@ -790,7 +710,7 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// oauth.add_scope("Files.Read").add_scope("Files.ReadWrite");
     /// assert_eq!("Files.Read Files.ReadWrite", oauth.join_scopes(" "));
     /// oauth.clear_scopes();
@@ -806,7 +726,7 @@ impl OAuth {
     /// ```
     /// use graph_oauth::oauth::OAuth;
     /// use graph_oauth::oauth::AccessToken;
-    /// let mut oauth = OAuth::code_flow();
+    /// let mut oauth = OAuth::new();
     /// let access_token = AccessToken::default();
     /// oauth.access_token(access_token);
     /// ```
@@ -821,7 +741,7 @@ impl OAuth {
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::AccessToken;
     /// # let access_token = AccessToken::default();
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// # oauth.access_token(access_token);
     /// let access_token = oauth.get_access_token().unwrap();
     /// println!("{:#?}", access_token);
@@ -838,7 +758,7 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::AccessToken;
-    /// # let mut oauth = OAuth::code_flow();
+    /// # let mut oauth = OAuth::new();
     /// let mut  access_token = AccessToken::default();
     /// access_token.refresh_token(Some("refresh_token"));
     /// oauth.access_token(access_token);
@@ -856,12 +776,16 @@ impl OAuth {
         }
     }
 
+    pub fn build(&mut self) -> GrantSelector {
+        GrantSelector(self.clone())
+    }
+
     /// Sign the user out using the OneDrive v1.0 endpoint.
     ///
     /// # Example
     /// ```rust,ignore
     /// use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::code_flow();
+    /// let mut oauth = OAuth::new();
     ///
     /// oauth.v1_logout().unwrap();
     /// ```
@@ -891,13 +815,12 @@ impl OAuth {
     /// # Example
     /// ```rust,ignore
     /// use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::client_credentials();
+    /// let mut oauth = OAuth::new();
     ///
     /// oauth.v2_logout().unwrap();
     /// ```
     pub fn v2_logout(&self) -> OAuthReq<Output> {
         let mut url = self.get_or_else(OAuthCredential::LogoutURL)?;
-        println!("{:#?}", url);
         if !url.ends_with('?') {
             url.push('?');
         }
@@ -935,9 +858,23 @@ impl OAuth {
             });
     }
 
-    pub fn encode_uri(&mut self, request_type: GrantRequest) -> OAuthReq<String> {
+    pub fn params(&mut self, pairs: Vec<OAuthCredential>) -> OAuthReq<HashMap<String, String>> {
+        let mut map: HashMap<String, String> = HashMap::new();
+        for oac in pairs.iter() {
+            if oac.eq(&OAuthCredential::RefreshToken) {
+                map.insert("refresh_token".into(), self.get_refresh_token()?);
+            } else if oac.alias().eq("scope") && !self.scopes.is_empty() {
+                map.insert("scope".into(), self.join_scopes(" "));
+            } else if let Some(val) = self.get(*oac) {
+                map.insert(oac.to_string(), val);
+            }
+        }
+        Ok(map)
+    }
+
+    pub fn encode_uri(&mut self, grant: GrantType, request_type: GrantRequest) -> OAuthReq<String> {
         let mut encoder = Serializer::new(String::new());
-        match self.grant {
+        match grant {
             GrantType::TokenFlow => match request_type {
                 GrantRequest::Authorization => {
                     let _ = self.entry(OAuthCredential::ResponseType, "token");
@@ -954,7 +891,7 @@ impl OAuth {
                 },
                 GrantRequest::AccessToken | GrantRequest::RefreshToken => {
                     OAuthError::grant_error(
-                        self.grant,
+                        GrantType::TokenFlow,
                         GrantRequest::AccessToken,
                         "Grant type does not use request type. Please use OAuth::request_authorization() for browser requests"
                     )
@@ -1043,7 +980,7 @@ impl OAuth {
                 },
                 GrantRequest::AccessToken | GrantRequest::RefreshToken => {
                     OAuthError::grant_error(
-                        self.grant,
+                        GrantType::Implicit,
                         GrantRequest::AccessToken,
                         "Grant type does not use request type. Please use OAuth::request_authorization() for browser requests"
                     )
@@ -1084,90 +1021,147 @@ impl OAuth {
             },
         }
     }
-}
 
-impl Grant for OAuth {
-    /// Make a request for authorization. The default browser for a user
-    /// will be opened to the sign in page where the user will need to
-    /// sign in and agree to any permissions that were set by the provided
-    /// scopes.
-    fn request_authorization(&mut self) -> OAuthReq<Output> {
-        let url = self.encode_uri(GrantRequest::Authorization)?;
-        webbrowser::open(url.as_str()).map_err(GraphFailure::from)
-    }
-
-    /// Make a request for an access token. The token is stored in OAuth and
-    /// will be used to make for making requests for refresh tokens. The below
-    /// example shows how access tokens are stored and retrieved for OAuth:
-    /// # Example
-    /// ```rust,ignore
-    /// # use graph_oauth::oauth::{OAuth, AccessToken};
-    /// let mut oauth: OAuth = OAuth::code_flow();
-    ///
-    /// // As an example create a random access token.
-    /// let mut access_token = AccessToken::default();
-    /// access_token.access_token("12345");
-    /// // Store the token in OAuth
-    /// oauth.access_token(access_token);
-    /// println!("{:#?}", oauth.get_access_token().unwrap().get_access_token());
-    /// ```
-    ///
-    /// Request an access token.
-    /// # Example
-    /// ```rust,ignore
-    /// use graph_oauth::oauth::{Grant, OAuth};
-    /// let mut oauth: OAuth = OAuth::code_flow();
-    ///
-    /// // This assumes the user has been authenticated and
-    /// // the access_code from the request has been given:
-    /// oauth.access_code("access_code");
-    ///
-    /// // To get an access token a access_token_url is needed and the grant_type
-    /// // should be set to token.
-    /// // There are other parameters that may need to be included depending on the
-    /// // authorization flow chosen.
-    /// // The url below is for the v1.0 drive API. You can also use the Graph URLs as well.
-    /// oauth.access_token_url("https://login.live.com/oauth20_token.srf")
-    ///     .response_type("token")
-    ///     .grant_type("authorization_code");
-    /// // Make a request for an access token.
-    /// oauth.request_access_token()?;
-    /// ```
-    fn request_access_token(&mut self) -> OAuthReq<AccessToken> {
-        let url = self.get_or_else(OAuthCredential::AccessTokenURL)?;
-        let body = self.encode_uri(GrantRequest::AccessToken)?;
-        let client = reqwest::Client::builder().build()?;
-        let builder = client
-            .post(url.as_str())
-            .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
-            .body(body);
-        let access_token: AccessToken = AccessToken::try_from(builder)?;
-        self.access_token(access_token.clone());
-        Ok(access_token)
-    }
-
-    /// Request a refresh token. Assumes an access token has already
-    /// been retrieved.
-    fn request_refresh_token(&mut self) -> OAuthReq<AccessToken> {
-        let url = self.get_or_else(OAuthCredential::RefreshTokenURL)?;
-        let body = self.encode_uri(GrantRequest::RefreshToken)?;
-        let client = reqwest::Client::builder().build()?;
-        let builder = client
-            .post(url.as_str())
-            .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
-            .body(body);
-        let mut access_token: AccessToken = AccessToken::try_from(builder)?;
-        if let Ok(refresh_token) = self.get_refresh_token() {
-            access_token.refresh_token(Some(refresh_token.as_str()));
+    fn pre_request_check(&mut self, grant: GrantType, request_type: GrantRequest) {
+        match grant {
+            GrantType::TokenFlow => {
+                if request_type.eq(&GrantRequest::Authorization) {
+                    let _ = self.entry(OAuthCredential::ResponseType, "token");
+                }
+            },
+            GrantType::CodeFlow => match request_type {
+                GrantRequest::Authorization => {
+                    let _ = self.entry(OAuthCredential::ResponseType, "code");
+                    let _ = self.entry(OAuthCredential::ResponseMode, "query");
+                },
+                GrantRequest::AccessToken => {
+                    let _ = self.entry(OAuthCredential::ResponseType, "token");
+                    let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                },
+                GrantRequest::RefreshToken => {
+                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                },
+            },
+            GrantType::AuthorizationCode => match request_type {
+                GrantRequest::Authorization => {
+                    let _ = self.entry(OAuthCredential::ResponseType, "code");
+                    let _ = self.entry(OAuthCredential::ResponseMode, "query");
+                },
+                GrantRequest::AccessToken | GrantRequest::RefreshToken => {
+                    if request_type == GrantRequest::AccessToken {
+                        let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                    } else {
+                        let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                    }
+                },
+            },
+            GrantType::Implicit => {
+                if request_type.eq(&GrantRequest::Authorization) && !self.scopes.is_empty() {
+                    let _ = self.entry(OAuthCredential::ResponseType, "token");
+                }
+            },
+            GrantType::OpenId => {
+                if request_type.eq(&GrantRequest::AccessToken) {
+                    let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                } else if request_type.eq(&GrantRequest::RefreshToken) {
+                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                }
+            },
         }
-        self.access_token(access_token.clone());
-        Ok(access_token)
     }
 }
 
-impl From<GrantType> for OAuth {
-    fn from(grant_name: GrantType) -> Self {
-        OAuth::new(grant_name)
+pub struct GrantSelector(OAuth);
+
+impl GrantSelector {
+    /// Create a new instance for token flow.
+    ///
+    /// # See
+    /// [Microsoft Token Flow Authorizaiton](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().token_flow();
+    /// ```
+    pub fn token_flow(self) -> ImplicitGrant {
+        ImplicitGrant {
+            oauth: self.0,
+            grant: GrantType::TokenFlow,
+        }
+    }
+
+    /// Create a new instance for code flow.
+    ///
+    /// # See
+    /// [Microsoft Code Flow Authorizaiton](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().code_flow();
+    /// ```
+    pub fn code_flow(self) -> AccessTokenGrant {
+        AccessTokenGrant {
+            oauth: self.0,
+            grant: GrantType::CodeFlow,
+        }
+    }
+
+    /// Create a new instance for the implicit grant.
+    ///
+    /// # See
+    /// [Implicit Grant for OAuth 2.0](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().implicit_grant();
+    /// ```
+    pub fn implicit_grant(self) -> ImplicitGrant {
+        ImplicitGrant {
+            oauth: self.0,
+            grant: GrantType::Implicit,
+        }
+    }
+
+    /// Create a new instance for authorization code grant.
+    ///
+    /// # See
+    /// [Authorization Code Grant for OAuth 2.0](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().authorization_code_grant();
+    /// ```
+    pub fn authorization_code_grant(self) -> AccessTokenGrant {
+        AccessTokenGrant {
+            oauth: self.0,
+            grant: GrantType::AuthorizationCode,
+        }
+    }
+
+    /// Create a new instance for the open id connect grant.
+    ///
+    /// # See
+    /// [Microsoft Open ID Connect](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().open_id_connect();
+    /// ```
+    pub fn open_id_connect(self) -> AccessTokenGrant {
+        AccessTokenGrant {
+            oauth: self.0,
+            grant: GrantType::OpenId,
+        }
     }
 }
 
@@ -1177,7 +1171,7 @@ impl From<GrantType> for OAuth {
 /// ```
 /// # use graph_oauth::oauth::{OAuth, OAuthCredential};
 /// # use std::collections::HashMap;
-/// # let mut oauth = OAuth::code_flow();
+/// # let mut oauth = OAuth::new();
 /// let mut map: HashMap<OAuthCredential, &str> = HashMap::new();
 /// map.insert(OAuthCredential::ClientId, "client_id");
 /// map.insert(OAuthCredential::ClientSecret, "client_secret");
@@ -1191,5 +1185,194 @@ impl<V: ToString> Extend<(OAuthCredential, V)> for OAuth {
         iter.into_iter().for_each(|entry| {
             self.insert(entry.0, entry.1);
         });
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+pub struct AuthorizationRequest {
+    uri: String,
+}
+
+impl AuthorizationRequest {
+    pub fn open(&self) -> OAuthReq<Output> {
+        webbrowser::open(self.uri.as_str()).map_err(GraphFailure::from)
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+pub struct AccessTokenRequest {
+    uri: String,
+    params: HashMap<String, String>,
+}
+
+impl AccessTokenRequest {
+    pub fn send(&mut self) -> OAuthReq<AccessToken> {
+        let client = reqwest::Client::builder().build()?;
+        let builder = client.post(self.uri.as_str()).form(&self.params);
+        AccessToken::try_from(builder)
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+pub struct ImplicitGrant {
+    oauth: OAuth,
+    grant: GrantType,
+}
+
+impl ImplicitGrant {
+    pub fn browser_authorization(&mut self) -> AuthorizationRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::Authorization);
+        let params = self
+            .oauth
+            .params(
+                self.grant
+                    .available_credentials(GrantRequest::Authorization),
+            )
+            .unwrap();
+        let mut url = Url::parse(
+            self.oauth
+                .get_or_else(OAuthCredential::AuthorizeURL)
+                .unwrap()
+                .as_str(),
+        )
+        .unwrap();
+        url.query_pairs_mut().extend_pairs(&params);
+        AuthorizationRequest {
+            uri: url.to_string(),
+        }
+    }
+}
+
+impl From<ImplicitGrant> for OAuth {
+    fn from(token_grant: ImplicitGrant) -> Self {
+        token_grant.oauth
+    }
+}
+
+impl AsRef<OAuth> for ImplicitGrant {
+    fn as_ref(&self) -> &OAuth {
+        &self.oauth
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+pub struct AccessTokenGrant {
+    oauth: OAuth,
+    grant: GrantType,
+}
+
+impl AccessTokenGrant {
+    /// Make a request for authorization. The default browser for a user
+    /// will be opened to the sign in page where the user will need to
+    /// sign in and agree to any permissions that were set by the provided
+    /// scopes.
+    pub fn browser_authorization(&mut self) -> AuthorizationRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::Authorization);
+        let params = self
+            .oauth
+            .params(
+                self.grant
+                    .available_credentials(GrantRequest::Authorization),
+            )
+            .unwrap();
+        let mut url = Url::parse(
+            self.oauth
+                .get_or_else(OAuthCredential::AuthorizeURL)
+                .unwrap()
+                .as_str(),
+        )
+        .unwrap();
+        url.query_pairs_mut().extend_pairs(&params);
+        AuthorizationRequest {
+            uri: url.to_string(),
+        }
+    }
+
+    /// Make a request for an access token. The token is stored in OAuth and
+    /// will be used to make for making requests for refresh tokens. The below
+    /// example shows how access tokens are stored and retrieved for OAuth:
+    /// # Example
+    /// ```rust,ignore
+    /// # use graph_oauth::oauth::{OAuth, AccessToken};
+    /// let mut oauth: OAuth = OAuth::new();
+    ///
+    /// // As an example create a random access token.
+    /// let mut access_token = AccessToken::default();
+    /// access_token.access_token("12345");
+    /// // Store the token in OAuth if the access token has a refresh token.
+    /// // The refresh token can be later used to request more access tokens.
+    /// oauth.access_token(access_token);
+    /// // You can get the actual bearer token if needed:
+    /// println!("{:#?}", oauth.get_access_token().unwrap().get_access_token());
+    /// ```
+    ///
+    /// Request an access token.
+    /// # Example
+    /// ```rust,ignore
+    /// use graph_oauth::oauth::{Grant, OAuth};
+    /// let mut oauth: OAuth = OAuth::new();
+    ///
+    /// // This assumes the user has been authenticated and
+    /// // the access_code from the request has been given:
+    /// oauth.access_code("access_code");
+    ///
+    /// // To get an access token a access_token_url is needed and the grant_type
+    /// // should be set to token.
+    /// // There are other parameters that may need to be included depending on the
+    /// // authorization flow chosen.
+    /// // The url below is for the v1.0 drive API. You can also use the Graph URLs as well.
+    /// oauth.access_token_url("https://login.live.com/oauth20_token.srf")
+    ///     .response_type("token")
+    ///     .grant_type("authorization_code");
+    ///
+    /// // Make a request for an access token.
+    /// let mut request = oauth.build().authorization_code_grant();
+    /// let access_token = request.access_token().send().unwrap();
+    /// println!("{:#?}", access_token);
+    /// ```
+    pub fn access_token(&mut self) -> AccessTokenRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::AccessToken);
+        AccessTokenRequest {
+            uri: self
+                .oauth
+                .get_or_else(OAuthCredential::AccessTokenURL)
+                .unwrap(),
+            params: self
+                .oauth
+                .params(self.grant.available_credentials(GrantRequest::AccessToken))
+                .unwrap(),
+        }
+    }
+
+    /// Request a refresh token. Assumes an access token has already
+    /// been retrieved.
+    pub fn refresh_token(&mut self) -> AccessTokenRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::RefreshToken);
+        AccessTokenRequest {
+            uri: self
+                .oauth
+                .get_or_else(OAuthCredential::RefreshTokenURL)
+                .unwrap(),
+            params: self
+                .oauth
+                .params(self.grant.available_credentials(GrantRequest::RefreshToken))
+                .unwrap(),
+        }
+    }
+}
+
+impl From<AccessTokenGrant> for OAuth {
+    fn from(token_grant: AccessTokenGrant) -> Self {
+        token_grant.oauth
+    }
+}
+
+impl AsRef<OAuth> for AccessTokenGrant {
+    fn as_ref(&self) -> &OAuth {
+        &self.oauth
     }
 }

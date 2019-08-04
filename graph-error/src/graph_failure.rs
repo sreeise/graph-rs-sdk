@@ -11,6 +11,7 @@ use std::str::Utf8Error;
 use std::sync::mpsc;
 use std::sync::mpsc::RecvError;
 use std::{error, fmt, io, num, string};
+use url;
 
 #[derive(Debug)]
 pub enum GraphFailure {
@@ -26,6 +27,7 @@ pub enum GraphFailure {
     GraphError(GraphError),
     RecvError(mpsc::RecvError),
     BorrowMutError(BorrowMutError),
+    UrlParseError(url::ParseError),
 }
 
 impl GraphFailure {
@@ -78,6 +80,7 @@ impl fmt::Display for GraphFailure {
             GraphFailure::BorrowMutError(ref err) => {
                 write!(f, "Borrow Mut Error error:\n{:#?}", err)
             },
+            GraphFailure::UrlParseError(ref err) => write!(f, "Url parse error:\n{:#?}", err),
         }
     }
 }
@@ -97,6 +100,7 @@ impl error::Error for GraphFailure {
             GraphFailure::GraphError(ref err) => err.description(),
             GraphFailure::RecvError(ref err) => err.description(),
             GraphFailure::BorrowMutError(ref err) => err.description(),
+            GraphFailure::UrlParseError(ref err) => error::Error::description(err),
         }
     }
 
@@ -114,6 +118,7 @@ impl error::Error for GraphFailure {
             GraphFailure::RecvError(ref err) => Some(err),
             GraphFailure::GraphError(_) => None,
             GraphFailure::BorrowMutError(ref err) => Some(err),
+            GraphFailure::UrlParseError(ref err) => Some(err),
         }
     }
 }
@@ -193,5 +198,11 @@ impl From<BorrowMutError> for GraphFailure {
 impl From<NoneError> for GraphFailure {
     fn from(_: NoneError) -> Self {
         GraphFailure::not_found("NoneError")
+    }
+}
+
+impl From<url::ParseError> for GraphFailure {
+    fn from(err: url::ParseError) -> Self {
+        GraphFailure::UrlParseError(err)
     }
 }

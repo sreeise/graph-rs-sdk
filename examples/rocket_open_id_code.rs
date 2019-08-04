@@ -9,7 +9,7 @@ extern crate reqwest;
 use from_to_file::*;
 use rocket::Data;
 use rocket_codegen::routes;
-use rust_onedrive::oauth::{Grant, IdToken, OAuth};
+use rust_onedrive::oauth::{IdToken, OAuth};
 use std::convert::TryFrom;
 use std::io::Read;
 use std::thread;
@@ -19,7 +19,7 @@ use std::time::Duration;
 // See the following link for more info on open ID connect:
 // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
 fn oauth_open_id() -> OAuth {
-    let mut oauth = OAuth::open_id_connect();
+    let mut oauth = OAuth::new();
     oauth
         .client_id("<YOUR_CLIENT_ID>")
         .client_secret("<YOUR_CLIENT_SECRET>")
@@ -52,7 +52,8 @@ fn main() {
         // The full name syntax is used here so it does not clash with methods
         // in the other grant types.
         let mut oauth = oauth_open_id();
-        oauth.request_authorization().unwrap();
+        let mut request = oauth.build().open_id_connect();
+        request.browser_authorization().open().unwrap();
     });
 
     rocket::ignite().mount("/", routes![redirect]).launch();
@@ -80,7 +81,9 @@ fn redirect(id_token: Data) -> String {
 }
 
 pub fn access_token(oauth: &mut OAuth) {
-    oauth.request_access_token().unwrap();
+    let mut request = oauth.build().code_flow();
+    let access_token = request.access_token().send().unwrap();
+    oauth.access_token(access_token);
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("OAuth:\n{:#?}\n", &oauth);
     oauth

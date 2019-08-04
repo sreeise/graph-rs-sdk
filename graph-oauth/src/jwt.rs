@@ -117,7 +117,6 @@ impl Header {
     }
 }
 
-
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct JsonWebToken {
     jwt_type: Option<JwtType>,
@@ -159,7 +158,8 @@ impl JwtParser {
         }
 
         // Step 2.
-        let index = input.find('.')
+        let index = input
+            .find('.')
             .ok_or_else(|| OAuthError::invalid("Invalid Key"))?;
 
         // Step 3.
@@ -183,8 +183,8 @@ impl JwtParser {
 
         // Step 6
         let count = input.matches('.').count();
-        let jwt_type = JwtType::type_from(count)
-            .ok_or_else(|| OAuthError::invalid("Invalid Key"))?;
+        let jwt_type =
+            JwtType::type_from(count).ok_or_else(|| OAuthError::invalid("Invalid Key"))?;
 
         jwt.jwt_type = Some(jwt_type);
 
@@ -215,7 +215,10 @@ impl JwtParser {
         };
 
         if let Some(c) = claims.iter().find(|v| v.key == "cty") {
-            let cty = c.value.as_str().ok_or_else(|| OAuthError::invalid("Invalid Key"))?;
+            let cty = c
+                .value
+                .as_str()
+                .ok_or_else(|| OAuthError::invalid("Invalid Key"))?;
             if cty.eq("JWT") {
                 return JwtParser::parse(cty);
             }

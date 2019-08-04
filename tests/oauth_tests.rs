@@ -5,7 +5,7 @@ use strum::IntoEnumIterator;
 fn oauth_parameters_from_credential() {
     // Doesn't matter the flow here as this is for testing
     // that the credentials are entered/retrieved correctly.
-    let mut oauth = OAuth::code_flow();
+    let mut oauth = OAuth::new();
     oauth
         .client_id("client_id")
         .client_secret("client_secret")
@@ -103,7 +103,7 @@ fn oauth_parameters_from_credential() {
 fn remove_credential() {
     // Doesn't matter the flow here as this is for testing
     // that the credentials are entered/retrieved correctly.
-    let mut oauth = OAuth::code_flow();
+    let mut oauth = OAuth::new();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_uri("http://localhost:8888/redirect")
@@ -126,7 +126,7 @@ fn remove_credential() {
 fn setters() {
     // Doesn't matter the flow here as this is for testing
     // that the credentials are entered/retrieved correctly.
-    let mut oauth = OAuth::code_flow();
+    let mut oauth = OAuth::new();
     oauth
         .client_id("client_id")
         .client_secret("client_secret")
