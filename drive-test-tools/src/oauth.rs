@@ -1,3 +1,4 @@
+use rust_onedrive::graph_oauth::oauth::GrantType;
 use rust_onedrive::oauth::{GrantRequest, IntoEnumIterator, OAuth, OAuthCredential};
 use std::borrow::Cow;
 use url::Url;
@@ -16,6 +17,7 @@ impl OAuthTestTool {
 
     pub fn oauth_query_uri_test(
         oauth: &mut OAuth,
+        grant_type: GrantType,
         grant_request: GrantRequest,
         includes: Vec<OAuthCredential>,
     ) {
@@ -33,7 +35,12 @@ impl OAuthTestTool {
             }
             url.push_str(rtu.as_str());
         }
-        url.push_str(oauth.encode_uri(grant_request).unwrap().as_str());
+        url.push_str(
+            oauth
+                .encode_uri(grant_type, grant_request)
+                .unwrap()
+                .as_str(),
+        );
         let parsed_url = Url::parse(url.as_str()).unwrap();
         let mut cow_cred: Vec<(Cow<str>, Cow<str>)> = Vec::new();
         let mut cow_cred_false: Vec<(Cow<str>, Cow<str>)> = Vec::new();
@@ -99,17 +106,9 @@ impl OAuthTestTool {
     where
         F: FnMut(&mut OAuth, &[String]),
     {
-        let vec_oauth = vec![
-            OAuth::token_flow(),
-            OAuth::code_flow(),
-            OAuth::authorization_code_grant(),
-            OAuth::implicit_grant(),
-            OAuth::open_id_connect(),
-        ];
-        for mut oauth in vec_oauth {
-            oauth.extend_scopes(scopes);
-            func(&mut oauth, scopes)
-        }
+        let mut oauth = OAuth::new();
+        oauth.extend_scopes(scopes);
+        func(&mut oauth, scopes)
     }
 
     pub fn join_scopes(oauth: &mut OAuth, s: &[String]) {

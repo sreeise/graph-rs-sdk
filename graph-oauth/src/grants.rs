@@ -1,6 +1,4 @@
-use crate::accesstoken::AccessToken;
-use crate::auth::{OAuthCredential, OAuthReq};
-use std::process::Output;
+use crate::auth::OAuthCredential;
 
 #[derive(
     Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize, EnumIter,
@@ -20,12 +18,6 @@ pub enum GrantType {
     AuthorizationCode,
     Implicit,
     OpenId,
-}
-
-pub trait Grant {
-    fn request_authorization(&mut self) -> OAuthReq<Output>;
-    fn request_access_token(&mut self) -> OAuthReq<AccessToken>;
-    fn request_refresh_token(&mut self) -> OAuthReq<AccessToken>;
 }
 
 impl GrantType {
@@ -63,6 +55,7 @@ impl GrantType {
                     OAuthCredential::RedirectURI,
                     OAuthCredential::GrantType,
                     OAuthCredential::AccessCode,
+                    OAuthCredential::RefreshToken,
                 ],
             },
             GrantType::AuthorizationCode => match grant_request {

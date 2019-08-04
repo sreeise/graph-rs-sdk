@@ -10,7 +10,7 @@ extern crate reqwest;
 use from_to_file::*;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use rust_onedrive::oauth::{Grant, OAuth};
+use rust_onedrive::oauth::OAuth;
 use std::thread;
 use std::time::Duration;
 
@@ -33,7 +33,7 @@ on how to set up an application.
 
 // Create an OAuth struct with the needed credentials.
 fn oauth_web_client() -> OAuth {
-    let mut oauth = OAuth::code_flow();
+    let mut oauth = OAuth::new();
     oauth
         .client_id("<YOUR_CLIENT_ID>")
         .client_secret("<YOUR_CLIENT_SECRET>")
@@ -68,7 +68,8 @@ fn main() {
         // Get the oauth client and request a browser sign in
         // The url used is the same url given in method: OAuth::authorize_url()
         let mut oauth = oauth_web_client();
-        oauth.request_authorization().unwrap();
+        let mut request = oauth.build().code_flow();
+        request.browser_authorization().open().unwrap();
     });
 
     rocket::ignite().mount("/", routes![redirect]).launch();
@@ -99,7 +100,9 @@ pub fn set_and_req_access_code(access_code: &str, state: &str) {
     oauth.access_code(access_code);
 
     // Request the access token.
-    oauth.request_access_token().unwrap();
+    let mut request = oauth.build().code_flow();
+    let access_token = request.access_token().send().unwrap();;
+    oauth.access_token(access_token);
 
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("{:#?}", &oauth);

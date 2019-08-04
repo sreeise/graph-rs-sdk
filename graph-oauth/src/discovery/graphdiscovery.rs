@@ -1,4 +1,3 @@
-use crate::grants::GrantType;
 use crate::oauth::wellknown::{Commons, WellKnown};
 use crate::oauth::{OAuth, OAuthError};
 use from_to_file::*;
@@ -85,8 +84,8 @@ impl GraphDiscovery {
         }
     }
 
-    pub fn oauth(self, grant_type: GrantType) -> Result<OAuth, OAuthError> {
-        let mut oauth = OAuth::new(grant_type);
+    pub fn oauth(self) -> Result<OAuth, OAuthError> {
+        let mut oauth = OAuth::new();
         match self {
             GraphDiscovery::V1 => {
                 let k: MicrosoftSigningKeysV1 = Commons::signing_keys(

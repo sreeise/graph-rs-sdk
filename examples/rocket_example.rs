@@ -12,7 +12,7 @@ use rocket::http::RawStr;
 use rocket_codegen::routes;
 use rust_onedrive::drive::driveitemcollection::DriveItemCollection;
 use rust_onedrive::drive::{Drive, EP};
-use rust_onedrive::oauth::{Grant, OAuth};
+use rust_onedrive::oauth::OAuth;
 use std::convert::TryFrom;
 use std::thread;
 use std::time::Duration;
@@ -75,7 +75,8 @@ fn main() {
         // same URL mentioned above. The query is built from the values passed to
         // OAuth such as client_id.
         let mut oauth = oauth_web_client();
-        let _ = oauth.request_authorization().unwrap();
+        let mut request = oauth.build().code_flow();
+        request.browser_authorization().open().unwrap();
     });
 
     rocket::ignite()
@@ -124,7 +125,7 @@ The scopes given below will allow you to access most of the needed items for
 the Graph OneDrive API.
 */
 fn oauth_web_client() -> OAuth {
-    let mut oauth = OAuth::code_flow();
+    let mut oauth = OAuth::new();
     oauth
         .client_id("<YOUR_CLIENT_ID>")
         .client_secret("<YOUR_CLIENT_SECRET>")
@@ -139,8 +140,6 @@ fn oauth_web_client() -> OAuth {
         .refresh_token_url("https://login.live.com/oauth20_token.srf")
         .response_type("code")
         .logout_url("https://login.live.com/oauth20_logout.srf?")
-        // If this is not set, the redirect_url given above will be used for the logout redirect.
-        // See logout.rs for an example.
         .post_logout_redirect_uri("http://localhost:8000/redirect");
     oauth
 }
@@ -163,7 +162,9 @@ pub fn set_and_req_access_code(access_code: &str) {
     // set to authorization_code if either of these were not previously set.
     // This is done here as an example.
     oauth.access_code(access_code);
-    oauth.request_access_token().unwrap();
+    let mut request = oauth.build().code_flow();
+    let access_token = request.access_token().send().unwrap();
+    oauth.access_token(access_token);
 
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("{:#?}", &oauth);

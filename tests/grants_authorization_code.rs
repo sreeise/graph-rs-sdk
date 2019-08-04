@@ -5,7 +5,7 @@ use url::{Host, Url};
 
 #[test]
 pub fn authorization_url() {
-    let mut oauth = OAuth::authorization_code_grant();
+    let mut oauth = OAuth::new();
     oauth
         .authorize_url("https://login.microsoftonline.com/common/oauth2/authorize")
         .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
@@ -20,7 +20,9 @@ pub fn authorization_url() {
         .code_challenge("code_challenge")
         .domain_hint("consumers");
 
-    let url = oauth.encode_uri(GrantRequest::Authorization).unwrap();
+    let url = oauth
+        .encode_uri(GrantType::AuthorizationCode, GrantRequest::Authorization)
+        .unwrap();
     let test_url = "https://login.microsoftonline.com/common/oauth2/authorize?client_id=6731de76-14a6-49ae-97bc-6eba6914391e&redirect_uri=http%3A%2F%2Flocalhost%3A8080&state=12345&response_mode=query&response_type=code&scope=Read.Write&prompt=login&domain_hint=consumers&code_challenge=code_challenge&code_challenge_method=plain";
     let parsed_url = Url::parse(url.as_str()).unwrap();
 
@@ -34,7 +36,7 @@ pub fn authorization_url() {
 
 #[test]
 fn access_token_uri() {
-    let mut oauth = OAuth::authorization_code_grant();
+    let mut oauth = OAuth::new();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .client_secret("CLDIE3F")
@@ -46,13 +48,15 @@ fn access_token_uri() {
         .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
         .code_verifier("bb301aaab3011201a230923f-4259-a230923fds32");
     let test_url = "client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&scope=Fall.Down+Read.Write&grant_type=authorization_code&code_verifier=bb301aaab3011201a230923f-4259-a230923fds32";
-    let url = oauth.encode_uri(GrantRequest::AccessToken).unwrap();
+    let url = oauth
+        .encode_uri(GrantType::AuthorizationCode, GrantRequest::AccessToken)
+        .unwrap();
     assert_eq!(test_url, url);
 }
 
 #[test]
 fn refresh_token_uri() {
-    let mut oauth = OAuth::authorization_code_grant();
+    let mut oauth = OAuth::new();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .client_secret("CLDIE3F")
@@ -66,14 +70,16 @@ fn refresh_token_uri() {
     access_token.refresh_token(Some("32LKLASDKJ"));
     oauth.access_token(access_token);
 
-    let body = oauth.encode_uri(GrantRequest::RefreshToken).unwrap();
+    let body = oauth
+        .encode_uri(GrantType::AuthorizationCode, GrantRequest::RefreshToken)
+        .unwrap();
     let test_url = "refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&grant_type=refresh_token&scope=Fall.Down+Read.Write";
     assert_eq!(test_url, body);
 }
 
 #[test]
 pub fn access_token_body_contains() {
-    let mut oauth = OAuth::authorization_code_grant();
+    let mut oauth = OAuth::new();
     oauth
         .authorize_url("https://login.microsoftonline.com/common/oauth2/authorize")
         .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
@@ -97,5 +103,10 @@ pub fn access_token_body_contains() {
     let vec_included =
         GrantType::AuthorizationCode.available_credentials(GrantRequest::Authorization);
     OAuthTestTool::oauth_contains_credentials(&mut oauth, &vec_included);
-    OAuthTestTool::oauth_query_uri_test(&mut oauth, GrantRequest::Authorization, vec_included);
+    OAuthTestTool::oauth_query_uri_test(
+        &mut oauth,
+        GrantType::AuthorizationCode,
+        GrantRequest::Authorization,
+        vec_included,
+    );
 }
