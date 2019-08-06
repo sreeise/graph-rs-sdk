@@ -85,7 +85,9 @@
       "fileSystemInfo": {
         "createdDateTime": "2017-08-06T01:12:42Z",
         "lastModifiedDateTime": "2017-08-06T01:12:48Z"
-      }
+      },
+      "microsoft_graph_conflict_behavior": "Rename",
+      "microsoft_graph_download_url": "https://www.example.com"
     }
   ]
 }

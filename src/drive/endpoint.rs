@@ -1,11 +1,8 @@
 use crate::drive::drive_item::driveitemcollection::DriveItemCollection;
 use crate::drive::driveinfo::DriveInfo;
-use crate::drive::driveitem::DriveItem;
-use crate::drive::item::Item;
-use crate::drive::{Drive, DriveVersion, ItemResult, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
-use graph_error::{GraphError, GraphFailure};
-use reqwest::header;
-use std::convert::TryFrom;
+use crate::drive::driveurl::MutateUrl;
+use crate::drive::item::SelectResource;
+use crate::drive::{DriveVersion, Request, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
 
 /// Implements well known or special folder paths.
 ///
@@ -17,6 +14,7 @@ pub enum DriveEndPoint {
     DriveMe,
     DriveRoot,
     DriveRootMe,
+    DriveRootMeChild,
     DriveRootChild,
     DriveChanges,
     SharedWithMe,
@@ -42,6 +40,7 @@ impl DriveEndPoint {
             DriveEndPoint::DriveMe => "/me/drive",
             DriveEndPoint::DriveRoot => "/drive/root",
             DriveEndPoint::DriveRootMe => "/me/drive/root",
+            DriveEndPoint::DriveRootMeChild => "me/drive/root/children",
             DriveEndPoint::DriveRootChild => "/drive/root/children",
             DriveEndPoint::DriveChanges => "/drive/root/delta",
             DriveEndPoint::SharedWithMe => "/me/drive/sharedWithMe",
@@ -102,44 +101,45 @@ impl ToString for DriveEndPoint {
 }
 
 pub trait EP {
-    fn drive(&mut self) -> ItemResult<DriveInfo>;
-    fn drive_me(&mut self) -> ItemResult<DriveItemCollection>;
-    fn drive_root(&mut self) -> ItemResult<DriveItemCollection>;
-    fn drive_root_me(&mut self) -> ItemResult<DriveItemCollection>;
-    fn drive_root_child(&mut self) -> ItemResult<DriveItemCollection>;
-    fn drive_changes(&mut self) -> ItemResult<DriveItemCollection>;
-    fn shared_with_me(&mut self) -> ItemResult<DriveItemCollection>;
-    fn drive_recent(&mut self) -> ItemResult<DriveItemCollection>;
-    fn drive_activities(&mut self) -> ItemResult<DriveItemCollection>;
-    fn special_folder<T>(&mut self, folder_name: &str) -> ItemResult<T>
+    fn drive(&mut self) -> Request<DriveInfo>;
+    fn drive_me(&mut self) -> Request<DriveItemCollection>;
+    fn drive_root(&mut self) -> Request<DriveItemCollection>;
+    fn drive_root_me(&mut self) -> Request<DriveItemCollection>;
+    fn drive_root_child(&mut self) -> Request<DriveItemCollection>;
+    fn drive_root_me_child(&mut self) -> Request<DriveItemCollection>;
+    fn delta(&mut self) -> Request<DriveItemCollection>;
+    fn shared_with_me(&mut self) -> Request<DriveItemCollection>;
+    fn drive_recent(&mut self) -> Request<DriveItemCollection>;
+    fn drive_activities(&mut self) -> Request<DriveItemCollection>;
+    fn special_folder<T>(&mut self, folder_name: &str) -> Request<T>
     where
         for<'de> T: serde::Deserialize<'de>;
-    fn special_documents(&mut self) -> ItemResult<DriveItemCollection>;
-    fn special_documents_child(&mut self) -> ItemResult<DriveItemCollection>;
-    fn special_photos(&mut self) -> ItemResult<DriveItemCollection>;
-    fn special_photos_child(&mut self) -> ItemResult<DriveItemCollection>;
-    fn special_cameraroll(&mut self) -> ItemResult<DriveItemCollection>;
-    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItemCollection>;
-    fn special_approot(&mut self) -> ItemResult<DriveItemCollection>;
-    fn special_approot_child(&mut self) -> ItemResult<DriveItemCollection>;
-    fn special_music(&mut self) -> ItemResult<DriveItemCollection>;
-    fn special_music_child(&mut self) -> ItemResult<DriveItemCollection>;
+    fn special_documents(&mut self) -> Request<DriveItemCollection>;
+    fn special_documents_child(&mut self) -> Request<DriveItemCollection>;
+    fn special_photos(&mut self) -> Request<DriveItemCollection>;
+    fn special_photos_child(&mut self) -> Request<DriveItemCollection>;
+    fn special_cameraroll(&mut self) -> Request<DriveItemCollection>;
+    fn special_cameraroll_child(&mut self) -> Request<DriveItemCollection>;
+    fn special_approot(&mut self) -> Request<DriveItemCollection>;
+    fn special_approot_child(&mut self) -> Request<DriveItemCollection>;
+    fn special_music(&mut self) -> Request<DriveItemCollection>;
+    fn special_music_child(&mut self) -> Request<DriveItemCollection>;
 }
 
-/// Automatically requests the DriveEndPoint given in the function name and returns the struct
-/// of that request. The structs may be of different types listed here by function name:
-impl EP for Drive {
+impl EP for SelectResource {
     /// Get the drive info of a drive.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.drive());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().drive();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn drive(&mut self) -> ItemResult<DriveInfo> {
-        self.get(DriveEndPoint::Drive.url(self.version.as_str()).as_str())
+    fn drive(&mut self) -> Request<DriveInfo> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::Drive);
+        Request::from(&req)
     }
 
     /// Get the drive me DriveItem for the currently signed in user. Automatically
@@ -147,28 +147,30 @@ impl EP for Drive {
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.drive_me());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().drive_me();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn drive_me(&mut self) -> ItemResult<DriveItemCollection> {
-        let drive_item: DriveItem =
-            self.get(DriveEndPoint::DriveMe.url(self.version.as_str()).as_str())?;
-        Ok(DriveItemCollection::from(drive_item))
+    fn drive_me(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::DriveMe);
+        Request::from(&req)
     }
 
     /// Get the drives root folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.drive_root());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().drive_root();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn drive_root(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(DriveEndPoint::DriveRoot.url(self.version.as_str()).as_str())
+    fn drive_root(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::DriveRoot);
+        Request::from(&req)
     }
 
     /// Get the drives root folder for the me endpoint. The me endpoint
@@ -176,85 +178,90 @@ impl EP for Drive {
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.drive_root_me());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().drive_root_me();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn drive_root_me(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::DriveRootMe
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn drive_root_me(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::DriveRootMe);
+        Request::from(&req)
     }
 
     /// Get the children of the drives root folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.drive_root_child());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().drive_root_child();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn drive_root_child(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::DriveRootChild
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn drive_root_child(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::DriveRootChild);
+        Request::from(&req)
+    }
+
+    /// Get the children of the drives root folder.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().drive_root_me_child();
+    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// ```
+    fn drive_root_me_child(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::DriveRootMeChild);
+        Request::from(&req)
     }
 
     /// Get drive changes.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.drive_changes());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().delta();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn drive_changes(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::DriveChanges
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn delta(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::DriveChanges);
+        Request::from(&req)
     }
 
     /// Get drive items that have been shared with an account.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.shared_with_me());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().shared_with_me();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn shared_with_me(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::SharedWithMe
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn shared_with_me(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SharedWithMe);
+        Request::from(&req)
     }
 
     /// Get recent items for a drive.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.drive_recent());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().drive_recent();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn drive_recent(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::DriveRecent
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn drive_recent(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::DriveRecent);
+        Request::from(&req)
     }
 
     /// Get recent activities for a drive. This API may be limited
@@ -262,232 +269,183 @@ impl EP for Drive {
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.drive_activities());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().drive_activities();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn drive_activities(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::DriveActivities
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn drive_activities(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::DriveActivities);
+        Request::from(&req)
     }
 
     /// Get the children of the special documents folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_folder("documents"));
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req: BoxItem<DriveItemCollection> = drive.v1().special_folder("folder_name");
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_folder<T>(&mut self, folder_name: &str) -> ItemResult<T>
+    fn special_folder<T>(&mut self, folder_name: &str) -> Request<T>
     where
         for<'de> T: serde::Deserialize<'de>,
     {
-        // To deserialize a more manual approach is needed here because the response
-        // could either be a single value::Value or multiple value::Value's. DriveItem's
-        // TryFrom impl does the work of checking for a value::Value from a Response.
-        let mut endpoint = DriveEndPoint::SpecialFolder.to_string();
-        endpoint.push('/');
-        endpoint.push_str(folder_name);
-
-        let client = reqwest::Client::builder()
-            .build()
-            .map_err(GraphFailure::from)?;
-
-        let mut response = client
-            .get(endpoint.as_str())
-            .bearer_auth(self.token())
-            .header(header::CONTENT_TYPE, "application/json")
-            .send()?;
-
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        let item: T = response.json()?;
-        Ok(item)
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialFolder);
+        req.as_mut().extend_path(&[folder_name]);
+        Request::from(&req)
     }
 
     /// Get the special documents folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_documents());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().special_documents();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_documents(&mut self) -> ItemResult<DriveItemCollection> {
-        let drive_item: DriveItem = self.get(
-            DriveEndPoint::SpecialDocuments
-                .url(self.version.as_str())
-                .as_str(),
-        )?;
-        Ok(DriveItemCollection::from(drive_item))
+    fn special_documents(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialDocuments);
+        Request::from(&req)
     }
 
     /// Get the children of the special documents folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_documents_child());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().special_documents_child();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_documents_child(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::SpecialDocumentsChild
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn special_documents_child(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialDocumentsChild);
+        Request::from(&req)
     }
 
     /// Get the special photos folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_photos());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().special_photos();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_photos(&mut self) -> ItemResult<DriveItemCollection> {
-        let drive_item: DriveItem = self.get(
-            DriveEndPoint::SpecialPhotos
-                .url(self.version.as_str())
-                .as_str(),
-        )?;
-        Ok(DriveItemCollection::from(drive_item))
+    fn special_photos(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialPhotos);
+        Request::from(&req)
     }
 
     /// Get the children of the special photos folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_photos_child());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().special_photos_child();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_photos_child(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::SpecialPhotosChild
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn special_photos_child(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialPhotosChild);
+        Request::from(&req)
     }
 
     /// Get the special camera roll folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_cameraroll());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().special_cameraroll();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_cameraroll(&mut self) -> ItemResult<DriveItemCollection> {
-        let drive_item: DriveItem = self.get(
-            DriveEndPoint::SpecialCameraRoll
-                .url(self.version.as_str())
-                .as_str(),
-        )?;
-        Ok(DriveItemCollection::from(drive_item))
+    fn special_cameraroll(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialCameraRoll);
+        Request::from(&req)
     }
 
     /// Get the children of the special camera roll folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_cameraroll_child());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().special_cameraroll_child();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_cameraroll_child(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::SpecialCameraRollChild
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn special_cameraroll_child(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialCameraRollChild);
+        Request::from(&req)
     }
 
     /// Get the special approot folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_approot());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().special_approot();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_approot(&mut self) -> ItemResult<DriveItemCollection> {
-        let drive_item: DriveItem = self.get(
-            DriveEndPoint::SpecialAppRoot
-                .url(self.version.as_str())
-                .as_str(),
-        )?;
-        Ok(DriveItemCollection::from(drive_item))
+    fn special_approot(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialAppRoot);
+        Request::from(&req)
     }
 
     /// Get the children of the special approot folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_approot_child());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().special_approot_child();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_approot_child(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::SpecialAppRootChild
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn special_approot_child(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialAppRoot);
+        Request::from(&req)
     }
 
     /// Get the special music folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_music());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().special_music();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_music(&mut self) -> ItemResult<DriveItemCollection> {
-        let drive_item: DriveItem = self.get(
-            DriveEndPoint::SpecialMusic
-                .url(self.version.as_str())
-                .as_str(),
-        )?;
-        Ok(DriveItemCollection::from(drive_item))
+    fn special_music(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialMusic);
+        Request::from(&req)
     }
 
     /// Get the children of the special music folder.
     ///
     /// # Example
     /// ```rust,ignore
-    /// # use rust_onedrive::prelude::Drive;
-    /// # use rust_onedrive::drive::DriveVersion;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// println!("{:#?}", drive.special_music_child());
+    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
+    /// let mut req = drive.v1().special_music_child();
+    /// let collection: DriveItemCollection = req.send().unwrap();
     /// ```
-    fn special_music_child(&mut self) -> ItemResult<DriveItemCollection> {
-        self.get(
-            DriveEndPoint::SpecialMusicChild
-                .url(self.version.as_str())
-                .as_str(),
-        )
+    fn special_music_child(&mut self) -> Request<DriveItemCollection> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::SpecialMusicChild);
+        Request::from(&req)
     }
 }

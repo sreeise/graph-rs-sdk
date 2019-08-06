@@ -5,57 +5,21 @@ use rust_onedrive::prelude::*;
 use std::convert::TryFrom;
 
 static FOLDER_NAME: &str = "NEW_FOLDER_NAME";
+static PARENT_ID: &str = "PARENT_ID";
 
 fn main() {
     // For more info on creating a folder see:
     // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_post_children?view=odsp-graph-online
-
-    // A drive id, parent item id, and DriveResource is used to create a new
-    // folder through id based addressing.
-    // If you want to use the same location as a drive::value::Value,
-    // the drive id and parent item id can be found in the ParentReference within
-    // each drive::value::Value. The ParentReference contains a drive_id and an id
-    // field which is the the parent id that can be used to create a new folder.
-    create_new_folder("YOUR_DRIVE_ID", "YOUR_PARENT_ITEM_ID");
-
-    // You can also set the location where the folder is created
-    // by path.
-    create_folder_by_given_path();
+    create_new_folder();
 }
 
-fn create_new_folder(drive_id: &str, parent_id: &str) {
+fn create_new_folder() {
     let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
-    let mut drive: Drive = Drive::try_from(oauth).unwrap();
+    let drive: Drive = Drive::try_from(oauth).unwrap();
 
-    // A NewFolder struct specifies the new folders name and the conflict behavior
-    // to use in case of a naming conflict. Can be one of rename, fail, or replace.
     let new_folder: NewFolder = NewFolder::new(FOLDER_NAME, ConflictBehavior::Rename);
+    let mut request = drive.v1().me().create_folder(PARENT_ID, new_folder);
 
-    // Create the folder by referencing the drive id and parent id and the resource.
-    // Returns a drive::value::Value which is the new drive item metadata.
-    let value = drive
-        .create_folder(new_folder, drive_id, parent_id, DriveResource::Drives)
-        .unwrap();
-    println!("{:#?}", value);
-}
-
-fn create_folder_by_given_path() {
-    let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
-    let mut drive: Drive = Drive::try_from(oauth).unwrap();
-
-    // A NewFolder struct specifies the new folders name and the conflict behavior
-    // to use in case of a naming conflict. Can be one of rename, fail, or replace.
-    let new_folder: NewFolder = NewFolder::new(FOLDER_NAME, ConflictBehavior::Rename);
-
-    // Creates a new DriveUrl by passing a reference of a Drive. The DriveUrl
-    // will use the drive version URL for the Drive as the host URL for the path.
-    let mut drive_url = DriveUrl::from(&drive);
-
-    // Use the main root drive location to create the folder in.
-    drive_url.endpoint(DriveEndPoint::DriveRootChild);
-
-    // Create the folder by path.
-    // Returns a drive::value::Value which is the new drive item metadata.
-    let value = drive.create_folder_by_path(new_folder, drive_url).unwrap();
-    println!("{:#?}", value);
+    let drive_item: DriveItem = request.send().unwrap();
+    println!("{:#?}", drive_item);
 }

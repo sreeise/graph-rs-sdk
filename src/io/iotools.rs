@@ -1,22 +1,41 @@
 use crate::drive::ItemResult;
-use std::fs;
-use std::path::Path;
-pub struct IOTools;
+use graph_error::GraphFailure;
+use reqwest::Response;
+use std::fs::OpenOptions;
+use std::io::copy;
+use std::path::{Path, PathBuf};
+use std::sync::mpsc;
+use std::{fs, thread};
 
-#[macro_export]
-macro_rules! log {
-    ($msg:expr) => {{
-        println!("{:#?}", $msg);
-    }};
-}
+pub struct IoTools;
 
-impl IOTools {
+impl IoTools {
     pub fn create_dir<P: AsRef<Path>>(directory: P) -> ItemResult<()> {
-        if let Some(location) = directory.as_ref().to_str() {
-            if !Path::new(&location).exists() {
-                fs::create_dir_all(&directory)?;
-            }
+        if !directory.as_ref().exists() {
+            fs::create_dir_all(&directory)?;
         }
         Ok(())
+    }
+
+    pub fn copy(mut response: (PathBuf, Response)) -> ItemResult<PathBuf> {
+        let (sender, receiver) = mpsc::channel();
+        let handle = thread::spawn(move || {
+            let mut file_writer = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .read(true)
+                .open(&response.0)
+                .expect("Error creating file");
+            copy(&mut response.1, &mut file_writer).expect("Error copying file contents");
+            sender.send(Some(response.0)).unwrap();
+        });
+
+        handle.join().expect("Thread could not be joined");
+        match receiver.recv() {
+            Ok(t) => {
+                Ok(t.ok_or_else(|| GraphFailure::not_found("Unknown error downloading file"))?)
+            },
+            Err(e) => Err(GraphFailure::from(e)),
+        }
     }
 }

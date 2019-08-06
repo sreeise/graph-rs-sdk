@@ -9,5 +9,5 @@ pub use checkin::CheckIn;
 pub use conflictbehavior::ConflictBehavior;
 pub use downloadformat::DownloadFormat;
 pub use driveevent::DriveEvent;
-pub use driveitemcopy::DriveItemCopy;
+pub use driveitemcopy::ItemRefCopy;
 pub use newfolder::NewFolder;

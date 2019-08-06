@@ -18,9 +18,10 @@ pub fn get_drive() -> Drive {
 }
 
 pub fn get_thumbnails(drive_item: &mut DriveItemCollection) {
-    let mut drive = get_drive();
-    let value: DriveItem = drive_item.find_by_name(DRIVE_FILE).unwrap();
+    let drive = get_drive();
+    let drive_item: DriveItem = drive_item.find_by_name(DRIVE_FILE).unwrap();
+    let item_id = drive_item.id().unwrap();
     let collection: ThumbnailCollection =
-        drive.thumbnails_by_value(value, DriveResource::Me).unwrap();
+        drive.v1().me().thumbnails(item_id.as_str()).send().unwrap();
     println!("{:#?}", collection.thumbnails());
 }

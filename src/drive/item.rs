@@ -1,45 +1,22 @@
 use crate::drive;
 use crate::drive::drive_item::asyncjobstatus::AsyncJobStatus;
+use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::drive_item::itemreference::ItemReference;
-use crate::drive::drive_item::thumbnail::ThumbnailCollection;
-use crate::drive::event::{CheckIn, DownloadFormat, DriveEvent, DriveItemCopy, NewFolder};
-use crate::drive::{DriveResource, DriveVersion, ItemResult, ResourceBuilder};
-use crate::fetch::Fetch;
-use crate::prelude::DriveUrl;
+use crate::drive::drive_item::thumbnail::{Thumbnail, ThumbnailCollection};
+use crate::drive::driverequest::ReqBuilder;
+use crate::drive::event::ItemRefCopy;
+use crate::drive::event::{DriveEvent, NewFolder};
+use crate::drive::intoitem::IntoItem;
+use crate::drive::item::inner_pipeline::MutatePipeline;
+use crate::drive::pipeline::{Body, DataPipeline, DownloadPipeline, FetchPipeline, Pipeline};
+use crate::drive::ItemResult;
+use crate::prelude::{DriveUrl, MutateUrl};
 use graph_error::GraphError;
 use graph_error::GraphFailure;
-use reqwest::{header, Client, RedirectPolicy, RequestBuilder, Response};
+use reqwest::{header, Response};
 use std::convert::TryFrom;
 use std::ffi::OsString;
-use std::fs::File;
 use std::path::{Path, PathBuf};
-
-fn drive_item_response<T>(client: RequestBuilder) -> ItemResult<T>
-where
-    T: for<'de> serde::Deserialize<'de>,
-{
-    let mut response = client.send()?;
-    if let Some(err) = GraphFailure::err_from(&mut response) {
-        Err(err)
-    } else {
-        Ok(response.json()?)
-    }
-}
-
-fn item_response(client: RequestBuilder, drive_event: DriveEvent) -> ItemResult<ItemResponse> {
-    let mut response = client.send()?;
-    if let Some(err) = GraphFailure::err_from(&mut response) {
-        Err(err)
-    } else {
-        Ok(ItemResponse::new(drive_event, response))
-    }
-}
-
-fn client() -> Result<Client, GraphFailure> {
-    reqwest::Client::builder()
-        .build()
-        .map_err(GraphFailure::from)
-}
 
 #[derive(Debug)]
 pub struct ItemResponse {
@@ -102,933 +79,859 @@ impl ItemResponse {
     }
 }
 
-pub trait Item {
-    /// The token() method should return a bearer token to make
-    /// authenticated calls to the OneDrive API.
-    fn token(&self) -> &str;
+pub struct BoxItemResponse {
+    item: Box<dyn IntoItem<ItemResponse>>,
+}
 
-    fn drive_version(&self) -> DriveVersion;
-
-    fn get<T>(&self, url: &str) -> ItemResult<T>
-    where
-        T: serde::Serialize + for<'de> serde::Deserialize<'de>,
-    {
-        assert!(url.starts_with(self.drive_version().as_ref()));
-        drive_item_response(
-            client()?
-                .get(url)
-                .bearer_auth(self.token())
-                .header(header::CONTENT_TYPE, "application/json"),
-        )
+impl BoxItemResponse {
+    fn new(item: Box<dyn IntoItem<ItemResponse>>) -> BoxItemResponse {
+        BoxItemResponse { item }
     }
 
-    /// Check-in a checkout DriveItem resource, which makes the version
-    /// of the document available to others.
-    ///
-    /// # See
-    /// [Check-in](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkin?view=odsp-graph-online)
-    fn check_in(
-        &self,
-        item_id: &str,
-        drive_id: &str,
-        check_in: CheckIn,
-        resource: DriveResource,
-    ) -> ItemResult<ItemResponse> {
-        let mut builder = ResourceBuilder::new(self.drive_version());
-        builder
-            .drive_event(DriveEvent::CheckIn)
-            .item_id(item_id)
-            .drive_id(drive_id)
-            .resource(resource);
-        let url = builder.build()?;
-        let check_in_json = serde_json::to_string(&check_in)?;
+    pub fn send(&mut self) -> ItemResult<ItemResponse> {
+        self.item.send()
+    }
+}
 
-        let rb = client()?
-            .post(url.as_str())
-            .bearer_auth(self.token())
-            .body(check_in_json)
-            .header(header::CONTENT_TYPE, "application/json");
-        item_response(rb, DriveEvent::CheckIn)
+impl AsMut<DriveUrl> for BoxItemResponse {
+    fn as_mut(&mut self) -> &mut DriveUrl {
+        self.item.as_mut().as_mut()
+    }
+}
+
+impl AsRef<DriveUrl> for BoxItemResponse {
+    fn as_ref(&self) -> &DriveUrl {
+        self.item.as_ref().as_ref()
+    }
+}
+
+pub struct Request<T> {
+    item: Box<dyn IntoItem<T>>,
+}
+
+impl<T> Request<T> {
+    fn new(item: Box<dyn IntoItem<T>>) -> Request<T> {
+        Request { item }
     }
 
-    fn check_in_by_value(
-        &self,
-        value: drive::driveitem::DriveItem,
-        check_in: CheckIn,
-        resource: DriveResource,
-    ) -> ItemResult<ItemResponse> {
-        let (item_id, drive_id) = value.item_event_ids()?;
-        let mut builder = ResourceBuilder::new(self.drive_version());
-        builder
-            .drive_event(DriveEvent::CheckIn)
-            .item_id(item_id.as_str())
-            .drive_id(drive_id.as_str())
-            .resource(resource);
-        let url = builder.build()?;
-        let check_in_json = serde_json::to_string(&check_in)?;
+    pub fn send(&mut self) -> ItemResult<T> {
+        self.item.send()
+    }
+}
 
-        let rb = client()?
-            .post(url.as_str())
-            .bearer_auth(self.token())
-            .body(check_in_json)
-            .header(header::CONTENT_TYPE, "application/json");
-        item_response(rb, DriveEvent::CheckIn)
+impl<T> From<Pipeline> for Request<T>
+where
+    for<'de> T: serde::Deserialize<'de>,
+{
+    fn from(pipeline: Pipeline) -> Self {
+        Request::new(Box::new(pipeline))
+    }
+}
+
+impl<T> MutateUrl for Request<T> {}
+
+impl<T> AsRef<DriveUrl> for Request<T> {
+    fn as_ref(&self) -> &DriveUrl {
+        self.item.as_ref().as_ref()
+    }
+}
+
+impl<T> AsMut<DriveUrl> for Request<T> {
+    fn as_mut(&mut self) -> &mut DriveUrl {
+        self.item.as_mut().as_mut()
+    }
+}
+
+pub struct SelectEventMe(DataPipeline);
+
+impl AsRef<DriveUrl> for SelectEventMe {
+    fn as_ref(&self) -> &DriveUrl {
+        &self.0.url
+    }
+}
+
+impl AsMut<DriveUrl> for SelectEventMe {
+    fn as_mut(&mut self) -> &mut DriveUrl {
+        &mut self.0.url
+    }
+}
+
+impl AsMut<DataPipeline> for SelectEventMe {
+    fn as_mut(&mut self) -> &mut DataPipeline {
+        &mut self.0
+    }
+}
+
+impl ItemMe for SelectEventMe {}
+
+pub struct SelectEvent(DataPipeline);
+
+impl AsRef<DriveUrl> for SelectEvent {
+    fn as_ref(&self) -> &DriveUrl {
+        &self.0.url
+    }
+}
+
+impl AsMut<DriveUrl> for SelectEvent {
+    fn as_mut(&mut self) -> &mut DriveUrl {
+        &mut self.0.url
+    }
+}
+
+impl AsMut<DataPipeline> for SelectEvent {
+    fn as_mut(&mut self) -> &mut DataPipeline {
+        &mut self.0
+    }
+}
+
+impl From<SelectResource> for SelectEvent {
+    fn from(s: SelectResource) -> Self {
+        SelectEvent(s.0)
+    }
+}
+
+impl ItemCommon for SelectEvent {}
+
+#[derive(Clone, PartialEq)]
+pub struct SelectResource(DataPipeline);
+
+impl SelectResource {
+    pub fn new(data: DataPipeline) -> SelectResource {
+        SelectResource(data)
+    }
+}
+
+impl SelectResource {
+    pub fn me(mut self) -> SelectEventMe {
+        self.extend_path(&["me"]);
+        self.into()
     }
 
-    /// Check-out a driveItem resource to prevent others from editing the document,
-    /// and your changes from being visible until the documented is checked-in.
-    ///
-    /// # See
-    /// [Check-out](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkout?view=odsp-graph-online)
-    fn check_out(
-        &self,
-        item_id: &str,
-        drive_id: &str,
-        resource: DriveResource,
-    ) -> ItemResult<ItemResponse> {
-        let mut builder = ResourceBuilder::new(self.drive_version());
-        builder
-            .drive_event(DriveEvent::CheckOut)
-            .item_id(item_id)
-            .drive_id(drive_id)
-            .resource(resource);
-
-        let url = builder.build()?;
-        let rb = client()?
-            .post(url.as_str())
-            .bearer_auth(self.token())
-            .header(header::CONTENT_LENGTH, 0)
-            .header(header::CONTENT_TYPE, "application/json");
-
-        item_response(rb, DriveEvent::CheckIn)
+    pub fn drives(mut self) -> SelectEvent {
+        self.extend_path(&["drives"]);
+        self.into()
     }
 
-    fn check_out_by_value(
-        &self,
-        value: drive::driveitem::DriveItem,
-        resource: DriveResource,
-    ) -> ItemResult<ItemResponse> {
-        let (item_id, drive_id) = value.item_event_ids()?;
-        let mut builder = ResourceBuilder::new(self.drive_version());
-        builder
-            .drive_event(DriveEvent::CheckOut)
-            .item_id(item_id.as_str())
-            .drive_id(drive_id.as_str())
-            .resource(resource);
-
-        let url = builder.build()?;
-        let rb = client()?
-            .post(url.as_str())
-            .bearer_auth(self.token())
-            .header(header::CONTENT_LENGTH, 0)
-            .header(header::CONTENT_TYPE, "application/json");
-
-        item_response(rb, DriveEvent::CheckOut)
+    pub fn sites(mut self) -> SelectEvent {
+        self.extend_path(&["sites"]);
+        self.into()
     }
 
-    /// Asynchronously creates a copy of an driveItem (including any children), under a
-    /// new parent item or with a new name.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use rust_onedrive::prelude::*;
-    /// use rust_onedrive::drive::parentreference::ParentReference;
-    ///
-    /// static DRIVE_FILE: &str = "YOUR_DRIVE_FILE_NAME";
-    /// static DRIVE_FILE_COPY_NAME: &str = "FILE_NAME_OF_COPY";
-    ///
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
-    ///
-    /// // The file or folder that you want to copy.
-    /// let value: Value = drive_item.find_by_name(DRIVE_FILE).unwrap();
-    ///
-    /// let parent_ref = ParentReference::new(None, None, None, Some("/drive/root:/Documents".into()));
-    /// let prc = DriveItemCopy::new(
-    ///     parent_ref,
-    ///     Some(DRIVE_FILE_COPY_NAME.into()),
-    ///     DriveResource::Drives,
-    /// );
-    ///
-    /// let mut item_response: ItemResponse = drive.copy(value, prc).unwrap();
-    /// println!("{:#?}", &item_response);
-    ///
-    /// // Get the progress of the copy event.
-    /// println!("{:#?}", &item_response.event_progress());
-    /// ```
-    /// # See
-    /// [Copy a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_copy?view=odsp-graph-online)
+    pub fn groups(mut self) -> SelectEvent {
+        self.extend_path(&["groups"]);
+        self.into()
+    }
+
+    pub fn users(mut self) -> SelectEvent {
+        self.extend_path(&["users"]);
+        self.into()
+    }
+
+    pub fn get(&mut self) -> ReqBuilder {
+        self.0.as_get();
+        ReqBuilder::new(self.pipeline_data())
+    }
+
+    pub fn post(&mut self) -> ReqBuilder {
+        self.0.as_post();
+        ReqBuilder::new(self.pipeline_data())
+    }
+
+    pub fn put(&mut self) -> ReqBuilder {
+        self.0.as_put();
+        ReqBuilder::new(self.pipeline_data())
+    }
+
+    pub fn patch(&mut self) -> ReqBuilder {
+        self.0.as_patch();
+        ReqBuilder::new(self.pipeline_data())
+    }
+
+    pub fn delete(&mut self) -> ReqBuilder {
+        self.0.as_delete();
+        ReqBuilder::new(self.pipeline_data())
+    }
+}
+
+impl From<SelectResource> for SelectEventMe {
+    fn from(resource: SelectResource) -> Self {
+        SelectEventMe(resource.0)
+    }
+}
+
+impl AsMut<DataPipeline> for SelectResource {
+    fn as_mut(&mut self) -> &mut DataPipeline {
+        &mut self.0
+    }
+}
+
+pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
+    fn delete(&mut self, item_id: &str) -> BoxItemResponse {
+        self.format_me(item_id);
+        self.as_delete();
+        BoxItemResponse::new(Box::new(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::Delete,
+        )))
+    }
+
+    fn delete_drive_item(&mut self, value: &DriveItem) -> BoxItemResponse {
+        let item_id = value.id().unwrap();
+        self.delete(item_id.as_str())
+    }
+
+    fn get_item(&mut self, item_id: &str) -> Request<DriveItem> {
+        self.format_me(item_id);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::GetItem))
+    }
+
+    fn get_item_path(&mut self, path: &str) -> Request<DriveItem> {
+        self.extend_path(&["drive", "root:", path]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::GetItem))
+    }
+
+    fn create_folder(&mut self, parent_id: &str, folder: NewFolder) -> Request<DriveItem> {
+        self.format_me(parent_id);
+        self.event(DriveEvent::CreateFolder);
+        self.body(Body::String(serde_json::to_string_pretty(&folder).unwrap()));
+        self.as_post();
+        Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::CreateFolder,
+        ))
+    }
+
+    fn create_folder_path(
+        &mut self,
+        new_folder: NewFolder,
+        path_from_root: String,
+    ) -> Request<DriveItem> {
+        let mut s = path_from_root;
+        if !s.ends_with(':') {
+            s.push(':');
+        }
+
+        self.format_me(s.as_str());
+        self.extend_path(&["children"]);
+        self.body(Body::String(
+            serde_json::to_string_pretty(&new_folder).unwrap(),
+        ));
+        self.as_post();
+        Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::CreateFolder,
+        ))
+    }
+
     fn copy(
-        &self,
-        value: drive::driveitem::DriveItem,
-        drive_item_copy: DriveItemCopy,
-    ) -> ItemResult<ItemResponse> {
-        let (item_id, drive_id) = value.item_event_ids()?;
-        let url = drive_item_copy.drive_resource().drive_item_resource(
-            self.drive_version(),
-            drive_id.as_str(),
-            item_id.as_str(),
+        &mut self,
+        item_id: &str,
+        item_ref: &ItemReference,
+        name: Option<&str>,
+    ) -> BoxItemResponse {
+        if let Some(name) = name {
+            let prc = ItemRefCopy::new(item_ref.clone(), Some(name.into()));
+            self.body(Body::String(prc.as_json().unwrap()));
+        } else {
+            let prc = ItemRefCopy::new(item_ref.clone(), None);
+            self.body(Body::String(prc.as_json().unwrap()));
+        }
+
+        self.format_me(item_id);
+        self.extend_path(&["copy"]);
+        self.as_post();
+        BoxItemResponse::new(Box::new(Pipeline::new(
+            self.pipeline_data(),
             DriveEvent::Copy,
-        );
-
-        let pr_json = drive_item_copy.as_json()?;
-        let rb = client()?
-            .post(url.as_str())
-            .body(pr_json)
-            .header(header::CONTENT_TYPE, "application/json")
-            .bearer_auth(self.token());
-
-        item_response(rb, DriveEvent::Copy)
+        )))
     }
 
-    /// Create a new folder or DriveItem in a Drive with a specified parent item.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use rust_onedrive::oauth::OAuth;
-    /// use rust_onedrive::drive::{Drive, NewFolder, DriveResource, DriveVersion};
-    /// use rust_onedrive::drive::conflictbehavior::ConflictBehavior;
-    ///
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    ///
-    /// // A NewFolder struct specifies the new folders name and the conflict behavior
-    /// // to use in case of a naming conflict. Can be one of rename, fail, or replace.
-    /// let new_folder: NewFolder = NewFolder::new("FOLDER_NAME", ConflictBehavior::Rename);
-    ///
-    /// // Create the folder by referencing the drive id and parent id and the resource.
-    /// // Returns a drive::driveitem::DriveItem which is the new drive item metadata.
-    /// let value = drive
-    ///     .create_folder(new_folder, "A_DRIVE_ID", "A_PARENT_ITEM_ID", DriveResource::Drives)
-    ///     .unwrap();
-    /// println!("{:#?}", value);
-    /// ```
-    ///
-    /// # See
-    /// [Create Folder](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_post_children?view=odsp-graph-online)
+    fn copy_drive_item(
+        &mut self,
+        drive_item: &DriveItem,
+        item_ref: &ItemReference,
+        name: Option<&str>,
+    ) -> ItemResult<BoxItemResponse> {
+        let item_id = drive_item
+            .id()
+            .ok_or_else(|| GraphFailure::none_err("item_id"))?;
+        Ok(self.copy(item_id.as_str(), item_ref, name))
+    }
+
+    fn download<P: AsRef<Path>>(&mut self, item_id: &str, directory: P) -> DownloadPipeline {
+        self.format_me(item_id);
+        self.extend_path(&["content"]);
+
+        let mut fetch_pipeline = FetchPipeline::from(self.pipeline_data());
+        let mut path_buf = PathBuf::new();
+        path_buf.push(directory);
+        fetch_pipeline.directory = path_buf;
+
+        DownloadPipeline {
+            pipeline: fetch_pipeline,
+            is_direct_download: false,
+        }
+    }
+
+    fn download_drive_item<P: AsRef<Path>>(
+        &mut self,
+        value: &mut DriveItem,
+        directory: P,
+    ) -> ItemResult<DownloadPipeline> {
+        if let Some(download_url) = value.microsoft_graph_download_url() {
+            // Build the non-download url in the case that a format has been
+            // selected after this. The format download always uses the redirect.
+            if let Some(item_id) = value.id() {
+                self.format_me(item_id.as_str());
+                self.extend_path(&["content"]);
+            }
+
+            let mut fetch_pipeline = FetchPipeline::from(self.pipeline_data());
+            let mut path_buf = PathBuf::new();
+            path_buf.push(directory);
+            fetch_pipeline.directory = path_buf;
+            fetch_pipeline.download_url = download_url;
+            fetch_pipeline.is_download = true;
+
+            if let Some(name) = value.name() {
+                fetch_pipeline.file_name = Some(OsString::from(name));
+            }
+
+            Ok(DownloadPipeline {
+                pipeline: fetch_pipeline,
+                is_direct_download: true,
+            })
+        } else {
+            let item_id = value
+                .id()
+                .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
+            self.format_me(item_id.as_str());
+            self.extend_path(&["content"]);
+
+            let mut fetch_pipeline = FetchPipeline::from(self.pipeline_data());
+            let mut path_buf = PathBuf::new();
+            path_buf.push(directory);
+            fetch_pipeline.directory = path_buf;
+            if let Some(name) = value.name() {
+                fetch_pipeline.file_name = Some(OsString::from(name));
+            }
+
+            Ok(DownloadPipeline {
+                pipeline: fetch_pipeline,
+                is_direct_download: false,
+            })
+        }
+    }
+
+    fn single_thumbnail(
+        &mut self,
+        item_id: &str,
+        thumb_id: &str,
+        size: &str,
+    ) -> Request<Thumbnail> {
+        self.format_me(item_id);
+        self.extend_path(&["thumbnails", thumb_id, size]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
+    }
+
+    fn thumbnails(&mut self, item_id: &str) -> Request<ThumbnailCollection> {
+        self.format_me(item_id);
+        self.extend_path(&["thumbnails"]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
+    }
+
+    fn thumbnails_drive_item(
+        &mut self,
+        value: drive::driveitem::DriveItem,
+    ) -> ItemResult<Request<ThumbnailCollection>> {
+        let item_id = value
+            .id()
+            .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
+        Ok(self.thumbnails(item_id.as_str()))
+    }
+
+    fn thumbnail_binary(&mut self, item_id: &str, thumb_id: &str, size: &str) -> Request<String> {
+        self.format_me(item_id);
+        self.extend_path(&["thumbnails", thumb_id, size, "content"]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
+    }
+
+    fn update(&mut self, item_id: &str, new_value: &DriveItem) -> Request<DriveItem> {
+        self.format_me(item_id);
+        self.body(Body::String(serde_json::to_string_pretty(&new_value).unwrap()));
+        self.as_patch();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Update))
+    }
+
+    fn update_drive_item(
+        &mut self,
+        old_value: &DriveItem,
+        new_value: &DriveItem,
+    ) -> ItemResult<Request<DriveItem>> {
+        let item_id = old_value
+            .id()
+            .ok_or_else(|| GraphFailure::none_err("item id"))?;
+        self.format_me(item_id.as_str());
+        self.body(Body::String(
+            serde_json::to_string_pretty(&new_value).unwrap(),
+        ));
+        Ok(Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::Update,
+        )))
+    }
+
+    fn upload_replace<P: AsRef<Path>>(&mut self, item_id: &str, file: P) -> Request<DriveItem> {
+        self.format_me(item_id);
+        self.extend_path(&["content"]);
+        self.body(Body::File(OsString::from(file.as_ref())));
+        self.as_put();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Upload))
+    }
+
+    fn upload_new<P: AsRef<Path>>(
+        &mut self,
+        parent_id: &str,
+        file: P,
+    ) -> ItemResult<Request<DriveItem>> {
+        let name = file
+            .as_ref()
+            .file_name()
+            .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
+
+        let mut id = String::new();
+        id.push_str(parent_id);
+        id.push(':');
+        let mut os_string = name.to_os_string();
+        os_string.push(":");
+
+        self.format_me(id.as_str());
+        self.extend_path(&[os_string.to_str().unwrap(), "content"]);
+
+        let mut f = OsString::new();
+        f.push(file.as_ref());
+        self.body(Body::File(f));
+        self.as_put();
+        Ok(Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::Upload,
+        )))
+    }
+}
+
+pub trait ItemCommon:
+    MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> + Into<SelectEvent>
+{
+    fn delete(&mut self, item_id: &str, resource_id: &str) -> BoxItemResponse {
+        self.format_common(item_id, resource_id);
+        self.as_delete();
+        BoxItemResponse::new(Box::new(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::Delete,
+        )))
+    }
+
+    fn delete_drive_item(&mut self, value: DriveItem) -> ItemResult<BoxItemResponse> {
+        let (item_id, resource_id) = value.item_event_ids()?;
+        self.format_common(item_id.as_str(), resource_id.as_str());
+        self.as_delete();
+        Ok(BoxItemResponse::new(Box::new(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::Delete,
+        ))))
+    }
+
+    fn get_item(&mut self, item_id: &str, resource_id: &str) -> Request<DriveItem> {
+        self.format_common(item_id, resource_id);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::GetItem))
+    }
+
+    fn get_item_path(&mut self, resource_id: &str, path: &str) -> Request<DriveItem> {
+        self.extend_path(&[resource_id, "root:", path]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::GetItem))
+    }
+
+    fn copy(
+        &mut self,
+        item_id: &str,
+        drive_id: &str,
+        item_ref: &ItemReference,
+        name: Option<&str>,
+    ) -> BoxItemResponse {
+        if name.is_some() {
+            let item_ref = ItemRefCopy::new(item_ref.clone(), name.map(|s| s.to_string()));
+            self.body(Body::String(item_ref.as_json().unwrap()));
+        } else {
+            let item_ref = ItemRefCopy::new(item_ref.clone(), None);
+            self.body(Body::String(item_ref.as_json().unwrap()));
+        }
+
+        self.format_common(item_id, drive_id);
+        self.extend_path(&["copy"]);
+        self.as_post();
+        BoxItemResponse::new(Box::new(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::Copy,
+        )))
+    }
+
+    fn copy_drive_item(
+        &mut self,
+        drive_item: &DriveItem,
+        item_ref: &ItemReference,
+        name: Option<&str>,
+    ) -> ItemResult<BoxItemResponse> {
+        let (item_id, resource_id) = drive_item.item_event_ids()?;
+        Ok(self.copy(item_id.as_str(), resource_id.as_str(), item_ref, name))
+    }
+
     fn create_folder(
         &mut self,
-        new_folder: NewFolder,
-        drive_id: &str,
-        parent_id: &str,
-        drive_resource: DriveResource,
-    ) -> ItemResult<drive::driveitem::DriveItem> {
-        let json_string = serde_json::to_string_pretty(&new_folder)?;
-        let url = drive_resource.drive_item_resource(
-            self.drive_version(),
-            drive_id,
-            parent_id,
+        resource_id: &str,
+        parent_item_id: &str,
+        folder: NewFolder,
+    ) -> Request<DriveItem> {
+        self.format_common(parent_item_id, resource_id);
+        self.extend_path(&["children"]);
+        self.body(Body::String(serde_json::to_string_pretty(&folder).unwrap()));
+        self.as_post();
+        Request::from(Pipeline::new(
+            self.pipeline_data(),
             DriveEvent::CreateFolder,
-        );
-        drive_item_response(
-            client()?
-                .post(url.as_str())
-                .body(json_string)
-                .header(header::CONTENT_TYPE, "application/json")
-                .bearer_auth(self.token()),
-        )
+        ))
     }
 
-    /// Create a new folder or DriveItem in a Drive with a specified path.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use rust_onedrive::oauth::OAuth;
-    /// use rust_onedrive::drive::{Drive, PathBuilder, NewFolder, DriveResource, DriveEndPoint, DriveVersion};
-    /// use rust_onedrive::drive::conflictbehavior::ConflictBehavior;
-    ///
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    ///
-    /// // A NewFolder struct specifies the new folders name and the conflict behavior
-    /// // to use in case of a naming conflict. Can be one of rename, fail, or replace.
-    /// let new_folder: NewFolder = NewFolder::new("FOLDER_NAME", ConflictBehavior::Rename);
-    ///
-    /// // Use the PathBuilder to construct the URL that will be used to call
-    /// // the OneDrive API for creating a folder.
-    /// let mut path_builder: PathBuilder = PathBuilder::from(&drive);
-    ///
-    /// // Use the main root drive location to create the folder in.
-    /// path_builder.drive_endpoint(DriveEndPoint::DriveRootChild);
-    ///
-    /// // Create the folder by referencing the path.
-    /// // Returns a drive::driveitem::DriveItem which is the new drive item metadata.
-    /// let value = drive
-    ///     .create_folder_by_path(new_folder, &mut path_builder)
-    ///     .unwrap();
-    /// println!("{:#?}", value);
-    /// ```
-    ///
-    /// # See
-    /// [Create Folder](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_post_children?view=odsp-graph-online)
     fn create_folder_by_path(
         &mut self,
+        resource_id: &str,
+        path_from_root: &str,
         new_folder: NewFolder,
-        drive_url: DriveUrl,
-    ) -> ItemResult<drive::driveitem::DriveItem> {
-        let json_string = serde_json::to_string_pretty(&new_folder)?;
-        drive_item_response(
-            client()?
-                .post(drive_url.as_str())
-                .body(json_string)
-                .header(header::CONTENT_TYPE, "application/json")
-                .bearer_auth(self.token()),
-        )
+    ) -> Request<DriveItem> {
+        let mut s = String::from(path_from_root);
+        if !s.ends_with(':') {
+            s.push(':');
+        }
+        self.format_common(s.as_str(), resource_id);
+        self.extend_path(&["content"]);
+        self.body(Body::String(
+            serde_json::to_string_pretty(&new_folder).unwrap(),
+        ));
+        self.as_post();
+        Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::CreateFolder,
+        ))
     }
 
-    /// Delete a DriveItem by using its ID. Note that deleting items using this
-    /// method will move the items to the recycle bin instead of permanently deleting the item.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use rust_onedrive::drive::{Drive, DriveVersion, ItemResponse, DriveResource};
-    /// use rust_onedrive::drive::driveitem::DriveItem;
-    /// use rust_onedrive::drive::driveitem::DriveItem;
-    /// use rust_onedrive::drive::driveinfo::DriveInfo;
-    ///
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    ///
-    /// // Call the API. drive_root_child is the files in the users main documents folder.
-    /// let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
-    ///
-    /// // Find the file based on it's name.
-    /// let value = drive_item.find_by_name("YOUR FILE NAME WITH EXTENSION SUCH AS: my_file.txt").unwrap();
-    ///
-    /// // Get the drive id from the DriveInfo metadata.
-    /// let drive_info: DriveInfo = drive.drive().unwrap();
-    /// let drive_id = drive_info.id().unwrap();
-    ///
-    /// // Get the item id from the files value metadata.
-    /// let item_id = value.id().unwrap();
-    ///
-    /// // Delete the item based on the type of drive using DriveResource.
-    /// // This can be one of:
-    /// //    DriveResource::Drives,
-    /// //    DriveResource::Groups,
-    /// //    DriveResource::Sites,
-    /// //    DriveResource::Users,
-    /// //    DriveResource::Me,
-    /// //
-    /// // The DriveResource changes the URL being used to make the request.
-    /// // For instance, given an item id of 1234 and a drive id of 1, the URL for
-    /// // drives and users would look like:
-    /// //
-    /// // DriveResource::Drives => "https://graph.microsoft.com/v1.0/drives/1/items/1234/"
-    /// // DriveResource::Users => https://graph.microsoft.com/v1.0/users/1/drive/items/1234/
-    /// //
-    /// // Note: DriveResource::Me does not use the drive_id, so while this is an option
-    /// // it may be better to use the delete_by_value method which will make sure to use
-    /// // the correct drive id. However, this method, always uses the DriveResource::Drives
-    /// // URL. This may change in the future.
-    /// let response: ItemResponse = drive
-    ///      .delete(drive_id.as_str(), item_id.as_str(), DriveResource::Drives)
-    ///      .unwrap();
-    /// println!("{:#?}", response);
-    /// println!("\nItem was deleted: {:#?}", response.success());
-    /// ```
-    ///
-    /// # See
-    /// [Delete a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_delete?view=odsp-graph-online)
-    fn delete(
-        &self,
-        drive_id: &str,
-        item_id: &str,
-        resource: DriveResource,
-    ) -> ItemResult<ItemResponse> {
-        let mut builder = ResourceBuilder::new(self.drive_version());
-        builder
-            .drive_event(DriveEvent::Delete)
-            .item_id(item_id)
-            .drive_id(drive_id)
-            .resource(resource);
-        let url = builder.build()?;
-        let builder = client()?.delete(url.as_str()).bearer_auth(self.token());
-        item_response(builder, DriveEvent::Delete)
-    }
-
-    /// Delete a DriveItem by the item's Value. This method will use the Me endpoint to make
-    /// the request. Note that deleting items using this method will move the items to the
-    /// recycle bin instead of permanently deleting the item.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use rust_onedrive::drive::{Drive, DriveVersion, ItemResponse};
-    /// use rust_onedrive::drive::driveitem::DriveItem;
-    /// use rust_onedrive::drive::driveitem::DriveItem;
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    ///
-    /// let mut drive_item: DriveItem = drive.drive_recent().unwrap();
-    /// let value: Value = drive_item.find_by_name("YOUR FILE NAME WITH EXTENSION SUCH AS: my_file.txt").unwrap();
-    /// let mut item_response: ItemResponse = drive.delete_by_value(value).unwrap();
-    /// println!("Item was deleted: {:#?}", item_response.success());
-    /// ```
-    ///
-    /// # See
-    /// [Delete a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_delete?view=odsp-graph-online)
-    fn delete_by_value(&self, value: drive::driveitem::DriveItem) -> ItemResult<ItemResponse> {
-        let (item_id, drive_id) = value.item_event_ids()?;
-        let url = DriveResource::Drives.drive_item_resource(
-            self.drive_version(),
-            drive_id.as_str(),
-            item_id.as_str(),
-            DriveEvent::Delete,
-        );
-        let builder = client()?.delete(url.as_str()).bearer_auth(self.token());
-        item_response(builder, DriveEvent::Delete)
-    }
-
-    /// Download files from the OneDrive API.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use rust_onedrive::prelude::*;
-    /// use std::path::PathBuf;
-    ///
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
-    /// let vec: Vec<Value> = drive_item.value().unwrap();
-    ///
-    /// let mut value = drive_item.find_by_name("rust.docx").unwrap();
-    /// let path_buf: PathBuf = drive.download("/home/drive", &mut value).unwrap();
-    /// println!("{:#?}", path_buf);
-    /// ```
-    ///
-    /// Requires the directory to download to and the drive::Value to download. The Value
-    /// struct stores a download URL that can be used. If the download url is None, then
-    /// the item's id (also in the Value struct) is used to download the item.
-    ///
-    /// # See
-    /// [Downloading Drive Items](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content?view=odsp-graph-online)
     fn download<P: AsRef<Path>>(
-        &self,
-        directory: P,
-        value: &mut drive::driveitem::DriveItem,
-    ) -> ItemResult<PathBuf> {
-        match value.microsoft_graph_download_url() {
-            // First check for a download URL in the drive::Value itself, If found use this
-            // to download the file.
-            Some(download_url) => Ok(Fetch::file(directory, download_url.as_str(), self.token())?),
-            // If there is no download URL, then a request to get a download URL
-            // will be made. If successful, the request will be redirected to the URL
-            // of the download.
-            None => {
-                let client = reqwest::Client::builder()
-                    .redirect(RedirectPolicy::custom(|attempt| {
-                        // There should be only 1 redirect to download a drive item.
-                        if attempt.previous().len() > 1 {
-                            return attempt.too_many_redirects();
-                        }
-                        attempt.stop()
-                    }))
-                    .build()
-                    .map_err(GraphFailure::from)?;
-
-                // In order for the OneDrive API to know which item we need, the request
-                // must include the id for the item being downloaded: /{item-id}/content
-                let item_id = match value.id() {
-                    Some(t) => t,
-                    None => return Err(GraphFailure::none_err("Missing item id or download URL")),
-                };
-
-                let url = DriveResource::Me.item_resource(
-                    self.drive_version(),
-                    item_id.as_str(),
-                    DriveEvent::Download,
-                );
-                let res = client.get(url.as_str()).bearer_auth(self.token()).send()?;
-                Ok(Fetch::file(directory, res.url().as_str(), self.token())?)
-            },
-        }
-    }
-
-    /// Download files from the OneDrive API in the format given. The format given
-    /// must be one of:
-    /// # Example
-    /// ```rust,ignore
-    /// DownloadFormat::GLB => "glb",
-    /// DownloadFormat::HTML => "html",
-    /// DownloadFormat::JPG => "jpg",
-    /// DownloadFormat::PDF => "pdf",
-    /// ```
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use rust_onedrive::prelude::*;
-    /// use std::path::PathBuf;
-    ///
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
-    /// let vec: Vec<Value> = drive_item.value().unwrap();
-    ///
-    /// let mut value = drive_item.find_by_name("rust.docx").unwrap();
-    ///
-    /// let path_buf: PathBuf = drive.download_format("/home/drive", &mut value, DownloadFormat::PDF).unwrap();
-    /// println!("{:#?}", path_buf);
-    /// ```
-    ///
-    /// Requires the directory to download, the drive::Value, and the format. The Value
-    /// struct stores a download URL that can be used. If the download url is None, then
-    /// the item's id (also in the Value struct) is used to download the item.
-    ///
-    /// # See
-    /// [Download Formats](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content_format?view=odsp-graph-online)
-    fn download_format<P: AsRef<Path>>(
-        &self,
-        directory: P,
-        value: &mut drive::driveitem::DriveItem,
-        format: DownloadFormat,
-    ) -> ItemResult<PathBuf> {
-        // A formatted download always uses a redirect to get the item.
-        let client = reqwest::Client::builder()
-            .redirect(RedirectPolicy::custom(|attempt| {
-                // There should be only 1 redirect to download a drive item.
-                if attempt.previous().len() > 1 {
-                    return attempt.too_many_redirects();
-                }
-                attempt.stop()
-            }))
-            .build()
-            .map_err(GraphFailure::from)?;
-
-        // In order for the OneDrive API to know which item we need, the request
-        // must include the id for the item being downloaded: /{item-id}/content
-        let item_id = match value.id() {
-            Some(t) => t,
-            None => return Err(GraphFailure::none_err("Missing item id or download URL")),
-        };
-
-        let mut url = DriveResource::Drives.item_resource(
-            self.drive_version(),
-            item_id.as_str(),
-            DriveEvent::DownloadAndFormat,
-        );
-        url.push_str(format.as_ref());
-        let res = client.get(url.as_str()).bearer_auth(self.token()).send()?;
-        Ok(Fetch::file(directory, res.url().as_str(), self.token())?)
-    }
-
-    /// Get a DriveItem resource by id.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// # use rust_onedrive::drive;;
-    /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let value: drive::driveitem::DriveItem = drive.get_item("ITEM_ID", "RESOURCE_ID", DriveResource::Drives).unwrap();
-    /// println!("{:#?}", value);
-    /// ```
-    ///
-    /// # See
-    /// [Get a DriveItem resource](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get?view=odsp-graph-online)
-    fn get_item(
         &mut self,
+        directory: P,
         item_id: &str,
         resource_id: &str,
-        drive_resource: DriveResource,
-    ) -> ItemResult<drive::driveitem::DriveItem> {
-        let mut drive_url = DriveUrl::new(self.drive_version());
-        match drive_resource {
-            DriveResource::Me => {
-                drive_url.extend_path(&["me", "drive", "items", item_id]);
-            },
-            DriveResource::Drives => {
-                drive_url.extend_path(&["drives", resource_id, "items", item_id]);
-            },
-            DriveResource::Sites | DriveResource::Groups | DriveResource::Users => {
-                drive_url.extend_path(&["drives", resource_id, "drive", "items", item_id]);
-            },
+    ) -> DownloadPipeline {
+        self.format_common(item_id, resource_id);
+        self.extend_path(&["content"]);
+        let mut fetch_pipeline = FetchPipeline::from(self.pipeline_data());
+        let mut path_buf = PathBuf::new();
+        path_buf.push(directory);
+        fetch_pipeline.directory = path_buf;
+
+        DownloadPipeline {
+            pipeline: fetch_pipeline,
+            is_direct_download: false,
         }
-        drive_item_response(
-            client()?
-                .get(drive_url.as_ref())
-                .bearer_auth(self.token())
-                .header(header::CONTENT_TYPE, "application/json"),
-        )
     }
 
-    /// Get a DriveItem resource by path.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// # use rust_onedrive::drive;;
-    /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let value: drive::driveitem::DriveItem = drive.get_item_by_path("RESOURCE_ID", "path/to/item.txt", DriveResource::Drives).unwrap();
-    /// println!("{:#?}", value);
-    /// ```
-    ///
-    /// # See
-    /// [Get a DriveItem resource](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get?view=odsp-graph-online)
-    fn get_item_by_path(
+    fn download_path<P: AsRef<Path>>(
         &mut self,
+        directory: P,
         resource_id: &str,
-        path: &str,
-        drive_resource: DriveResource,
-    ) -> ItemResult<drive::driveitem::DriveItem> {
-        let mut drive_url = DriveUrl::new(self.drive_version());
-        match drive_resource {
-            DriveResource::Me => {
-                drive_url.extend_path(&["me", "drive", "root:", path]);
-            },
-            DriveResource::Drives => {
-                drive_url.extend_path(&["drives", resource_id, "root:", path]);
-            },
-            DriveResource::Sites | DriveResource::Groups | DriveResource::Users => {
-                drive_url.extend_path(&[
-                    drive_resource.as_ref().trim_matches('/'),
-                    resource_id,
-                    "drives",
-                    "items",
-                    path,
-                ]);
-            },
-        }
-        drive_item_response(
-            client()?
-                .get(drive_url.as_ref())
-                .bearer_auth(self.token())
-                .header(header::CONTENT_TYPE, "application/json"),
-        )
-    }
-
-    /// Retrieve a collection of ThumbnailSet resources for a DriveItem resource.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// # use rust_onedrive::drive::driveitem::DriveItem;
-    /// # use rust_onedrive::drive::thumbnail::ThumbnailCollection;
-    /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let collection: ThumbnailCollection = drive.thumbnails("item_id", "drive_id", DriveResource::Drives).unwrap();
-    /// println!("{:#?}", collection);
-    /// ```
-    ///
-    /// # See
-    /// [List Thumbnails for a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_thumbnails?view=odsp-graph-online)
-    fn thumbnails(
-        &mut self,
-        item_id: &str,
-        resource_id: &str,
-        drive_resource: DriveResource,
-    ) -> ItemResult<ThumbnailCollection> {
-        let mut url = String::new();
-        if drive_resource.eq(&DriveResource::Me) {
-            let u =
-                drive_resource.item_resource(self.drive_version(), item_id, DriveEvent::Thumbnails);
-            url.push_str(u.as_str());
+        path: &[&str],
+    ) -> ItemResult<DownloadPipeline> {
+        if self.ends_with("drives") {
+            self.extend_path(&[resource_id, "items"]);
+            self.extend_path(path);
+            self.extend_path(&["content"])
         } else {
-            let u = drive_resource.drive_item_resource(
-                self.drive_version(),
-                resource_id,
-                item_id,
-                DriveEvent::Thumbnails,
-            );
-            url.push_str(u.as_str());
+            self.extend_path(&[resource_id, "drive", "items"]);
+            self.extend_path(path);
+            self.extend_path(&["content"]);
         }
-        drive_item_response(
-            client()?
-                .get(url.as_str())
-                .header(header::CONTENT_TYPE, "application/json")
-                .bearer_auth(self.token()),
-        )
+
+        let mut fetch_pipeline = FetchPipeline::from(self.pipeline_data());
+        let mut path_buf = PathBuf::new();
+        path_buf.push(directory);
+        fetch_pipeline.directory = path_buf;
+
+        Ok(DownloadPipeline {
+            pipeline: fetch_pipeline,
+            is_direct_download: false,
+        })
     }
 
-    /// Retrieve a collection of ThumbnailSet resources for a DriveItem resource.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// # use rust_onedrive::drive::driveitem::DriveItem;
-    /// # use rust_onedrive::drive::driveitem::DriveItem;
-    /// # use rust_onedrive::drive::thumbnail::ThumbnailCollection;
-    /// let mut drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    ///
-    /// let mut drive_item: DriveItem = drive.drive_root_child().unwrap();
-    /// let value: Value = drive_item.find_by_name("MY_FILE_NAME").unwrap();
-    ///
-    /// let collection: ThumbnailCollection = drive.thumbnails_by_value(value, DriveResource::Drives).unwrap();
-    /// println!("{:#?}", collection);
-    /// ```
-    ///
-    /// # See
-    /// [List Thumbnails for a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_thumbnails?view=odsp-graph-online)
-    fn thumbnails_by_value(
+    fn thumbnails(&mut self, item_id: &str, resource_id: &str) -> Request<ThumbnailCollection> {
+        self.format_common(item_id, resource_id);
+        self.extend_path(&["thumbnails"]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
+    }
+
+    fn thumbnails_drive_item(
         &mut self,
         value: drive::driveitem::DriveItem,
-        drive_resource: DriveResource,
-    ) -> ItemResult<ThumbnailCollection> {
-        let (item_id, drive_id) = value.item_event_ids().unwrap();
-        self.thumbnails(item_id.as_str(), drive_id.as_str(), drive_resource)
+    ) -> Request<ThumbnailCollection> {
+        let (item_id, resource_id) = value.item_event_ids().unwrap();
+        self.thumbnails(item_id.as_str(), resource_id.as_str())
     }
 
-    /// Retrieve the binary data of a thumbnail.
-    ///
-    /// # See
-    /// [List Thumbnails for a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_thumbnails?view=odsp-graph-online)
+    fn single_thumbnail(
+        &mut self,
+        item_id: &str,
+        resource_id: &str,
+        thumb_id: &str,
+        size: &str,
+    ) -> Request<Thumbnail> {
+        self.format_common(item_id, resource_id);
+        self.extend_path(&["thumbnails", thumb_id, size]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
+    }
+
     fn thumbnail_binary(
         &mut self,
         item_id: &str,
         resource_id: &str,
         thumb_id: &str,
         size: &str,
-        drive_resource: DriveResource,
-    ) -> ItemResult<String> {
-        let mut host_path = String::new();
-        if drive_resource.eq(&DriveResource::Me) {
-            let u =
-                drive_resource.item_resource(self.drive_version(), item_id, DriveEvent::Thumbnails);
-            host_path.push_str(u.as_str());
-        } else {
-            let u = drive_resource.drive_item_resource(
-                self.drive_version(),
-                resource_id,
-                item_id,
-                DriveEvent::Thumbnails,
-            );
-            host_path.push_str(u.as_str());
-        }
-        let url = vec![host_path.as_str(), "/", thumb_id, "/", size, "/content"].join("");
-        let mut response = client()?
-            .get(url.as_str())
-            .header(header::CONTENT_TYPE, "application/json")
-            .bearer_auth(self.token())
-            .send()?;
-        Ok(response.text()?)
+    ) -> Request<String> {
+        self.format_common(item_id, resource_id);
+        self.extend_path(&["thumbnails", thumb_id, size, "content"]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
     }
 
-    /// Update the metadata for a DriveItem by ID or path.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// use rust_onedrive::drive::driveitem::DriveItem;
-    /// use rust_onedrive::drive::driveitem::DriveItem;
-    ///
-    /// static DRIVE_FILE: &str = "DRIVE_FILE_NAME.txt";
-    /// static DRIVE_FILE_NEW_NAME: &str = "NEW_DRIVE_FILE_NAME.txt";
-    ///
-    /// // Get the latest metadata for the root drive folder items.
-    /// let mut drive = Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let mut drive_item: DriveItem = drive.drive_root_child()?;
-    ///
-    /// // Get the value you want to update. The drive::driveitem::DriveItem struct
-    /// // stores metadata about a drive item such as a folder or file.
-    /// let value: Value = drive_item.find_by_name(DRIVE_FILE)?;
-    ///
-    /// // Get the item id of the item that needs updating and the
-    /// // drive id of the drive that houses the item.
-    /// let item_id = value.id().unwrap();
-    /// let drive_id = value.parent_reference().unwrap().drive_id().unwrap();
-    ///
-    ///
-    /// // Create a new drive::driveitem::DriveItem that will be used for the
-    /// // updated items.
-    /// let mut updated_value: Value = Value::default();
-    ///
-    /// // Update the name of the file (or whatever you want to update).
-    /// // Only include the fields that you want updated.
-    /// // Fields that are not included will not be changed.
-    /// updated_value.set_name(Some(DRIVE_FILE_NEW_NAME.into()));
-    ///
-    /// // Make the request to the API. This returns the item
-    /// // with the updated values.
-    /// let updated: Value = drive.update(
-    ///     item_id.as_str(),
-    ///     drive_id.as_str(),
-    ///     updated_value,
-    ///     DriveResource::Me,
-    /// )?;
-    /// println!("{:#?}", updated);
-    /// ```
-    ///
-    /// # See
-    /// [Update DriveItem Properties](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_update?view=odsp-graph-online)
     fn update(
         &mut self,
         item_id: &str,
-        drive_id: &str,
-        new_value: drive::driveitem::DriveItem,
-        drive_resource: DriveResource,
-    ) -> ItemResult<drive::driveitem::DriveItem> {
-        let json_string = serde_json::to_string_pretty(&new_value)?;
-        let url = drive_resource.drive_item_resource(
-            self.drive_version(),
-            drive_id,
-            item_id,
+        resource_id: &str,
+        new_value: &DriveItem,
+    ) -> Request<DriveItem> {
+        self.format_common(item_id, resource_id);
+        self.body(Body::String(
+            serde_json::to_string_pretty(&new_value).unwrap(),
+        ));
+        self.as_patch();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Update))
+    }
+
+    fn update_drive_item(
+        &mut self,
+        old_value: &DriveItem,
+        new_value: &DriveItem,
+    ) -> ItemResult<Request<DriveItem>> {
+        let (item_id, resource_id) = old_value.item_event_ids()?;
+        self.format_common(item_id.as_str(), resource_id.as_str());
+        self.body(Body::String(
+            serde_json::to_string_pretty(&new_value).unwrap(),
+        ));
+        Ok(Request::from(Pipeline::new(
+            self.pipeline_data(),
             DriveEvent::Update,
-        );
-        drive_item_response(
-            client()?
-                .patch(url.as_str())
-                .body(json_string)
-                .header(header::CONTENT_TYPE, "application/json")
-                .bearer_auth(self.token()),
-        )
+        )))
     }
 
-    /// Update the metadata for a DriveItem by ID or path.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// use rust_onedrive::drive::driveitem::DriveItem;
-    /// use rust_onedrive::drive::driveitem::DriveItem;
-    ///
-    /// static DRIVE_FILE: &str = "DRIVE_FILE_NAME.txt";
-    /// static DRIVE_FILE_NEW_NAME: &str = "NEW_DRIVE_FILE_NAME.txt";
-    ///
-    /// // Get the latest metadata for the root drive folder items.
-    /// let mut drive = Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let mut drive_item = drive.drive_root_child()?;
-    ///
-    /// // Get the value you want to update. The drive::driveitem::DriveItem struct
-    /// // stores metadata about a drive item such as a folder or file.
-    /// let current_value: Value = drive_item.find_by_name(DRIVE_FILE)?;
-    ///
-    /// // Create a new drive::driveitem::DriveItem that will be used for the
-    /// // updated items.
-    /// let mut updated_value: Value = Value::default();
-    ///
-    /// // Update the name of the file (or whatever you want to update).
-    /// // Only include the fields that you want updated.
-    /// // Fields that are not included will not be changed.
-    /// updated_value.set_name(Some(DRIVE_FILE_NEW_NAME.into()));
-    ///
-    /// let updated: Value = drive.update_by_value(updated_value, current_value, DriveResource::Me)?;
-    /// println!("{:#?}", updated);
-    /// ```
-    ///
-    /// # See
-    /// [Update DriveItem Properties](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_update?view=odsp-graph-online)
-    fn update_by_value(
+    fn upload_replace<P: AsRef<Path>>(
         &mut self,
-        old_value: drive::driveitem::DriveItem,
-        new_value: drive::driveitem::DriveItem,
-        drive_resource: DriveResource,
-    ) -> ItemResult<drive::driveitem::DriveItem> {
-        let json_string = serde_json::to_string_pretty(&new_value)?;
-        let url = old_value.event_uri(self.drive_version(), drive_resource, DriveEvent::Update)?;
-        drive_item_response(
-            client()?
-                .patch(url.as_str())
-                .body(json_string)
-                .header(header::CONTENT_TYPE, "application/json")
-                .bearer_auth(self.token()),
-        )
+        item_id: &str,
+        resource_id: &str,
+        file: P,
+    ) -> Request<DriveItem> {
+        self.format_common(item_id, resource_id);
+        self.extend_path(&["content"]);
+        self.body(Body::File(OsString::from(file.as_ref())));
+        self.as_put();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Upload))
     }
 
-    /// Upload content by specifying a drive id and parent id.
-    /// The simple upload API allows you to provide the contents of a new
-    /// file or update the contents of an existing file in a single API call.
-    /// This method only supports files up to 4MB in size.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// # use rust_onedrive::drive::driveitem::DriveItem;
-    /// static LOCAL_FILE_PATH: &str = "/path/to/file/file.txt";
-    /// static DRIVE_FILE_ID: &str = "DRIVE_ID";
-    /// static DRIVE_PARENT_ID: &str = "PARENT_ID";
-    ///
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    ///
-    /// let value: Value = drive
-    ///     .upload(
-    ///         LOCAL_FILE_PATH,
-    ///         DRIVE_FILE_ID,
-    ///         DRIVE_PARENT_ID,
-    ///         DriveResource::Drives,
-    ///     )
-    ///      .unwrap();
-    /// println!("{:#?}", value);
-    /// ```
-    ///
-    /// # See
-    /// [Upload DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_put_content?view=odsp-graph-online)
-    fn upload(
+    fn upload_new<P: AsRef<Path>>(
         &mut self,
-        file_path: &str,
-        drive_id: &str,
         parent_id: &str,
-        drive_resource: DriveResource,
-    ) -> ItemResult<drive::driveitem::DriveItem> {
-        let mut drive_url = DriveUrl::new(self.drive_version());
-        match drive_resource {
-            DriveResource::Me => {
-                drive_url.extend_path(&["me", "drive", "items", parent_id]);
-            },
-            DriveResource::Drives => {
-                drive_url.extend_path(&["drives", drive_id, "items", parent_id]);
-            },
-            DriveResource::Sites | DriveResource::Groups | DriveResource::Users => {
-                drive_url
-                    .resource(drive_resource)
-                    .extend_path(&[drive_id, "drive", "items", parent_id]);
-            },
-        }
-        let path = Path::new(&file_path);
-        let os_str = path
+        resource_id: &str,
+        file: P,
+    ) -> ItemResult<Request<DriveItem>> {
+        let name = file
+            .as_ref()
             .file_name()
-            .ok_or_else(|| GraphFailure::none_err("No filename in the file path given"))?;
-        let os_string: OsString = os_str.to_os_string();
-        let file = File::open(file_path)?;
-        drive_url.extend_path(&[os_string.to_str().unwrap(), DriveEvent::Upload.as_str()]);
-        drive_item_response(
-            client()?
-                .put(drive_url.as_ref())
-                .bearer_auth(self.token())
-                .body(file),
-        )
+            .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
+
+        let mut id = String::new();
+        id.push_str(parent_id);
+        id.push(':');
+        let mut os_string = name.to_os_string();
+        os_string.push(":");
+
+        self.format_common(id.as_str(), resource_id);
+        self.extend_path(&[os_string.to_str().unwrap(), "content"]);
+
+        let mut f = OsString::new();
+        f.push(file.as_ref());
+        self.body(Body::File(f));
+        self.as_put();
+        Ok(Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::Upload,
+        )))
+    }
+}
+
+impl AsMut<DriveUrl> for SelectResource {
+    fn as_mut(&mut self) -> &mut DriveUrl {
+        self.0.as_mut()
+    }
+}
+
+impl From<DataPipeline> for SelectResource {
+    fn from(data: DataPipeline) -> Self {
+        SelectResource(data)
+    }
+}
+
+mod inner_pipeline {
+    use crate::drive::driveurl::DriveUrl;
+    use crate::drive::event::DriveEvent;
+    use crate::drive::item::{SelectResource, SelectEvent};
+    use crate::drive::pipeline::{Body, DataPipeline, RequestType};
+    use crate::drive::{DriveEndPoint, SelectEventMe};
+
+    pub trait MutatePipeline {
+        fn pipeline_data(&self) -> DataPipeline;
+
+        fn as_get(&mut self)
+        where
+            Self: AsMut<DataPipeline>,
+        {
+            self.as_mut().as_get();
+        }
+
+        fn as_post(&mut self)
+        where
+            Self: AsMut<DataPipeline>,
+        {
+            self.as_mut().as_post();
+        }
+
+        fn as_put(&mut self)
+        where
+            Self: AsMut<DataPipeline>,
+        {
+            self.as_mut().as_put();
+        }
+
+        fn as_patch(&mut self)
+        where
+            Self: AsMut<DataPipeline>,
+        {
+            self.as_mut().as_patch();
+        }
+
+        fn as_delete(&mut self)
+        where
+            Self: AsMut<DataPipeline>,
+        {
+            self.as_mut().as_delete();
+        }
+
+        fn request_type(&mut self, r: RequestType)
+        where
+            Self: AsMut<DataPipeline>,
+        {
+            self.as_mut().request_type = r;
+        }
+
+        fn body(&mut self, body: Body)
+        where
+            Self: AsMut<DataPipeline>,
+        {
+            self.as_mut().body = Some(body);
+        }
+
+        fn extend_path(&mut self, path: &[&str])
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            self.as_mut().extend_path(path);
+        }
+
+        fn endpoint(&mut self, endpoint: DriveEndPoint)
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            self.as_mut().endpoint(endpoint);
+        }
+
+        fn event(&mut self, event: DriveEvent)
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            self.as_mut().event(event);
+        }
+
+        fn strip_set_endpoint(&mut self, endpoint: DriveEndPoint)
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            let mut vec: Vec<&str> = endpoint.as_str().split('/').collect();
+            vec.retain(|s| !s.trim().is_empty());
+            vec.remove(0);
+            self.extend_path(&vec);
+        }
+
+        fn format_me(&mut self, item_id: &str)
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            self.as_mut().extend_path(&["drive", "items", item_id]);
+        }
+
+        fn format_drives(&mut self, item_id: &str, resource_id: &str)
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            self.as_mut().extend_path(&[resource_id, "items", item_id]);
+        }
+
+        fn format_common(&mut self, item_id: &str, resource_id: &str)
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            if self.as_mut().ends_with("drives") {
+                self.format_drives(item_id, resource_id);
+            } else {
+                self.as_mut()
+                    .extend_path(&[resource_id, "drive", "items", item_id]);
+            }
+        }
+
+        fn ends_with(&mut self, s: &str) -> bool
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            self.as_mut().ends_with(s)
+        }
     }
 
-    /// Upload content by specifying a drive id and parent id.
-    /// The simple upload API allows you to provide the contents of a new
-    /// file or update the contents of an existing file in a single API call.
-    /// This method only supports files up to 4MB in size.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// # use rust_onedrive::drive::{Drive, DriveVersion, DriveResource};
-    /// # use rust_onedrive::drive::driveitem::DriveItem;
-    /// # use rust_onedrive::drive::driveitem::DriveItem;
-    /// # use rust_onedrive::drive::parentreference::ParentReference;
-    /// static LOCAL_FILE_PATH: &str = "/path/to/file/file.txt";
-    ///
-    /// let mut drive: Drive = Drive::new("ACCESS_TOKEN", DriveVersion::V1);
-    /// let mut drive_item: DriveItem = drive.drive_root_child()?;
-    ///
-    /// // Get a parent reference from previous drive items.
-    /// let value: Value = drive_item.find_by_name(drive_file_name)?;
-    /// let parent_reference: ParentReference = value.parent_reference().unwrap();
-    ///
-    /// let value: Value =
-    ///        drive.upload_by_parent_ref(LOCAL_FILE_PATH, &parent_reference, DriveResource::Drives)?;
-    /// println!("{:#?}", value);
-    /// ```
-    ///
-    /// # See
-    /// [Upload DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_put_content?view=odsp-graph-online)
-    fn upload_by_parent_ref(
-        &mut self,
-        file_path: &str,
-        parent_ref: &ItemReference,
-        drive_resource: DriveResource,
-    ) -> ItemResult<drive::driveitem::DriveItem> {
-        let parent_id = parent_ref
-            .id()
-            .clone()
-            .ok_or_else(|| GraphFailure::none_err("parent reference id"))?;;
-        if drive_resource.eq(&DriveResource::Me) {
-            self.upload(file_path, "", parent_id.as_str(), drive_resource)
-        } else {
-            let drive_id = parent_ref
-                .drive_id()
-                .clone()
-                .ok_or_else(|| GraphFailure::none_err("parent reference drive id"))?;
-            self.upload(
-                file_path,
-                drive_id.as_str(),
-                parent_id.as_str(),
-                drive_resource,
-            )
+    impl MutatePipeline for SelectEventMe {
+        fn pipeline_data(&self) -> DataPipeline {
+            self.0.clone()
+        }
+    }
+
+    impl MutatePipeline for SelectResource {
+        fn pipeline_data(&self) -> DataPipeline {
+            self.0.clone()
+        }
+    }
+
+    impl MutatePipeline for SelectEvent {
+        fn pipeline_data(&self) -> DataPipeline {
+            self.0.clone()
         }
     }
 }

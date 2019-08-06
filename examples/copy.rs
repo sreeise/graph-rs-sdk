@@ -1,8 +1,7 @@
-use rust_onedrive::drive::event::DriveItemCopy;
 use rust_onedrive::drive::itemreference::ItemReference;
-use rust_onedrive::oauth::OAuth;
+
 use rust_onedrive::prelude::*;
-use std::convert::TryFrom;
+
 use std::thread;
 use std::time::Duration;
 
@@ -16,13 +15,12 @@ fn main() {
 }
 
 fn copy_item() {
-    let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
-    let mut drive: Drive = Drive::try_from(oauth).unwrap();
-
-    let mut drive_item: DriveItemCollection = drive.drive_root_child().unwrap();
+    let drive: Drive = Drive::new("ACCESS_TOKEN");
+    let mut collection: DriveItemCollection = drive.v1().drive_root_child().send().unwrap();
 
     // The file or folder that you want to copy.
-    let value: DriveItem = drive_item.find_by_name(DRIVE_FILE).unwrap();
+    let drive_item: DriveItem = collection.find_by_name(DRIVE_FILE).unwrap();
+    let item_id = drive_item.id().unwrap();
 
     // The DriveItem copy request uses a ItemReference (parent reference) which contains
     // the metadata for the drive id and path specifying where the new copy should be placed.
@@ -32,15 +30,12 @@ fn copy_item() {
     let mut item_ref = ItemReference::default();
     item_ref.set_path(Some("/drive/root:/Documents".into()));
 
-    // A DriveItemCopy contains takes the ItemReference, an optional name for the file copy,
-    // and the drive resource that specifies the url to use for requesting the copy.
-    let prc = DriveItemCopy::new(
-        item_ref,
-        Some(DRIVE_FILE_COPY_NAME.into()),
-        DriveResource::Drives,
-    );
+    let mut request = drive
+        .v1()
+        .me()
+        .copy(item_id.as_str(), &item_ref, Some(DRIVE_FILE_COPY_NAME));
 
-    let mut item_response: ItemResponse = drive.copy(value, prc).unwrap();
+    let mut item_response: ItemResponse = request.send().unwrap();
     println!("{:#?}", &item_response);
 
     // When an item is copied the response returns a URL in the location header

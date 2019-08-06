@@ -1,8 +1,7 @@
 use crate::drive::event::DriveEvent;
-use crate::drive::item::Item;
-use crate::drive::{Drive, DriveEndPoint, DriveResource, DriveVersion};
-use crate::prelude::ResourceBuilder;
+use crate::drive::{DriveEndPoint, DriveVersion};
 use std::convert::TryFrom;
+use std::ffi::OsString;
 use std::iter::Iterator;
 use std::ops::{Deref, Index, Range, RangeFrom, RangeFull, RangeTo};
 use url::{Position, Url};
@@ -17,6 +16,14 @@ impl DriveUrl {
         DriveUrl {
             url: Url::parse(drive_version.as_ref()).unwrap(),
         }
+    }
+
+    pub fn v1() -> DriveUrl {
+        DriveUrl::new(DriveVersion::V1)
+    }
+
+    pub fn v2() -> DriveUrl {
+        DriveUrl::new(DriveVersion::V2)
     }
 
     pub fn set_host(&mut self, drive_version: DriveVersion) {
@@ -35,15 +42,17 @@ impl DriveUrl {
         self
     }
 
-    pub fn extend_path(&mut self, path: &[&str]) -> &mut Self {
+    pub fn extend_path<I: AsRef<str>>(&mut self, path: &[I]) -> &mut Self {
         if let Ok(mut p) = self.url.path_segments_mut() {
             p.extend(path);
         }
         self
     }
 
-    pub fn resource(&mut self, dr: DriveResource) -> &mut Self {
-        self.join_path(dr.as_ref().trim_start_matches('/'));
+    pub fn extend_path_os_str(&mut self, path: &[OsString]) -> &mut Self {
+        if let Ok(mut p) = self.url.path_segments_mut() {
+            p.extend(path.iter().map(|s| s.to_str()).flatten());
+        }
         self
     }
 
@@ -73,12 +82,6 @@ impl DriveUrl {
     }
 }
 
-impl From<&Drive> for DriveUrl {
-    fn from(drive: &Drive) -> Self {
-        DriveUrl::new(drive.drive_version())
-    }
-}
-
 impl From<DriveVersion> for DriveUrl {
     fn from(drive_version: DriveVersion) -> Self {
         DriveUrl::new(drive_version)
@@ -94,16 +97,6 @@ impl TryFrom<Url> for DriveUrl {
             return Err(());
         }
         Ok(DriveUrl { url })
-    }
-}
-
-impl TryFrom<ResourceBuilder> for DriveUrl {
-    type Error = ();
-
-    fn try_from(value: ResourceBuilder) -> Result<Self, Self::Error> {
-        Ok(DriveUrl {
-            url: Url::parse(value.build().map_err(|_| ())?.as_str()).unwrap(),
-        })
     }
 }
 
@@ -168,5 +161,64 @@ impl<'de> serde::Deserialize<'de> for DriveUrl {
         D: serde::Deserializer<'de>,
     {
         url_serde::deserialize(deserializer).map(|url: Url| DriveUrl::try_from(url).unwrap())
+    }
+}
+
+pub trait MutateUrl: AsMut<DriveUrl> + AsRef<DriveUrl> {
+    fn append_query_pair(&mut self, key: &str, value: &str) {
+        self.as_mut()
+            .append_query_pair(key.as_ref(), value.as_ref());
+    }
+
+    fn endpoint(&mut self, de: DriveEndPoint) {
+        let mut vec: Vec<&str> = de.as_str().split('/').collect();
+        vec.retain(|s| !s.eq(&""));
+        self.as_mut().extend_path(&vec);
+    }
+
+    fn event(&mut self, event: DriveEvent) {
+        if !event.as_str().is_empty() {
+            self.as_mut().extend_path(&[event.as_str()]);
+        }
+    }
+
+    fn count(&mut self, value: &str) {
+        self.as_mut().append_query_pair("count", value);
+    }
+
+    fn select(&mut self, value: &[&str]) {
+        let s = value.join(" ");
+        self.as_mut().append_query_pair("select", &s);
+    }
+
+    fn expand(&mut self, value: &[&str]) {
+        let s = value.join(" ");
+        self.as_mut().append_query_pair("expand", &s);
+    }
+
+    fn filter(&mut self, value: &[&str]) {
+        let s = value.join(",");
+        self.as_mut().append_query_pair("filter", &s);
+    }
+
+    fn order_by(&mut self, value: &[&str]) {
+        let s = value.join(" ");
+        self.as_mut().append_query_pair("orderby", &s);
+    }
+
+    fn search(&mut self, value: &str) {
+        self.as_mut().append_query_pair("search", value);
+    }
+
+    fn format(&mut self, value: &str) {
+        self.as_mut().append_query_pair("format", value);
+    }
+
+    fn skip(&mut self, value: &str) {
+        self.as_mut().append_query_pair("skip", value.as_ref());
+    }
+
+    fn top(&mut self, value: &str) {
+        self.as_mut().append_query_pair("top", value.as_ref());
     }
 }
