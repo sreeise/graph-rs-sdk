@@ -115,9 +115,7 @@ impl From<Vec<DriveItem>> for DriveItemCollection {
 
 impl From<DriveItem> for DriveItemCollection {
     fn from(value: DriveItem) -> Self {
-        let mut vec: Vec<DriveItem> = Vec::new();
-        vec.push(value);
-        DriveItemCollection::new(None, None, None, Some(vec))
+        DriveItemCollection::new(None, None, None, Some(vec![value]))
     }
 }
 

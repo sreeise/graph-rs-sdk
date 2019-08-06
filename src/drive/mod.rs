@@ -8,25 +8,24 @@ Your app provides the access token in each request, through an HTTP header:
 Authorization: bearer {token}
 */
 
-use graph_error::GraphFailure;
-use graph_oauth::oauth::OAuth;
-use std;
-
 mod drive_item;
-mod driveresource;
-mod driveurl;
+pub mod driverequest;
+pub mod driveurl;
 mod endpoint;
-mod item;
-#[macro_use]
-pub mod query_string;
 pub mod event;
+pub mod intoitem;
+mod item;
+pub mod pipeline;
 
 pub use crate::drive::drive_item::*;
-pub use crate::drive::driveresource::{DriveResource, ResourceBuilder};
-pub use crate::drive::driveurl::DriveUrl;
 pub use crate::drive::endpoint::{DriveEndPoint, EP};
-pub use crate::drive::item::{Item, ItemResponse};
+use crate::drive::item::SelectResource;
+pub use crate::drive::item::{ItemCommon, ItemMe, ItemResponse, Request, SelectEventMe};
+use crate::drive::pipeline::DataPipeline;
+use driveurl::DriveUrl;
 use from_to_file::*;
+use graph_error::GraphFailure;
+use graph_oauth::oauth::OAuth;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
@@ -63,11 +62,9 @@ impl Default for DriveVersion {
 
 pub type ItemResult<T> = std::result::Result<T, GraphFailure>;
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+#[derive(Eq, PartialEq, Serialize, Deserialize, FromToFile)]
 pub struct Drive {
     access_token: String,
-    version: String,
-    drive_version: DriveVersion,
 }
 
 impl Drive {
@@ -79,31 +76,37 @@ impl Drive {
     ///
     ///  // The Drive struct requires the access token to make
     ///  // authenticated requests to microsoft graph.
-    ///  // The DriveVersion specifies microsoft API version to use.
-    /// let mut drive = Drive::new("B32484FJL;ASFJ", DriveVersion::V1);
+    /// let mut drive = Drive::new("B32484FJL;ASFJ");
     /// ```
-    pub fn new(access_token: &str, version: DriveVersion) -> Drive {
+    pub fn new(access_token: &str) -> Drive {
         Drive {
-            access_token: String::from(access_token),
-            version: version.to_string(),
-            drive_version: version,
+            access_token: access_token.into(),
         }
     }
 
-    pub fn set_drive_version(&mut self, version: DriveVersion) {
-        self.version = version.to_string();
-        self.drive_version = version;
+    pub fn v1(&self) -> SelectResource {
+        SelectResource::new(DataPipeline::new(
+            self.access_token.as_str(),
+            DriveUrl::new(DriveVersion::V1),
+        ))
+    }
+
+    pub fn v2(&self) -> SelectResource {
+        SelectResource::new(DataPipeline::new(
+            self.access_token.as_str(),
+            DriveUrl::new(DriveVersion::V2),
+        ))
     }
 }
 
 impl TryFrom<OAuth> for Drive {
     type Error = GraphFailure;
 
-    fn try_from(value: OAuth) -> std::result::Result<Self, Self::Error> {
+    fn try_from(value: OAuth) -> Result<Self, Self::Error> {
         let access_token = value.get_access_token();
 
         if let Some(token) = access_token {
-            return Ok(Drive::new(token.get_access_token(), DriveVersion::V1));
+            return Ok(Drive::new(token.get_access_token()));
         }
 
         Err(GraphFailure::none_err(
@@ -112,12 +115,18 @@ impl TryFrom<OAuth> for Drive {
     }
 }
 
-impl Item for Drive {
-    fn token(&self) -> &str {
-        self.access_token.as_str()
-    }
+impl TryFrom<&OAuth> for Drive {
+    type Error = GraphFailure;
 
-    fn drive_version(&self) -> DriveVersion {
-        self.drive_version
+    fn try_from(value: &OAuth) -> Result<Self, Self::Error> {
+        let access_token = value.get_access_token();
+
+        if let Some(token) = access_token {
+            return Ok(Drive::new(token.get_access_token()));
+        }
+
+        Err(GraphFailure::none_err(
+            "OAuth instance missing access token.",
+        ))
     }
 }

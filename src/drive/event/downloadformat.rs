@@ -1,3 +1,5 @@
+use std::io::Write;
+
 /// Represents the types of file formats that a file can be
 /// converted using
 ///
@@ -10,6 +12,9 @@
 /// let path_buf: PathBuf = drive.download_format("directory", &mut drive::Value, DownloadFormat::PDF).unwrap();
 /// println!("{:#?}", path_buf);
 /// ```
+#[derive(
+    Debug, Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize, FromToFile,
+)]
 pub enum DownloadFormat {
     GLB,
     HTML,

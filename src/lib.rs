@@ -9,7 +9,7 @@
 //! # Example
 //! ```
 //! use rust_onedrive::drive::{Drive, DriveVersion};
-//! let drive = Drive::new("access_token", DriveVersion::V1);
+//! let drive = Drive::new("access_token");
 //! ```
 //!
 //! The graph-oauth crate was created for use with rust-onedrive to
@@ -96,16 +96,17 @@ mod io;
 pub mod prelude {
     pub use crate::drive::driveitem::DriveItem;
     pub use crate::drive::driveitemcollection::DriveItemCollection;
-    pub use crate::drive::query_string::QueryString;
+    pub use crate::drive::driveurl::{DriveUrl, MutateUrl};
+    pub use crate::drive::intoitem::IntoItem;
     pub use crate::drive::Drive;
     pub use crate::drive::DriveEndPoint;
-    pub use crate::drive::DriveResource;
-    pub use crate::drive::DriveUrl;
     pub use crate::drive::DriveVersion;
-    pub use crate::drive::Item;
+    pub use crate::drive::ItemCommon;
+    pub use crate::drive::ItemMe;
     pub use crate::drive::ItemResponse;
     pub use crate::drive::ItemResult;
-    pub use crate::drive::ResourceBuilder;
+    pub use crate::drive::Request;
+    pub use crate::drive::SelectEventMe;
     pub use crate::drive::EP;
     pub use crate::from_to::*;
 }
@@ -123,6 +124,6 @@ pub mod from_to {
 }
 
 pub mod fetch {
-    pub use crate::io::fetch::Fetch;
-    pub use crate::io::iotools::IOTools;
+    pub use crate::io::fetch::FetchBuilder;
+    pub use crate::io::iotools::IoTools;
 }

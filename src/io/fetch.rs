@@ -1,28 +1,61 @@
+use crate::drive::event::DownloadFormat;
 use crate::drive::ItemResult;
-use crate::io::iotools::IOTools;
+use crate::io::iotools::IoTools;
 use graph_error::GraphError;
 use graph_error::GraphFailure;
-use reqwest::*;
 use std::convert::TryFrom;
-use std::fs::OpenOptions;
-use std::io::copy;
+use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::mpsc;
-use std::thread;
 
-pub struct Fetch;
+pub struct FetchBuilder {
+    path: PathBuf,
+    token: String,
+    target_url: String,
+    file_name: Option<OsString>,
+    extension: Option<String>,
+}
 
-impl Fetch {
-    fn file_response<P: AsRef<Path>>(
-        directory: P,
-        target_url: &str,
-        bearer_token: &str,
-    ) -> ItemResult<(PathBuf, Response)> {
+impl FetchBuilder {
+    pub fn new(target_url: &str, path: PathBuf, token: &str) -> FetchBuilder {
+        FetchBuilder {
+            path,
+            token: token.into(),
+            target_url: target_url.into(),
+            file_name: None,
+            extension: None,
+        }
+    }
+
+    pub fn rename(&mut self, value: OsString) -> &mut Self {
+        self.file_name = Some(value);
+        self
+    }
+
+    pub fn ext(&mut self, value: &str) -> &mut Self {
+        self.extension = Some(value.into());
+        self
+    }
+
+    pub fn format(&mut self, format: DownloadFormat) -> &mut Self {
+        self.ext(format.as_ref())
+    }
+
+    pub fn fetch(&mut self) -> ItemResult<PathBuf> {
+        self.response(self.path.clone())
+    }
+
+    fn response<P: AsRef<Path>>(&mut self, directory: P) -> ItemResult<PathBuf> {
+        // Create the directory if it does not exist.
+        IoTools::create_dir(&directory)?;
+
         let client = reqwest::Client::builder()
             .build()
             .map_err(GraphFailure::from)?;
-        let mut response = client.get(target_url).bearer_auth(bearer_token).send()?;
+        let mut response = client
+            .get(self.target_url.as_str())
+            .bearer_auth(self.token.as_str())
+            .send()?;
 
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
@@ -31,61 +64,36 @@ impl Fetch {
             ));
         }
 
-        Fetch::parse_response(directory, response)
-    }
+        if let Some(name) = self.file_name.as_ref() {
+            if name.len() <= 255 {
+                let path = directory.as_ref().join(name);
+                if let Some(ext) = self.extension.as_ref() {
+                    path.with_extension(ext.as_str());
+                }
 
-    fn parse_response<P: AsRef<Path>>(
-        directory: P,
-        response: Response,
-    ) -> ItemResult<(PathBuf, Response)> {
-        match response
-            .url()
-            .path_segments()
-            .and_then(std::iter::Iterator::last)
-            .and_then(|name| if name.is_empty() { None } else { Some(name) })
-        {
-            Some(name) => {
-                let dir = directory.as_ref().join(name);
-                Ok((dir, response))
-            },
-            None => Err(GraphFailure::none_err("Unknown error downloading file")),
+                return IoTools::copy((path, response));
+            }
         }
-    }
 
-    fn copy(mut response: (PathBuf, Response)) -> ItemResult<PathBuf> {
-        // Fetch the request which returns a PathBuf (result.0) and Response (result.1).
-        // If the request is successful copy its contents to the new file.
-        let (sender, receiver) = mpsc::channel();
-        let handle = thread::spawn(move || {
-            let mut file_writer = OpenOptions::new()
-                .create(true)
-                .write(true)
-                .read(true)
-                .open(&response.0)
-                .expect("Error creating file.");
-            copy(&mut response.1, &mut file_writer).expect("Error copying file contents.");
-            sender.send(Some(response.0)).unwrap();
-        });
-
-        handle.join().expect("Thread could not be joined");
-        match receiver.recv() {
-            Ok(t) => Ok(t.unwrap()),
-            Err(e) => Err(GraphFailure::from(e)),
+        if self.file_name.is_none() {
+            if let Some(name) = response
+                .url()
+                .path_segments()
+                .and_then(std::iter::Iterator::last)
+                .and_then(|name| if name.is_empty() { None } else { Some(name) })
+            {
+                if name.len() <= 255 {
+                    let path = directory.as_ref().join(name);
+                    if let Some(ext) = self.extension.as_ref() {
+                        path.with_extension(ext.as_str());
+                    }
+                    return IoTools::copy((path, response));
+                }
+            }
         }
-    }
 
-    pub fn file<P: AsRef<Path>>(
-        directory: P,
-        target: &str,
-        bearer_token: &str,
-    ) -> ItemResult<PathBuf> {
-        // Create the directory if it does not exist.
-        IOTools::create_dir(directory.as_ref())?;
-
-        // Request file and if successful copy file contents to new file.
-        match Fetch::file_response(directory, target, bearer_token) {
-            Ok(result) => Fetch::copy(result),
-            Err(e) => Err(e),
-        }
+        Err(GraphFailure::none_err(
+            "Could not determine file name or the file name exceeded 255 characters",
+        ))
     }
 }

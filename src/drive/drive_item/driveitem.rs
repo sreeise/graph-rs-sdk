@@ -1,5 +1,3 @@
-use std::io;
-
 use crate::drive::drive_item::audio::Audio;
 use crate::drive::drive_item::deleted::Deleted;
 use crate::drive::drive_item::driveitemversion::DriveItemVersion;
@@ -23,14 +21,14 @@ use crate::drive::drive_item::sharepointid::SharePointIds;
 use crate::drive::drive_item::specialfolder::SpecialFolder;
 use crate::drive::drive_item::video::Video;
 use crate::drive::drive_item::Root;
-use crate::drive::event::DriveEvent;
 use crate::drive::thumbnail::ThumbnailSet;
-use crate::drive::{DriveResource, DriveVersion, ItemResult, ResourceBuilder};
+use crate::drive::ItemResult;
 use from_to_file::*;
 use graph_error::{GraphError, GraphFailure};
 use reqwest::Response;
 use std::collections::BTreeMap;
 use std::convert::TryFrom;
+use std::io;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters)]
 #[set = "pub set"]
@@ -47,6 +45,7 @@ pub struct DriveItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     audio: Option<Audio>,
     // TODO: The odata.type for content is "Edm.Stream". Figure out what Edm.Stream is.
+    #[serde(skip_serializing_if = "Option::is_none")]
     content: Option<BTreeMap<String, serde_json::Value>>,
     #[serde(rename = "cTag")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -130,10 +129,13 @@ pub struct DriveItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     web_url: Option<String>,
     #[serde(rename = "@microsoft.graph.conflictBehavior")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     microsoft_graph_conflict_behavior: Option<String>,
     #[serde(rename = "@microsoft.graph.downloadUrl")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     microsoft_graph_download_url: Option<String>,
     #[serde(rename = "@microsoft.graph.sourceUrl")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     microsoft_graph_source_url: Option<String>,
 }
 
@@ -228,53 +230,6 @@ impl DriveItem {
 
     pub fn remote_item(&self) -> Option<RemoteItem> {
         self.remote_item.clone()
-    }
-
-    pub fn uri(
-        &self,
-        drive_version: DriveVersion,
-        drive_resource: DriveResource,
-    ) -> ItemResult<String> {
-        let mut builder = ResourceBuilder::new(drive_version);
-        let ids = self.item_event_ids()?;
-        if drive_resource.eq(&DriveResource::Me) {
-            let s = builder
-                .item_id(ids.0.as_str())
-                .resource(drive_resource)
-                .build()?;
-            Ok(s)
-        } else {
-            let s = builder
-                .item_id(ids.0.as_str())
-                .drive_id(ids.1.as_str())
-                .resource(drive_resource)
-                .build()?;
-            Ok(s)
-        }
-    }
-
-    pub fn event_uri(
-        &self,
-        drive_version: DriveVersion,
-        drive_resource: DriveResource,
-        drive_event: DriveEvent,
-    ) -> ItemResult<String> {
-        let mut builder = ResourceBuilder::new(drive_version);
-        let ids = self.item_event_ids()?;
-        if drive_resource.eq(&DriveResource::Me) {
-            Ok(builder
-                .item_id(ids.0.as_str())
-                .resource(drive_resource)
-                .drive_event(drive_event)
-                .build()?)
-        } else {
-            Ok(builder
-                .item_id(ids.0.as_str())
-                .drive_id(ids.1.as_str())
-                .resource(drive_resource)
-                .drive_event(drive_event)
-                .build()?)
-        }
     }
 
     pub fn item_event_ids(&self) -> ItemResult<(String, String)> {

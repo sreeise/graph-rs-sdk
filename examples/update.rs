@@ -1,6 +1,4 @@
-use rust_onedrive::oauth::*;
 use rust_onedrive::prelude::*;
-use std::convert::TryFrom;
 
 // This example shows choosing a file in the root of a drive (normally where
 // folders such as Documents are), and changing the name.
@@ -8,29 +6,29 @@ static DRIVE_FILE: &str = "DRIVE_FILE_NAME.txt";
 static DRIVE_FILE_NEW_NAME: &str = "NEW_DRIVE_FILE_NAME.txt";
 
 fn main() {
-    update_item().unwrap();
+    update_item();
     // or
-    update_by_value().unwrap();
+    update_by_drive_item();
 }
 
-fn get_drive() -> ItemResult<Drive> {
-    let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json")?;
-    let drive: Drive = Drive::try_from(oauth)?;
-    Ok(drive)
+fn get_drive_recent() -> DriveItemCollection {
+    let drive = Drive::new("ACCESS_TOKEN");
+    let mut req = drive.v1().drive_recent();
+    req.send().unwrap()
 }
 
-fn update_item() -> ItemResult<()> {
+fn update_item() {
     // Get the latest metadata for the root drive folder items.
-    let mut drive = get_drive()?;
-    let mut drive_item = drive.drive_root_child()?;
+    let drive = Drive::new("ACCESS_TOKEN");
+    let mut collection = get_drive_recent();
 
     // Get the value you want to update. The drive::value::Value struct
     // stores metadata about a drive item such as a folder or file.
-    let value: DriveItem = drive_item.find_by_name(DRIVE_FILE)?;
+    let value: DriveItem = collection.find_by_name(DRIVE_FILE).unwrap();
 
     // Get the item id of the item that needs updating and the
     // drive id of the drive that houses the item.
-    let (item_id, drive_id) = value.item_event_ids().unwrap();
+    let item_id = value.id().unwrap();
 
     // Create a new drive::value::Value that will be used for the
     // updated items.
@@ -43,27 +41,22 @@ fn update_item() -> ItemResult<()> {
 
     // Make the request to the API. This returns the item
     // with the updated values.
-    let updated: DriveItem = drive.update(
-        item_id.as_str(),
-        drive_id.as_str(),
-        updated_value,
-        DriveResource::Me,
-    )?;
+    let mut req = drive.v1().me().update(item_id.as_str(), &updated_value);
+
+    let updated: DriveItem = req.send().unwrap();
 
     println!("{:#?}", updated);
-    Ok(())
 }
 
-// Pass the old drive::value::Value and the new drive::value::Value
-// to update the item.
-fn update_by_value() -> ItemResult<()> {
+// Use the old and new drive item.
+fn update_by_drive_item() {
     // Get the latest metadata for the root drive folder items.
-    let mut drive = get_drive()?;
-    let mut drive_item = drive.drive_root_child()?;
+    let drive = Drive::new("ACCESS_TOKEN");
+    let mut collection = get_drive_recent();
 
     // Get the value you want to update. The drive::value::Value struct
     // stores metadata about a drive item such as a folder or file.
-    let current_value: DriveItem = drive_item.find_by_name(DRIVE_FILE)?;
+    let current_value: DriveItem = collection.find_by_name(DRIVE_FILE).unwrap();
 
     // Create a new drive::value::Value that will be used for the
     // updated items.
@@ -74,9 +67,13 @@ fn update_by_value() -> ItemResult<()> {
     // Fields that are not included will not be changed.
     updated_value.set_name(Some(DRIVE_FILE_NEW_NAME.into()));
 
-    let updated: DriveItem =
-        drive.update_by_value(updated_value, current_value, DriveResource::Me)?;
+    let mut req = drive
+        .v1()
+        .me()
+        .update_drive_item(&current_value, &updated_value)
+        .unwrap();
+
+    let updated: DriveItem = req.send().unwrap();
 
     println!("{:#?}", updated);
-    Ok(())
 }

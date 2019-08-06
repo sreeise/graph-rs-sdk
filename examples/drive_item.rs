@@ -21,28 +21,28 @@ fn main() {
 }
 
 fn drive_root(drive: &mut Drive) {
-    let drive_item: DriveItemCollection = drive.drive_root().unwrap();
+    let drive_item: DriveItemCollection = drive.v1().drive_root().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn drive_root_children(drive: &mut Drive) {
-    let drive_item: DriveItemCollection = drive.drive_root_child().unwrap();
+    let drive_item: DriveItemCollection = drive.v1().drive_root_child().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn special_docs(drive: &mut Drive) {
-    let drive_item: DriveItemCollection = drive.special_documents().unwrap();
+    let drive_item: DriveItemCollection = drive.v1().special_documents().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn special_docs_child(drive: &mut Drive) {
-    let drive_item: DriveItemCollection = drive.special_documents_child().unwrap();
+    let drive_item: DriveItemCollection = drive.v1().special_documents_child().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 // Specify a special folder name.
 fn special_folder_selection(drive: &mut Drive) {
-    let drive_item: DriveItemCollection = drive.special_folder("documents").unwrap();
+    let drive_item: DriveItemCollection = drive.v1().special_folder("documents").send().unwrap();
     drive_item.into_iter().for_each(|value| {
         println!("{:#?}", value);
     });

@@ -196,17 +196,14 @@ pub fn set_and_req_access_code(access_code: &str) {
 #[get("/drive/recent", format = "application/json")]
 fn recent() {
     let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
-    let mut drive = Drive::try_from(oauth).unwrap();
-    let result = drive.drive_recent();
-    match result {
-        Ok(drive_item) => {
-            println!("{:#?}", &drive_item);
-            drive_item
-                .to_json_file("./examples/example_files/drive_recent.json")
-                .unwrap();
-        },
-        Err(e) => println!("{:#?}", e),
-    };
+    let drive = Drive::try_from(oauth).unwrap();
+
+    let mut request = drive.v1().drive_recent();
+    let collection = request.send().unwrap();
+
+    collection
+        .to_json_file("./examples/example_files/drive_recent.json")
+        .unwrap();
 }
 
 fn recent_from_file() {
