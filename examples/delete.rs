@@ -19,7 +19,7 @@ pub fn delete_drive_item(item_name: &str) {
     let drive: Drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: DriveItemCollection = drive.v1().drive_root_child().send().unwrap();
+    let mut collection: Collection<DriveItem> = drive.v1().drive_root_child().send().unwrap();
     // Save the metadata of the files.
     collection
         .to_json_file("./examples/example_files/drive_root_child.json")

@@ -11,7 +11,7 @@ fn main() {
     update_by_drive_item();
 }
 
-fn get_drive_recent() -> DriveItemCollection {
+fn get_drive_recent() -> Collection<DriveItem> {
     let drive = Drive::new("ACCESS_TOKEN");
     let mut req = drive.v1().drive_recent();
     req.send().unwrap()

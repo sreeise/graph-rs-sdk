@@ -1,11 +1,9 @@
-use rust_onedrive::drive::driveitemcollection::DriveItemCollection;
-
 use rust_onedrive::drive::intoitem::{IntoFetch, MutateDownload};
 use rust_onedrive::drive::Drive;
 use rust_onedrive::drive::EP;
 use rust_onedrive::from_to::*;
 use rust_onedrive::oauth::OAuth;
-use rust_onedrive::prelude::ItemMe;
+use rust_onedrive::prelude::{Collection, DriveItem, ItemMe};
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::PathBuf;
@@ -29,7 +27,7 @@ pub fn download() {
     let drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: DriveItemCollection = drive.v1().drive_root_child().send().unwrap();
+    let mut collection: Collection<DriveItem> = drive.v1().drive_root_child().send().unwrap();
     // Save the metadata of the files.
     collection
         .to_json_file("./examples/example_files/drive_root_child.json")
@@ -55,7 +53,7 @@ pub fn download_with_drive_item() {
     let drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: DriveItemCollection = drive.v1().drive_root_child().send().unwrap();
+    let mut collection: Collection<DriveItem> = drive.v1().drive_root_child().send().unwrap();
     // Save the metadata of the files.
     collection
         .to_json_file("./examples/example_files/drive_root_child.json")
@@ -89,7 +87,7 @@ pub fn download_and_format() {
     let drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: DriveItemCollection = drive.v1().drive_root_child().send().unwrap();
+    let mut collection: Collection<DriveItem> = drive.v1().drive_root_child().send().unwrap();
     // Save the metadata of the files.
     collection
         .to_json_file("./examples/example_files/drive_root_child.json")
@@ -120,7 +118,7 @@ fn download_and_rename(name: &str) {
     let drive = Drive::try_from(oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: DriveItemCollection = drive.v1().drive_root_child().send().unwrap();
+    let mut collection: Collection<DriveItem> = drive.v1().drive_root_child().send().unwrap();
     // Save the metadata of the files.
     collection
         .to_json_file("./examples/example_files/drive_root_child.json")

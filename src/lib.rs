@@ -94,19 +94,16 @@ pub mod drive;
 mod io;
 
 pub mod prelude {
+    pub use crate::drive::collection::Collection;
     pub use crate::drive::driveitem::DriveItem;
-    pub use crate::drive::driveitemcollection::DriveItemCollection;
     pub use crate::drive::driveurl::{DriveUrl, MutateUrl};
-    pub use crate::drive::intoitem::IntoItem;
+    pub use crate::drive::intoitem::{IntoFetch, IntoItem};
     pub use crate::drive::Drive;
-    pub use crate::drive::DriveEndPoint;
-    pub use crate::drive::DriveVersion;
     pub use crate::drive::ItemCommon;
     pub use crate::drive::ItemMe;
     pub use crate::drive::ItemResponse;
     pub use crate::drive::ItemResult;
     pub use crate::drive::Request;
-    pub use crate::drive::SelectEventMe;
     pub use crate::drive::EP;
     pub use crate::from_to::*;
 }

@@ -1,4 +1,6 @@
-use crate::drive::drive_item::driveitemcollection::DriveItemCollection;
+use crate::drive::drive_item::collection::Collection;
+use crate::drive::drive_item::driveitem::DriveItem;
+use crate::drive::drive_item::itemactivity::ItemActivity;
 use crate::drive::driveinfo::DriveInfo;
 use crate::drive::driveurl::MutateUrl;
 use crate::drive::item::SelectResource;
@@ -20,6 +22,7 @@ pub enum DriveEndPoint {
     SharedWithMe,
     DriveRecent,
     DriveActivities,
+    DriveActivitiesMe,
     SpecialFolder,
     SpecialDocuments,
     SpecialDocumentsChild,
@@ -46,6 +49,7 @@ impl DriveEndPoint {
             DriveEndPoint::SharedWithMe => "/me/drive/sharedWithMe",
             DriveEndPoint::DriveRecent => "/me/drive/recent",
             DriveEndPoint::DriveActivities => "/drive/activities",
+            DriveEndPoint::DriveActivitiesMe => "/me/drive/activities",
             DriveEndPoint::SpecialFolder => "/me/drive/special",
             DriveEndPoint::SpecialDocuments => "/me/drive/special/documents",
             DriveEndPoint::SpecialDocumentsChild => "/me/drive/special/documents/children",
@@ -102,28 +106,29 @@ impl ToString for DriveEndPoint {
 
 pub trait EP {
     fn drive(&mut self) -> Request<DriveInfo>;
-    fn drive_me(&mut self) -> Request<DriveItemCollection>;
-    fn drive_root(&mut self) -> Request<DriveItemCollection>;
-    fn drive_root_me(&mut self) -> Request<DriveItemCollection>;
-    fn drive_root_child(&mut self) -> Request<DriveItemCollection>;
-    fn drive_root_me_child(&mut self) -> Request<DriveItemCollection>;
-    fn delta(&mut self) -> Request<DriveItemCollection>;
-    fn shared_with_me(&mut self) -> Request<DriveItemCollection>;
-    fn drive_recent(&mut self) -> Request<DriveItemCollection>;
-    fn drive_activities(&mut self) -> Request<DriveItemCollection>;
+    fn drive_me(&mut self) -> Request<DriveInfo>;
+    fn drive_root(&mut self) -> Request<DriveItem>;
+    fn drive_root_me(&mut self) -> Request<DriveItem>;
+    fn drive_root_child(&mut self) -> Request<Collection<DriveItem>>;
+    fn drive_root_me_child(&mut self) -> Request<Collection<DriveItem>>;
+    fn delta(&mut self) -> Request<Collection<DriveItem>>;
+    fn shared_with_me(&mut self) -> Request<Collection<DriveItem>>;
+    fn drive_recent(&mut self) -> Request<Collection<DriveItem>>;
+    fn drive_activities(&mut self, drive_id: &str) -> Request<Collection<ItemActivity>>;
+    fn drive_activities_me(&mut self) -> Request<Collection<ItemActivity>>;
     fn special_folder<T>(&mut self, folder_name: &str) -> Request<T>
     where
         for<'de> T: serde::Deserialize<'de>;
-    fn special_documents(&mut self) -> Request<DriveItemCollection>;
-    fn special_documents_child(&mut self) -> Request<DriveItemCollection>;
-    fn special_photos(&mut self) -> Request<DriveItemCollection>;
-    fn special_photos_child(&mut self) -> Request<DriveItemCollection>;
-    fn special_cameraroll(&mut self) -> Request<DriveItemCollection>;
-    fn special_cameraroll_child(&mut self) -> Request<DriveItemCollection>;
-    fn special_approot(&mut self) -> Request<DriveItemCollection>;
-    fn special_approot_child(&mut self) -> Request<DriveItemCollection>;
-    fn special_music(&mut self) -> Request<DriveItemCollection>;
-    fn special_music_child(&mut self) -> Request<DriveItemCollection>;
+    fn special_documents(&mut self) -> Request<Collection<DriveItem>>;
+    fn special_documents_child(&mut self) -> Request<Collection<DriveItem>>;
+    fn special_photos(&mut self) -> Request<Collection<DriveItem>>;
+    fn special_photos_child(&mut self) -> Request<Collection<DriveItem>>;
+    fn special_cameraroll(&mut self) -> Request<Collection<DriveItem>>;
+    fn special_cameraroll_child(&mut self) -> Request<Collection<DriveItem>>;
+    fn special_approot(&mut self) -> Request<Collection<DriveItem>>;
+    fn special_approot_child(&mut self) -> Request<Collection<DriveItem>>;
+    fn special_music(&mut self) -> Request<Collection<DriveItem>>;
+    fn special_music_child(&mut self) -> Request<Collection<DriveItem>>;
 }
 
 impl EP for SelectResource {
@@ -133,7 +138,7 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().drive();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: DriveInfo = req.send().unwrap();
     /// ```
     fn drive(&mut self) -> Request<DriveInfo> {
         let mut req = self.get();
@@ -149,9 +154,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().drive_me();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: DriveInfo = req.send().unwrap();
     /// ```
-    fn drive_me(&mut self) -> Request<DriveItemCollection> {
+    fn drive_me(&mut self) -> Request<DriveInfo> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::DriveMe);
@@ -164,9 +169,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().drive_root();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn drive_root(&mut self) -> Request<DriveItemCollection> {
+    fn drive_root(&mut self) -> Request<DriveItem> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::DriveRoot);
@@ -180,9 +185,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().drive_root_me();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let drive_item: DriveItem = req.send().unwrap();
     /// ```
-    fn drive_root_me(&mut self) -> Request<DriveItemCollection> {
+    fn drive_root_me(&mut self) -> Request<DriveItem> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::DriveRootMe);
@@ -195,9 +200,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().drive_root_child();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn drive_root_child(&mut self) -> Request<DriveItemCollection> {
+    fn drive_root_child(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::DriveRootChild);
@@ -210,9 +215,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().drive_root_me_child();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn drive_root_me_child(&mut self) -> Request<DriveItemCollection> {
+    fn drive_root_me_child(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::DriveRootMeChild);
@@ -225,9 +230,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().delta();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn delta(&mut self) -> Request<DriveItemCollection> {
+    fn delta(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::DriveChanges);
@@ -240,9 +245,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().shared_with_me();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn shared_with_me(&mut self) -> Request<DriveItemCollection> {
+    fn shared_with_me(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SharedWithMe);
@@ -255,9 +260,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().drive_recent();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn drive_recent(&mut self) -> Request<DriveItemCollection> {
+    fn drive_recent(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::DriveRecent);
@@ -271,12 +276,20 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().drive_activities();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn drive_activities(&mut self) -> Request<DriveItemCollection> {
+    fn drive_activities(&mut self, drive_id: &str) -> Request<Collection<ItemActivity>> {
         let mut req = self.get();
         req.content_type("application/json");
-        req.endpoint(DriveEndPoint::DriveActivities);
+        req.as_mut()
+            .extend_path(&["drives", drive_id, "activities"]);
+        Request::from(&req)
+    }
+
+    fn drive_activities_me(&mut self) -> Request<Collection<ItemActivity>> {
+        let mut req = self.get();
+        req.content_type("application/json");
+        req.endpoint(DriveEndPoint::DriveActivitiesMe);
         Request::from(&req)
     }
 
@@ -286,7 +299,7 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req: BoxItem<DriveItemCollection> = drive.v1().special_folder("folder_name");
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
     fn special_folder<T>(&mut self, folder_name: &str) -> Request<T>
     where
@@ -305,9 +318,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().special_documents();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn special_documents(&mut self) -> Request<DriveItemCollection> {
+    fn special_documents(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SpecialDocuments);
@@ -320,9 +333,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().special_documents_child();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn special_documents_child(&mut self) -> Request<DriveItemCollection> {
+    fn special_documents_child(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SpecialDocumentsChild);
@@ -335,9 +348,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().special_photos();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn special_photos(&mut self) -> Request<DriveItemCollection> {
+    fn special_photos(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SpecialPhotos);
@@ -350,9 +363,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().special_photos_child();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn special_photos_child(&mut self) -> Request<DriveItemCollection> {
+    fn special_photos_child(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SpecialPhotosChild);
@@ -365,9 +378,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().special_cameraroll();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: DCollection<DriveItem> = req.send().unwrap();
     /// ```
-    fn special_cameraroll(&mut self) -> Request<DriveItemCollection> {
+    fn special_cameraroll(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SpecialCameraRoll);
@@ -380,9 +393,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().special_cameraroll_child();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn special_cameraroll_child(&mut self) -> Request<DriveItemCollection> {
+    fn special_cameraroll_child(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SpecialCameraRollChild);
@@ -395,9 +408,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().special_approot();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn special_approot(&mut self) -> Request<DriveItemCollection> {
+    fn special_approot(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SpecialAppRoot);
@@ -410,9 +423,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().special_approot_child();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn special_approot_child(&mut self) -> Request<DriveItemCollection> {
+    fn special_approot_child(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SpecialAppRoot);
@@ -425,9 +438,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().special_music();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn special_music(&mut self) -> Request<DriveItemCollection> {
+    fn special_music(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SpecialMusic);
@@ -440,9 +453,9 @@ impl EP for SelectResource {
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
     /// let mut req = drive.v1().special_music_child();
-    /// let collection: DriveItemCollection = req.send().unwrap();
+    /// let collection: Collection<DriveItem> = req.send().unwrap();
     /// ```
-    fn special_music_child(&mut self) -> Request<DriveItemCollection> {
+    fn special_music_child(&mut self) -> Request<Collection<DriveItem>> {
         let mut req = self.get();
         req.content_type("application/json");
         req.endpoint(DriveEndPoint::SpecialMusicChild);
