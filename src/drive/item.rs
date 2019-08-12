@@ -303,16 +303,15 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
 
     fn create_folder_path(
         &mut self,
+        path_from_root: &str,
         new_folder: NewFolder,
-        path_from_root: String,
     ) -> Request<DriveItem> {
-        let mut s = path_from_root;
-        if !s.ends_with(':') {
-            s.push(':');
+        if !path_from_root.ends_with(':') {
+            self.extend_path(&["drive", "root:", format!("{}{}", path_from_root, ":").as_str(), "children"]);
+        } else {
+            self.extend_path(&["drive", "root:", path_from_root, "children"]);
         }
 
-        self.format_me(s.as_str());
-        self.extend_path(&["children"]);
         self.body(Body::String(
             serde_json::to_string_pretty(&new_folder).unwrap(),
         ));
@@ -349,13 +348,14 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
     fn copy_drive_item(
         &mut self,
         drive_item: &DriveItem,
-        item_ref: &ItemReference,
         name: Option<&str>,
     ) -> ItemResult<BoxItemResponse> {
         let item_id = drive_item
             .id()
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
-        Ok(self.copy(item_id.as_str(), item_ref, name))
+        let item_ref = drive_item.parent_reference()
+            .ok_or_else(|| GraphFailure::none_err("parent_reference"))?;
+        Ok(self.copy(item_id.as_str(), &item_ref, name))
     }
 
     fn download<P: AsRef<Path>>(&mut self, item_id: &str, directory: P) -> DownloadPipeline {
@@ -531,7 +531,7 @@ pub trait ItemCommon:
         )))
     }
 
-    fn delete_drive_item(&mut self, value: DriveItem) -> ItemResult<BoxItemResponse> {
+    fn delete_drive_item(&mut self, value: &DriveItem) -> ItemResult<BoxItemResponse> {
         let (item_id, resource_id) = value.item_event_ids()?;
         self.format_common(item_id.as_str(), resource_id.as_str());
         self.as_delete();
@@ -578,11 +578,12 @@ pub trait ItemCommon:
     fn copy_drive_item(
         &mut self,
         drive_item: &DriveItem,
-        item_ref: &ItemReference,
         name: Option<&str>,
     ) -> ItemResult<BoxItemResponse> {
         let (item_id, resource_id) = drive_item.item_event_ids()?;
-        Ok(self.copy(item_id.as_str(), resource_id.as_str(), item_ref, name))
+        let item_ref = drive_item.parent_reference()
+            .ok_or_else(|| GraphFailure::none_err("parent_reference"))?;
+        Ok(self.copy(item_id.as_str(), resource_id.as_str(), &item_ref, name))
     }
 
     fn create_folder(
@@ -601,18 +602,18 @@ pub trait ItemCommon:
         ))
     }
 
-    fn create_folder_by_path(
+    fn create_folder_path(
         &mut self,
         resource_id: &str,
         path_from_root: &str,
         new_folder: NewFolder,
     ) -> Request<DriveItem> {
-        let mut s = String::from(path_from_root);
-        if !s.ends_with(':') {
-            s.push(':');
+        if !path_from_root.ends_with(':') {
+            self.extend_path(&[resource_id, "root:", format!("{}{}", path_from_root, ":").as_str(), "children"]);
+        } else {
+            self.extend_path(&[resource_id, "root:", path_from_root, "children"]);
         }
-        self.format_common(s.as_str(), resource_id);
-        self.extend_path(&["content"]);
+
         self.body(Body::String(
             serde_json::to_string_pretty(&new_folder).unwrap(),
         ));
