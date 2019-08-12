@@ -74,7 +74,10 @@ fn event_copy_drive_item() {
     item_ref.set_drive_id(Some("132534".into()));
     drive_item.set_parent_reference(Some(item_ref));
 
-    let pipeline = get_drive().v1().me().copy_drive_item(&drive_item, None)
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .copy_drive_item(&drive_item, None)
         .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
@@ -82,7 +85,10 @@ fn event_copy_drive_item() {
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives().copy_drive_item(&drive_item, None)
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .copy_drive_item(&drive_item, None)
         .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
@@ -90,7 +96,10 @@ fn event_copy_drive_item() {
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().copy_drive_item(&drive_item, None)
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .copy_drive_item(&drive_item, None)
         .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
@@ -98,7 +107,10 @@ fn event_copy_drive_item() {
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups().copy_drive_item(&drive_item, None)
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .copy_drive_item(&drive_item, None)
         .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
@@ -106,7 +118,10 @@ fn event_copy_drive_item() {
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().copy_drive_item(&drive_item, None)
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .copy_drive_item(&drive_item, None)
         .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
@@ -174,42 +189,54 @@ fn event_create_folder() {
 
 #[test]
 fn event_create_folder_path() {
-    let pipeline = get_drive()
-        .v1()
-        .me()
-        .create_folder_path("Documents", NewFolder::new("name", ConflictBehavior::Replace));
+    let pipeline = get_drive().v1().me().create_folder_path(
+        "Documents",
+        NewFolder::new("name", ConflictBehavior::Replace),
+    );
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/root:/Documents:/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives()
-        .create_folder_path("132534", "Documents", NewFolder::new("name", ConflictBehavior::Replace));
+    let pipeline = get_drive().v1().drives().create_folder_path(
+        "132534",
+        "Documents",
+        NewFolder::new("name", ConflictBehavior::Replace),
+    );
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/132534/root:/Documents:/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites()
-        .create_folder_path("132534", "Documents", NewFolder::new("name", ConflictBehavior::Replace));
+    let pipeline = get_drive().v1().sites().create_folder_path(
+        "132534",
+        "Documents",
+        NewFolder::new("name", ConflictBehavior::Replace),
+    );
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/132534/root:/Documents:/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups()
-        .create_folder_path("132534", "Documents", NewFolder::new("name", ConflictBehavior::Replace));
+    let pipeline = get_drive().v1().groups().create_folder_path(
+        "132534",
+        "Documents",
+        NewFolder::new("name", ConflictBehavior::Replace),
+    );
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/132534/root:/Documents:/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users()
-        .create_folder_path("132534", "Documents", NewFolder::new("name", ConflictBehavior::Replace));
+    let pipeline = get_drive().v1().users().create_folder_path(
+        "132534",
+        "Documents",
+        NewFolder::new("name", ConflictBehavior::Replace),
+    );
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/132534/root:/Documents:/children",
@@ -270,7 +297,10 @@ fn event_delete_drive_item() {
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives().delete_drive_item(&drive_item)
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .delete_drive_item(&drive_item)
         .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
@@ -278,7 +308,10 @@ fn event_delete_drive_item() {
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().delete_drive_item(&drive_item)
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .delete_drive_item(&drive_item)
         .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
@@ -286,7 +319,10 @@ fn event_delete_drive_item() {
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups().delete_drive_item(&drive_item)
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .delete_drive_item(&drive_item)
         .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
@@ -294,7 +330,10 @@ fn event_delete_drive_item() {
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().delete_drive_item(&drive_item)
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .delete_drive_item(&drive_item)
         .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
@@ -302,7 +341,6 @@ fn event_delete_drive_item() {
         url.as_str()
     );
 }
-
 
 #[test]
 fn event_get_item() {
@@ -351,28 +389,40 @@ fn event_get_item_path() {
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives().get_item_path("32p99453", "Documents/item.txt");
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .get_item_path("32p99453", "Documents/item.txt");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/root:/Documents%2Fitem.txt",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().get_item_path("32p99453", "Documents/item.txt");
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .get_item_path("32p99453", "Documents/item.txt");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/root:/Documents%2Fitem.txt",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups().get_item_path("32p99453", "Documents/item.txt");
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .get_item_path("32p99453", "Documents/item.txt");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/root:/Documents%2Fitem.txt",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().get_item_path("32p99453", "Documents/item.txt");
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .get_item_path("32p99453", "Documents/item.txt");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/root:/Documents%2Fitem.txt",
@@ -578,7 +628,10 @@ fn event_update_drive_item() {
     drive_item.set_parent_reference(Some(item_ref));
     let new_item = DriveItem::default();
 
-    let pipeline = get_drive().v1().me().update_drive_item(&drive_item, &new_item)
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .update_drive_item(&drive_item, &new_item)
         .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
@@ -758,6 +811,112 @@ pub fn event_upload_replace() {
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/content",
+        url.as_str()
+    );
+}
+
+#[test]
+pub fn event_list_versions() {
+    let pipeline = get_drive().v1().me().list_versions("132534");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/items/132534/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .list_versions("132534", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive().v1().sites().list_versions("132534", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .list_versions("132534", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive().v1().users().list_versions("132534", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/versions",
+        url.as_str()
+    );
+}
+
+#[test]
+pub fn event_list_versions_drive_item() {
+    let mut drive_item = DriveItem::default();
+    drive_item.set_id(Some("132534".into()));
+
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .list_versions_drive_item(&drive_item)
+        .unwrap();
+
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/items/132534/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .list_versions_drive_item("32p99453", &drive_item)
+        .unwrap();
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .list_versions_drive_item("32p99453", &drive_item)
+        .unwrap();
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .list_versions_drive_item("32p99453", &drive_item)
+        .unwrap();
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .list_versions_drive_item("32p99453", &drive_item)
+        .unwrap();
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/versions",
         url.as_str()
     );
 }

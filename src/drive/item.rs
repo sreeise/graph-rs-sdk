@@ -1,6 +1,7 @@
 use crate::drive;
 use crate::drive::drive_item::asyncjobstatus::AsyncJobStatus;
 use crate::drive::drive_item::driveitem::DriveItem;
+use crate::drive::drive_item::driveitemversion::DriveItemVersionCollection;
 use crate::drive::drive_item::itemreference::ItemReference;
 use crate::drive::drive_item::thumbnail::{Thumbnail, ThumbnailCollection};
 use crate::drive::driverequest::ReqBuilder;
@@ -307,7 +308,12 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
         new_folder: NewFolder,
     ) -> Request<DriveItem> {
         if !path_from_root.ends_with(':') {
-            self.extend_path(&["drive", "root:", format!("{}{}", path_from_root, ":").as_str(), "children"]);
+            self.extend_path(&[
+                "drive",
+                "root:",
+                format!("{}{}", path_from_root, ":").as_str(),
+                "children",
+            ]);
         } else {
             self.extend_path(&["drive", "root:", path_from_root, "children"]);
         }
@@ -353,7 +359,8 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
         let item_id = drive_item
             .id()
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
-        let item_ref = drive_item.parent_reference()
+        let item_ref = drive_item
+            .parent_reference()
             .ok_or_else(|| GraphFailure::none_err("parent_reference"))?;
         Ok(self.copy(item_id.as_str(), &item_ref, name))
     }
@@ -458,7 +465,9 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
 
     fn update(&mut self, item_id: &str, new_value: &DriveItem) -> Request<DriveItem> {
         self.format_me(item_id);
-        self.body(Body::String(serde_json::to_string_pretty(&new_value).unwrap()));
+        self.body(Body::String(
+            serde_json::to_string_pretty(&new_value).unwrap(),
+        ));
         self.as_patch();
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Update))
     }
@@ -516,6 +525,25 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
             self.pipeline_data(),
             DriveEvent::Upload,
         )))
+    }
+
+    fn list_versions(&mut self, item_id: &str) -> Request<DriveItemVersionCollection> {
+        self.format_me(item_id);
+        self.extend_path(&["versions"]);
+        Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::ListVersions,
+        ))
+    }
+
+    fn list_versions_drive_item(
+        &mut self,
+        drive_item: &DriveItem,
+    ) -> ItemResult<Request<DriveItemVersionCollection>> {
+        let item_id = drive_item
+            .id()
+            .ok_or_else(|| GraphFailure::none_err("item_id"))?;
+        Ok(self.list_versions(item_id.as_str()))
     }
 }
 
@@ -581,7 +609,8 @@ pub trait ItemCommon:
         name: Option<&str>,
     ) -> ItemResult<BoxItemResponse> {
         let (item_id, resource_id) = drive_item.item_event_ids()?;
-        let item_ref = drive_item.parent_reference()
+        let item_ref = drive_item
+            .parent_reference()
             .ok_or_else(|| GraphFailure::none_err("parent_reference"))?;
         Ok(self.copy(item_id.as_str(), resource_id.as_str(), &item_ref, name))
     }
@@ -609,7 +638,12 @@ pub trait ItemCommon:
         new_folder: NewFolder,
     ) -> Request<DriveItem> {
         if !path_from_root.ends_with(':') {
-            self.extend_path(&[resource_id, "root:", format!("{}{}", path_from_root, ":").as_str(), "children"]);
+            self.extend_path(&[
+                resource_id,
+                "root:",
+                format!("{}{}", path_from_root, ":").as_str(),
+                "children",
+            ]);
         } else {
             self.extend_path(&[resource_id, "root:", path_from_root, "children"]);
         }
@@ -780,6 +814,30 @@ pub trait ItemCommon:
             DriveEvent::Upload,
         )))
     }
+
+    fn list_versions(
+        &mut self,
+        item_id: &str,
+        resource_id: &str,
+    ) -> Request<DriveItemVersionCollection> {
+        self.format_common(item_id, resource_id);
+        self.extend_path(&["versions"]);
+        Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::ListVersions,
+        ))
+    }
+
+    fn list_versions_drive_item(
+        &mut self,
+        resource_id: &str,
+        drive_item: &DriveItem,
+    ) -> ItemResult<Request<DriveItemVersionCollection>> {
+        let item_id = drive_item
+            .id()
+            .ok_or_else(|| GraphFailure::none_err("item_id"))?;
+        Ok(self.list_versions(item_id.as_str(), resource_id))
+    }
 }
 
 impl AsMut<DriveUrl> for SelectResource {
@@ -797,7 +855,7 @@ impl From<DataPipeline> for SelectResource {
 mod inner_pipeline {
     use crate::drive::driveurl::DriveUrl;
     use crate::drive::event::DriveEvent;
-    use crate::drive::item::{SelectResource, SelectEvent};
+    use crate::drive::item::{SelectEvent, SelectResource};
     use crate::drive::pipeline::{Body, DataPipeline, RequestType};
     use crate::drive::{DriveEndPoint, SelectEventMe};
 
