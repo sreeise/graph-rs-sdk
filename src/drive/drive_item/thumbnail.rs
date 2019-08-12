@@ -45,13 +45,3 @@ pub struct ThumbnailSet {
     #[serde(skip_serializing_if = "Option::is_none")]
     source: Option<Thumbnail>,
 }
-
-#[derive(
-    Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters,
-)]
-#[set = "pub set"]
-#[get = "pub"]
-pub struct ThumbnailCollection {
-    #[serde(rename = "value")]
-    thumbnails: Vec<ThumbnailSet>,
-}

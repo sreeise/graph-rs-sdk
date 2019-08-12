@@ -10,9 +10,11 @@ use syn::DeriveInput;
 pub fn derive_from_to(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
+    let generics = &input.generics;
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let expanded = quote! {
-        impl from_to_file::FromToFile for #name {
+        impl #impl_generics from_to_file::FromToFile for #name #ty_generics #where_clause {
             type Err = graph_error::GraphFailure;
             type Output = ();
 

@@ -16,7 +16,7 @@ fn main() {
 
 fn copy_item() {
     let drive: Drive = Drive::new("ACCESS_TOKEN");
-    let mut collection: DriveItemCollection = drive.v1().drive_root_child().send().unwrap();
+    let mut collection: Collection<DriveItem> = drive.v1().drive_root_child().send().unwrap();
 
     // The file or folder that you want to copy.
     let drive_item: DriveItem = collection.find_by_name(DRIVE_FILE).unwrap();

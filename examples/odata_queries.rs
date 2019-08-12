@@ -1,6 +1,3 @@
-#[allow(unused_imports)]
-use rust_onedrive::drive::driveitemcollection::DriveItemCollection;
-
 use rust_onedrive::prelude::*;
 
 // Add query parameters to a request.

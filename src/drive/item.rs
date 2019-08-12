@@ -1,9 +1,10 @@
 use crate::drive;
 use crate::drive::drive_item::asyncjobstatus::AsyncJobStatus;
+use crate::drive::drive_item::collection::Collection;
 use crate::drive::drive_item::driveitem::DriveItem;
-use crate::drive::drive_item::driveitemversion::DriveItemVersionCollection;
+use crate::drive::drive_item::driveitemversion::DriveItemVersion;
 use crate::drive::drive_item::itemreference::ItemReference;
-use crate::drive::drive_item::thumbnail::{Thumbnail, ThumbnailCollection};
+use crate::drive::drive_item::thumbnail::{Thumbnail, ThumbnailSet};
 use crate::drive::driverequest::ReqBuilder;
 use crate::drive::event::ItemRefCopy;
 use crate::drive::event::{DriveEvent, NewFolder};
@@ -441,7 +442,7 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
     }
 
-    fn thumbnails(&mut self, item_id: &str) -> Request<ThumbnailCollection> {
+    fn thumbnails(&mut self, item_id: &str) -> Request<Collection<ThumbnailSet>> {
         self.format_me(item_id);
         self.extend_path(&["thumbnails"]);
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
@@ -450,7 +451,7 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
     fn thumbnails_drive_item(
         &mut self,
         value: drive::driveitem::DriveItem,
-    ) -> ItemResult<Request<ThumbnailCollection>> {
+    ) -> ItemResult<Request<Collection<ThumbnailSet>>> {
         let item_id = value
             .id()
             .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
@@ -527,7 +528,7 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
         )))
     }
 
-    fn list_versions(&mut self, item_id: &str) -> Request<DriveItemVersionCollection> {
+    fn list_versions(&mut self, item_id: &str) -> Request<Collection<DriveItemVersion>> {
         self.format_me(item_id);
         self.extend_path(&["versions"]);
         Request::from(Pipeline::new(
@@ -539,7 +540,7 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
     fn list_versions_drive_item(
         &mut self,
         drive_item: &DriveItem,
-    ) -> ItemResult<Request<DriveItemVersionCollection>> {
+    ) -> ItemResult<Request<Collection<DriveItemVersion>>> {
         let item_id = drive_item
             .id()
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
@@ -704,7 +705,11 @@ pub trait ItemCommon:
         })
     }
 
-    fn thumbnails(&mut self, item_id: &str, resource_id: &str) -> Request<ThumbnailCollection> {
+    fn thumbnails(
+        &mut self,
+        item_id: &str,
+        resource_id: &str,
+    ) -> Request<Collection<ThumbnailSet>> {
         self.format_common(item_id, resource_id);
         self.extend_path(&["thumbnails"]);
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
@@ -713,7 +718,7 @@ pub trait ItemCommon:
     fn thumbnails_drive_item(
         &mut self,
         value: drive::driveitem::DriveItem,
-    ) -> Request<ThumbnailCollection> {
+    ) -> Request<Collection<ThumbnailSet>> {
         let (item_id, resource_id) = value.item_event_ids().unwrap();
         self.thumbnails(item_id.as_str(), resource_id.as_str())
     }
@@ -819,7 +824,7 @@ pub trait ItemCommon:
         &mut self,
         item_id: &str,
         resource_id: &str,
-    ) -> Request<DriveItemVersionCollection> {
+    ) -> Request<Collection<DriveItemVersion>> {
         self.format_common(item_id, resource_id);
         self.extend_path(&["versions"]);
         Request::from(Pipeline::new(
@@ -832,7 +837,7 @@ pub trait ItemCommon:
         &mut self,
         resource_id: &str,
         drive_item: &DriveItem,
-    ) -> ItemResult<Request<DriveItemVersionCollection>> {
+    ) -> ItemResult<Request<Collection<DriveItemVersion>>> {
         let item_id = drive_item
             .id()
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
