@@ -1,0 +1,16 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata",
+  "value": [
+    {
+      "@microsoft.graph.downloadUrl": "https://public.bl.files.1drv.com",
+      "id": "01BYE5RZ6QN3ZWBTUFOFD3GSPGOHDJD36K",
+      "lastModifiedBy": {
+        "user": {
+          "email": "MeganB@M365x214355.onmicrosoft.com",
+          "displayName": "Megan Bowen"
+        }
+      },
+      "lastModifiedDateTime": "2019-06-07T03:28:00.133Z"
+    }
+  ]
+}

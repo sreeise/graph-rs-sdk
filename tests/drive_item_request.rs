@@ -10,6 +10,7 @@ use rocket_codegen::routes;
 use rust_onedrive::drive::driveinfo::DriveInfo;
 use rust_onedrive::drive::driveitem::DriveItem;
 use rust_onedrive::drive::driveitemcollection::DriveItemCollection;
+use rust_onedrive::drive::driveitemversion::DriveItemVersionCollection;
 use rust_onedrive::drive::filesysteminfo::FileSystemInfo;
 use std::convert::TryFrom;
 use std::fs::File;
@@ -43,10 +44,21 @@ fn special_photo_folder() -> String {
     file_to_string("test_files/item_test/special_photo_folder.json")
 }
 
+#[get("/v1.0/me/versions")]
+fn drive_item_version() -> String {
+    file_to_string("test_files/item_test/version.json")
+}
+
 fn rocket() -> Rocket {
     rocket::ignite().mount(
         "/",
-        routes![drive, drive_root, drive_recent, special_photo_folder],
+        routes![
+            drive,
+            drive_root,
+            drive_recent,
+            special_photo_folder,
+            drive_item_version
+        ],
     )
 }
 
@@ -69,6 +81,15 @@ fn rocket_request_drive_info(request: &str) -> DriveInfo {
     assert_eq!(response.status(), Status::Ok);
     let drive_info: DriveInfo = DriveInfo::try_from(response.body_string().unwrap()).unwrap();
     drive_info
+}
+
+fn rocket_request_drive_item_versions(request: &str) -> DriveItemVersionCollection {
+    let client = Client::new(rocket()).expect("valid rocket instance");
+    let mut response = client.get(request).dispatch();
+    assert_eq!(response.status(), Status::Ok);
+    let versions: DriveItemVersionCollection =
+        serde_json::from_str(&response.body_string().unwrap()).unwrap();
+    versions
 }
 
 #[test]
@@ -126,4 +147,35 @@ fn drive_special_photo_folder() {
     assert!(vec.len() > 0);
     let value = vec.get(0).unwrap();
     assert_eq!(value.id().unwrap(), "189302sal4098740fjhlk34");
+}
+
+#[test]
+fn drive_item_versions() {
+    let drive_item_versions: DriveItemVersionCollection =
+        rocket_request_drive_item_versions("/v1.0/me/versions");
+    println!("{:#?}", drive_item_versions);
+    let vec = drive_item_versions.versions().as_ref().unwrap();
+    assert!(vec.len() > 0);
+    let value = vec.get(0).unwrap();
+    assert_eq!(
+        value.id().as_ref().unwrap(),
+        "01BYE5RZ6QN3ZWBTUFOFD3GSPGOHDJD36K"
+    );
+    assert_eq!(
+        value.last_modified_date_time().as_ref().unwrap(),
+        "2019-06-07T03:28:00.133Z"
+    );
+    assert_eq!(
+        value.microsoft_graph_download_url().as_ref().unwrap(),
+        "https://public.bl.files.1drv.com"
+    );
+    let last_modified = value.last_modified_by().as_ref().unwrap();
+    let user = last_modified
+        .user()
+        .as_ref()
+        .unwrap()
+        .display_name()
+        .as_ref()
+        .unwrap();
+    assert_eq!(user, "Megan Bowen");
 }
