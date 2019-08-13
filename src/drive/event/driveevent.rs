@@ -26,6 +26,7 @@ pub enum DriveEvent {
     Preview,
     Activities,
     Thumbnails,
+    RestoreVersion,
     Custom,
 }
 
@@ -44,6 +45,7 @@ impl DriveEvent {
             DriveEvent::Preview => "preview",
             DriveEvent::Activities => "activities",
             DriveEvent::Thumbnails => "thumbnails",
+            DriveEvent::RestoreVersion => "restoreVersion",
             _ => "",
         }
     }

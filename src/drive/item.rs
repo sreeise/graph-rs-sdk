@@ -366,6 +366,29 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
         Ok(self.list_versions(item_id.as_str()))
     }
+
+    fn restore_version(&mut self, item_id: &str, version_id: &str) -> Request<StatusResponse> {
+        self.format_me(item_id);
+        self.as_post();
+        self.extend_path(&["versions", version_id]);
+        self.event(DriveEvent::RestoreVersion);
+        Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::RestoreVersion,
+        ))
+    }
+
+    fn restore_drive_item_version(
+        &mut self,
+        item_id: &str,
+        version: &DriveItemVersion,
+    ) -> ItemResult<Request<StatusResponse>> {
+        let version_id = version
+            .id()
+            .clone()
+            .ok_or_else(|| GraphFailure::none_err("drive_item_version -> id"))?;
+        Ok(self.restore_version(item_id, version_id.as_str()))
+    }
 }
 
 pub trait ItemCommon:
@@ -648,6 +671,35 @@ pub trait ItemCommon:
             .id()
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
         Ok(self.list_versions(item_id.as_str(), resource_id))
+    }
+
+    fn restore_version(
+        &mut self,
+        item_id: &str,
+        version_id: &str,
+        resource_id: &str,
+    ) -> Request<StatusResponse> {
+        self.format_common(item_id, resource_id);
+        self.as_post();
+        self.extend_path(&["versions", version_id]);
+        self.event(DriveEvent::RestoreVersion);
+        Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::RestoreVersion,
+        ))
+    }
+
+    fn restore_drive_item_version(
+        &mut self,
+        item_id: &str,
+        version: &DriveItemVersion,
+        resource_id: &str,
+    ) -> ItemResult<Request<StatusResponse>> {
+        let version_id = version
+            .id()
+            .clone()
+            .ok_or_else(|| GraphFailure::none_err("drive_item_version -> id"))?;
+        Ok(self.restore_version(item_id, version_id.as_str(), resource_id))
     }
 }
 
