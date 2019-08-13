@@ -1,6 +1,7 @@
 use rust_onedrive::drive::event::{ConflictBehavior, NewFolder};
 use rust_onedrive::drive::itemreference::ItemReference;
 use rust_onedrive::prelude::*;
+use rust_onedrive::drive::driveitemversion::DriveItemVersion;
 
 fn get_drive() -> Drive {
     Drive::new("")
@@ -921,6 +922,117 @@ pub fn event_list_versions_drive_item() {
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/versions",
+        url.as_str()
+    );
+}
+
+#[test]
+pub fn event_restore_version() {
+    let pipeline = get_drive().v1().me().restore_version("132534", "34492566a");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/items/132534/versions/34492566a/restoreVersion",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .restore_version("132534", "34492566a", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/versions/34492566a/restoreVersion",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .restore_version("132534", "34492566a", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .restore_version("132534", "34492566a", "32p99453");;
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .restore_version("132534", "34492566a", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
+        url.as_str()
+    );
+}
+
+#[test]
+pub fn event_restore_drive_item_version() {
+    let mut version: DriveItemVersion = DriveItemVersion::default();
+    version.set_id(Some("34492566a".into()));
+
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .restore_drive_item_version("132534", &version)
+        .unwrap();
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/items/132534/versions/34492566a/restoreVersion",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .restore_drive_item_version("132534", &version, "32p99453")
+        .unwrap();
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/versions/34492566a/restoreVersion",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .restore_drive_item_version("132534", &version, "32p99453")
+        .unwrap();
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .restore_drive_item_version("132534", &version, "32p99453")
+        .unwrap();
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .restore_drive_item_version("132534", &version, "32p99453")
+        .unwrap();
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
         url.as_str()
     );
 }
