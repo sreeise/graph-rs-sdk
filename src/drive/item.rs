@@ -1,196 +1,32 @@
-use crate::drive;
-use crate::drive::drive_item::asyncjobstatus::AsyncJobStatus;
 use crate::drive::drive_item::collection::Collection;
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::drive_item::driveitemversion::DriveItemVersion;
 use crate::drive::drive_item::itemreference::ItemReference;
 use crate::drive::drive_item::thumbnail::{Thumbnail, ThumbnailSet};
-use crate::drive::driverequest::ReqBuilder;
 use crate::drive::event::ItemRefCopy;
 use crate::drive::event::{DriveEvent, NewFolder};
-use crate::drive::intoitem::IntoItem;
-use crate::drive::item::inner_pipeline::MutatePipeline;
+use crate::drive::item::item_sealed::MutateRequest;
 use crate::drive::pipeline::{Body, DataPipeline, DownloadPipeline, FetchPipeline, Pipeline};
+use crate::drive::request::{ReqBuilder, Request};
+use crate::drive::statusresponse::StatusResponse;
 use crate::drive::ItemResult;
-use crate::prelude::{DriveUrl, MutateUrl};
+use crate::prelude::DriveUrl;
 use graph_error::GraphError;
 use graph_error::GraphFailure;
-use reqwest::{header, Response};
-use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
-#[derive(Debug)]
-pub struct ItemResponse {
-    event: DriveEvent,
-    response: Response,
-}
-
-impl ItemResponse {
-    pub fn new(event: DriveEvent, response: Response) -> ItemResponse {
-        ItemResponse { event, response }
-    }
-
-    pub fn drive_event(&self) -> DriveEvent {
-        self.event
-    }
-
-    pub fn status(&self) -> u16 {
-        self.response.status().as_u16()
-    }
-
-    pub fn async_job_status(&mut self) -> ItemResult<Option<AsyncJobStatus>> {
-        let headers = self.response.headers();
-        // The location header contains the URL for monitoring progress.
-        let option_location: Option<&reqwest::header::HeaderValue> = headers.get(header::LOCATION);
-        if let Some(location) = option_location {
-            let location_str = location.to_str().map_err(GraphFailure::from)?;
-            let client = reqwest::Client::builder().build()?;
-            let mut response = client.get(location_str).send()?;
-
-            let status = response.status().as_u16();
-            if GraphError::is_error(status) {
-                return Err(GraphFailure::from(
-                    GraphError::try_from(status).unwrap_or_default(),
-                ));
-            }
-
-            let progress: AsyncJobStatus = response.json()?;
-            Ok(Some(progress))
-        } else {
-            Ok(None)
-        }
-    }
-
-    pub fn success(&mut self) -> bool {
-        match self.event {
-            DriveEvent::Copy => self.status() == 202,
-            _ => self.status() == 204,
-        }
-    }
-
-    pub fn response(&self) -> &Response {
-        &self.response
-    }
-
-    pub fn error(&self) -> Option<GraphError> {
-        if GraphError::is_error(self.status()) {
-            return Some(GraphError::try_from(self.status()).unwrap_or_default());
-        }
-        None
-    }
-}
-
-pub struct BoxItemResponse {
-    item: Box<dyn IntoItem<ItemResponse>>,
-}
-
-impl BoxItemResponse {
-    fn new(item: Box<dyn IntoItem<ItemResponse>>) -> BoxItemResponse {
-        BoxItemResponse { item }
-    }
-
-    pub fn send(&mut self) -> ItemResult<ItemResponse> {
-        self.item.send()
-    }
-}
-
-impl AsMut<DriveUrl> for BoxItemResponse {
-    fn as_mut(&mut self) -> &mut DriveUrl {
-        self.item.as_mut().as_mut()
-    }
-}
-
-impl AsRef<DriveUrl> for BoxItemResponse {
-    fn as_ref(&self) -> &DriveUrl {
-        self.item.as_ref().as_ref()
-    }
-}
-
-pub struct Request<T> {
-    item: Box<dyn IntoItem<T>>,
-}
-
-impl<T> Request<T> {
-    fn new(item: Box<dyn IntoItem<T>>) -> Request<T> {
-        Request { item }
-    }
-
-    pub fn send(&mut self) -> ItemResult<T> {
-        self.item.send()
-    }
-}
-
-impl<T> From<Pipeline> for Request<T>
-where
-    for<'de> T: serde::Deserialize<'de>,
-{
-    fn from(pipeline: Pipeline) -> Self {
-        Request::new(Box::new(pipeline))
-    }
-}
-
-impl<T> MutateUrl for Request<T> {}
-
-impl<T> AsRef<DriveUrl> for Request<T> {
-    fn as_ref(&self) -> &DriveUrl {
-        self.item.as_ref().as_ref()
-    }
-}
-
-impl<T> AsMut<DriveUrl> for Request<T> {
-    fn as_mut(&mut self) -> &mut DriveUrl {
-        self.item.as_mut().as_mut()
-    }
-}
-
 pub struct SelectEventMe(DataPipeline);
-
-impl AsRef<DriveUrl> for SelectEventMe {
-    fn as_ref(&self) -> &DriveUrl {
-        &self.0.url
-    }
-}
-
-impl AsMut<DriveUrl> for SelectEventMe {
-    fn as_mut(&mut self) -> &mut DriveUrl {
-        &mut self.0.url
-    }
-}
-
-impl AsMut<DataPipeline> for SelectEventMe {
-    fn as_mut(&mut self) -> &mut DataPipeline {
-        &mut self.0
-    }
-}
 
 impl ItemMe for SelectEventMe {}
 
+impl From<SelectResource> for SelectEventMe {
+    fn from(resource: SelectResource) -> Self {
+        SelectEventMe(resource.0)
+    }
+}
+
 pub struct SelectEvent(DataPipeline);
-
-impl AsRef<DriveUrl> for SelectEvent {
-    fn as_ref(&self) -> &DriveUrl {
-        &self.0.url
-    }
-}
-
-impl AsMut<DriveUrl> for SelectEvent {
-    fn as_mut(&mut self) -> &mut DriveUrl {
-        &mut self.0.url
-    }
-}
-
-impl AsMut<DataPipeline> for SelectEvent {
-    fn as_mut(&mut self) -> &mut DataPipeline {
-        &mut self.0
-    }
-}
-
-impl From<SelectResource> for SelectEvent {
-    fn from(s: SelectResource) -> Self {
-        SelectEvent(s.0)
-    }
-}
 
 impl ItemCommon for SelectEvent {}
 
@@ -255,31 +91,18 @@ impl SelectResource {
     }
 }
 
-impl From<SelectResource> for SelectEventMe {
-    fn from(resource: SelectResource) -> Self {
-        SelectEventMe(resource.0)
-    }
-}
-
-impl AsMut<DataPipeline> for SelectResource {
-    fn as_mut(&mut self) -> &mut DataPipeline {
-        &mut self.0
-    }
-}
-
-pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
-    fn delete(&mut self, item_id: &str) -> BoxItemResponse {
+pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
+    fn delete(&mut self, item_id: &str) -> Request<StatusResponse> {
         self.format_me(item_id);
         self.as_delete();
-        BoxItemResponse::new(Box::new(Pipeline::new(
-            self.pipeline_data(),
-            DriveEvent::Delete,
-        )))
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Delete))
     }
 
-    fn delete_drive_item(&mut self, value: &DriveItem) -> BoxItemResponse {
-        let item_id = value.id().unwrap();
-        self.delete(item_id.as_str())
+    fn delete_drive_item(&mut self, value: &DriveItem) -> ItemResult<Request<StatusResponse>> {
+        let item_id = value
+            .id()
+            .ok_or_else(|| GraphFailure::none_err("item_id"))?;
+        Ok(self.delete(item_id.as_str()))
     }
 
     fn get_item(&mut self, item_id: &str) -> Request<DriveItem> {
@@ -334,7 +157,7 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
         item_id: &str,
         item_ref: &ItemReference,
         name: Option<&str>,
-    ) -> BoxItemResponse {
+    ) -> Request<StatusResponse> {
         if let Some(name) = name {
             let prc = ItemRefCopy::new(item_ref.clone(), Some(name.into()));
             self.body(Body::String(prc.as_json().unwrap()));
@@ -346,17 +169,14 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
         self.format_me(item_id);
         self.extend_path(&["copy"]);
         self.as_post();
-        BoxItemResponse::new(Box::new(Pipeline::new(
-            self.pipeline_data(),
-            DriveEvent::Copy,
-        )))
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Copy))
     }
 
     fn copy_drive_item(
         &mut self,
         drive_item: &DriveItem,
         name: Option<&str>,
-    ) -> ItemResult<BoxItemResponse> {
+    ) -> ItemResult<Request<StatusResponse>> {
         let item_id = drive_item
             .id()
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
@@ -450,7 +270,7 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
 
     fn thumbnails_drive_item(
         &mut self,
-        value: drive::driveitem::DriveItem,
+        value: DriveItem,
     ) -> ItemResult<Request<Collection<ThumbnailSet>>> {
         let item_id = value
             .id()
@@ -549,25 +369,17 @@ pub trait ItemMe: MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> {
 }
 
 pub trait ItemCommon:
-    MutatePipeline + AsMut<DriveUrl> + AsMut<DataPipeline> + Into<SelectEvent>
+    MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> + Into<SelectEvent>
 {
-    fn delete(&mut self, item_id: &str, resource_id: &str) -> BoxItemResponse {
+    fn delete(&mut self, item_id: &str, resource_id: &str) -> Request<StatusResponse> {
         self.format_common(item_id, resource_id);
         self.as_delete();
-        BoxItemResponse::new(Box::new(Pipeline::new(
-            self.pipeline_data(),
-            DriveEvent::Delete,
-        )))
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Delete))
     }
 
-    fn delete_drive_item(&mut self, value: &DriveItem) -> ItemResult<BoxItemResponse> {
+    fn delete_drive_item(&mut self, value: &DriveItem) -> ItemResult<Request<StatusResponse>> {
         let (item_id, resource_id) = value.item_event_ids()?;
-        self.format_common(item_id.as_str(), resource_id.as_str());
-        self.as_delete();
-        Ok(BoxItemResponse::new(Box::new(Pipeline::new(
-            self.pipeline_data(),
-            DriveEvent::Delete,
-        ))))
+        Ok(self.delete(item_id.as_str(), resource_id.as_str()))
     }
 
     fn get_item(&mut self, item_id: &str, resource_id: &str) -> Request<DriveItem> {
@@ -586,7 +398,7 @@ pub trait ItemCommon:
         drive_id: &str,
         item_ref: &ItemReference,
         name: Option<&str>,
-    ) -> BoxItemResponse {
+    ) -> Request<StatusResponse> {
         if name.is_some() {
             let item_ref = ItemRefCopy::new(item_ref.clone(), name.map(|s| s.to_string()));
             self.body(Body::String(item_ref.as_json().unwrap()));
@@ -598,17 +410,14 @@ pub trait ItemCommon:
         self.format_common(item_id, drive_id);
         self.extend_path(&["copy"]);
         self.as_post();
-        BoxItemResponse::new(Box::new(Pipeline::new(
-            self.pipeline_data(),
-            DriveEvent::Copy,
-        )))
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Copy))
     }
 
     fn copy_drive_item(
         &mut self,
         drive_item: &DriveItem,
         name: Option<&str>,
-    ) -> ItemResult<BoxItemResponse> {
+    ) -> ItemResult<Request<StatusResponse>> {
         let (item_id, resource_id) = drive_item.item_event_ids()?;
         let item_ref = drive_item
             .parent_reference()
@@ -715,10 +524,7 @@ pub trait ItemCommon:
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
     }
 
-    fn thumbnails_drive_item(
-        &mut self,
-        value: drive::driveitem::DriveItem,
-    ) -> Request<Collection<ThumbnailSet>> {
+    fn thumbnails_drive_item(&mut self, value: &DriveItem) -> Request<Collection<ThumbnailSet>> {
         let (item_id, resource_id) = value.item_event_ids().unwrap();
         self.thumbnails(item_id.as_str(), resource_id.as_str())
     }
@@ -845,26 +651,14 @@ pub trait ItemCommon:
     }
 }
 
-impl AsMut<DriveUrl> for SelectResource {
-    fn as_mut(&mut self) -> &mut DriveUrl {
-        self.0.as_mut()
-    }
-}
-
-impl From<DataPipeline> for SelectResource {
-    fn from(data: DataPipeline) -> Self {
-        SelectResource(data)
-    }
-}
-
-mod inner_pipeline {
+mod item_sealed {
     use crate::drive::driveurl::DriveUrl;
     use crate::drive::event::DriveEvent;
     use crate::drive::item::{SelectEvent, SelectResource};
     use crate::drive::pipeline::{Body, DataPipeline, RequestType};
     use crate::drive::{DriveEndPoint, SelectEventMe};
 
-    pub trait MutatePipeline {
+    pub trait MutateRequest {
         fn pipeline_data(&self) -> DataPipeline;
 
         fn as_get(&mut self)
@@ -937,16 +731,6 @@ mod inner_pipeline {
             self.as_mut().event(event);
         }
 
-        fn strip_set_endpoint(&mut self, endpoint: DriveEndPoint)
-        where
-            Self: AsMut<DriveUrl>,
-        {
-            let mut vec: Vec<&str> = endpoint.as_str().split('/').collect();
-            vec.retain(|s| !s.trim().is_empty());
-            vec.remove(0);
-            self.extend_path(&vec);
-        }
-
         fn format_me(&mut self, item_id: &str)
         where
             Self: AsMut<DriveUrl>,
@@ -981,21 +765,81 @@ mod inner_pipeline {
         }
     }
 
-    impl MutatePipeline for SelectEventMe {
+    impl MutateRequest for SelectResource {
         fn pipeline_data(&self) -> DataPipeline {
             self.0.clone()
         }
     }
 
-    impl MutatePipeline for SelectResource {
+    impl AsMut<DriveUrl> for SelectResource {
+        fn as_mut(&mut self) -> &mut DriveUrl {
+            self.0.as_mut()
+        }
+    }
+
+    impl AsMut<DataPipeline> for SelectResource {
+        fn as_mut(&mut self) -> &mut DataPipeline {
+            &mut self.0
+        }
+    }
+
+    impl From<DataPipeline> for SelectResource {
+        fn from(data: DataPipeline) -> Self {
+            SelectResource(data)
+        }
+    }
+
+    impl MutateRequest for SelectEventMe {
         fn pipeline_data(&self) -> DataPipeline {
             self.0.clone()
         }
     }
 
-    impl MutatePipeline for SelectEvent {
+    impl AsRef<DriveUrl> for SelectEventMe {
+        fn as_ref(&self) -> &DriveUrl {
+            &self.0.url
+        }
+    }
+
+    impl AsMut<DriveUrl> for SelectEventMe {
+        fn as_mut(&mut self) -> &mut DriveUrl {
+            &mut self.0.url
+        }
+    }
+
+    impl AsMut<DataPipeline> for SelectEventMe {
+        fn as_mut(&mut self) -> &mut DataPipeline {
+            &mut self.0
+        }
+    }
+
+    impl MutateRequest for SelectEvent {
         fn pipeline_data(&self) -> DataPipeline {
             self.0.clone()
+        }
+    }
+
+    impl AsRef<DriveUrl> for SelectEvent {
+        fn as_ref(&self) -> &DriveUrl {
+            &self.0.url
+        }
+    }
+
+    impl AsMut<DriveUrl> for SelectEvent {
+        fn as_mut(&mut self) -> &mut DriveUrl {
+            &mut self.0.url
+        }
+    }
+
+    impl AsMut<DataPipeline> for SelectEvent {
+        fn as_mut(&mut self) -> &mut DataPipeline {
+            &mut self.0
+        }
+    }
+
+    impl From<SelectResource> for SelectEvent {
+        fn from(s: SelectResource) -> Self {
+            SelectEvent(s.0)
         }
     }
 }

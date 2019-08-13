@@ -188,6 +188,34 @@ impl TryFrom<&mut Response> for Collection<DriveItem> {
     }
 }
 
+impl TryFrom<&mut Response> for Collection<DriveInfo> {
+    type Error = GraphFailure;
+
+    fn try_from(value: &mut Response) -> Result<Self, Self::Error> {
+        let status = value.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(GraphFailure::from(
+                GraphError::try_from(status).unwrap_or_default(),
+            ));
+        }
+
+        let mut c: Collection<DriveInfo> = value.json()?;
+        if c.value.is_none() {
+            let v: ItemResult<DriveInfo> = value.json().map_err(GraphFailure::from);
+            if v.is_ok() {
+                c.set_value(Some(vec![v?]));
+            } else {
+                let vec_value: ItemResult<Vec<DriveInfo>> =
+                    value.json().map_err(GraphFailure::from);
+                if vec_value.is_ok() {
+                    c.set_value(Some(vec_value?));
+                }
+            }
+        }
+        Ok(c)
+    }
+}
+
 impl<T> FromToFile for Collection<T>
 where
     T: serde::Serialize,

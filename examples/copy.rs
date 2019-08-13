@@ -1,7 +1,6 @@
 use rust_onedrive::drive::itemreference::ItemReference;
-
+use rust_onedrive::drive::statusresponse::StatusResponse;
 use rust_onedrive::prelude::*;
-
 use std::thread;
 use std::time::Duration;
 
@@ -35,8 +34,8 @@ fn copy_item() {
         .me()
         .copy(item_id.as_str(), &item_ref, Some(DRIVE_FILE_COPY_NAME));
 
-    let mut item_response: ItemResponse = request.send().unwrap();
-    println!("{:#?}", &item_response);
+    let mut response: StatusResponse = request.send().unwrap();
+    println!("{:#?}", &response);
 
     // When an item is copied the response returns a URL in the location header
     // that can be used to monitor the progress. For events that may take longer to finish
@@ -54,5 +53,5 @@ fn copy_item() {
     // Wait a few seconds before checking the progress (assuming the file or
     // folder size is small here).
     thread::sleep(Duration::from_secs(5));
-    println!("{:#?}", &item_response.async_job_status());
+    println!("{:#?}", &response.async_job_status());
 }

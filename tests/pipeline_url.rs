@@ -290,7 +290,11 @@ fn event_delete_drive_item() {
     item_ref.set_drive_id(Some("132534".into()));
     drive_item.set_parent_reference(Some(item_ref));
 
-    let pipeline = get_drive().v1().me().delete_drive_item(&drive_item);
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .delete_drive_item(&drive_item)
+        .unwrap();
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/32p99453",

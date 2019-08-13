@@ -9,18 +9,19 @@ Authorization: bearer {token}
 */
 
 mod drive_item;
-pub mod driverequest;
 pub mod driveurl;
 mod endpoint;
 pub mod event;
 pub mod intoitem;
 mod item;
 pub mod pipeline;
+pub mod request;
+pub mod statusresponse;
 
 pub use crate::drive::drive_item::*;
 pub use crate::drive::endpoint::{DriveEndPoint, EP};
 use crate::drive::item::SelectResource;
-pub use crate::drive::item::{ItemCommon, ItemMe, ItemResponse, Request, SelectEventMe};
+pub use crate::drive::item::{ItemCommon, ItemMe, SelectEventMe};
 use crate::drive::pipeline::DataPipeline;
 use driveurl::DriveUrl;
 use from_to_file::*;
