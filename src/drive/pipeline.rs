@@ -1,6 +1,8 @@
 use crate::drive::event::{DownloadFormat, DriveEvent};
 use crate::drive::intoitem::{IntoFetch, IntoItem, MutateDownload};
-use crate::drive::{ItemResponse, ItemResult};
+use crate::drive::request::Request;
+use crate::drive::statusresponse::StatusResponse;
+use crate::drive::ItemResult;
 use crate::io::fetch::FetchBuilder;
 use crate::prelude::{DriveUrl, MutateUrl};
 use graph_error::GraphFailure;
@@ -270,27 +272,18 @@ impl Pipeline {
     }
 }
 
-impl AsMut<DataPipeline> for Pipeline {
-    fn as_mut(&mut self) -> &mut DataPipeline {
-        &mut self.pipeline
-    }
-}
-
 impl AsRef<DriveEvent> for Pipeline {
     fn as_ref(&self) -> &DriveEvent {
         &self.event
     }
 }
 
-impl AsRef<DriveUrl> for Pipeline {
-    fn as_ref(&self) -> &DriveUrl {
-        &self.pipeline.as_ref()
-    }
-}
-
-impl AsMut<DriveUrl> for Pipeline {
-    fn as_mut(&mut self) -> &mut DriveUrl {
-        self.pipeline.as_mut()
+impl<T> From<Pipeline> for Request<T>
+where
+    for<'de> T: serde::Deserialize<'de>,
+{
+    fn from(pipeline: Pipeline) -> Self {
+        Request::new(Box::new(pipeline))
     }
 }
 
@@ -305,8 +298,8 @@ where
     }
 }
 
-impl IntoItem<ItemResponse> for Pipeline {
-    fn send(&mut self) -> ItemResult<ItemResponse> {
+impl IntoItem<StatusResponse> for Pipeline {
+    fn send(&mut self) -> ItemResult<StatusResponse> {
         let builder = self.pipeline.request_builder()?;
         let mut response = builder.send()?;
 
@@ -314,7 +307,7 @@ impl IntoItem<ItemResponse> for Pipeline {
             return Err(err);
         }
 
-        Ok(ItemResponse::new(self.event, response))
+        Ok(StatusResponse::new(self.event, response))
     }
 }
 
@@ -343,6 +336,29 @@ impl IntoFetch for DownloadPipeline {
             fetch_download().send(self.pipeline.clone())
         } else {
             fetch_redirect().send(self.pipeline.clone())
+        }
+    }
+}
+
+mod pipeline_sealed {
+    use crate::drive::driveurl::DriveUrl;
+    use crate::drive::pipeline::{DataPipeline, Pipeline};
+
+    impl AsMut<DataPipeline> for Pipeline {
+        fn as_mut(&mut self) -> &mut DataPipeline {
+            &mut self.pipeline
+        }
+    }
+
+    impl AsRef<DriveUrl> for Pipeline {
+        fn as_ref(&self) -> &DriveUrl {
+            &self.pipeline.as_ref()
+        }
+    }
+
+    impl AsMut<DriveUrl> for Pipeline {
+        fn as_mut(&mut self) -> &mut DriveUrl {
+            self.pipeline.as_mut()
         }
     }
 }

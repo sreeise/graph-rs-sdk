@@ -98,19 +98,16 @@ pub mod prelude {
     pub use crate::drive::driveitem::DriveItem;
     pub use crate::drive::driveurl::{DriveUrl, MutateUrl};
     pub use crate::drive::intoitem::{IntoFetch, IntoItem};
+    pub use crate::drive::request::Request;
     pub use crate::drive::Drive;
     pub use crate::drive::ItemCommon;
     pub use crate::drive::ItemMe;
-    pub use crate::drive::ItemResponse;
     pub use crate::drive::ItemResult;
-    pub use crate::drive::Request;
     pub use crate::drive::EP;
     pub use crate::from_to::*;
 }
 
 pub mod oauth {
-    pub use graph_error::ErrorType;
-    pub use graph_error::GraphError;
     pub use graph_oauth::jwt;
     pub use graph_oauth::oauth::*;
     pub use graph_oauth::op;

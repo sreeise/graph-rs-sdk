@@ -1,9 +1,36 @@
-use crate::drive::driveurl::{DriveUrl, MutateUrl};
 use crate::drive::event::DriveEvent;
 use crate::drive::pipeline::{Body, DataPipeline, Pipeline};
-use crate::drive::{ItemResult, Request};
+use crate::prelude::*;
 use graph_error::GraphFailure;
 use serde_json::Value;
+
+pub struct Request<T> {
+    item: Box<dyn IntoItem<T>>,
+}
+
+impl<T> Request<T> {
+    pub fn new(item: Box<dyn IntoItem<T>>) -> Request<T> {
+        Request { item }
+    }
+
+    pub fn send(&mut self) -> ItemResult<T> {
+        self.item.send()
+    }
+}
+
+impl<T> MutateUrl for Request<T> {}
+
+impl<T> AsRef<DriveUrl> for Request<T> {
+    fn as_ref(&self) -> &DriveUrl {
+        self.item.as_ref().as_ref()
+    }
+}
+
+impl<T> AsMut<DriveUrl> for Request<T> {
+    fn as_mut(&mut self) -> &mut DriveUrl {
+        self.item.as_mut().as_mut()
+    }
+}
 
 pub struct ReqBuilder {
     pipeline: DataPipeline,
@@ -53,7 +80,7 @@ where
     for<'de> T: serde::Deserialize<'de>,
 {
     fn from(dr: &ReqBuilder) -> Self {
-        Request::from(Pipeline::new(dr.pipeline.clone(), DriveEvent::GetItem))
+        Request::from(Pipeline::new(dr.pipeline.clone(), DriveEvent::Custom))
     }
 }
 

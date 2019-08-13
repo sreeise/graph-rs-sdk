@@ -26,6 +26,7 @@ pub enum DriveEvent {
     Preview,
     Activities,
     Thumbnails,
+    Custom,
 }
 
 impl DriveEvent {

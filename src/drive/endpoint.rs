@@ -4,7 +4,8 @@ use crate::drive::drive_item::itemactivity::ItemActivity;
 use crate::drive::driveinfo::DriveInfo;
 use crate::drive::driveurl::MutateUrl;
 use crate::drive::item::SelectResource;
-use crate::drive::{DriveVersion, Request, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
+use crate::drive::request::Request;
+use crate::drive::{DriveVersion, GRAPH_ENDPOINT, GRAPH_ENDPOINT_BETA};
 
 /// Implements well known or special folder paths.
 ///

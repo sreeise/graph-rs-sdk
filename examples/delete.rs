@@ -1,3 +1,4 @@
+use rust_onedrive::drive::statusresponse::StatusResponse;
 use rust_onedrive::oauth::OAuth;
 use rust_onedrive::prelude::*;
 use std::convert::TryFrom;
@@ -29,10 +30,10 @@ pub fn delete_drive_item(item_name: &str) {
     let drive_item = collection.find_by_name(item_name).unwrap();
 
     // Create the request to delete the drive item.
-    let mut req = drive.v1().me().delete_drive_item(&drive_item);
+    let mut req = drive.v1().me().delete_drive_item(&drive_item).unwrap();
 
     // Send the request.
-    let mut response: ItemResponse = req.send().unwrap();
+    let mut response: StatusResponse = req.send().unwrap();
     println!("{:#?}", response);
     println!("\nItem was deleted: {:#?}", response.success());
 }
@@ -46,7 +47,7 @@ fn delete_with_item_id(item_id: &str) {
     let mut req = drive.v1().me().delete(item_id);
 
     // Send the request.
-    let mut response: ItemResponse = req.send().unwrap();
+    let mut response: StatusResponse = req.send().unwrap();
     println!("{:#?}", response);
     println!("\nItem was deleted: {:#?}", response.success());
 }
