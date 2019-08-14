@@ -1,13 +1,15 @@
-use std::io::Write;
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::drive_item::identityset::IdentitySet;
 use crate::drive::drive_item::list::List;
 use crate::drive::drive_item::listitem::ListItem;
 use crate::drive::drive_item::site::Site;
 use crate::drive::Root;
+use std::io::Write;
 
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/shareddriveitem?view=odsp-graph-online
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
+#[derive(
+    Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters,
+)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct SharedDriveItem {

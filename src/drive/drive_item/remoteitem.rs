@@ -1,4 +1,3 @@
-use std::io::Write;
 use crate::drive::drive_item::createdby::CreatedBy;
 use crate::drive::drive_item::file::File;
 use crate::drive::drive_item::filesysteminfo::FileSystemInfo;
@@ -7,8 +6,11 @@ use crate::drive::drive_item::lastmodifiedby::LastModifiedBy;
 use crate::drive::drive_item::package::Package;
 use crate::drive::drive_item::shared::Shared;
 use crate::drive::drive_item::sharepointid::SharePointIds;
+use std::io::Write;
 
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
+#[derive(
+    Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters,
+)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct RemoteItem {

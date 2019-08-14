@@ -52,7 +52,10 @@ fn drive_root_child() {
     let drive_info: Collection<DriveItem> =
         Collection::from_json_file("test_files/drive_ep/drive_root_child.json").unwrap();
     let drive_value = drive_info.value().as_ref().unwrap();
-    assert_eq!(drive_value[1].folder().as_ref().unwrap().child_count(), &Some(12));
+    assert_eq!(
+        drive_value[1].folder().as_ref().unwrap().child_count(),
+        &Some(12)
+    );
 }
 
 #[test]

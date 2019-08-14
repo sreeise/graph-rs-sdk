@@ -1,7 +1,7 @@
+use rust_onedrive::drive::driveitemversion::DriveItemVersion;
 use rust_onedrive::drive::event::{ConflictBehavior, NewFolder};
 use rust_onedrive::drive::itemreference::ItemReference;
 use rust_onedrive::prelude::*;
-use rust_onedrive::drive::driveitemversion::DriveItemVersion;
 
 fn get_drive() -> Drive {
     Drive::new("")
@@ -1033,6 +1033,147 @@ pub fn event_restore_drive_item_version() {
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
+        url.as_str()
+    );
+}
+
+#[test]
+pub fn event_list_activities() {
+    let pipeline = get_drive().v1().me().list_drive_activities();
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive().v1().drives().list_drive_activities("32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive().v1().sites().list_drive_activities("32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive().v1().groups().list_drive_activities("32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive().v1().users().list_drive_activities("32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/activities",
+        url.as_str()
+    );
+}
+
+#[test]
+pub fn event_list_item_activities() {
+    let pipeline = get_drive().v1().me().list_item_activities("132534");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/items/132534/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .list_item_activities("132534", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .list_item_activities("132534", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/items/132534/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .list_item_activities("132534", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/items/132534/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .list_item_activities("132534", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/items/132534/activities",
+        url.as_str()
+    );
+}
+
+#[test]
+pub fn event_activities_from_list_item() {
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .activities_from_list_item("132534", "30ad9832");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/lists/30ad9832/items/132534/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .activities_from_list_item("132534", "30ad9832", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/lists/30ad9832/items/132534/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .activities_from_list_item("132534", "30ad9832", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/lists/30ad9832/items/132534/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .activities_from_list_item("132534", "30ad9832", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/lists/30ad9832/items/132534/activities",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .activities_from_list_item("132534", "30ad9832", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/lists/30ad9832/items/132534/activities",
         url.as_str()
     );
 }
