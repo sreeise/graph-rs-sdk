@@ -1,6 +1,7 @@
 use crate::drive::drive_item::identityset::IdentitySet;
+use std::io::Write;
 
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters, Getters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct ShareAction {

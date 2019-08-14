@@ -19,7 +19,7 @@ fn copy_item() {
 
     // The file or folder that you want to copy.
     let drive_item: DriveItem = collection.find_by_name(DRIVE_FILE).unwrap();
-    let item_id = drive_item.id().unwrap();
+    let item_id = drive_item.id().clone().unwrap();
 
     // The DriveItem copy request uses a ItemReference (parent reference) which contains
     // the metadata for the drive id and path specifying where the new copy should be placed.

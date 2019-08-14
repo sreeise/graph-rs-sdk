@@ -96,7 +96,7 @@ fn drive_info_item() {
     let drive_info = rocket_request_drive_info("/v1.0/drive");
     assert_eq!(
         "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
-        drive_info.id().unwrap()
+        drive_info.id().as_ref().unwrap()
     );
 }
 
@@ -106,11 +106,11 @@ fn drive_root_item() {
     assert_eq!(drive_item.odata_context(), &Some("https://graph.microsoft.com/v1.0/$metadata#users('48d31887-5fad-4d73-a9f5-3c356e68a038')/drive/root/children".to_string()));
     assert_eq!(
         drive_item.index(1).unwrap().created_date_time(),
-        Some("2017-08-07T16:16:30Z".into())
+        &Some("2017-08-07T16:16:30Z".into())
     );
     assert_eq!(
-        drive_item.index(2).unwrap().created_date_time(),
-        Some("2017-08-07T16:10:22Z".into())
+        drive_item.index(2).clone().unwrap().created_date_time(),
+        &Some("2017-08-07T16:10:22Z".into())
     );
 
     let file_system_info = FileSystemInfo::new(
@@ -125,7 +125,7 @@ fn drive_root_item() {
             .last()
             .unwrap()
             .file_system_info(),
-        Some(file_system_info)
+        &Some(file_system_info)
     );
 
     let drive_item_from_json_file: Collection<DriveItem> =
@@ -136,7 +136,7 @@ fn drive_root_item() {
 #[test]
 fn drive_recent_item() {
     let drive_item = rocket_request_drive_item("/v1.0/me/drive/recent");
-    assert_eq!(drive_item.index(1).unwrap().web_url(), Some("https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/_layouts/15/Doc.aspx?sourcedoc=%7B2964723D-9E45-470E-8FE4-85CEDA9D4018%7D&file=Carbon%20Deposits%20Analysis.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1".into()));
+    assert_eq!(drive_item.index(1).unwrap().web_url(), &Some("https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/_layouts/15/Doc.aspx?sourcedoc=%7B2964723D-9E45-470E-8FE4-85CEDA9D4018%7D&file=Carbon%20Deposits%20Analysis.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1".into()));
 }
 
 #[test]
@@ -145,7 +145,7 @@ fn drive_special_photo_folder() {
     let vec: Vec<DriveItem> = drive_item.value().clone().unwrap();
     assert!(vec.len() > 0);
     let value = vec.get(0).unwrap();
-    assert_eq!(value.id().unwrap(), "189302sal4098740fjhlk34");
+    assert_eq!(value.id().as_ref().unwrap(), "189302sal4098740fjhlk34");
 }
 
 #[test]
@@ -168,8 +168,8 @@ fn drive_item_versions() {
         value.microsoft_graph_download_url().as_ref().unwrap(),
         "https://public.bl.files.1drv.com"
     );
-    let last_modified = value.last_modified_by().unwrap().clone();
-    let user = last_modified.user().unwrap().clone();
+    let last_modified = value.last_modified_by().clone().unwrap();
+    let user = last_modified.user().clone().unwrap();
     let name = user.display_name().as_ref().unwrap();
     assert_eq!(name, "Megan Bowen");
 }

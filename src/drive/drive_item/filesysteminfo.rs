@@ -1,5 +1,8 @@
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
+use std::io::Write;
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct FileSystemInfo {
     #[serde(rename = "createdDateTime")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -15,13 +18,5 @@ impl FileSystemInfo {
             created_date_time,
             last_modified_date_time,
         }
-    }
-
-    pub fn created_date_time(&self) -> Option<String> {
-        self.created_date_time.clone()
-    }
-
-    pub fn last_modified_time(&self) -> Option<String> {
-        self.last_modified_date_time.clone()
     }
 }

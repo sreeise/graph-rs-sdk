@@ -1,5 +1,7 @@
+use std::io::Write;
+
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/geocoordinates?view=odsp-graph-online
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters, Getters)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct GeoCoordinates {

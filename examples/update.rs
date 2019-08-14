@@ -28,7 +28,7 @@ fn update_item() {
 
     // Get the item id of the item that needs updating and the
     // drive id of the drive that houses the item.
-    let item_id = value.id().unwrap();
+    let item_id = value.id().as_ref().unwrap();
 
     // Create a new drive::value::Value that will be used for the
     // updated items.

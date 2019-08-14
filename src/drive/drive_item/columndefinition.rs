@@ -8,9 +8,10 @@ use crate::drive::drive_item::numbercolumn::NumberColumn;
 use crate::drive::drive_item::personorgroupcolumn::PersonOrGroupColumn;
 use crate::drive::drive_item::textcolumn::TextColumn;
 use std::collections::BTreeMap;
+use std::io::Write;
 
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/columndefinition?view=odsp-graph-online
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters, Getters)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct ColumnDefinition {

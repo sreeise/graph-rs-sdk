@@ -1,5 +1,8 @@
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
+use std::io::Write;
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct Package {
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -9,9 +12,5 @@ pub struct Package {
 impl Package {
     pub fn new(type_field: Option<String>) -> Self {
         Package { type_field }
-    }
-
-    pub fn type_field(&self) -> Option<String> {
-        self.type_field.clone()
     }
 }
