@@ -1,6 +1,7 @@
 use crate::drive::drive_item::collection::Collection;
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::drive_item::driveitemversion::DriveItemVersion;
+use crate::drive::drive_item::itemactivity::ItemActivity;
 use crate::drive::drive_item::itemreference::ItemReference;
 use crate::drive::drive_item::thumbnail::{Thumbnail, ThumbnailSet};
 use crate::drive::event::ItemRefCopy;
@@ -396,6 +397,37 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
             .ok_or_else(|| GraphFailure::none_err("drive_item_version -> id"))?;
         Ok(self.restore_version(item_id, version_id.as_str()))
     }
+
+    /// Enumerate activities (preview)
+    /// May only work with the Graph beta endpoint.
+    /// # See
+    /// [Enumerate Activities](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/activities_list?view=odsp-graph-online)
+    fn list_drive_activities(&mut self) -> Request<Collection<ItemActivity>> {
+        self.extend_path(&["drive", "activities"]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Activities))
+    }
+
+    /// Enumerate activities (preview)
+    /// May only work with the Graph beta endpoint.
+    /// # See
+    /// [Enumerate Activities](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/activities_list?view=odsp-graph-online)
+    fn list_item_activities(&mut self, item_id: &str) -> Request<Collection<ItemActivity>> {
+        self.extend_path(&["drive", "items", item_id, "activities"]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Activities))
+    }
+
+    /// Enumerate activities (preview)
+    /// May only work with the Graph beta endpoint.
+    /// # See
+    /// [Enumerate Activities](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/activities_list?view=odsp-graph-online)
+    fn activities_from_list_item(
+        &mut self,
+        item_id: &str,
+        list_id: &str,
+    ) -> Request<Collection<ItemActivity>> {
+        self.extend_path(&["drive", "lists", list_id, "items", item_id, "activities"]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Activities))
+    }
 }
 
 pub trait ItemCommon:
@@ -709,6 +741,49 @@ pub trait ItemCommon:
             .clone()
             .ok_or_else(|| GraphFailure::none_err("drive_item_version -> id"))?;
         Ok(self.restore_version(item_id, version_id.as_str(), resource_id))
+    }
+
+    /// Enumerate activities (preview)
+    /// May only work with the Graph beta endpoint.
+    /// # See
+    /// [Enumerate Activities](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/activities_list?view=odsp-graph-online)
+    fn list_drive_activities(&mut self, resource_id: &str) -> Request<Collection<ItemActivity>> {
+        self.extend_path(&[resource_id, "activities"]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Activities))
+    }
+
+    /// Enumerate activities (preview)
+    /// May only work with the Graph beta endpoint.
+    /// # See
+    /// [Enumerate Activities](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/activities_list?view=odsp-graph-online)
+    fn list_item_activities(
+        &mut self,
+        item_id: &str,
+        resource_id: &str,
+    ) -> Request<Collection<ItemActivity>> {
+        self.extend_path(&[resource_id, "items", item_id, "activities"]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Activities))
+    }
+
+    /// Enumerate activities (preview)
+    /// May only work with the Graph beta endpoint.
+    /// # See
+    /// [Enumerate Activities](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/activities_list?view=odsp-graph-online)
+    fn activities_from_list_item(
+        &mut self,
+        item_id: &str,
+        list_id: &str,
+        resource_id: &str,
+    ) -> Request<Collection<ItemActivity>> {
+        self.extend_path(&[
+            resource_id,
+            "lists",
+            list_id,
+            "items",
+            item_id,
+            "activities",
+        ]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Activities))
     }
 }
 

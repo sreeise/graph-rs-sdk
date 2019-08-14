@@ -1,7 +1,9 @@
 use std::io::Write;
 
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/folderview?view=odsp-graph-online
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
+#[derive(
+    Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters,
+)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct FolderView {

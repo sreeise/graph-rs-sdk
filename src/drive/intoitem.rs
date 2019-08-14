@@ -4,7 +4,7 @@ use crate::prelude::MutateUrl;
 use std::ffi::OsString;
 use std::path::PathBuf;
 
-pub trait MutateDownload: Sized {
+pub trait MutateDownload {
     fn format(&mut self, format: DownloadFormat);
     fn rename(&mut self, file_name: OsString);
 

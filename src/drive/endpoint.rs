@@ -22,7 +22,6 @@ pub enum DriveEndPoint {
     DriveChanges,
     SharedWithMe,
     DriveRecent,
-    DriveActivities,
     DriveActivitiesMe,
     SpecialFolder,
     SpecialDocuments,
@@ -49,7 +48,6 @@ impl DriveEndPoint {
             DriveEndPoint::DriveChanges => "/drive/root/delta",
             DriveEndPoint::SharedWithMe => "/me/drive/sharedWithMe",
             DriveEndPoint::DriveRecent => "/me/drive/recent",
-            DriveEndPoint::DriveActivities => "/drive/activities",
             DriveEndPoint::DriveActivitiesMe => "/me/drive/activities",
             DriveEndPoint::SpecialFolder => "/me/drive/special",
             DriveEndPoint::SpecialDocuments => "/me/drive/special/documents",
@@ -115,7 +113,6 @@ pub trait EP {
     fn delta(&mut self) -> Request<Collection<DriveItem>>;
     fn shared_with_me(&mut self) -> Request<Collection<DriveItem>>;
     fn drive_recent(&mut self) -> Request<Collection<DriveItem>>;
-    fn drive_activities(&mut self, drive_id: &str) -> Request<Collection<ItemActivity>>;
     fn drive_activities_me(&mut self) -> Request<Collection<ItemActivity>>;
     fn special_folder<T>(&mut self, folder_name: &str) -> Request<T>
     where
@@ -270,23 +267,14 @@ impl EP for SelectResource {
         Request::from(&req)
     }
 
-    /// Get recent activities for a drive. This API may be limited
-    /// to specific accounts.
+    /// Get recent items for a drive.
     ///
     /// # Example
     /// ```rust,ignore
     /// let mut drive: Drive = Drive::new("ACCESS_TOKEN");
-    /// let mut req = drive.v1().drive_activities();
-    /// let collection: Collection<DriveItem> = req.send().unwrap();
+    /// let mut req = drive.v1().drive_activities_me();
+    /// let collection: Collection<ItemActivity> = req.send().unwrap();
     /// ```
-    fn drive_activities(&mut self, drive_id: &str) -> Request<Collection<ItemActivity>> {
-        let mut req = self.get();
-        req.content_type("application/json");
-        req.as_mut()
-            .extend_path(&["drives", drive_id, "activities"]);
-        Request::from(&req)
-    }
-
     fn drive_activities_me(&mut self) -> Request<Collection<ItemActivity>> {
         let mut req = self.get();
         req.content_type("application/json");

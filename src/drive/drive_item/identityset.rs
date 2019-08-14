@@ -5,7 +5,9 @@ use crate::drive::drive_item::user::User;
 use std::io::Write;
 
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/identityset?view=odsp-graph-online
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
+#[derive(
+    Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters,
+)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct IdentitySet {
