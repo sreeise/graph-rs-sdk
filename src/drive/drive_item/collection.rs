@@ -74,7 +74,7 @@ impl Collection<DriveItem> {
             let v: Vec<String> = vec
                 .clone()
                 .into_par_iter()
-                .map(|i| i.name())
+                .map(|i| i.name().clone())
                 .flatten()
                 .collect();
             return Ok(v);
@@ -84,7 +84,7 @@ impl Collection<DriveItem> {
 
     pub fn find_by_name(&mut self, name: &str) -> Option<DriveItem> {
         if let Some(vec) = self.value.as_ref() {
-            if let Some(value) = vec.iter().find(|s| s.name() == Some(name.into())) {
+            if let Some(value) = vec.iter().find(|s| s.name() == &Some(name.into())) {
                 return Some(value.clone());
             }
         }
@@ -93,7 +93,7 @@ impl Collection<DriveItem> {
 
     pub fn find_by_id(&mut self, id: &str) -> Option<DriveItem> {
         if let Some(vec) = self.value.as_ref() {
-            if let Some(value) = vec.iter().find(|s| s.id() == Some(id.into())) {
+            if let Some(value) = vec.iter().find(|s| s.id() == &Some(id.into())) {
                 return Some(value.clone());
             }
         }

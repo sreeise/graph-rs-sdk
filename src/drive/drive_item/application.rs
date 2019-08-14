@@ -1,6 +1,9 @@
+use std::io::Write;
+
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/identity?view=odsp-graph-online
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct Application {
     #[serde(rename = "displayName")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -12,13 +15,5 @@ pub struct Application {
 impl Application {
     pub fn new(display_name: Option<String>, id: Option<String>) -> Self {
         Application { display_name, id }
-    }
-
-    pub fn display_name(&self) -> Option<String> {
-        self.display_name.clone()
-    }
-
-    pub fn id(&self) -> Option<String> {
-        self.id.clone()
     }
 }

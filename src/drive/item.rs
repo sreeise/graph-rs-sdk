@@ -101,6 +101,7 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
     fn delete_drive_item(&mut self, value: &DriveItem) -> ItemResult<Request<StatusResponse>> {
         let item_id = value
             .id()
+            .as_ref()
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
         Ok(self.delete(item_id.as_str()))
     }
@@ -179,9 +180,11 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
     ) -> ItemResult<Request<StatusResponse>> {
         let item_id = drive_item
             .id()
+            .as_ref()
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
         let item_ref = drive_item
             .parent_reference()
+            .as_ref()
             .ok_or_else(|| GraphFailure::none_err("parent_reference"))?;
         Ok(self.copy(item_id.as_str(), &item_ref, name))
     }
@@ -218,7 +221,7 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
             let mut path_buf = PathBuf::new();
             path_buf.push(directory);
             fetch_pipeline.directory = path_buf;
-            fetch_pipeline.download_url = download_url;
+            fetch_pipeline.download_url = download_url.to_string();
             fetch_pipeline.is_download = true;
 
             if let Some(name) = value.name() {
@@ -232,6 +235,7 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
         } else {
             let item_id = value
                 .id()
+                .as_ref()
                 .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
             self.format_me(item_id.as_str());
             self.extend_path(&["content"]);
@@ -274,6 +278,7 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
     ) -> ItemResult<Request<Collection<ThumbnailSet>>> {
         let item_id = value
             .id()
+            .as_ref()
             .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
         Ok(self.thumbnails(item_id.as_str()))
     }
@@ -300,6 +305,7 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
     ) -> ItemResult<Request<DriveItem>> {
         let item_id = old_value
             .id()
+            .as_ref()
             .ok_or_else(|| GraphFailure::none_err("item id"))?;
         self.format_me(item_id.as_str());
         self.body(Body::String(
@@ -363,6 +369,7 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
     ) -> ItemResult<Request<Collection<DriveItemVersion>>> {
         let item_id = drive_item
             .id()
+            .as_ref()
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
         Ok(self.list_versions(item_id.as_str()))
     }
@@ -444,6 +451,7 @@ pub trait ItemCommon:
         let (item_id, resource_id) = drive_item.item_event_ids()?;
         let item_ref = drive_item
             .parent_reference()
+            .as_ref()
             .ok_or_else(|| GraphFailure::none_err("parent_reference"))?;
         Ok(self.copy(item_id.as_str(), resource_id.as_str(), &item_ref, name))
     }
@@ -669,6 +677,7 @@ pub trait ItemCommon:
     ) -> ItemResult<Request<Collection<DriveItemVersion>>> {
         let item_id = drive_item
             .id()
+            .as_ref()
             .ok_or_else(|| GraphFailure::none_err("item_id"))?;
         Ok(self.list_versions(item_id.as_str(), resource_id))
     }

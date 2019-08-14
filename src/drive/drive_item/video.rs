@@ -1,4 +1,6 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters, Getters)]
+use std::io::Write;
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct Video {

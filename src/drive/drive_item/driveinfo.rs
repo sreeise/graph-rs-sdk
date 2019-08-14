@@ -2,18 +2,19 @@ use crate::drive::drive_item::createdby::CreatedBy;
 use crate::drive::drive_item::lastmodifiedby::LastModifiedBy;
 use crate::drive::drive_item::owner::Owner;
 use crate::drive::drive_item::quota::Quota;
-use from_to_file::*;
 use graph_error::GraphError;
 use graph_error::GraphFailure;
 use reqwest::Response;
 use std::convert::TryFrom;
+use std::io::Write;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct DriveInfo {
     #[serde(rename = "@odata.context")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    _odata_context: Option<String>,
+    odata_context: Option<String>,
     #[serde(rename = "createdDateTime")]
     #[serde(skip_serializing_if = "Option::is_none")]
     created_date_time: Option<String>,
@@ -47,7 +48,7 @@ pub struct DriveInfo {
 impl DriveInfo {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        _odata_context: Option<String>,
+        odata_context: Option<String>,
         created_date_time: Option<String>,
         description: Option<String>,
         id: Option<String>,
@@ -61,7 +62,7 @@ impl DriveInfo {
         quota: Option<Quota>,
     ) -> Self {
         DriveInfo {
-            _odata_context,
+            odata_context,
             created_date_time,
             description,
             id,
@@ -74,50 +75,6 @@ impl DriveInfo {
             owner,
             quota,
         }
-    }
-
-    pub fn data_context(&self) -> Option<String> {
-        self._odata_context.clone()
-    }
-
-    pub fn created_date_time(&self) -> Option<String> {
-        self.created_date_time.clone()
-    }
-
-    pub fn description(&self) -> Option<String> {
-        self.description.clone()
-    }
-
-    pub fn id(&self) -> Option<String> {
-        self.id.clone()
-    }
-
-    pub fn name(&self) -> Option<String> {
-        self.name.clone()
-    }
-
-    pub fn last_modified_date_time(&self) -> Option<String> {
-        self.last_modified_date_time.clone()
-    }
-
-    pub fn web_url(&self) -> Option<String> {
-        self.web_url.clone()
-    }
-
-    pub fn created_by(&self) -> Option<CreatedBy> {
-        self.created_by.clone()
-    }
-
-    pub fn drive_type(&self) -> Option<String> {
-        self.drive_type.clone()
-    }
-
-    pub fn owner(&self) -> Option<Owner> {
-        self.owner.clone()
-    }
-
-    pub fn quota(&self) -> Option<Quota> {
-        self.quota.clone()
     }
 }
 

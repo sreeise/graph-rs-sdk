@@ -1,3 +1,4 @@
+use std::io::Write;
 use crate::drive::drive_item::createdby::CreatedBy;
 use crate::drive::drive_item::file::File;
 use crate::drive::drive_item::filesysteminfo::FileSystemInfo;
@@ -7,8 +8,9 @@ use crate::drive::drive_item::package::Package;
 use crate::drive::drive_item::shared::Shared;
 use crate::drive::drive_item::sharepointid::SharePointIds;
 
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct RemoteItem {
     #[serde(rename = "createdDateTime")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -87,67 +89,5 @@ impl RemoteItem {
             shared,
             share_point_ids,
         }
-    }
-}
-
-impl RemoteItem {
-    pub fn created_date_time(&self) -> Option<String> {
-        self.created_date_time.clone()
-    }
-
-    pub fn id(&self) -> Option<String> {
-        self.id.clone()
-    }
-
-    pub fn last_modified_date_time(&self) -> Option<String> {
-        self.last_modified_date_time.clone()
-    }
-
-    pub fn name(&self) -> Option<String> {
-        self.name.clone()
-    }
-
-    pub fn size(&self) -> Option<i64> {
-        self.size
-    }
-
-    pub fn web_url(&self) -> Option<String> {
-        self.web_url.clone()
-    }
-
-    pub fn web_dav_url(&self) -> Option<String> {
-        self.web_dav_url.clone()
-    }
-
-    pub fn created_by(&self) -> Option<CreatedBy> {
-        self.created_by.clone()
-    }
-
-    pub fn file(&self) -> Option<File> {
-        self.file.clone()
-    }
-
-    pub fn last_modified_by(&self) -> Option<LastModifiedBy> {
-        self.last_modified_by.clone()
-    }
-
-    pub fn parent_reference(&self) -> Option<ItemReference> {
-        self.parent_reference.clone()
-    }
-
-    pub fn file_system_info(&self) -> Option<FileSystemInfo> {
-        self.file_system_info.clone()
-    }
-
-    pub fn package(&self) -> Option<Package> {
-        self.package.clone()
-    }
-
-    pub fn shared(&self) -> Option<Shared> {
-        self.shared.clone()
-    }
-
-    pub fn share_point_ids(&self) -> Option<SharePointIds> {
-        self.share_point_ids.clone()
     }
 }

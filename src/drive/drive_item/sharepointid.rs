@@ -1,5 +1,8 @@
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
+use std::io::Write;
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct SharePointIds {
     #[serde(rename = "listId")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -38,31 +41,5 @@ impl SharePointIds {
             site_url,
             web_id,
         }
-    }
-}
-
-impl SharePointIds {
-    pub fn list_id(&self) -> Option<String> {
-        self.list_id.clone()
-    }
-
-    pub fn list_item_id(&self) -> Option<String> {
-        self.list_item_id.clone()
-    }
-
-    pub fn list_item_unique_id(&self) -> Option<String> {
-        self.list_item_unique_id.clone()
-    }
-
-    pub fn site_id(&self) -> Option<String> {
-        self.site_id.clone()
-    }
-
-    pub fn site_url(&self) -> Option<String> {
-        self.site_url.clone()
-    }
-
-    pub fn web_id(&self) -> Option<String> {
-        self.web_id.clone()
     }
 }

@@ -6,9 +6,10 @@ use crate::drive::drive_item::itemactivity::ItemActivity;
 use crate::drive::drive_item::itemreference::ItemReference;
 use crate::drive::drive_item::listitemversion::ListItemVersion;
 use crate::drive::drive_item::sharepointid::SharePointIds;
+use std::io::Write;
 
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/listitem?view=odsp-graph-online
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters, Getters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct ListItem {

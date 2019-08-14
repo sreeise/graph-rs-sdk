@@ -3,8 +3,9 @@ use crate::drive::drive_item::Root;
 use crate::drive::driveitem::DriveItem;
 use crate::drive::filesysteminfo::FileSystemInfo;
 use crate::drive::folder::Folder;
+use std::io::Write;
 
-#[derive(Debug, Serialize, Deserialize, Getters, Setters)]
+#[derive(Debug, Serialize, Deserialize, FromToFile, Getters, Setters)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct ExpandChildren {

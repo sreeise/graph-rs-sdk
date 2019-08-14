@@ -1,7 +1,9 @@
 use crate::drive::drive_item::hashes::Hashes;
+use std::io::Write;
 
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct File {
     #[serde(rename = "mimeType")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -13,15 +15,5 @@ pub struct File {
 impl File {
     pub fn new(mime_type: Option<String>, hashes: Option<Hashes>) -> Self {
         File { mime_type, hashes }
-    }
-}
-
-impl File {
-    pub fn mime_type(&self) -> Option<String> {
-        self.mime_type.clone()
-    }
-
-    pub fn hashes(&self) -> Option<Hashes> {
-        self.hashes.clone()
     }
 }

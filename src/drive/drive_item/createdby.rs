@@ -1,7 +1,8 @@
 use crate::drive::drive_item::application::Application;
 use crate::drive::drive_item::user::User;
+use std::io::Write;
 
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, FromToFile, Deserialize, Setters)]
 #[set = "pub set"]
 pub struct CreatedBy {
     #[serde(skip_serializing_if = "Option::is_none")]

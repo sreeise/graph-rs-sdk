@@ -28,10 +28,10 @@ use graph_error::{GraphError, GraphFailure};
 use reqwest::Response;
 use std::collections::BTreeMap;
 use std::convert::TryFrom;
-use std::io;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct DriveItem {
     #[serde(rename = "@odata.context")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -140,98 +140,6 @@ pub struct DriveItem {
 }
 
 impl DriveItem {
-    pub fn copy(&self) -> io::Result<DriveItem> {
-        Ok(self.clone())
-    }
-
-    pub fn data_type(&self) -> Option<String> {
-        self.odata_type.clone()
-    }
-
-    pub fn data_context(&self) -> Option<String> {
-        self.odata_context.clone()
-    }
-
-    pub fn created_date_time(&self) -> Option<String> {
-        self.created_date_time.clone()
-    }
-
-    pub fn c_tag(&self) -> Option<String> {
-        self.c_tag.clone()
-    }
-
-    pub fn e_tag(&self) -> Option<String> {
-        self.e_tag.clone()
-    }
-
-    pub fn id(&self) -> Option<String> {
-        self.id.clone()
-    }
-
-    pub fn last_modified_date_time(&self) -> Option<String> {
-        self.last_modified_date_time.clone()
-    }
-
-    pub fn name(&self) -> Option<String> {
-        self.name.clone()
-    }
-
-    pub fn size(&self) -> Option<i64> {
-        self.size
-    }
-
-    pub fn web_url(&self) -> Option<String> {
-        self.web_url.clone()
-    }
-
-    pub fn created_by(&self) -> Option<IdentitySet> {
-        self.created_by.clone()
-    }
-
-    pub fn last_modified_by(&self) -> Option<LastModifiedBy> {
-        self.last_modified_by.clone()
-    }
-
-    pub fn parent_reference(&self) -> Option<ItemReference> {
-        self.parent_reference.clone()
-    }
-
-    pub fn file_system_info(&self) -> Option<FileSystemInfo> {
-        self.file_system_info.clone()
-    }
-
-    pub fn folder(&self) -> Option<Folder> {
-        self.folder.clone()
-    }
-
-    pub fn special_folder(&self) -> Option<SpecialFolder> {
-        self.special_folder.clone()
-    }
-
-    pub fn microsoft_graph_download_url(&self) -> Option<String> {
-        self.microsoft_graph_download_url.clone()
-    }
-
-    pub fn file(&self) -> Option<File> {
-        self.file.clone()
-    }
-
-    pub fn image(&self) -> Option<Image> {
-        self.image.clone()
-    }
-
-    pub fn photo(&self) -> Option<Photo> {
-        self.photo.clone()
-    }
-
-    pub fn root(&self) -> Option<Root> {
-        self.root.clone()
-    }
-
-    pub fn remote_item(&self) -> Option<RemoteItem> {
-        self.remote_item.clone()
-    }
-
     pub fn item_event_ids(&self) -> ItemResult<(String, String)> {
         let item_id = self
             .id()

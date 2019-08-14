@@ -1,3 +1,4 @@
+use std::io::Write;
 use crate::drive::drive_item::baseitem::BaseItem;
 use crate::drive::drive_item::columndefinition::ColumnDefinition;
 use crate::drive::drive_item::contenttype::ContentType;
@@ -8,7 +9,7 @@ use crate::drive::drive_item::sitecollection::SiteCollection;
 use crate::drive::Root;
 
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/site?view=odsp-graph-online
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters, Getters)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
 #[get = "pub"]
 pub struct Site {

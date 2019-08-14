@@ -1,5 +1,8 @@
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
+use std::io::Write;
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct SpecialFolder {
     #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
@@ -8,9 +11,5 @@ pub struct SpecialFolder {
 impl SpecialFolder {
     pub fn new(name: Option<String>) -> Self {
         SpecialFolder { name }
-    }
-
-    pub fn name(&self) -> Option<String> {
-        self.name.clone()
     }
 }

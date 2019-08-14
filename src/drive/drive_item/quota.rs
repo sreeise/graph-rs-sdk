@@ -1,5 +1,8 @@
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters)]
+use std::io::Write;
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct Quota {
     deleted: i64,
     remaining: i64,
@@ -17,25 +20,5 @@ impl Quota {
             total,
             used,
         }
-    }
-
-    pub fn deleted(&self) -> i64 {
-        self.deleted
-    }
-
-    pub fn remaining(&self) -> i64 {
-        self.remaining
-    }
-
-    pub fn state(&self) -> String {
-        self.state.clone()
-    }
-
-    pub fn total(&self) -> i64 {
-        self.total
-    }
-
-    pub fn used(&self) -> i64 {
-        self.used
     }
 }

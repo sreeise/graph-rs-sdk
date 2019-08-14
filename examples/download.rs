@@ -35,7 +35,7 @@ pub fn download() {
 
     // Get the Values vec that lists the files.
     let drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
-    let item_id = drive_item.id().unwrap();
+    let item_id = drive_item.id().clone().unwrap();
 
     // Download the file. The file will be downloaded with the same name.
     let mut req = drive

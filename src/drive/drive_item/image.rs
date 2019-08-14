@@ -1,5 +1,8 @@
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Setters)]
+use std::io::Write;
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile, Setters, Getters)]
 #[set = "pub set"]
+#[get = "pub"]
 pub struct Image {
     #[serde(skip_serializing_if = "Option::is_none")]
     height: Option<i64>,
@@ -10,13 +13,5 @@ pub struct Image {
 impl Image {
     pub fn new(height: Option<i64>, width: Option<i64>) -> Self {
         Image { height, width }
-    }
-
-    pub fn height(&self) -> Option<i64> {
-        self.height
-    }
-
-    pub fn width(&self) -> Option<i64> {
-        self.width
     }
 }
