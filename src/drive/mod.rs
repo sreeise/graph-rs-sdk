@@ -26,7 +26,7 @@ use crate::drive::pipeline::DataPipeline;
 use driveurl::DriveUrl;
 use from_to_file::*;
 use graph_error::GraphFailure;
-use graph_oauth::oauth::OAuth;
+use graph_oauth::oauth::{OAuth, AccessToken};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
@@ -129,5 +129,17 @@ impl TryFrom<&OAuth> for Drive {
         Err(GraphFailure::none_err(
             "OAuth instance missing access token.",
         ))
+    }
+}
+
+impl From<AccessToken> for Drive {
+    fn from(access_token: AccessToken) -> Self {
+        Drive::new(access_token.get_access_token())
+    }
+}
+
+impl From<&AccessToken> for Drive {
+    fn from(access_token: &AccessToken) -> Self {
+        Drive::new(access_token.get_access_token())
     }
 }
