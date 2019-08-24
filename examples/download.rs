@@ -1,6 +1,6 @@
-use rust_onedrive::drive::intoitem::{IntoFetch, MutateDownload};
+use rust_onedrive::drive::endpoint::EP;
+use rust_onedrive::drive::pipelines::downloadpipeline::{IntoFetch, MutateDownload};
 use rust_onedrive::drive::Drive;
-use rust_onedrive::drive::EP;
 use rust_onedrive::from_to::*;
 use rust_onedrive::oauth::OAuth;
 use rust_onedrive::prelude::{Collection, DriveItem, ItemMe};

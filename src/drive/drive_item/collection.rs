@@ -5,7 +5,7 @@ use from_to_file::FromToFile;
 use graph_error::{GraphError, GraphFailure};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reqwest::Response;
-use serde::export::TryFrom;
+use std::convert::TryFrom;
 use std::io::Write;
 use std::path::Path;
 

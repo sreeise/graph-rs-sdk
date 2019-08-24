@@ -1,4 +1,5 @@
-use rust_onedrive::drive::{DriveEndPoint, DriveVersion};
+use rust_onedrive::drive::endpoint::DriveEndPoint;
+use rust_onedrive::drive::DriveVersion;
 use rust_onedrive::prelude::DriveUrl;
 
 #[test]

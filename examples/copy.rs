@@ -1,4 +1,4 @@
-use rust_onedrive::drive::itemreference::ItemReference;
+use rust_onedrive::drive::drive_item::itemreference::ItemReference;
 use rust_onedrive::drive::statusresponse::StatusResponse;
 use rust_onedrive::prelude::*;
 use std::thread;

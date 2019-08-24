@@ -1,10 +1,11 @@
+use crate::drive::endpoint::DriveEndPoint;
 use crate::drive::event::DriveEvent;
-use crate::drive::{DriveEndPoint, DriveVersion};
+use crate::drive::DriveVersion;
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::iter::Iterator;
 use std::ops::{Deref, Index, Range, RangeFrom, RangeFull, RangeTo};
-use url::{Position, Url};
+use url::{Host, Position, Url};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct DriveUrl {
@@ -49,7 +50,7 @@ impl DriveUrl {
         self
     }
 
-    pub fn extend_path_os_str(&mut self, path: &[OsString]) -> &mut Self {
+    pub fn extend_path_os_string(&mut self, path: &[OsString]) -> &mut Self {
         if let Ok(mut p) = self.url.path_segments_mut() {
             p.extend(path.iter().map(|s| s.to_str()).flatten());
         }
@@ -92,6 +93,12 @@ impl TryFrom<Url> for DriveUrl {
     type Error = ();
 
     fn try_from(url: Url) -> Result<Self, Self::Error> {
+        if let Some(host) = url.host() {
+            if host.to_string().ends_with("1drv.com") || host == Host::Domain("api.onedrive.com") {
+                return Ok(DriveUrl { url });
+            }
+        }
+
         let s: &str = &url[..];
         if !s.starts_with(DriveVersion::V1.as_ref()) && !s.starts_with(DriveVersion::V2.as_ref()) {
             return Err(());

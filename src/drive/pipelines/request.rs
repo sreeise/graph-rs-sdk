@@ -1,8 +1,42 @@
 use crate::drive::event::DriveEvent;
-use crate::drive::pipeline::{Body, DataPipeline, Pipeline};
+use crate::drive::item::IntoItem;
+use crate::drive::pipelines::datapipeline::{Body, DataPipeline};
+use crate::drive::pipelines::pipeline::Pipeline;
+use crate::drive::ItemResult;
 use crate::prelude::*;
 use graph_error::GraphFailure;
+use reqwest::{Client, RequestBuilder};
 use serde_json::Value;
+
+pub trait PipelineRequest<T, U> {
+    fn send(&self, pipeline: U) -> ItemResult<T>;
+}
+
+impl<T, U, F> PipelineRequest<T, U> for F
+where
+    F: Fn(U) -> ItemResult<T>,
+{
+    fn send(&self, pipeline: U) -> ItemResult<T> {
+        self(pipeline)
+    }
+}
+
+pub fn pipeline_request<T>() -> impl PipelineRequest<T, DataPipeline>
+where
+    for<'de> T: serde::Deserialize<'de>,
+{
+    move |data: DataPipeline| {
+        let builder: RequestBuilder = data.request_builder()?;
+        let mut response = builder.send()?;
+
+        if let Some(err) = GraphFailure::err_from(&mut response) {
+            Err(err)
+        } else {
+            let value: T = response.json()?;
+            Ok(value)
+        }
+    }
+}
 
 pub struct Request<T> {
     item: Box<dyn IntoItem<T>>,
@@ -15,6 +49,12 @@ impl<T> Request<T> {
 
     pub fn send(&mut self) -> ItemResult<T> {
         self.item.send()
+    }
+
+    pub fn client() -> ItemResult<Client> {
+        reqwest::Client::builder()
+            .build()
+            .map_err(GraphFailure::from)
     }
 }
 
