@@ -1220,9 +1220,19 @@ pub struct ImplicitGrant {
 }
 
 impl ImplicitGrant {
-    pub fn browser_authorization(&mut self) -> AuthorizationRequest {
+    pub fn url(&mut self) -> Url {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::Authorization);
+        Url::parse(
+            self.oauth
+                .get_or_else(OAuthCredential::AuthorizeURL)
+                .unwrap()
+                .as_str(),
+        )
+            .unwrap()
+    }
+
+    pub fn browser_authorization(&mut self) -> AuthorizationRequest {
         let params = self
             .oauth
             .params(
@@ -1230,13 +1240,7 @@ impl ImplicitGrant {
                     .available_credentials(GrantRequest::Authorization),
             )
             .unwrap();
-        let mut url = Url::parse(
-            self.oauth
-                .get_or_else(OAuthCredential::AuthorizeURL)
-                .unwrap()
-                .as_str(),
-        )
-        .unwrap();
+        let mut url = self.url();
         url.query_pairs_mut().extend_pairs(&params);
         AuthorizationRequest {
             uri: url.to_string(),
@@ -1263,11 +1267,7 @@ pub struct AccessTokenGrant {
 }
 
 impl AccessTokenGrant {
-    /// Make a request for authorization. The default browser for a user
-    /// will be opened to the sign in page where the user will need to
-    /// sign in and agree to any permissions that were set by the provided
-    /// scopes.
-    pub fn browser_authorization(&mut self) -> AuthorizationRequest {
+    pub fn authorization_url(&mut self) -> Url {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::Authorization);
         let params = self
@@ -1285,8 +1285,16 @@ impl AccessTokenGrant {
         )
         .unwrap();
         url.query_pairs_mut().extend_pairs(&params);
+        url
+    }
+
+    /// Make a request for authorization. The default browser for a user
+    /// will be opened to the sign in page where the user will need to
+    /// sign in and agree to any permissions that were set by the provided
+    /// scopes.
+    pub fn browser_authorization(&mut self) -> AuthorizationRequest {
         AuthorizationRequest {
-            uri: url.to_string(),
+            uri: self.authorization_url().to_string(),
         }
     }
 

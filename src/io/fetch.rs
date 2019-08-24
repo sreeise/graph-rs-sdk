@@ -12,6 +12,7 @@ use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
 use std::path::PathBuf;
 
+/// The FetchBuilder provides an abstraction for downloading files.
 pub struct FetchBuilder {
     path: PathBuf,
     token: String,
@@ -108,6 +109,7 @@ static RANGE_MULTIPLES: [usize; 32] = [
     4096, 5120, 8192, 10240, 16384, 20480, 32768, 40960, 65536, 81920, 163_840,
 ];
 
+/// Get the byte ranges for a given file.
 pub struct ByteRange {
     file: OsString,
     byte_ranges: VecDeque<(u64, u64, Vec<u8>)>,

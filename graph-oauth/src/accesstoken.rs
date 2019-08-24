@@ -27,11 +27,18 @@ use std::convert::TryFrom;
 /// # Example
 /// ```rust,ignore
 /// use rust_onedrive::oauth::AccessToken;
-/// let access_token = AccessToken::try_from(&mut response); // -> Result<AccessToken, OAuthError>
+/// let access_token = AccessToken::try_from(&mut response); // -> Result<AccessToken>
 /// ```
 ///
-/// Callers who wish to have more flexibility then provided here should use
-/// AccessTokenBuilder.
+/// AccessTokens are returned from the OAuth impl.
+/// # Example
+/// ```rust,ignore
+/// let mut oauth = OAuth::default();
+/// let mut oauth_code_grant = oauth.build().authorization_code_grant();
+/// let req = oauth_code_grant.access_token();
+/// let access_token = oauth.send().unwrap();
+/// println!("{:#?}", access_token);
+/// ```
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, FromToFile)]
 pub struct AccessToken {
     access_token: String,
