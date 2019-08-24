@@ -21,6 +21,7 @@ use crate::prelude::DriveUrl;
 use graph_error::{GraphError, GraphFailure};
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
+use crate::drive::drive_item::driveinfo::DriveInfo;
 
 pub trait IntoItem<T>: MutateUrl {
     fn send(&mut self) -> ItemResult<T>;
@@ -572,6 +573,11 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
 pub trait ItemCommon:
     MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> + Into<SelectEvent>
 {
+    fn get_drive(&mut self, resource_id: &str) -> Request<DriveInfo> {
+        self.extend_path(&[resource_id, "drives"]);
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Delete))
+    }
+    
     fn delete(&mut self, item_id: &str, resource_id: &str) -> Request<StatusResponse> {
         self.format_common(item_id, resource_id);
         self.as_delete();
