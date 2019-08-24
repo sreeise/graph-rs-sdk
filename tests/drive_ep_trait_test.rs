@@ -1,9 +1,9 @@
 use from_to_file::*;
-use rust_onedrive::drive::driveinfo::DriveInfo;
-use rust_onedrive::drive::driveitem::DriveItem;
-use rust_onedrive::drive::filesysteminfo::FileSystemInfo;
-use rust_onedrive::drive::itemreference::ItemReference;
-use rust_onedrive::drive::quota::Quota;
+use rust_onedrive::drive::drive_item::driveinfo::DriveInfo;
+use rust_onedrive::drive::drive_item::driveitem::DriveItem;
+use rust_onedrive::drive::drive_item::filesysteminfo::FileSystemInfo;
+use rust_onedrive::drive::drive_item::itemreference::ItemReference;
+use rust_onedrive::drive::drive_item::quota::Quota;
 use rust_onedrive::prelude::Collection;
 
 #[test]

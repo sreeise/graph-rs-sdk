@@ -1,4 +1,4 @@
-use crate::drive::Root;
+use crate::drive::drive_item::Root;
 use std::io::Write;
 
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/sitecollection?view=odsp-graph-online

@@ -1,4 +1,4 @@
-use rust_onedrive::drive::thumbnail::ThumbnailSet;
+use rust_onedrive::drive::drive_item::thumbnail::ThumbnailSet;
 use rust_onedrive::oauth::OAuth;
 use rust_onedrive::prelude::*;
 use std::convert::TryFrom;

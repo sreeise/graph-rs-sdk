@@ -1,4 +1,4 @@
-use rust_onedrive::drive::DriveEndPoint;
+use rust_onedrive::drive::endpoint::DriveEndPoint;
 
 #[test]
 fn drive_endpoint_v1_test() {

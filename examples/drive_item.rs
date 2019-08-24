@@ -1,7 +1,7 @@
-use rust_onedrive::drive::collection::Collection;
-use rust_onedrive::drive::driveitem::DriveItem;
+use rust_onedrive::drive::drive_item::collection::Collection;
+use rust_onedrive::drive::drive_item::driveitem::DriveItem;
+use rust_onedrive::drive::endpoint::EP;
 use rust_onedrive::drive::Drive;
-use rust_onedrive::drive::EP;
 use rust_onedrive::from_to::*;
 use rust_onedrive::oauth::OAuth;
 use std::convert::TryFrom;

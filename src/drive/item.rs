@@ -4,11 +4,17 @@ use crate::drive::drive_item::driveitemversion::DriveItemVersion;
 use crate::drive::drive_item::itemactivity::ItemActivity;
 use crate::drive::drive_item::itemreference::ItemReference;
 use crate::drive::drive_item::thumbnail::{Thumbnail, ThumbnailSet};
-use crate::drive::event::ItemRefCopy;
+use crate::drive::driveurl::MutateUrl;
+use crate::drive::event::{CreateUploadSession, ItemRefCopy, UploadSessionJson};
 use crate::drive::event::{DriveEvent, NewFolder};
 use crate::drive::item::item_sealed::MutateRequest;
-use crate::drive::pipeline::{Body, DataPipeline, DownloadPipeline, FetchPipeline, Pipeline};
-use crate::drive::request::{ReqBuilder, Request};
+use crate::drive::pipelines::datapipeline::Body;
+use crate::drive::pipelines::datapipeline::DataPipeline;
+use crate::drive::pipelines::downloadpipeline::DownloadPipeline;
+use crate::drive::pipelines::downloadpipeline::FetchPipeline;
+use crate::drive::pipelines::pipeline::Pipeline;
+use crate::drive::pipelines::request::{ReqBuilder, Request};
+use crate::drive::pipelines::uploadsessionpipeline::UploadSessionPipeline;
 use crate::drive::statusresponse::StatusResponse;
 use crate::drive::ItemResult;
 use crate::prelude::DriveUrl;
@@ -16,6 +22,10 @@ use graph_error::GraphError;
 use graph_error::GraphFailure;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
+
+pub trait IntoItem<T>: MutateUrl {
+    fn send(&mut self) -> ItemResult<T>;
+}
 
 pub struct SelectEventMe(DataPipeline);
 
@@ -284,7 +294,7 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
         Ok(self.thumbnails(item_id.as_str()))
     }
 
-    fn thumbnail_binary(&mut self, item_id: &str, thumb_id: &str, size: &str) -> Request<String> {
+    fn thumbnail_binary(&mut self, item_id: &str, thumb_id: &str, size: &str) -> Request<Vec<u8>> {
         self.format_me(item_id);
         self.extend_path(&["thumbnails", thumb_id, size, "content"]);
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
@@ -427,6 +437,57 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
     ) -> Request<Collection<ItemActivity>> {
         self.extend_path(&["drive", "lists", list_id, "items", item_id, "activities"]);
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Activities))
+    }
+
+    /// Create an upload session to allow your app to upload files
+    /// up to the maximum file size. This method is used for updating
+    /// or replacing the content of an existing file.
+    ///
+    /// # See
+    /// [Upload large files with an upload session](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession?view=odsp-graph-online)
+    fn upload_session_replace(
+        &mut self,
+        item_id: &str,
+        file: OsString,
+    ) -> Request<UploadSessionPipeline> {
+        self.format_me(item_id);
+        self.extend_path(&["createUploadSession"]);
+        self.set_upload_session(file);
+        self.as_post();
+        Request::new(Box::new(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::CreateUploadSession,
+        )))
+    }
+
+    /// Create an upload session to allow your app to upload files
+    /// up to the maximum file size. This method is used for uploading
+    /// new files.
+    ///
+    /// # See
+    /// [Upload large files with an upload session](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession?view=odsp-graph-online)
+    fn upload_session_new(
+        &mut self,
+        path_from_root: OsString,
+        file: OsString,
+        create_upload_session: Option<CreateUploadSession>,
+    ) -> Request<UploadSessionPipeline> {
+        let mut s = path_from_root.to_os_string();
+        s.push(":");
+        self.extend_path(&["drive", "root:"]);
+        self.extend_path_os_string(&[s]);
+        self.extend_path(&["createUploadSession"]);
+        self.set_upload_session(file);
+        self.as_post();
+        if let Some(upload) = create_upload_session {
+            let upload = UploadSessionJson::new(upload);
+            let upload_json = upload.as_json().unwrap();
+            self.body(Body::String(upload_json));
+        }
+        Request::new(Box::new(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::CreateUploadSession,
+        )))
     }
 }
 
@@ -785,14 +846,69 @@ pub trait ItemCommon:
         ]);
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Activities))
     }
+
+    /// Create an upload session to allow your app to upload files
+    /// up to the maximum file size. This method is used for updating
+    /// or replacing the content of an existing file.
+    ///
+    /// # See
+    /// [Upload large files with an upload session](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession?view=odsp-graph-online)
+    fn upload_session_replace(
+        &mut self,
+        item_id: &str,
+        resource_id: &str,
+        file: OsString,
+    ) -> Request<UploadSessionPipeline> {
+        self.format_common(item_id, resource_id);
+        self.extend_path(&["createUploadSession"]);
+        self.set_upload_session(file);
+        self.as_post();
+        Request::new(Box::new(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::CreateUploadSession,
+        )))
+    }
+
+    /// Create an upload session to allow your app to upload files
+    /// up to the maximum file size. This method is used for uploading
+    /// new files.
+    ///
+    /// # See
+    /// [Upload large files with an upload session](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession?view=odsp-graph-online)
+    fn upload_session_new(
+        &mut self,
+        resource_id: &str,
+        path_from_root: OsString,
+        file: OsString,
+        create_upload_session: Option<CreateUploadSession>,
+    ) -> Request<UploadSessionPipeline> {
+        let mut s = path_from_root.to_os_string();
+        s.push(":");
+        self.extend_path(&[resource_id, "root:"]);
+        self.extend_path_os_string(&[s]);
+        self.extend_path(&["createUploadSession"]);
+        self.set_upload_session(file);
+        self.as_post();
+        if let Some(upload) = create_upload_session {
+            let upload = UploadSessionJson::new(upload);
+            let upload_json = upload.as_json().unwrap();
+            self.body(Body::String(upload_json));
+        }
+        Request::new(Box::new(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::CreateUploadSession,
+        )))
+    }
 }
 
 mod item_sealed {
     use crate::drive::driveurl::DriveUrl;
+    use crate::drive::endpoint::DriveEndPoint;
     use crate::drive::event::DriveEvent;
+    use crate::drive::item::SelectEventMe;
     use crate::drive::item::{SelectEvent, SelectResource};
-    use crate::drive::pipeline::{Body, DataPipeline, RequestType};
-    use crate::drive::{DriveEndPoint, SelectEventMe};
+    use crate::drive::pipelines::datapipeline::{Body, DataPipeline, RequestType};
+    use std::ffi::OsString;
 
     pub trait MutateRequest {
         fn pipeline_data(&self) -> DataPipeline;
@@ -832,6 +948,13 @@ mod item_sealed {
             self.as_mut().as_delete();
         }
 
+        fn set_upload_session(&mut self, file: OsString)
+        where
+            Self: AsMut<DataPipeline>,
+        {
+            self.as_mut().set_upload_session(file);
+        }
+
         fn request_type(&mut self, r: RequestType)
         where
             Self: AsMut<DataPipeline>,
@@ -851,6 +974,13 @@ mod item_sealed {
             Self: AsMut<DriveUrl>,
         {
             self.as_mut().extend_path(path);
+        }
+
+        fn extend_path_os_string(&mut self, path: &[OsString])
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            self.as_mut().extend_path_os_string(path);
         }
 
         fn endpoint(&mut self, endpoint: DriveEndPoint)

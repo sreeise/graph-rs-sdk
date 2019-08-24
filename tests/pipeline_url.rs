@@ -1,7 +1,8 @@
-use rust_onedrive::drive::driveitemversion::DriveItemVersion;
+use rust_onedrive::drive::drive_item::driveitemversion::DriveItemVersion;
+use rust_onedrive::drive::drive_item::itemreference::ItemReference;
 use rust_onedrive::drive::event::{ConflictBehavior, NewFolder};
-use rust_onedrive::drive::itemreference::ItemReference;
 use rust_onedrive::prelude::*;
+use std::ffi::OsString;
 
 fn get_drive() -> Drive {
     Drive::new("")
@@ -1174,6 +1175,129 @@ pub fn event_activities_from_list_item() {
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/lists/30ad9832/items/132534/activities",
+        url.as_str()
+    );
+}
+
+#[test]
+pub fn event_upload_session_replace() {
+    let mut path = OsString::new();
+    path.push("Documents/complete_drive_item.json");
+    let mut file = OsString::new();
+    file.push("./test_files/item_test/complete_drive_item.json");
+
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .upload_session_replace("3dj309v", file.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/items/3dj309v/createUploadSession",
+        url.as_str()
+    );
+
+    let pipeline =
+        get_drive()
+            .v1()
+            .drives()
+            .upload_session_replace("3dj309v", "32p99453", file.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/items/3dj309v/createUploadSession",
+        url.as_str()
+    );
+
+    let pipeline =
+        get_drive()
+            .v1()
+            .sites()
+            .upload_session_replace("3dj309v", "32p99453", file.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/3dj309v/createUploadSession",
+        url.as_str()
+    );
+
+    let pipeline =
+        get_drive()
+            .v1()
+            .groups()
+            .upload_session_replace("3dj309v", "32p99453", file.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/3dj309v/createUploadSession",
+        url.as_str()
+    );
+
+    let pipeline =
+        get_drive()
+            .v1()
+            .users()
+            .upload_session_replace("3dj309v", "32p99453", file.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/3dj309v/createUploadSession",
+        url.as_str()
+    );
+}
+
+#[test]
+pub fn event_upload_session_new() {
+    let mut path = OsString::new();
+    path.push("Documents/complete_drive_item.json");
+
+    let mut file = OsString::new();
+    file.push("./test_files/item_test/complete_drive_item.json");
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .upload_session_new(path.clone(), file.clone(), None);
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
+        url.as_str()
+    );
+
+    let pipeline =
+        get_drive()
+            .v1()
+            .drives()
+            .upload_session_new("32p99453", path.clone(), file.clone(), None);
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
+        url.as_str()
+    );
+
+    let pipeline =
+        get_drive()
+            .v1()
+            .sites()
+            .upload_session_new("32p99453", path.clone(), file.clone(), None);
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
+        url.as_str()
+    );
+
+    let pipeline =
+        get_drive()
+            .v1()
+            .groups()
+            .upload_session_new("32p99453", path.clone(), file.clone(), None);
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
+        url.as_str()
+    );
+    let pipeline =
+        get_drive()
+            .v1()
+            .users()
+            .upload_session_new("32p99453", path.clone(), file.clone(), None);
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
         url.as_str()
     );
 }

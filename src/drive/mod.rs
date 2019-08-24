@@ -8,25 +8,20 @@ Your app provides the access token in each request, through an HTTP header:
 Authorization: bearer {token}
 */
 
-mod drive_item;
+pub mod drive_item;
 pub mod driveurl;
-mod endpoint;
+pub mod endpoint;
 pub mod event;
-pub mod intoitem;
-mod item;
-pub mod pipeline;
-pub mod request;
+pub mod item;
+pub mod pipelines;
 pub mod statusresponse;
 
-pub use crate::drive::drive_item::*;
-pub use crate::drive::endpoint::{DriveEndPoint, EP};
 use crate::drive::item::SelectResource;
-pub use crate::drive::item::{ItemCommon, ItemMe, SelectEventMe};
-use crate::drive::pipeline::DataPipeline;
+use crate::drive::pipelines::datapipeline::DataPipeline;
 use driveurl::DriveUrl;
 use from_to_file::*;
 use graph_error::GraphFailure;
-use graph_oauth::oauth::{OAuth, AccessToken};
+use graph_oauth::oauth::{AccessToken, OAuth};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};

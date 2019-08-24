@@ -1,4 +1,5 @@
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum ConflictBehavior {
     Fail,
     Replace,

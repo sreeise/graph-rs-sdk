@@ -21,6 +21,7 @@ pub enum DriveEvent {
     Upload,
     Update,
     CreateUploadSession,
+    CancelUploadSession,
     ListVersions,
     TrackChanges,
     Preview,

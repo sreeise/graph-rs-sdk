@@ -23,7 +23,6 @@ pub mod driveinfo;
 pub mod driveitem;
 pub mod driveitemversion;
 pub mod driverecipient;
-pub mod expandchildren;
 pub mod fieldvalueset;
 pub mod file;
 pub mod filesysteminfo;

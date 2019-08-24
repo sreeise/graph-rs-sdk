@@ -1,7 +1,7 @@
 use crate::drive::drive_item::asyncjobstatus::AsyncJobStatus;
 use crate::drive::event::DriveEvent;
-use crate::drive::pipeline::Pipeline;
-use crate::drive::request::Request;
+use crate::drive::pipelines::pipeline::Pipeline;
+use crate::drive::pipelines::request::Request;
 use crate::drive::ItemResult;
 use crate::graph_error::{GraphError, GraphFailure};
 use reqwest::{header, Response};
