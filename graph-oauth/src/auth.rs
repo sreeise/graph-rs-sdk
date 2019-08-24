@@ -1229,7 +1229,7 @@ impl ImplicitGrant {
                 .unwrap()
                 .as_str(),
         )
-            .unwrap()
+        .unwrap()
     }
 
     pub fn browser_authorization(&mut self) -> AuthorizationRequest {

@@ -182,7 +182,7 @@ impl TryFrom<&mut Response> for DriveItem {
         let status = response.status().as_u16();
         if GraphError::is_error(status) {
             return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
+                GraphError::try_from(response).unwrap_or_default(),
             ));
         }
 

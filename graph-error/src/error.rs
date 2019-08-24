@@ -6,12 +6,41 @@ use std::fmt;
 use std::io::ErrorKind;
 use std::string::ToString;
 
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct InnerError {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    code: Option<String>,
+    #[serde(rename = "request-id")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    request_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    date: Option<String>
+}
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ErrorStatus {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(rename = "innerError")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub inner_error: Option<InnerError>,
+}
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ErrorMessage {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<ErrorStatus>,
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GraphError {
     pub headers: Option<GraphHeaders>,
     pub error_info: String,
     pub error_type: ErrorType,
     pub code: u16,
+    pub error_message: ErrorMessage,
 }
 
 impl GraphError {
@@ -20,12 +49,14 @@ impl GraphError {
         error_info: &str,
         error_type: ErrorType,
         code: u16,
+        error_message: ErrorMessage,
     ) -> GraphError {
         GraphError {
             headers,
             error_info: error_info.to_string(),
             error_type,
             code,
+            error_message,
         }
     }
 
@@ -44,10 +75,19 @@ impl GraphError {
         self.code = code;
         Ok(())
     }
+
+    pub fn set_error_message(&mut self, error_message: ErrorMessage) {
+        self.error_message = error_message;
+    }
 }
 
 impl Error for GraphError {
     fn description(&self) -> &str {
+        if let Some(err) = self.error_message.error.as_ref() {
+            if let Some(message) = err.message.as_ref() {
+                return message.as_str();
+            }
+        }
         self.error_info.as_str()
     }
 
@@ -73,6 +113,7 @@ impl Default for GraphError {
             ErrorType::BadRequest.as_str(),
             ErrorType::BadRequest,
             400,
+            Default::default(),
         )
     }
 }
@@ -190,6 +231,7 @@ impl TryFrom<u16> for GraphError {
             error_info: error_type.to_string(),
             error_type,
             code: value,
+            error_message: Default::default(),
         })
     }
 }
@@ -200,6 +242,10 @@ impl TryFrom<&mut Response> for GraphError {
     fn try_from(value: &mut Response) -> Result<Self, Self::Error> {
         let status = value.status().as_u16();
         let mut graph_error = GraphError::try_from(status)?;
+        if let Ok(text) = value.text() {
+            let error_message: ErrorMessage = serde_json::from_str(text.as_str()).unwrap_or_default();
+            graph_error.error_message = error_message;
+        }
         graph_error.set_headers(GraphHeaders::from(value));
         Ok(graph_error)
     }

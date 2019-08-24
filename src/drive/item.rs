@@ -1,6 +1,3 @@
-use std::ffi::OsString;
-use std::path::{Path, PathBuf};
-use graph_error::{GraphFailure, GraphError};
 use crate::drive::drive_item::collection::Collection;
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::drive_item::driveitemversion::DriveItemVersion;
@@ -21,6 +18,9 @@ use crate::drive::pipelines::uploadsessionpipeline::UploadSessionPipeline;
 use crate::drive::statusresponse::StatusResponse;
 use crate::drive::ItemResult;
 use crate::prelude::DriveUrl;
+use graph_error::{GraphError, GraphFailure};
+use std::ffi::OsString;
+use std::path::{Path, PathBuf};
 
 pub trait IntoItem<T>: MutateUrl {
     fn send(&mut self) -> ItemResult<T>;
@@ -273,7 +273,7 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
             let item_id = value
                 .id()
                 .as_ref()
-                .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
+                .ok_or_else(|| GraphFailure::GraphError(Box::new(GraphError::default())))?;
             self.format_me(item_id.as_str());
             self.extend_path(&["content"]);
 
@@ -324,7 +324,7 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
         let item_id = value
             .id()
             .as_ref()
-            .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
+            .ok_or_else(|| GraphFailure::GraphError(Box::new(GraphError::default())))?;
         Ok(self.thumbnails(item_id.as_str()))
     }
 
@@ -398,7 +398,7 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
         let name = file
             .as_ref()
             .file_name()
-            .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
+            .ok_or_else(|| GraphFailure::GraphError(Box::new(GraphError::default())))?;
 
         let mut id = String::new();
         id.push_str(parent_id);
@@ -809,7 +809,7 @@ pub trait ItemCommon:
         let name = file
             .as_ref()
             .file_name()
-            .ok_or_else(|| GraphFailure::GraphError(GraphError::default()))?;
+            .ok_or_else(|| GraphFailure::GraphError(Box::new(GraphError::default())))?;
 
         let mut id = String::new();
         id.push_str(parent_id);

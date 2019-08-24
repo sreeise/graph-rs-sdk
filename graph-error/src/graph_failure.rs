@@ -24,7 +24,7 @@ pub enum GraphFailure {
     SerdeError(serde_json::error::Error),
     SerdeYamlError(serde_yaml::Error),
     DecodeError(base64::DecodeError),
-    GraphError(GraphError),
+    GraphError(Box<GraphError>),
     RecvError(mpsc::RecvError),
     BorrowMutError(BorrowMutError),
     UrlParseError(url::ParseError),
@@ -179,7 +179,7 @@ impl From<Utf8Error> for GraphFailure {
 
 impl From<GraphError> for GraphFailure {
     fn from(err: GraphError) -> Self {
-        GraphFailure::GraphError(err)
+        GraphFailure::GraphError(Box::new(err))
     }
 }
 
