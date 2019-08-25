@@ -53,6 +53,7 @@ pub mod package;
 pub mod permissions;
 pub mod personorgroupcolumn;
 pub mod photo;
+pub mod preview;
 pub mod publicationfacet;
 pub mod quota;
 pub mod remoteitem;

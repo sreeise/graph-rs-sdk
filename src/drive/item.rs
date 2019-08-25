@@ -1,11 +1,13 @@
 use crate::drive::drive_item::collection::Collection;
+use crate::drive::drive_item::driveinfo::DriveInfo;
 use crate::drive::drive_item::driveitem::DriveItem;
 use crate::drive::drive_item::driveitemversion::DriveItemVersion;
 use crate::drive::drive_item::itemactivity::ItemActivity;
 use crate::drive::drive_item::itemreference::ItemReference;
+use crate::drive::drive_item::preview::Preview;
 use crate::drive::drive_item::thumbnail::{Thumbnail, ThumbnailSet};
 use crate::drive::driveurl::MutateUrl;
-use crate::drive::event::{CreateUploadSession, ItemRefCopy, UploadSessionJson};
+use crate::drive::event::{CreateUploadSession, EmbeddableUrl, ItemRefCopy, UploadSessionJson};
 use crate::drive::event::{DriveEvent, NewFolder};
 use crate::drive::item::item_sealed::MutateRequest;
 use crate::drive::pipelines::datapipeline::Body;
@@ -19,12 +21,16 @@ use crate::drive::statusresponse::StatusResponse;
 use crate::drive::ItemResult;
 use crate::prelude::DriveUrl;
 use graph_error::{GraphError, GraphFailure};
+use reqwest::header::HeaderValue;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
-use crate::drive::drive_item::driveinfo::DriveInfo;
 
 pub trait IntoItem<T>: MutateUrl {
     fn send(&mut self) -> ItemResult<T>;
+
+    fn send_serde_value(&mut self) -> ItemResult<serde_json::Value>;
+
+    fn response(&mut self) -> ItemResult<reqwest::Response>;
 }
 
 pub struct SelectEventMe(DataPipeline);
@@ -103,7 +109,9 @@ impl SelectResource {
 }
 
 pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
-    /// Retrieve the metadata for a DriveItem in a Drive by file system path or ID.
+    /// Delete a DriveItem by ID. Note that deleting items using
+    /// this method will move the items to the recycle bin instead of permanently
+    /// deleting the item.
     ///
     /// # See
     /// [Delete a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_delete?view=odsp-graph-online)
@@ -113,15 +121,20 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Delete))
     }
 
-    fn delete_drive_item(&mut self, value: &DriveItem) -> ItemResult<Request<StatusResponse>> {
-        let item_id = value
-            .id()
-            .as_ref()
-            .ok_or_else(|| GraphFailure::none_err("item_id"))?;
-        Ok(self.delete(item_id.as_str()))
+    /// Delete a DriveItem by path. Note that deleting items using
+    /// this method will move the items to the recycle bin instead of permanently
+    /// deleting the item.
+    ///
+    /// # See
+    /// [Delete a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_delete?view=odsp-graph-online)
+    fn delete_path(&mut self, path: OsString) -> Request<StatusResponse> {
+        self.extend_path(&["drive", "root:"]);
+        self.extend_path_os_string(&[path]);
+        self.as_delete();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Delete))
     }
 
-    /// Retrieve the metadata for a DriveItem in a Drive by file system path or ID.
+    /// Retrieve the metadata for a DriveItem in a Drive by ID.
     ///
     /// # See
     /// [Get a DriveItem resource](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get?view=odsp-graph-online)
@@ -130,8 +143,9 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::GetItem))
     }
 
-    fn get_item_path(&mut self, path: &str) -> Request<DriveItem> {
-        self.extend_path(&["drive", "root:", path]);
+    fn get_item_path(&mut self, path: OsString) -> Request<DriveItem> {
+        self.extend_path(&["drive", "root:"]);
+        self.extend_path_os_string(&[path]);
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::GetItem))
     }
 
@@ -156,22 +170,11 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
     /// [Create a new folder in a drive](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_copy?view=odsp-graph-online)
     fn create_folder_path(
         &mut self,
-        path_from_root: &str,
+        path_from_root: OsString,
         new_folder: NewFolder,
     ) -> Request<DriveItem> {
-        if path_from_root.is_empty() {
-            self.extend_path(&["drive", "root", "children"])
-        } else if !path_from_root.ends_with(':') {
-            self.extend_path(&[
-                "drive",
-                "root:",
-                format!("{}{}", path_from_root, ":").as_str(),
-                "children",
-            ]);
-        } else {
-            self.extend_path(&["drive", "root:", path_from_root, "children"]);
-        }
-
+        self.format_path_me(path_from_root, true);
+        self.extend_path(&["children"]);
         self.body(Body::String(
             serde_json::to_string_pretty(&new_folder).unwrap(),
         ));
@@ -408,7 +411,8 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
         os_string.push(":");
 
         self.format_me(id.as_str());
-        self.extend_path(&[os_string.to_str().unwrap(), "content"]);
+        self.extend_path_os_string(&[os_string]);
+        self.extend_path(&["content"]);
 
         let mut f = OsString::new();
         f.push(file.as_ref());
@@ -420,9 +424,26 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
         )))
     }
 
-    /// List versions for a DriveItem. OneDrive and SharePoint can be configured
-    /// to retain the history for files. Depending on the service and configuration,
-    /// a new version can be created for each edit, each time the file is saved, manually,
+    fn upload_new_path<P: AsRef<Path>>(
+        &mut self,
+        path_from_root: OsString,
+        file: P,
+    ) -> Request<DriveItem> {
+        self.format_path_me(path_from_root, true);
+        self.extend_path(&["content"]);
+
+        let mut f = OsString::new();
+        f.push(file.as_ref());
+        self.body(Body::File(f));
+        self.as_put();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Upload))
+    }
+
+    /// List versions for a DriveItem given a DriveItem id.
+    ///
+    /// OneDrive and SharePoint can be configured to retain the history for files.
+    /// Depending on the service and configuration, a new version can be created for
+    /// each edit, each time the file is saved, manually,
     ///
     /// # See
     /// [Listing versions of a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_versions?view=odsp-graph-online)
@@ -435,9 +456,11 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
         ))
     }
 
-    /// List versions for a DriveItem. OneDrive and SharePoint can be configured
-    /// to retain the history for files. Depending on the service and configuration,
-    /// a new version can be created for each edit, each time the file is saved, manually,
+    /// List versions for a DriveItem given a DriveItem.
+    ///
+    /// OneDrive and SharePoint can be configured to retain the history for files.
+    /// Depending on the service and configuration, a new version can be created for
+    /// each edit, each time the file is saved, manually,
     ///
     /// # See
     /// [Listing versions of a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_versions?view=odsp-graph-online)
@@ -469,9 +492,9 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
         ))
     }
 
-    /// Restore a previous version of a DriveItem to be the current version.
-    /// This will create a new version with the contents of the previous version,
-    /// but preserves all existing versions of the file.
+    /// Restore a previous version of a DriveItem to be the current version using given
+    /// previous DriveItemVersion. This will create a new version with the contents of
+    /// the previous version, but preserves all existing versions of the file.
     ///
     /// # See
     /// [Restore a previous version of a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitemversion_restore?view=odsp-graph-online)
@@ -545,28 +568,71 @@ pub trait ItemMe: MutateRequest + AsMut<DriveUrl> + AsMut<DataPipeline> {
     ///
     /// # See
     /// [Upload large files with an upload session](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession?view=odsp-graph-online)
-    fn upload_session_new(
+    fn upload_session_new<P: AsRef<Path>>(
         &mut self,
         path_from_root: OsString,
-        file: OsString,
+        file: P,
         create_upload_session: Option<CreateUploadSession>,
     ) -> Request<UploadSessionPipeline> {
-        let mut s = path_from_root.to_os_string();
-        s.push(":");
-        self.extend_path(&["drive", "root:"]);
-        self.extend_path_os_string(&[s]);
+        self.format_path_me(path_from_root, true);
         self.extend_path(&["createUploadSession"]);
-        self.set_upload_session(file);
+        self.set_upload_session(OsString::from(file.as_ref()));
         self.as_post();
         if let Some(upload) = create_upload_session {
             let upload = UploadSessionJson::new(upload);
             let upload_json = upload.as_json().unwrap();
             self.body(Body::String(upload_json));
+        } else {
+            self.header(reqwest::header::CONTENT_LENGTH, HeaderValue::from(0));
         }
         Request::new(Box::new(Pipeline::new(
             self.pipeline_data(),
             DriveEvent::CreateUploadSession,
         )))
+    }
+
+    /// Previews using drive item id.
+    /// This action allows you to obtain short-lived embeddable URLs for an item.
+    /// Only works for SharePoint and OneDrive for business accounts.
+    ///
+    /// # See
+    /// [Embeddable file previews](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_preview?view=odsp-graph-online)
+    fn preview(
+        &mut self,
+        item_id: &str,
+        embeddable_url: Option<EmbeddableUrl>,
+    ) -> Request<Preview> {
+        self.format_me(item_id);
+        self.extend_path(&["preview"]);
+        if let Some(embeddable_url) = embeddable_url {
+            self.body(Body::String(embeddable_url.as_json().unwrap()))
+        } else {
+            self.header(reqwest::header::CONTENT_LENGTH, HeaderValue::from(0));
+        }
+        self.as_post();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Preview))
+    }
+
+    /// Previews using drive path.
+    /// This action allows you to obtain short-lived embeddable URLs for an item.
+    /// Only works for SharePoint and OneDrive for business accounts.
+    ///
+    /// # See
+    /// [Embeddable file previews](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_preview?view=odsp-graph-online)
+    fn preview_path(
+        &mut self,
+        path_from_root: OsString,
+        embeddable_url: Option<EmbeddableUrl>,
+    ) -> Request<Preview> {
+        self.format_path_me(path_from_root, true);
+        self.extend_path(&["preview"]);
+        if let Some(embeddable_url) = embeddable_url {
+            self.body(Body::String(embeddable_url.as_json().unwrap()))
+        } else {
+            self.header(reqwest::header::CONTENT_LENGTH, HeaderValue::from(0));
+        }
+        self.as_post();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Preview))
     }
 }
 
@@ -575,34 +641,56 @@ pub trait ItemCommon:
 {
     fn drive(&mut self, resource_id: &str) -> Request<DriveInfo> {
         self.extend_path(&[resource_id, "drives"]);
-        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Delete))
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::GetItem))
     }
 
+    /// Delete a DriveItem by ID. Note that deleting items using
+    /// this method will move the items to the recycle bin instead of permanently
+    /// deleting the item.
+    ///
+    /// # See
+    /// [Delete a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_delete?view=odsp-graph-online)
     fn delete(&mut self, item_id: &str, resource_id: &str) -> Request<StatusResponse> {
         self.format_common(item_id, resource_id);
         self.as_delete();
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Delete))
     }
 
-    fn delete_drive_item(&mut self, value: &DriveItem) -> ItemResult<Request<StatusResponse>> {
-        let (item_id, resource_id) = value.item_event_ids()?;
-        Ok(self.delete(item_id.as_str(), resource_id.as_str()))
+    /// Delete a DriveItem by path. Note that deleting items using
+    /// this method will move the items to the recycle bin instead of permanently
+    /// deleting the item.
+    ///
+    /// # See
+    /// [Delete a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_delete?view=odsp-graph-online)
+    fn delete_path(&mut self, resource_id: &str, path: OsString) -> Request<StatusResponse> {
+        self.format_path_common(resource_id, path, false);
+        self.as_delete();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Delete))
     }
 
+    /// Retrieve the metadata for a DriveItem in a Drive by file system path or ID.
+    ///
+    /// # See
+    /// [Get a DriveItem resource](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get?view=odsp-graph-online)
     fn get_item(&mut self, item_id: &str, resource_id: &str) -> Request<DriveItem> {
         self.format_common(item_id, resource_id);
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::GetItem))
     }
 
-    fn get_item_path(&mut self, resource_id: &str, path: &str) -> Request<DriveItem> {
-        self.extend_path(&[resource_id, "root:", path]);
+    fn get_item_path(&mut self, resource_id: &str, path: OsString) -> Request<DriveItem> {
+        self.format_path_common(resource_id, path, false);
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::GetItem))
     }
 
+    /// Asynchronously creates a copy of an driveItem (including any children),
+    /// under a new parent item or with a new name.
+    ///
+    /// # See
+    /// [Copy a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_copy?view=odsp-graph-online)
     fn copy(
         &mut self,
         item_id: &str,
-        drive_id: &str,
+        resource_id: &str,
         item_ref: &ItemReference,
         name: Option<&str>,
     ) -> Request<StatusResponse> {
@@ -614,7 +702,7 @@ pub trait ItemCommon:
             self.body(Body::String(item_ref.as_json().unwrap()));
         }
 
-        self.format_common(item_id, drive_id);
+        self.format_common(item_id, resource_id);
         self.extend_path(&["copy"]);
         self.as_post();
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Copy))
@@ -633,6 +721,10 @@ pub trait ItemCommon:
         Ok(self.copy(item_id.as_str(), resource_id.as_str(), &item_ref, name))
     }
 
+    /// Create a new folder or DriveItem in a Drive with a specified id.
+    ///
+    /// # See
+    /// [Create a new folder in a drive](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_copy?view=odsp-graph-online)
     fn create_folder(
         &mut self,
         resource_id: &str,
@@ -649,25 +741,18 @@ pub trait ItemCommon:
         ))
     }
 
+    /// Create a new folder or DriveItem in a Drive with a specified  path.
+    ///
+    /// # See
+    /// [Create a new folder in a drive](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_copy?view=odsp-graph-online)
     fn create_folder_path(
         &mut self,
         resource_id: &str,
-        path_from_root: &str,
+        path_from_root: OsString,
         new_folder: NewFolder,
     ) -> Request<DriveItem> {
-        if path_from_root.is_empty() {
-            self.extend_path(&[resource_id, "root", "children"])
-        } else if !path_from_root.ends_with(':') {
-            self.extend_path(&[
-                resource_id,
-                "root:",
-                format!("{}{}", path_from_root, ":").as_str(),
-                "children",
-            ]);
-        } else {
-            self.extend_path(&[resource_id, "root:", path_from_root, "children"]);
-        }
-
+        self.format_path_common(resource_id, path_from_root, true);
+        self.extend_path(&["children"]);
         self.body(Body::String(
             serde_json::to_string_pretty(&new_folder).unwrap(),
         ));
@@ -678,11 +763,15 @@ pub trait ItemCommon:
         ))
     }
 
+    /// Download the contents of the primary stream (file) of a DriveItem. Only
+    /// driveItems with the file property can be downloaded.
+    /// # See
+    /// [Download the contents of a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content?view=odsp-graph-online)
     fn download<P: AsRef<Path>>(
         &mut self,
-        directory: P,
         item_id: &str,
         resource_id: &str,
+        directory: P,
     ) -> DownloadPipeline {
         self.format_common(item_id, resource_id);
         self.extend_path(&["content"]);
@@ -699,20 +788,12 @@ pub trait ItemCommon:
 
     fn download_path<P: AsRef<Path>>(
         &mut self,
-        directory: P,
         resource_id: &str,
-        path: &[&str],
+        path: OsString,
+        directory: P,
     ) -> ItemResult<DownloadPipeline> {
-        if self.ends_with("drives") {
-            self.extend_path(&[resource_id, "items"]);
-            self.extend_path(path);
-            self.extend_path(&["content"])
-        } else {
-            self.extend_path(&[resource_id, "drive", "items"]);
-            self.extend_path(path);
-            self.extend_path(&["content"]);
-        }
-
+        self.format_path_common(resource_id, path, true);
+        self.extend_path(&["content"]);
         let mut fetch_pipeline = FetchPipeline::from(self.pipeline_data());
         let mut path_buf = PathBuf::new();
         path_buf.push(directory);
@@ -724,6 +805,10 @@ pub trait ItemCommon:
         })
     }
 
+    /// Retrieve a single thumbnail for a DriveItem
+    ///
+    /// # See
+    /// [List thumbnails for a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_thumbnails?view=odsp-graph-online)
     fn thumbnails(
         &mut self,
         item_id: &str,
@@ -763,6 +848,10 @@ pub trait ItemCommon:
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Thumbnails))
     }
 
+    /// Update the metadata for a DriveItem by ID.
+    ///
+    /// # See
+    /// [Update DriveItem properties](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_put_content?view=odsp-graph-online)
     fn update(
         &mut self,
         item_id: &str,
@@ -777,6 +866,10 @@ pub trait ItemCommon:
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Update))
     }
 
+    /// Update the metadata for a DriveItem by using a previous DriveItem
+    ///
+    /// # See
+    /// [Update DriveItem properties](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_put_content?view=odsp-graph-online)
     fn update_drive_item(
         &mut self,
         old_value: &DriveItem,
@@ -793,6 +886,12 @@ pub trait ItemCommon:
         )))
     }
 
+    /// The simple upload API allows you to provide the contents of a new
+    /// file or update the contents of an existing file in a single API call.
+    /// This method only supports files up to 4MB in size.
+    ///
+    /// # See
+    /// [Upload or replace the contents of a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_put_content?view=odsp-graph-online)
     fn upload_replace<P: AsRef<Path>>(
         &mut self,
         item_id: &str,
@@ -806,6 +905,12 @@ pub trait ItemCommon:
         Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Upload))
     }
 
+    /// Crate a new file or folder. The simple upload API allows you to provide
+    /// the contents of a new file or update the contents of an existing file in
+    /// a single API call. This method only supports files up to 4MB in size.
+    ///
+    /// # See
+    /// [Upload or replace the contents of a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_put_content?view=odsp-graph-online)
     fn upload_new<P: AsRef<Path>>(
         &mut self,
         parent_id: &str,
@@ -824,7 +929,8 @@ pub trait ItemCommon:
         os_string.push(":");
 
         self.format_common(id.as_str(), resource_id);
-        self.extend_path(&[os_string.to_str().unwrap(), "content"]);
+        self.extend_path_os_string(&[os_string]);
+        self.extend_path(&["content"]);
 
         let mut f = OsString::new();
         f.push(file.as_ref());
@@ -836,6 +942,33 @@ pub trait ItemCommon:
         )))
     }
 
+    fn upload_new_path<P: AsRef<Path>>(
+        &mut self,
+        resource_id: &str,
+        path_from_root: OsString,
+        file: P,
+    ) -> ItemResult<Request<DriveItem>> {
+        self.format_path_common(resource_id, path_from_root, true);
+        self.extend_path(&["content"]);
+
+        let mut f = OsString::new();
+        f.push(file.as_ref());
+        self.body(Body::File(f));
+        self.as_put();
+        Ok(Request::from(Pipeline::new(
+            self.pipeline_data(),
+            DriveEvent::Upload,
+        )))
+    }
+
+    /// List versions for a DriveItem given a DriveItem id.
+    ///
+    /// OneDrive and SharePoint can be configured to retain the history for files.
+    /// Depending on the service and configuration, a new version can be created for
+    /// each edit, each time the file is saved, manually,
+    ///
+    /// # See
+    /// [Listing versions of a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_versions?view=odsp-graph-online)
     fn list_versions(
         &mut self,
         item_id: &str,
@@ -849,6 +982,14 @@ pub trait ItemCommon:
         ))
     }
 
+    /// List versions for a DriveItem given a DriveItem.
+    ///
+    /// OneDrive and SharePoint can be configured to retain the history for files.
+    /// Depending on the service and configuration, a new version can be created for
+    /// each edit, each time the file is saved, manually,
+    ///
+    /// # See
+    /// [Listing versions of a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_list_versions?view=odsp-graph-online)
     fn list_versions_drive_item(
         &mut self,
         resource_id: &str,
@@ -861,6 +1002,12 @@ pub trait ItemCommon:
         Ok(self.list_versions(item_id.as_str(), resource_id))
     }
 
+    /// Restore a previous version of a DriveItem to be the current version.
+    /// This will create a new version with the contents of the previous version,
+    /// but preserves all existing versions of the file.
+    ///
+    /// # See
+    /// [Restore a previous version of a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitemversion_restore?view=odsp-graph-online)
     fn restore_version(
         &mut self,
         item_id: &str,
@@ -877,11 +1024,17 @@ pub trait ItemCommon:
         ))
     }
 
+    /// Restore a previous version of a DriveItem to be the current version using given
+    /// previous DriveItemVersion. This will create a new version with the contents of
+    /// the previous version, but preserves all existing versions of the file.
+    ///
+    /// # See
+    /// [Restore a previous version of a DriveItem](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitemversion_restore?view=odsp-graph-online)
     fn restore_drive_item_version(
         &mut self,
         item_id: &str,
-        version: &DriveItemVersion,
         resource_id: &str,
+        version: &DriveItemVersion,
     ) -> ItemResult<Request<StatusResponse>> {
         let version_id = version
             .id()
@@ -961,41 +1114,86 @@ pub trait ItemCommon:
     ///
     /// # See
     /// [Upload large files with an upload session](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession?view=odsp-graph-online)
-    fn upload_session_new(
+    fn upload_session_new<P: AsRef<Path>>(
         &mut self,
         resource_id: &str,
         path_from_root: OsString,
-        file: OsString,
+        file: P,
         create_upload_session: Option<CreateUploadSession>,
     ) -> Request<UploadSessionPipeline> {
-        let mut s = path_from_root.to_os_string();
-        s.push(":");
-        self.extend_path(&[resource_id, "root:"]);
-        self.extend_path_os_string(&[s]);
+        self.format_path_common(resource_id, path_from_root, true);
         self.extend_path(&["createUploadSession"]);
-        self.set_upload_session(file);
+        self.set_upload_session(OsString::from(file.as_ref()));
         self.as_post();
         if let Some(upload) = create_upload_session {
             let upload = UploadSessionJson::new(upload);
             let upload_json = upload.as_json().unwrap();
             self.body(Body::String(upload_json));
+        } else {
+            self.header(reqwest::header::CONTENT_LENGTH, HeaderValue::from(0));
         }
         Request::new(Box::new(Pipeline::new(
             self.pipeline_data(),
             DriveEvent::CreateUploadSession,
         )))
     }
+
+    /// Previews using drive item id.
+    /// This action allows you to obtain short-lived embeddable URLs for an item.
+    /// Only works for SharePoint and OneDrive for business accounts.
+    ///
+    /// # See
+    /// [Embeddable file previews](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_preview?view=odsp-graph-online)
+    fn preview(
+        &mut self,
+        item_id: &str,
+        resource_id: &str,
+        embeddable_url: Option<EmbeddableUrl>,
+    ) -> Request<Preview> {
+        self.format_common(item_id, resource_id);
+        self.extend_path(&["preview"]);
+        if let Some(embeddable_url) = embeddable_url {
+            self.body(Body::String(embeddable_url.as_json().unwrap()))
+        } else {
+            self.header(reqwest::header::CONTENT_LENGTH, HeaderValue::from(0));
+        }
+        self.as_post();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Preview))
+    }
+
+    /// Previews using drive path.
+    /// This action allows you to obtain short-lived embeddable URLs for an item.
+    /// Only works for SharePoint and OneDrive for business accounts.
+    ///
+    /// # See
+    /// [Embeddable file previews](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_preview?view=odsp-graph-online)
+    fn preview_path(
+        &mut self,
+        resource_id: &str,
+        path_from_root: OsString,
+        embeddable_url: Option<EmbeddableUrl>,
+    ) -> Request<Preview> {
+        self.format_path_common(resource_id, path_from_root, true);
+        self.extend_path(&["preview"]);
+        if let Some(embeddable_url) = embeddable_url {
+            self.body(Body::String(embeddable_url.as_json().unwrap()))
+        } else {
+            self.header(reqwest::header::CONTENT_LENGTH, HeaderValue::from(0));
+        }
+        self.as_post();
+        Request::from(Pipeline::new(self.pipeline_data(), DriveEvent::Preview))
+    }
 }
 
 mod item_sealed {
-    use std::ffi::OsString;
-
     use crate::drive::driveurl::DriveUrl;
     use crate::drive::endpoint::DriveEndPoint;
     use crate::drive::event::DriveEvent;
     use crate::drive::item::SelectEventMe;
     use crate::drive::item::{SelectEvent, SelectResource};
     use crate::drive::pipelines::datapipeline::{Body, DataPipeline, RequestType};
+    use reqwest::header::{HeaderValue, IntoHeaderName};
+    use std::ffi::OsString;
 
     pub trait MutateRequest {
         fn pipeline_data(&self) -> DataPipeline;
@@ -1040,6 +1238,14 @@ mod item_sealed {
             Self: AsMut<DataPipeline>,
         {
             self.as_mut().set_upload_session(file);
+        }
+
+        fn header<K>(&mut self, key: K, val: HeaderValue)
+        where
+            Self: AsMut<DataPipeline>,
+            K: IntoHeaderName,
+        {
+            self.as_mut().header(key, val);
         }
 
         fn request_type(&mut self, r: RequestType)
@@ -1107,6 +1313,58 @@ mod item_sealed {
             } else {
                 self.as_mut()
                     .extend_path(&[resource_id, "drive", "items", item_id]);
+            }
+        }
+
+        fn format_path_me(&mut self, path: OsString, end_colon: bool)
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            if !path.is_empty() {
+                self.as_mut().extend_path(&["drive", "root:"]);
+                if end_colon {
+                    let mut s = path.clone();
+                    s.push(":");
+                    self.as_mut().extend_path_os_string(&[s]);
+                } else {
+                    self.as_mut().extend_path_os_string(&[path]);
+                }
+            }
+        }
+
+        fn format_path_drives(&mut self, resource_id: &str, path: OsString, end_colon: bool)
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            if !path.is_empty() {
+                self.as_mut().extend_path(&[resource_id, "root:"]);
+                if end_colon {
+                    let mut s = path.clone();
+                    s.push(":");
+                    self.as_mut().extend_path_os_string(&[s]);
+                } else {
+                    self.as_mut().extend_path_os_string(&[path]);
+                }
+            }
+        }
+
+        fn format_path_common(&mut self, resource_id: &str, path: OsString, end_colon: bool)
+        where
+            Self: AsMut<DriveUrl>,
+        {
+            if !path.is_empty() {
+                if self.as_mut().ends_with("drives") {
+                    self.format_path_drives(resource_id, path, end_colon);
+                } else {
+                    self.as_mut().extend_path(&[resource_id, "drive", "root:"]);
+                    if end_colon {
+                        let mut s = path.clone();
+                        s.push(":");
+                        self.as_mut().extend_path_os_string(&[s]);
+                    } else {
+                        self.as_mut().extend_path_os_string(&[path]);
+                    }
+                }
             }
         }
 

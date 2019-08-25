@@ -14,7 +14,7 @@ pub struct InnerError {
     #[serde(skip_serializing_if = "Option::is_none")]
     request_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    date: Option<String>
+    date: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -243,7 +243,8 @@ impl TryFrom<&mut Response> for GraphError {
         let status = value.status().as_u16();
         let mut graph_error = GraphError::try_from(status)?;
         if let Ok(text) = value.text() {
-            let error_message: ErrorMessage = serde_json::from_str(text.as_str()).unwrap_or_default();
+            let error_message: ErrorMessage =
+                serde_json::from_str(text.as_str()).unwrap_or_default();
             graph_error.error_message = error_message;
         }
         graph_error.set_headers(GraphHeaders::from(value));

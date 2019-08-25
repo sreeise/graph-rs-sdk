@@ -49,6 +49,20 @@ where
     fn send(&mut self) -> ItemResult<T> {
         pipeline_request().send(self.pipeline.clone())
     }
+
+    fn send_serde_value(&mut self) -> ItemResult<serde_json::Value> {
+        let builder: RequestBuilder = self.pipeline.request_builder()?;
+        let mut response = builder.send()?;
+
+        if let Some(err) = GraphFailure::err_from(&mut response) {
+            return Err(err);
+        }
+        Ok(response.json()?)
+    }
+
+    fn response(&mut self) -> ItemResult<reqwest::Response> {
+        Ok(self.pipeline.request_builder()?.send()?)
+    }
 }
 
 impl IntoItem<StatusResponse> for Pipeline {
@@ -62,11 +76,40 @@ impl IntoItem<StatusResponse> for Pipeline {
 
         Ok(StatusResponse::new(self.event, response))
     }
+
+    fn send_serde_value(&mut self) -> ItemResult<serde_json::Value> {
+        let builder: RequestBuilder = self.pipeline.request_builder()?;
+        let mut response = builder.send()?;
+
+        if let Some(err) = GraphFailure::err_from(&mut response) {
+            return Err(err);
+        }
+
+        Ok(response.json()?)
+    }
+
+    fn response(&mut self) -> ItemResult<reqwest::Response> {
+        Ok(self.pipeline.request_builder()?.send()?)
+    }
 }
 
 impl IntoItem<UploadSessionPipeline> for Pipeline {
     fn send(&mut self) -> ItemResult<UploadSessionPipeline> {
         upload_session_pipeline().send(self.pipeline.clone())
+    }
+
+    fn send_serde_value(&mut self) -> ItemResult<serde_json::Value> {
+        let builder: RequestBuilder = self.pipeline.request_builder()?;
+        let mut response = builder.send()?;
+
+        if let Some(err) = GraphFailure::err_from(&mut response) {
+            return Err(err);
+        }
+        Ok(response.json()?)
+    }
+
+    fn response(&mut self) -> ItemResult<reqwest::Response> {
+        Ok(self.pipeline.request_builder()?.send()?)
     }
 }
 
