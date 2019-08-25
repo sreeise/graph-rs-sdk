@@ -1,7 +1,7 @@
 use crate::drive::driveurl::{DriveUrl, MutateUrl};
 use crate::drive::ItemResult;
 use graph_error::GraphFailure;
-use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName};
 use reqwest::{header, Client, RequestBuilder};
 use std::ffi::OsString;
 use std::fs::File;
@@ -35,7 +35,6 @@ pub struct DataPipeline {
     pub content_type: String,
     pub body: Option<Body>,
     pub headers: HeaderMap,
-    pub is_upload_session: bool,
     pub upload_session_file: OsString,
 }
 
@@ -48,7 +47,6 @@ impl DataPipeline {
             content_type: "application/json".into(),
             body: None,
             headers: HeaderMap::new(),
-            is_upload_session: false,
             upload_session_file: Default::default(),
         }
     }
@@ -88,8 +86,14 @@ impl DataPipeline {
     }
 
     pub fn set_upload_session(&mut self, file: OsString) {
-        self.is_upload_session = true;
         self.upload_session_file = file;
+    }
+
+    pub fn header<K>(&mut self, key: K, val: HeaderValue)
+    where
+        K: IntoHeaderName,
+    {
+        self.headers.insert(key, val);
     }
 
     pub fn request_builder(&self) -> ItemResult<RequestBuilder> {
@@ -98,10 +102,6 @@ impl DataPipeline {
             header::CONTENT_TYPE,
             HeaderValue::from_str(self.content_type.as_str()).unwrap(),
         );
-
-        if self.body.is_none() && self.is_upload_session {
-            headers.insert(header::CONTENT_LENGTH, HeaderValue::from(0));
-        }
 
         match self.request_type {
             RequestType::Get => {

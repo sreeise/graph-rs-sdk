@@ -51,6 +51,14 @@ impl<T> Request<T> {
         self.item.send()
     }
 
+    pub fn send_serde_value(&mut self) -> ItemResult<serde_json::Value> {
+        self.item.send_serde_value()
+    }
+
+    pub fn response(&mut self) -> ItemResult<reqwest::Response> {
+        self.item.response()
+    }
+
     pub fn client() -> ItemResult<Client> {
         reqwest::Client::builder()
             .build()
