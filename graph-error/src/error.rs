@@ -9,12 +9,12 @@ use std::string::ToString;
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct InnerError {
     #[serde(skip_serializing_if = "Option::is_none")]
-    code: Option<String>,
+    pub code: Option<String>,
     #[serde(rename = "request-id")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    request_id: Option<String>,
+    pub request_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    date: Option<String>,
+    pub date: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
