@@ -11,7 +11,6 @@ use crate::drive::pipelines::uploadsessionpipeline::{
 use crate::drive::statusresponse::StatusResponse;
 use crate::drive::ItemResult;
 use graph_error::GraphFailure;
-use reqwest::RequestBuilder;
 
 #[derive(Clone, PartialEq)]
 pub struct Pipeline {
@@ -51,13 +50,7 @@ where
     }
 
     fn send_serde_value(&mut self) -> ItemResult<serde_json::Value> {
-        let builder: RequestBuilder = self.pipeline.request_builder()?;
-        let mut response = builder.send()?;
-
-        if let Some(err) = GraphFailure::err_from(&mut response) {
-            return Err(err);
-        }
-        Ok(response.json()?)
+        pipeline_request().send(self.pipeline.clone())
     }
 
     fn response(&mut self) -> ItemResult<reqwest::Response> {
@@ -67,25 +60,15 @@ where
 
 impl IntoItem<StatusResponse> for Pipeline {
     fn send(&mut self) -> ItemResult<StatusResponse> {
-        let builder: RequestBuilder = self.pipeline.request_builder()?;
-        let mut response = builder.send()?;
-
+        let mut response = self.pipeline.request_builder()?.send()?;
         if let Some(err) = GraphFailure::err_from(&mut response) {
             return Err(err);
         }
-
         Ok(StatusResponse::new(self.event, response))
     }
 
     fn send_serde_value(&mut self) -> ItemResult<serde_json::Value> {
-        let builder: RequestBuilder = self.pipeline.request_builder()?;
-        let mut response = builder.send()?;
-
-        if let Some(err) = GraphFailure::err_from(&mut response) {
-            return Err(err);
-        }
-
-        Ok(response.json()?)
+        pipeline_request().send(self.pipeline.clone())
     }
 
     fn response(&mut self) -> ItemResult<reqwest::Response> {
@@ -99,13 +82,7 @@ impl IntoItem<UploadSessionPipeline> for Pipeline {
     }
 
     fn send_serde_value(&mut self) -> ItemResult<serde_json::Value> {
-        let builder: RequestBuilder = self.pipeline.request_builder()?;
-        let mut response = builder.send()?;
-
-        if let Some(err) = GraphFailure::err_from(&mut response) {
-            return Err(err);
-        }
-        Ok(response.json()?)
+        pipeline_request().send(self.pipeline.clone())
     }
 
     fn response(&mut self) -> ItemResult<reqwest::Response> {
