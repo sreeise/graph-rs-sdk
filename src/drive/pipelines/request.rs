@@ -100,14 +100,7 @@ impl ReqBuilder {
     }
 
     pub fn send(&mut self) -> ItemResult<Value> {
-        let req = self.pipeline.request_builder()?;
-        let mut response = req.send()?;
-
-        if let Some(err) = GraphFailure::err_from(&mut response) {
-            return Err(err);
-        }
-        let value: Value = response.json()?;
-        Ok(value)
+        pipeline_request().send(self.pipeline.clone())
     }
 }
 
