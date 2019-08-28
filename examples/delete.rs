@@ -19,7 +19,7 @@ fn delete_id(item_id: &str) {
     let drive: Drive = Drive::try_from(oauth).unwrap();
 
     // Create the request to delete the drive item.
-    let mut req = drive.v1().me().delete(item_id);
+    let mut req = drive.v1().me().delete().by_id(item_id);
 
     // Send the request.
     let mut response: StatusResponse = req.send().unwrap();
@@ -34,7 +34,7 @@ pub fn delete_path(path: OsString) {
     let drive: Drive = Drive::try_from(oauth).unwrap();
 
     // Create the request to delete the drive item.
-    let mut req = drive.v1().me().delete_path(path);
+    let mut req = drive.v1().me().delete().by_path(path);
 
     // Send the request.
     let mut response: StatusResponse = req.send().unwrap();

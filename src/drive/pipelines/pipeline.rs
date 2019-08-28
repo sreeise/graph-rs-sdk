@@ -12,7 +12,7 @@ use crate::drive::statusresponse::StatusResponse;
 use crate::drive::ItemResult;
 use graph_error::GraphFailure;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct Pipeline {
     pub pipeline: DataPipeline,
     pub event: DriveEvent,
@@ -49,12 +49,8 @@ where
         pipeline_request().send(self.pipeline.clone())
     }
 
-    fn send_serde_value(&mut self) -> ItemResult<serde_json::Value> {
-        pipeline_request().send(self.pipeline.clone())
-    }
-
-    fn response(&mut self) -> ItemResult<reqwest::Response> {
-        Ok(self.pipeline.request_builder()?.send()?)
+    fn drive_event(&mut self) -> DriveEvent {
+        self.event
     }
 }
 
@@ -67,12 +63,8 @@ impl IntoItem<StatusResponse> for Pipeline {
         Ok(StatusResponse::new(self.event, response))
     }
 
-    fn send_serde_value(&mut self) -> ItemResult<serde_json::Value> {
-        pipeline_request().send(self.pipeline.clone())
-    }
-
-    fn response(&mut self) -> ItemResult<reqwest::Response> {
-        Ok(self.pipeline.request_builder()?.send()?)
+    fn drive_event(&mut self) -> DriveEvent {
+        self.event
     }
 }
 
@@ -81,12 +73,8 @@ impl IntoItem<UploadSessionPipeline> for Pipeline {
         upload_session_pipeline().send(self.pipeline.clone())
     }
 
-    fn send_serde_value(&mut self) -> ItemResult<serde_json::Value> {
-        pipeline_request().send(self.pipeline.clone())
-    }
-
-    fn response(&mut self) -> ItemResult<reqwest::Response> {
-        Ok(self.pipeline.request_builder()?.send()?)
+    fn drive_event(&mut self) -> DriveEvent {
+        self.event
     }
 }
 

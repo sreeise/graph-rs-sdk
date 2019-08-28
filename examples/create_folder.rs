@@ -18,7 +18,7 @@ fn create_new_folder() {
     let drive: Drive = Drive::try_from(oauth).unwrap();
 
     let new_folder: NewFolder = NewFolder::new(FOLDER_NAME, ConflictBehavior::Rename);
-    let mut request = drive.v1().me().create_folder(PARENT_ID, new_folder);
+    let mut request = drive.v1().me().create_folder(new_folder).by_id(PARENT_ID);
 
     let drive_item: DriveItem = request.send().unwrap();
     println!("{:#?}", drive_item);

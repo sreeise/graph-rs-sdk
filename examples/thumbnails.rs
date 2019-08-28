@@ -21,7 +21,9 @@ pub fn get_thumbnails(drive_item: &mut Collection<DriveItem>) {
     let drive = get_drive();
     let drive_item: DriveItem = drive_item.find_by_name(DRIVE_FILE).unwrap();
     let item_id = drive_item.id().as_ref().unwrap();
-    let collection: Collection<ThumbnailSet> =
-        drive.v1().me().thumbnails(item_id.as_str()).send().unwrap();
+
+    let mut req = drive.v1().me().thumbnails().by_id(item_id.as_str());
+
+    let collection: Collection<ThumbnailSet> = req.send().unwrap();
     println!("{:#?}", collection.value());
 }

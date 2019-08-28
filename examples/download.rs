@@ -1,24 +1,23 @@
 use rust_onedrive::drive::endpoint::EP;
-use rust_onedrive::drive::pipelines::downloadpipeline::{IntoFetch, MutateDownload};
+use rust_onedrive::drive::pipelines::downloadpipeline::MutateDownload;
 use rust_onedrive::drive::Drive;
 use rust_onedrive::from_to::*;
 use rust_onedrive::oauth::OAuth;
-use rust_onedrive::prelude::{Collection, DriveItem, ItemMe};
+use rust_onedrive::prelude::*;
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::PathBuf;
 
 fn main() {
     download();
-    download_with_drive_item();
     download_and_format();
     // Rename the downloaded file
     download_and_rename("FILE_NAME");
 }
 
-// Set the name of the file you want to download here. The file must be in
-// the root of your drive. This is the same place where your normal Documents,
-// Attachments, Pictures, Desktop, etc. folders are.
+// Set the name of the file you want to download here. For the method below, the
+// file must be in the root of your drive. This is the same place where your normal
+// Documents, Attachments, Pictures, Desktop, etc. folders are.
 static DRIVE_FILE: &str = "YOUR_DRIVE_FILE_NAME";
 
 pub fn download() {
@@ -35,43 +34,17 @@ pub fn download() {
 
     // Get the Values vec that lists the files.
     let drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
-    let item_id = drive_item.id().clone().unwrap();
+    let item_id = drive_item.id().as_ref().unwrap();
 
     // Download the file. The file will be downloaded with the same name.
     let mut req = drive
         .v1()
         .me()
-        .download(item_id.as_str(), "./examples/example_files");
+        .download("./examples/example_files")
+        .by_id(item_id.as_str());
 
     let path_buf: PathBuf = req.send().unwrap();
     println!("{:#?}", path_buf);
-}
-
-pub fn download_with_drive_item() {
-    // Get the access token from OAuth for the Drive API.
-    let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
-    let drive = Drive::try_from(oauth).unwrap();
-
-    // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: Collection<DriveItem> = drive.v1().drive_root_child().send().unwrap();
-    // Save the metadata of the files.
-    collection
-        .to_json_file("./examples/example_files/drive_root_child.json")
-        .unwrap();
-
-    // Get the Values vec that lists the files.
-    let mut drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
-
-    // Download the file. The file will be downloaded with the same name.
-    let mut req = drive
-        .v1()
-        .me()
-        .download_drive_item(&mut drive_item, "./examples/example_files")
-        .unwrap();
-
-    let path_buf: PathBuf = req.send().unwrap();
-
-    println!("{:#?}", path_buf.metadata());
 }
 
 // You can convert a file to a different format using the download_format() method.
@@ -94,14 +67,15 @@ pub fn download_and_format() {
         .unwrap();
 
     // Get the Values vec that lists the files.
-    let mut drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
+    let drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
+    let id = drive_item.id().as_ref().unwrap();
 
     // Create the download request.
     let mut req = drive
         .v1()
         .me()
-        .download_drive_item(&mut drive_item, "./examples/example_files")
-        .unwrap();
+        .download("./examples/example_files")
+        .by_id(id.as_str());
 
     // Select the format.
     req.format_pdf();
@@ -125,14 +99,15 @@ fn download_and_rename(name: &str) {
         .unwrap();
 
     // Get the Values vec that lists the files.
-    let mut drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
+    let drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
+    let id = drive_item.id().as_ref().unwrap();
 
     // Create the download request.
     let mut req = drive
         .v1()
         .me()
-        .download_drive_item(&mut drive_item, "./examples/example_files")
-        .unwrap();
+        .download("./examples/example_files")
+        .by_id(id.as_str());
 
     // Rename the file
     req.rename(OsString::from(name));

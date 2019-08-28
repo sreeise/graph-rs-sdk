@@ -1,5 +1,6 @@
 use crate::drive::driveurl::DriveUrl;
-use crate::drive::event::DownloadFormat;
+use crate::drive::event::{DownloadFormat, DriveEvent};
+use crate::drive::item::IntoItem;
 use crate::drive::pipelines::datapipeline::DataPipeline;
 use crate::drive::pipelines::request::PipelineRequest;
 use crate::drive::ItemResult;
@@ -29,10 +30,6 @@ pub trait MutateDownload {
     fn format_pdf(&mut self) {
         self.format(DownloadFormat::PDF);
     }
-}
-
-pub trait IntoFetch {
-    fn send(&mut self) -> ItemResult<PathBuf>;
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromToFile)]
@@ -135,6 +132,7 @@ impl MutateDownload for DownloadPipeline {
             .url
             .append_query_pair("format", format.as_ref());
         self.pipeline.format = Some(format);
+        self.is_direct_download = false;
     }
 
     fn rename(&mut self, file_name: OsString) {
@@ -142,12 +140,47 @@ impl MutateDownload for DownloadPipeline {
     }
 }
 
-impl IntoFetch for DownloadPipeline {
+impl IntoItem<PathBuf> for DownloadPipeline {
     fn send(&mut self) -> ItemResult<PathBuf> {
-        if self.is_direct_download {
-            fetch_download().send(self.pipeline.clone())
+        download_pipeline_request().send(self.clone())
+    }
+
+    fn drive_event(&mut self) -> DriveEvent {
+        DriveEvent::Download
+    }
+}
+
+impl AsRef<DriveEvent> for DownloadPipeline {
+    fn as_ref(&self) -> &DriveEvent {
+        &DriveEvent::Download
+    }
+}
+
+pub fn download_pipeline_request() -> impl PipelineRequest<PathBuf, DownloadPipeline> {
+    move |data: DownloadPipeline| {
+        if data.is_direct_download {
+            fetch_download().send(data.pipeline)
         } else {
-            fetch_redirect().send(self.pipeline.clone())
+            fetch_redirect().send(data.pipeline)
         }
     }
+}
+
+mod download_pipeline_sealed {
+    use crate::drive::driveurl::{DriveUrl, MutateUrl};
+    use crate::drive::pipelines::downloadpipeline::DownloadPipeline;
+
+    impl AsRef<DriveUrl> for DownloadPipeline {
+        fn as_ref(&self) -> &DriveUrl {
+            &self.pipeline.url
+        }
+    }
+
+    impl AsMut<DriveUrl> for DownloadPipeline {
+        fn as_mut(&mut self) -> &mut DriveUrl {
+            &mut self.pipeline.url
+        }
+    }
+
+    impl MutateUrl for DownloadPipeline {}
 }

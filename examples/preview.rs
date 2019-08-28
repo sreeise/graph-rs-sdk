@@ -26,7 +26,7 @@ fn main() {
 fn get_preview(access_token: &str, item_id: &str) {
     let drive = Drive::new(access_token);
 
-    let mut req = drive.v2().me().preview(item_id, None);
+    let mut req = drive.v2().me().preview(None).by_id(item_id);
 
     match req.send() {
         Ok(t) => {
@@ -41,7 +41,7 @@ fn get_preview(access_token: &str, item_id: &str) {
 fn get_preview_with_properties(access_token: &str, item_id: &str, embeddable_url: EmbeddableUrl) {
     let drive = Drive::new(access_token);
 
-    let mut req = drive.v2().me().preview(item_id, Some(embeddable_url));
+    let mut req = drive.v2().me().preview(Some(embeddable_url)).by_id(item_id);
 
     match req.send() {
         Ok(t) => {

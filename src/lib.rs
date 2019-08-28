@@ -122,7 +122,7 @@ extern crate getset;
 /// The main drive module used for making requests
 /// to the OneDrive V1.0 and Graph Beta endpoints.
 pub mod drive;
-mod io;
+pub mod io;
 
 /// Common structs and traits.
 pub mod prelude {
@@ -130,8 +130,8 @@ pub mod prelude {
     pub use crate::drive::drive_item::driveitem::DriveItem;
     pub use crate::drive::driveurl::{DriveUrl, MutateUrl};
     pub use crate::drive::endpoint::{DriveEndPoint, EP};
-    pub use crate::drive::item::{ItemCommon, ItemMe, SelectEventMe};
-    pub use crate::drive::pipelines::downloadpipeline::{IntoFetch, MutateDownload};
+    pub use crate::drive::item::{AsEvent, IntoItem, SelectEventMe};
+    pub use crate::drive::pipelines::downloadpipeline::MutateDownload;
     pub use crate::drive::pipelines::request::{ReqBuilder, Request};
     pub use crate::drive::{Drive, ItemResult};
     pub use crate::from_to::*;

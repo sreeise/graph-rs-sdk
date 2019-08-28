@@ -1,16 +1,12 @@
 use crate::drive::driveurl::{DriveUrl, MutateUrl};
+use crate::drive::event::DriveEvent;
+use crate::drive::pipelines::pipeline::Pipeline;
+use crate::drive::pipelines::request::Request;
 use crate::drive::ItemResult;
-use graph_error::GraphFailure;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName};
 use reqwest::{header, Client, RequestBuilder};
 use std::ffi::OsString;
 use std::fs::File;
-
-fn client() -> ItemResult<Client> {
-    reqwest::Client::builder()
-        .build()
-        .map_err(GraphFailure::from)
-}
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum RequestType {
@@ -27,7 +23,7 @@ pub enum Body {
     File(OsString),
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct DataPipeline {
     pub(crate) token: String,
     pub url: DriveUrl,
@@ -36,6 +32,7 @@ pub struct DataPipeline {
     pub body: Option<Body>,
     pub headers: HeaderMap,
     pub upload_session_file: OsString,
+    client: Client,
 }
 
 impl DataPipeline {
@@ -48,6 +45,7 @@ impl DataPipeline {
             body: None,
             headers: HeaderMap::new(),
             upload_session_file: Default::default(),
+            client: Request::<()>::client().unwrap(),
         }
     }
 
@@ -63,6 +61,46 @@ impl DataPipeline {
         } else {
             Ok(builder)
         }
+    }
+
+    pub fn get<T>(mut self, event: DriveEvent) -> Request<T>
+    where
+        T: for<'de> serde::Deserialize<'de>,
+    {
+        self.as_get();
+        Request::from(Pipeline::new(self, event))
+    }
+
+    pub fn post<T>(mut self, event: DriveEvent) -> Request<T>
+    where
+        T: for<'de> serde::Deserialize<'de>,
+    {
+        self.as_post();
+        Request::from(Pipeline::new(self, event))
+    }
+
+    pub fn put<T>(mut self, event: DriveEvent) -> Request<T>
+    where
+        T: for<'de> serde::Deserialize<'de>,
+    {
+        self.as_put();
+        Request::from(Pipeline::new(self, event))
+    }
+
+    pub fn patch<T>(mut self, event: DriveEvent) -> Request<T>
+    where
+        T: for<'de> serde::Deserialize<'de>,
+    {
+        self.as_patch();
+        Request::from(Pipeline::new(self, event))
+    }
+
+    pub fn delete<T>(mut self, event: DriveEvent) -> Request<T>
+    where
+        T: for<'de> serde::Deserialize<'de>,
+    {
+        self.as_delete();
+        Request::from(Pipeline::new(self, event))
     }
 
     pub fn as_get(&mut self) {
@@ -105,35 +143,39 @@ impl DataPipeline {
 
         match self.request_type {
             RequestType::Get => {
-                let builder = client()?
+                let builder = self
+                    .client
                     .get(self.url.as_str())
                     .bearer_auth(self.token.as_str())
                     .headers(headers);
                 self.merge_body(builder)
             },
             RequestType::Post => {
-                let builder = client()?
+                let builder = Request::<()>::client()?
                     .post(self.url.as_str())
                     .bearer_auth(self.token.as_str())
                     .headers(headers);
                 self.merge_body(builder)
             },
             RequestType::Put => {
-                let builder = client()?
+                let builder = self
+                    .client
                     .put(self.url.as_str())
                     .bearer_auth(self.token.as_str())
                     .headers(headers);
                 self.merge_body(builder)
             },
             RequestType::Patch => {
-                let builder = client()?
+                let builder = self
+                    .client
                     .patch(self.url.as_str())
                     .bearer_auth(self.token.as_str())
                     .headers(headers);
                 self.merge_body(builder)
             },
             RequestType::Delete => {
-                let builder = client()?
+                let builder = self
+                    .client
                     .delete(self.url.as_str())
                     .bearer_auth(self.token.as_str())
                     .headers(headers);

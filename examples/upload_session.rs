@@ -12,11 +12,11 @@ fn main() {
     let path = OsString::from("Documents/<YOUR_FILE.ext>");
 
     // Pass the OneDrive path and the local path of the file you want to upload.
-    let mut req =
-        drive
-            .v1()
-            .me()
-            .upload_session_new(path, "./examples/example_files/<YOUR_FILE.ext>", None);
+    let mut req = drive
+        .v1()
+        .me()
+        .upload_session_new("./examples/example_files/<YOUR_FILE.ext>", None)
+        .by_path(path);
     let mut upload_session = req.send().unwrap();
 
     // Iterate through each API request. The next method returns a SessionResult enum

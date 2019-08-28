@@ -50,9 +50,25 @@ impl DriveUrl {
         self
     }
 
+    // TODO: Fix the Os specific encoding.
     pub fn extend_path_os_string(&mut self, path: &[OsString]) -> &mut Self {
         if let Ok(mut p) = self.url.path_segments_mut() {
-            p.extend(path.iter().map(|s| s.to_str()).flatten());
+            for s in path.iter() {
+                #[cfg(any(unix))]
+                {
+                    use std::os::unix::ffi::OsStrExt;
+                    let s = url::percent_encoding::percent_encode(
+                        s.as_bytes(),
+                        url::percent_encoding::SIMPLE_ENCODE_SET,
+                    );
+                    p.extend(s);
+                }
+
+                #[cfg(windows)]
+                {
+                    p.extend(s);
+                }
+            }
         }
         self
     }
@@ -60,7 +76,11 @@ impl DriveUrl {
     pub fn endpoint(&mut self, de: DriveEndPoint) -> &mut Self {
         let mut vec: Vec<&str> = de.as_str().split('/').collect();
         vec.retain(|s| !s.eq(&""));
-        self.extend_path(&vec)
+        if !vec.is_empty() {
+            self.extend_path(&vec)
+        } else {
+            self
+        }
     }
 
     pub fn event(&mut self, event: DriveEvent) -> &mut Self {
@@ -171,7 +191,15 @@ impl<'de> serde::Deserialize<'de> for DriveUrl {
     }
 }
 
-pub trait MutateUrl: AsMut<DriveUrl> + AsRef<DriveUrl> {
+pub trait MutateUrl: AsMut<DriveUrl> {
+    fn extend_path(&mut self, path: &[&str]) {
+        self.as_mut().extend_path(path);
+    }
+
+    fn extend_path_os_string(&mut self, path: &[OsString]) {
+        self.as_mut().extend_path_os_string(path);
+    }
+
     fn append_query_pair(&mut self, key: &str, value: &str) {
         self.as_mut()
             .append_query_pair(key.as_ref(), value.as_ref());
@@ -227,5 +255,9 @@ pub trait MutateUrl: AsMut<DriveUrl> + AsRef<DriveUrl> {
 
     fn top(&mut self, value: &str) {
         self.as_mut().append_query_pair("top", value.as_ref());
+    }
+
+    fn ends_with(&mut self, s: &str) -> bool {
+        self.as_mut().ends_with(s)
     }
 }

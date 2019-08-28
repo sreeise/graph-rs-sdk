@@ -32,7 +32,8 @@ fn copy_item() {
     let mut request = drive
         .v1()
         .me()
-        .copy(item_id.as_str(), &item_ref, Some(DRIVE_FILE_COPY_NAME));
+        .copy(Some(DRIVE_FILE_COPY_NAME), &item_ref)
+        .by_id(item_id.as_str());
 
     let mut response: StatusResponse = request.send().unwrap();
     println!("{:#?}", &response);

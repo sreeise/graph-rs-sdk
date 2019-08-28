@@ -18,6 +18,9 @@ pub struct CreateUploadSession {
     file_system_info: Option<FileSystemInfo>,
     #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
+    #[serde(rename = "@microsoft.graph.sourceUrl")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    microsoft_graph_source_url: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Setters, Getters)]

@@ -1,4 +1,3 @@
-use rust_onedrive::drive::drive_item::driveitemversion::DriveItemVersion;
 use rust_onedrive::drive::drive_item::itemreference::ItemReference;
 use rust_onedrive::drive::event::{ConflictBehavior, NewFolder};
 use rust_onedrive::prelude::*;
@@ -31,36 +30,51 @@ fn query_mutate() {
 #[test]
 fn event_copy() {
     let item_ref = ItemReference::default();
-    let pipeline = get_drive().v1().me().copy("3", &item_ref, None);
+    let pipeline = get_drive().v1().me().copy(None, &item_ref).by_id("3");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/3/copy",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives().copy("3", "4", &item_ref, None);
-
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .copy(None, &item_ref)
+        .by_id("3", "4");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/4/items/3/copy",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().copy("3", "4", &item_ref, None);
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .copy(None, &item_ref)
+        .by_id("3", "4");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/4/drive/items/3/copy",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups().copy("3", "4", &item_ref, None);
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .copy(None, &item_ref)
+        .by_id("3", "4");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/4/drive/items/3/copy",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().copy("3", "4", &item_ref, None);
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .copy(None, &item_ref)
+        .by_id("3", "4");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/4/drive/items/3/copy",
@@ -69,65 +83,62 @@ fn event_copy() {
 }
 
 #[test]
-fn event_copy_drive_item() {
-    let mut drive_item: DriveItem = DriveItem::default();
-    drive_item.set_id(Some("32p99453".into()));
-    let mut item_ref = ItemReference::default();
-    item_ref.set_drive_id(Some("132534".into()));
-    drive_item.set_parent_reference(Some(item_ref));
+fn event_copy_path() {
+    let path = OsString::from("Documents/item.txt");
+    let item_ref = ItemReference::default();
 
     let pipeline = get_drive()
         .v1()
         .me()
-        .copy_drive_item(&drive_item, None)
-        .unwrap();
+        .copy(None, &item_ref)
+        .by_path(path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/me/drive/items/32p99453/copy",
+        "https://graph.microsoft.com/v1.0/me/drive/root:/Documents%2Fitem.txt:/copy",
         url.as_str()
     );
 
     let pipeline = get_drive()
         .v1()
         .drives()
-        .copy_drive_item(&drive_item, None)
-        .unwrap();
+        .copy(None, &item_ref)
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/drives/132534/items/32p99453/copy",
+        "https://graph.microsoft.com/v1.0/drives/132534/root:/Documents%2Fitem.txt:/copy",
         url.as_str()
     );
 
     let pipeline = get_drive()
         .v1()
         .sites()
-        .copy_drive_item(&drive_item, None)
-        .unwrap();
+        .copy(None, &item_ref)
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/sites/132534/drive/items/32p99453/copy",
+        "https://graph.microsoft.com/v1.0/sites/132534/drive/root:/Documents%2Fitem.txt:/copy",
         url.as_str()
     );
 
     let pipeline = get_drive()
         .v1()
         .groups()
-        .copy_drive_item(&drive_item, None)
-        .unwrap();
+        .copy(None, &item_ref)
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/groups/132534/drive/items/32p99453/copy",
+        "https://graph.microsoft.com/v1.0/groups/132534/drive/root:/Documents%2Fitem.txt:/copy",
         url.as_str()
     );
 
     let pipeline = get_drive()
         .v1()
         .users()
-        .copy_drive_item(&drive_item, None)
-        .unwrap();
+        .copy(None, &item_ref)
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/users/132534/drive/items/32p99453/copy",
+        "https://graph.microsoft.com/v1.0/users/132534/drive/root:/Documents%2Fitem.txt:/copy",
         url.as_str()
     );
 }
@@ -137,51 +148,52 @@ fn event_create_folder() {
     let pipeline = get_drive()
         .v1()
         .me()
-        .create_folder("132425", NewFolder::new("name", ConflictBehavior::Replace));
+        .create_folder(NewFolder::new("name", ConflictBehavior::Replace))
+        .by_id("132425");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/132425/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives().create_folder(
-        "4",
-        "132425",
-        NewFolder::new("name", ConflictBehavior::Replace),
-    );
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .create_folder(NewFolder::new("name", ConflictBehavior::Replace))
+        .by_id("132425", "4");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/4/items/132425/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().create_folder(
-        "4",
-        "132425",
-        NewFolder::new("name", ConflictBehavior::Replace),
-    );
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .create_folder(NewFolder::new("name", ConflictBehavior::Replace))
+        .by_id("132425", "4");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/4/drive/items/132425/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups().create_folder(
-        "4",
-        "132425",
-        NewFolder::new("name", ConflictBehavior::Replace),
-    );
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .create_folder(NewFolder::new("name", ConflictBehavior::Replace))
+        .by_id("132425", "4");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/4/drive/items/132425/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().create_folder(
-        "4",
-        "132425",
-        NewFolder::new("name", ConflictBehavior::Replace),
-    );
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .create_folder(NewFolder::new("name", ConflictBehavior::Replace))
+        .by_id("132425", "4");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/4/drive/items/132425/children",
@@ -193,54 +205,55 @@ fn event_create_folder() {
 fn event_create_folder_path() {
     let path = OsString::from("Documents");
 
-    let pipeline = get_drive().v1().me().create_folder_path(
-        path.clone(),
-        NewFolder::new("name", ConflictBehavior::Replace),
-    );
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .create_folder(NewFolder::new("name", ConflictBehavior::Replace))
+        .by_path(path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/root:/Documents:/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives().create_folder_path(
-        "132534",
-        path.clone(),
-        NewFolder::new("name", ConflictBehavior::Replace),
-    );
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .create_folder(NewFolder::new("name", ConflictBehavior::Replace))
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/132534/root:/Documents:/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().create_folder_path(
-        "132534",
-        path.clone(),
-        NewFolder::new("name", ConflictBehavior::Replace),
-    );
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .create_folder(NewFolder::new("name", ConflictBehavior::Replace))
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/132534/drive/root:/Documents:/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups().create_folder_path(
-        "132534",
-        path.clone(),
-        NewFolder::new("name", ConflictBehavior::Replace),
-    );
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .create_folder(NewFolder::new("name", ConflictBehavior::Replace))
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/132534/drive/root:/Documents:/children",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().create_folder_path(
-        "132534",
-        path.clone(),
-        NewFolder::new("name", ConflictBehavior::Replace),
-    );
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .create_folder(NewFolder::new("name", ConflictBehavior::Replace))
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/132534/drive/root:/Documents:/children",
@@ -250,35 +263,51 @@ fn event_create_folder_path() {
 
 #[test]
 fn event_delete() {
-    let pipeline = get_drive().v1().me().delete("32p99453");
+    let pipeline = get_drive().v1().me().delete().by_id("32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/32p99453",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives().delete("32p99453", "132534");
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .delete()
+        .by_id("32p99453", "132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/132534/items/32p99453",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().delete("32p99453", "132534");
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .delete()
+        .by_id("32p99453", "132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/132534/drive/items/32p99453",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups().delete("32p99453", "132534");
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .delete()
+        .by_id("32p99453", "132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/132534/drive/items/32p99453",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().delete("32p99453", "132534");
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .delete()
+        .by_id("32p99453", "132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/132534/drive/items/32p99453",
@@ -287,10 +316,10 @@ fn event_delete() {
 }
 
 #[test]
-fn event_delete_drive_item() {
+fn event_delete_path() {
     let path = OsString::from("Documents/item.txt");
 
-    let pipeline = get_drive().v1().me().delete_path(path.clone());
+    let pipeline = get_drive().v1().me().delete().by_path(path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/root:/Documents%2Fitem.txt",
@@ -300,14 +329,19 @@ fn event_delete_drive_item() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .delete_path("132534", path.clone());
+        .delete()
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/132534/root:/Documents%2Fitem.txt",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().delete_path("132534", path.clone());
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .delete()
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/132534/drive/root:/Documents%2Fitem.txt",
@@ -317,14 +351,19 @@ fn event_delete_drive_item() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .delete_path("132534", path.clone());
+        .delete()
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/132534/drive/root:/Documents%2Fitem.txt",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().delete_path("132534", path.clone());
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .delete()
+        .by_path("132534", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/132534/drive/root:/Documents%2Fitem.txt",
@@ -334,35 +373,51 @@ fn event_delete_drive_item() {
 
 #[test]
 fn event_get_item() {
-    let pipeline = get_drive().v1().me().get_item("32p99453");
+    let pipeline = get_drive().v1().me().get_item().by_id("32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/32p99453",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives().get_item("132534", "32p99453");
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .get_item()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().get_item("132534", "32p99453");
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .get_item()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups().get_item("132534", "32p99453");
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .get_item()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().get_item("132534", "32p99453");
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .get_item()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534",
@@ -374,7 +429,7 @@ fn event_get_item() {
 fn event_get_item_path() {
     let path = OsString::from("Documents/item.txt");
 
-    let pipeline = get_drive().v1().me().get_item_path(path.clone());
+    let pipeline = get_drive().v1().me().get_item().by_path(path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/root:/Documents%2Fitem.txt",
@@ -384,7 +439,8 @@ fn event_get_item_path() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .get_item_path("32p99453", path.clone());
+        .get_item()
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/root:/Documents%2Fitem.txt",
@@ -394,7 +450,8 @@ fn event_get_item_path() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .get_item_path("32p99453", path.clone());
+        .get_item()
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/root:/Documents%2Fitem.txt",
@@ -404,7 +461,8 @@ fn event_get_item_path() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .get_item_path("32p99453", path.clone());
+        .get_item()
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/root:/Documents%2Fitem.txt",
@@ -414,7 +472,8 @@ fn event_get_item_path() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .get_item_path("32p99453", path.clone());
+        .get_item()
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/root:/Documents%2Fitem.txt",
@@ -424,35 +483,51 @@ fn event_get_item_path() {
 
 #[test]
 fn event_thumbnails() {
-    let pipeline = get_drive().v1().me().thumbnails("32p99453");
+    let pipeline = get_drive().v1().me().thumbnails().by_id("32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/32p99453/thumbnails",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives().thumbnails("132534", "32p99453");
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .thumbnails()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/thumbnails",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().thumbnails("132534", "32p99453");
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .thumbnails()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/thumbnails",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups().thumbnails("132534", "32p99453");
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .thumbnails()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/thumbnails",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().thumbnails("132534", "32p99453");
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .thumbnails()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/thumbnails",
@@ -462,7 +537,11 @@ fn event_thumbnails() {
 
 #[test]
 fn event_single_thumbnail() {
-    let pipeline = get_drive().v1().me().single_thumbnail("132534", "4", "100");
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .single_thumbnail("4", "100")
+        .by_id("132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/132534/thumbnails/4/100",
@@ -472,7 +551,8 @@ fn event_single_thumbnail() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .single_thumbnail("132534", "32p99453", "4", "100");
+        .single_thumbnail("4", "100")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/thumbnails/4/100",
@@ -482,7 +562,8 @@ fn event_single_thumbnail() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .single_thumbnail("132534", "32p99453", "4", "100");
+        .single_thumbnail("4", "100")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/thumbnails/4/100",
@@ -492,7 +573,8 @@ fn event_single_thumbnail() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .single_thumbnail("132534", "32p99453", "4", "100");
+        .single_thumbnail("4", "100")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/thumbnails/4/100",
@@ -502,7 +584,8 @@ fn event_single_thumbnail() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .single_thumbnail("132534", "32p99453", "4", "100");
+        .single_thumbnail("4", "100")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/thumbnails/4/100",
@@ -512,7 +595,11 @@ fn event_single_thumbnail() {
 
 #[test]
 fn event_thumbnail_binary() {
-    let pipeline = get_drive().v1().me().thumbnail_binary("132534", "4", "100");
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .thumbnail_binary("4", "100")
+        .by_id("132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/132534/thumbnails/4/100/content",
@@ -522,7 +609,8 @@ fn event_thumbnail_binary() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .thumbnail_binary("132534", "32p99453", "4", "100");
+        .thumbnail_binary("4", "100")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/thumbnails/4/100/content",
@@ -532,7 +620,8 @@ fn event_thumbnail_binary() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .thumbnail_binary("132534", "32p99453", "4", "100");
+        .thumbnail_binary("4", "100")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/thumbnails/4/100/content",
@@ -542,7 +631,8 @@ fn event_thumbnail_binary() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .thumbnail_binary("132534", "32p99453", "4", "100");
+        .thumbnail_binary("4", "100")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/thumbnails/4/100/content",
@@ -552,7 +642,8 @@ fn event_thumbnail_binary() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .thumbnail_binary("132534", "32p99453", "4", "100");
+        .thumbnail_binary("4", "100")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/thumbnails/4/100/content",
@@ -563,7 +654,7 @@ fn event_thumbnail_binary() {
 #[test]
 fn event_update() {
     let drive_item = DriveItem::default();
-    let pipeline = get_drive().v1().me().update("32p99453", &drive_item);
+    let pipeline = get_drive().v1().me().update(&drive_item).by_id("32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/32p99453",
@@ -573,7 +664,8 @@ fn event_update() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .update("132534", "32p99453", &drive_item);
+        .update(&drive_item)
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534",
@@ -583,7 +675,8 @@ fn event_update() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .update("132534", "32p99453", &drive_item);
+        .update(&drive_item)
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534",
@@ -593,7 +686,8 @@ fn event_update() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .update("132534", "32p99453", &drive_item);
+        .update(&drive_item)
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534",
@@ -603,72 +697,8 @@ fn event_update() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .update("132534", "32p99453", &drive_item);
-    let url: &DriveUrl = pipeline.as_ref();
-    assert_eq!(
-        "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534",
-        url.as_str()
-    );
-}
-
-#[test]
-fn event_update_drive_item() {
-    let mut drive_item: DriveItem = DriveItem::default();
-    drive_item.set_id(Some("132534".into()));
-    let mut item_ref = ItemReference::default();
-    item_ref.set_drive_id(Some("32p99453".into()));
-    drive_item.set_parent_reference(Some(item_ref));
-    let new_item = DriveItem::default();
-
-    let pipeline = get_drive()
-        .v1()
-        .me()
-        .update_drive_item(&drive_item, &new_item)
-        .unwrap();
-    let url: &DriveUrl = pipeline.as_ref();
-    assert_eq!(
-        "https://graph.microsoft.com/v1.0/me/drive/items/132534",
-        url.as_str()
-    );
-
-    let pipeline = get_drive()
-        .v1()
-        .drives()
-        .update_drive_item(&drive_item, &new_item)
-        .unwrap();
-    let url: &DriveUrl = pipeline.as_ref();
-    assert_eq!(
-        "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534",
-        url.as_str()
-    );
-
-    let pipeline = get_drive()
-        .v1()
-        .sites()
-        .update_drive_item(&drive_item, &new_item)
-        .unwrap();
-    let url: &DriveUrl = pipeline.as_ref();
-    assert_eq!(
-        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534",
-        url.as_str()
-    );
-
-    let pipeline = get_drive()
-        .v1()
-        .groups()
-        .update_drive_item(&drive_item, &new_item)
-        .unwrap();
-    let url: &DriveUrl = pipeline.as_ref();
-    assert_eq!(
-        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534",
-        url.as_str()
-    );
-
-    let pipeline = get_drive()
-        .v1()
-        .users()
-        .update_drive_item(&drive_item, &new_item)
-        .unwrap();
+        .update(&drive_item)
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534",
@@ -681,8 +711,9 @@ pub fn event_upload_new() {
     let pipeline = get_drive()
         .v1()
         .me()
-        .upload_new("132534", "./test_files/item_tes/drive_info.json")
-        .unwrap();
+        .upload_new("./test_files/item_tes/drive_info.json")
+        .unwrap()
+        .by_id("132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/132534:/drive_info.json:/content",
@@ -692,12 +723,9 @@ pub fn event_upload_new() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .upload_new(
-            "132534",
-            "32p99453",
-            "./test_files/item_test/drive_info.json",
-        )
-        .unwrap();
+        .upload_new("./test_files/item_test/drive_info.json")
+        .unwrap()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534:/drive_info.json:/content",
@@ -707,12 +735,9 @@ pub fn event_upload_new() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .upload_new(
-            "132534",
-            "32p99453",
-            "./test_files/item_test/drive_info.json",
-        )
-        .unwrap();
+        .upload_new("./test_files/item_test/drive_info.json")
+        .unwrap()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534:/drive_info.json:/content",
@@ -722,12 +747,9 @@ pub fn event_upload_new() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .upload_new(
-            "132534",
-            "32p99453",
-            "./test_files/item_test/drive_info.json",
-        )
-        .unwrap();
+        .upload_new("./test_files/item_test/drive_info.json")
+        .unwrap()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534:/drive_info.json:/content",
@@ -737,12 +759,9 @@ pub fn event_upload_new() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .upload_new(
-            "132534",
-            "32p99453",
-            "./test_files/item_test/drive_info.json",
-        )
-        .unwrap();
+        .upload_new("./test_files/item_test/drive_info.json")
+        .unwrap()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534:/drive_info.json:/content",
@@ -757,7 +776,9 @@ pub fn event_upload_new_path() {
     let pipeline = get_drive()
         .v1()
         .me()
-        .upload_new_path(path.clone(), "./test_files/item_test/drive_info.json");
+        .upload_new("./test_files/item_test/drive_info.json")
+        .unwrap()
+        .by_path(path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/root:/Documents%2Fdrive_info.json:/content",
@@ -767,12 +788,9 @@ pub fn event_upload_new_path() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .upload_new_path(
-            "32p99453",
-            path.clone(),
-            "./test_files/item_test/drive_info.json",
-        )
-        .unwrap();
+        .upload_new("./test_files/item_test/drive_info.json")
+        .unwrap()
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/root:/Documents%2Fdrive_info.json:/content",
@@ -782,12 +800,9 @@ pub fn event_upload_new_path() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .upload_new_path(
-            "32p99453",
-            path.clone(),
-            "./test_files/item_test/drive_info.json",
-        )
-        .unwrap();
+        .upload_new("./test_files/item_test/drive_info.json")
+        .unwrap()
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/root:/Documents%2Fdrive_info.json:/content",
@@ -797,12 +812,9 @@ pub fn event_upload_new_path() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .upload_new_path(
-            "32p99453",
-            path.clone(),
-            "./test_files/item_test/drive_info.json",
-        )
-        .unwrap();
+        .upload_new("./test_files/item_test/drive_info.json")
+        .unwrap()
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/root:/Documents%2Fdrive_info.json:/content",
@@ -811,12 +823,9 @@ pub fn event_upload_new_path() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .upload_new_path(
-            "32p99453",
-            path.clone(),
-            "./test_files/item_test/drive_info.json",
-        )
-        .unwrap();
+        .upload_new("./test_files/item_test/drive_info.json")
+        .unwrap()
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/root:/Documents%2Fdrive_info.json:/content",
@@ -829,51 +838,52 @@ pub fn event_upload_replace() {
     let pipeline = get_drive()
         .v1()
         .me()
-        .upload_replace("132534", "./test_files/item_tes/drive_info.json");
+        .upload_replace("./test_files/item_tes/drive_info.json")
+        .by_id("132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/132534/content",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().drives().upload_replace(
-        "132534",
-        "32p99453",
-        "./test_files/item_test/drive_info.json",
-    );
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .upload_replace("./test_files/item_test/drive_info.json")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/content",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().sites().upload_replace(
-        "132534",
-        "32p99453",
-        "./test_files/item_test/drive_info.json",
-    );
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .upload_replace("./test_files/item_test/drive_info.json")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/content",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().groups().upload_replace(
-        "132534",
-        "32p99453",
-        "./test_files/item_test/drive_info.json",
-    );
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .upload_replace("./test_files/item_test/drive_info.json")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/content",
         url.as_str()
     );
 
-    let pipeline = get_drive().v1().users().upload_replace(
-        "132534",
-        "32p99453",
-        "./test_files/item_test/drive_info.json",
-    );
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .upload_replace("./test_files/item_test/drive_info.json")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/content",
@@ -883,7 +893,7 @@ pub fn event_upload_replace() {
 
 #[test]
 pub fn event_list_versions() {
-    let pipeline = get_drive().v1().me().list_versions("132534");
+    let pipeline = get_drive().v1().me().list_versions().by_id("132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/132534/versions",
@@ -893,60 +903,8 @@ pub fn event_list_versions() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .list_versions("132534", "32p99453");
-    let url: &DriveUrl = pipeline.as_ref();
-    assert_eq!(
-        "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/versions",
-        url.as_str()
-    );
-
-    let pipeline = get_drive().v1().sites().list_versions("132534", "32p99453");
-    let url: &DriveUrl = pipeline.as_ref();
-    assert_eq!(
-        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/versions",
-        url.as_str()
-    );
-
-    let pipeline = get_drive()
-        .v1()
-        .groups()
-        .list_versions("132534", "32p99453");
-    let url: &DriveUrl = pipeline.as_ref();
-    assert_eq!(
-        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/versions",
-        url.as_str()
-    );
-
-    let pipeline = get_drive().v1().users().list_versions("132534", "32p99453");
-    let url: &DriveUrl = pipeline.as_ref();
-    assert_eq!(
-        "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/versions",
-        url.as_str()
-    );
-}
-
-#[test]
-pub fn event_list_versions_drive_item() {
-    let mut drive_item = DriveItem::default();
-    drive_item.set_id(Some("132534".into()));
-
-    let pipeline = get_drive()
-        .v1()
-        .me()
-        .list_versions_drive_item(&drive_item)
-        .unwrap();
-
-    let url: &DriveUrl = pipeline.as_ref();
-    assert_eq!(
-        "https://graph.microsoft.com/v1.0/me/drive/items/132534/versions",
-        url.as_str()
-    );
-
-    let pipeline = get_drive()
-        .v1()
-        .drives()
-        .list_versions_drive_item("32p99453", &drive_item)
-        .unwrap();
+        .list_versions()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/versions",
@@ -956,8 +914,8 @@ pub fn event_list_versions_drive_item() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .list_versions_drive_item("32p99453", &drive_item)
-        .unwrap();
+        .list_versions()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/versions",
@@ -967,8 +925,8 @@ pub fn event_list_versions_drive_item() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .list_versions_drive_item("32p99453", &drive_item)
-        .unwrap();
+        .list_versions()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/versions",
@@ -978,18 +936,78 @@ pub fn event_list_versions_drive_item() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .list_versions_drive_item("32p99453", &drive_item)
-        .unwrap();
+        .list_versions()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/versions",
+        url.as_str()
+    );
+}
+
+#[test]
+pub fn event_list_versions_path() {
+    let path = OsString::from("Documents/item.txt");
+
+    let pipeline = get_drive().v1().me().list_versions().by_path(path.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/root:/Documents%2Fitem.txt:/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .list_versions()
+        .by_path("32p99453", path.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/root:/Documents%2Fitem.txt:/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .list_versions()
+        .by_path("32p99453", path.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/root:/Documents%2Fitem.txt:/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .list_versions()
+        .by_path("32p99453", path.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/root:/Documents%2Fitem.txt:/versions",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .list_versions()
+        .by_path("32p99453", path.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/drive/root:/Documents%2Fitem.txt:/versions",
         url.as_str()
     );
 }
 
 #[test]
 pub fn event_restore_version() {
-    let pipeline = get_drive().v1().me().restore_version("132534", "34492566a");
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .restore_version("34492566a")
+        .by_id("132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/132534/versions/34492566a/restoreVersion",
@@ -999,7 +1017,8 @@ pub fn event_restore_version() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .restore_version("132534", "34492566a", "32p99453");
+        .restore_version("34492566a")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/versions/34492566a/restoreVersion",
@@ -1009,7 +1028,8 @@ pub fn event_restore_version() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .restore_version("132534", "34492566a", "32p99453");
+        .restore_version("34492566a")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
@@ -1019,7 +1039,8 @@ pub fn event_restore_version() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .restore_version("132534", "34492566a", "32p99453");;
+        .restore_version("34492566a")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
@@ -1029,7 +1050,8 @@ pub fn event_restore_version() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .restore_version("132534", "34492566a", "32p99453");
+        .restore_version("34492566a")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
@@ -1038,62 +1060,60 @@ pub fn event_restore_version() {
 }
 
 #[test]
-pub fn event_restore_drive_item_version() {
-    let mut version: DriveItemVersion = DriveItemVersion::default();
-    version.set_id(Some("34492566a".into()));
-
+pub fn event_restore_version_path() {
+    let path = OsString::from("Documents/item.txt");
     let pipeline = get_drive()
         .v1()
         .me()
-        .restore_drive_item_version("132534", &version)
-        .unwrap();
+        .restore_version("34492566a")
+        .by_path(path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/me/drive/items/132534/versions/34492566a/restoreVersion",
+        "https://graph.microsoft.com/v1.0/me/drive/root:/Documents%2Fitem.txt:/versions/34492566a/restoreVersion",
         url.as_str()
     );
 
     let pipeline = get_drive()
         .v1()
         .drives()
-        .restore_drive_item_version("132534", "32p99453", &version)
-        .unwrap();
+        .restore_version("34492566a")
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/versions/34492566a/restoreVersion",
+        "https://graph.microsoft.com/v1.0/drives/32p99453/root:/Documents%2Fitem.txt:/versions/34492566a/restoreVersion",
         url.as_str()
     );
 
     let pipeline = get_drive()
         .v1()
         .sites()
-        .restore_drive_item_version("132534", "32p99453", &version)
-        .unwrap();
+        .restore_version("34492566a")
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
+        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/root:/Documents%2Fitem.txt:/versions/34492566a/restoreVersion",
         url.as_str()
     );
 
     let pipeline = get_drive()
         .v1()
         .groups()
-        .restore_drive_item_version("132534", "32p99453", &version)
-        .unwrap();
+        .restore_version("34492566a")
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
+        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/root:/Documents%2Fitem.txt:/versions/34492566a/restoreVersion",
         url.as_str()
     );
 
     let pipeline = get_drive()
         .v1()
         .users()
-        .restore_drive_item_version("132534", "32p99453", &version)
-        .unwrap();
+        .restore_version("34492566a")
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
+        "https://graph.microsoft.com/v1.0/users/32p99453/drive/root:/Documents%2Fitem.txt:/versions/34492566a/restoreVersion",
         url.as_str()
     );
 }
@@ -1138,7 +1158,7 @@ pub fn event_list_activities() {
 
 #[test]
 pub fn event_list_item_activities() {
-    let pipeline = get_drive().v1().me().list_item_activities("132534");
+    let pipeline = get_drive().v1().me().list_item_activities().by_id("132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/132534/activities",
@@ -1148,7 +1168,8 @@ pub fn event_list_item_activities() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .list_item_activities("132534", "32p99453");
+        .list_item_activities()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/132534/activities",
@@ -1158,30 +1179,33 @@ pub fn event_list_item_activities() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .list_item_activities("132534", "32p99453");
+        .list_item_activities()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/sites/32p99453/items/132534/activities",
+        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/132534/activities",
         url.as_str()
     );
 
     let pipeline = get_drive()
         .v1()
         .groups()
-        .list_item_activities("132534", "32p99453");
+        .list_item_activities()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/groups/32p99453/items/132534/activities",
+        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/132534/activities",
         url.as_str()
     );
 
     let pipeline = get_drive()
         .v1()
         .users()
-        .list_item_activities("132534", "32p99453");
+        .list_item_activities()
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
-        "https://graph.microsoft.com/v1.0/users/32p99453/items/132534/activities",
+        "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/132534/activities",
         url.as_str()
     );
 }
@@ -1191,7 +1215,8 @@ pub fn event_activities_from_list_item() {
     let pipeline = get_drive()
         .v1()
         .me()
-        .activities_from_list_item("132534", "30ad9832");
+        .activities_from_list_item("30ad9832")
+        .by_id("132534");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/lists/30ad9832/items/132534/activities",
@@ -1201,7 +1226,8 @@ pub fn event_activities_from_list_item() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .activities_from_list_item("132534", "30ad9832", "32p99453");
+        .activities_from_list_item("30ad9832")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/lists/30ad9832/items/132534/activities",
@@ -1211,7 +1237,8 @@ pub fn event_activities_from_list_item() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .activities_from_list_item("132534", "30ad9832", "32p99453");
+        .activities_from_list_item("30ad9832")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/lists/30ad9832/items/132534/activities",
@@ -1221,7 +1248,8 @@ pub fn event_activities_from_list_item() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .activities_from_list_item("132534", "30ad9832", "32p99453");
+        .activities_from_list_item("30ad9832")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/lists/30ad9832/items/132534/activities",
@@ -1231,7 +1259,8 @@ pub fn event_activities_from_list_item() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .activities_from_list_item("132534", "30ad9832", "32p99453");
+        .activities_from_list_item("30ad9832")
+        .by_id("132534", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/lists/30ad9832/items/132534/activities",
@@ -1249,51 +1278,52 @@ pub fn event_upload_session_replace() {
     let pipeline = get_drive()
         .v1()
         .me()
-        .upload_session_replace("3dj309v", file.clone());
+        .upload_session_replace(file.clone())
+        .by_id("3dj309v");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/3dj309v/createUploadSession",
         url.as_str()
     );
 
-    let pipeline =
-        get_drive()
-            .v1()
-            .drives()
-            .upload_session_replace("3dj309v", "32p99453", file.clone());
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .upload_session_replace(file.clone())
+        .by_id("3dj309v", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/3dj309v/createUploadSession",
         url.as_str()
     );
 
-    let pipeline =
-        get_drive()
-            .v1()
-            .sites()
-            .upload_session_replace("3dj309v", "32p99453", file.clone());
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .upload_session_replace(file.clone())
+        .by_id("3dj309v", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/3dj309v/createUploadSession",
         url.as_str()
     );
 
-    let pipeline =
-        get_drive()
-            .v1()
-            .groups()
-            .upload_session_replace("3dj309v", "32p99453", file.clone());
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .upload_session_replace(file.clone())
+        .by_id("3dj309v", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/3dj309v/createUploadSession",
         url.as_str()
     );
 
-    let pipeline =
-        get_drive()
-            .v1()
-            .users()
-            .upload_session_replace("3dj309v", "32p99453", file.clone());
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .upload_session_replace(file.clone())
+        .by_id("3dj309v", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/3dj309v/createUploadSession",
@@ -1311,50 +1341,51 @@ pub fn event_upload_session_new() {
     let pipeline = get_drive()
         .v1()
         .me()
-        .upload_session_new(path.clone(), file.clone(), None);
+        .upload_session_new("./test_files/item_test/complete_drive_item.json", None)
+        .by_path(path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
         url.as_str()
     );
 
-    let pipeline =
-        get_drive()
-            .v1()
-            .drives()
-            .upload_session_new("32p99453", path.clone(), file.clone(), None);
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .upload_session_new(file.clone(), None)
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
         url.as_str()
     );
 
-    let pipeline =
-        get_drive()
-            .v1()
-            .sites()
-            .upload_session_new("32p99453", path.clone(), file.clone(), None);
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .upload_session_new(file.clone(), None)
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
         url.as_str()
     );
 
-    let pipeline =
-        get_drive()
-            .v1()
-            .groups()
-            .upload_session_new("32p99453", path.clone(), file.clone(), None);
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .upload_session_new(file.clone(), None)
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
         url.as_str()
     );
-    let pipeline =
-        get_drive()
-            .v1()
-            .users()
-            .upload_session_new("32p99453", path.clone(), file.clone(), None);
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .upload_session_new(file.clone(), None)
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
@@ -1364,7 +1395,7 @@ pub fn event_upload_session_new() {
 
 #[test]
 pub fn event_preview() {
-    let pipeline = get_drive().v1().me().preview("3dj309v", None);
+    let pipeline = get_drive().v1().me().preview(None).by_id("3dj309v");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/items/3dj309v/preview",
@@ -1374,7 +1405,8 @@ pub fn event_preview() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .preview("3dj309v", "32p99453", None);
+        .preview(None)
+        .by_id("3dj309v", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/items/3dj309v/preview",
@@ -1384,7 +1416,8 @@ pub fn event_preview() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .preview("3dj309v", "32p99453", None);
+        .preview(None)
+        .by_id("3dj309v", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/3dj309v/preview",
@@ -1394,7 +1427,8 @@ pub fn event_preview() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .preview("3dj309v", "32p99453", None);
+        .preview(None)
+        .by_id("3dj309v", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/3dj309v/preview",
@@ -1403,7 +1437,8 @@ pub fn event_preview() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .preview("3dj309v", "32p99453", None);
+        .preview(None)
+        .by_id("3dj309v", "32p99453");
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/3dj309v/preview",
@@ -1414,7 +1449,7 @@ pub fn event_preview() {
 #[test]
 pub fn event_preview_path() {
     let path = OsString::from("Documents/preview.txt");
-    let pipeline = get_drive().v1().me().preview_path(path.clone(), None);
+    let pipeline = get_drive().v1().me().preview(None).by_path(path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/me/drive/root:/Documents%2Fpreview.txt:/preview",
@@ -1424,7 +1459,8 @@ pub fn event_preview_path() {
     let pipeline = get_drive()
         .v1()
         .drives()
-        .preview_path("32p99453", path.clone(), None);
+        .preview(None)
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/drives/32p99453/root:/Documents%2Fpreview.txt:/preview",
@@ -1434,7 +1470,8 @@ pub fn event_preview_path() {
     let pipeline = get_drive()
         .v1()
         .sites()
-        .preview_path("32p99453", path.clone(), None);
+        .preview(None)
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/sites/32p99453/drive/root:/Documents%2Fpreview.txt:/preview",
@@ -1444,7 +1481,8 @@ pub fn event_preview_path() {
     let pipeline = get_drive()
         .v1()
         .groups()
-        .preview_path("32p99453", path.clone(), None);
+        .preview(None)
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/groups/32p99453/drive/root:/Documents%2Fpreview.txt:/preview",
@@ -1453,10 +1491,130 @@ pub fn event_preview_path() {
     let pipeline = get_drive()
         .v1()
         .users()
-        .preview_path("32p99453", path.clone(), None);
+        .preview(None)
+        .by_path("32p99453", path.clone());
     let url: &DriveUrl = pipeline.as_ref();
     assert_eq!(
         "https://graph.microsoft.com/v1.0/users/32p99453/drive/root:/Documents%2Fpreview.txt:/preview",
+        url.as_str()
+    );
+}
+
+#[test]
+fn event_download() {
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .download("./example_files/examples")
+        .by_id("1234");
+
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/items/1234/content",
+        url.as_str(),
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .download("./example_files/examples")
+        .by_id("1234", "32p99453");
+
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/items/1234/content",
+        url.as_str(),
+    );
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .download("./example_files/examples")
+        .by_id("1234", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/items/1234/content",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .download("./example_files/examples")
+        .by_id("1234", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/items/1234/content",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .download("./example_files/examples")
+        .by_id("1234", "32p99453");
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/drive/items/1234/content",
+        url.as_str()
+    );
+}
+
+#[test]
+fn event_download_path() {
+    let path = OsString::from("Documents/preview.txt");
+
+    let pipeline = get_drive()
+        .v1()
+        .me()
+        .download("./example_files/examples")
+        .by_path(path.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive/root:/Documents%2Fpreview.txt:/content",
+        url.as_str(),
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .drives()
+        .download("./example_files/examples")
+        .by_path("32p99453", path.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/drives/32p99453/root:/Documents%2Fpreview.txt:/content",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .sites()
+        .download("./example_files/examples")
+        .by_path("32p99453", path.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/sites/32p99453/drive/root:/Documents%2Fpreview.txt:/content",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .groups()
+        .download("./example_files/examples")
+        .by_path("32p99453", path.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/groups/32p99453/drive/root:/Documents%2Fpreview.txt:/content",
+        url.as_str()
+    );
+
+    let pipeline = get_drive()
+        .v1()
+        .users()
+        .download("./example_files/examples")
+        .by_path("32p99453", path.clone());
+    let url: &DriveUrl = pipeline.as_ref();
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/users/32p99453/drive/root:/Documents%2Fpreview.txt:/content",
         url.as_str()
     );
 }

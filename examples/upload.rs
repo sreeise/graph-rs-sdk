@@ -25,7 +25,8 @@ fn upload_file() {
     let mut req = drive
         .v1()
         .me()
-        .upload_replace(DRIVE_PARENT_ID, LOCAL_FILE_PATH);
+        .upload_replace(LOCAL_FILE_PATH)
+        .by_id(DRIVE_PARENT_ID);
     // The update drive item metadata.
     let drive_item: DriveItem = req.send().unwrap();
 
@@ -38,8 +39,9 @@ fn upload_new() {
     let mut req = drive
         .v1()
         .me()
-        .upload_new(DRIVE_PARENT_ID, LOCAL_FILE_PATH)
-        .unwrap();
+        .upload_new(LOCAL_FILE_PATH)
+        .unwrap()
+        .by_id(DRIVE_PARENT_ID);
     let drive_item: DriveItem = req.send().unwrap();
     println!("{:#?}", drive_item);
 }
@@ -54,8 +56,9 @@ fn sites_upload_new() {
     let mut req = drive
         .v1()
         .sites()
-        .upload_new(DRIVE_PARENT_ID, RESOURCE_ID, LOCAL_FILE_PATH)
-        .unwrap();
+        .upload_new(LOCAL_FILE_PATH)
+        .unwrap()
+        .by_id(DRIVE_PARENT_ID, RESOURCE_ID);
     let drive_item: DriveItem = req.send().unwrap();
     println!("{:#?}", drive_item);
 }
