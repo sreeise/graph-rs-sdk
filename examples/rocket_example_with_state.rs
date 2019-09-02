@@ -7,7 +7,7 @@ extern crate rocket;
 extern crate serde_json;
 extern crate reqwest;
 
-use from_to_file::*;
+use from_as::*;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
 use rust_onedrive::oauth::OAuth;
@@ -101,7 +101,7 @@ pub fn set_and_req_access_code(access_code: &str, state: &str) {
 
     // Request the access token.
     let mut request = oauth.build().code_flow();
-    let access_token = request.access_token().send().unwrap();;
+    let access_token = request.access_token().send().unwrap();
     oauth.access_token(access_token);
 
     // If all went well here we can print out the OAuth config with the Access Token.
@@ -109,6 +109,6 @@ pub fn set_and_req_access_code(access_code: &str, state: &str) {
 
     // Save our configuration to a file so we can retrieve it for other requests.
     oauth
-        .to_json_file("./examples/example_files/web_oauth.json")
+        .as_file("./examples/example_files/web_oauth.json")
         .unwrap();
 }

@@ -2,7 +2,7 @@ use crate::accesstoken::AccessToken;
 use crate::grants::{GrantRequest, GrantType};
 use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
-use from_to_file::*;
+use from_as::*;
 use graph_error::GraphFailure;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
@@ -29,7 +29,8 @@ pub type OAuthReq<T> = Result<T, GraphFailure>;
     Serialize,
     Deserialize,
     EnumIter,
-    FromToFile,
+    AsFile,
+    FromFile,
 )]
 pub enum OAuthCredential {
     ClientId,
@@ -127,7 +128,7 @@ impl ToString for OAuthCredential {
 /// use graph_oauth::oauth::OAuth;
 /// let oauth = OAuth::new();
 /// ```
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
 pub struct OAuth {
     access_token: Option<AccessToken>,
     scopes: BTreeSet<String>,
@@ -1188,7 +1189,7 @@ impl<V: ToString> Extend<(OAuthCredential, V)> for OAuth {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
 pub struct AuthorizationRequest {
     uri: String,
 }
@@ -1199,7 +1200,7 @@ impl AuthorizationRequest {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
 pub struct AccessTokenRequest {
     uri: String,
     params: HashMap<String, String>,
@@ -1213,7 +1214,7 @@ impl AccessTokenRequest {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
 pub struct ImplicitGrant {
     oauth: OAuth,
     grant: GrantType,
@@ -1260,7 +1261,7 @@ impl AsRef<OAuth> for ImplicitGrant {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
 pub struct AccessTokenGrant {
     oauth: OAuth,
     grant: GrantType,

@@ -19,37 +19,35 @@ keywords = ["onedrive", "graph", "API"]
 members = [
     "graph-oauth",
     "graph-error",
-    "from_to_file",
-    "derive_from_to_file",
     "drive-test-tools",
 ]
 
 [dependencies]
 url = "1.7.2"
-percent-encoding = "1.0.1"
+url_serde = "0.2.0"
 serde = "1.0.88"
 serde_json = "1.0.38"
 serde_yaml = "0.8.9"
 serde_derive = "1.0.88"
-serde-transcode = "1.1.0"
-url_serde = "0.2.0"
 reqwest = "0.9.6"
-encoding = "0.2.33"
-notify = "4.0.0"
-base64 = "0.10.1"
 strum_macros = "0.14.0"
 strum = "0.14.0"
 openssl-sys = "0.9"
 rayon = "1.0.3"
 getset = "0.0.7"
+log = "0.4"
+pretty_env_logger = "0.3"
 openssl = { version = "^0.10", features = ["vendored"] }
-from_to_file = { path = "./from_to_file" }
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
-derive_from_to_file = { path = "./derive_from_to_file" }
+from_as = { git = "https://github.com/sreeise/from_as" }
+
+[dependencies.graph-rs-types]
+git = "https://github.com/sreeise/graph-rs-types"
+features = ["option"]
 
 [dev-dependencies.rocket_contrib]
-version = "0.4.0"
+version = "0.4.2"
 default-features = false
 features = ["json"]
 
@@ -59,7 +57,6 @@ rocket_codegen = "0.4.2"
 serde = "1.0.81"
 serde_json = "1.0.33"
 serde_derive = "1.0.81"
-reqwest = "0.9.6"
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
 drive-test-tools = { path = "./drive-test-tools" }

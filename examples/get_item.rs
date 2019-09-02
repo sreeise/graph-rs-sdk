@@ -1,3 +1,4 @@
+use graph_rs_types::entitytypes::DriveItem;
 use rust_onedrive::prelude::*;
 
 fn main() {
@@ -7,9 +8,15 @@ fn main() {
 }
 
 fn get_drive_item(item_id: &str) {
-    let drive = Drive::new("ACCESS TOKEN");
-    let mut request = drive.v1().me().get_item(item_id);
-    let drive_item: DriveItem = request.send().unwrap();
+    let graph = Graph::new("ACCESS_TOKEN");
+    let drive_item: DriveItem = graph
+        .v1()
+        .me()
+        .drive()
+        .get_item()
+        .by_id(item_id)
+        .send()
+        .unwrap();
     println!("{:#?}", drive_item);
 }
 
@@ -17,8 +24,14 @@ fn get_drive_item(item_id: &str) {
 // such as drives, users, groups, and sites.
 // The resource_id is the id for this location (sites, users, etc).
 fn get_sites_drive_item(item_id: &str, resource_id: &str) {
-    let drive = Drive::new("ACCESS_TOKEN");
-    let mut request = drive.v1().sites().get_item(item_id, resource_id);
-    let drive_item: DriveItem = request.send().unwrap();
+    let graph = Graph::new("ACCESS_TOKEN");
+    let drive_item: DriveItem = graph
+        .v1()
+        .sites()
+        .drive()
+        .get_item()
+        .by_ids(item_id, resource_id)
+        .send()
+        .unwrap();
     println!("{:#?}", drive_item);
 }

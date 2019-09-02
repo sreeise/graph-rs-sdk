@@ -6,6 +6,5 @@ edition = "2018"
 
 [dependencies]
 url = "1.7.2"
-percent-encoding = "1.0.1"
 rust-onedrive = { path = "../" }
 rand = "0.6.5"

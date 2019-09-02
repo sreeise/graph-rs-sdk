@@ -71,8 +71,6 @@ extern crate serde_derive;
 extern crate strum;
 #[macro_use]
 extern crate strum_macros;
-#[macro_use]
-extern crate derive_from_to_file;
 
 mod accesstoken;
 mod auth;

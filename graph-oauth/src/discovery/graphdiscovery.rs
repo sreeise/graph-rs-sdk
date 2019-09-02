@@ -1,8 +1,8 @@
 use crate::oauth::wellknown::{Commons, WellKnown};
 use crate::oauth::{OAuth, OAuthError};
-use from_to_file::*;
+use from_as::*;
 
-#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
 pub struct MicrosoftSigningKeysV1 {
     pub issuer: String,
     pub authorization_endpoint: String,
@@ -21,7 +21,7 @@ pub struct MicrosoftSigningKeysV1 {
     pub http_logout_supported: bool,
 }
 
-#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize, FromToFile)]
+#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
 pub struct MicrosoftSigningKeysV2 {
     pub authorization_endpoint: String,
     pub token_endpoint: String,

@@ -7,7 +7,8 @@ extern crate rocket;
 extern crate serde_json;
 extern crate reqwest;
 
-use from_to_file::*;
+use from_as::*;
+use graph_rs_types::entitytypes::DriveItem;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
 use rust_onedrive::oauth::OAuth;
@@ -170,7 +171,7 @@ pub fn set_and_req_access_code(access_code: &str) {
 
     // Save our configuration to a file so we can retrieve it from other requests.
     oauth
-        .to_json_file("./examples/example_files/web_oauth.json")
+        .as_file("./examples/example_files/web_oauth.json")
         .unwrap();
 }
 // Methods for calling the Graph API.
@@ -190,23 +191,23 @@ pub fn set_and_req_access_code(access_code: &str) {
 //
 // Curl: curl http://localhost:8000/drive/recent
 // This will store the drive item in examples/example_files/drive_recent.json.
-// You can use method from_json_file() to get and print the stored drive item.
+// You can use method from_file() to get and print the stored drive item.
 // CAREFUL: This may contain sensitive information!
 #[get("/drive/recent", format = "application/json")]
 fn recent() {
-    let oauth: OAuth = OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
-    let drive = Drive::try_from(oauth).unwrap();
+    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
+    let drive = Graph::try_from(&oauth).unwrap();
 
-    let mut request = drive.v1().drive_recent();
-    let collection = request.send().unwrap();
+    let collection = drive.v1().me().drive().recent().send().unwrap();
 
     collection
-        .to_json_file("./examples/example_files/drive_recent.json")
+        .as_file("./examples/example_files/drive_recent.json")
         .unwrap();
 }
 
+#[allow(dead_code)]
 fn recent_from_file() {
     let item: Collection<DriveItem> =
-        Collection::from_json_file("./examples/example_files/drive_recent.json").unwrap();
+        Collection::from_file("./examples/example_files/drive_recent.json").unwrap();
     println!("{:#?}", &item);
 }

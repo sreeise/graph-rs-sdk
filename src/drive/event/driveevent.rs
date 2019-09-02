@@ -5,7 +5,7 @@
 ///
 /// # See Also:
 /// [Documentation on Drive Items and API Events](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/resources/driveitem?view=odsp-graph-online#methods)
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize, EnumIter)]
 pub enum DriveEvent {
     CheckIn,
     CheckOut,
@@ -15,7 +15,6 @@ pub enum DriveEvent {
     Download,
     DownloadAndFormat,
     GetItem,
-    GetItemRoot,
     ListChildren,
     Move,
     Upload,
@@ -49,5 +48,17 @@ impl DriveEvent {
             DriveEvent::RestoreVersion => "restoreVersion",
             _ => "",
         }
+    }
+}
+
+impl AsRef<str> for DriveEvent {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl ToString for DriveEvent {
+    fn to_string(&self) -> String {
+        String::from(self.as_ref())
     }
 }

@@ -3,7 +3,7 @@ use crate::jwt::JwtParser;
 use crate::stdop::StdOp;
 use chrono::{DateTime, Duration, Utc};
 use chrono_humanize::HumanTime;
-use from_to_file::*;
+use from_as::*;
 use graph_error::{GraphError, GraphFailure, GraphHeaders};
 use reqwest::RequestBuilder;
 use reqwest::Response;
@@ -39,7 +39,7 @@ use std::convert::TryFrom;
 /// let access_token = oauth.send().unwrap();
 /// println!("{:#?}", access_token);
 /// ```
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, FromToFile)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, AsFile, FromFile)]
 pub struct AccessToken {
     access_token: String,
     token_type: String,

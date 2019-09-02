@@ -8,13 +8,14 @@ extern crate serde_json;
 extern crate reqwest;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use rust_onedrive::from_to::*;
 use rust_onedrive::oauth::OAuth;
 
 fn main() {
     // First run the example: rocket_example.rs
-    let mut oauth: OAuth =
-        OAuth::from_json_file("./examples/example_files/web_oauth.json").unwrap();
+    let mut oauth: OAuth = OAuth::new();
+    oauth
+        .logout_url("https:://localhost:8000/logout")
+        .post_logout_redirect_uri("https:://localhost:8000/redirect");
     oauth.v1_logout().unwrap();
 
     rocket::ignite().mount("/", routes![redirect]).launch();

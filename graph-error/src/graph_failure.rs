@@ -28,6 +28,9 @@ pub enum GraphFailure {
     RecvError(mpsc::RecvError),
     BorrowMutError(BorrowMutError),
     UrlParseError(url::ParseError),
+    HyperError(hyper::Error),
+    HyperHttpError(hyper::http::Error),
+    HyperInvalidUri(hyper::http::uri::InvalidUri),
 }
 
 impl GraphFailure {
@@ -45,14 +48,11 @@ impl GraphFailure {
     }
 
     pub fn none_err(message: &str) -> Self {
-        let string = format!(
-            "Retrieving the value for: {:#?} has resulted in a None value",
-            message
-        );
+        let string = format!("Missing: {:#?}", message);
         GraphFailure::error_kind(ErrorKind::InvalidData, string.as_str())
     }
 
-    pub fn err_from(r: &mut Response) -> Option<GraphFailure> {
+    pub fn from_response(r: &mut Response) -> Option<GraphFailure> {
         if GraphError::is_error(r.status().as_u16()) {
             Some(GraphFailure::from(
                 GraphError::try_from(r).unwrap_or_default(),
@@ -60,6 +60,12 @@ impl GraphFailure {
         } else {
             None
         }
+    }
+}
+
+impl Default for GraphFailure {
+    fn default() -> Self {
+        GraphFailure::GraphError(Box::new(GraphError::default()))
     }
 }
 
@@ -81,6 +87,9 @@ impl fmt::Display for GraphFailure {
                 write!(f, "Borrow Mut Error error:\n{:#?}", err)
             },
             GraphFailure::UrlParseError(ref err) => write!(f, "Url parse error:\n{:#?}", err),
+            GraphFailure::HyperError(ref err) => write!(f, "Hyper error:\n{:#?}", err),
+            GraphFailure::HyperHttpError(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
+            GraphFailure::HyperInvalidUri(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
         }
     }
 }
@@ -101,6 +110,9 @@ impl error::Error for GraphFailure {
             GraphFailure::RecvError(ref err) => err.description(),
             GraphFailure::BorrowMutError(ref err) => err.description(),
             GraphFailure::UrlParseError(ref err) => error::Error::description(err),
+            GraphFailure::HyperError(ref err) => err.description(),
+            GraphFailure::HyperHttpError(ref err) => err.description(),
+            GraphFailure::HyperInvalidUri(ref err) => err.description(),
         }
     }
 
@@ -119,6 +131,9 @@ impl error::Error for GraphFailure {
             GraphFailure::GraphError(_) => None,
             GraphFailure::BorrowMutError(ref err) => Some(err),
             GraphFailure::UrlParseError(ref err) => Some(err),
+            GraphFailure::HyperError(ref err) => Some(err),
+            GraphFailure::HyperHttpError(ref err) => Some(err),
+            GraphFailure::HyperInvalidUri(ref err) => Some(err),
         }
     }
 }
@@ -204,5 +219,33 @@ impl From<NoneError> for GraphFailure {
 impl From<url::ParseError> for GraphFailure {
     fn from(err: url::ParseError) -> Self {
         GraphFailure::UrlParseError(err)
+    }
+}
+
+impl From<hyper::Error> for GraphFailure {
+    fn from(err: hyper::Error) -> Self {
+        GraphFailure::HyperError(err)
+    }
+}
+
+impl From<hyper::http::Error> for GraphFailure {
+    fn from(err: hyper::http::Error) -> Self {
+        GraphFailure::HyperHttpError(err)
+    }
+}
+
+impl From<hyper::http::uri::InvalidUri> for GraphFailure {
+    fn from(err: hyper::http::uri::InvalidUri) -> Self {
+        GraphFailure::HyperInvalidUri(err)
+    }
+}
+
+impl TryFrom<&mut Response> for GraphFailure {
+    type Error = std::io::Error;
+
+    fn try_from(value: &mut Response) -> Result<Self, Self::Error> {
+        Ok(GraphFailure::GraphError(Box::new(GraphError::try_from(
+            value,
+        )?)))
     }
 }
