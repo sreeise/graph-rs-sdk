@@ -11,13 +11,18 @@
 //!
 //! # Example
 //! ```rust,ignore
+//! use rust_onedrive::drive::client::Graph;
+//! use rust_onedrive::drive::drive_item::collection::Collection;
+//! use graph_rs_types::entitytypes::DriveItem;
+//!
+//! let graph = Graph::new("ACCESS_TOKEN");
 //! // To use the V1.0 endpoint:
-//! let mut req = drive.v1().drive_recent();
+//! let mut req = graph.v1().me().drive().root_children();
 //! let collection: Collection<DriveItem> = req.send().unwrap();
 //! pirntln!("{:#?}", collection);
 //!
 //! // Use the Graph beta endpoint.
-//! let mut req = drive.v2().drive_recent();
+//! let mut req = graph.beta().me().drive().recent();
 //! let collection: Collection<DriveItem> = req.send().unwrap();
 //! pirntln!("{:#?}", collection);
 //! ```
@@ -80,9 +85,9 @@
 //!
 //! # Example
 //! ```rust,ignore
-//! let mut drive = Drive::try_from(oauth).unwrap();
-//! let req = drive.v1().drive_recent();
-//! let drive_item: DriveItemCollection = req.send().unwrap();
+//! let mut graph = Graph::try_from(oauth).unwrap();
+//! let req = graph.v1().me().drive().recent();
+//! let drive_item: Collection<DriveItem> = req.send().unwrap();
 //! println!("{:#?}", drive_item);
 //! ```
 //!
@@ -90,51 +95,66 @@
 //! users.
 //! # Example
 //! ```rust,ignore
-//! let mut req = drive.v1().me().get_item("ITEM ID");
+//! use rust_onedrive::drive::client::Graph;
+//!
+//! let graph = Graph::new("TOKEN");
+//!
+//! let mut req = graph.v1()
+//!                 .me()
+//!                 .drive()
+//!                 .get_item()
+//!                 .by_id("ITEM_ID");
 //! let drive_item = req.send()?;
 //! println!("{:#?}", drive_item);
 //!
 //! // Or get the item by path
-//! let mut req = drive.v1().me().get_item_path("Documents/file.txt");
+//! let mut req = drive.v1()
+//!                 .me()
+//!                 .drive()
+//!                 .get_item()
+//!                 .by_path("Documents/file.txt");
 //! let drive_item = req.send()?;
 //! println!("{:#?}", drive_item);
 //! ```
 
 #![feature(try_trait)]
 #![feature(associated_type_defaults)]
-pub extern crate strum;
-pub extern crate strum_macros;
+extern crate strum;
+#[macro_use]
+extern crate strum_macros;
 #[macro_use]
 pub extern crate serde_derive;
-pub extern crate base64;
-pub extern crate encoding;
+extern crate from_as;
 pub extern crate graph_error;
 pub extern crate graph_oauth;
+extern crate log;
+extern crate pretty_env_logger;
 pub extern crate reqwest;
 pub extern crate serde;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 #[macro_use]
-pub extern crate derive_from_to_file;
-#[macro_use]
 extern crate getset;
+extern crate graph_rs_types;
 
+pub mod client;
 /// The main drive module used for making requests
 /// to the OneDrive V1.0 and Graph Beta endpoints.
 pub mod drive;
-mod io;
+pub mod http;
+pub mod types;
+pub mod url;
+
+pub mod graph {
+    pub use crate::drive::client::*;
+}
 
 /// Common structs and traits.
 pub mod prelude {
-    pub use crate::drive::drive_item::collection::Collection;
-    pub use crate::drive::drive_item::driveitem::DriveItem;
-    pub use crate::drive::driveurl::{DriveUrl, MutateUrl};
-    pub use crate::drive::endpoint::{DriveEndPoint, EP};
-    pub use crate::drive::item::{ItemCommon, ItemMe, SelectEventMe};
-    pub use crate::drive::pipelines::downloadpipeline::{IntoFetch, MutateDownload};
-    pub use crate::drive::pipelines::request::{ReqBuilder, Request};
-    pub use crate::drive::{Drive, ItemResult};
-    pub use crate::from_to::*;
+    pub use crate::client::*;
+    pub use crate::drive::client::IntoItem;
+    pub use crate::drive::endpoint::DriveEndPoint;
+    pub use crate::types::collection::Collection;
 }
 
 /// Reexport of graph-oauth crate.
@@ -142,17 +162,4 @@ pub mod oauth {
     pub use graph_oauth::jwt;
     pub use graph_oauth::oauth::*;
     pub use graph_oauth::op;
-}
-
-/// The FromToFile trait provides writing JSON and Yaml to
-/// and from files. The mod exposes the traits needed for
-/// the FromToFile trait.
-pub mod from_to {
-    pub use from_to_file::*;
-}
-
-/// Tools for working with and downloading files.
-pub mod fetch {
-    pub use crate::io::fetch::FetchBuilder;
-    pub use crate::io::iotools::IoTools;
 }

@@ -1,3 +1,4 @@
+use graph_rs_types::entitytypes::DriveItem;
 use rust_onedrive::prelude::*;
 
 // Put the path to your file and the file name itself that
@@ -21,26 +22,31 @@ fn main() {
 
 // Uploading a file using the drive id and parent id.
 fn upload_file() {
-    let drive = Drive::new("ACCESS_TOKEN");
-    let mut req = drive
+    let graph = Graph::new("ACCESS_TOKEN");
+    let drive_item: DriveItem = graph
         .v1()
         .me()
-        .upload_replace(DRIVE_PARENT_ID, LOCAL_FILE_PATH);
-    // The update drive item metadata.
-    let drive_item: DriveItem = req.send().unwrap();
+        .drive()
+        .upload_replace(LOCAL_FILE_PATH)
+        .by_id(DRIVE_PARENT_ID)
+        .send()
+        .unwrap();
 
     println!("{:#?}", drive_item);
 }
 
 fn upload_new() {
-    let drive = Drive::new("ACCESS_TOKEN");
+    let graph = Graph::new("ACCESS_TOKEN");
 
-    let mut req = drive
+    let drive_item: DriveItem = graph
         .v1()
         .me()
-        .upload_new(DRIVE_PARENT_ID, LOCAL_FILE_PATH)
+        .drive()
+        .upload_new(LOCAL_FILE_PATH)
+        .unwrap()
+        .by_id(DRIVE_PARENT_ID)
+        .send()
         .unwrap();
-    let drive_item: DriveItem = req.send().unwrap();
     println!("{:#?}", drive_item);
 }
 
@@ -49,13 +55,16 @@ fn upload_new() {
 // other common folders such as Documents are stored.
 fn sites_upload_new() {
     // Get the latest metadata for the root drive folder items.
-    let drive = Drive::new("ACCESS_TOKEN");
+    let graph = Graph::new("ACCESS_TOKEN");
 
-    let mut req = drive
+    let drive_item: DriveItem = graph
         .v1()
         .sites()
-        .upload_new(DRIVE_PARENT_ID, RESOURCE_ID, LOCAL_FILE_PATH)
+        .drive()
+        .upload_new(LOCAL_FILE_PATH)
+        .unwrap()
+        .by_ids(DRIVE_PARENT_ID, RESOURCE_ID)
+        .send()
         .unwrap();
-    let drive_item: DriveItem = req.send().unwrap();
     println!("{:#?}", drive_item);
 }

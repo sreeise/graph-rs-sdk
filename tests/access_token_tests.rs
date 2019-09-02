@@ -1,8 +1,8 @@
 use drive_test_tools::support::cleanup::CleanUp;
+use from_as::*;
 use graph_oauth::oauth::AccessToken;
 use graph_oauth::oauth::OAuth;
 use graph_oauth::oauth::OAuthCredential;
-use rust_onedrive::from_to::*;
 use std::path::Path;
 use std::time::Duration;
 use std::{fs, thread};
@@ -61,29 +61,29 @@ fn oauth_json_file() {
         .user_id(None)
         .id_token(None);
 
-    oauth.to_json_file(&file_location).unwrap();
+    oauth.as_file(&file_location).unwrap();
 
     let metadata = fs::metadata(&file_location)
         .expect("Could not get metadata for auth_configs/test_file.json");
     let file_type = metadata.file_type();
     assert_eq!(file_type.is_file(), true);
 
-    let oauth_from_json_file: OAuth = match OAuth::from_json_file(&file_location) {
+    let oauth_from_file: OAuth = match OAuth::from_file(&file_location) {
         Ok(t) => t,
         Err(e) => panic!("Could not get OAuth from file. Error: {:#?}", e),
     };
 
-    assert_eq!(&oauth, &oauth_from_json_file);
+    assert_eq!(&oauth, &oauth_from_file);
     assert_eq!(
-        oauth_from_json_file.get(OAuthCredential::ClientId),
+        oauth_from_file.get(OAuthCredential::ClientId),
         Some("bb301aaa-1201-4259-a230923fds32".into())
     );
     assert_eq!(
-        oauth_from_json_file.get(OAuthCredential::RedirectURI),
+        oauth_from_file.get(OAuthCredential::RedirectURI),
         Some("http://localhost:8888/redirect".into())
     );
     assert_eq!(
-        oauth_from_json_file.get(OAuthCredential::AuthorizeURL),
+        oauth_from_file.get(OAuthCredential::AuthorizeURL),
         Some("https://example.com/oauth2/v2.0/authorize".into())
     );
 }

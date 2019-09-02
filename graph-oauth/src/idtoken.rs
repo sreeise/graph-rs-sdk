@@ -1,12 +1,12 @@
 use crate::oautherror::OAuthError;
-use from_to_file::*;
+use from_as::*;
 use graph_error::GraphFailure;
 use std::borrow::Cow;
 use std::convert::TryFrom;
 use std::str::FromStr;
 use url::form_urlencoded;
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, FromToFile)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, AsFile, FromFile)]
 pub struct IdToken {
     code: Option<String>,
     id_token: String,

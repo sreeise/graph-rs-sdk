@@ -24,31 +24,29 @@ fn main() {
 }
 
 fn get_preview(access_token: &str, item_id: &str) {
-    let drive = Drive::new(access_token);
+    let drive = Graph::new(access_token);
 
-    let mut req = drive.v2().me().preview(item_id, None);
-
-    match req.send() {
-        Ok(t) => {
-            println!("Preview {:#?}", t);
-        },
-        Err(e) => {
-            println!("Error: {:#?}", e);
-        },
-    }
+    let preview = drive
+        .beta()
+        .me()
+        .drive()
+        .preview(None)
+        .by_id(item_id)
+        .send()
+        .unwrap();
+    println!("{:#?}", preview);
 }
 
 fn get_preview_with_properties(access_token: &str, item_id: &str, embeddable_url: EmbeddableUrl) {
-    let drive = Drive::new(access_token);
+    let drive = Graph::new(access_token);
 
-    let mut req = drive.v2().me().preview(item_id, Some(embeddable_url));
-
-    match req.send() {
-        Ok(t) => {
-            println!("Preview {:#?}", t);
-        },
-        Err(e) => {
-            println!("Error: {:#?}", e);
-        },
-    }
+    let preview = drive
+        .beta()
+        .me()
+        .drive()
+        .preview(Some(embeddable_url))
+        .by_id(item_id)
+        .send()
+        .unwrap();
+    println!("{:#?}", preview);
 }

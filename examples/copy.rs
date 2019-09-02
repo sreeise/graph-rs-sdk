@@ -1,6 +1,7 @@
-use rust_onedrive::drive::drive_item::itemreference::ItemReference;
-use rust_onedrive::drive::statusresponse::StatusResponse;
+use graph_rs_types::complextypes::ItemReference;
+use graph_rs_types::entitytypes::DriveItem;
 use rust_onedrive::prelude::*;
+use rust_onedrive::types::statusresponse::StatusResponse;
 use std::thread;
 use std::time::Duration;
 
@@ -14,12 +15,13 @@ fn main() {
 }
 
 fn copy_item() {
-    let drive: Drive = Drive::new("ACCESS_TOKEN");
-    let mut collection: Collection<DriveItem> = drive.v1().drive_root_child().send().unwrap();
+    let graph = Graph::new("ACCESS_TOKEN");
+    let mut collection: Collection<DriveItem> =
+        graph.v1().me().drive().root_children().send().unwrap();
 
     // The file or folder that you want to copy.
     let drive_item: DriveItem = collection.find_by_name(DRIVE_FILE).unwrap();
-    let item_id = drive_item.id().clone().unwrap();
+    let item_id = drive_item.id.clone().unwrap();
 
     // The DriveItem copy request uses a ItemReference (parent reference) which contains
     // the metadata for the drive id and path specifying where the new copy should be placed.
@@ -27,15 +29,16 @@ fn copy_item() {
     // requested above so the copy of the item will be placed in the same folder. This can
     // be changed to wherever you would like the copy placed.
     let mut item_ref = ItemReference::default();
-    item_ref.set_path(Some("/drive/root:/Documents".into()));
+    item_ref.path = Some("/drive/root:/Documents".into());
 
-    let mut request = drive
+    let mut response: StatusResponse = graph
         .v1()
         .me()
-        .copy(item_id.as_str(), &item_ref, Some(DRIVE_FILE_COPY_NAME));
-
-    let mut response: StatusResponse = request.send().unwrap();
-    println!("{:#?}", &response);
+        .drive()
+        .copy(Some(DRIVE_FILE_COPY_NAME), &item_ref)
+        .by_id(item_id.as_str())
+        .send()
+        .unwrap();
 
     // When an item is copied the response returns a URL in the location header
     // that can be used to monitor the progress. For events that may take longer to finish
