@@ -80,7 +80,6 @@ mod idtoken;
 pub mod jwt;
 mod oautherror;
 mod scopes;
-mod stdop;
 
 pub mod scope {
     pub use crate::scopes::*;
@@ -100,8 +99,4 @@ pub mod oauth {
     pub use crate::oautherror::OAuthError;
     pub use crate::scope;
     pub use crate::strum::IntoEnumIterator;
-}
-
-pub mod op {
-    pub use crate::stdop::StdOp;
 }

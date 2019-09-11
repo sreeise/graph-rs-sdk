@@ -1,6 +1,6 @@
 use from_as::*;
+use graph_rs::types::collection::Collection;
 use graph_rs_types::entitytypes::DriveItem;
-use rust_onedrive::types::collection::Collection;
 
 #[test]
 fn drive_item_value_by_id() {

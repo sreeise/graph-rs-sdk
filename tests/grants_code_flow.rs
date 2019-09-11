@@ -1,5 +1,5 @@
 use graph_oauth::oauth::GrantType;
-use rust_onedrive::oauth::{AccessToken, GrantRequest, OAuth};
+use graph_rs::oauth::{AccessToken, GrantRequest, OAuth};
 
 #[test]
 fn sign_in_code_url() {

@@ -134,7 +134,7 @@ impl Request {
                 .headers(headers)
                 .bearer_auth(self.token.as_str())
                 .body(body))
-        } else  {
+        } else {
             Ok(client
                 .request(method, &url)
                 .headers(headers)

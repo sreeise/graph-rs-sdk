@@ -1,5 +1,5 @@
 use graph_oauth::oauth::GrantType;
-use rust_onedrive::oauth::{GrantRequest, OAuth};
+use graph_rs::oauth::{GrantRequest, OAuth};
 use url::{Host, Url};
 
 pub fn oauth() -> OAuth {

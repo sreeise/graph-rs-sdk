@@ -6,5 +6,5 @@ edition = "2018"
 
 [dependencies]
 url = "1.7.2"
-rust-onedrive = { path = "../" }
+graph-rs = { path = "../" }
 rand = "0.6.5"

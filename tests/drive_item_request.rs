@@ -2,6 +2,7 @@
 #[macro_use]
 extern crate rocket;
 use from_as::*;
+use graph_rs::types::collection::Collection;
 use graph_rs_types::complextypes::FileSystemInfo;
 use graph_rs_types::entitytypes;
 use graph_rs_types::entitytypes::DriveItem;
@@ -9,7 +10,6 @@ use rocket::http::Status;
 use rocket::local::Client;
 use rocket::Rocket;
 use rocket_codegen::routes;
-use rust_onedrive::types::collection::Collection;
 use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;

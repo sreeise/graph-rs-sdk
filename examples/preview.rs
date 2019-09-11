@@ -1,5 +1,5 @@
-use rust_onedrive::drive::event::EmbeddableUrl;
-use rust_onedrive::prelude::*;
+use graph_rs::drive::event::EmbeddableUrl;
+use graph_rs::prelude::*;
 
 // You can get preview URLs for an item. Provide optional
 // properties with an EmbeddableUrl.

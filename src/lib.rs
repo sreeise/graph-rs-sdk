@@ -11,8 +11,8 @@
 //!
 //! # Example
 //! ```rust,ignore
-//! use rust_onedrive::drive::client::Graph;
-//! use rust_onedrive::drive::drive_item::collection::Collection;
+//! use graph_rs::drive::client::Graph;
+//! use graph_rs::drive::drive_item::collection::Collection;
 //! use graph_rs_types::entitytypes::DriveItem;
 //!
 //! let graph = Graph::new("ACCESS_TOKEN");
@@ -32,7 +32,7 @@
 //! # Example
 //! ```
 //! // For better understanding see the examples directory and the graph-oauth crate.
-//! use rust_onedrive::oauth::OAuth;
+//! use graph_rs::oauth::OAuth;
 //!
 //! let mut oauth = OAuth::new();
 //! oauth.client_id("<CLIENT ID>")
@@ -65,7 +65,7 @@
 //!
 //! # Example
 //! ```
-//! # use rust_onedrive::oauth::OAuth;
+//! # use graph_rs::oauth::OAuth;
 //! # let mut oauth = OAuth::new();
 //! oauth.access_code("temporary access code");
 //! ```
@@ -95,7 +95,7 @@
 //! users.
 //! # Example
 //! ```rust,ignore
-//! use rust_onedrive::drive::client::Graph;
+//! use graph_rs::drive::client::Graph;
 //!
 //! let graph = Graph::new("TOKEN");
 //!
@@ -125,8 +125,9 @@ extern crate strum_macros;
 #[macro_use]
 pub extern crate serde_derive;
 extern crate from_as;
-pub extern crate graph_error;
-pub extern crate graph_oauth;
+extern crate graph_error;
+extern crate graph_oauth;
+extern crate graph_rs_types;
 extern crate log;
 extern crate pretty_env_logger;
 pub extern crate reqwest;
@@ -135,7 +136,6 @@ pub extern crate serde_json;
 pub extern crate serde_yaml;
 #[macro_use]
 extern crate getset;
-extern crate graph_rs_types;
 
 pub mod client;
 /// The main drive module used for making requests
@@ -161,5 +161,9 @@ pub mod prelude {
 pub mod oauth {
     pub use graph_oauth::jwt;
     pub use graph_oauth::oauth::*;
-    pub use graph_oauth::op;
+    pub use graph_oauth::scope;
+}
+
+pub mod error {
+    pub use graph_error::*;
 }

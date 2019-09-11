@@ -8,11 +8,11 @@ extern crate serde_json;
 extern crate reqwest;
 
 use from_as::*;
+use graph_rs::oauth::OAuth;
+use graph_rs::prelude::*;
 use graph_rs_types::entitytypes::DriveItem;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use rust_onedrive::oauth::OAuth;
-use rust_onedrive::prelude::*;
 use std::convert::TryFrom;
 use std::thread;
 use std::time::Duration;

@@ -1,4 +1,4 @@
-use rust_onedrive::oauth::{GrantRequest, GrantType, OAuth};
+use graph_rs::oauth::{GrantRequest, GrantType, OAuth};
 
 #[test]
 pub fn implicit_grant_url() {
