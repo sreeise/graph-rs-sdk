@@ -12,9 +12,8 @@ use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use reqwest::Method;
 use serde::export::PhantomData;
 use serde_json::json;
-use std::ffi::OsString;
-use std::path::{Path, PathBuf};
 use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 
 macro_rules! endpoint_method {
     ( $name:ident, $I:ty, $x:expr ) => {
@@ -24,7 +23,7 @@ macro_rules! endpoint_method {
         }
         self.client.insert_ord(UrlOrdering::Last($x.to_string()));
         if self.client.ident().eq(&Ident::Me) {
-            self.client.format();
+            self.client.format_ord();
         }
         self.client.set_method(Method::GET);
         ResponseClient::new(self.client)
@@ -166,7 +165,8 @@ impl<'a, I> DriveRequest<'a, I> {
     ) -> ResponseClient<'a, I, DriveItem> {
         let folder: HashMap<String, serde_json::Value> = HashMap::new();
         if let Some(c) = conflict_behavior {
-            let data = json!({ "name": name, "folder": folder,  "microsoft_graph_conflict_behavior": c });
+            let data =
+                json!({ "name": name, "folder": folder,  "microsoft_graph_conflict_behavior": c });
             self.client.body(serde_json::to_string(&data).unwrap());
         } else {
             let data = json!({ "name": name, "folder": folder });
@@ -232,11 +232,11 @@ impl<'a, I> DriveRequest<'a, I> {
     }
 
     pub fn upload_replace<P: AsRef<Path>>(&'a self, file: P) -> ResponseClient<'a, I, DriveItem> {
+        self.update_ord();
         self.client
-            .set_method(Method::PATCH)
-            .insert_ord(UrlOrdering::PathIdent(PathIdent::Drive))
+            .set_method(Method::PUT)
             .insert_ord(UrlOrdering::Last("content".into()))
-            .set_file(OsString::from(file.as_ref()));
+            .set_file(file.as_ref());
         ResponseClient::new(self.client)
     }
 
@@ -247,22 +247,22 @@ impl<'a, I> DriveRequest<'a, I> {
         let name = file
             .as_ref()
             .file_name()
-            .ok_or_else(|| GraphFailure::none_err("file_name"))?;
+            .ok_or_else(|| GraphFailure::none_err("file_name"))?
+            .to_string_lossy()
+            .to_string();
         self.update_ord();
         self.client
             .set_method(Method::PUT)
-            .set_file(OsString::from(file.as_ref()))
-            .insert_ord(UrlOrdering::FileName(name.to_string_lossy().to_string()))
-            .insert_ord(UrlOrdering::Last(DriveEvent::Upload.to_string()));
+            .set_file(file)
+            .insert_ord(UrlOrdering::FileName(name))
+            .insert_ord(UrlOrdering::Last("content".to_string()));
         Ok(ResponseClient::new(self.client))
     }
 
     pub fn restore_version(&'a self, version_id: &str) -> ResponseClient<'a, I, StatusResponse> {
         self.update_ord_with(UrlOrdering::Last(format!(
             "{}/{}/{}",
-            "versions",
-            version_id,
-            DriveEvent::RestoreVersion.as_ref()
+            "versions", version_id, "restoreVersion",
         )));
         ResponseClient::new(self.client)
     }

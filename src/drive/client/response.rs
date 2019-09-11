@@ -110,14 +110,15 @@ impl<'a, I, T> ResponseClient<'a, I, T> {
         }
     }
 
-    pub fn by_id(&'a self, id: &str) -> IntoResponse<'a, I, T>
-    {
+    pub fn by_id(&'a self, id: &str) -> IntoResponse<'a, I, T> {
         if self.client.ident().eq(&Ident::Me) {
-            self.client.insert_ord(UrlOrdering::Id(id.into()))
-                .format();
+            self.client
+                .insert_ord(UrlOrdering::Id(id.into()))
+                .format_ord();
         } else {
-            self.client.insert_ord(UrlOrdering::ResourceId(id.into()))
-                .format();
+            self.client
+                .insert_ord(UrlOrdering::ResourceId(id.into()))
+                .format_ord();
         }
         IntoResponse::new(self.client)
     }
@@ -135,35 +136,40 @@ impl<'a, I, T> ResponseClient<'a, I, T> {
 }
 
 impl<'a, T> ResponseClient<'a, IdentifyMe, T> {
-    pub fn by_path<P: AsRef<Path>>(&self, path: P) -> IntoResponse<'a, IdentifyMe, T>
-    {
+    pub fn by_path<P: AsRef<Path>>(&self, path: P) -> IntoResponse<'a, IdentifyMe, T> {
         self.client
             .remove_ord(UrlOrdering::FileName("".into()))
             .replace_ord(UrlOrdering::RootOrItem("root:".into()))
             .replace_ord(UrlOrdering::Path(path.as_ref().to_path_buf()))
-            .format();
+            .format_ord();
         IntoResponse::new(self.client)
     }
 }
 
 impl<'a, T> ResponseClient<'a, IdentifyCommon, T> {
-    pub fn by_ids(&'a self, item_id: &str, resource_id: &str) -> IntoResponse<'a, IdentifyCommon, T>
-    {
+    pub fn by_ids(
+        &'a self,
+        item_id: &str,
+        resource_id: &str,
+    ) -> IntoResponse<'a, IdentifyCommon, T> {
         self.client
             .insert_ord(UrlOrdering::ResourceId(resource_id.into()))
             .insert_ord(UrlOrdering::Id(item_id.into()))
-            .format();
+            .format_ord();
         IntoResponse::new(self.client)
     }
 
-    pub fn by_path_id<P: AsRef<Path>>(&'a self, resource_id: &str, path: P) -> IntoResponse<'a, IdentifyCommon, T>
-    {
+    pub fn by_path_id<P: AsRef<Path>>(
+        &'a self,
+        resource_id: &str,
+        path: P,
+    ) -> IntoResponse<'a, IdentifyCommon, T> {
         self.client
             .insert_ord(UrlOrdering::ResourceId(resource_id.into()))
             .remove_ord(UrlOrdering::FileName("".into()))
             .replace_ord(UrlOrdering::RootOrItem("root:".into()))
             .insert_ord(UrlOrdering::Path(path.as_ref().to_path_buf()))
-            .format();
+            .format_ord();
         IntoResponse::new(self.client)
     }
 }
@@ -177,8 +183,8 @@ impl<'a, I> ResponseClient<'a, I, StatusResponse> {
 }
 
 impl<'a, I, T> IntoItem<T> for ResponseClient<'a, I, T>
-    where
-            for<'de> T: serde::Deserialize<'de>,
+where
+    for<'de> T: serde::Deserialize<'de>,
 {
     fn send(&self) -> Result<T, GraphFailure> {
         self.client.send()
@@ -206,7 +212,7 @@ impl<'a, I, T> IntoDownloadClient<'a, I, T> {
         } else {
             self.client.insert_ord(UrlOrdering::ResourceId(id.into()));
         }
-        self.client.format().download_client()
+        self.client.format_ord().download_client()
     }
 
     pub fn by_drive_item(&self, drive_item: &DriveItem) -> GraphResult<FetchClient> {
@@ -224,7 +230,7 @@ impl<'a, I, T> IntoDownloadClient<'a, I, T> {
             self.client
                 .insert_ord(UrlOrdering::ResourceId(rid))
                 .insert_ord(UrlOrdering::Id(id))
-                .format();
+                .format_ord();
             Ok(download_client)
         }
     }
@@ -236,7 +242,7 @@ impl<'a> IntoDownloadClient<'a, IdentifyMe, FetchClient> {
             .remove_ord(UrlOrdering::FileName("".into()))
             .replace_ord(UrlOrdering::RootOrItem("root:".into()))
             .replace_ord(UrlOrdering::Path(path.as_ref().to_path_buf()))
-            .format()
+            .format_ord()
             .download_client()
     }
 }
@@ -246,7 +252,7 @@ impl<'a> IntoDownloadClient<'a, IdentifyCommon, FetchClient> {
         self.client
             .insert_ord(UrlOrdering::ResourceId(resource_id.into()))
             .insert_ord(UrlOrdering::Id(item_id.into()))
-            .format()
+            .format_ord()
             .download_client()
     }
 
@@ -260,7 +266,7 @@ impl<'a> IntoDownloadClient<'a, IdentifyCommon, FetchClient> {
             .remove_ord(UrlOrdering::FileName("".into()))
             .replace_ord(UrlOrdering::RootOrItem("root:".into()))
             .insert_ord(UrlOrdering::Path(path.as_ref().to_path_buf()))
-            .format()
+            .format_ord()
             .download_client()
     }
 }

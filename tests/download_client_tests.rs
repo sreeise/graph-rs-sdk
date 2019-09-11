@@ -1,6 +1,6 @@
+use graph_rs::drive::GRAPH_URL;
+use graph_rs::prelude::*;
 use graph_rs_types::entitytypes::DriveItem;
-use rust_onedrive::drive::GRAPH_URL;
-use rust_onedrive::prelude::*;
 use std::ffi::OsString;
 
 #[test]

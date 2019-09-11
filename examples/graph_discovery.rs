@@ -1,7 +1,7 @@
-use rust_onedrive::oauth::graphdiscovery::{
+use graph_rs::oauth::graphdiscovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
-use rust_onedrive::oauth::OAuth;
+use graph_rs::oauth::OAuth;
 
 fn main() {
     // Lists info such as the authorization and token urls, jwks uri, and response types supported.

@@ -1,7 +1,7 @@
-use rust_onedrive::client::Ident;
-use rust_onedrive::drive::{GRAPH_URL, GRAPH_URL_BETA};
-use rust_onedrive::http::Session;
-use rust_onedrive::prelude::*;
+use graph_rs::client::Ident;
+use graph_rs::drive::{GRAPH_URL, GRAPH_URL_BETA};
+use graph_rs::http::Session;
+use graph_rs::prelude::*;
 use std::ffi::OsString;
 
 fn get_drive() -> Graph {
@@ -13,8 +13,7 @@ fn query_mutate() {
     let client = get_drive();
     let _ = client.v1().drives().drive().drive();
 
-    client.select(&["name"]);
-    client.top("3");
+    client.select(&["name"]).top("3").format_ord();
     client.url_mut(|url| {
         assert_eq!(
             "https://graph.microsoft.com/v1.0/drives/drive?select=name&top=3",
@@ -23,7 +22,7 @@ fn query_mutate() {
     });
 
     let _ = client.v1().drives().drive().root().by_id("id");
-    client.expand(&["children"]);
+    client.expand(&["children"]).format_ord();
     client.url_mut(|url| {
         assert_eq!(
             "https://graph.microsoft.com/v1.0/drives/id/root?expand=children",
@@ -879,6 +878,34 @@ pub fn drive_upload_new_path() {
 }
 
 #[test]
+pub fn drive_upload_replace() {
+    let client = get_drive();
+    let _ = client
+        .v1()
+        .me()
+        .drive()
+        .upload_replace("./test_files/item_test/drive_info.json")
+        .by_id("32p99453");
+    assert_url_eq(&client, "/me/drive/items/32p99453/content");
+
+    let _ = client
+        .v1()
+        .drives()
+        .drive()
+        .upload_replace("./test_files/item_test/drive_info.json")
+        .by_ids("132534", "32p99453");
+    assert_url_eq(&client, "/drives/32p99453/items/132534/content");
+
+    let _ = client
+        .v1()
+        .sites()
+        .drive()
+        .upload_replace("./test_files/item_test/drive_info.json")
+        .by_ids("132534", "32p99453");
+    assert_url_eq(&client, "/sites/32p99453/drive/items/132534/content");
+}
+
+#[test]
 pub fn drive_list_versions() {
     let client = get_drive();
     let _ = client.v1().me().drive().list_versions().by_id("132534");
@@ -1014,7 +1041,7 @@ pub fn drive_restore_version_path() {
 pub fn drive_activities() {
     let client = get_drive();
     let _ = client.v1().me().lists().activities("32p99453");
-    client.format();
+    client.format_ord();
     assert_url_eq(&client, "/me/lists/32p99453/activities");
 
     let _ = client
@@ -1043,7 +1070,7 @@ pub fn drive_download() {
         .drive()
         .download("./test_files")
         .by_id("1234");
-    client.format();
+    client.format_ord();
     assert_url_eq(&client, "/me/drive/items/1234/content");
 
     let _ = client
@@ -1072,7 +1099,7 @@ pub fn drive_download_path() {
         .drive()
         .download("./test_files")
         .by_path("file.docx");
-    client.format();
+    client.format_ord();
     assert_url_eq(&client, "/me/drive/root:/file.docx:/content");
 
     let _ = client

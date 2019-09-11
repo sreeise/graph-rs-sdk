@@ -1,7 +1,7 @@
 use from_as::*;
 use graph_oauth::oauth::wellknown::{Commons, WellKnown};
 use graph_oauth::oauth::{OAuth, OAuthCredential};
-use rust_onedrive::oauth::graphdiscovery::{
+use graph_rs::oauth::graphdiscovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
 

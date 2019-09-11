@@ -1,7 +1,5 @@
-use std::collections::HashMap;
-
-use crate::stdop::StdOp;
 use graph_error::GraphFailure;
+use std::collections::HashMap;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Keys {
@@ -25,12 +23,12 @@ pub struct Keys {
 impl Keys {
     pub fn to_map(&self) -> HashMap<String, String> {
         let mut hashmap: HashMap<String, String> = HashMap::new();
-        hashmap.insert("kty".into(), StdOp::convert_to_string(self.kty.clone()));
-        hashmap.insert("use".into(), StdOp::convert_to_string(self._use.clone()));
-        hashmap.insert("kid".into(), StdOp::convert_to_string(self.kid.clone()));
-        hashmap.insert("x5t".into(), StdOp::convert_to_string(self.x5t.clone()));
-        hashmap.insert("n".into(), StdOp::convert_to_string(self.n.clone()));
-        hashmap.insert("e".into(), StdOp::convert_to_string(self.e.clone()));
+        hashmap.insert("kty".into(), self.kty.clone().unwrap_or_default());
+        hashmap.insert("use".into(), self._use.clone().unwrap_or_default());
+        hashmap.insert("kid".into(), self.kid.clone().unwrap_or_default());
+        hashmap.insert("x5t".into(), self.x5t.clone().unwrap_or_default());
+        hashmap.insert("n".into(), self.n.clone().unwrap_or_default());
+        hashmap.insert("e".into(), self.e.clone().unwrap_or_default());
         if let Some(x5) = &self.x5c {
             hashmap.insert("x5c".into(), x5[0].to_string());
         }

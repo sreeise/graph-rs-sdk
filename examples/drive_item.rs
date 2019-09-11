@@ -1,7 +1,7 @@
 use from_as::*;
+use graph_rs::oauth::OAuth;
+use graph_rs::prelude::*;
 use graph_rs_types::entitytypes::DriveItem;
-use rust_onedrive::oauth::OAuth;
-use rust_onedrive::prelude::*;
 use std::convert::TryFrom;
 
 fn main() {

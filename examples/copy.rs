@@ -1,7 +1,7 @@
+use graph_rs::prelude::*;
+use graph_rs::types::statusresponse::StatusResponse;
 use graph_rs_types::complextypes::ItemReference;
 use graph_rs_types::entitytypes::DriveItem;
-use rust_onedrive::prelude::*;
-use rust_onedrive::types::statusresponse::StatusResponse;
 use std::thread;
 use std::time::Duration;
 

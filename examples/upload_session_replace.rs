@@ -1,5 +1,5 @@
-use rust_onedrive::http::{NextSession, Session};
-use rust_onedrive::prelude::*;
+use graph_rs::http::{NextSession, Session};
+use graph_rs::prelude::*;
 
 // This example shows creating an upload session to replace an existing file
 // and iterating through the individual upload session values.

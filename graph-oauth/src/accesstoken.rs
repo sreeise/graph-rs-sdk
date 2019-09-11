@@ -1,6 +1,5 @@
 use crate::idtoken::IdToken;
 use crate::jwt::JwtParser;
-use crate::stdop::StdOp;
 use chrono::{DateTime, Duration, Utc};
 use chrono_humanize::HumanTime;
 use from_as::*;
@@ -26,7 +25,7 @@ use std::convert::TryFrom;
 ///
 /// # Example
 /// ```rust,ignore
-/// use rust_onedrive::oauth::AccessToken;
+/// use graph_rs::oauth::AccessToken;
 /// let access_token = AccessToken::try_from(&mut response); // -> Result<AccessToken>
 /// ```
 ///
@@ -141,7 +140,7 @@ impl AccessToken {
     /// access_token.refresh_token(Some("#ASOD323U5342"));
     /// ```
     pub fn refresh_token(&mut self, s: Option<&str>) -> &mut AccessToken {
-        self.refresh_token = StdOp::from(s);
+        self.refresh_token = s.map(|s| s.to_string());
         self
     }
 
@@ -155,7 +154,7 @@ impl AccessToken {
     /// access_token.user_id(Some("user_id"));
     /// ```
     pub fn user_id(&mut self, s: Option<&str>) -> &mut AccessToken {
-        self.user_id = StdOp::from(s);
+        self.user_id = s.map(|s| s.to_string());
         self
     }
 
@@ -197,7 +196,7 @@ impl AccessToken {
     /// access_token.state(Some("state"));
     /// ```
     pub fn state(&mut self, s: Option<&str>) -> &mut AccessToken {
-        self.state = StdOp::from(s);
+        self.state = s.map(|s| s.to_string());
         self
     }
 

@@ -1,7 +1,7 @@
 use from_as::*;
+use graph_rs::oauth::OAuth;
+use graph_rs::prelude::*;
 use graph_rs_types::entitytypes::ThumbnailSet;
-use rust_onedrive::oauth::OAuth;
-use rust_onedrive::prelude::*;
 use std::convert::TryFrom;
 
 static ITEM_ID: &str = "ITEM_ID";

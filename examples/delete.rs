@@ -1,7 +1,7 @@
 use from_as::*;
-use rust_onedrive::oauth::OAuth;
-use rust_onedrive::prelude::*;
-use rust_onedrive::types::statusresponse::StatusResponse;
+use graph_rs::oauth::OAuth;
+use graph_rs::prelude::*;
+use graph_rs::types::statusresponse::StatusResponse;
 use std::convert::TryFrom;
 
 // Delete items in OneDrive. This will move deleted items to the recycle bin.

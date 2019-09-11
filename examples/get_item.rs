@@ -1,5 +1,5 @@
+use graph_rs::prelude::*;
 use graph_rs_types::entitytypes::DriveItem;
-use rust_onedrive::prelude::*;
 
 fn main() {
     // Get the drive item metadata based on its id.

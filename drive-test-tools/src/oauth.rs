@@ -1,5 +1,4 @@
-use rust_onedrive::graph_oauth::oauth::GrantType;
-use rust_onedrive::oauth::{GrantRequest, IntoEnumIterator, OAuth, OAuthCredential};
+use graph_rs::oauth::*;
 use std::borrow::Cow;
 use url::Url;
 

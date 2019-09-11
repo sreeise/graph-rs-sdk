@@ -6,9 +6,9 @@ extern crate rocket;
 #[macro_use]
 extern crate serde_json;
 extern crate reqwest;
+use graph_rs::oauth::OAuth;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use rust_onedrive::oauth::OAuth;
 
 fn main() {
     // First run the example: rocket_example.rs

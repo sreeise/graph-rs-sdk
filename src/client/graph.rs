@@ -11,7 +11,6 @@ use reqwest::Method;
 use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use std::ffi::OsString;
 use std::fs::File;
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
@@ -22,8 +21,6 @@ use url::Url;
 pub enum UrlOrdering {
     // me, drives, sites, users, groups
     Ident(Ident),
-    // Specifies the place to look for a resource such as drive or lists.
-    PathIdent(PathIdent),
     // The id for drives, sites, users, and groups.
     ResourceId(String),
     // The normal route to a resource. For me paths this will be right after
@@ -38,8 +35,10 @@ pub enum UrlOrdering {
     FileName(String),
     // Formatted for paths in OneDrive with brackets.
     Path(PathBuf),
-    // The very last content in the url.
+    // The very last content in the path of the url.
     Last(String),
+    // Query pair.
+    Query(String, String),
 }
 
 impl Ord for UrlOrdering {
@@ -47,7 +46,6 @@ impl Ord for UrlOrdering {
         match self {
             UrlOrdering::Ident(_) => match other {
                 UrlOrdering::Ident(_) => Ordering::Equal,
-                UrlOrdering::PathIdent(_) => Ordering::Greater,
                 UrlOrdering::ResourceId(_) => Ordering::Greater,
                 UrlOrdering::ItemPath(_) => Ordering::Greater,
                 UrlOrdering::Id(_) => Ordering::Greater,
@@ -55,10 +53,10 @@ impl Ord for UrlOrdering {
                 UrlOrdering::FileName(_) => Ordering::Greater,
                 UrlOrdering::Last(_) => Ordering::Greater,
                 UrlOrdering::RootOrItem(_) => Ordering::Greater,
+                UrlOrdering::Query(_, _) => Ordering::Greater,
             },
             UrlOrdering::ResourceId(_) => match other {
                 UrlOrdering::Ident(_) => Ordering::Less,
-                UrlOrdering::PathIdent(_) => Ordering::Greater,
                 UrlOrdering::ResourceId(_) => Ordering::Equal,
                 UrlOrdering::ItemPath(_) => Ordering::Greater,
                 UrlOrdering::Id(_) => Ordering::Greater,
@@ -66,10 +64,10 @@ impl Ord for UrlOrdering {
                 UrlOrdering::FileName(_) => Ordering::Greater,
                 UrlOrdering::Last(_) => Ordering::Greater,
                 UrlOrdering::RootOrItem(_) => Ordering::Greater,
+                UrlOrdering::Query(_, _) => Ordering::Greater,
             },
             UrlOrdering::Id(_) => match other {
                 UrlOrdering::Ident(_) => Ordering::Less,
-                UrlOrdering::PathIdent(_) => Ordering::Less,
                 UrlOrdering::ResourceId(_) => Ordering::Less,
                 UrlOrdering::ItemPath(_) => Ordering::Less,
                 UrlOrdering::Id(_) => Ordering::Equal,
@@ -77,10 +75,10 @@ impl Ord for UrlOrdering {
                 UrlOrdering::FileName(_) => Ordering::Greater,
                 UrlOrdering::Last(_) => Ordering::Greater,
                 UrlOrdering::RootOrItem(_) => Ordering::Greater,
+                UrlOrdering::Query(_, _) => Ordering::Greater,
             },
             UrlOrdering::Last(_) => match other {
                 UrlOrdering::Ident(_) => Ordering::Less,
-                UrlOrdering::PathIdent(_) => Ordering::Less,
                 UrlOrdering::ResourceId(_) => Ordering::Less,
                 UrlOrdering::ItemPath(_) => Ordering::Less,
                 UrlOrdering::Id(_) => Ordering::Less,
@@ -88,21 +86,10 @@ impl Ord for UrlOrdering {
                 UrlOrdering::FileName(_) => Ordering::Less,
                 UrlOrdering::Last(_) => Ordering::Equal,
                 UrlOrdering::RootOrItem(_) => Ordering::Less,
-            },
-            UrlOrdering::PathIdent(_) => match other {
-                UrlOrdering::Ident(_) => Ordering::Less,
-                UrlOrdering::PathIdent(_) => Ordering::Equal,
-                UrlOrdering::ResourceId(_) => Ordering::Less,
-                UrlOrdering::ItemPath(_) => Ordering::Less,
-                UrlOrdering::Id(_) => Ordering::Greater,
-                UrlOrdering::Path(_) => Ordering::Greater,
-                UrlOrdering::Last(_) => Ordering::Greater,
-                UrlOrdering::RootOrItem(_) => Ordering::Greater,
-                UrlOrdering::FileName(_) => Ordering::Greater,
+                UrlOrdering::Query(_, _) => Ordering::Greater,
             },
             UrlOrdering::ItemPath(_) => match other {
                 UrlOrdering::Ident(_) => Ordering::Less,
-                UrlOrdering::PathIdent(_) => Ordering::Less,
                 UrlOrdering::ResourceId(_) => Ordering::Less,
                 UrlOrdering::ItemPath(_) => Ordering::Equal,
                 UrlOrdering::Id(_) => Ordering::Greater,
@@ -110,10 +97,10 @@ impl Ord for UrlOrdering {
                 UrlOrdering::Last(_) => Ordering::Greater,
                 UrlOrdering::RootOrItem(_) => Ordering::Greater,
                 UrlOrdering::FileName(_) => Ordering::Greater,
+                UrlOrdering::Query(_, _) => Ordering::Greater,
             },
             UrlOrdering::Path(_) => match other {
                 UrlOrdering::Ident(_) => Ordering::Less,
-                UrlOrdering::PathIdent(_) => Ordering::Less,
                 UrlOrdering::ResourceId(_) => Ordering::Less,
                 UrlOrdering::ItemPath(_) => Ordering::Less,
                 UrlOrdering::Id(_) => Ordering::Less,
@@ -121,10 +108,10 @@ impl Ord for UrlOrdering {
                 UrlOrdering::Last(_) => Ordering::Greater,
                 UrlOrdering::RootOrItem(_) => Ordering::Less,
                 UrlOrdering::FileName(_) => Ordering::Equal,
+                UrlOrdering::Query(_, _) => Ordering::Greater,
             },
             UrlOrdering::RootOrItem(_) => match other {
                 UrlOrdering::Ident(_) => Ordering::Less,
-                UrlOrdering::PathIdent(_) => Ordering::Less,
                 UrlOrdering::ResourceId(_) => Ordering::Less,
                 UrlOrdering::ItemPath(_) => Ordering::Less,
                 UrlOrdering::Id(_) => Ordering::Greater,
@@ -132,10 +119,10 @@ impl Ord for UrlOrdering {
                 UrlOrdering::Last(_) => Ordering::Greater,
                 UrlOrdering::RootOrItem(_) => Ordering::Equal,
                 UrlOrdering::FileName(_) => Ordering::Greater,
+                UrlOrdering::Query(_, _) => Ordering::Greater,
             },
             UrlOrdering::FileName(_) => match other {
                 UrlOrdering::Ident(_) => Ordering::Less,
-                UrlOrdering::PathIdent(_) => Ordering::Less,
                 UrlOrdering::ResourceId(_) => Ordering::Less,
                 UrlOrdering::ItemPath(_) => Ordering::Less,
                 UrlOrdering::Id(_) => Ordering::Less,
@@ -143,6 +130,18 @@ impl Ord for UrlOrdering {
                 UrlOrdering::Last(_) => Ordering::Greater,
                 UrlOrdering::RootOrItem(_) => Ordering::Less,
                 UrlOrdering::FileName(_) => Ordering::Equal,
+                UrlOrdering::Query(_, _) => Ordering::Greater,
+            },
+            UrlOrdering::Query(_, _) => match other {
+                UrlOrdering::Ident(_) => Ordering::Less,
+                UrlOrdering::ResourceId(_) => Ordering::Less,
+                UrlOrdering::ItemPath(_) => Ordering::Less,
+                UrlOrdering::Id(_) => Ordering::Less,
+                UrlOrdering::Path(_) => Ordering::Less,
+                UrlOrdering::Last(_) => Ordering::Less,
+                UrlOrdering::RootOrItem(_) => Ordering::Less,
+                UrlOrdering::FileName(_) => Ordering::Less,
+                UrlOrdering::Query(_, _) => Ordering::Equal,
             },
         }
     }
@@ -169,41 +168,10 @@ impl AsRef<str> for Ident {
     }
 }
 
-impl Default for Ident {
-    fn default() -> Self {
-        Ident::Me
-    }
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub enum PathIdent {
-    Drive,
-    List,
-}
-
-impl AsRef<str> for PathIdent {
-    fn as_ref(&self) -> &str {
-        match self {
-            PathIdent::Drive => "drive",
-            PathIdent::List => "lists",
-        }
-    }
-}
-
 pub struct Graph {
     pub(crate) request: RefCell<Request>,
     pub(crate) ident: RefCell<Ident>,
     pub(crate) url_ord: RefCell<Vec<UrlOrdering>>,
-}
-
-impl Graph {
-    pub fn ident(&self) -> Ident {
-        *self.ident.borrow()
-    }
-
-    pub(crate) fn set_ident(&self, ident: Ident) {
-        self.ident.replace(ident);
-    }
 }
 
 impl<'a> Graph {
@@ -237,6 +205,14 @@ impl<'a> Graph {
         Identify { client: &self }
     }
 
+    pub fn ident(&self) -> Ident {
+        *self.ident.borrow()
+    }
+
+    pub(crate) fn set_ident(&self, ident: Ident) {
+        self.ident.replace(ident);
+    }
+
     pub(crate) fn set_method(&self, method: Method) -> &Self {
         self.request.borrow_mut().set_method(method);
         self
@@ -252,7 +228,7 @@ impl<'a> Graph {
         self
     }
 
-    pub(crate) fn set_file(&self, file: OsString) -> &Self {
+    pub(crate) fn set_file<P: AsRef<Path>>(&self, file: P) -> &Self {
         self.body(File::open(file).unwrap());
         self
     }
@@ -320,16 +296,13 @@ impl<'a> Graph {
         self.url_ord.borrow_mut().clear();
     }
 
-    pub fn format(&self) -> &Self {
+    pub fn format_ord(&self) -> &Self {
         let mut url_ord = self.url_ord.borrow_mut();
         url_ord.sort();
         self.url_mut(|url| {
             for url_ord in url_ord.iter() {
                 match url_ord {
                     UrlOrdering::Ident(ident) => {
-                        url.extend_path(&[ident]);
-                    },
-                    UrlOrdering::PathIdent(ident) => {
                         url.extend_path(&[ident]);
                     },
                     UrlOrdering::ResourceId(id) => {
@@ -356,6 +329,9 @@ impl<'a> Graph {
                     },
                     UrlOrdering::FileName(s) => {
                         url.extend_path(&[s.as_str()]);
+                    },
+                    UrlOrdering::Query(k, v) => {
+                        url.append_query_pair(k.as_str(), v.as_str());
                     },
                 }
             }
@@ -385,29 +361,44 @@ impl<'a> Graph {
         f(&mut self.request.borrow_mut().url)
     }
 
-    pub fn select(&self, value: &[&str]) {
-        self.request.borrow_mut().url.select(value);
-        self.format();
+    pub fn select(&self, value: &[&str]) -> &Self {
+        self.insert_ord(UrlOrdering::Query("select".into(), value.join(" ")));
+        self
     }
 
-    pub fn expand(&self, value: &[&str]) {
-        self.request.borrow_mut().url.expand(value);
-        self.format();
+    pub fn expand(&self, value: &[&str]) -> &Self {
+        self.insert_ord(UrlOrdering::Query("expand".into(), value.join(" ")));
+        self
     }
 
-    pub fn filter(&self, value: &[&str]) {
-        self.request.borrow_mut().url.filter(value);
-        self.format();
+    pub fn filter(&self, value: &[&str]) -> &Self {
+        self.insert_ord(UrlOrdering::Query("filter".into(), value.join(",")));
+        self
     }
 
-    pub fn order_by(&self, value: &[&str]) {
-        self.request.borrow_mut().url.order_by(value);
-        self.format();
+    pub fn order_by(&self, value: &[&str]) -> &Self {
+        self.insert_ord(UrlOrdering::Query("order_by".into(), value.join(" ")));
+        self
     }
 
-    pub fn top(&self, value: &str) {
-        self.request.borrow_mut().url.top(value);
-        self.format();
+    pub fn search(&mut self, value: &str) -> &Self {
+        self.insert_ord(UrlOrdering::Query("search".into(), value.into()));
+        self
+    }
+
+    pub fn format(&mut self, value: &str) -> &Self {
+        self.insert_ord(UrlOrdering::Query("format".into(), value.into()));
+        self
+    }
+
+    pub fn skip(&mut self, value: &str) -> &Self {
+        self.insert_ord(UrlOrdering::Query("skip".into(), value.into()));
+        self
+    }
+
+    pub fn top(&self, value: &str) -> &Self {
+        self.insert_ord(UrlOrdering::Query("top".into(), value.into()));
+        self
     }
 }
 

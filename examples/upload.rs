@@ -1,5 +1,5 @@
+use graph_rs::prelude::*;
 use graph_rs_types::entitytypes::DriveItem;
-use rust_onedrive::prelude::*;
 
 // Put the path to your file and the file name itself that
 // you want to upload to one drive.

@@ -1,5 +1,5 @@
 [package]
-name = "rust-onedrive"
+name = "graph-rs"
 version = "0.1.0"
 authors = ["sreeise"]
 edition = "2018"
@@ -63,7 +63,7 @@ drive-test-tools = { path = "./drive-test-tools" }
 criterion = "0.2"
 
 [badges]
-travis-ci = { repository = "https://github.com/sreeise/rust-onedrive", branch = "master" }
+travis-ci = { repository = "https://github.com/sreeise/graph-rs", branch = "master" }
 
 [profile.release]
 debug = false
