@@ -1,7 +1,8 @@
 use graph_rs::client::Ident;
-use graph_rs::drive::{GRAPH_URL, GRAPH_URL_BETA};
+use graph_rs::drive::endpoint::DriveEndPoint;
 use graph_rs::http::Session;
 use graph_rs::prelude::*;
+use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
 use std::ffi::OsString;
 
 fn get_drive() -> Graph {

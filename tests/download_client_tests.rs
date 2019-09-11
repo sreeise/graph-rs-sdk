@@ -1,5 +1,5 @@
-use graph_rs::drive::GRAPH_URL;
 use graph_rs::prelude::*;
+use graph_rs::GRAPH_URL;
 use graph_rs_types::entitytypes::DriveItem;
 use std::ffi::OsString;
 

@@ -1,8 +1,10 @@
 use crate::client::*;
-use crate::drive::client::*;
-use crate::drive::event::{DriveEvent, EmbeddableUrl};
+use crate::drive::driveevent::DriveEvent;
+use crate::drive::IntoDownloadClient;
+use crate::http::ResponseClient;
 use crate::http::{FetchClient, Session, UploadSessionClient};
 use crate::types::collection::Collection;
+use crate::types::embeddableurl::EmbeddableUrl;
 use crate::types::statusresponse::StatusResponse;
 use graph_error::GraphFailure;
 use graph_error::GraphResult;

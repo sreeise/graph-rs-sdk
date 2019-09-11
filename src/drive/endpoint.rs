@@ -1,6 +1,6 @@
 use crate::client::Ident;
-use crate::drive::{GRAPH_URL, GRAPH_URL_BETA};
 use crate::url::GraphUrl;
+use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use url::Url;
 
 /// Implements well known or special folder paths.
