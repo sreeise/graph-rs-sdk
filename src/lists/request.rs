@@ -1,5 +1,5 @@
 use crate::client::*;
-use crate::drive::client::ResponseClient;
+use crate::http::ResponseClient;
 use graph_rs_types::entitytypes::ItemActivity;
 use std::marker::PhantomData;
 

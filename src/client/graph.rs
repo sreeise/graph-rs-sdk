@@ -1,9 +1,11 @@
-use crate::drive::client::{DriveRequest, ListRequest};
-use crate::drive::{GRAPH_URL, GRAPH_URL_BETA};
+use crate::drive::DriveRequest;
 use crate::http::Request;
 use crate::http::{Download, FetchClient};
+use crate::lists::ListRequest;
 use crate::types::statusresponse::StatusResponse;
 use crate::url::GraphUrl;
+use crate::users::UserRequest;
+use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::{GraphFailure, GraphResult};
 use graph_oauth::oauth::{AccessToken, OAuth};
 use reqwest::header::{HeaderValue, IntoHeaderName};
@@ -505,5 +507,9 @@ impl<'a, I> GraphPath<'a, I> {
 
     pub fn lists(&'a self) -> ListRequest<'a, I> {
         ListRequest::new(self.client)
+    }
+
+    pub fn user(&'a self) -> UserRequest<'a, I> {
+        UserRequest::new(self.client)
     }
 }

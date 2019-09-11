@@ -95,7 +95,7 @@
 //! users.
 //! # Example
 //! ```rust,ignore
-//! use graph_rs::drive::client::Graph;
+//! use graph_rs::client::Graph;
 //!
 //! let graph = Graph::new("TOKEN");
 //!
@@ -127,7 +127,7 @@ pub extern crate serde_derive;
 extern crate from_as;
 extern crate graph_error;
 extern crate graph_oauth;
-extern crate graph_rs_types;
+pub extern crate graph_rs_types;
 extern crate log;
 extern crate pretty_env_logger;
 pub extern crate reqwest;
@@ -142,18 +142,18 @@ pub mod client;
 /// to the OneDrive V1.0 and Graph Beta endpoints.
 pub mod drive;
 pub mod http;
+pub mod lists;
 pub mod types;
 pub mod url;
+pub mod users;
 
-pub mod graph {
-    pub use crate::drive::client::*;
-}
+pub static GRAPH_URL: &str = "https://graph.microsoft.com/v1.0";
+pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 
 /// Common structs and traits.
 pub mod prelude {
     pub use crate::client::*;
-    pub use crate::drive::client::IntoItem;
-    pub use crate::drive::endpoint::DriveEndPoint;
+    pub use crate::http::IntoItem;
     pub use crate::types::collection::Collection;
 }
 

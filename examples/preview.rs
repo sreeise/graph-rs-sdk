@@ -1,5 +1,5 @@
-use graph_rs::drive::event::EmbeddableUrl;
 use graph_rs::prelude::*;
+use graph_rs::types::embeddableurl::EmbeddableUrl;
 
 // You can get preview URLs for an item. Provide optional
 // properties with an EmbeddableUrl.

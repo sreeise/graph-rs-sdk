@@ -1,4 +1,3 @@
-use drive_test_tools::support::cleanup::CleanUp;
 use from_as::*;
 use graph_oauth::oauth::AccessToken;
 use graph_oauth::oauth::OAuth;
@@ -6,6 +5,7 @@ use graph_oauth::oauth::OAuthCredential;
 use std::path::Path;
 use std::time::Duration;
 use std::{fs, thread};
+use test_tools::support::cleanup::CleanUp;
 
 #[test]
 fn get_method() {

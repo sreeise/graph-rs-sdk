@@ -1,6 +1,6 @@
-use drive_test_tools::oauth::OAuthTestTool;
 use graph_oauth::oauth::GrantType;
 use graph_rs::oauth::{AccessToken, GrantRequest, OAuth};
+use test_tools::oauth::OAuthTestTool;
 use url::{Host, Url};
 
 #[test]

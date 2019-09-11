@@ -59,7 +59,7 @@ impl StatusResponse {
     }
 
     pub fn success(&mut self) -> bool {
-        self.status() == 202 || self.status() == 204
+        self.status() == 200 || self.status() == 202 || self.status() == 204
     }
 
     pub fn response(&self) -> &Response {
