@@ -9,7 +9,7 @@ fn main() {
 
 fn get_drive_item(item_id: &str) {
     let graph = Graph::new("ACCESS_TOKEN");
-    let drive_item: DriveItem = graph
+    let drive_item: GraphResponse<DriveItem> = graph
         .v1()
         .me()
         .drive()
@@ -25,7 +25,7 @@ fn get_drive_item(item_id: &str) {
 // The resource_id is the id for this location (sites, users, etc).
 fn get_sites_drive_item(item_id: &str, resource_id: &str) {
     let graph = Graph::new("ACCESS_TOKEN");
-    let drive_item: DriveItem = graph
+    let drive_item: GraphResponse<DriveItem> = graph
         .v1()
         .sites()
         .drive()

@@ -11,7 +11,8 @@ exclude = [
     "test_files/*",
     "tests/*",
     "examples/*",
-    "test-tools/*"
+    "test-tools/*",
+    "benches/*"
 ]
 keywords = ["onedrive", "graph", "API"]
 

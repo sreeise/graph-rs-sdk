@@ -17,7 +17,7 @@ fn create_new_folder() {
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
     let drive = Graph::try_from(&oauth).unwrap();
 
-    let drive_item: DriveItem = drive
+    let drive_item: GraphResponse<DriveItem> = drive
         .v1()
         .me()
         .drive()

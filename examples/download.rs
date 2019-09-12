@@ -25,16 +25,17 @@ pub fn download() {
     let graph = Graph::try_from(&oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: Collection<DriveItem> =
+    let mut collection: GraphResponse<Collection<DriveItem>> =
         graph.v1().drives().drive().root_children().send().unwrap();
 
     // Save the metadata of the files.
     collection
+        .as_mut()
         .as_file("./examples/example_files/drive_root_child.json")
         .unwrap();
 
     // Get the Values vec that lists the files.
-    let drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
+    let drive_item = collection.as_mut().find_by_name(DRIVE_FILE).unwrap();
     let item_id = drive_item.id.clone().unwrap();
 
     // Download the file. The file will be downloaded with the same name.
@@ -56,16 +57,17 @@ pub fn download_with_drive_item() {
     let graph = Graph::try_from(&oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: Collection<DriveItem> =
+    let mut collection: GraphResponse<Collection<DriveItem>> =
         graph.v1().drives().drive().root_children().send().unwrap();
 
     // Save the metadata of the files.
     collection
+        .as_mut()
         .as_file("./examples/example_files/drive_root_child.json")
         .unwrap();
 
     // Get the Values vec that lists the files.
-    let drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
+    let drive_item = collection.as_mut().find_by_name(DRIVE_FILE).unwrap();
 
     // Download the file. The file will be downloaded with the same name.
     let mut req = graph
@@ -94,16 +96,17 @@ pub fn download_and_format() {
     let graph = Graph::try_from(&oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: Collection<DriveItem> =
+    let mut collection: GraphResponse<Collection<DriveItem>> =
         graph.v1().drives().drive().root_children().send().unwrap();
 
     // Save the metadata of the files.
     collection
+        .as_mut()
         .as_file("./examples/example_files/drive_root_child.json")
         .unwrap();
 
     // Get the Values vec that lists the files.
-    let drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
+    let drive_item = collection.as_mut().find_by_name(DRIVE_FILE).unwrap();
     // "./examples/example_files")
     // Create the download request.
     let mut req = graph
@@ -129,15 +132,16 @@ fn download_and_rename(name: &str) {
     let graph = Graph::try_from(&oauth).unwrap();
 
     // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: Collection<DriveItem> =
+    let mut collection: GraphResponse<Collection<DriveItem>> =
         graph.v1().drives().drive().root_children().send().unwrap();
     // Save the metadata of the files.
     collection
+        .as_mut()
         .as_file("./examples/example_files/drive_root_child.json")
         .unwrap();
 
     // Get the Values vec that lists the files.
-    let drive_item = collection.find_by_name(DRIVE_FILE).unwrap();
+    let drive_item = collection.as_mut().find_by_name(DRIVE_FILE).unwrap();
 
     // Create the download request.
     let mut req = graph

@@ -12,9 +12,14 @@ fn get_drive() -> Graph {
 #[test]
 fn query_mutate() {
     let client = get_drive();
-    let _ = client.v1().drives().drive().drive();
-
-    client.select(&["name"]).top("3").format_ord();
+    let _ = client
+        .v1()
+        .drives()
+        .drive()
+        .drive()
+        .select(&["name"])
+        .top("3");
+    client.format_ord();
     client.url_mut(|url| {
         assert_eq!(
             "https://graph.microsoft.com/v1.0/drives/drive?select=name&top=3",
@@ -22,8 +27,14 @@ fn query_mutate() {
         );
     });
 
-    let _ = client.v1().drives().drive().root().by_id("id");
-    client.expand(&["children"]).format_ord();
+    let _ = client
+        .v1()
+        .drives()
+        .drive()
+        .root()
+        .expand(&["children"])
+        .by_id("id");
+    client.format_ord();
     client.url_mut(|url| {
         assert_eq!(
             "https://graph.microsoft.com/v1.0/drives/id/root?expand=children",

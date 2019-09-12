@@ -24,8 +24,9 @@ fn main() {
 fn list_users() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let collection: Collection<User> = client.v1().users().user().list().send().unwrap();
-    println!("{:#?}", collection);
+    let collection: GraphResponse<Collection<User>> =
+        client.v1().users().user().list().send().unwrap();
+    println!("{:#?}", collection.value());
 }
 
 static USER_ID: &str = "USER_ID";
@@ -33,7 +34,7 @@ static USER_ID: &str = "USER_ID";
 fn get_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let user: User = client
+    let user: GraphResponse<User> = client
         .v1()
         .users()
         .user()
@@ -42,7 +43,7 @@ fn get_user() {
         .send()
         .unwrap();
 
-    println!("{:#?}", user);
+    println!("{:#?}", user.value());
 }
 
 fn create_user() {
@@ -62,9 +63,9 @@ fn create_user() {
     user.password_profile = Some(password_profile);
     user.user_principal_name = Some("user@domain.com".into());
 
-    let user: User = client.v1().users().user().create(&user).send().unwrap();
+    let user: GraphResponse<User> = client.v1().users().user().create(&user).send().unwrap();
 
-    println!("{:#?}", user);
+    println!("{:#?}", user.value());
 }
 
 // Create a default user and update only the properties that

@@ -19,23 +19,24 @@ fn main() {
 }
 
 fn drive_root(graph: &mut Graph) {
-    let drive_item: DriveItem = graph.v1().me().drive().root().send().unwrap();
+    let drive_item: GraphResponse<DriveItem> = graph.v1().me().drive().root().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn drive_root_children(graph: &mut Graph) {
-    let drive_item: Collection<DriveItem> = graph.v1().me().drive().root_children().send().unwrap();
+    let drive_item: GraphResponse<Collection<DriveItem>> =
+        graph.v1().me().drive().root_children().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn special_docs(graph: &mut Graph) {
-    let drive_item: Collection<DriveItem> =
+    let drive_item: GraphResponse<Collection<DriveItem>> =
         graph.v1().me().drive().special_documents().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn special_docs_child(graph: &mut Graph) {
-    let drive_item: Collection<DriveItem> = graph
+    let drive_item: GraphResponse<Collection<DriveItem>> = graph
         .v1()
         .me()
         .drive()

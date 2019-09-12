@@ -14,7 +14,7 @@ pub struct GraphUrl {
 }
 
 impl GraphUrl {
-    fn parse(input: &str) -> Result<Self, GraphFailure> {
+    pub fn parse(input: &str) -> Result<Self, GraphFailure> {
         Ok(GraphUrl {
             url: Url::parse(input)?,
         })
@@ -138,7 +138,7 @@ impl GraphUrl {
     }
 
     pub fn select(&mut self, value: &[&str]) {
-        let s = value.join(" ");
+        let s = value.join(",");
         self.append_query_pair("select", &s);
     }
 

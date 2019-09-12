@@ -6,6 +6,8 @@ use graph_error::{GraphError, GraphFailure};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reqwest::Response;
 
+/// A Collection stores a collection of items returned from the API such
+/// as a collection of DriveItem's or User's.
 #[derive(
     Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters, Getters, FromFile, AsFile,
 )]

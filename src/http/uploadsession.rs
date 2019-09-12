@@ -1,4 +1,5 @@
 use crate::http::ByteRange;
+use from_as::*;
 use graph_error::{GraphError, GraphFailure, GraphResult};
 use graph_rs_types::complextypes::FileSystemInfo;
 use graph_rs_types::complextypes::UploadSession;
@@ -9,7 +10,7 @@ use std::collections::VecDeque;
 use std::convert::TryFrom;
 use std::path::PathBuf;
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, AsFile, FromFile)]
 pub struct Session {
     #[serde(rename = "@microsoft.graph.conflictBehavior")]
     #[serde(skip_serializing_if = "Option::is_none")]

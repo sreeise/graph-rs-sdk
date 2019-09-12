@@ -201,6 +201,7 @@ fn recent() {
     let collection = drive.v1().me().drive().recent().send().unwrap();
 
     collection
+        .as_ref()
         .as_file("./examples/example_files/drive_recent.json")
         .unwrap();
 }

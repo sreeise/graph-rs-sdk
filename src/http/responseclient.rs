@@ -1,97 +1,18 @@
 use crate::client::*;
-use crate::http::UploadSessionClient;
-use crate::types::statusresponse::StatusResponse;
+use crate::http::{GraphResponse, UploadSessionClient};
+use crate::url::UrlOrdering;
 use graph_error::{GraphError, GraphFailure, GraphResult};
 use graph_rs_types::complextypes::UploadSession;
-use graph_rs_types::entitytypes::DriveItem;
 use std::convert::TryFrom;
 use std::marker::PhantomData;
 use std::path::Path;
 
-pub trait IntoItem<T> {
-    fn send(&self) -> GraphResult<T>;
-}
+/// A trait for sending an API request and converting the response
+/// to a suitable Rust type.
+pub trait ToResponse {
+    type Output;
 
-pub struct IntoResponse<'a, I, T> {
-    client: &'a Graph,
-    ident: PhantomData<I>,
-    phantom: PhantomData<T>,
-}
-
-impl<'a, I, T> IntoResponse<'a, I, T> {
-    pub fn new(client: &'a Graph) -> IntoResponse<I, T> {
-        IntoResponse {
-            client,
-            ident: PhantomData,
-            phantom: PhantomData,
-        }
-    }
-
-    pub fn send_as_value(&self) -> GraphResult<serde_json::Value> {
-        self.client.send()
-    }
-
-    pub fn json<U>(&self) -> GraphResult<U>
-    where
-        for<'de> U: serde::Deserialize<'de>,
-    {
-        self.client.send()
-    }
-}
-
-impl<'a, I> IntoItem<StatusResponse> for IntoResponse<'a, I, StatusResponse> {
-    fn send(&self) -> GraphResult<StatusResponse> {
-        self.client.status_response()
-    }
-}
-
-impl<'a, I, T> IntoItem<T> for IntoResponse<'a, I, T>
-where
-    for<'de> T: serde::Deserialize<'de>,
-{
-    fn send(&self) -> Result<T, GraphFailure> {
-        self.client.send()
-    }
-}
-
-impl<'a, I> IntoItem<UploadSessionClient> for IntoResponse<'a, I, UploadSessionClient> {
-    fn send(&self) -> GraphResult<UploadSessionClient> {
-        let builder = self.client.request.borrow_mut().builder();
-        let mut response = builder.send()?;
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::try_from(&mut response).unwrap_or_default());
-        }
-
-        let upload_session: UploadSession = response.json()?;
-        let mut session = UploadSessionClient::new(upload_session)?;
-        let file = self
-            .client
-            .request
-            .borrow()
-            .upload_session_file
-            .clone()
-            .ok_or_else(|| GraphFailure::none_err("file for upload session"))?;
-        session.set_file(file)?;
-        Ok(session)
-    }
-}
-
-macro_rules! drive_item_ids {
-    ( $drive_item:expr ) => {{
-        let resource_id = $drive_item
-            .parent_reference
-            .as_ref()
-            .ok_or_else(|| GraphFailure::none_err("drive_item -> parent_reference"))?
-            .drive_id
-            .clone()
-            .ok_or_else(|| GraphFailure::none_err("drive_item -> parent_reference -> drive_id"))?;
-        let item_id = $drive_item
-            .id
-            .as_ref()
-            .ok_or_else(|| GraphFailure::none_err("drive_item -> item_id"))?;
-        (item_id.to_string(), resource_id.to_string())
-    }};
+    fn send(&self) -> Self::Output;
 }
 
 pub struct ResponseClient<'a, I, T> {
@@ -112,43 +33,77 @@ impl<'a, I, T> ResponseClient<'a, I, T> {
     pub fn by_id(&'a self, id: &str) -> IntoResponse<'a, I, T> {
         if self.client.ident().eq(&Ident::Me) {
             self.client
-                .insert_ord(UrlOrdering::Id(id.into()))
+                .request()
+                .insert(UrlOrdering::Id(id.into()))
                 .format_ord();
         } else {
             self.client
-                .insert_ord(UrlOrdering::ResourceId(id.into()))
+                .request()
+                .insert(UrlOrdering::ResourceId(id.into()))
                 .format_ord();
         }
         IntoResponse::new(self.client)
     }
 
-    pub fn by_drive_item(&'a self, drive_item: &DriveItem) -> GraphResult<IntoResponse<'a, I, T>> {
-        let (id, rid) = drive_item_ids!(drive_item);
-        self.client
-            .insert_ord(UrlOrdering::ResourceId(rid))
-            .insert_ord(UrlOrdering::Id(id))
-            .format_ord();
-        Ok(IntoResponse::new(self.client))
+    pub fn select(&self, value: &[&str]) -> &Self {
+        self.client.request().as_mut().select(value);
+        self
     }
 
-    pub fn send_as_value(&self) -> GraphResult<serde_json::Value> {
-        self.client.format_ord().send()
+    pub fn expand(&self, value: &[&str]) -> &Self {
+        self.client.request().as_mut().expand(value);
+        self
+    }
+
+    pub fn filter(&self, value: &[&str]) -> &Self {
+        self.client.request().as_mut().filter(value);
+        self
+    }
+
+    pub fn order_by(&self, value: &[&str]) -> &Self {
+        self.client.request().as_mut().order_by(value);
+        self
+    }
+
+    pub fn search(&self, value: &str) -> &Self {
+        self.client.request().as_mut().search(value);
+        self
+    }
+
+    pub fn format(&self, value: &str) -> &Self {
+        self.client.request().as_mut().format(value);
+        self
+    }
+
+    pub fn skip(&self, value: &str) -> &Self {
+        self.client.request().as_mut().skip(value);
+        self
+    }
+
+    pub fn top(&self, value: &str) -> &Self {
+        self.client.request().as_mut().top(value);
+        self
+    }
+
+    pub fn value(&self) -> GraphResult<serde_json::Value> {
+        self.client.request().json()
     }
 
     pub fn json<U>(&self) -> GraphResult<U>
     where
         for<'de> U: serde::Deserialize<'de>,
     {
-        self.client.format_ord().send()
+        self.client.request().json()
     }
 }
 
 impl<'a, T> ResponseClient<'a, IdentifyMe, T> {
     pub fn by_path<P: AsRef<Path>>(&self, path: P) -> IntoResponse<'a, IdentifyMe, T> {
         self.client
-            .remove_ord(UrlOrdering::FileName("".into()))
-            .replace_ord(UrlOrdering::RootOrItem("root:".into()))
-            .replace_ord(UrlOrdering::Path(path.as_ref().to_path_buf()))
+            .request()
+            .remove(UrlOrdering::FileName("".into()))
+            .replace(UrlOrdering::RootOrItem("root:".into()))
+            .replace(UrlOrdering::Path(path.as_ref().to_path_buf()))
             .format_ord();
         IntoResponse::new(self.client)
     }
@@ -161,8 +116,9 @@ impl<'a, T> ResponseClient<'a, IdentifyCommon, T> {
         resource_id: &str,
     ) -> IntoResponse<'a, IdentifyCommon, T> {
         self.client
-            .insert_ord(UrlOrdering::ResourceId(resource_id.into()))
-            .insert_ord(UrlOrdering::Id(item_id.into()))
+            .request()
+            .insert(UrlOrdering::ResourceId(resource_id.into()))
+            .insert(UrlOrdering::Id(item_id.into()))
             .format_ord();
         IntoResponse::new(self.client)
     }
@@ -173,10 +129,11 @@ impl<'a, T> ResponseClient<'a, IdentifyCommon, T> {
         path: P,
     ) -> IntoResponse<'a, IdentifyCommon, T> {
         self.client
-            .insert_ord(UrlOrdering::ResourceId(resource_id.into()))
-            .remove_ord(UrlOrdering::FileName("".into()))
-            .replace_ord(UrlOrdering::RootOrItem("root:".into()))
-            .insert_ord(UrlOrdering::Path(path.as_ref().to_path_buf()))
+            .request()
+            .insert(UrlOrdering::ResourceId(resource_id.into()))
+            .remove(UrlOrdering::FileName("".into()))
+            .replace(UrlOrdering::RootOrItem("root:".into()))
+            .insert(UrlOrdering::Path(path.as_ref().to_path_buf()))
             .format_ord();
         IntoResponse::new(self.client)
     }
@@ -184,17 +141,89 @@ impl<'a, T> ResponseClient<'a, IdentifyCommon, T> {
 
 // For requests that don't return JSON in the body but does return information
 // on triggering status events.
-impl<'a, I> ResponseClient<'a, I, StatusResponse> {
-    pub fn send(&self) -> GraphResult<StatusResponse> {
-        self.client.status_response()
+impl<'a, I> ResponseClient<'a, I, ()> {
+    pub fn send(&self) -> GraphResult<GraphResponse<()>> {
+        Ok(GraphResponse::new(self.client.request().response()?, ()))
     }
 }
 
-impl<'a, I, T> IntoItem<T> for ResponseClient<'a, I, T>
+impl<'a, I, T> ToResponse for ResponseClient<'a, I, T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
-    fn send(&self) -> Result<T, GraphFailure> {
-        self.client.send()
+    type Output = GraphResult<GraphResponse<T>>;
+
+    fn send(&self) -> Self::Output {
+        self.client.request().graph_response()
+    }
+}
+
+pub struct IntoResponse<'a, I, T> {
+    client: &'a Graph,
+    ident: PhantomData<I>,
+    phantom: PhantomData<T>,
+}
+
+impl<'a, I, T> IntoResponse<'a, I, T> {
+    pub fn new(client: &'a Graph) -> IntoResponse<I, T> {
+        IntoResponse {
+            client,
+            ident: PhantomData,
+            phantom: PhantomData,
+        }
+    }
+
+    pub fn value(&self) -> GraphResult<serde_json::Value> {
+        self.client.request().json()
+    }
+
+    pub fn json<U>(&self) -> GraphResult<U>
+    where
+        for<'de> U: serde::Deserialize<'de>,
+    {
+        self.client.request().json()
+    }
+}
+
+impl<'a, I> ToResponse for IntoResponse<'a, I, GraphResponse<()>> {
+    type Output = GraphResult<GraphResponse<()>>;
+
+    fn send(&self) -> Self::Output {
+        Ok(GraphResponse::new(self.client.request().response()?, ()))
+    }
+}
+
+impl<'a, I, T> ToResponse for IntoResponse<'a, I, T>
+where
+    for<'de> T: serde::Deserialize<'de>,
+{
+    type Output = GraphResult<GraphResponse<T>>;
+
+    fn send(&self) -> Self::Output {
+        self.client.request().graph_response()
+    }
+}
+
+impl<'a, I> ToResponse for IntoResponse<'a, I, UploadSessionClient> {
+    type Output = GraphResult<UploadSessionClient>;
+
+    fn send(&self) -> Self::Output {
+        let builder = self.client.request().builder();
+        let mut response = builder.send()?;
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            return Err(GraphFailure::try_from(&mut response).unwrap_or_default());
+        }
+
+        let upload_session: UploadSession = response.json()?;
+        let mut session = UploadSessionClient::new(upload_session)?;
+        let file = self
+            .client
+            .request()
+            .upload_session_file
+            .clone()
+            .ok_or_else(|| GraphFailure::none_err("file for upload session"))?;
+        session.set_file(file)?;
+        Ok(session)
     }
 }

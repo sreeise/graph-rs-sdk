@@ -1,3 +1,4 @@
+use graph_rs::http::GraphResponse;
 use graph_rs::prelude::*;
 use graph_rs_types::entitytypes::DriveItem;
 
@@ -23,7 +24,7 @@ fn main() {
 // Uploading a file using the drive id and parent id.
 fn upload_file() {
     let graph = Graph::new("ACCESS_TOKEN");
-    let drive_item: DriveItem = graph
+    let drive_item: GraphResponse<DriveItem> = graph
         .v1()
         .me()
         .drive()
@@ -38,7 +39,7 @@ fn upload_file() {
 fn upload_new() {
     let graph = Graph::new("ACCESS_TOKEN");
 
-    let drive_item: DriveItem = graph
+    let drive_item: GraphResponse<DriveItem> = graph
         .v1()
         .me()
         .drive()
@@ -57,7 +58,7 @@ fn sites_upload_new() {
     // Get the latest metadata for the root drive folder items.
     let graph = Graph::new("ACCESS_TOKEN");
 
-    let drive_item: DriveItem = graph
+    let drive_item: GraphResponse<DriveItem> = graph
         .v1()
         .sites()
         .drive()
