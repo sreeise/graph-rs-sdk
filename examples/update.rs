@@ -23,7 +23,7 @@ fn update() {
     // Fields that are not included will not be changed.
     updated_value.name = Some(DRIVE_FILE_NEW_NAME.into());
 
-    let updated: DriveItem = graph
+    let updated: GraphResponse<DriveItem> = graph
         .v1()
         .me()
         .drive()
@@ -32,5 +32,5 @@ fn update() {
         .send()
         .unwrap();
 
-    println!("{:#?}", updated);
+    println!("{:#?}", updated.value());
 }

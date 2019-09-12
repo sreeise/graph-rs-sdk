@@ -13,7 +13,7 @@ pub fn main() {
 pub fn get_thumbnails() {
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
     let graph = Graph::try_from(&oauth).unwrap();
-    let collection: Collection<ThumbnailSet> = graph
+    let collection: GraphResponse<Collection<ThumbnailSet>> = graph
         .v1()
         .me()
         .drive()

@@ -1,11 +1,10 @@
-use crate::http::{Download, FetchClient};
-use crate::types::statusresponse::StatusResponse;
-use crate::url::GraphUrl;
+use crate::http::{Download, FetchClient, GraphResponse};
+use crate::url::{GraphUrl, UrlOrdVec, UrlOrdering};
 use from_as::TryFrom;
 use graph_error::{GraphError, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{Method, RedirectPolicy, RequestBuilder};
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 use url::Url;
 
@@ -35,7 +34,7 @@ impl DownloadRequest {
         self.is_direct_download = is_direct_download;
     }
 
-    pub fn set_file_name(&mut self, file_name: Option<&OsStr>) {
+    pub fn set_file_name(&mut self, file_name: Option<OsString>) {
         self.file_name = file_name.map(|s| s.to_os_string());
     }
 
@@ -44,18 +43,19 @@ impl DownloadRequest {
     }
 }
 
-pub struct Request {
+pub struct GraphRequest {
     pub url: GraphUrl,
     pub method: Method,
     pub body: Option<reqwest::Body>,
     pub upload_session_file: Option<PathBuf>,
     pub download_request: DownloadRequest,
+    ord: UrlOrdVec,
     headers: HeaderMap<HeaderValue>,
     token: String,
     client: reqwest::Client,
 }
 
-impl Request {
+impl GraphRequest {
     pub fn url(&self) -> &GraphUrl {
         &self.url
     }
@@ -64,16 +64,18 @@ impl Request {
         self.url.to_url()
     }
 
-    pub fn set_url(&mut self, url: GraphUrl) {
+    pub fn set_url(&mut self, url: GraphUrl) -> &mut Self {
         self.url = url;
+        self
     }
 
     pub fn method(&self) -> &Method {
         &self.method
     }
 
-    pub fn set_method(&mut self, method: Method) {
+    pub fn set_method(&mut self, method: Method) -> &mut Self {
         self.method = method;
+        self
     }
 
     pub fn body(&self) -> Option<&reqwest::Body> {
@@ -84,8 +86,9 @@ impl Request {
         &mut self.body
     }
 
-    pub fn set_body(&mut self, body: Option<reqwest::Body>) {
-        self.body = body;
+    pub fn set_body<B: Into<reqwest::Body>>(&mut self, body: B) -> &mut Self {
+        self.body = Some(body.into());
+        self
     }
 
     pub fn headers(&self) -> &HeaderMap<HeaderValue> {
@@ -96,16 +99,87 @@ impl Request {
         &mut self.headers
     }
 
-    pub fn header(&mut self, name: impl IntoHeaderName, value: HeaderValue) {
+    pub fn header(&mut self, name: impl IntoHeaderName, value: HeaderValue) -> &mut Self {
         self.headers.insert(name, value);
+        self
     }
 
-    pub fn set_token(&mut self, token: &str) {
+    pub fn set_token(&mut self, token: &str) -> &mut Self {
         self.token = token.to_string();
+        self
     }
 
-    pub fn set_upload_session_file<P: AsRef<Path>>(&mut self, file: P) {
+    pub fn set_upload_session<P: AsRef<Path>>(&mut self, file: P) -> &mut Self {
         self.upload_session_file = Some(file.as_ref().to_path_buf());
+        self
+    }
+
+    pub(crate) fn insert(&mut self, ord: UrlOrdering) -> &mut Self {
+        self.ord.insert(ord);
+        self
+    }
+
+    pub(crate) fn replace(&mut self, ord: UrlOrdering) -> &mut Self {
+        self.ord.replace(ord);
+        self
+    }
+
+    pub(crate) fn remove(&mut self, ord: UrlOrdering) -> &mut Self {
+        self.ord.remove(ord);
+        self
+    }
+
+    pub(crate) fn clear(&mut self) -> &mut Self {
+        self.ord.clear();
+        self
+    }
+
+    pub fn set_direct_download(&mut self, value: bool, url: &str) -> &mut Self {
+        self.download_request.set_direct_download(value);
+        self.set_url(GraphUrl::parse(url).unwrap());
+        self
+    }
+
+    pub fn rename_download(&mut self, name: OsString) {
+        self.download_request.file_name = Some(name);
+    }
+
+    pub fn format_ord(&mut self) -> &mut Self {
+        self.ord.sort();
+        for url_ord in self.ord.ord.iter() {
+            match url_ord {
+                UrlOrdering::Ident(ident) => {
+                    self.url.extend_path(&[ident]);
+                },
+                UrlOrdering::ResourceId(id) => {
+                    self.url.extend_path(&[id.as_str()]);
+                },
+                UrlOrdering::ItemPath(s) => {
+                    let mut v: Vec<&str> = s.split('/').collect();
+                    v.retain(|s| !s.is_empty());
+                    self.url.extend_path(&v);
+                },
+                UrlOrdering::Id(id) => {
+                    self.url.extend_path(&[id.as_str()]);
+                },
+                UrlOrdering::Path(p) => {
+                    self.url.format_path(p.as_path());
+                },
+                UrlOrdering::Last(s) => {
+                    let mut v: Vec<&str> = s.split('/').collect();
+                    v.retain(|s| !s.is_empty());
+                    self.url.extend_path(&v);
+                },
+                UrlOrdering::RootOrItem(s) => {
+                    self.url.extend_path(&[s.as_str()]);
+                },
+                UrlOrdering::FileName(s) => {
+                    self.url.extend_path(&[s.as_str()]);
+                },
+            }
+        }
+        self.ord.clear();
+        self
     }
 
     pub(crate) fn redirect(&mut self) -> GraphResult<RequestBuilder> {
@@ -165,13 +239,28 @@ impl Request {
         }
     }
 
-    pub(crate) fn status_response(&mut self) -> GraphResult<StatusResponse> {
+    pub(crate) fn response(&mut self) -> GraphResult<reqwest::Response> {
         let builder: RequestBuilder = self.builder();
         let mut response = builder.send()?;
         if let Some(err) = GraphFailure::from_response(&mut response) {
             return Err(err);
         }
-        Ok(StatusResponse::new(response))
+        Ok(response)
+    }
+
+    pub(crate) fn graph_response<T>(&mut self) -> GraphResult<GraphResponse<T>>
+    where
+        for<'de> T: serde::Deserialize<'de>,
+    {
+        let builder = self.builder();
+        let mut response = builder.send()?;
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            Err(GraphFailure::try_from(&mut response).unwrap_or_default())
+        } else {
+            let value: T = response.json()?;
+            Ok(GraphResponse::new(response, value))
+        }
     }
 
     pub fn json<T>(&mut self) -> GraphResult<T>
@@ -189,21 +278,21 @@ impl Request {
     }
 }
 
-impl AsRef<GraphUrl> for Request {
+impl AsRef<GraphUrl> for GraphRequest {
     fn as_ref(&self) -> &GraphUrl {
         &self.url
     }
 }
 
-impl AsMut<GraphUrl> for Request {
+impl AsMut<GraphUrl> for GraphRequest {
     fn as_mut(&mut self) -> &mut GraphUrl {
         &mut self.url
     }
 }
 
-impl From<GraphUrl> for Request {
+impl From<GraphUrl> for GraphRequest {
     fn from(url: GraphUrl) -> Self {
-        Request {
+        GraphRequest {
             url,
             method: Default::default(),
             body: Default::default(),
@@ -211,14 +300,15 @@ impl From<GraphUrl> for Request {
             upload_session_file: Default::default(),
             token: Default::default(),
             download_request: Default::default(),
+            ord: Default::default(),
             client: reqwest::Client::new(),
         }
     }
 }
 
-impl From<Url> for Request {
+impl From<Url> for GraphRequest {
     fn from(url: Url) -> Self {
-        Request {
+        GraphRequest {
             url: GraphUrl::from(url),
             method: Default::default(),
             body: Default::default(),
@@ -226,29 +316,25 @@ impl From<Url> for Request {
             upload_session_file: Default::default(),
             token: Default::default(),
             download_request: Default::default(),
+            ord: Default::default(),
             client: reqwest::Client::new(),
         }
     }
 }
 
-impl Download for Request {
+impl Download for GraphRequest {
     fn download(&mut self) -> GraphResult<FetchClient> {
-        let url = {
-            if self.download_request.is_direct_download {
-                let builder: RequestBuilder = self.redirect()?;
-                let mut response = builder.send()?;
-                let status = response.status().as_u16();
-                if GraphError::is_error(status) {
-                    return Err(GraphFailure::try_from(&mut response).unwrap_or_default());
-                }
-                response.url().clone()
-            } else {
-                self.to_url()
-            }
-        };
+        let mut fetch_client = FetchClient::new(
+            self.url.as_str(),
+            self.download_directory(),
+            self.token.as_str(),
+        );
 
-        let mut fetch_client =
-            FetchClient::new(url.as_ref(), self.download_directory(), self.token.as_str());
+        if !self.download_request.is_direct_download {
+            println!("using redirect");
+            let builder: RequestBuilder = self.redirect()?;
+            fetch_client.set_redirect(builder);
+        }
 
         if let Some(file_name) = self.file_name().as_ref() {
             fetch_client.rename(file_name.to_os_string());

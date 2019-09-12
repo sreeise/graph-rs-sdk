@@ -3,9 +3,9 @@ extern crate criterion;
 
 use criterion::black_box;
 use criterion::Criterion;
-use drive_test_tools::common::TestTools;
 use graph_oauth::oauth::OAuth;
-use rust_onedrive::drive::client::Graph;
+use graph_rs::prelude::*;
+use test_tools::common::TestTools;
 
 fn oauth_setters(oauth: &mut OAuth) {
     oauth

@@ -1,7 +1,6 @@
 use from_as::*;
 use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
-use graph_rs::types::statusresponse::StatusResponse;
 use std::convert::TryFrom;
 
 // Delete items in OneDrive. This will move deleted items to the recycle bin.
@@ -19,7 +18,7 @@ fn delete_id(item_id: &str) {
     let drive = Graph::try_from(&oauth).unwrap();
 
     // Send the request.
-    let mut response: StatusResponse = drive
+    let mut response: GraphResponse<()> = drive
         .v1()
         .me()
         .drive()
@@ -39,7 +38,7 @@ pub fn delete_path(path: &str) {
     let drive = Graph::try_from(&oauth).unwrap();
 
     // Send the request.
-    let mut response: StatusResponse = drive
+    let mut response: GraphResponse<()> = drive
         .v1()
         .me()
         .drive()

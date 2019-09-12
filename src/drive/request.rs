@@ -5,7 +5,7 @@ use crate::http::ResponseClient;
 use crate::http::{FetchClient, Session, UploadSessionClient};
 use crate::types::collection::Collection;
 use crate::types::embeddableurl::EmbeddableUrl;
-use crate::types::statusresponse::StatusResponse;
+use crate::url::UrlOrdering;
 use graph_error::GraphFailure;
 use graph_error::GraphResult;
 use graph_rs_types::complextypes::{ItemPreviewInfo, ItemReference, Thumbnail};
@@ -15,19 +15,22 @@ use reqwest::Method;
 use serde::export::PhantomData;
 use serde_json::json;
 use std::collections::HashMap;
+use std::fs::File;
 use std::path::{Path, PathBuf};
 
 macro_rules! endpoint_method {
     ( $name:ident, $I:ty, $x:expr ) => {
       pub fn $name(&self) -> ResponseClient<'a, I, $I> {
         if !$x.eq("drive") && self.client.ident().ne(&Ident::Drives) {
-            self.client.insert_ord(UrlOrdering::ItemPath("drive".into()));
+            self.client.request().insert(UrlOrdering::ItemPath("drive".into()));
         }
-        self.client.insert_ord(UrlOrdering::Last($x.to_string()));
+        self.client.request().insert(UrlOrdering::Last($x.to_string()));
         if self.client.ident().eq(&Ident::Me) {
-            self.client.format_ord();
+            self.client
+                .request()
+                .format_ord();
         }
-        self.client.set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         ResponseClient::new(self.client)
       }
     };
@@ -36,11 +39,11 @@ macro_rules! endpoint_method {
 macro_rules! event_method {
     ( $name:ident, $I:ty, $x:expr, $m:expr ) => {
       pub fn $name(&self) -> ResponseClient<'a, I, $I> {
-        self.client.set_method($m);
+        self.client.request().set_method($m);
         self.update_ord();
         let s: &str = $x.as_ref();
         if !s.is_empty() {
-            self.client.insert_ord(UrlOrdering::Last(s.to_string()));
+            self.client.request().insert(UrlOrdering::Last(s.to_string()));
         }
         ResponseClient::new(self.client)
       }
@@ -62,22 +65,24 @@ impl<'a, I> DriveRequest<'a, I> {
 
     fn update_ord(&self) {
         self.client
-            .insert_ord(UrlOrdering::RootOrItem("items".into()));
+            .request()
+            .insert(UrlOrdering::RootOrItem("items".into()));
         if self.client.ident().ne(&Ident::Drives) {
             self.client
-                .insert_ord(UrlOrdering::ItemPath("drive".into()));
+                .request()
+                .insert(UrlOrdering::ItemPath("drive".into()));
         }
     }
 
     fn update_ord_with(&self, url_ord: UrlOrdering) {
         self.update_ord();
-        self.client.insert_ord(url_ord);
+        self.client.request().insert(url_ord);
     }
 }
 
 impl<'a, I> DriveRequest<'a, I> {
     event_method!(get_item, DriveItem, DriveEvent::GetItem, Method::GET);
-    event_method!(delete, StatusResponse, DriveEvent::Delete, Method::DELETE);
+    event_method!(delete, (), DriveEvent::Delete, Method::DELETE);
     endpoint_method!(drive, BaseItem, "drive");
     endpoint_method!(root, DriveItem, "root");
     endpoint_method!(recent, Collection<DriveItem>, "recent");
@@ -155,8 +160,9 @@ impl<'a, I> DriveRequest<'a, I> {
     pub fn update(&'a self, drive_item: &DriveItem) -> ResponseClient<'a, I, DriveItem> {
         self.update_ord();
         self.client
+            .request()
             .set_method(Method::PATCH)
-            .body(serde_json::to_string_pretty(drive_item).unwrap());
+            .set_body(serde_json::to_string_pretty(drive_item).unwrap());
         ResponseClient::new(self.client)
     }
 
@@ -169,12 +175,17 @@ impl<'a, I> DriveRequest<'a, I> {
         if let Some(c) = conflict_behavior {
             let data =
                 json!({ "name": name, "folder": folder,  "microsoft_graph_conflict_behavior": c });
-            self.client.body(serde_json::to_string(&data).unwrap());
+            self.client
+                .request()
+                .set_method(Method::POST)
+                .set_body(serde_json::to_string(&data).unwrap());
         } else {
             let data = json!({ "name": name, "folder": folder });
-            self.client.body(serde_json::to_string(&data).unwrap());
+            self.client
+                .request()
+                .set_method(Method::POST)
+                .set_body(serde_json::to_string(&data).unwrap());
         }
-        self.client.set_method(Method::POST);
         self.update_ord_with(UrlOrdering::Last("children".into()));
         ResponseClient::new(self.client)
     }
@@ -183,15 +194,20 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         name: Option<&str>,
         item_ref: &ItemReference,
-    ) -> ResponseClient<'a, I, StatusResponse> {
+    ) -> ResponseClient<'a, I, ()> {
         if let Some(name) = name {
             let data = json!({ "name": name, "parent_reference": item_ref });
-            self.client.body(serde_json::to_string(&data).unwrap());
+            self.client
+                .request()
+                .set_method(Method::POST)
+                .set_body(serde_json::to_string(&data).unwrap());
         } else {
             let data = json!({ "parent_reference": item_ref });
-            self.client.body(serde_json::to_string(&data).unwrap());
+            self.client
+                .request()
+                .set_method(Method::POST)
+                .set_body(serde_json::to_string(&data).unwrap());
         }
-        self.client.set_method(Method::POST);
         ResponseClient::new(self.client)
     }
 
@@ -204,7 +220,7 @@ impl<'a, I> DriveRequest<'a, I> {
             "{}/{}/{}",
             "thumbnails", thumb_id, size
         )));
-        self.client.set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         ResponseClient::new(self.client)
     }
 
@@ -217,7 +233,7 @@ impl<'a, I> DriveRequest<'a, I> {
             "{}/{}/{}/{}",
             "thumbnails", thumb_id, size, "content"
         )));
-        self.client.set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         ResponseClient::new(self.client)
     }
 
@@ -225,20 +241,21 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         _list_id: &str,
     ) -> ResponseClient<'a, I, Collection<ItemActivity>> {
-        self.client.set_method(Method::GET);
         self.update_ord_with(UrlOrdering::Last(format!(
             "{}/activities",
             DriveEvent::Activities.as_ref()
         )));
+        self.client.request().set_method(Method::GET);
         ResponseClient::new(self.client)
     }
 
     pub fn upload_replace<P: AsRef<Path>>(&'a self, file: P) -> ResponseClient<'a, I, DriveItem> {
         self.update_ord();
         self.client
+            .request()
             .set_method(Method::PUT)
-            .insert_ord(UrlOrdering::Last("content".into()))
-            .set_file(file.as_ref());
+            .insert(UrlOrdering::Last("content".into()))
+            .set_body(File::open(file).unwrap());
         ResponseClient::new(self.client)
     }
 
@@ -254,14 +271,15 @@ impl<'a, I> DriveRequest<'a, I> {
             .to_string();
         self.update_ord();
         self.client
+            .request()
             .set_method(Method::PUT)
-            .set_file(file)
-            .insert_ord(UrlOrdering::FileName(name))
-            .insert_ord(UrlOrdering::Last("content".to_string()));
+            .set_body(File::open(file).unwrap())
+            .insert(UrlOrdering::FileName(name))
+            .insert(UrlOrdering::Last("content".to_string()));
         Ok(ResponseClient::new(self.client))
     }
 
-    pub fn restore_version(&'a self, version_id: &str) -> ResponseClient<'a, I, StatusResponse> {
+    pub fn restore_version(&'a self, version_id: &str) -> ResponseClient<'a, I, ()> {
         self.update_ord_with(UrlOrdering::Last(format!(
             "{}/{}/{}",
             "versions", version_id, "restoreVersion",
@@ -275,10 +293,11 @@ impl<'a, I> DriveRequest<'a, I> {
         body: Session,
     ) -> ResponseClient<'a, I, UploadSessionClient> {
         self.client
+            .request()
             .set_method(Method::POST)
             .set_upload_session(file)
-            .insert_ord(UrlOrdering::Last("createUploadSession".into()))
-            .body(serde_json::to_string(&json!({ "item": body })).unwrap());
+            .insert(UrlOrdering::Last("createUploadSession".into()))
+            .set_body(serde_json::to_string(&json!({ "item": body })).unwrap());
         self.update_ord();
         ResponseClient::new(self.client)
     }
@@ -289,9 +308,12 @@ impl<'a, I> DriveRequest<'a, I> {
     ) -> ResponseClient<'a, I, ItemPreviewInfo> {
         if let Some(embeddable_url) = embeddable_url {
             self.client
-                .body(serde_json::to_string(&embeddable_url).unwrap());
+                .request()
+                .set_body(serde_json::to_string(&embeddable_url).unwrap());
         } else {
-            self.client.header(CONTENT_LENGTH, HeaderValue::from(0));
+            self.client
+                .request()
+                .header(CONTENT_LENGTH, HeaderValue::from(0));
         }
         self.update_ord_with(UrlOrdering::Last(DriveEvent::Preview.to_string()));
         ResponseClient::new(self.client)
@@ -303,7 +325,9 @@ impl<'a, I> DriveRequest<'a, I> {
     ) -> IntoDownloadClient<'a, I, FetchClient> {
         self.update_ord_with(UrlOrdering::Last("content".into()));
         self.client
-            .set_download_path(PathBuf::from(directory.as_ref()));
+            .request()
+            .download_request
+            .set_directory(PathBuf::from(directory.as_ref()));
         IntoDownloadClient::new(self.client)
     }
 }

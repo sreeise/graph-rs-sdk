@@ -1,5 +1,4 @@
 use graph_rs::prelude::*;
-use graph_rs::types::statusresponse::StatusResponse;
 use graph_rs_types::complextypes::ItemReference;
 use graph_rs_types::entitytypes::DriveItem;
 use std::thread;
@@ -16,11 +15,11 @@ fn main() {
 
 fn copy_item() {
     let graph = Graph::new("ACCESS_TOKEN");
-    let mut collection: Collection<DriveItem> =
+    let mut collection: GraphResponse<Collection<DriveItem>> =
         graph.v1().me().drive().root_children().send().unwrap();
 
     // The file or folder that you want to copy.
-    let drive_item: DriveItem = collection.find_by_name(DRIVE_FILE).unwrap();
+    let drive_item: DriveItem = collection.as_mut().find_by_name(DRIVE_FILE).unwrap();
     let item_id = drive_item.id.clone().unwrap();
 
     // The DriveItem copy request uses a ItemReference (parent reference) which contains
@@ -31,7 +30,7 @@ fn copy_item() {
     let mut item_ref = ItemReference::default();
     item_ref.path = Some("/drive/root:/Documents".into());
 
-    let mut response: StatusResponse = graph
+    let mut response: GraphResponse<()> = graph
         .v1()
         .me()
         .drive()
@@ -42,15 +41,15 @@ fn copy_item() {
 
     // When an item is copied the response returns a URL in the location header
     // that can be used to monitor the progress. For events that may take longer to finish
-    // such as copying an item, the ItemResponse async_job_status() method can be used
+    // such as copying an item, the GraphResponse async_job_status() method can be used
     // to get the metadata returned from the monitor URL. This request returns an
     // AsyncJobStatus struct. Note, it is important to remember that AsyncJobStatus
     // is only used for specific API requests.
     //
-    // The ItemResponse success() method will return true if the status of the
+    // The GraphResponse success() method will return true if the status of the
     // request returns 202 which means the request for copying an item is approved.
     // However, this does not mean that the copy event has finished. The
-    // ItemResponse async_job_status() should be used to check if the event
+    // GraphResponse async_job_status() should be used to check if the event
     // has finished instead of the success method.
 
     // Wait a few seconds before checking the progress (assuming the file or

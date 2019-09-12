@@ -1,5 +1,6 @@
 use crate::client::*;
 use crate::http::ResponseClient;
+use crate::url::UrlOrdering;
 use graph_rs_types::entitytypes::ItemActivity;
 use std::marker::PhantomData;
 
@@ -20,8 +21,9 @@ impl<'a, I> ListRequest<'a, I> {
 impl<'a, I> ListRequest<'a, I> {
     pub fn activities(&self, list_id: &str) -> ResponseClient<'a, I, ItemActivity> {
         self.client
-            .insert_ord(UrlOrdering::ItemPath("lists".into()))
-            .insert_ord(UrlOrdering::Last(format!("{}/activities", list_id)));
+            .request()
+            .insert(UrlOrdering::ItemPath("lists".into()))
+            .insert(UrlOrdering::Last(format!("{}/activities", list_id)));
         ResponseClient::new(self.client)
     }
 }
