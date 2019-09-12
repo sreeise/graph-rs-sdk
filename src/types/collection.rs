@@ -51,6 +51,16 @@ impl<T> Collection<T> {
             None
         }
     }
+
+    pub fn add(&mut self, value: T) {
+        if let Some(ref mut vec) = self.value {
+            vec.push(value);
+        } else {
+            let mut vec: Vec<T> = Vec::new();
+            vec.push(value);
+            self.value = Some(vec);
+        }
+    }
 }
 
 impl<T> Eq for Collection<T> where T: std::cmp::PartialEq {}

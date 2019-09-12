@@ -5,26 +5,33 @@ under the examples directory:
     
     ./examples/example_files
      
-The examples have various places where the OAuth and Drive instances are stored
-in JSON files to make it easier to use across multiple examples.
+The examples have various places where the response metadata from requests
+is stored in in JSON files to make it easier to use across multiple examples.
 
-A good place to start is the rocket example: rocket_example.rs
+A good place to start is the rocket example: rocket_example.rs for authorization
+and access tokens.
 
-### Using the OneDrive and Graph API
+### Using the Graph API
 
-Drive requests can be done for either the OneDrive V1.0 endpoint
-or the graph beta endpoint.
-
-The basic way of creating a request is by selecting the version and
-then selecting the type of request.
-
-Here is how you would get the metadata for all files in the root
-of a drive:
-
-    let mut drive = Drive::new("ACCESS_TOKEN");
+    use graph_rs::prelude::*;
     
-    // Create the request.
-    let request = drive.v1().drive_root_child();
+    let client = Graph::new("ACCESS_TOKEN");
     
-    // Send the request.
-    let collection: DriveItemCollection = request.send().unwrap();
+    // Drive requests.
+    let drive_item = client.v1()
+                        .me()
+                        .drive()
+                        .get_item()
+                        .by_id("ITEM_ID");
+                        .send()
+                        .unwrap():
+    println!("{:#?}", drive_item):
+    
+    // User requests
+    let user = client.v1()
+                    .me()
+                    .user()
+                    .get()
+                    .send()
+                    .unwrap();
+    println!({:#?}, user);
