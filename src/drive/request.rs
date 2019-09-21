@@ -330,4 +330,49 @@ impl<'a, I> DriveRequest<'a, I> {
             .set_directory(PathBuf::from(directory.as_ref()));
         IntoDownloadClient::new(self.client)
     }
+
+    pub fn check_out(&'a self) -> ResponseClient<'a, I, GraphResponse<()>> {
+        self.update_ord();
+        self.client
+            .request()
+            .set_method(Method::POST)
+            .insert(UrlOrdering::Last("checkout".into()))
+            .header(CONTENT_LENGTH, HeaderValue::from(0));
+        ResponseClient::new(self.client)
+    }
+
+    pub fn check_in(
+        &'a self,
+        check_in_as: Option<&str>,
+        comment: Option<&str>,
+    ) -> ResponseClient<'a, I, GraphResponse<()>> {
+        self.update_ord();
+        if let Some(check_in_as) = check_in_as {
+            if let Some(comment) = comment {
+                self.client.request().set_body(
+                    serde_json::to_string_pretty(
+                        &json!({ "checkInAs": check_in_as, "comment": comment }),
+                    )
+                    .unwrap(),
+                );
+            } else {
+                self.client.request().set_body(
+                    serde_json::to_string_pretty(&json!({ "checkInAs": check_in_as })).unwrap(),
+                );
+            }
+        } else if let Some(comment) = comment {
+            self.client
+                .request()
+                .set_body(serde_json::to_string_pretty(&json!({ "comment": comment })).unwrap());
+        } else {
+            self.client
+                .request()
+                .header(CONTENT_LENGTH, HeaderValue::from(0));
+        }
+        self.client
+            .request()
+            .insert(UrlOrdering::Last("checkin".into()))
+            .set_method(Method::POST);
+        ResponseClient::new(self.client)
+    }
 }
