@@ -141,8 +141,10 @@ impl<'a, T> ResponseClient<'a, IdentifyCommon, T> {
 
 // For requests that don't return JSON in the body but does return information
 // on triggering status events.
-impl<'a, I> ResponseClient<'a, I, ()> {
-    pub fn send(&self) -> GraphResult<GraphResponse<()>> {
+impl<'a, I> ToResponse for ResponseClient<'a, I, GraphResponse<()>> {
+    type Output = GraphResult<GraphResponse<()>>;
+
+    fn send(&self) -> Self::Output {
         Ok(GraphResponse::new(self.client.request().response()?, ()))
     }
 }
