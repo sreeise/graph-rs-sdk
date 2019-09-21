@@ -1130,3 +1130,49 @@ pub fn drive_download_path() {
         .by_path_id("32p99453", "file.docx");
     assert_url_eq(&client, "/sites/32p99453/drive/root:/file.docx:/content");
 }
+
+#[test]
+pub fn drive_check_out() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().check_out().by_id("1234");
+    assert_url_eq(&client, "/me/drive/items/1234/checkout");
+
+    let _ = client
+        .v1()
+        .drives()
+        .drive()
+        .check_out()
+        .by_ids("1234", "32p99453");
+    assert_url_eq(&client, "/drives/32p99453/items/1234/checkout");
+
+    let _ = client
+        .v1()
+        .sites()
+        .drive()
+        .check_out()
+        .by_ids("1234", "32p99453");
+    assert_url_eq(&client, "/sites/32p99453/drive/items/1234/checkout");
+}
+
+#[test]
+pub fn drive_check_in() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().check_in(None, None).by_id("1234");
+    assert_url_eq(&client, "/me/drive/items/1234/checkin");
+
+    let _ = client
+        .v1()
+        .drives()
+        .drive()
+        .check_in(None, None)
+        .by_ids("1234", "32p99453");
+    assert_url_eq(&client, "/drives/32p99453/items/1234/checkin");
+
+    let _ = client
+        .v1()
+        .sites()
+        .drive()
+        .check_in(None, None)
+        .by_ids("1234", "32p99453");
+    assert_url_eq(&client, "/sites/32p99453/drive/items/1234/checkin");
+}
