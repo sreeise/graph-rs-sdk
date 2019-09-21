@@ -1,8 +1,8 @@
 use crate::client::*;
 use crate::drive::driveevent::DriveEvent;
 use crate::drive::IntoDownloadClient;
-use crate::http::ResponseClient;
 use crate::http::{FetchClient, Session, UploadSessionClient};
+use crate::http::{GraphResponse, ResponseClient};
 use crate::types::collection::Collection;
 use crate::types::embeddableurl::EmbeddableUrl;
 use crate::url::UrlOrdering;
@@ -194,7 +194,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         name: Option<&str>,
         item_ref: &ItemReference,
-    ) -> ResponseClient<'a, I, ()> {
+    ) -> ResponseClient<'a, I, GraphResponse<()>> {
         if let Some(name) = name {
             let data = json!({ "name": name, "parent_reference": item_ref });
             self.client
@@ -279,7 +279,7 @@ impl<'a, I> DriveRequest<'a, I> {
         Ok(ResponseClient::new(self.client))
     }
 
-    pub fn restore_version(&'a self, version_id: &str) -> ResponseClient<'a, I, ()> {
+    pub fn restore_version(&'a self, version_id: &str) -> ResponseClient<'a, I, GraphResponse<()>> {
         self.update_ord_with(UrlOrdering::Last(format!(
             "{}/{}/{}",
             "versions", version_id, "restoreVersion",
