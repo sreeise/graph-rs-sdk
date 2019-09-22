@@ -134,6 +134,11 @@ impl GraphRequest {
         self
     }
 
+    pub(crate) fn extend(&mut self, vec: Vec<UrlOrdering>) -> &mut Self {
+        self.ord.extend(vec);
+        self
+    }
+
     pub fn set_direct_download(&mut self, value: bool, url: &str) -> &mut Self {
         self.download_request.set_direct_download(value);
         self.set_url(GraphUrl::parse(url).unwrap());

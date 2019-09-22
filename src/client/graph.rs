@@ -1,6 +1,7 @@
 use crate::drive::DriveRequest;
 use crate::http::GraphRequest;
 use crate::lists::ListRequest;
+use crate::mail::MailRequest;
 use crate::url::{GraphUrl, UrlOrdering};
 use crate::users::UserRequest;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
@@ -221,5 +222,9 @@ impl<'a, I> GraphPath<'a, I> {
 
     pub fn user(&'a self) -> UserRequest<'a, I> {
         UserRequest::new(self.client)
+    }
+
+    pub fn mail(&'a self) -> MailRequest<'a, I> {
+        MailRequest::new(self.client)
     }
 }

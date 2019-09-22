@@ -85,8 +85,10 @@ impl<'a, I, T> ResponseClient<'a, I, T> {
         self
     }
 
-    pub fn value(&self) -> GraphResult<serde_json::Value> {
-        self.client.request().json()
+    pub fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        let mut response = self.client.request().response()?;
+        let value: serde_json::Value = response.json()?;
+        Ok(GraphResponse::new(response, value))
     }
 
     pub fn json<U>(&self) -> GraphResult<U>
@@ -175,8 +177,10 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
         }
     }
 
-    pub fn value(&self) -> GraphResult<serde_json::Value> {
-        self.client.request().json()
+    pub fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        let mut response = self.client.request().response()?;
+        let value: serde_json::Value = response.json()?;
+        Ok(GraphResponse::new(response, value))
     }
 
     pub fn json<U>(&self) -> GraphResult<U>
