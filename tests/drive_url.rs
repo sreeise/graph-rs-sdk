@@ -1,9 +1,7 @@
-use graph_rs::client::Ident;
-use graph_rs::drive::endpoint::DriveEndPoint;
 use graph_rs::http::Session;
 use graph_rs::prelude::*;
-use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
 use std::ffi::OsString;
+use test_tools::drive::*;
 
 fn get_drive() -> Graph {
     Graph::new("")
@@ -43,211 +41,94 @@ fn query_mutate() {
     });
 }
 
-fn assert_url_equals(client: &Graph, endpoint: DriveEndPoint) {
-    client.url_ref(|url| {
-        if client.ident().eq(&Ident::Me) {
-            assert_eq!(
-                format!("{}/me/drive/{}", GRAPH_URL, endpoint.as_str()),
-                url.to_string(),
-            )
-        } else if client.ident().eq(&Ident::Drives) {
-            assert_eq!(
-                format!("{}/{}", GRAPH_URL, endpoint.as_str()),
-                url.to_string()
-            )
-        } else {
-            assert_eq!(
-                format!("{}/drive/{}", GRAPH_URL, endpoint.as_str()),
-                url.to_string()
-            )
-        }
-    })
-}
-
-fn assert_url_id_equals(client: &Graph, item_id: &str, endpoint: DriveEndPoint) {
-    client.url_ref(|url| {
-        if client.ident().eq(&Ident::Me) {
-            assert_eq!(
-                format!("{}/me/drive/{}", GRAPH_URL, endpoint.as_str()),
-                url.to_string(),
-            )
-        } else if client.ident().eq(&Ident::Drives) {
-            assert_eq!(
-                format!(
-                    "{}/{}/{}/{}",
-                    GRAPH_URL,
-                    client.ident().as_ref(),
-                    item_id,
-                    endpoint.as_str()
-                ),
-                url.to_string()
-            )
-        } else {
-            assert_eq!(
-                format!(
-                    "{}/{}/{}/drive/{}",
-                    GRAPH_URL,
-                    client.ident().as_ref(),
-                    item_id,
-                    endpoint.as_str()
-                ),
-                url.to_string()
-            )
-        }
-    })
-}
-
-fn assert_url_equals_beta(client: &Graph, endpoint: DriveEndPoint) {
-    client.url_ref(|url| {
-        if client.ident().eq(&Ident::Me) {
-            if endpoint.eq(&DriveEndPoint::Drive) {
-                assert_eq!(
-                    format!("{}/me/{}", GRAPH_URL_BETA, endpoint.as_str()),
-                    url.to_string(),
-                )
-            } else {
-                assert_eq!(
-                    format!("{}/me/drive/{}", GRAPH_URL_BETA, endpoint.as_str()),
-                    url.to_string(),
-                )
-            }
-        } else {
-            if endpoint.eq(&DriveEndPoint::Drive) {
-                assert_eq!(
-                    format!("{}/{}", GRAPH_URL_BETA, endpoint.as_str()),
-                    url.to_string()
-                )
-            } else {
-                assert_eq!(
-                    format!("{}/drive/{}", GRAPH_URL_BETA, endpoint.as_str()),
-                    url.to_string()
-                )
-            }
-        }
-    })
-}
-
-fn assert_url_id_equals_beta(client: &Graph, item_id: &str, endpoint: DriveEndPoint) {
-    client.url_ref(|url| {
-        if client.ident().eq(&Ident::Me) {
-            assert_eq!(
-                format!("{}/me/drive/{}", GRAPH_URL_BETA, endpoint.as_str()),
-                url.to_string(),
-            )
-        } else if client.ident().eq(&Ident::Drives) {
-            assert_eq!(
-                format!(
-                    "{}/{}/{}/{}",
-                    GRAPH_URL_BETA,
-                    client.ident().as_ref(),
-                    item_id,
-                    endpoint.as_str()
-                ),
-                url.to_string()
-            )
-        } else {
-            assert_eq!(
-                format!(
-                    "{}/{}/{}/drive/{}",
-                    GRAPH_URL_BETA,
-                    client.ident().as_ref(),
-                    item_id,
-                    endpoint.as_str()
-                ),
-                url.to_string()
-            )
-        }
-    })
-}
-
 #[test]
 fn macro_endpoint_me_v1() {
     let client = get_drive();
     let _ = client.v1().me().drive().root();
-    assert_url_equals(&client, DriveEndPoint::DriveRoot);
+    assert_url_special(&client, SpecialFolder::DriveRoot);
     let _ = client.v1().me().drive().root_children();
-    assert_url_equals(&client, DriveEndPoint::DriveRootChild);
+    assert_url_special(&client, SpecialFolder::DriveRootChild);
     let _ = client.v1().me().drive().recent();
-    assert_url_equals(&client, DriveEndPoint::DriveRecent);
+    assert_url_special(&client, SpecialFolder::DriveRecent);
     let _ = client.v1().me().drive().delta();
-    assert_url_equals(&client, DriveEndPoint::Delta);
+    assert_url_special(&client, SpecialFolder::Delta);
     let _ = client.v1().me().drive().shared_with_me();
-    assert_url_equals(&client, DriveEndPoint::SharedWithMe);
+    assert_url_special(&client, SpecialFolder::SharedWithMe);
     let _ = client.v1().me().drive().special_documents();
-    assert_url_equals(&client, DriveEndPoint::SpecialDocuments);
+    assert_url_special(&client, SpecialFolder::SpecialDocuments);
     let _ = client.v1().me().drive().special_documents_child();
-    assert_url_equals(&client, DriveEndPoint::SpecialDocumentsChild);
+    assert_url_special(&client, SpecialFolder::SpecialDocumentsChild);
     let _ = client.v1().me().drive().special_photos();
-    assert_url_equals(&client, DriveEndPoint::SpecialPhotos);
+    assert_url_special(&client, SpecialFolder::SpecialPhotos);
     let _ = client.v1().me().drive().special_photos_child();
-    assert_url_equals(&client, DriveEndPoint::SpecialPhotosChild);
+    assert_url_special(&client, SpecialFolder::SpecialPhotosChild);
     let _ = client.v1().me().drive().special_camera_roll();
-    assert_url_equals(&client, DriveEndPoint::SpecialCameraRoll);
+    assert_url_special(&client, SpecialFolder::SpecialCameraRoll);
     let _ = client.v1().me().drive().special_camera_roll_child();
-    assert_url_equals(&client, DriveEndPoint::SpecialCameraRollChild);
+    assert_url_special(&client, SpecialFolder::SpecialCameraRollChild);
     let _ = client.v1().me().drive().special_app_root();
-    assert_url_equals(&client, DriveEndPoint::SpecialAppRoot);
+    assert_url_special(&client, SpecialFolder::SpecialAppRoot);
     let _ = client.v1().me().drive().special_app_root_child();
-    assert_url_equals(&client, DriveEndPoint::SpecialAppRootChild);
+    assert_url_special(&client, SpecialFolder::SpecialAppRootChild);
     let _ = client.v1().me().drive().special_music();
-    assert_url_equals(&client, DriveEndPoint::SpecialMusic);
+    assert_url_special(&client, SpecialFolder::SpecialMusic);
     let _ = client.v1().me().drive().special_music_child();
-    assert_url_equals(&client, DriveEndPoint::SpecialMusicChild);
+    assert_url_special(&client, SpecialFolder::SpecialMusicChild);
 }
 
 #[test]
 fn macro_endpoint_v1() {
     let client = get_drive();
     let _ = client.v1().drives().drive().root().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::DriveRoot);
+    assert_url_id_equals(&client, ID, SpecialFolder::DriveRoot);
     let _ = client.v1().drives().drive().root_children().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::DriveRootChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::DriveRootChild);
     let _ = client.v1().drives().drive().recent().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::DriveRecent);
+    assert_url_id_equals(&client, ID, SpecialFolder::DriveRecent);
     let _ = client.v1().drives().drive().delta().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::Delta);
+    assert_url_id_equals(&client, ID, SpecialFolder::Delta);
     let _ = client.v1().drives().drive().shared_with_me().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SharedWithMe);
+    assert_url_id_equals(&client, ID, SpecialFolder::SharedWithMe);
     let _ = client.v1().drives().drive().special_documents().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialDocuments);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocuments);
     let _ = client
         .v1()
         .drives()
         .drive()
         .special_documents_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialDocumentsChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocumentsChild);
     let _ = client.v1().drives().drive().special_photos().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialPhotos);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotos);
     let _ = client
         .v1()
         .drives()
         .drive()
         .special_photos_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialPhotosChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotosChild);
     let _ = client.v1().drives().drive().special_camera_roll().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialCameraRoll);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRoll);
     let _ = client
         .v1()
         .drives()
         .drive()
         .special_camera_roll_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialCameraRollChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRollChild);
     let _ = client.v1().drives().drive().special_app_root().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialAppRoot);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRoot);
     let _ = client
         .v1()
         .drives()
         .drive()
         .special_app_root_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialAppRootChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRootChild);
     let _ = client.v1().drives().drive().special_music().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialMusic);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusic);
     let _ = client.v1().drives().drive().special_music_child().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialMusicChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusicChild);
 }
 
 static ID: &str = "01BYE5RZ2KXWOTNNU3K5B3AZ4YMANXEMAE";
@@ -256,213 +137,207 @@ static ID: &str = "01BYE5RZ2KXWOTNNU3K5B3AZ4YMANXEMAE";
 fn macro_endpoint_drives_v1_by_id() {
     let client = get_drive();
     let _ = client.v1().drives().drive().root().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::DriveRoot);
+    assert_url_id_equals(&client, ID, SpecialFolder::DriveRoot);
     let _ = client.v1().drives().drive().root_children().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::DriveRootChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::DriveRootChild);
     let _ = client.v1().drives().drive().recent().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::DriveRecent);
+    assert_url_id_equals(&client, ID, SpecialFolder::DriveRecent);
     let _ = client.v1().drives().drive().delta().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::Delta);
+    assert_url_id_equals(&client, ID, SpecialFolder::Delta);
     let _ = client.v1().drives().drive().shared_with_me().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SharedWithMe);
+    assert_url_id_equals(&client, ID, SpecialFolder::SharedWithMe);
     let _ = client.v1().drives().drive().special_documents().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialDocuments);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocuments);
     let _ = client
         .v1()
         .drives()
         .drive()
         .special_documents_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialDocumentsChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocumentsChild);
     let _ = client.v1().drives().drive().special_photos().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialPhotos);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotos);
     let _ = client
         .v1()
         .drives()
         .drive()
         .special_photos_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialPhotosChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotosChild);
     let _ = client.v1().drives().drive().special_camera_roll().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialCameraRoll);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRoll);
     let _ = client
         .v1()
         .drives()
         .drive()
         .special_camera_roll_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialCameraRollChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRollChild);
     let _ = client.v1().drives().drive().special_app_root().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialAppRoot);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRoot);
     let _ = client
         .v1()
         .drives()
         .drive()
         .special_app_root_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialAppRootChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRootChild);
     let _ = client.v1().drives().drive().special_music().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialMusic);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusic);
     let _ = client.v1().drives().drive().special_music_child().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialMusicChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusicChild);
 }
 
 #[test]
 fn macro_endpoint_sites_v1_by_id() {
     let client = get_drive();
     let _ = client.v1().sites().drive().root().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::DriveRoot);
+    assert_url_id_equals(&client, ID, SpecialFolder::DriveRoot);
     let _ = client.v1().sites().drive().root_children().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::DriveRootChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::DriveRootChild);
     let _ = client.v1().sites().drive().recent().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::DriveRecent);
+    assert_url_id_equals(&client, ID, SpecialFolder::DriveRecent);
     let _ = client.v1().sites().drive().delta().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::Delta);
+    assert_url_id_equals(&client, ID, SpecialFolder::Delta);
     let _ = client.v1().sites().drive().shared_with_me().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SharedWithMe);
+    assert_url_id_equals(&client, ID, SpecialFolder::SharedWithMe);
     let _ = client.v1().sites().drive().special_documents().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialDocuments);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocuments);
     let _ = client
         .v1()
         .sites()
         .drive()
         .special_documents_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialDocumentsChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocumentsChild);
     let _ = client.v1().sites().drive().special_photos().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialPhotos);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotos);
     let _ = client.v1().sites().drive().special_photos_child().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialPhotosChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotosChild);
     let _ = client.v1().sites().drive().special_camera_roll().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialCameraRoll);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRoll);
     let _ = client
         .v1()
         .sites()
         .drive()
         .special_camera_roll_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialCameraRollChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRollChild);
     let _ = client.v1().sites().drive().special_app_root().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialAppRoot);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRoot);
     let _ = client
         .v1()
         .sites()
         .drive()
         .special_app_root_child()
         .by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialAppRootChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRootChild);
     let _ = client.v1().sites().drive().special_music().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialMusic);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusic);
     let _ = client.v1().sites().drive().special_music_child().by_id(ID);
-    assert_url_id_equals(&client, ID, DriveEndPoint::SpecialMusicChild);
+    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusicChild);
 }
 
 #[test]
 fn macro_endpoint_sites_beta_by_id() {
     let client = get_drive();
     let _ = client.beta().sites().drive().root().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::DriveRoot);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::DriveRoot);
     let _ = client.beta().sites().drive().root_children().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::DriveRootChild);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::DriveRootChild);
     let _ = client.beta().sites().drive().recent().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::DriveRecent);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::DriveRecent);
     let _ = client.beta().sites().drive().delta().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::Delta);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::Delta);
     let _ = client.beta().sites().drive().shared_with_me().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SharedWithMe);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SharedWithMe);
     let _ = client.beta().sites().drive().special_documents().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SpecialDocuments);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialDocuments);
     let _ = client
         .beta()
         .sites()
         .drive()
         .special_documents_child()
         .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SpecialDocumentsChild);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialDocumentsChild);
     let _ = client.beta().sites().drive().special_photos().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SpecialPhotos);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialPhotos);
     let _ = client
         .beta()
         .sites()
         .drive()
         .special_photos_child()
         .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SpecialPhotosChild);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialPhotosChild);
     let _ = client
         .beta()
         .sites()
         .drive()
         .special_camera_roll()
         .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SpecialCameraRoll);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialCameraRoll);
     let _ = client
         .beta()
         .sites()
         .drive()
         .special_camera_roll_child()
         .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SpecialCameraRollChild);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialCameraRollChild);
     let _ = client.beta().sites().drive().special_app_root().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SpecialAppRoot);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialAppRoot);
     let _ = client
         .beta()
         .sites()
         .drive()
         .special_app_root_child()
         .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SpecialAppRootChild);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialAppRootChild);
     let _ = client.beta().sites().drive().special_music().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SpecialMusic);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialMusic);
     let _ = client
         .beta()
         .sites()
         .drive()
         .special_music_child()
         .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, DriveEndPoint::SpecialMusicChild);
+    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialMusicChild);
 }
 
 #[test]
 fn macro_endpoint_v2() {
     let client = get_drive();
     let _ = client.beta().me().drive().drive();
-    assert_url_equals_beta(&client, DriveEndPoint::Drive);
+    assert_url_special_beta(&client, SpecialFolder::Drive);
     let _ = client.beta().me().drive().root();
-    assert_url_equals_beta(&client, DriveEndPoint::DriveRoot);
+    assert_url_special_beta(&client, SpecialFolder::DriveRoot);
     let _ = client.beta().me().drive().root_children();
-    assert_url_equals_beta(&client, DriveEndPoint::DriveRootChild);
+    assert_url_special_beta(&client, SpecialFolder::DriveRootChild);
     let _ = client.beta().me().drive().recent();
-    assert_url_equals_beta(&client, DriveEndPoint::DriveRecent);
+    assert_url_special_beta(&client, SpecialFolder::DriveRecent);
     let _ = client.beta().me().drive().delta();
-    assert_url_equals_beta(&client, DriveEndPoint::Delta);
+    assert_url_special_beta(&client, SpecialFolder::Delta);
     let _ = client.beta().me().drive().shared_with_me();
-    assert_url_equals_beta(&client, DriveEndPoint::SharedWithMe);
+    assert_url_special_beta(&client, SpecialFolder::SharedWithMe);
     let _ = client.beta().me().drive().special_documents();
-    assert_url_equals_beta(&client, DriveEndPoint::SpecialDocuments);
+    assert_url_special_beta(&client, SpecialFolder::SpecialDocuments);
     let _ = client.beta().me().drive().special_documents_child();
-    assert_url_equals_beta(&client, DriveEndPoint::SpecialDocumentsChild);
+    assert_url_special_beta(&client, SpecialFolder::SpecialDocumentsChild);
     let _ = client.beta().me().drive().special_photos();
-    assert_url_equals_beta(&client, DriveEndPoint::SpecialPhotos);
+    assert_url_special_beta(&client, SpecialFolder::SpecialPhotos);
     let _ = client.beta().me().drive().special_photos_child();
-    assert_url_equals_beta(&client, DriveEndPoint::SpecialPhotosChild);
+    assert_url_special_beta(&client, SpecialFolder::SpecialPhotosChild);
     let _ = client.beta().me().drive().special_camera_roll();
-    assert_url_equals_beta(&client, DriveEndPoint::SpecialCameraRoll);
+    assert_url_special_beta(&client, SpecialFolder::SpecialCameraRoll);
     let _ = client.beta().me().drive().special_camera_roll_child();
-    assert_url_equals_beta(&client, DriveEndPoint::SpecialCameraRollChild);
+    assert_url_special_beta(&client, SpecialFolder::SpecialCameraRollChild);
     let _ = client.beta().me().drive().special_app_root();
-    assert_url_equals_beta(&client, DriveEndPoint::SpecialAppRoot);
+    assert_url_special_beta(&client, SpecialFolder::SpecialAppRoot);
     let _ = client.beta().me().drive().special_app_root_child();
-    assert_url_equals_beta(&client, DriveEndPoint::SpecialAppRootChild);
+    assert_url_special_beta(&client, SpecialFolder::SpecialAppRootChild);
     let _ = client.beta().me().drive().special_music();
-    assert_url_equals_beta(&client, DriveEndPoint::SpecialMusic);
+    assert_url_special_beta(&client, SpecialFolder::SpecialMusic);
     let _ = client.beta().me().drive().special_music_child();
-    assert_url_equals_beta(&client, DriveEndPoint::SpecialMusicChild);
-}
-
-fn assert_url_eq(client: &Graph, path: &str) {
-    client.url_ref(|url| {
-        assert_eq!(vec![GRAPH_URL, path].join(""), url.to_string(),);
-    });
+    assert_url_special_beta(&client, SpecialFolder::SpecialMusicChild);
 }
 
 #[test]
@@ -1050,30 +925,6 @@ pub fn drive_restore_version_path() {
 }
 
 #[test]
-pub fn drive_activities() {
-    let client = get_drive();
-    let _ = client.v1().me().lists().activities("32p99453");
-    client.format_ord();
-    assert_url_eq(&client, "/me/lists/32p99453/activities");
-
-    let _ = client
-        .v1()
-        .drives()
-        .lists()
-        .activities("132534")
-        .by_id("32p99453");
-    assert_url_eq(&client, "/drives/32p99453/lists/132534/activities");
-
-    let _ = client
-        .v1()
-        .sites()
-        .lists()
-        .activities("132534")
-        .by_id("32p99453");
-    assert_url_eq(&client, "/sites/32p99453/lists/132534/activities");
-}
-
-#[test]
 pub fn drive_download() {
     let client = get_drive();
     let _ = client
@@ -1082,7 +933,6 @@ pub fn drive_download() {
         .drive()
         .download("./test_files")
         .by_id("1234");
-    client.format_ord();
     assert_url_eq(&client, "/me/drive/items/1234/content");
 
     let _ = client
@@ -1111,7 +961,6 @@ pub fn drive_download_path() {
         .drive()
         .download("./test_files")
         .by_path("file.docx");
-    client.format_ord();
     assert_url_eq(&client, "/me/drive/root:/file.docx:/content");
 
     let _ = client
@@ -1175,4 +1024,50 @@ pub fn drive_check_in() {
         .check_in(None, None)
         .by_ids("1234", "32p99453");
     assert_url_eq(&client, "/sites/32p99453/drive/items/1234/checkin");
+}
+
+#[test]
+pub fn drive_activities() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().drive_activity();
+    assert_url_eq(&client, "/me/drive/activities");
+
+    let _ = client
+        .v1()
+        .drives()
+        .drive()
+        .drive_activity()
+        .by_id("32p99453");
+    assert_url_eq(&client, "/drives/32p99453/activities");
+
+    let _ = client
+        .v1()
+        .sites()
+        .drive()
+        .drive_activity()
+        .by_id("32p99453");
+    assert_url_eq(&client, "/sites/32p99453/drive/activities");
+}
+
+#[test]
+pub fn drive_item_activities() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().item_activity().by_id("1234");
+    assert_url_eq(&client, "/me/drive/items/1234/activities");
+
+    let _ = client
+        .v1()
+        .drives()
+        .drive()
+        .item_activity()
+        .by_ids("1234", "32p99453");
+    assert_url_eq(&client, "/drives/32p99453/items/1234/activities");
+
+    let _ = client
+        .v1()
+        .sites()
+        .drive()
+        .item_activity()
+        .by_ids("1234", "32p99453");
+    assert_url_eq(&client, "/sites/32p99453/drive/items/1234/activities");
 }
