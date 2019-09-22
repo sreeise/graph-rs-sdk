@@ -142,6 +142,7 @@ pub mod client;
 pub mod drive;
 pub mod http;
 pub mod lists;
+pub mod mail;
 pub mod types;
 pub mod url;
 pub mod users;
