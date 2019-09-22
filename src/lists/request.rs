@@ -19,7 +19,7 @@ impl<'a, I> ListRequest<'a, I> {
 }
 
 impl<'a, I> ListRequest<'a, I> {
-    pub fn activities(&self, list_id: &str) -> ResponseClient<'a, I, ItemActivity> {
+    pub fn item_activity(&self, list_id: &str) -> ResponseClient<'a, I, ItemActivity> {
         self.client
             .request()
             .insert(UrlOrdering::ItemPath("lists".into()))

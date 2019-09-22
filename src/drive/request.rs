@@ -1,5 +1,4 @@
 use crate::client::*;
-use crate::drive::driveevent::DriveEvent;
 use crate::drive::IntoDownloadClient;
 use crate::http::{FetchClient, Session, UploadSessionClient};
 use crate::http::{GraphResponse, ResponseClient};
@@ -36,14 +35,13 @@ macro_rules! endpoint_method {
     };
 }
 
-macro_rules! event_method {
+macro_rules! item_method {
     ( $name:ident, $I:ty, $x:expr, $m:expr ) => {
       pub fn $name(&self) -> ResponseClient<'a, I, $I> {
         self.client.request().set_method($m);
         self.update_ord();
-        let s: &str = $x.as_ref();
-        if !s.is_empty() {
-            self.client.request().insert(UrlOrdering::Last(s.to_string()));
+        if !$x.is_empty() {
+            self.client.request().insert(UrlOrdering::Last($x.to_string()));
         }
         ResponseClient::new(self.client)
       }
@@ -81,34 +79,30 @@ impl<'a, I> DriveRequest<'a, I> {
 }
 
 impl<'a, I> DriveRequest<'a, I> {
-    event_method!(get_item, DriveItem, DriveEvent::GetItem, Method::GET);
-    event_method!(delete, (), DriveEvent::Delete, Method::DELETE);
+    item_method!(get_item, DriveItem, "", Method::GET);
+    item_method!(delete, GraphResponse<()>, "", Method::DELETE);
     endpoint_method!(drive, BaseItem, "drive");
     endpoint_method!(root, DriveItem, "root");
     endpoint_method!(recent, Collection<DriveItem>, "recent");
     endpoint_method!(delta, Collection<DriveItem>, "root/delta");
-    event_method!(
-        list_children,
-        DriveItem,
-        DriveEvent::ListChildren,
-        Method::GET
-    );
-    event_method!(
+    item_method!(list_children, DriveItem, "children", Method::GET);
+    item_method!(
         list_versions,
         Collection<DriveItem>,
-        DriveEvent::ListVersions,
+        "versions",
         Method::GET
     );
-    event_method!(
-        list_item_activities,
+    item_method!(
+        item_activity,
         Collection<ItemActivity>,
-        DriveEvent::Activities,
+        "activities",
         Method::GET
     );
-    event_method!(
+    endpoint_method!(drive_activity, Collection<ItemActivity>, "activities");
+    item_method!(
         thumbnails,
         Collection<ThumbnailSet>,
-        DriveEvent::Thumbnails,
+        "thumbnails",
         Method::GET
     );
     endpoint_method!(root_children, Collection<DriveItem>, "root/children");
@@ -150,11 +144,6 @@ impl<'a, I> DriveRequest<'a, I> {
         special_music_child,
         Collection<DriveItem>,
         "special/music/children"
-    );
-    endpoint_method!(
-        list_drive_activities,
-        Collection<ItemActivity>,
-        "activities"
     );
 
     pub fn update(&'a self, drive_item: &DriveItem) -> ResponseClient<'a, I, DriveItem> {
@@ -237,18 +226,6 @@ impl<'a, I> DriveRequest<'a, I> {
         ResponseClient::new(self.client)
     }
 
-    pub fn activities_from_list_item(
-        &'a self,
-        _list_id: &str,
-    ) -> ResponseClient<'a, I, Collection<ItemActivity>> {
-        self.update_ord_with(UrlOrdering::Last(format!(
-            "{}/activities",
-            DriveEvent::Activities.as_ref()
-        )));
-        self.client.request().set_method(Method::GET);
-        ResponseClient::new(self.client)
-    }
-
     pub fn upload_replace<P: AsRef<Path>>(&'a self, file: P) -> ResponseClient<'a, I, DriveItem> {
         self.update_ord();
         self.client
@@ -315,7 +292,7 @@ impl<'a, I> DriveRequest<'a, I> {
                 .request()
                 .header(CONTENT_LENGTH, HeaderValue::from(0));
         }
-        self.update_ord_with(UrlOrdering::Last(DriveEvent::Preview.to_string()));
+        self.update_ord_with(UrlOrdering::Last("preview".into()));
         ResponseClient::new(self.client)
     }
 

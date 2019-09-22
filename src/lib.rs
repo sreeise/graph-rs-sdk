@@ -120,7 +120,6 @@
 #![feature(try_trait)]
 #![feature(associated_type_defaults)]
 extern crate strum;
-#[macro_use]
 extern crate strum_macros;
 #[macro_use]
 pub extern crate serde_derive;
