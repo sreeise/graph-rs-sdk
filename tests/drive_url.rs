@@ -382,7 +382,7 @@ pub fn drive_preview_path() {
         .v1()
         .me()
         .drive()
-        .preview(None)
+        .preview::<()>(None)
         .by_path("Documents/preview.txt");
     assert_url_eq(&client, "/me/drive/root:/Documents%2Fpreview.txt:/preview");
 
@@ -390,7 +390,7 @@ pub fn drive_preview_path() {
         .v1()
         .drives()
         .drive()
-        .preview(None)
+        .preview::<()>(None)
         .by_path_id("32p99453", "Documents/preview.txt");
     assert_url_eq(
         &client,
@@ -401,7 +401,7 @@ pub fn drive_preview_path() {
         .v1()
         .sites()
         .drive()
-        .preview(None)
+        .preview::<()>(None)
         .by_path_id("32p99453", "Documents/preview.txt");
     assert_url_eq(
         &client,
@@ -412,7 +412,7 @@ pub fn drive_preview_path() {
         .v1()
         .groups()
         .drive()
-        .preview(None)
+        .preview::<()>(None)
         .by_path_id("32p99453", "Documents/preview.txt");
     assert_url_eq(
         &client,
@@ -423,7 +423,7 @@ pub fn drive_preview_path() {
         .v1()
         .users()
         .drive()
-        .preview(None)
+        .preview::<()>(None)
         .by_path_id("32p99453", "Documents/preview.txt");
     assert_url_eq(
         &client,

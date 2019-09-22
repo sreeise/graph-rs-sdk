@@ -40,7 +40,7 @@ impl<'a, I> UserRequest<'a, I> {
         ResponseClient::new(self.client)
     }
 
-    pub fn create(&self, user: &User) -> IntoResponse<'a, I, User> {
+    pub fn create<T: serde::Serialize>(&self, user: &T) -> IntoResponse<'a, I, User> {
         self.client
             .request()
             .set_body(serde_json::to_string(user).unwrap())
@@ -51,7 +51,10 @@ impl<'a, I> UserRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn update(&self, user: &User) -> ResponseClient<'a, I, GraphResponse<()>> {
+    pub fn update<T: serde::Serialize>(
+        &self,
+        user: &T,
+    ) -> ResponseClient<'a, I, GraphResponse<()>> {
         self.client
             .request()
             .set_body(serde_json::to_string(user).unwrap())

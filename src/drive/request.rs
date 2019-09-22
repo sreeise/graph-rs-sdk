@@ -1,13 +1,12 @@
 use crate::client::*;
 use crate::drive::IntoDownloadClient;
-use crate::http::{FetchClient, Session, UploadSessionClient};
+use crate::http::{FetchClient, UploadSessionClient};
 use crate::http::{GraphResponse, ResponseClient};
 use crate::types::collection::Collection;
-use crate::types::embeddableurl::EmbeddableUrl;
 use crate::url::UrlOrdering;
 use graph_error::GraphFailure;
 use graph_error::GraphResult;
-use graph_rs_types::complextypes::{ItemPreviewInfo, ItemReference, Thumbnail};
+use graph_rs_types::complextypes::{ItemPreviewInfo, Thumbnail};
 use graph_rs_types::entitytypes::{BaseItem, DriveItem, ItemActivity, ThumbnailSet};
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use reqwest::Method;
@@ -146,7 +145,10 @@ impl<'a, I> DriveRequest<'a, I> {
         "special/music/children"
     );
 
-    pub fn update(&'a self, drive_item: &DriveItem) -> ResponseClient<'a, I, DriveItem> {
+    pub fn update<T: serde::Serialize>(
+        &'a self,
+        drive_item: &T,
+    ) -> ResponseClient<'a, I, DriveItem> {
         self.update_ord();
         self.client
             .request()
@@ -179,10 +181,10 @@ impl<'a, I> DriveRequest<'a, I> {
         ResponseClient::new(self.client)
     }
 
-    pub fn copy(
+    pub fn copy<T: serde::Serialize>(
         &'a self,
         name: Option<&str>,
-        item_ref: &ItemReference,
+        item_ref: &T,
     ) -> ResponseClient<'a, I, GraphResponse<()>> {
         if let Some(name) = name {
             let data = json!({ "name": name, "parent_reference": item_ref });
@@ -264,10 +266,10 @@ impl<'a, I> DriveRequest<'a, I> {
         ResponseClient::new(self.client)
     }
 
-    pub fn upload_session<P: AsRef<Path>>(
+    pub fn upload_session<P: AsRef<Path>, T: serde::Serialize>(
         &'a self,
         file: P,
-        body: Session,
+        body: T,
     ) -> ResponseClient<'a, I, UploadSessionClient> {
         self.client
             .request()
@@ -279,14 +281,14 @@ impl<'a, I> DriveRequest<'a, I> {
         ResponseClient::new(self.client)
     }
 
-    pub fn preview(
+    pub fn preview<T: serde::Serialize>(
         &'a self,
-        embeddable_url: Option<EmbeddableUrl>,
+        embeddable_url: Option<&T>,
     ) -> ResponseClient<'a, I, ItemPreviewInfo> {
         if let Some(embeddable_url) = embeddable_url {
             self.client
                 .request()
-                .set_body(serde_json::to_string(&embeddable_url).unwrap());
+                .set_body(serde_json::to_string(embeddable_url).unwrap());
         } else {
             self.client
                 .request()
