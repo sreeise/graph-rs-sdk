@@ -30,7 +30,7 @@ fn get_preview(access_token: &str, item_id: &str) {
         .beta()
         .me()
         .drive()
-        .preview(None)
+        .preview::<()>(None)
         .by_id(item_id)
         .send()
         .unwrap();
@@ -44,7 +44,7 @@ fn get_preview_with_properties(access_token: &str, item_id: &str, embeddable_url
         .beta()
         .me()
         .drive()
-        .preview(Some(embeddable_url))
+        .preview(Some(&embeddable_url))
         .by_id(item_id)
         .send()
         .unwrap();
