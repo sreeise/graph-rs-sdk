@@ -1,14 +1,15 @@
 environment:
   SSL_CERT_FILE: "C:\\OpenSSL\\cacert.pem"
   matrix:
+    - TARGET: i686-pc-windows-msvc
+      BITS: 32
+
     - TARGET: x86_64-pc-windows-msvc
       VCPKG_DEFAULT_TRIPLET: x64-windows
       VCPKGRS_DYNAMIC: 1
 install:
   # install OpenSSL
   - mkdir C:\OpenSSL
-  - ps: if (Test-Path env:OPENSSL_VERSION) { Start-FileDownload "http://slproweb.com/download/Win${env:BITS}OpenSSL-${env:OPENSSL_VERSION}.exe" }
-  - if defined OPENSSL_VERSION Win%BITS%OpenSSL-%OPENSSL_VERSION%.exe /SILENT /VERYSILENT /SP- /DIR="C:\OpenSSL"
   - appveyor DownloadFile https://curl.haxx.se/ca/cacert.pem -FileName C:\OpenSSL\cacert.pem
 
   # Install Rust
