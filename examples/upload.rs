@@ -60,11 +60,11 @@ fn sites_upload_new() {
 
     let drive_item: GraphResponse<DriveItem> = graph
         .v1()
-        .sites()
+        .sites(RESOURCE_ID)
         .drive()
         .upload_new(LOCAL_FILE_PATH)
         .unwrap()
-        .by_ids(DRIVE_PARENT_ID, RESOURCE_ID)
+        .by_id(DRIVE_PARENT_ID)
         .send()
         .unwrap();
     println!("{:#?}", drive_item);

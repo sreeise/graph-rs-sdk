@@ -31,17 +31,20 @@ impl<'a, I, T> ResponseClient<'a, I, T> {
     }
 
     pub fn by_id(&'a self, id: &str) -> IntoResponse<'a, I, T> {
-        if self.client.ident().eq(&Ident::Me) {
-            self.client
-                .request()
-                .insert(UrlOrdering::Id(id.into()))
-                .format_ord();
-        } else {
-            self.client
-                .request()
-                .insert(UrlOrdering::ResourceId(id.into()))
-                .format_ord();
-        }
+        self.client
+            .request()
+            .insert(UrlOrdering::Id(id.into()))
+            .format_ord();
+        IntoResponse::new(self.client)
+    }
+
+    pub fn by_path<P: AsRef<Path>>(&self, path: P) -> IntoResponse<'a, IdentifyMe, T> {
+        self.client
+            .request()
+            .remove(UrlOrdering::FileName("".into()))
+            .replace(UrlOrdering::RootOrItem("root:".into()))
+            .replace(UrlOrdering::Path(path.as_ref().to_path_buf()))
+            .format_ord();
         IntoResponse::new(self.client)
     }
 
@@ -86,7 +89,7 @@ impl<'a, I, T> ResponseClient<'a, I, T> {
     }
 
     pub fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
-        let mut response = self.client.request().response()?;
+        let mut response = self.client.request().format_ord().response()?;
         let value: serde_json::Value = response.json()?;
         Ok(GraphResponse::new(response, value))
     }
@@ -95,49 +98,7 @@ impl<'a, I, T> ResponseClient<'a, I, T> {
     where
         for<'de> U: serde::Deserialize<'de>,
     {
-        self.client.request().json()
-    }
-}
-
-impl<'a, T> ResponseClient<'a, IdentifyMe, T> {
-    pub fn by_path<P: AsRef<Path>>(&self, path: P) -> IntoResponse<'a, IdentifyMe, T> {
-        self.client
-            .request()
-            .remove(UrlOrdering::FileName("".into()))
-            .replace(UrlOrdering::RootOrItem("root:".into()))
-            .replace(UrlOrdering::Path(path.as_ref().to_path_buf()))
-            .format_ord();
-        IntoResponse::new(self.client)
-    }
-}
-
-impl<'a, T> ResponseClient<'a, IdentifyCommon, T> {
-    pub fn by_ids(
-        &'a self,
-        item_id: &str,
-        resource_id: &str,
-    ) -> IntoResponse<'a, IdentifyCommon, T> {
-        self.client
-            .request()
-            .insert(UrlOrdering::ResourceId(resource_id.into()))
-            .insert(UrlOrdering::Id(item_id.into()))
-            .format_ord();
-        IntoResponse::new(self.client)
-    }
-
-    pub fn by_path_id<P: AsRef<Path>>(
-        &'a self,
-        resource_id: &str,
-        path: P,
-    ) -> IntoResponse<'a, IdentifyCommon, T> {
-        self.client
-            .request()
-            .insert(UrlOrdering::ResourceId(resource_id.into()))
-            .remove(UrlOrdering::FileName("".into()))
-            .replace(UrlOrdering::RootOrItem("root:".into()))
-            .insert(UrlOrdering::Path(path.as_ref().to_path_buf()))
-            .format_ord();
-        IntoResponse::new(self.client)
+        self.client.request().format_ord().json()
     }
 }
 
@@ -147,7 +108,10 @@ impl<'a, I> ToResponse for ResponseClient<'a, I, GraphResponse<()>> {
     type Output = GraphResult<GraphResponse<()>>;
 
     fn send(&self) -> Self::Output {
-        Ok(GraphResponse::new(self.client.request().response()?, ()))
+        Ok(GraphResponse::new(
+            self.client.request().format_ord().response()?,
+            (),
+        ))
     }
 }
 
@@ -158,7 +122,7 @@ where
     type Output = GraphResult<GraphResponse<T>>;
 
     fn send(&self) -> Self::Output {
-        self.client.request().graph_response()
+        self.client.request().format_ord().graph_response()
     }
 }
 
@@ -178,7 +142,7 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
     }
 
     pub fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
-        let mut response = self.client.request().response()?;
+        let mut response = self.client.request().format_ord().response()?;
         let value: serde_json::Value = response.json()?;
         Ok(GraphResponse::new(response, value))
     }
@@ -187,7 +151,7 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
     where
         for<'de> U: serde::Deserialize<'de>,
     {
-        self.client.request().json()
+        self.client.request().format_ord().json()
     }
 }
 

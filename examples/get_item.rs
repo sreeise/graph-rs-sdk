@@ -23,14 +23,14 @@ fn get_drive_item(item_id: &str) {
 // Or use one of the other locations that a drive could refer to
 // such as drives, users, groups, and sites.
 // The resource_id is the id for this location (sites, users, etc).
-fn get_sites_drive_item(item_id: &str, resource_id: &str) {
+fn get_sites_drive_item(item_id: &str, sites_id: &str) {
     let graph = Graph::new("ACCESS_TOKEN");
     let drive_item: GraphResponse<DriveItem> = graph
         .v1()
-        .sites()
+        .sites(sites_id)
         .drive()
         .get_item()
-        .by_ids(item_id, resource_id)
+        .by_id(item_id)
         .send()
         .unwrap();
     println!("{:#?}", drive_item);

@@ -22,13 +22,10 @@ macro_rules! endpoint_method {
         if !$x.eq("drive") && self.client.ident().ne(&Ident::Drives) {
             self.client.request().insert(UrlOrdering::ItemPath("drive".into()));
         }
-        self.client.request().insert(UrlOrdering::Last($x.to_string()));
-        if self.client.ident().eq(&Ident::Me) {
-            self.client
-                .request()
-                .format_ord();
-        }
-        self.client.request().set_method(Method::GET);
+        self.client.request()
+            .insert(UrlOrdering::Last($x.to_string()))
+            .set_method(Method::GET)
+            .format_ord();
         ResponseClient::new(self.client)
       }
     };
@@ -112,13 +109,13 @@ impl<'a, I> DriveRequest<'a, I> {
         "special/documents"
     );
     endpoint_method!(
-        special_documents_child,
+        special_documents_children,
         Collection<DriveItem>,
         "special/documents/children"
     );
     endpoint_method!(special_photos, Collection<DriveItem>, "special/photos");
     endpoint_method!(
-        special_photos_child,
+        special_photos_children,
         Collection<DriveItem>,
         "special/photos/children"
     );
@@ -128,19 +125,19 @@ impl<'a, I> DriveRequest<'a, I> {
         "special/cameraroll"
     );
     endpoint_method!(
-        special_camera_roll_child,
+        special_camera_roll_children,
         Collection<DriveItem>,
         "special/cameraroll/children"
     );
     endpoint_method!(special_app_root, Collection<DriveItem>, "special/approot");
     endpoint_method!(
-        special_app_root_child,
+        special_app_root_children,
         Collection<DriveItem>,
         "special/approot/children"
     );
     endpoint_method!(special_music, Collection<DriveItem>, "special/music");
     endpoint_method!(
-        special_music_child,
+        special_music_children,
         Collection<DriveItem>,
         "special/music/children"
     );

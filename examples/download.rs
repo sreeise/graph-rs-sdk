@@ -1,86 +1,34 @@
 use from_as::*;
 use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
-use graph_rs_types::entitytypes::DriveItem;
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::PathBuf;
 
+static ITEM_ID: &str = "ITEM_ID";
+
 fn main() {
     download();
-    download_with_drive_item();
-    download_and_format();
-    // Rename the downloaded file
+    download_and_format("pdf");
     download_and_rename("FILE_NAME");
 }
-
-// Set the name of the file you want to download here. The file must be in
-// the root of your drive. This is the same place where your normal Documents,
-// Attachments, Pictures, Desktop, etc. folders are.
-static DRIVE_FILE: &str = "YOUR_DRIVE_FILE_NAME";
 
 pub fn download() {
     // Get the access token from OAuth for the Drive API.
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let graph = Graph::try_from(&oauth).unwrap();
-
-    // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: GraphResponse<Collection<DriveItem>> =
-        graph.v1().drives().drive().root_children().send().unwrap();
-
-    // Save the metadata of the files.
-    collection
-        .as_mut()
-        .as_file("./examples/example_files/drive_root_child.json")
-        .unwrap();
-
-    // Get the Values vec that lists the files.
-    let drive_item = collection.as_mut().find_by_name(DRIVE_FILE).unwrap();
-    let item_id = drive_item.id.clone().unwrap();
+    let client = Graph::try_from(&oauth).unwrap();
 
     // Download the file. The file will be downloaded with the same name.
-    let mut req = graph
+    let mut req = client
         .v1()
         .me()
         .drive()
         .download("./examples/example_files")
-        .by_id(item_id.as_str())
+        .by_id(ITEM_ID)
         .unwrap();
 
     let path_buf: PathBuf = req.send().unwrap();
     println!("{:#?}", path_buf);
-}
-
-pub fn download_with_drive_item() {
-    // Get the access token from OAuth for the Drive API.
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let graph = Graph::try_from(&oauth).unwrap();
-
-    // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: GraphResponse<Collection<DriveItem>> =
-        graph.v1().drives().drive().root_children().send().unwrap();
-
-    // Save the metadata of the files.
-    collection
-        .as_mut()
-        .as_file("./examples/example_files/drive_root_child.json")
-        .unwrap();
-
-    // Get the Values vec that lists the files.
-    let drive_item = collection.as_mut().find_by_name(DRIVE_FILE).unwrap();
-
-    // Download the file. The file will be downloaded with the same name.
-    let mut req = graph
-        .v1()
-        .me()
-        .drive()
-        .download("./examples/example_files")
-        .by_drive_item(&drive_item)
-        .unwrap();
-
-    let path_buf: PathBuf = req.send().unwrap();
-
-    println!("{:#?}", path_buf.metadata());
 }
 
 // You can convert a file to a different format using the download_format() method.
@@ -90,35 +38,21 @@ pub fn download_with_drive_item() {
 //
 // For more info on download formats see:
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content_format?view=odsp-graph-online
-pub fn download_and_format() {
+pub fn download_and_format(extension: &str) {
     // Get the access token from OAuth for the Drive API.
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let graph = Graph::try_from(&oauth).unwrap();
+    let client = Graph::try_from(&oauth).unwrap();
 
-    // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: GraphResponse<Collection<DriveItem>> =
-        graph.v1().drives().drive().root_children().send().unwrap();
-
-    // Save the metadata of the files.
-    collection
-        .as_mut()
-        .as_file("./examples/example_files/drive_root_child.json")
-        .unwrap();
-
-    // Get the Values vec that lists the files.
-    let drive_item = collection.as_mut().find_by_name(DRIVE_FILE).unwrap();
-    // "./examples/example_files")
-    // Create the download request.
-    let mut req = graph
+    let mut req = client
         .v1()
         .me()
         .drive()
         .download("./examples/example_files")
-        .by_drive_item(&drive_item)
+        .by_id(ITEM_ID)
         .unwrap();
 
     // Select the format.
-    req.set_extension("pdf");
+    req.set_extension(extension);
 
     // Send the request and download the file.
     let path_buf: PathBuf = req.send().unwrap();
@@ -129,27 +63,15 @@ pub fn download_and_format() {
 fn download_and_rename(name: &str) {
     // Get the access token from OAuth for the Drive API.
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let graph = Graph::try_from(&oauth).unwrap();
-
-    // Call the API. drive_root_child is the files in the users main documents folder.
-    let mut collection: GraphResponse<Collection<DriveItem>> =
-        graph.v1().drives().drive().root_children().send().unwrap();
-    // Save the metadata of the files.
-    collection
-        .as_mut()
-        .as_file("./examples/example_files/drive_root_child.json")
-        .unwrap();
-
-    // Get the Values vec that lists the files.
-    let drive_item = collection.as_mut().find_by_name(DRIVE_FILE).unwrap();
+    let client = Graph::try_from(&oauth).unwrap();
 
     // Create the download request.
-    let mut req = graph
+    let mut req = client
         .v1()
         .me()
         .drive()
         .download("./examples/example_files")
-        .by_drive_item(&drive_item)
+        .by_id(ITEM_ID)
         .unwrap();
 
     // Rename the file

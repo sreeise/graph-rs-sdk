@@ -40,7 +40,7 @@ fn special_docs_child(graph: &mut Graph) {
         .v1()
         .me()
         .drive()
-        .special_documents_child()
+        .special_documents_children()
         .send()
         .unwrap();
     println!("{:#?}", drive_item);

@@ -24,8 +24,7 @@ fn main() {
 fn list_users() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let collection: GraphResponse<Collection<User>> =
-        client.v1().users().user().list().send().unwrap();
+    let collection: GraphResponse<Collection<User>> = client.v1().user().list().send().unwrap();
     println!("{:#?}", collection.value());
 }
 
@@ -34,14 +33,7 @@ static USER_ID: &str = "USER_ID";
 fn get_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let user: GraphResponse<User> = client
-        .v1()
-        .users()
-        .user()
-        .get()
-        .by_id(USER_ID)
-        .send()
-        .unwrap();
+    let user: GraphResponse<User> = client.v1().user().get().by_id(USER_ID).send().unwrap();
 
     println!("{:#?}", user.value());
 }
@@ -63,7 +55,7 @@ fn create_user() {
     user.password_profile = Some(password_profile);
     user.user_principal_name = Some("user@domain.com".into());
 
-    let user: GraphResponse<User> = client.v1().users().user().create(&user).send().unwrap();
+    let user: GraphResponse<User> = client.v1().user().create(&user).send().unwrap();
 
     println!("{:#?}", user.value());
 }
@@ -79,7 +71,6 @@ fn update_user() {
 
     let response = client
         .v1()
-        .users()
         .user()
         .update(&user)
         .by_id(USER_ID)
@@ -92,14 +83,7 @@ fn update_user() {
 fn delete_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let response = client
-        .v1()
-        .users()
-        .user()
-        .delete()
-        .by_id(USER_ID)
-        .send()
-        .unwrap();
+    let response = client.v1().user().delete().by_id(USER_ID).send().unwrap();
 
     println!("{:#?}", response);
 }
