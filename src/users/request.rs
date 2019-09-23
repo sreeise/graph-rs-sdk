@@ -1,4 +1,4 @@
-use crate::client::{Graph, Ident};
+use crate::client::{Graph, Ident, IdentifyCommon, IdentifyMe};
 use crate::http::{GraphResponse, IntoResponse, ResponseClient};
 use crate::types::collection::Collection;
 use crate::url::UrlOrdering;
@@ -19,35 +19,26 @@ impl<'a, I> UserRequest<'a, I> {
         }
     }
 
-    pub fn list(&self) -> IntoResponse<'a, I, Collection<User>> {
+    fn update_ord(&self, method: Method) -> &Self {
         self.client
             .request()
-            .set_method(Method::GET)
-            .remove(UrlOrdering::Ident(Ident::Me))
             .insert(UrlOrdering::ItemPath("users".into()))
+            .remove(UrlOrdering::Ident(Ident::Me))
+            .set_method(method)
             .format_ord();
+        self
+    }
+
+    pub fn list(&self) -> IntoResponse<'a, I, Collection<User>> {
+        self.update_ord(Method::GET);
         IntoResponse::new(self.client)
     }
 
-    pub fn get(&self) -> ResponseClient<'a, I, User> {
-        if self.client.ident().ne(&Ident::Me) {
-            self.client
-                .request()
-                .remove(UrlOrdering::Ident(Ident::Drives))
-                .insert(UrlOrdering::ItemPath("users".into()));
-        }
-        self.client.request().set_method(Method::GET).format_ord();
-        ResponseClient::new(self.client)
-    }
-
     pub fn create<T: serde::Serialize>(&self, user: &T) -> IntoResponse<'a, I, User> {
+        self.update_ord(Method::POST);
         self.client
             .request()
-            .set_body(serde_json::to_string(user).unwrap())
-            .set_method(Method::POST)
-            .remove(UrlOrdering::Ident(Ident::Me))
-            .insert(UrlOrdering::ItemPath("users".into()))
-            .format_ord();
+            .set_body(serde_json::to_string(user).unwrap());
         IntoResponse::new(self.client)
     }
 
@@ -55,23 +46,29 @@ impl<'a, I> UserRequest<'a, I> {
         &self,
         user: &T,
     ) -> ResponseClient<'a, I, GraphResponse<()>> {
+        self.update_ord(Method::PATCH);
         self.client
             .request()
-            .set_body(serde_json::to_string(user).unwrap())
-            .set_method(Method::PATCH)
-            .remove(UrlOrdering::Ident(Ident::Me))
-            .insert(UrlOrdering::ItemPath("users".into()))
-            .format_ord();
+            .set_body(serde_json::to_string(user).unwrap());
         ResponseClient::new(self.client)
     }
 
     pub fn delete(&self) -> ResponseClient<'a, I, GraphResponse<()>> {
-        self.client
-            .request()
-            .set_method(Method::DELETE)
-            .remove(UrlOrdering::Ident(Ident::Me))
-            .insert(UrlOrdering::ItemPath("users".into()))
-            .format_ord();
+        self.update_ord(Method::DELETE);
+        ResponseClient::new(self.client)
+    }
+}
+
+impl<'a> UserRequest<'a, IdentifyMe> {
+    pub fn get(&self) -> ResponseClient<'a, IdentifyMe, User> {
+        self.client.request().set_method(Method::GET);
+        ResponseClient::new(self.client)
+    }
+}
+
+impl<'a> UserRequest<'a, IdentifyCommon> {
+    pub fn get(&self) -> ResponseClient<'a, IdentifyCommon, User> {
+        self.update_ord(Method::GET);
         ResponseClient::new(self.client)
     }
 }

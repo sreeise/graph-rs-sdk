@@ -136,9 +136,8 @@ pub extern crate serde_yaml;
 #[macro_use]
 extern crate getset;
 
+pub mod calendar;
 pub mod client;
-/// The main drive module used for making requests
-/// to the OneDrive V1.0 and Graph Beta endpoints.
 pub mod drive;
 pub mod http;
 pub mod lists;

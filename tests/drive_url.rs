@@ -12,7 +12,7 @@ fn query_mutate() {
     let client = get_drive();
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .drive()
         .select(&["name"])
@@ -20,324 +20,24 @@ fn query_mutate() {
     client.format_ord();
     client.url_mut(|url| {
         assert_eq!(
-            "https://graph.microsoft.com/v1.0/drives/drive?select=name&top=3",
+            "https://graph.microsoft.com/v1.0/drives/32p99453/drive?select=name&top=3",
             url.as_str()
         );
     });
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .root()
-        .expand(&["children"])
-        .by_id("id");
+        .expand(&["children"]);
     client.format_ord();
     client.url_mut(|url| {
         assert_eq!(
-            "https://graph.microsoft.com/v1.0/drives/id/root?expand=children",
+            "https://graph.microsoft.com/v1.0/drives/32p99453/root?expand=children",
             url.as_str()
         );
     });
-}
-
-#[test]
-fn macro_endpoint_me_v1() {
-    let client = get_drive();
-    let _ = client.v1().me().drive().root();
-    assert_url_special(&client, SpecialFolder::DriveRoot);
-    let _ = client.v1().me().drive().root_children();
-    assert_url_special(&client, SpecialFolder::DriveRootChild);
-    let _ = client.v1().me().drive().recent();
-    assert_url_special(&client, SpecialFolder::DriveRecent);
-    let _ = client.v1().me().drive().delta();
-    assert_url_special(&client, SpecialFolder::Delta);
-    let _ = client.v1().me().drive().shared_with_me();
-    assert_url_special(&client, SpecialFolder::SharedWithMe);
-    let _ = client.v1().me().drive().special_documents();
-    assert_url_special(&client, SpecialFolder::SpecialDocuments);
-    let _ = client.v1().me().drive().special_documents_child();
-    assert_url_special(&client, SpecialFolder::SpecialDocumentsChild);
-    let _ = client.v1().me().drive().special_photos();
-    assert_url_special(&client, SpecialFolder::SpecialPhotos);
-    let _ = client.v1().me().drive().special_photos_child();
-    assert_url_special(&client, SpecialFolder::SpecialPhotosChild);
-    let _ = client.v1().me().drive().special_camera_roll();
-    assert_url_special(&client, SpecialFolder::SpecialCameraRoll);
-    let _ = client.v1().me().drive().special_camera_roll_child();
-    assert_url_special(&client, SpecialFolder::SpecialCameraRollChild);
-    let _ = client.v1().me().drive().special_app_root();
-    assert_url_special(&client, SpecialFolder::SpecialAppRoot);
-    let _ = client.v1().me().drive().special_app_root_child();
-    assert_url_special(&client, SpecialFolder::SpecialAppRootChild);
-    let _ = client.v1().me().drive().special_music();
-    assert_url_special(&client, SpecialFolder::SpecialMusic);
-    let _ = client.v1().me().drive().special_music_child();
-    assert_url_special(&client, SpecialFolder::SpecialMusicChild);
-}
-
-#[test]
-fn macro_endpoint_v1() {
-    let client = get_drive();
-    let _ = client.v1().drives().drive().root().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::DriveRoot);
-    let _ = client.v1().drives().drive().root_children().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::DriveRootChild);
-    let _ = client.v1().drives().drive().recent().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::DriveRecent);
-    let _ = client.v1().drives().drive().delta().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::Delta);
-    let _ = client.v1().drives().drive().shared_with_me().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SharedWithMe);
-    let _ = client.v1().drives().drive().special_documents().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocuments);
-    let _ = client
-        .v1()
-        .drives()
-        .drive()
-        .special_documents_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocumentsChild);
-    let _ = client.v1().drives().drive().special_photos().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotos);
-    let _ = client
-        .v1()
-        .drives()
-        .drive()
-        .special_photos_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotosChild);
-    let _ = client.v1().drives().drive().special_camera_roll().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRoll);
-    let _ = client
-        .v1()
-        .drives()
-        .drive()
-        .special_camera_roll_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRollChild);
-    let _ = client.v1().drives().drive().special_app_root().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRoot);
-    let _ = client
-        .v1()
-        .drives()
-        .drive()
-        .special_app_root_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRootChild);
-    let _ = client.v1().drives().drive().special_music().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusic);
-    let _ = client.v1().drives().drive().special_music_child().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusicChild);
-}
-
-static ID: &str = "01BYE5RZ2KXWOTNNU3K5B3AZ4YMANXEMAE";
-
-#[test]
-fn macro_endpoint_drives_v1_by_id() {
-    let client = get_drive();
-    let _ = client.v1().drives().drive().root().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::DriveRoot);
-    let _ = client.v1().drives().drive().root_children().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::DriveRootChild);
-    let _ = client.v1().drives().drive().recent().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::DriveRecent);
-    let _ = client.v1().drives().drive().delta().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::Delta);
-    let _ = client.v1().drives().drive().shared_with_me().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SharedWithMe);
-    let _ = client.v1().drives().drive().special_documents().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocuments);
-    let _ = client
-        .v1()
-        .drives()
-        .drive()
-        .special_documents_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocumentsChild);
-    let _ = client.v1().drives().drive().special_photos().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotos);
-    let _ = client
-        .v1()
-        .drives()
-        .drive()
-        .special_photos_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotosChild);
-    let _ = client.v1().drives().drive().special_camera_roll().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRoll);
-    let _ = client
-        .v1()
-        .drives()
-        .drive()
-        .special_camera_roll_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRollChild);
-    let _ = client.v1().drives().drive().special_app_root().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRoot);
-    let _ = client
-        .v1()
-        .drives()
-        .drive()
-        .special_app_root_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRootChild);
-    let _ = client.v1().drives().drive().special_music().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusic);
-    let _ = client.v1().drives().drive().special_music_child().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusicChild);
-}
-
-#[test]
-fn macro_endpoint_sites_v1_by_id() {
-    let client = get_drive();
-    let _ = client.v1().sites().drive().root().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::DriveRoot);
-    let _ = client.v1().sites().drive().root_children().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::DriveRootChild);
-    let _ = client.v1().sites().drive().recent().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::DriveRecent);
-    let _ = client.v1().sites().drive().delta().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::Delta);
-    let _ = client.v1().sites().drive().shared_with_me().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SharedWithMe);
-    let _ = client.v1().sites().drive().special_documents().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocuments);
-    let _ = client
-        .v1()
-        .sites()
-        .drive()
-        .special_documents_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialDocumentsChild);
-    let _ = client.v1().sites().drive().special_photos().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotos);
-    let _ = client.v1().sites().drive().special_photos_child().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialPhotosChild);
-    let _ = client.v1().sites().drive().special_camera_roll().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRoll);
-    let _ = client
-        .v1()
-        .sites()
-        .drive()
-        .special_camera_roll_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialCameraRollChild);
-    let _ = client.v1().sites().drive().special_app_root().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRoot);
-    let _ = client
-        .v1()
-        .sites()
-        .drive()
-        .special_app_root_child()
-        .by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialAppRootChild);
-    let _ = client.v1().sites().drive().special_music().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusic);
-    let _ = client.v1().sites().drive().special_music_child().by_id(ID);
-    assert_url_id_equals(&client, ID, SpecialFolder::SpecialMusicChild);
-}
-
-#[test]
-fn macro_endpoint_sites_beta_by_id() {
-    let client = get_drive();
-    let _ = client.beta().sites().drive().root().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::DriveRoot);
-    let _ = client.beta().sites().drive().root_children().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::DriveRootChild);
-    let _ = client.beta().sites().drive().recent().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::DriveRecent);
-    let _ = client.beta().sites().drive().delta().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::Delta);
-    let _ = client.beta().sites().drive().shared_with_me().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SharedWithMe);
-    let _ = client.beta().sites().drive().special_documents().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialDocuments);
-    let _ = client
-        .beta()
-        .sites()
-        .drive()
-        .special_documents_child()
-        .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialDocumentsChild);
-    let _ = client.beta().sites().drive().special_photos().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialPhotos);
-    let _ = client
-        .beta()
-        .sites()
-        .drive()
-        .special_photos_child()
-        .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialPhotosChild);
-    let _ = client
-        .beta()
-        .sites()
-        .drive()
-        .special_camera_roll()
-        .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialCameraRoll);
-    let _ = client
-        .beta()
-        .sites()
-        .drive()
-        .special_camera_roll_child()
-        .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialCameraRollChild);
-    let _ = client.beta().sites().drive().special_app_root().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialAppRoot);
-    let _ = client
-        .beta()
-        .sites()
-        .drive()
-        .special_app_root_child()
-        .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialAppRootChild);
-    let _ = client.beta().sites().drive().special_music().by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialMusic);
-    let _ = client
-        .beta()
-        .sites()
-        .drive()
-        .special_music_child()
-        .by_id(ID);
-    assert_url_id_equals_beta(&client, ID, SpecialFolder::SpecialMusicChild);
-}
-
-#[test]
-fn macro_endpoint_v2() {
-    let client = get_drive();
-    let _ = client.beta().me().drive().drive();
-    assert_url_special_beta(&client, SpecialFolder::Drive);
-    let _ = client.beta().me().drive().root();
-    assert_url_special_beta(&client, SpecialFolder::DriveRoot);
-    let _ = client.beta().me().drive().root_children();
-    assert_url_special_beta(&client, SpecialFolder::DriveRootChild);
-    let _ = client.beta().me().drive().recent();
-    assert_url_special_beta(&client, SpecialFolder::DriveRecent);
-    let _ = client.beta().me().drive().delta();
-    assert_url_special_beta(&client, SpecialFolder::Delta);
-    let _ = client.beta().me().drive().shared_with_me();
-    assert_url_special_beta(&client, SpecialFolder::SharedWithMe);
-    let _ = client.beta().me().drive().special_documents();
-    assert_url_special_beta(&client, SpecialFolder::SpecialDocuments);
-    let _ = client.beta().me().drive().special_documents_child();
-    assert_url_special_beta(&client, SpecialFolder::SpecialDocumentsChild);
-    let _ = client.beta().me().drive().special_photos();
-    assert_url_special_beta(&client, SpecialFolder::SpecialPhotos);
-    let _ = client.beta().me().drive().special_photos_child();
-    assert_url_special_beta(&client, SpecialFolder::SpecialPhotosChild);
-    let _ = client.beta().me().drive().special_camera_roll();
-    assert_url_special_beta(&client, SpecialFolder::SpecialCameraRoll);
-    let _ = client.beta().me().drive().special_camera_roll_child();
-    assert_url_special_beta(&client, SpecialFolder::SpecialCameraRollChild);
-    let _ = client.beta().me().drive().special_app_root();
-    assert_url_special_beta(&client, SpecialFolder::SpecialAppRoot);
-    let _ = client.beta().me().drive().special_app_root_child();
-    assert_url_special_beta(&client, SpecialFolder::SpecialAppRootChild);
-    let _ = client.beta().me().drive().special_music();
-    assert_url_special_beta(&client, SpecialFolder::SpecialMusic);
-    let _ = client.beta().me().drive().special_music_child();
-    assert_url_special_beta(&client, SpecialFolder::SpecialMusicChild);
 }
 
 #[test]
@@ -362,17 +62,262 @@ pub fn drive_upload_session() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .upload_session(
             "./test_files/item_test/complete_drive_item.json",
             Session::default(),
         )
-        .by_path_id("32p99453", "Documents/complete_drive_item.json");
+        .by_path("Documents/complete_drive_item.json");
     assert_url_eq(
         &client,
         "/drives/32p99453/root:/Documents%2Fcomplete_drive_item.json:/createUploadSession",
     );
+}
+
+#[test]
+pub fn drive_main() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().drive();
+    assert_url_eq(&client, "/me/drive");
+
+    let _ = client.v1().drives("32p99453").drive().drive();
+    assert_url_eq(&client, "/drives/32p99453/drive");
+}
+
+#[test]
+pub fn drive_root() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().root();
+    assert_url_eq(&client, "/me/drive/root");
+
+    let _ = client.v1().drives("32p99453").drive().root();
+    assert_url_eq(&client, "/drives/32p99453/root");
+
+    let _ = client.v1().sites("32p99453").drive().root();
+    assert_url_eq(&client, "/sites/32p99453/drive/root");
+}
+
+#[test]
+pub fn drive_recent() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().recent();
+    assert_url_eq(&client, "/me/drive/recent");
+
+    let _ = client.v1().drives("32p99453").drive().recent();
+    assert_url_eq(&client, "/drives/32p99453/recent");
+
+    let _ = client.v1().sites("32p99453").drive().recent();
+    assert_url_eq(&client, "/sites/32p99453/drive/recent");
+}
+
+#[test]
+pub fn drive_delta() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().delta();
+    assert_url_eq(&client, "/me/drive/root/delta");
+
+    let _ = client.v1().drives("32p99453").drive().delta();
+    assert_url_eq(&client, "/drives/32p99453/root/delta");
+
+    let _ = client.v1().sites("32p99453").drive().delta();
+    assert_url_eq(&client, "/sites/32p99453/drive/root/delta");
+}
+
+#[test]
+pub fn drive_root_children() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().root_children();
+    assert_url_eq(&client, "/me/drive/root/children");
+
+    let _ = client.v1().drives("32p99453").drive().root_children();
+    assert_url_eq(&client, "/drives/32p99453/root/children");
+
+    let _ = client.v1().sites("32p99453").drive().root_children();
+    assert_url_eq(&client, "/sites/32p99453/drive/root/children");
+}
+
+#[test]
+pub fn drive_shared_with_me() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().shared_with_me();
+    assert_url_eq(&client, "/me/drive/sharedWithMe");
+
+    let _ = client.v1().drives("32p99453").drive().shared_with_me();
+    assert_url_eq(&client, "/drives/32p99453/sharedWithMe");
+
+    let _ = client.v1().sites("32p99453").drive().shared_with_me();
+    assert_url_eq(&client, "/sites/32p99453/drive/sharedWithMe");
+}
+
+#[test]
+pub fn special_documents() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().special_documents();
+    assert_url_eq(&client, "/me/drive/special/documents");
+
+    let _ = client.v1().drives("32p99453").drive().special_documents();
+    assert_url_eq(&client, "/drives/32p99453/special/documents");
+
+    let _ = client.v1().sites("32p99453").drive().special_documents();
+    assert_url_eq(&client, "/sites/32p99453/drive/special/documents");
+}
+
+#[test]
+pub fn special_documents_children() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().special_documents_children();
+    assert_url_eq(&client, "/me/drive/special/documents/children");
+
+    let _ = client
+        .v1()
+        .drives("32p99453")
+        .drive()
+        .special_documents_children();
+    assert_url_eq(&client, "/drives/32p99453/special/documents/children");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .drive()
+        .special_documents_children();
+    assert_url_eq(&client, "/sites/32p99453/drive/special/documents/children");
+}
+
+#[test]
+pub fn special_photos() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().special_photos();
+    assert_url_eq(&client, "/me/drive/special/photos");
+
+    let _ = client.v1().drives("32p99453").drive().special_photos();
+    assert_url_eq(&client, "/drives/32p99453/special/photos");
+
+    let _ = client.v1().sites("32p99453").drive().special_photos();
+    assert_url_eq(&client, "/sites/32p99453/drive/special/photos");
+}
+
+#[test]
+pub fn special_photos_children() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().special_photos_children();
+    assert_url_eq(&client, "/me/drive/special/photos/children");
+
+    let _ = client
+        .v1()
+        .drives("32p99453")
+        .drive()
+        .special_photos_children();
+    assert_url_eq(&client, "/drives/32p99453/special/photos/children");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .drive()
+        .special_photos_children();
+    assert_url_eq(&client, "/sites/32p99453/drive/special/photos/children");
+}
+
+#[test]
+pub fn special_camera_roll() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().special_camera_roll();
+    assert_url_eq(&client, "/me/drive/special/cameraroll");
+
+    let _ = client.v1().drives("32p99453").drive().special_camera_roll();
+    assert_url_eq(&client, "/drives/32p99453/special/cameraroll");
+
+    let _ = client.v1().sites("32p99453").drive().special_camera_roll();
+    assert_url_eq(&client, "/sites/32p99453/drive/special/cameraroll");
+}
+
+#[test]
+pub fn special_camera_roll_children() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().special_camera_roll_children();
+    assert_url_eq(&client, "/me/drive/special/cameraroll/children");
+
+    let _ = client
+        .v1()
+        .drives("32p99453")
+        .drive()
+        .special_camera_roll_children();
+    assert_url_eq(&client, "/drives/32p99453/special/cameraroll/children");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .drive()
+        .special_camera_roll_children();
+    assert_url_eq(&client, "/sites/32p99453/drive/special/cameraroll/children");
+}
+
+#[test]
+pub fn special_app_root() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().special_app_root();
+    assert_url_eq(&client, "/me/drive/special/approot");
+
+    let _ = client.v1().drives("32p99453").drive().special_app_root();
+    assert_url_eq(&client, "/drives/32p99453/special/approot");
+
+    let _ = client.v1().sites("32p99453").drive().special_app_root();
+    assert_url_eq(&client, "/sites/32p99453/drive/special/approot");
+}
+
+#[test]
+pub fn special_app_root_children() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().special_app_root_children();
+    assert_url_eq(&client, "/me/drive/special/approot/children");
+
+    let _ = client
+        .v1()
+        .drives("32p99453")
+        .drive()
+        .special_app_root_children();
+    assert_url_eq(&client, "/drives/32p99453/special/approot/children");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .drive()
+        .special_app_root_children();
+    assert_url_eq(&client, "/sites/32p99453/drive/special/approot/children");
+}
+
+#[test]
+pub fn special_music() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().special_music();
+    assert_url_eq(&client, "/me/drive/special/music");
+
+    let _ = client.v1().drives("32p99453").drive().special_music();
+    assert_url_eq(&client, "/drives/32p99453/special/music");
+
+    let _ = client.v1().sites("32p99453").drive().special_music();
+    assert_url_eq(&client, "/sites/32p99453/drive/special/music");
+}
+
+#[test]
+pub fn special_music_children() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().special_music_children();
+    assert_url_eq(&client, "/me/drive/special/music/children");
+
+    let _ = client
+        .v1()
+        .drives("32p99453")
+        .drive()
+        .special_music_children();
+    assert_url_eq(&client, "/drives/32p99453/special/music/children");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .drive()
+        .special_music_children();
+    assert_url_eq(&client, "/sites/32p99453/drive/special/music/children");
 }
 
 #[test]
@@ -388,10 +333,10 @@ pub fn drive_preview_path() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .preview::<()>(None)
-        .by_path_id("32p99453", "Documents/preview.txt");
+        .by_path("Documents/preview.txt");
     assert_url_eq(
         &client,
         "/drives/32p99453/root:/Documents%2Fpreview.txt:/preview",
@@ -399,10 +344,10 @@ pub fn drive_preview_path() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .preview::<()>(None)
-        .by_path_id("32p99453", "Documents/preview.txt");
+        .by_path("Documents/preview.txt");
     assert_url_eq(
         &client,
         "/sites/32p99453/drive/root:/Documents%2Fpreview.txt:/preview",
@@ -410,10 +355,10 @@ pub fn drive_preview_path() {
 
     let _ = client
         .v1()
-        .groups()
+        .groups("32p99453")
         .drive()
         .preview::<()>(None)
-        .by_path_id("32p99453", "Documents/preview.txt");
+        .by_path("Documents/preview.txt");
     assert_url_eq(
         &client,
         "/groups/32p99453/drive/root:/Documents%2Fpreview.txt:/preview",
@@ -421,10 +366,10 @@ pub fn drive_preview_path() {
 
     let _ = client
         .v1()
-        .users()
+        .users("32p99453")
         .drive()
         .preview::<()>(None)
-        .by_path_id("32p99453", "Documents/preview.txt");
+        .by_path("Documents/preview.txt");
     assert_url_eq(
         &client,
         "/users/32p99453/drive/root:/Documents%2Fpreview.txt:/preview",
@@ -444,35 +389,35 @@ fn drive_create_folder() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .create_folder("name", Some("replace"))
-        .by_ids("132425", "4");
-    assert_url_eq(&client, "/drives/4/items/132425/children");
+        .by_id("132425");
+    assert_url_eq(&client, "/drives/32p99453/items/132425/children");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .create_folder("name", Some("replace"))
-        .by_ids("132425", "4");
-    assert_url_eq(&client, "/sites/4/drive/items/132425/children");
+        .by_id("132425");
+    assert_url_eq(&client, "/sites/32p99453/drive/items/132425/children");
 
     let _ = client
         .v1()
-        .groups()
+        .groups("32p99453")
         .drive()
         .create_folder("name", Some("replace"))
-        .by_ids("132425", "4");
-    assert_url_eq(&client, "/groups/4/drive/items/132425/children");
+        .by_id("132425");
+    assert_url_eq(&client, "/groups/32p99453/drive/items/132425/children");
 
     let _ = client
         .v1()
-        .users()
+        .users("32p99453")
         .drive()
         .create_folder("name", Some("replace"))
-        .by_ids("132425", "4");
-    assert_url_eq(&client, "/users/4/drive/items/132425/children");
+        .by_id("132425");
+    assert_url_eq(&client, "/users/32p99453/drive/items/132425/children");
 }
 
 #[test]
@@ -488,35 +433,35 @@ fn drive_create_folder_path() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .create_folder("name", Some("replace"))
-        .by_path_id("132534", "Documents");
-    assert_url_eq(&client, "/drives/132534/root:/Documents:/children");
+        .by_path("Documents");
+    assert_url_eq(&client, "/drives/32p99453/root:/Documents:/children");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .create_folder("name", Some("replace"))
-        .by_path_id("132534", "Documents");
-    assert_url_eq(&client, "/sites/132534/drive/root:/Documents:/children");
+        .by_path("Documents");
+    assert_url_eq(&client, "/sites/32p99453/drive/root:/Documents:/children");
 
     let _ = client
         .v1()
-        .groups()
+        .groups("32p99453")
         .drive()
         .create_folder("name", Some("replace"))
-        .by_path_id("132534", "Documents");
-    assert_url_eq(&client, "/groups/132534/drive/root:/Documents:/children");
+        .by_path("Documents");
+    assert_url_eq(&client, "/groups/32p99453/drive/root:/Documents:/children");
 
     let _ = client
         .v1()
-        .users()
+        .users("32p99453")
         .drive()
         .create_folder("name", Some("replace"))
-        .by_path_id("132534", "Documents");
-    assert_url_eq(&client, "/users/132534/drive/root:/Documents:/children");
+        .by_path("Documents");
+    assert_url_eq(&client, "/users/32p99453/drive/root:/Documents:/children");
 }
 
 #[test]
@@ -527,11 +472,19 @@ fn drive_delete() {
 
     let _ = client
         .v1()
-        .users()
+        .drives("32p99453")
         .drive()
         .delete()
-        .by_ids("32p99453", "132534");
-    assert_url_eq(&client, "/users/132534/drive/items/32p99453");
+        .by_id("132534");
+    assert_url_eq(&client, "/drives/32p99453/items/132534");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .drive()
+        .delete()
+        .by_id("132534");
+    assert_url_eq(&client, "/sites/32p99453/drive/items/132534");
 }
 
 #[test]
@@ -547,11 +500,11 @@ fn drive_delete_path() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .delete()
-        .by_path_id("132534", "Documents/item.txt");
-    assert_url_eq(&client, "/drives/132534/root:/Documents%2Fitem.txt:");
+        .by_path("Documents/item.txt");
+    assert_url_eq(&client, "/drives/32p99453/root:/Documents%2Fitem.txt:");
 }
 
 #[test]
@@ -562,18 +515,18 @@ fn drive_get_item() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .get_item()
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(&client, "/drives/32p99453/items/132534");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .get_item()
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(&client, "/sites/32p99453/drive/items/132534");
 }
 
@@ -591,18 +544,18 @@ fn drive_get_item_path() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .get_item()
-        .by_path_id("32p99453", "Documents/item.txt");
+        .by_path("Documents/item.txt");
     assert_url_eq(&client, "/drives/32p99453/root:/Documents%2Fitem.txt:");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .get_item()
-        .by_path_id("32p99453", "Documents/item.txt");
+        .by_path("Documents/item.txt");
     assert_url_eq(&client, "/sites/32p99453/drive/root:/Documents%2Fitem.txt:");
 }
 
@@ -610,17 +563,23 @@ fn drive_get_item_path() {
 fn drive_thumbnails() {
     let client = get_drive();
     let _ = client.v1().me().drive().thumbnails().by_id("32p99453");
-
     assert_url_eq(&client, "/me/drive/items/32p99453/thumbnails");
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .thumbnails()
-        .by_ids("132534", "32p99453");
-
+        .by_id("132534");
     assert_url_eq(&client, "/drives/32p99453/items/132534/thumbnails");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .drive()
+        .thumbnails()
+        .by_id("132534");
+    assert_url_eq(&client, "/sites/32p99453/drive/items/132534/thumbnails");
 }
 
 #[test]
@@ -636,18 +595,18 @@ fn drive_single_thumbnail() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .single_thumbnail("4", "100")
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(&client, "/drives/32p99453/items/132534/thumbnails/4/100");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .single_thumbnail("4", "100")
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(
         &client,
         "/sites/32p99453/drive/items/132534/thumbnails/4/100",
@@ -666,10 +625,10 @@ fn drive_thumbnail_binary() {
     assert_url_eq(&client, "/me/drive/items/132534/thumbnails/4/100/content");
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .thumbnail_binary("4", "100")
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(
         &client,
         "/drives/32p99453/items/132534/thumbnails/4/100/content",
@@ -677,10 +636,10 @@ fn drive_thumbnail_binary() {
 
     let _ = client
         .v1()
-        .groups()
+        .groups("32p99453")
         .drive()
         .thumbnail_binary("4", "100")
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(
         &client,
         "/groups/32p99453/drive/items/132534/thumbnails/4/100/content",
@@ -701,11 +660,11 @@ pub fn drive_upload_new() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .upload_new("./test_files/item_test/drive_info.json")
         .unwrap()
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(
         &client,
         "/drives/32p99453/items/132534/drive_info.json/content",
@@ -713,11 +672,11 @@ pub fn drive_upload_new() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .upload_new("./test_files/item_test/drive_info.json")
         .unwrap()
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(
         &client,
         "/sites/32p99453/drive/items/132534/drive_info.json/content",
@@ -741,11 +700,11 @@ pub fn drive_upload_new_path() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .upload_new("./test_files/item_test/drive_info.json")
         .unwrap()
-        .by_path_id("32p99453", "Documents/drive_info.json");
+        .by_path("Documents/drive_info.json");
     assert_url_eq(
         &client,
         "/drives/32p99453/root:/Documents%2Fdrive_info.json:/content",
@@ -753,11 +712,11 @@ pub fn drive_upload_new_path() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .upload_new("./test_files/item_test/drive_info.json")
         .unwrap()
-        .by_path_id("32p99453", "Documents/drive_info.json");
+        .by_path("Documents/drive_info.json");
     assert_url_eq(
         &client,
         "/sites/32p99453/drive/root:/Documents%2Fdrive_info.json:/content",
@@ -777,18 +736,18 @@ pub fn drive_upload_replace() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .upload_replace("./test_files/item_test/drive_info.json")
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(&client, "/drives/32p99453/items/132534/content");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .upload_replace("./test_files/item_test/drive_info.json")
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(&client, "/sites/32p99453/drive/items/132534/content");
 }
 
@@ -800,18 +759,18 @@ pub fn drive_list_versions() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .list_versions()
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(&client, "/drives/32p99453/items/132534/versions");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .list_versions()
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(&client, "/sites/32p99453/drive/items/132534/versions");
 }
 
@@ -828,10 +787,10 @@ pub fn drive_list_versions_path() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .list_versions()
-        .by_path_id("32p99453", "Documents/item.txt");
+        .by_path("Documents/item.txt");
     assert_url_eq(
         &client,
         "/drives/32p99453/root:/Documents%2Fitem.txt:/versions",
@@ -839,14 +798,37 @@ pub fn drive_list_versions_path() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .list_versions()
-        .by_path_id("32p99453", "Documents/item.txt");
+        .by_path("Documents/item.txt");
     assert_url_eq(
         &client,
         "/sites/32p99453/drive/root:/Documents%2Fitem.txt:/versions",
     );
+}
+
+#[test]
+pub fn drive_list_children() {
+    let client = get_drive();
+    let _ = client.v1().me().drive().list_children().by_id("132534");
+    assert_url_eq(&client, "/me/drive/items/132534/children");
+
+    let _ = client
+        .v1()
+        .drives("32p99453")
+        .drive()
+        .list_children()
+        .by_id("132534");
+    assert_url_eq(&client, "/drives/32p99453/items/132534/children");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .drive()
+        .list_children()
+        .by_id("132534");
+    assert_url_eq(&client, "/sites/32p99453/drive/items/132534/children");
 }
 
 #[test]
@@ -866,10 +848,10 @@ pub fn drive_restore_version() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .restore_version("34492566a")
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(
         &client,
         "/drives/32p99453/items/132534/versions/34492566a/restoreVersion",
@@ -877,10 +859,10 @@ pub fn drive_restore_version() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .restore_version("34492566a")
-        .by_ids("132534", "32p99453");
+        .by_id("132534");
     assert_url_eq(
         &client,
         "/sites/32p99453/drive/items/132534/versions/34492566a/restoreVersion",
@@ -903,10 +885,10 @@ pub fn drive_restore_version_path() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .restore_version("34492566a")
-        .by_path_id("32p99453", "Documents/item.txt");
+        .by_path("Documents/item.txt");
     assert_url_eq(
         &client,
         "/drives/32p99453/root:/Documents%2Fitem.txt:/versions/34492566a/restoreVersion",
@@ -914,10 +896,10 @@ pub fn drive_restore_version_path() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .restore_version("34492566a")
-        .by_path_id("32p99453", "Documents/item.txt");
+        .by_path("Documents/item.txt");
     assert_url_eq(
         &client,
         "/sites/32p99453/drive/root:/Documents%2Fitem.txt:/versions/34492566a/restoreVersion",
@@ -937,18 +919,18 @@ pub fn drive_download() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .download("./test_files")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/drives/32p99453/items/1234/content");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .download("./test_files")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/drive/items/1234/content");
 }
 
@@ -965,18 +947,18 @@ pub fn drive_download_path() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .download("./test_files")
-        .by_path_id("32p99453", "file.docx");
+        .by_path("file.docx");
     assert_url_eq(&client, "/drives/32p99453/root:/file.docx:/content");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .download("./test_files")
-        .by_path_id("32p99453", "file.docx");
+        .by_path("file.docx");
     assert_url_eq(&client, "/sites/32p99453/drive/root:/file.docx:/content");
 }
 
@@ -988,18 +970,18 @@ pub fn drive_check_out() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .check_out()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/drives/32p99453/items/1234/checkout");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .check_out()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/drive/items/1234/checkout");
 }
 
@@ -1011,18 +993,18 @@ pub fn drive_check_in() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .check_in(None, None)
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/drives/32p99453/items/1234/checkin");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .check_in(None, None)
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/drive/items/1234/checkin");
 }
 
@@ -1032,20 +1014,10 @@ pub fn drive_activities() {
     let _ = client.v1().me().drive().drive_activity();
     assert_url_eq(&client, "/me/drive/activities");
 
-    let _ = client
-        .v1()
-        .drives()
-        .drive()
-        .drive_activity()
-        .by_id("32p99453");
+    let _ = client.v1().drives("32p99453").drive().drive_activity();
     assert_url_eq(&client, "/drives/32p99453/activities");
 
-    let _ = client
-        .v1()
-        .sites()
-        .drive()
-        .drive_activity()
-        .by_id("32p99453");
+    let _ = client.v1().sites("32p99453").drive().drive_activity();
     assert_url_eq(&client, "/sites/32p99453/drive/activities");
 }
 
@@ -1057,17 +1029,17 @@ pub fn drive_item_activities() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .drive()
         .item_activity()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/drives/32p99453/items/1234/activities");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .drive()
         .item_activity()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/drive/items/1234/activities");
 }

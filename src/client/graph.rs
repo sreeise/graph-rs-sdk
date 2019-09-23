@@ -1,3 +1,4 @@
+use crate::calendar::CalendarRequest;
 use crate::drive::DriveRequest;
 use crate::http::GraphRequest;
 use crate::lists::ListRequest;
@@ -34,8 +35,8 @@ impl AsRef<str> for Ident {
 }
 
 pub struct Graph {
-    pub(crate) request: RefCell<GraphRequest>,
-    pub(crate) ident: RefCell<Ident>,
+    request: RefCell<GraphRequest>,
+    ident: RefCell<Ident>,
 }
 
 impl<'a> Graph {
@@ -166,36 +167,44 @@ impl<'a> Identify<'a> {
         GraphPath::new(self.client)
     }
 
-    pub fn drives(&self) -> GraphPath<'a, IdentifyCommon> {
+    pub fn drives(&self, id: &str) -> GraphPath<'a, IdentifyCommon> {
         self.client
             .request()
-            .insert(UrlOrdering::Ident(Ident::Drives));
+            .insert(UrlOrdering::Ident(Ident::Drives))
+            .insert(UrlOrdering::ResourceId(id.into()));
         self.client.set_ident(Ident::Drives);
         GraphPath::new(self.client)
     }
 
-    pub fn sites(&self) -> GraphPath<'a, IdentifyCommon> {
+    pub fn sites(&self, id: &str) -> GraphPath<'a, IdentifyCommon> {
         self.client
             .request()
-            .insert(UrlOrdering::Ident(Ident::Sites));
+            .insert(UrlOrdering::Ident(Ident::Sites))
+            .insert(UrlOrdering::ResourceId(id.into()));
         self.client.set_ident(Ident::Sites);
         GraphPath::new(self.client)
     }
 
-    pub fn groups(&self) -> GraphPath<'a, IdentifyCommon> {
+    pub fn groups(&self, id: &str) -> GraphPath<'a, IdentifyCommon> {
         self.client
             .request()
-            .insert(UrlOrdering::Ident(Ident::Groups));
+            .insert(UrlOrdering::Ident(Ident::Groups))
+            .insert(UrlOrdering::ResourceId(id.into()));
         self.client.set_ident(Ident::Groups);
         GraphPath::new(self.client)
     }
 
-    pub fn users(&self) -> GraphPath<'a, IdentifyCommon> {
+    pub fn users(&self, id: &str) -> GraphPath<'a, IdentifyCommon> {
         self.client
             .request()
-            .insert(UrlOrdering::Ident(Ident::Users));
+            .insert(UrlOrdering::Ident(Ident::Users))
+            .insert(UrlOrdering::ResourceId(id.into()));
         self.client.set_ident(Ident::Users);
         GraphPath::new(self.client)
+    }
+
+    pub fn user(&'a self) -> UserRequest<'a, IdentifyCommon> {
+        UserRequest::new(self.client)
     }
 }
 
@@ -220,11 +229,17 @@ impl<'a, I> GraphPath<'a, I> {
         ListRequest::new(self.client)
     }
 
-    pub fn user(&'a self) -> UserRequest<'a, I> {
-        UserRequest::new(self.client)
-    }
-
     pub fn mail(&'a self) -> MailRequest<'a, I> {
         MailRequest::new(self.client)
+    }
+
+    pub fn calendar(&'a self) -> CalendarRequest<'a, I> {
+        CalendarRequest::new(self.client)
+    }
+}
+
+impl<'a> GraphPath<'a, IdentifyMe> {
+    pub fn user(&'a self) -> UserRequest<'a, IdentifyMe> {
+        UserRequest::new(self.client)
     }
 }

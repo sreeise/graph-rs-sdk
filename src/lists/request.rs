@@ -23,7 +23,8 @@ impl<'a, I> ListRequest<'a, I> {
         self.client
             .request()
             .insert(UrlOrdering::ItemPath("lists".into()))
-            .insert(UrlOrdering::Last(format!("{}/activities", list_id)));
+            .insert(UrlOrdering::Last(format!("{}/activities", list_id)))
+            .format_ord();
         ResponseClient::new(self.client)
     }
 }

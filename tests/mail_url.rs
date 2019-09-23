@@ -7,22 +7,10 @@ pub fn list_messages() {
     let _ = client.v1().me().mail().messages().list();
     assert_url_eq(&client, "/me/messages");
 
-    let _ = client
-        .v1()
-        .drives()
-        .mail()
-        .messages()
-        .list()
-        .by_id("32p99453");
+    let _ = client.v1().drives("32p99453").mail().messages().list();
     assert_url_eq(&client, "/drives/32p99453/messages");
 
-    let _ = client
-        .v1()
-        .sites()
-        .mail()
-        .messages()
-        .list()
-        .by_id("32p99453");
+    let _ = client.v1().sites("32p99453").mail().messages().list();
     assert_url_eq(&client, "/sites/32p99453/messages");
 }
 
@@ -34,20 +22,20 @@ pub fn list_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .mail()
         .mail_folder()
-        .list("1234")
-        .by_id("32p99453");
+        .list("1234");
+    client.format_ord();
     assert_url_eq(&client, "/drives/32p99453/mailFolders/1234/messages");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
-        .list("1234")
-        .by_id("32p99453");
+        .list("1234");
+    client.format_ord();
     assert_url_eq(&client, "/sites/32p99453/mailFolders/1234/messages");
 }
 
@@ -59,20 +47,20 @@ pub fn get_messages() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .mail()
         .messages()
         .get()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/drives/32p99453/messages/1234");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .get()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234");
 }
 
@@ -90,20 +78,20 @@ pub fn get_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .drives()
+        .drives("32p99453")
         .mail()
         .mail_folder()
         .get("99453")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/drives/32p99453/mailFolders/99453/messages/1234");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .get("99453")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/mailFolders/99453/messages/1234");
 }
 
@@ -121,11 +109,11 @@ pub fn update_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .update(&String::new())
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234");
 }
 
@@ -143,33 +131,26 @@ pub fn update_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .update("99453", &String::new())
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/mailFolders/99453/messages/1234");
 }
 
 #[test]
 pub fn create_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail()
-        .messages()
-        .create(&String::new())
-        .by_id("1234");
-    assert_url_eq(&client, "/me/messages/1234");
+    let _ = client.v1().me().mail().messages().create(&String::new());
+    assert_url_eq(&client, "/me/messages");
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
-        .create(&String::new())
-        .by_id("32p99453");
+        .create(&String::new());
     assert_url_eq(&client, "/sites/32p99453/messages");
 }
 
@@ -186,11 +167,11 @@ pub fn create_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .create("99453", &String::new())
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/mailFolders/99453/messages/1234");
 }
 
@@ -202,11 +183,11 @@ pub fn delete_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .delete()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234");
 }
 
@@ -224,11 +205,11 @@ pub fn delete_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .delete("99453")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/mailFolders/99453/messages/1234");
 }
 
@@ -240,11 +221,11 @@ pub fn copy_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .copy("")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234/copy");
 }
 
@@ -262,11 +243,11 @@ pub fn copy_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .copy("99453", "")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(
         &client,
         "/sites/32p99453/mailFolders/99453/messages/1234/copy",
@@ -287,11 +268,11 @@ pub fn move_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .move_message("")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234/move");
 }
 
@@ -309,11 +290,11 @@ pub fn move_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .move_message("99453", "")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(
         &client,
         "/sites/32p99453/mailFolders/99453/messages/1234/move",
@@ -334,11 +315,11 @@ pub fn create_reply_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .create_reply()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234/createReply");
 }
 
@@ -356,11 +337,11 @@ pub fn create_reply_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .create_reply("99453")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(
         &client,
         "/sites/32p99453/mailFolders/99453/messages/1234/createReply",
@@ -381,11 +362,11 @@ pub fn create_reply_all_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .create_reply_all()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234/createReplyAll");
 }
 
@@ -406,11 +387,11 @@ pub fn create_reply_all_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .create_reply_all("99453")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(
         &client,
         "/sites/32p99453/mailFolders/99453/messages/1234/createReplyAll",
@@ -425,11 +406,11 @@ pub fn reply_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .reply("")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234/reply");
 }
 
@@ -447,11 +428,11 @@ pub fn reply_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .reply("99453", "")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(
         &client,
         "/sites/32p99453/mailFolders/99453/messages/1234/reply",
@@ -472,11 +453,11 @@ pub fn reply_all_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .reply_all("")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234/replyAll");
 }
 
@@ -494,11 +475,11 @@ pub fn reply_all_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .reply_all("99453", "")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(
         &client,
         "/sites/32p99453/mailFolders/99453/messages/1234/replyAll",
@@ -519,11 +500,11 @@ pub fn create_forward_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .create_forward()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234/createForward");
 }
 
@@ -541,11 +522,11 @@ pub fn create_forward_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .create_forward("99453")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(
         &client,
         "/sites/32p99453/mailFolders/99453/messages/1234/createForward",
@@ -566,11 +547,11 @@ pub fn forward_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .forward::<()>("", &vec![])
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234/forward");
 }
 
@@ -588,11 +569,11 @@ pub fn forward_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .forward::<()>("99453", "", &vec![])
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(
         &client,
         "/sites/32p99453/mailFolders/99453/messages/1234/forward",
@@ -607,11 +588,10 @@ pub fn send_mail_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
-        .send_mail(&String::new())
-        .by_id("32p99453");
+        .send_mail(&String::new());
     assert_url_eq(&client, "/sites/32p99453/sendMail");
 }
 
@@ -628,11 +608,10 @@ pub fn send_mail_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
-        .send_mail("99453", &String::new())
-        .by_id("32p99453");
+        .send_mail("99453", &String::new());
     assert_url_eq(&client, "/sites/32p99453/mailFolders/99453/sendMail");
 }
 
@@ -650,11 +629,11 @@ pub fn send_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .messages()
         .send_message()
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234/send");
 }
 
@@ -672,11 +651,11 @@ pub fn send_mail_folder_messages() {
 
     let _ = client
         .v1()
-        .sites()
+        .sites("32p99453")
         .mail()
         .mail_folder()
         .send_message("99453")
-        .by_ids("1234", "32p99453");
+        .by_id("1234");
     assert_url_eq(
         &client,
         "/sites/32p99453/mailFolders/99453/messages/1234/send",
