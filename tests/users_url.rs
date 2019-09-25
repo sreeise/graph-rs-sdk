@@ -14,6 +14,8 @@ fn assert_url_beta_eq(client: &Graph, path: String) {
     });
 }
 
+static USER_ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";
+
 #[test]
 fn list_users() {
     let client = Graph::new("");
@@ -30,15 +32,8 @@ fn get_users() {
     client.format_ord();
     assert_url_eq(&client, "me".into());
 
-    client
-        .v1()
-        .user()
-        .get()
-        .by_id("b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI");
-    assert_url_eq(
-        &client,
-        "users/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI".into(),
-    );
+    client.v1().user().get().by_id(USER_ID);
+    assert_url_eq(&client, format!("users/{}", USER_ID));
 }
 
 #[test]
@@ -53,15 +48,8 @@ fn create_users() {
 #[test]
 fn delete_users() {
     let client = Graph::new("");
-    client
-        .v1()
-        .user()
-        .delete()
-        .by_id("b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI");
-    assert_url_eq(
-        &client,
-        "users/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI".into(),
-    );
+    client.v1().user().delete().by_id(USER_ID);
+    assert_url_eq(&client, format!("users/{}", USER_ID));
 }
 
 #[test]
@@ -69,9 +57,9 @@ fn update_users() {
     let client = Graph::new("");
     let user = User::default();
 
-    client.beta().me().user().update(&user).by_id("32p99453");
-    assert_url_beta_eq(&client, "users/32p99453".into());
+    client.beta().me().user().update(&user).by_id(USER_ID);
+    assert_url_beta_eq(&client, format!("users/{}", USER_ID));
 
-    client.beta().user().update(&user).by_id("32p99453");
-    assert_url_beta_eq(&client, "users/32p99453".into());
+    client.beta().user().update(&user).by_id(USER_ID);
+    assert_url_beta_eq(&client, format!("users/{}", USER_ID));
 }

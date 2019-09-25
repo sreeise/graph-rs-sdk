@@ -1,43 +1,21 @@
-use crate::client::{Graph, Ident};
+use crate::client::Graph;
 use crate::http::GraphResponse;
 use crate::http::ResponseClient;
 use crate::types::collection::Collection;
-use crate::url::UrlOrdering;
+use crate::url::{FormatOrd, UrlOrdering};
 use graph_rs_types::entitytypes::Message;
 use reqwest::Method;
 use serde_json::json;
 use std::marker::PhantomData;
 
-macro_rules! message_method {
-    ( $name:ident, $I:ty, $method:expr, $ord:expr, $format:expr ) => {
-      pub fn $name(&self) -> ResponseClient<'a, I, $I> {
-        self.client
-            .request()
-            .set_method($method)
-            .insert(UrlOrdering::ItemPath("messages".into()))
-            .extend($ord);
-        if $format {
-            self.client.format_ord();
-        }
-        ResponseClient::new(self.client)
-      }
-    };
+fn message_vec() -> Vec<FormatOrd> {
+    vec![FormatOrd::Insert(UrlOrdering::ItemPath("messages".into()))]
 }
 
-macro_rules! mail_folder_id_method {
-    ( $name:ident, $I:ty, $method:expr, $ord:expr, $format:expr ) => {
-      pub fn $name(&self, mail_folder_id: &str) -> ResponseClient<'a, I, $I> {
-        self.client
-            .request()
-            .set_method($method)
-            .extend($ord)
-            .insert(UrlOrdering::ItemPath(format!("mailFolders/{}/messages", mail_folder_id)));
-        if self.client.ident().eq(&Ident::Me) && $format {
-            self.client.format_ord();
-        }
-        ResponseClient::new(self.client)
-      }
-    };
+fn message_vec_extend(other: Vec<FormatOrd>) -> Vec<FormatOrd> {
+    let mut v = message_vec();
+    v.extend(other);
+    v
 }
 
 pub struct MailRequest<'a, I> {
@@ -75,100 +53,82 @@ impl<'a, I> MessageRequest<'a, I> {
         }
     }
 
-    message_method!(get, Message, Method::GET, vec![], false);
-    message_method!(delete, GraphResponse<()>, Method::DELETE, vec![], false);
-    message_method!(
+    get!(list, Collection<Message>, message_vec(), true);
+    get!(get, Message, message_vec(), false);
+    delete!(delete, GraphResponse<()>, message_vec(), false);
+    post!(
         create_reply,
         Message,
-        Method::POST,
-        vec![UrlOrdering::Last("createReply".into())],
+        message_vec_extend(vec![FormatOrd::Insert(UrlOrdering::Last(
+            "createReply".into()
+        ))]),
         false
     );
-    message_method!(
+    post!(
         create_reply_all,
         Message,
-        Method::POST,
-        vec![UrlOrdering::Last("createReplyAll".into())],
+        message_vec_extend(vec![FormatOrd::Insert(UrlOrdering::Last(
+            "createReplyAll".into()
+        ))]),
         false
     );
-    message_method!(
+    post!(
         create_forward,
         Message,
-        Method::POST,
-        vec![UrlOrdering::Last("createForward".into())],
+        message_vec_extend(vec![FormatOrd::Insert(UrlOrdering::Last(
+            "createForward".into()
+        ))]),
         false
     );
-    message_method!(
+    post!(
         send_message,
         GraphResponse<()>,
-        Method::POST,
-        vec![UrlOrdering::Last("send".into())],
+        message_vec_extend(vec![FormatOrd::Insert(UrlOrdering::Last("send".into()))]),
         false
     );
-    message_method!(list, Collection<Message>, Method::GET, vec![], true);
-
-    pub fn update<B: serde::Serialize>(&'a self, body: &B) -> ResponseClient<'a, I, Message> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath("messages".into()))
-            .set_body(serde_json::to_string_pretty(body).unwrap());
-        ResponseClient::new(self.client)
-    }
-
-    pub fn create<B: serde::Serialize>(&'a self, body: &B) -> ResponseClient<'a, I, Message> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath("messages".into()))
-            .set_body(serde_json::to_string_pretty(body).unwrap())
-            .format_ord();
-        ResponseClient::new(self.client)
-    }
-
-    pub fn copy(&'a self, destination_id: &str) -> ResponseClient<'a, I, Message> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath("messages".into()))
-            .insert(UrlOrdering::Last("copy".into()))
-            .set_body(
-                serde_json::to_string_pretty(&json!({ "destination_id": destination_id })).unwrap(),
-            );
-        ResponseClient::new(self.client)
-    }
-
-    pub fn move_message(&'a self, destination_id: &str) -> ResponseClient<'a, I, Message> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath("messages".into()))
-            .insert(UrlOrdering::Last("move".into()))
-            .set_body(
-                serde_json::to_string_pretty(&json!({ "destination_id": destination_id })).unwrap(),
-            );
-        ResponseClient::new(self.client)
-    }
-
-    pub fn reply(&'a self, comment: &str) -> ResponseClient<'a, I, GraphResponse<()>> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath("messages".into()))
-            .insert(UrlOrdering::Last("reply".into()))
-            .set_body(serde_json::to_string_pretty(&json!({ "comment": comment })).unwrap());
-        ResponseClient::new(self.client)
-    }
-
-    pub fn reply_all(&'a self, comment: &str) -> ResponseClient<'a, I, GraphResponse<()>> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath("messages".into()))
-            .insert(UrlOrdering::Last("replyAll".into()))
-            .set_body(serde_json::to_string_pretty(&json!({ "comment": comment })).unwrap());
-        ResponseClient::new(self.client)
-    }
+    post!(update, Message, message_vec(), false, ());
+    post!(create, Message, message_vec(), true, ());
+    post!(
+        send_mail,
+        GraphResponse<()>,
+        vec![FormatOrd::Insert(UrlOrdering::Last("sendMail".into()))],
+        true,
+        ()
+    );
+    post!(
+        copy,
+        &str,
+        "destination_id",
+        Message,
+        message_vec_extend(vec![FormatOrd::Insert(UrlOrdering::Last("copy".into()))]),
+        false
+    );
+    post!(
+        move_message,
+        &str,
+        "destination_id",
+        Message,
+        message_vec_extend(vec![FormatOrd::Insert(UrlOrdering::Last("move".into()))]),
+        false
+    );
+    post!(
+        reply,
+        &str,
+        "comment",
+        GraphResponse::<()>,
+        message_vec_extend(vec![FormatOrd::Insert(UrlOrdering::Last("reply".into()))]),
+        false
+    );
+    post!(
+        reply_all,
+        &str,
+        "comment",
+        GraphResponse::<()>,
+        message_vec_extend(vec![FormatOrd::Insert(UrlOrdering::Last(
+            "replyAll".into()
+        ))]),
+        false
+    );
 
     pub fn forward<T: serde::Serialize>(
         &'a self,
@@ -188,19 +148,28 @@ impl<'a, I> MessageRequest<'a, I> {
             );
         ResponseClient::new(self.client)
     }
+}
 
-    pub fn send_mail<B: serde::Serialize>(
-        &'a self,
-        body: &B,
-    ) -> ResponseClient<'a, I, GraphResponse<()>> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .insert(UrlOrdering::Last("sendMail".into()))
-            .set_body(serde_json::to_string_pretty(body).unwrap())
-            .format_ord();
-        ResponseClient::new(self.client)
-    }
+fn format_mail_folder_message(s: &str) -> UrlOrdering {
+    UrlOrdering::ItemPath(format!("mailFolders/{}/messages", s))
+}
+
+fn ord_fn() -> Box<dyn Fn(String) -> Vec<FormatOrd>> {
+    Box::new(|s: String| {
+        vec![FormatOrd::Insert(UrlOrdering::ItemPath(format!(
+            "mailFolders/{}/messages",
+            s
+        )))]
+    })
+}
+
+fn ord_fn_last(last: String) -> Box<dyn Fn(String) -> Vec<FormatOrd>> {
+    Box::new(move |s: String| {
+        vec![FormatOrd::Insert(UrlOrdering::ItemPath(format!(
+            "mailFolders/{}/{}",
+            s, last
+        )))]
+    })
 }
 
 pub struct MailFolderRequest<'a, I> {
@@ -216,70 +185,68 @@ impl<'a, I> MailFolderRequest<'a, I> {
         }
     }
 
-    mail_folder_id_method!(get, Message, Method::GET, vec![], false);
-    mail_folder_id_method!(delete, GraphResponse<()>, Method::DELETE, vec![], false);
-    mail_folder_id_method!(
+    request_method_fn!(
+        list,
+        Collection<Message>,
+        vec![],
+        ord_fn(),
+        Method::GET,
+        true
+    );
+    request_method_fn!(get, Message, vec![], ord_fn(), Method::GET, false);
+    request_method_fn!(
+        delete,
+        GraphResponse<()>,
+        vec![],
+        ord_fn(),
+        Method::DELETE,
+        false
+    );
+    request_method_fn!(
         create_reply,
         Message,
+        vec![FormatOrd::Insert(UrlOrdering::Last("createReply".into()))],
+        ord_fn(),
         Method::POST,
-        vec![UrlOrdering::Last("createReply".into())],
         false
     );
-    mail_folder_id_method!(
+    request_method_fn!(
         create_reply_all,
         Message,
+        vec![FormatOrd::Insert(UrlOrdering::Last(
+            "createReplyAll".into()
+        ))],
+        ord_fn(),
         Method::POST,
-        vec![UrlOrdering::Last("createReplyAll".into())],
         false
     );
-    mail_folder_id_method!(
+    request_method_fn!(
         create_forward,
         Message,
+        vec![FormatOrd::Insert(UrlOrdering::Last("createForward".into()))],
+        ord_fn(),
         Method::POST,
-        vec![UrlOrdering::Last("createForward".into())],
         false
     );
-    mail_folder_id_method!(
+    request_method_fn!(
         send_message,
         GraphResponse<()>,
+        vec![FormatOrd::Insert(UrlOrdering::Last("send".into()))],
+        ord_fn(),
         Method::POST,
-        vec![UrlOrdering::Last("send".into())],
         false
     );
-    mail_folder_id_method!(list, Collection<Message>, Method::GET, vec![], true);
-
-    pub fn update<B: serde::Serialize>(
-        &self,
-        mail_folder_id: &str,
-        body: &B,
-    ) -> ResponseClient<'a, I, Message> {
-        self.client
-            .request()
-            .set_method(Method::PATCH)
-            .insert(UrlOrdering::ItemPath(format!(
-                "mailFolders/{}/messages",
-                mail_folder_id
-            )))
-            .set_body(serde_json::to_string_pretty(body).unwrap());
-        ResponseClient::new(self.client)
-    }
-
-    pub fn create<B: serde::Serialize>(
-        &'a self,
-        mail_folder_id: &str,
-        body: &B,
-    ) -> ResponseClient<'a, I, Message> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath(format!(
-                "mailFolders/{}/messages",
-                mail_folder_id
-            )))
-            .set_body(serde_json::to_string_pretty(body).unwrap())
-            .format_ord();
-        ResponseClient::new(self.client)
-    }
+    request_method_fn!(update, Message, vec![], ord_fn(), Method::PATCH, false, ());
+    request_method_fn!(create, Message, vec![], ord_fn(), Method::POST, true, ());
+    request_method_fn!(
+        send_mail,
+        GraphResponse<()>,
+        vec![],
+        ord_fn_last("sendMail".into()),
+        Method::POST,
+        true,
+        ()
+    );
 
     pub fn copy(
         &'a self,
@@ -289,10 +256,7 @@ impl<'a, I> MailFolderRequest<'a, I> {
         self.client
             .request()
             .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath(format!(
-                "mailFolders/{}/messages",
-                mail_folder_id
-            )))
+            .insert(format_mail_folder_message(mail_folder_id))
             .insert(UrlOrdering::Last("copy".into()))
             .set_body(
                 serde_json::to_string_pretty(&json!({ "destination_id": destination_id })).unwrap(),
@@ -308,10 +272,7 @@ impl<'a, I> MailFolderRequest<'a, I> {
         self.client
             .request()
             .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath(format!(
-                "mailFolders/{}/messages",
-                mail_folder_id
-            )))
+            .insert(format_mail_folder_message(mail_folder_id))
             .insert(UrlOrdering::Last("move".into()))
             .set_body(
                 serde_json::to_string_pretty(&json!({ "destination_id": destination_id })).unwrap(),
@@ -327,10 +288,7 @@ impl<'a, I> MailFolderRequest<'a, I> {
         self.client
             .request()
             .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath(format!(
-                "mailFolders/{}/messages",
-                mail_folder_id
-            )))
+            .insert(format_mail_folder_message(mail_folder_id))
             .insert(UrlOrdering::Last("reply".into()))
             .set_body(serde_json::to_string_pretty(&json!({ "comment": comment })).unwrap());
         ResponseClient::new(self.client)
@@ -344,10 +302,7 @@ impl<'a, I> MailFolderRequest<'a, I> {
         self.client
             .request()
             .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath(format!(
-                "mailFolders/{}/messages",
-                mail_folder_id
-            )))
+            .insert(format_mail_folder_message(mail_folder_id))
             .insert(UrlOrdering::Last("replyAll".into()))
             .set_body(serde_json::to_string_pretty(&json!({ "comment": comment })).unwrap());
         ResponseClient::new(self.client)
@@ -362,10 +317,7 @@ impl<'a, I> MailFolderRequest<'a, I> {
         self.client
             .request()
             .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath(format!(
-                "mailFolders/{}/messages",
-                mail_folder_id
-            )))
+            .insert(format_mail_folder_message(mail_folder_id))
             .insert(UrlOrdering::Last("forward".into()))
             .set_body(
                 serde_json::to_string_pretty(
@@ -373,23 +325,6 @@ impl<'a, I> MailFolderRequest<'a, I> {
                 )
                 .unwrap(),
             );
-        ResponseClient::new(self.client)
-    }
-
-    pub fn send_mail<B: serde::Serialize>(
-        &'a self,
-        mail_folder_id: &str,
-        body: &B,
-    ) -> ResponseClient<'a, I, GraphResponse<()>> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .insert(UrlOrdering::ItemPath(format!(
-                "mailFolders/{}/sendMail",
-                mail_folder_id
-            )))
-            .set_body(serde_json::to_string_pretty(body).unwrap())
-            .format_ord();
         ResponseClient::new(self.client)
     }
 }

@@ -1,5 +1,6 @@
+use crate::client::Ident;
 use crate::http::{Download, FetchClient, GraphResponse};
-use crate::url::{GraphUrl, UrlOrdVec, UrlOrdering};
+use crate::url::{FormatOrd, GraphUrl, UrlOrdVec, UrlOrdering};
 use from_as::TryFrom;
 use graph_error::{GraphError, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
@@ -52,6 +53,7 @@ pub struct GraphRequest {
     ord: UrlOrdVec,
     headers: HeaderMap<HeaderValue>,
     token: String,
+    ident: Ident,
     client: reqwest::Client,
 }
 
@@ -114,6 +116,15 @@ impl GraphRequest {
         self
     }
 
+    pub(crate) fn set_ident(&mut self, ident: Ident) -> &mut Self {
+        self.ident = ident;
+        self
+    }
+
+    pub fn ident(&self) -> Ident {
+        self.ident
+    }
+
     pub(crate) fn insert(&mut self, ord: UrlOrdering) -> &mut Self {
         self.ord.insert(ord);
         self
@@ -128,14 +139,13 @@ impl GraphRequest {
         self.ord.remove(ord);
         self
     }
-
-    pub(crate) fn clear(&mut self) -> &mut Self {
-        self.ord.clear();
+    pub fn remove_ref(&mut self, ord: &UrlOrdering) -> &mut Self {
+        self.ord.remove_ref(ord);
         self
     }
 
-    pub(crate) fn extend(&mut self, vec: Vec<UrlOrdering>) -> &mut Self {
-        self.ord.extend(vec);
+    pub(crate) fn clear(&mut self) -> &mut Self {
+        self.ord.clear();
         self
     }
 
@@ -147,6 +157,11 @@ impl GraphRequest {
 
     pub fn rename_download(&mut self, name: OsString) {
         self.download_request.file_name = Some(name);
+    }
+
+    pub fn sort_ord(&mut self) -> &mut Self {
+        self.ord.sort();
+        self
     }
 
     pub fn format_ord(&mut self) -> &mut Self {
@@ -185,6 +200,37 @@ impl GraphRequest {
         }
         self.ord.clear();
         self
+    }
+
+    pub fn extend_ord_from(&mut self, mut ord: Vec<FormatOrd>) -> &mut Self {
+        while let Some(ord) = ord.pop() {
+            self.insert_ord(ord);
+        }
+        self
+    }
+
+    pub fn insert_ord(&mut self, ord: FormatOrd) {
+        match ord {
+            FormatOrd::Insert(ord) => {
+                self.insert(ord);
+            },
+            FormatOrd::Remove(ord) => {
+                self.remove(ord);
+            },
+            FormatOrd::Replace(ord) => {
+                self.replace(ord);
+            },
+            FormatOrd::InsertEq(ord, ident) => {
+                if self.ident.eq(&ident) {
+                    self.insert(ord);
+                }
+            },
+            FormatOrd::InsertNe(ord, ident) => {
+                if self.ident.ne(&ident) {
+                    self.insert(ord);
+                }
+            },
+        };
     }
 
     pub(crate) fn redirect(&mut self) -> GraphResult<RequestBuilder> {
@@ -306,6 +352,7 @@ impl From<GraphUrl> for GraphRequest {
             token: Default::default(),
             download_request: Default::default(),
             ord: Default::default(),
+            ident: Default::default(),
             client: reqwest::Client::new(),
         }
     }
@@ -322,6 +369,7 @@ impl From<Url> for GraphRequest {
             token: Default::default(),
             download_request: Default::default(),
             ord: Default::default(),
+            ident: Default::default(),
             client: reqwest::Client::new(),
         }
     }
@@ -336,7 +384,7 @@ impl Download for GraphRequest {
         );
 
         if !self.download_request.is_direct_download {
-            println!("using redirect");
+            info!("Using redirect on download");
             let builder: RequestBuilder = self.redirect()?;
             fetch_client.set_redirect(builder);
         }

@@ -20,7 +20,7 @@ fn query_mutate() {
     client.format_ord();
     client.url_mut(|url| {
         assert_eq!(
-            "https://graph.microsoft.com/v1.0/drives/32p99453/drive?select=name&top=3",
+            "https://graph.microsoft.com/v1.0/drives/32p99453?select=name&top=3",
             url.as_str()
         );
     });
@@ -82,7 +82,7 @@ pub fn drive_main() {
     assert_url_eq(&client, "/me/drive");
 
     let _ = client.v1().drives("32p99453").drive().drive();
-    assert_url_eq(&client, "/drives/32p99453/drive");
+    assert_url_eq(&client, "/drives/32p99453");
 }
 
 #[test]
