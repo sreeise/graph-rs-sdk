@@ -3,6 +3,7 @@ use crate::drive::IntoDownloadClient;
 use crate::http::{FetchClient, UploadSessionClient};
 use crate::http::{GraphResponse, ResponseClient};
 use crate::types::collection::Collection;
+use crate::url::FormatOrd;
 use crate::url::UrlOrdering;
 use graph_error::GraphFailure;
 use graph_error::GraphResult;
@@ -16,32 +17,26 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
-macro_rules! endpoint_method {
-    ( $name:ident, $I:ty, $x:expr ) => {
-      pub fn $name(&self) -> ResponseClient<'a, I, $I> {
-        if !$x.eq("drive") && self.client.ident().ne(&Ident::Drives) {
-            self.client.request().insert(UrlOrdering::ItemPath("drive".into()));
-        }
-        self.client.request()
-            .insert(UrlOrdering::Last($x.to_string()))
-            .set_method(Method::GET)
-            .format_ord();
-        ResponseClient::new(self.client)
-      }
-    };
+fn drive_ord_vec() -> Vec<FormatOrd> {
+    vec![
+        FormatOrd::Insert(UrlOrdering::RootOrItem("items".into())),
+        FormatOrd::InsertNe(UrlOrdering::ItemPath("drive".into()), Ident::Drives),
+    ]
 }
 
-macro_rules! item_method {
-    ( $name:ident, $I:ty, $x:expr, $m:expr ) => {
-      pub fn $name(&self) -> ResponseClient<'a, I, $I> {
-        self.client.request().set_method($m);
-        self.update_ord();
-        if !$x.is_empty() {
-            self.client.request().insert(UrlOrdering::Last($x.to_string()));
-        }
-        ResponseClient::new(self.client)
-      }
-    };
+fn ord_vec_last(last: &str) -> Vec<FormatOrd> {
+    vec![
+        FormatOrd::InsertNe(UrlOrdering::RootOrItem("drive".into()), Ident::Drives),
+        FormatOrd::Insert(UrlOrdering::Last(last.into())),
+    ]
+}
+
+fn ord_vec_last_items(last: &str) -> Vec<FormatOrd> {
+    vec![
+        FormatOrd::Insert(UrlOrdering::RootOrItem("items".into())),
+        FormatOrd::InsertNe(UrlOrdering::ItemPath("drive".into()), Ident::Drives),
+        FormatOrd::Insert(UrlOrdering::Last(last.into())),
+    ]
 }
 
 pub struct DriveRequest<'a, I> {
@@ -75,84 +70,131 @@ impl<'a, I> DriveRequest<'a, I> {
 }
 
 impl<'a, I> DriveRequest<'a, I> {
-    item_method!(get_item, DriveItem, "", Method::GET);
-    item_method!(delete, GraphResponse<()>, "", Method::DELETE);
-    endpoint_method!(drive, BaseItem, "drive");
-    endpoint_method!(root, DriveItem, "root");
-    endpoint_method!(recent, Collection<DriveItem>, "recent");
-    endpoint_method!(delta, Collection<DriveItem>, "root/delta");
-    item_method!(list_children, DriveItem, "children", Method::GET);
-    item_method!(
+    get!(get_item, DriveItem, drive_ord_vec(), false);
+    patch!(update, DriveItem, drive_ord_vec(), true, ());
+    delete!(delete, GraphResponse<()>, drive_ord_vec(), false);
+    get!(
+        drive,
+        BaseItem,
+        vec![FormatOrd::InsertNe(
+            UrlOrdering::RootOrItem("drive".into()),
+            Ident::Drives
+        )],
+        true
+    );
+    get!(root, DriveItem, ord_vec_last("root"), true);
+    get!(recent, Collection<DriveItem>, ord_vec_last("recent"), true);
+    get!(
+        delta,
+        Collection<DriveItem>,
+        ord_vec_last("root/delta"),
+        true
+    );
+    get!(
+        list_children,
+        DriveItem,
+        ord_vec_last_items("children"),
+        false
+    );
+    get!(
         list_versions,
         Collection<DriveItem>,
-        "versions",
-        Method::GET
+        ord_vec_last_items("versions"),
+        false
     );
-    item_method!(
+    get!(
         item_activity,
         Collection<ItemActivity>,
-        "activities",
-        Method::GET
+        ord_vec_last_items("activities"),
+        false
     );
-    endpoint_method!(drive_activity, Collection<ItemActivity>, "activities");
-    item_method!(
+    get!(
+        drive_activity,
+        Collection<ItemActivity>,
+        vec![
+            FormatOrd::InsertNe(UrlOrdering::RootOrItem("drive".into()), Ident::Drives),
+            FormatOrd::Insert(UrlOrdering::Last("activities".into()))
+        ],
+        true
+    );
+    get!(
         thumbnails,
         Collection<ThumbnailSet>,
-        "thumbnails",
-        Method::GET
+        ord_vec_last_items("thumbnails"),
+        false
     );
-    endpoint_method!(root_children, Collection<DriveItem>, "root/children");
-    endpoint_method!(shared_with_me, Collection<DriveItem>, "sharedWithMe");
-    endpoint_method!(
+    get!(
+        root_children,
+        Collection<DriveItem>,
+        ord_vec_last("root/children"),
+        true
+    );
+    get!(
+        shared_with_me,
+        Collection<DriveItem>,
+        ord_vec_last("sharedWithMe"),
+        true
+    );
+    get!(
         special_documents,
         Collection<DriveItem>,
-        "special/documents"
+        ord_vec_last("special/documents"),
+        true
     );
-    endpoint_method!(
+    get!(
         special_documents_children,
         Collection<DriveItem>,
-        "special/documents/children"
+        ord_vec_last("special/documents/children"),
+        true
     );
-    endpoint_method!(special_photos, Collection<DriveItem>, "special/photos");
-    endpoint_method!(
+    get!(
+        special_photos,
+        Collection<DriveItem>,
+        ord_vec_last("special/photos"),
+        true
+    );
+    get!(
         special_photos_children,
         Collection<DriveItem>,
-        "special/photos/children"
+        ord_vec_last("special/photos/children"),
+        true
     );
-    endpoint_method!(
+    get!(
         special_camera_roll,
         Collection<DriveItem>,
-        "special/cameraroll"
+        ord_vec_last("special/cameraroll"),
+        true
     );
-    endpoint_method!(
+    get!(
         special_camera_roll_children,
         Collection<DriveItem>,
-        "special/cameraroll/children"
+        ord_vec_last("special/cameraroll/children"),
+        true
     );
-    endpoint_method!(special_app_root, Collection<DriveItem>, "special/approot");
-    endpoint_method!(
+    get!(
+        special_app_root,
+        Collection<DriveItem>,
+        ord_vec_last("special/approot"),
+        true
+    );
+    get!(
         special_app_root_children,
         Collection<DriveItem>,
-        "special/approot/children"
+        ord_vec_last("special/approot/children"),
+        true
     );
-    endpoint_method!(special_music, Collection<DriveItem>, "special/music");
-    endpoint_method!(
+    get!(
+        special_music,
+        Collection<DriveItem>,
+        ord_vec_last("special/music"),
+        true
+    );
+    get!(
         special_music_children,
         Collection<DriveItem>,
-        "special/music/children"
+        ord_vec_last("special/music/children"),
+        true
     );
-
-    pub fn update<T: serde::Serialize>(
-        &'a self,
-        drive_item: &T,
-    ) -> ResponseClient<'a, I, DriveItem> {
-        self.update_ord();
-        self.client
-            .request()
-            .set_method(Method::PATCH)
-            .set_body(serde_json::to_string_pretty(drive_item).unwrap());
-        ResponseClient::new(self.client)
-    }
 
     pub fn create_folder(
         &'a self,

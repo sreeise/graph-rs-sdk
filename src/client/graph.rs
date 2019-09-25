@@ -34,9 +34,14 @@ impl AsRef<str> for Ident {
     }
 }
 
+impl Default for Ident {
+    fn default() -> Self {
+        Ident::Me
+    }
+}
+
 pub struct Graph {
     request: RefCell<GraphRequest>,
-    ident: RefCell<Ident>,
 }
 
 impl<'a> Graph {
@@ -45,7 +50,6 @@ impl<'a> Graph {
         request.set_token(token);
         Graph {
             request: RefCell::new(request),
-            ident: RefCell::new(Ident::Me),
         }
     }
 
@@ -64,7 +68,7 @@ impl<'a> Graph {
     }
 
     pub fn ident(&self) -> Ident {
-        *self.ident.borrow()
+        self.request.borrow().ident()
     }
 
     pub(crate) fn request(&self) -> RefMut<GraphRequest> {
@@ -72,11 +76,11 @@ impl<'a> Graph {
     }
 
     pub(crate) fn set_ident(&self, ident: Ident) {
-        self.ident.replace(ident);
+        self.request.borrow_mut().set_ident(ident);
     }
 
     pub fn format_ord(&self) {
-        self.request().format_ord();
+        self.request().format_ord().sort_ord();
     }
 
     pub fn url_ref<F>(&self, f: F)
@@ -107,7 +111,6 @@ impl From<&str> for Graph {
         request.set_token(token);
         Graph {
             request: RefCell::new(request),
-            ident: RefCell::new(Ident::Me),
         }
     }
 }
@@ -118,7 +121,6 @@ impl From<String> for Graph {
         request.set_token(token.as_ref());
         Graph {
             request: RefCell::new(request),
-            ident: RefCell::new(Ident::Me),
         }
     }
 }
@@ -129,7 +131,6 @@ impl From<&AccessToken> for Graph {
         request.set_token(token.get_access_token());
         Graph {
             request: RefCell::new(request),
-            ident: RefCell::new(Ident::Me),
         }
     }
 }
@@ -145,7 +146,6 @@ impl TryFrom<&OAuth> for Graph {
         request.set_token(access_token.get_access_token());
         Ok(Graph {
             request: RefCell::new(request),
-            ident: RefCell::new(Ident::Me),
         })
     }
 }

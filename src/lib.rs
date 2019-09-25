@@ -117,27 +117,27 @@
 //! println!("{:#?}", drive_item);
 //! ```
 
-#![feature(try_trait)]
-#![feature(associated_type_defaults)]
-extern crate strum;
-extern crate strum_macros;
-#[macro_use]
-pub extern crate serde_derive;
 extern crate from_as;
 extern crate graph_error;
 extern crate graph_oauth;
 pub extern crate graph_rs_types;
+extern crate strum;
+extern crate strum_macros;
+#[macro_use]
 extern crate log;
 extern crate pretty_env_logger;
-pub extern crate reqwest;
+extern crate reqwest;
+#[macro_use]
+pub extern crate serde_derive;
 pub extern crate serde;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 #[macro_use]
 extern crate getset;
 
-pub mod calendar;
+#[macro_use]
 pub mod client;
+pub mod calendar;
 pub mod drive;
 pub mod http;
 pub mod lists;

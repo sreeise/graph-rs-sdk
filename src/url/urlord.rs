@@ -133,6 +133,11 @@ impl UrlOrdVec {
         self
     }
 
+    pub fn remove_ref(&mut self, ord: &UrlOrdering) -> &mut Self {
+        self.ord.retain(|s| s.cmp(ord) != Ordering::Equal);
+        self
+    }
+
     pub fn clear(&mut self) -> &mut Self {
         self.ord.clear();
         self
@@ -148,4 +153,13 @@ impl Extend<UrlOrdering> for UrlOrdVec {
     fn extend<I: IntoIterator<Item = UrlOrdering>>(&mut self, iter: I) {
         self.ord.extend(iter);
     }
+}
+
+#[derive(Clone, Debug)]
+pub enum FormatOrd {
+    Insert(UrlOrdering),
+    InsertEq(UrlOrdering, Ident),
+    InsertNe(UrlOrdering, Ident),
+    Replace(UrlOrdering),
+    Remove(UrlOrdering),
 }

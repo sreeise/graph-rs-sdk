@@ -1,10 +1,14 @@
 use crate::client::Graph;
 use crate::http::{GraphResponse, ResponseClient};
 use crate::types::collection::Collection;
-use crate::url::UrlOrdering;
+use crate::url::{UrlOrdering, FormatOrd};
 use graph_rs_types::entitytypes::Calendar;
 use reqwest::Method;
 use std::marker::PhantomData;
+
+fn ord_vec(last: &str) -> Vec<FormatOrd> {
+    vec![FormatOrd::Insert(UrlOrdering::Last(last.into()))]
+}
 
 pub struct CalendarRequest<'a, I> {
     client: &'a Graph,
@@ -19,50 +23,9 @@ impl<'a, I> CalendarRequest<'a, I> {
         }
     }
 
-    pub fn list(&self) -> ResponseClient<'a, I, Collection<Calendar>> {
-        self.client
-            .request()
-            .set_method(Method::GET)
-            .insert(UrlOrdering::Last("calendars".into()))
-            .format_ord();
-        ResponseClient::new(self.client)
-    }
-
-    pub fn get(&self) -> ResponseClient<'a, I, Calendar> {
-        self.client
-            .request()
-            .set_method(Method::GET)
-            .insert(UrlOrdering::Last("calendar".into()))
-            .format_ord();
-        ResponseClient::new(self.client)
-    }
-
-    pub fn update<B: serde::Serialize>(&self, body: &B) -> ResponseClient<'a, I, Calendar> {
-        self.client
-            .request()
-            .set_method(Method::PATCH)
-            .insert(UrlOrdering::Last("calendars".into()))
-            .set_body(serde_json::to_string_pretty(body).unwrap())
-            .format_ord();
-        ResponseClient::new(self.client)
-    }
-
-    pub fn create<B: serde::Serialize>(&self, body: &B) -> ResponseClient<'a, I, Calendar> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .insert(UrlOrdering::Last("calendars".into()))
-            .set_body(serde_json::to_string_pretty(body).unwrap())
-            .format_ord();
-        ResponseClient::new(self.client)
-    }
-
-    pub fn delete(&self) -> ResponseClient<'a, I, GraphResponse<()>> {
-        self.client
-            .request()
-            .set_method(Method::DELETE)
-            .insert(UrlOrdering::Last("calendars".into()))
-            .format_ord();
-        ResponseClient::new(self.client)
-    }
+    get!(list, Collection<Calendar>, ord_vec("calendars"), true);
+    get!(get, Calendar, ord_vec("calendar"), true);
+    patch!(update, Calendar, ord_vec("calendars"), true, ());
+    post!(create, Calendar, ord_vec("calendars"), true, ());
+    delete!(delete, GraphResponse<()>, ord_vec("calendars"), true);
 }
