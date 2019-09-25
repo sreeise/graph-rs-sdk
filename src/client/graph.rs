@@ -3,6 +3,7 @@ use crate::drive::DriveRequest;
 use crate::http::GraphRequest;
 use crate::lists::ListRequest;
 use crate::mail::MailRequest;
+use crate::onenote::OneNoteRequest;
 use crate::url::{GraphUrl, UrlOrdering};
 use crate::users::UserRequest;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
@@ -235,6 +236,10 @@ impl<'a, I> GraphPath<'a, I> {
 
     pub fn calendar(&'a self) -> CalendarRequest<'a, I> {
         CalendarRequest::new(self.client)
+    }
+
+    pub fn one_note(&'a self) -> OneNoteRequest<'a, I> {
+        OneNoteRequest::new(self.client)
     }
 }
 

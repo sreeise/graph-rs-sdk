@@ -63,8 +63,8 @@ fn oauth_json_file() {
 
     oauth.as_file(&file_location).unwrap();
 
-    let metadata = fs::metadata(&file_location)
-        .expect("Could not get metadata for test_files/test_file.json");
+    let metadata =
+        fs::metadata(&file_location).expect("Could not get metadata for test_files/test_file.json");
     let file_type = metadata.file_type();
     assert_eq!(file_type.is_file(), true);
 

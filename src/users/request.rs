@@ -14,19 +14,9 @@ fn ord_vec() -> Vec<FormatOrd> {
     ]
 }
 
-pub struct UserRequest<'a, I> {
-    client: &'a Graph,
-    ident: PhantomData<I>,
-}
+client_struct!(UserRequest);
 
 impl<'a, I> UserRequest<'a, I> {
-    pub fn new(client: &'a Graph) -> UserRequest<'a, I> {
-        UserRequest {
-            client,
-            ident: PhantomData,
-        }
-    }
-
     get!(list, Collection<User>, ord_vec(), true);
     post!(create, User, ord_vec(), true, ());
     patch!(update, GraphResponse<()>, ord_vec(), true, ());
@@ -34,7 +24,7 @@ impl<'a, I> UserRequest<'a, I> {
 }
 
 impl<'a> UserRequest<'a, IdentifyMe> {
-    request_method_ident!(get, IdentifyCommon, User, Vec::new(), Method::GET, true);
+    request_method_ident!(get, IdentifyCommon, User, vec![], Method::GET, true);
 }
 
 impl<'a> UserRequest<'a, IdentifyCommon> {

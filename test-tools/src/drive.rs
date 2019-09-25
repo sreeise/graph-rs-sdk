@@ -99,9 +99,9 @@ impl ToString for SpecialFolder {
     }
 }
 
-pub fn assert_url_eq(client: &Graph, path: &str) {
+pub fn assert_url_eq<T: AsRef<str>>(client: &Graph, path: T) {
     client.url_ref(|url| {
-        assert_eq!(vec![GRAPH_URL, path].join(""), url.to_string());
+        assert_eq!(vec![GRAPH_URL, path.as_ref()].join(""), url.to_string());
     });
 }
 

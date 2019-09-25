@@ -1,8 +1,7 @@
 use crate::client::Ident;
 use crate::http::{Download, FetchClient, GraphResponse};
 use crate::url::{FormatOrd, GraphUrl, UrlOrdVec, UrlOrdering};
-use from_as::TryFrom;
-use graph_error::{GraphError, GraphFailure, GraphResult};
+use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{Method, RedirectPolicy, RequestBuilder};
 use std::ffi::OsString;
@@ -137,10 +136,6 @@ impl GraphRequest {
 
     pub(crate) fn remove(&mut self, ord: UrlOrdering) -> &mut Self {
         self.ord.remove(ord);
-        self
-    }
-    pub fn remove_ref(&mut self, ord: &UrlOrdering) -> &mut Self {
-        self.ord.remove_ref(ord);
         self
     }
 
@@ -294,6 +289,7 @@ impl GraphRequest {
         let builder: RequestBuilder = self.builder();
         let mut response = builder.send()?;
         if let Some(err) = GraphFailure::from_response(&mut response) {
+            error!("Error executing request: {:#?}", &response);
             return Err(err);
         }
         Ok(response)
@@ -305,9 +301,9 @@ impl GraphRequest {
     {
         let builder = self.builder();
         let mut response = builder.send()?;
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            Err(GraphFailure::try_from(&mut response).unwrap_or_default())
+        if let Some(err) = GraphFailure::from_response(&mut response) {
+            error!("Error executing request: {:#?}", &response);
+            Err(err)
         } else {
             let value: T = response.json()?;
             Ok(GraphResponse::new(response, value))
@@ -320,9 +316,9 @@ impl GraphRequest {
     {
         let builder = self.builder();
         let mut response = builder.send()?;
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            Err(GraphFailure::try_from(&mut response).unwrap_or_default())
+        if let Some(err) = GraphFailure::from_response(&mut response) {
+            error!("Error executing request: {:#?}", &response);
+            Err(err)
         } else {
             Ok(response.json()?)
         }
@@ -379,7 +375,7 @@ impl Download for GraphRequest {
     fn download(&mut self) -> GraphResult<FetchClient> {
         let mut fetch_client = FetchClient::new(
             self.url.as_str(),
-            self.download_directory(),
+            self.download_request.directory.to_path_buf(),
             self.token.as_str(),
         );
 
@@ -389,26 +385,14 @@ impl Download for GraphRequest {
             fetch_client.set_redirect(builder);
         }
 
-        if let Some(file_name) = self.file_name().as_ref() {
+        if let Some(file_name) = self.download_request.file_name.as_ref() {
             fetch_client.rename(file_name.to_os_string());
         }
 
-        if let Some(ext) = self.extension().as_ref() {
+        if let Some(ext) = self.download_request.extension.as_ref() {
             fetch_client.set_extension(ext);
         }
 
         Ok(fetch_client)
-    }
-
-    fn download_directory(&self) -> PathBuf {
-        self.download_request.directory.clone()
-    }
-
-    fn file_name(&self) -> Option<OsString> {
-        self.download_request.file_name.clone()
-    }
-
-    fn extension(&self) -> Option<String> {
-        self.download_request.extension.clone()
     }
 }

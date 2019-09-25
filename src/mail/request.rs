@@ -18,19 +18,9 @@ fn message_vec_extend(other: Vec<FormatOrd>) -> Vec<FormatOrd> {
     v
 }
 
-pub struct MailRequest<'a, I> {
-    client: &'a Graph,
-    ident: PhantomData<I>,
-}
+client_struct!(MailRequest);
 
 impl<'a, I> MailRequest<'a, I> {
-    pub fn new(client: &'a Graph) -> MailRequest<'a, I> {
-        MailRequest {
-            client,
-            ident: PhantomData,
-        }
-    }
-
     pub fn messages(&'a self) -> MessageRequest<'a, I> {
         MessageRequest::new(self.client)
     }
@@ -40,19 +30,9 @@ impl<'a, I> MailRequest<'a, I> {
     }
 }
 
-pub struct MessageRequest<'a, I> {
-    client: &'a Graph,
-    ident: PhantomData<I>,
-}
+client_struct!(MessageRequest);
 
 impl<'a, I> MessageRequest<'a, I> {
-    pub fn new(client: &'a Graph) -> MessageRequest<'a, I> {
-        MessageRequest {
-            client,
-            ident: PhantomData,
-        }
-    }
-
     get!(list, Collection<Message>, message_vec(), true);
     get!(get, Message, message_vec(), false);
     delete!(delete, GraphResponse<()>, message_vec(), false);
@@ -172,19 +152,9 @@ fn ord_fn_last(last: String) -> Box<dyn Fn(String) -> Vec<FormatOrd>> {
     })
 }
 
-pub struct MailFolderRequest<'a, I> {
-    client: &'a Graph,
-    ident: PhantomData<I>,
-}
+client_struct!(MailFolderRequest);
 
 impl<'a, I> MailFolderRequest<'a, I> {
-    pub fn new(client: &'a Graph) -> MailFolderRequest<'a, I> {
-        MailFolderRequest {
-            client,
-            ident: PhantomData,
-        }
-    }
-
     request_method_fn!(
         list,
         Collection<Message>,
