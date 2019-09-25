@@ -133,11 +133,6 @@ impl UrlOrdVec {
         self
     }
 
-    pub fn remove_ref(&mut self, ord: &UrlOrdering) -> &mut Self {
-        self.ord.retain(|s| s.cmp(ord) != Ordering::Equal);
-        self
-    }
-
     pub fn clear(&mut self) -> &mut Self {
         self.ord.clear();
         self

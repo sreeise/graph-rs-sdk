@@ -9,9 +9,6 @@ use std::path::PathBuf;
 
 pub trait Download {
     fn download(&mut self) -> GraphResult<FetchClient>;
-    fn download_directory(&self) -> PathBuf;
-    fn file_name(&self) -> Option<OsString>;
-    fn extension(&self) -> Option<String>;
 }
 
 /// The FetchBuilder provides an abstraction for downloading files.

@@ -39,19 +39,9 @@ fn ord_vec_last_items(last: &str) -> Vec<FormatOrd> {
     ]
 }
 
-pub struct DriveRequest<'a, I> {
-    client: &'a Graph,
-    ident: PhantomData<I>,
-}
+client_struct!(DriveRequest);
 
 impl<'a, I> DriveRequest<'a, I> {
-    pub fn new(client: &'a Graph) -> DriveRequest<'a, I> {
-        DriveRequest {
-            client,
-            ident: PhantomData,
-        }
-    }
-
     fn update_ord(&self) {
         self.client
             .request()
@@ -79,17 +69,11 @@ impl<'a, I> DriveRequest<'a, I> {
         vec![FormatOrd::InsertNe(
             UrlOrdering::RootOrItem("drive".into()),
             Ident::Drives
-        )],
-        true
+        )]
     );
     get!(root, DriveItem, ord_vec_last("root"), true);
     get!(recent, Collection<DriveItem>, ord_vec_last("recent"), true);
-    get!(
-        delta,
-        Collection<DriveItem>,
-        ord_vec_last("root/delta"),
-        true
-    );
+    get!(delta, Collection<DriveItem>, ord_vec_last("root/delta"));
     get!(
         list_children,
         DriveItem,
@@ -114,8 +98,7 @@ impl<'a, I> DriveRequest<'a, I> {
         vec![
             FormatOrd::InsertNe(UrlOrdering::RootOrItem("drive".into()), Ident::Drives),
             FormatOrd::Insert(UrlOrdering::Last("activities".into()))
-        ],
-        true
+        ]
     );
     get!(
         thumbnails,
@@ -126,74 +109,62 @@ impl<'a, I> DriveRequest<'a, I> {
     get!(
         root_children,
         Collection<DriveItem>,
-        ord_vec_last("root/children"),
-        true
+        ord_vec_last("root/children")
     );
     get!(
         shared_with_me,
         Collection<DriveItem>,
-        ord_vec_last("sharedWithMe"),
-        true
+        ord_vec_last("sharedWithMe")
     );
     get!(
         special_documents,
         Collection<DriveItem>,
-        ord_vec_last("special/documents"),
-        true
+        ord_vec_last("special/documents")
     );
     get!(
         special_documents_children,
         Collection<DriveItem>,
-        ord_vec_last("special/documents/children"),
-        true
+        ord_vec_last("special/documents/children")
     );
     get!(
         special_photos,
         Collection<DriveItem>,
-        ord_vec_last("special/photos"),
-        true
+        ord_vec_last("special/photos")
     );
     get!(
         special_photos_children,
         Collection<DriveItem>,
-        ord_vec_last("special/photos/children"),
-        true
+        ord_vec_last("special/photos/children")
     );
     get!(
         special_camera_roll,
         Collection<DriveItem>,
-        ord_vec_last("special/cameraroll"),
-        true
+        ord_vec_last("special/cameraroll")
     );
     get!(
         special_camera_roll_children,
         Collection<DriveItem>,
-        ord_vec_last("special/cameraroll/children"),
-        true
+        ord_vec_last("special/cameraroll/children")
     );
     get!(
         special_app_root,
         Collection<DriveItem>,
-        ord_vec_last("special/approot"),
-        true
+        ord_vec_last("special/approot")
     );
     get!(
         special_app_root_children,
         Collection<DriveItem>,
-        ord_vec_last("special/approot/children"),
-        true
+        ord_vec_last("special/approot/children")
     );
     get!(
         special_music,
         Collection<DriveItem>,
-        ord_vec_last("special/music"),
-        true
+        ord_vec_last("special/music")
     );
     get!(
         special_music_children,
         Collection<DriveItem>,
-        ord_vec_last("special/music/children"),
-        true
+        ord_vec_last("special/music/children")
     );
 
     pub fn create_folder(
