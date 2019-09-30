@@ -8,7 +8,7 @@ use std::convert::TryFrom;
 // Deleting an item can be done in 2 different ways shown in the methods below.
 fn main() {
     delete_id("DRIVE_ITEM_ID");
-    delete_path("PATH_FROM_ROOT");
+    delete_path(":/PATH_FROM_ROOT:");
 }
 
 // Delte a drive item by id.
@@ -18,14 +18,7 @@ fn delete_id(item_id: &str) {
     let drive = Graph::try_from(&oauth).unwrap();
 
     // Send the request.
-    let mut response: GraphResponse<()> = drive
-        .v1()
-        .me()
-        .drive()
-        .delete()
-        .by_id(item_id)
-        .send()
-        .unwrap();
+    let mut response: GraphResponse<()> = drive.v1().me().drive().delete(item_id).send().unwrap();
 
     println!("{:#?}", response);
     println!("\nItem was deleted: {:#?}", response.success());
@@ -38,14 +31,7 @@ pub fn delete_path(path: &str) {
     let drive = Graph::try_from(&oauth).unwrap();
 
     // Send the request.
-    let mut response: GraphResponse<()> = drive
-        .v1()
-        .me()
-        .drive()
-        .delete()
-        .by_path(path)
-        .send()
-        .unwrap();
+    let mut response: GraphResponse<()> = drive.v1().me().drive().delete(path).send().unwrap();
 
     println!("{:#?}", response);
     println!("\nItem was deleted: {:#?}", response.success());

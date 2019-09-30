@@ -1,5 +1,4 @@
 use graph_rs::prelude::*;
-use graph_rs::types::embeddableurl::EmbeddableUrl;
 
 // You can get preview URLs for an item. Provide optional
 // properties with an EmbeddableUrl.
@@ -18,8 +17,10 @@ fn main() {
     get_preview("<ACCESS_TOKEN>", "<ITEM_ID>");
 
     // Or add optional properties to the request.
-    let mut embeddable_url = EmbeddableUrl::default();
-    embeddable_url.set_allow_edit(Some(true));
+    let embeddable_url = serde_json::json!({
+        // Properties
+        "allow_edit": true
+    });
     get_preview_with_properties("<ACCESS_TOKEN>", "<ITEM_ID>", embeddable_url);
 }
 
@@ -30,22 +31,24 @@ fn get_preview(access_token: &str, item_id: &str) {
         .beta()
         .me()
         .drive()
-        .preview::<()>(None)
-        .by_id(item_id)
+        .preview::<&str, ()>(item_id, None)
         .send()
         .unwrap();
     println!("{:#?}", preview);
 }
 
-fn get_preview_with_properties(access_token: &str, item_id: &str, embeddable_url: EmbeddableUrl) {
+fn get_preview_with_properties(
+    access_token: &str,
+    item_id: &str,
+    embeddable_url: serde_json::Value,
+) {
     let drive = Graph::new(access_token);
 
     let preview = drive
         .beta()
         .me()
         .drive()
-        .preview(Some(&embeddable_url))
-        .by_id(item_id)
+        .preview(item_id, Some(&embeddable_url))
         .send()
         .unwrap();
     println!("{:#?}", preview);

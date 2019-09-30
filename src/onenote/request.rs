@@ -1,27 +1,18 @@
 use crate::client::Graph;
-use crate::http::{GraphResponse, ResponseClient};
+use crate::http::{GraphResponse, IntoResponse};
 use crate::types::collection::Collection;
-use crate::url::{FormatOrd, UrlOrdering};
-use graph_rs_types::entitytypes::Notebook;
-use graph_rs_types::entitytypes::OnenotePage;
-use graph_rs_types::entitytypes::OnenoteSection;
-use graph_rs_types::entitytypes::SectionGroup;
+use graph_rs_types::entitytypes::{Notebook, OnenotePage, OnenoteSection, SectionGroup};
+use handlebars::*;
 use reqwest::Method;
 use std::marker::PhantomData;
 
-fn ord_extend(mut url_ord: Vec<FormatOrd>) -> Vec<FormatOrd> {
-    url_ord.push(FormatOrd::Insert(UrlOrdering::ItemPath("onenote".into())));
-    url_ord
-}
-
-fn id_ord(root: &str, last: &str) -> Vec<FormatOrd> {
-    ord_extend(vec![
-        FormatOrd::Insert(UrlOrdering::RootOrItem(root.into())),
-        FormatOrd::Insert(UrlOrdering::Last(last.into())),
-    ])
-}
-
-client_struct!(OneNoteRequest);
+register_client!(
+    OneNoteRequest,
+    notebook => "onenote/notebooks",
+    section => "onenote/sections",
+    section_group => "onenote/sectionGroups",
+    pages => "onenote/pages",
+);
 
 impl<'a, I> OneNoteRequest<'a, I> {
     pub fn note_books(&self) -> OneNoteNoteBookRequest<'a, I> {
@@ -41,179 +32,61 @@ impl<'a, I> OneNoteRequest<'a, I> {
     }
 }
 
-client_struct!(OneNoteNoteBookRequest);
+register_client!(OneNoteNoteBookRequest,);
 
 impl<'a, I> OneNoteNoteBookRequest<'a, I> {
-    get!(
-        list,
-        Collection<Notebook>,
-        ord_extend(vec![FormatOrd::Insert(UrlOrdering::RootOrItem(
-            "notebooks".into()
-        ))])
-    );
-    get!(
-        list_sections,
-        Collection<OnenoteSection>,
-        id_ord("notebooks", "sections"),
-        false
-    );
-    get!(
-        get,
-        Notebook,
-        ord_extend(vec![FormatOrd::Insert(UrlOrdering::RootOrItem(
-            "notebooks".into()
-        ))]),
-        false
-    );
-    post!(
-        create,
-        Notebook,
-        ord_extend(vec![FormatOrd::Insert(UrlOrdering::RootOrItem(
-            "notebooks".into()
-        ))]),
-        true,
-        ()
-    );
-    post!(
-        create_section,
-        OnenoteSection,
-        id_ord("notebooks", "sections"),
-        false,
-        ()
-    );
-    post!(
-        copy,
-        Notebook,
-        id_ord("notebooks", "copyNotebook"),
-        false,
-        ()
-    );
+    get!( list, Collection<Notebook> => "{{notebook}}" );
+    get!( | list_sections, Collection<OnenoteSection> => "{{notebook}}/{{id}}/sections" );
+    get!( | get, Notebook => "{{notebook}}/{{id}}" );
+    post!( [ create, Notebook => "{{notebook}}" ]);
+    post!( [ | copy, OnenoteSection => "{{notebook}}/{{id}}/copyNotebook" ] );
+    post!( [ | create_section, OnenoteSection => "{{notebook}}/{{id}}/sections" ] );
 
     pub fn recent_note_books(
         &self,
         include_personal_notebooks: bool,
-    ) -> ResponseClient<'a, I, Notebook> {
+    ) -> IntoResponse<'a, I, Notebook> {
+        let s = format!(
+            "onenote/notebooks/getRecentNotebooks(includePersonalNotebooks={})",
+            include_personal_notebooks
+        );
+        let mut vec: Vec<&str> = s.split('/').collect();
+        vec.retain(|s| !s.is_empty());
         self.client
             .request()
-            .insert(UrlOrdering::Last(format!(
-                "onenote/notebooks/getRecentNotebooks(includePersonalNotebooks={})",
-                include_personal_notebooks
-            )))
             .set_method(Method::GET)
-            .format_ord();
-        ResponseClient::new(self.client)
+            .as_mut()
+            .extend_path(&vec);
+        IntoResponse::new(self.client)
     }
 }
 
-client_struct!(OneNoteSectionRequest);
+register_client!(OneNoteSectionRequest,);
 
 impl<'a, I> OneNoteSectionRequest<'a, I> {
-    get!(
-        list,
-        Collection<OnenoteSection>,
-        ord_extend(vec![FormatOrd::Insert(UrlOrdering::Last(
-            "sections".into()
-        ))])
-    );
-    get!(
-        list_pages,
-        Collection<OnenotePage>,
-        id_ord("sections", "pages"),
-        false
-    );
-    get!(
-        get,
-        OnenoteSection,
-        ord_extend(vec![FormatOrd::Insert(UrlOrdering::RootOrItem(
-            "sections".into()
-        ))]),
-        false
-    );
-    post!(
-        copy_to_notebook,
-        GraphResponse<()>,
-        id_ord("sections", "copyToNotebook"),
-        false,
-        ()
-    );
-    post!(
-        copy_to_section_group,
-        GraphResponse<()>,
-        id_ord("sections", "copyToSectionGroup"),
-        false,
-        ()
-    );
+    get!( list, Collection<OnenoteSection> => "{{section}}" );
+    get!( | list_pages, Collection<OnenotePage> => "{{section}}/{{id}}/pages" );
+    get!( | get, OnenoteSection => "{{section}}/{{id}}" );
+    post!( [ | copy_to_notebook, GraphResponse<()> => "{{section}}/{{id}}/copyToNotebook" ] );
+    post!( [ | copy_to_section_group, GraphResponse<()> => "{{section}}/{{id}}/copyToSectionGroup" ] );
 }
 
-client_struct!(OneNoteSectionGroupRequest);
+register_client!(OneNoteSectionGroupRequest,);
 
 impl<'a, I> OneNoteSectionGroupRequest<'a, I> {
-    get!(
-        list,
-        Collection<SectionGroup>,
-        id_ord("sectionGroups", "sectionGroups"),
-        false
-    );
-    get!(
-        list_sections,
-        Collection<OnenoteSection>,
-        id_ord("sectionGroups", "sections"),
-        false
-    );
-    get!(
-        get,
-        SectionGroup,
-        ord_extend(vec![FormatOrd::Insert(UrlOrdering::RootOrItem(
-            "sectionGroups".into()
-        ))]),
-        false
-    );
-    post!(
-        create,
-        SectionGroup,
-        id_ord("sectionGroups", "sectionGroups"),
-        false,
-        ()
-    );
-    post!(
-        create_section,
-        OnenoteSection,
-        id_ord("sectionGroups", "sections"),
-        false,
-        ()
-    );
+    get!( list, Collection<SectionGroup> => "{{section_group}}" );
+    get!( | list_sections, Collection<OnenoteSection> => "{{section_group}}/{{id}}/sections" );
+    get!( | get, SectionGroup => "{{section_group}}/{{id}}" );
+    post!( [ | create, SectionGroup => "{{section_group}}/{{id}}/sectionGroups" ] );
+    post!( [ | create_section, SectionGroup => "{{section_group}}/{{id}}/sections" ] );
 }
 
-client_struct!(OneNotePageRequest);
+register_client!(OneNotePageRequest,);
 
 impl<'a, I> OneNotePageRequest<'a, I> {
-    get!(
-        list,
-        Collection<OnenotePage>,
-        ord_extend(vec![FormatOrd::Insert(UrlOrdering::Last("pages".into()))])
-    );
-    get!(
-        get,
-        OnenotePage,
-        ord_extend(vec![FormatOrd::Insert(UrlOrdering::RootOrItem(
-            "pages".into()
-        ))]),
-        false
-    );
-    patch!(update, OnenotePage, id_ord("pages", "content"), false, ());
-    post!(
-        copy_to_section,
-        GraphResponse<()>,
-        id_ord("pages", "copyToSection"),
-        false,
-        ()
-    );
-    delete!(
-        delete,
-        GraphResponse<()>,
-        ord_extend(vec![FormatOrd::Insert(UrlOrdering::RootOrItem(
-            "pages".into()
-        ))]),
-        false
-    );
+    get!( list, Collection<OnenotePage> => "{{pages}}" );
+    get!( | get, OnenotePage => "{{pages}}/{{id}}" );
+    patch!( [ | update, OnenotePage => "{{pages}}/{{id}}/content" ] );
+    post!( [ | copy_to_section, GraphResponse<()> => "{{pages}}/{{id}}/copyToSection" ] );
+    delete!( | delete, GraphResponse<()> => "{{pages}}/{{id}}" );
 }

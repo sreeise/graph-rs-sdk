@@ -14,7 +14,7 @@ static PATH_TO_FILE: &str = "path/to/file/file.ext";
 // The path where you wan to place the file in OneDrive
 // including the file name. For the root folder just
 // put the file name here.
-static PATH_IN_ONE_DRIVE: &str = "Documents/file.ext";
+static PATH_IN_ONE_DRIVE: &str = ":/Documents/file.ext:";
 
 // The conflict behavior can be one of: fail, rename, or replace.
 static CONFLICT_BEHAVIOR: &str = "rename";
@@ -33,8 +33,7 @@ fn upload_session_new() {
         .v1()
         .me()
         .drive()
-        .upload_session(PATH_TO_FILE, upload)
-        .by_path(PATH_IN_ONE_DRIVE)
+        .upload_session(PATH_IN_ONE_DRIVE, PATH_TO_FILE, upload)
         .send();
 
     if let Ok(mut session) = session {

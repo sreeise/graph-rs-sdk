@@ -11,6 +11,7 @@ fn main() {
     download();
     download_and_format("pdf");
     download_and_rename("FILE_NAME");
+    download_by_path(":/Documents/item.txt:")
 }
 
 pub fn download() {
@@ -23,8 +24,7 @@ pub fn download() {
         .v1()
         .me()
         .drive()
-        .download("./examples/example_files")
-        .by_id(ITEM_ID)
+        .download(ITEM_ID, "./examples/example_files")
         .unwrap();
 
     let path_buf: PathBuf = req.send().unwrap();
@@ -47,8 +47,7 @@ pub fn download_and_format(extension: &str) {
         .v1()
         .me()
         .drive()
-        .download("./examples/example_files")
-        .by_id(ITEM_ID)
+        .download(ITEM_ID, "./examples/example_files")
         .unwrap();
 
     // Select the format.
@@ -70,12 +69,30 @@ fn download_and_rename(name: &str) {
         .v1()
         .me()
         .drive()
-        .download("./examples/example_files")
-        .by_id(ITEM_ID)
+        .download(ITEM_ID, "./examples/example_files")
         .unwrap();
 
     // Rename the file
     req.rename(OsString::from(name));
+
+    // Send the request and download the file.
+    let path_buf: PathBuf = req.send().unwrap();
+
+    println!("{:#?}", path_buf.metadata());
+}
+
+// The path should always start with :/ and end with :
+// such as :/Documents/item.txt:
+fn download_by_path(path: &str) {
+    let client = Graph::new("");
+
+    // Create the download request.
+    let mut req = client
+        .v1()
+        .me()
+        .drive()
+        .download(path, "./examples/example_files")
+        .unwrap();
 
     // Send the request and download the file.
     let path_buf: PathBuf = req.send().unwrap();

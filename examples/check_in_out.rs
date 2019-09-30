@@ -22,8 +22,7 @@ fn check_out_item() {
         .v1()
         .me()
         .drive()
-        .check_out()
-        .by_id(ITEM_ID)
+        .check_out(ITEM_ID)
         .send()
         .unwrap();
 
@@ -47,8 +46,7 @@ fn check_in_item() {
         .v1()
         .me()
         .drive()
-        .check_in(check_in_as, comment)
-        .by_id(ITEM_ID)
+        .check_in(ITEM_ID, check_in_as, comment)
         .send()
         .unwrap();
 

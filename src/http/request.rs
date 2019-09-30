@@ -1,7 +1,8 @@
 use crate::client::Ident;
 use crate::http::{Download, FetchClient, GraphResponse};
-use crate::url::{FormatOrd, GraphUrl, UrlOrdVec, UrlOrdering};
+use crate::url::GraphUrl;
 use graph_error::{GraphFailure, GraphResult};
+use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{Method, RedirectPolicy, RequestBuilder};
 use std::ffi::OsString;
@@ -49,10 +50,11 @@ pub struct GraphRequest {
     pub body: Option<reqwest::Body>,
     pub upload_session_file: Option<PathBuf>,
     pub download_request: DownloadRequest,
-    ord: UrlOrdVec,
+    pub graph_version: String,
     headers: HeaderMap<HeaderValue>,
     token: String,
     ident: Ident,
+    registry: Handlebars,
     client: reqwest::Client,
 }
 
@@ -115,33 +117,13 @@ impl GraphRequest {
         self
     }
 
-    pub(crate) fn set_ident(&mut self, ident: Ident) -> &mut Self {
+    pub fn set_ident(&mut self, ident: Ident) -> &mut Self {
         self.ident = ident;
         self
     }
 
     pub fn ident(&self) -> Ident {
         self.ident
-    }
-
-    pub(crate) fn insert(&mut self, ord: UrlOrdering) -> &mut Self {
-        self.ord.insert(ord);
-        self
-    }
-
-    pub(crate) fn replace(&mut self, ord: UrlOrdering) -> &mut Self {
-        self.ord.replace(ord);
-        self
-    }
-
-    pub(crate) fn remove(&mut self, ord: UrlOrdering) -> &mut Self {
-        self.ord.remove(ord);
-        self
-    }
-
-    pub(crate) fn clear(&mut self) -> &mut Self {
-        self.ord.clear();
-        self
     }
 
     pub fn set_direct_download(&mut self, value: bool, url: &str) -> &mut Self {
@@ -154,81 +136,11 @@ impl GraphRequest {
         self.download_request.file_name = Some(name);
     }
 
-    pub fn sort_ord(&mut self) -> &mut Self {
-        self.ord.sort();
-        self
+    pub fn registry(&mut self) -> &mut Handlebars {
+        &mut self.registry
     }
 
-    pub fn format_ord(&mut self) -> &mut Self {
-        self.ord.sort();
-        for url_ord in self.ord.ord.iter() {
-            match url_ord {
-                UrlOrdering::Ident(ident) => {
-                    self.url.extend_path(&[ident]);
-                },
-                UrlOrdering::ResourceId(id) => {
-                    self.url.extend_path(&[id.as_str()]);
-                },
-                UrlOrdering::ItemPath(s) => {
-                    let mut v: Vec<&str> = s.split('/').collect();
-                    v.retain(|s| !s.is_empty());
-                    self.url.extend_path(&v);
-                },
-                UrlOrdering::Id(id) => {
-                    self.url.extend_path(&[id.as_str()]);
-                },
-                UrlOrdering::Path(p) => {
-                    self.url.format_path(p.as_path());
-                },
-                UrlOrdering::Last(s) => {
-                    let mut v: Vec<&str> = s.split('/').collect();
-                    v.retain(|s| !s.is_empty());
-                    self.url.extend_path(&v);
-                },
-                UrlOrdering::RootOrItem(s) => {
-                    self.url.extend_path(&[s.as_str()]);
-                },
-                UrlOrdering::FileName(s) => {
-                    self.url.extend_path(&[s.as_str()]);
-                },
-            }
-        }
-        self.ord.clear();
-        self
-    }
-
-    pub fn extend_ord_from(&mut self, mut ord: Vec<FormatOrd>) -> &mut Self {
-        while let Some(ord) = ord.pop() {
-            self.insert_ord(ord);
-        }
-        self
-    }
-
-    pub fn insert_ord(&mut self, ord: FormatOrd) {
-        match ord {
-            FormatOrd::Insert(ord) => {
-                self.insert(ord);
-            },
-            FormatOrd::Remove(ord) => {
-                self.remove(ord);
-            },
-            FormatOrd::Replace(ord) => {
-                self.replace(ord);
-            },
-            FormatOrd::InsertEq(ord, ident) => {
-                if self.ident.eq(&ident) {
-                    self.insert(ord);
-                }
-            },
-            FormatOrd::InsertNe(ord, ident) => {
-                if self.ident.ne(&ident) {
-                    self.insert(ord);
-                }
-            },
-        };
-    }
-
-    pub(crate) fn redirect(&mut self) -> GraphResult<RequestBuilder> {
+    pub fn redirect(&mut self) -> GraphResult<RequestBuilder> {
         let client = reqwest::Client::builder()
             .redirect(RedirectPolicy::custom(|attempt| {
                 // There should be only 1 redirect to download a drive item.
@@ -262,7 +174,7 @@ impl GraphRequest {
         }
     }
 
-    pub(crate) fn builder(&mut self) -> RequestBuilder {
+    pub fn builder(&mut self) -> RequestBuilder {
         let method = self.method().clone();
         let url = self.url().to_string();
         let mut headers = self.headers().clone();
@@ -285,7 +197,7 @@ impl GraphRequest {
         }
     }
 
-    pub(crate) fn response(&mut self) -> GraphResult<reqwest::Response> {
+    pub fn response(&mut self) -> GraphResult<reqwest::Response> {
         let builder: RequestBuilder = self.builder();
         let mut response = builder.send()?;
         if let Some(err) = GraphFailure::from_response(&mut response) {
@@ -295,7 +207,7 @@ impl GraphRequest {
         Ok(response)
     }
 
-    pub(crate) fn graph_response<T>(&mut self) -> GraphResult<GraphResponse<T>>
+    pub fn graph_response<T>(&mut self) -> GraphResult<GraphResponse<T>>
     where
         for<'de> T: serde::Deserialize<'de>,
     {
@@ -347,8 +259,9 @@ impl From<GraphUrl> for GraphRequest {
             upload_session_file: Default::default(),
             token: Default::default(),
             download_request: Default::default(),
-            ord: Default::default(),
+            graph_version: "v1.0".into(),
             ident: Default::default(),
+            registry: Handlebars::new(),
             client: reqwest::Client::new(),
         }
     }
@@ -364,8 +277,9 @@ impl From<Url> for GraphRequest {
             upload_session_file: Default::default(),
             token: Default::default(),
             download_request: Default::default(),
-            ord: Default::default(),
+            graph_version: "v1.0".into(),
             ident: Default::default(),
+            registry: Handlebars::new(),
             client: reqwest::Client::new(),
         }
     }

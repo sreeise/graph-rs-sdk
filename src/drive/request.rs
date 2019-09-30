@@ -1,14 +1,14 @@
 use crate::client::*;
-use crate::drive::IntoDownloadClient;
+use crate::http::IntoResponse;
+use crate::http::{Download, GraphResponse};
 use crate::http::{FetchClient, UploadSessionClient};
-use crate::http::{GraphResponse, ResponseClient};
 use crate::types::collection::Collection;
-use crate::url::FormatOrd;
-use crate::url::UrlOrdering;
-use graph_error::GraphFailure;
-use graph_error::GraphResult;
+use graph_error::{GraphFailure, GraphResult};
 use graph_rs_types::complextypes::{ItemPreviewInfo, Thumbnail};
-use graph_rs_types::entitytypes::{BaseItem, DriveItem, ItemActivity, ThumbnailSet};
+use graph_rs_types::entitytypes::{
+    BaseItem, DriveItem, DriveItemVersion, ItemActivity, ThumbnailSet,
+};
+use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use reqwest::Method;
 use serde::export::PhantomData;
@@ -17,161 +17,164 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
-fn drive_ord_vec() -> Vec<FormatOrd> {
-    vec![
-        FormatOrd::Insert(UrlOrdering::RootOrItem("items".into())),
-        FormatOrd::InsertNe(UrlOrdering::ItemPath("drive".into()), Ident::Drives),
-    ]
+fn template(s: &str, last: &str) -> String {
+    if s.starts_with(':') {
+        vec!["{{drive_root_path}}{{id}}/", last].join("")
+    } else {
+        vec!["{{drive_item}}/{{id}}/", last].join("")
+    }
 }
 
-fn ord_vec_last(last: &str) -> Vec<FormatOrd> {
-    vec![
-        FormatOrd::InsertNe(UrlOrdering::RootOrItem("drive".into()), Ident::Drives),
-        FormatOrd::Insert(UrlOrdering::Last(last.into())),
-    ]
+fn encode(s: &str) -> String {
+    if s.starts_with(':') {
+        url::percent_encoding::percent_encode(
+            s.as_bytes(),
+            url::percent_encoding::DEFAULT_ENCODE_SET,
+        )
+        .collect::<String>()
+    } else {
+        s.to_string()
+    }
 }
 
-fn ord_vec_last_items(last: &str) -> Vec<FormatOrd> {
-    vec![
-        FormatOrd::Insert(UrlOrdering::RootOrItem("items".into())),
-        FormatOrd::InsertNe(UrlOrdering::ItemPath("drive".into()), Ident::Drives),
-        FormatOrd::Insert(UrlOrdering::Last(last.into())),
-    ]
+pub struct DriveRequest<'a, I> {
+    client: &'a Graph,
+    ident: PhantomData<I>,
 }
-
-client_struct!(DriveRequest);
 
 impl<'a, I> DriveRequest<'a, I> {
-    fn update_ord(&self) {
-        self.client
-            .request()
-            .insert(UrlOrdering::RootOrItem("items".into()));
-        if self.client.ident().ne(&Ident::Drives) {
-            self.client
-                .request()
-                .insert(UrlOrdering::ItemPath("drive".into()));
+    pub fn new(client: &'a Graph) -> DriveRequest<'a, I> {
+        let ident = client.ident();
+        client.request().registry().register_helper(
+            "drive_item",
+            Box::new(
+                move |_: &Helper,
+                      _: &Handlebars,
+                      _: &Context,
+                      _: &mut RenderContext,
+                      out: &mut dyn Output|
+                      -> HelperResult {
+                    match ident {
+                        Ident::Drives => {
+                            out.write("items")?;
+                        },
+                        _ => {
+                            out.write("drive/items")?;
+                        },
+                    }
+                    Ok(())
+                },
+            ),
+        );
+
+        client.request().registry().register_helper(
+            "drive_root",
+            Box::new(
+                move |_: &Helper,
+                      _: &Handlebars,
+                      _: &Context,
+                      _: &mut RenderContext,
+                      out: &mut dyn Output|
+                      -> HelperResult {
+                    if ident.ne(&Ident::Drives) {
+                        out.write("drive")?;
+                    }
+                    Ok(())
+                },
+            ),
+        );
+
+        client.request().registry().register_helper(
+            "drive_root_path",
+            Box::new(
+                move |_: &Helper,
+                      _: &Handlebars,
+                      _: &Context,
+                      _: &mut RenderContext,
+                      out: &mut dyn Output|
+                      -> HelperResult {
+                    if ident.ne(&Ident::Drives) {
+                        out.write("drive/root")?;
+                    } else {
+                        out.write("root")?;
+                    }
+                    Ok(())
+                },
+            ),
+        );
+
+        DriveRequest {
+            client,
+            ident: PhantomData,
         }
     }
-
-    fn update_ord_with(&self, url_ord: UrlOrdering) {
-        self.update_ord();
-        self.client.request().insert(url_ord);
-    }
 }
 
 impl<'a, I> DriveRequest<'a, I> {
-    get!(get_item, DriveItem, drive_ord_vec(), false);
-    patch!(update, DriveItem, drive_ord_vec(), true, ());
-    delete!(delete, GraphResponse<()>, drive_ord_vec(), false);
-    get!(
-        drive,
-        BaseItem,
-        vec![FormatOrd::InsertNe(
-            UrlOrdering::RootOrItem("drive".into()),
-            Ident::Drives
-        )]
-    );
-    get!(root, DriveItem, ord_vec_last("root"), true);
-    get!(recent, Collection<DriveItem>, ord_vec_last("recent"), true);
-    get!(delta, Collection<DriveItem>, ord_vec_last("root/delta"));
-    get!(
-        list_children,
-        DriveItem,
-        ord_vec_last_items("children"),
-        false
-    );
-    get!(
-        list_versions,
-        Collection<DriveItem>,
-        ord_vec_last_items("versions"),
-        false
-    );
-    get!(
-        item_activity,
-        Collection<ItemActivity>,
-        ord_vec_last_items("activities"),
-        false
-    );
-    get!(
-        drive_activity,
-        Collection<ItemActivity>,
-        vec![
-            FormatOrd::InsertNe(UrlOrdering::RootOrItem("drive".into()), Ident::Drives),
-            FormatOrd::Insert(UrlOrdering::Last("activities".into()))
-        ]
-    );
-    get!(
-        thumbnails,
-        Collection<ThumbnailSet>,
-        ord_vec_last_items("thumbnails"),
-        false
-    );
-    get!(
-        root_children,
-        Collection<DriveItem>,
-        ord_vec_last("root/children")
-    );
-    get!(
-        shared_with_me,
-        Collection<DriveItem>,
-        ord_vec_last("sharedWithMe")
-    );
-    get!(
-        special_documents,
-        Collection<DriveItem>,
-        ord_vec_last("special/documents")
-    );
-    get!(
-        special_documents_children,
-        Collection<DriveItem>,
-        ord_vec_last("special/documents/children")
-    );
-    get!(
-        special_photos,
-        Collection<DriveItem>,
-        ord_vec_last("special/photos")
-    );
-    get!(
-        special_photos_children,
-        Collection<DriveItem>,
-        ord_vec_last("special/photos/children")
-    );
-    get!(
-        special_camera_roll,
-        Collection<DriveItem>,
-        ord_vec_last("special/cameraroll")
-    );
-    get!(
-        special_camera_roll_children,
-        Collection<DriveItem>,
-        ord_vec_last("special/cameraroll/children")
-    );
-    get!(
-        special_app_root,
-        Collection<DriveItem>,
-        ord_vec_last("special/approot")
-    );
-    get!(
-        special_app_root_children,
-        Collection<DriveItem>,
-        ord_vec_last("special/approot/children")
-    );
-    get!(
-        special_music,
-        Collection<DriveItem>,
-        ord_vec_last("special/music")
-    );
-    get!(
-        special_music_children,
-        Collection<DriveItem>,
-        ord_vec_last("special/music/children")
-    );
+    get!( drive, BaseItem => "{{drive_root}}" );
+    get!( root, DriveItem => "{{drive_root}}/root" );
+    get!( recent, Collection<DriveItem> => "{{drive_root}}/recent" );
+    get!( delta, Collection<DriveItem> => "{{drive_root}}/root/delta" );
+    get!( root_children, Collection<DriveItem> => "{{drive_root}}/root/children" );
+    get!( | list_children, Collection<DriveItem> => "{{drive_item}}/{{id}}/children" );
+    get!( | item_activity, Collection<ItemActivity> => "{{drive_item}}/{{id}}/activities" );
+    get!( drive_activity, Collection<ItemActivity> => "{{drive_root}}/activities" );
+    get!( thumbnails, Collection<ThumbnailSet> => "{{drive_item}}/thumbnails" );
+    get!( shared_with_me, Collection<DriveItem> => "{{drive_root}}/sharedWithMe" );
+    get!( special_documents, Collection<DriveItem> => "{{drive_root}}/special/documents" );
+    get!( special_documents_children, Collection<DriveItem> => "{{drive_root}}/special/documents/children" );
+    get!( special_photos, Collection<DriveItem> => "{{drive_root}}/special/photos" );
+    get!( special_photos_children, Collection<DriveItem> => "{{drive_root}}/special/photos/children" );
+    get!( special_camera_roll, Collection<DriveItem> => "{{drive_root}}/special/cameraroll" );
+    get!( special_camera_roll_children, Collection<DriveItem> => "{{drive_root}}/special/cameraroll/children" );
+    get!( special_app_root, Collection<DriveItem> => "{{drive_root}}/special/approot" );
+    get!( special_app_root_children, Collection<DriveItem> => "{{drive_root}}/special/approot/children" );
+    get!( special_music, Collection<DriveItem> => "{{drive_root}}/special/music" );
+    get!( special_music_children, Collection<DriveItem> => "{{drive_root}}/special/music/children" );
 
-    pub fn create_folder(
+    pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, DriveItem> {
+        self.client.request().set_method(Method::GET);
+        render_path!(
+            self.client,
+            template(id.as_ref(), "").as_str(),
+            &json!({ "id": encode(id.as_ref()) })
+        );
+        IntoResponse::new(self.client)
+    }
+
+    pub fn update<S: AsRef<str>, B: serde::Serialize>(
         &'a self,
+        id: S,
+        body: &B,
+    ) -> IntoResponse<'a, I, DriveItem> {
+        self.client
+            .request()
+            .set_method(Method::PATCH)
+            .set_body(serde_json::to_string(body).unwrap());
+        render_path!(
+            self.client,
+            template(id.as_ref(), "").as_str(),
+            &json!({"id": encode(id.as_ref()) })
+        );
+        IntoResponse::new(self.client)
+    }
+
+    pub fn delete<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<()>> {
+        self.client.request().set_method(Method::DELETE);
+        render_path!(
+            self.client,
+            template(id.as_ref(), "").as_str(),
+            &json!({"id": encode(id.as_ref()) })
+        );
+        IntoResponse::new(self.client)
+    }
+
+    pub fn create_folder<S: AsRef<str>>(
+        &'a self,
+        id: S,
         name: &str,
         conflict_behavior: Option<&str>,
-    ) -> ResponseClient<'a, I, DriveItem> {
+    ) -> IntoResponse<'a, I, DriveItem> {
         let folder: HashMap<String, serde_json::Value> = HashMap::new();
         if let Some(c) = conflict_behavior {
             let data =
@@ -187,15 +190,20 @@ impl<'a, I> DriveRequest<'a, I> {
                 .set_method(Method::POST)
                 .set_body(serde_json::to_string(&data).unwrap());
         }
-        self.update_ord_with(UrlOrdering::Last("children".into()));
-        ResponseClient::new(self.client)
+        render_path!(
+            self.client,
+            template(id.as_ref(), "children").as_str(),
+            &json!({"id": encode(id.as_ref()) })
+        );
+        IntoResponse::new(self.client)
     }
 
-    pub fn copy<T: serde::Serialize>(
+    pub fn copy<S: AsRef<str>, T: serde::Serialize>(
         &'a self,
+        id: S,
         name: Option<&str>,
         item_ref: &T,
-    ) -> ResponseClient<'a, I, GraphResponse<()>> {
+    ) -> IntoResponse<'a, I, GraphResponse<()>> {
         if let Some(name) = name {
             let data = json!({ "name": name, "parent_reference": item_ref });
             self.client
@@ -209,133 +217,201 @@ impl<'a, I> DriveRequest<'a, I> {
                 .set_method(Method::POST)
                 .set_body(serde_json::to_string(&data).unwrap());
         }
-        ResponseClient::new(self.client)
+        render_path!(
+            self.client,
+            template(id.as_ref(), "copy").as_str(),
+            &json!({"id": encode(id.as_ref()) })
+        );
+        IntoResponse::new(self.client)
     }
 
-    pub fn single_thumbnail(
+    pub fn list_versions<S: AsRef<str>>(
+        &self,
+        id: S,
+    ) -> IntoResponse<'a, I, Collection<DriveItemVersion>> {
+        render_path!(
+            self.client,
+            template(id.as_ref(), "versions").as_str(),
+            &json!({ "id": encode(id.as_ref()) })
+        );
+        IntoResponse::new(self.client)
+    }
+
+    pub fn single_thumbnail<S: AsRef<str>>(
         &'a self,
+        id: S,
         thumb_id: &str,
         size: &str,
-    ) -> ResponseClient<'a, I, Thumbnail> {
-        self.update_ord_with(UrlOrdering::Last(format!(
-            "{}/{}/{}",
-            "thumbnails", thumb_id, size
-        )));
-        self.client.request().set_method(Method::GET);
-        ResponseClient::new(self.client)
+    ) -> IntoResponse<'a, I, Thumbnail> {
+        render_path!(
+            self.client,
+            template(id.as_ref(), "thumbnails/{{thumb_id}}/{{size}}").as_str(),
+            &json!({
+               "id": encode(id.as_ref()),
+               "thumb_id": thumb_id,
+               "size": size
+            })
+        );
+        IntoResponse::new(self.client)
     }
 
-    pub fn thumbnail_binary(
+    pub fn thumbnail_binary<S: AsRef<str>>(
         &'a self,
+        id: S,
         thumb_id: &str,
         size: &str,
-    ) -> ResponseClient<'a, I, Vec<u8>> {
-        self.update_ord_with(UrlOrdering::Last(format!(
-            "{}/{}/{}/{}",
-            "thumbnails", thumb_id, size, "content"
-        )));
-        self.client.request().set_method(Method::GET);
-        ResponseClient::new(self.client)
+    ) -> IntoResponse<'a, I, Vec<u8>> {
+        render_path!(
+            self.client,
+            template(id.as_ref(), "thumbnails/{{thumb_id}}/{{size}}/content").as_str(),
+            &json!({
+               "id": encode(id.as_ref()),
+               "thumb_id": thumb_id,
+               "size": size
+            })
+        );
+        IntoResponse::new(self.client)
     }
 
-    pub fn upload_replace<P: AsRef<Path>>(&'a self, file: P) -> ResponseClient<'a, I, DriveItem> {
-        self.update_ord();
+    pub fn upload_replace<ID: AsRef<str>, P: AsRef<Path>>(
+        &'a self,
+        id: ID,
+        file: P,
+    ) -> GraphResult<IntoResponse<'a, I, DriveItem>> {
         self.client
             .request()
             .set_method(Method::PUT)
-            .insert(UrlOrdering::Last("content".into()))
-            .set_body(File::open(file).unwrap());
-        ResponseClient::new(self.client)
+            .set_body(File::open(file)?);
+        render_path!(
+            self.client,
+            template(id.as_ref(), "content").as_str(),
+            &json!({"id": encode(id.as_ref()) })
+        );
+        Ok(IntoResponse::new(self.client))
     }
 
-    pub fn upload_new<P: AsRef<Path>>(
+    pub fn upload_new<ID: AsRef<str>, P: AsRef<Path>>(
         &'a self,
+        parent_id: ID,
         file: P,
-    ) -> GraphResult<ResponseClient<'a, I, DriveItem>> {
+    ) -> GraphResult<IntoResponse<'a, I, DriveItem>> {
         let name = file
             .as_ref()
             .file_name()
             .ok_or_else(|| GraphFailure::none_err("file_name"))?
             .to_string_lossy()
             .to_string();
-        self.update_ord();
         self.client
             .request()
             .set_method(Method::PUT)
-            .set_body(File::open(file).unwrap())
-            .insert(UrlOrdering::FileName(name))
-            .insert(UrlOrdering::Last("content".to_string()));
-        Ok(ResponseClient::new(self.client))
+            .set_body(File::open(file)?);
+        render_path!(
+            self.client,
+            "{{drive_item}}/{{id}}/{{file_name}}/content",
+            &json!({
+                "id": parent_id.as_ref(),
+                "file_name": name,
+            })
+        );
+        Ok(IntoResponse::new(self.client))
     }
 
-    pub fn restore_version(&'a self, version_id: &str) -> ResponseClient<'a, I, GraphResponse<()>> {
-        self.update_ord_with(UrlOrdering::Last(format!(
-            "{}/{}/{}",
-            "versions", version_id, "restoreVersion",
-        )));
-        ResponseClient::new(self.client)
-    }
-
-    pub fn upload_session<P: AsRef<Path>, T: serde::Serialize>(
+    pub fn restore_version<S: AsRef<str>>(
         &'a self,
+        id: S,
+        version_id: S,
+    ) -> IntoResponse<'a, I, GraphResponse<()>> {
+        render_path!(
+            self.client,
+            template(id.as_ref(), "versions/{{version_id}}/restoreVersion").as_str(),
+            &json!({
+                "id": encode(id.as_ref()),
+                "version_id": version_id.as_ref(),
+            })
+        );
+        IntoResponse::new(self.client)
+    }
+
+    pub fn upload_session<S: AsRef<str>, P: AsRef<Path>, B: serde::Serialize>(
+        &'a self,
+        id: S,
         file: P,
-        body: T,
-    ) -> ResponseClient<'a, I, UploadSessionClient> {
+        body: B,
+    ) -> IntoResponse<'a, I, UploadSessionClient> {
         self.client
             .request()
             .set_method(Method::POST)
             .set_upload_session(file)
-            .insert(UrlOrdering::Last("createUploadSession".into()))
             .set_body(serde_json::to_string(&json!({ "item": body })).unwrap());
-        self.update_ord();
-        ResponseClient::new(self.client)
+        render_path!(
+            self.client,
+            template(id.as_ref(), "createUploadSession").as_str(),
+            &json!({ "id": encode(id.as_ref()) })
+        );
+        IntoResponse::new(self.client)
     }
 
-    pub fn preview<T: serde::Serialize>(
+    pub fn preview<S: AsRef<str>, B: serde::Serialize>(
         &'a self,
-        embeddable_url: Option<&T>,
-    ) -> ResponseClient<'a, I, ItemPreviewInfo> {
+        id: S,
+        embeddable_url: Option<&B>,
+    ) -> IntoResponse<'a, I, ItemPreviewInfo> {
         if let Some(embeddable_url) = embeddable_url {
             self.client
                 .request()
+                .set_method(Method::POST)
                 .set_body(serde_json::to_string(embeddable_url).unwrap());
         } else {
             self.client
                 .request()
+                .set_method(Method::POST)
                 .header(CONTENT_LENGTH, HeaderValue::from(0));
         }
-        self.update_ord_with(UrlOrdering::Last("preview".into()));
-        ResponseClient::new(self.client)
+        render_path!(
+            self.client,
+            template(id.as_ref(), "preview").as_str(),
+            &json!({ "id": encode(id.as_ref()) })
+        );
+        IntoResponse::new(self.client)
     }
 
-    pub fn download<P: AsRef<Path>>(
+    pub fn download<S: AsRef<str>, P: AsRef<Path>>(
         &'a self,
+        id: S,
         directory: P,
-    ) -> IntoDownloadClient<'a, I, FetchClient> {
-        self.update_ord_with(UrlOrdering::Last("content".into()));
+    ) -> GraphResult<FetchClient> {
+        render_path!(
+            self.client,
+            template(id.as_ref(), "content").as_str(),
+            &json!({ "id": encode(id.as_ref()) })
+        );
         self.client
             .request()
+            .set_method(Method::GET)
             .download_request
             .set_directory(PathBuf::from(directory.as_ref()));
-        IntoDownloadClient::new(self.client)
+        self.client.request().download()
     }
 
-    pub fn check_out(&'a self) -> ResponseClient<'a, I, GraphResponse<()>> {
-        self.update_ord();
+    pub fn check_out<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<()>> {
+        render_path!(
+            self.client,
+            template(id.as_ref(), "checkout").as_str(),
+            &json!({ "id": encode(id.as_ref()) })
+        );
         self.client
             .request()
             .set_method(Method::POST)
-            .insert(UrlOrdering::Last("checkout".into()))
             .header(CONTENT_LENGTH, HeaderValue::from(0));
-        ResponseClient::new(self.client)
+        IntoResponse::new(self.client)
     }
 
-    pub fn check_in(
+    pub fn check_in<S: AsRef<str>>(
         &'a self,
+        id: S,
         check_in_as: Option<&str>,
         comment: Option<&str>,
-    ) -> ResponseClient<'a, I, GraphResponse<()>> {
-        self.update_ord();
+    ) -> IntoResponse<'a, I, GraphResponse<()>> {
         if let Some(check_in_as) = check_in_as {
             if let Some(comment) = comment {
                 self.client.request().set_body(
@@ -358,10 +434,12 @@ impl<'a, I> DriveRequest<'a, I> {
                 .request()
                 .header(CONTENT_LENGTH, HeaderValue::from(0));
         }
-        self.client
-            .request()
-            .insert(UrlOrdering::Last("checkin".into()))
-            .set_method(Method::POST);
-        ResponseClient::new(self.client)
+        render_path!(
+            self.client,
+            template(id.as_ref(), "checkin").as_str(),
+            &json!({ "id": encode(id.as_ref()) })
+        );
+        self.client.request().set_method(Method::POST);
+        IntoResponse::new(self.client)
     }
 }

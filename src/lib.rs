@@ -1,29 +1,21 @@
-//! Rust-OneDrive is an API for Microsoft OneDrive V1.0 and Graph Beta.
+//! graph-rs is an API client for Microsoft Graph and Graph Beta.
 //! Callers can utilize the oauth module to authenticate users
 //! and receive an access token. This access token can then be used
 //! in the drive module to make OneDrive resource requests.
 //!
-//! The Drive struct is the main OneDrive impl and provides the v1()
-//! and v2() methods used for selecting the specific API endpoint
-//! to use for the next request. The v1() method uses the stable Onedrive
-//! V1.0 API while the v2() method can be used for making requests using the
-//! graph beta API endpoint.
-//!
 //! # Example
 //! ```rust,ignore
-//! use graph_rs::drive::client::Graph;
-//! use graph_rs::drive::drive_item::collection::Collection;
-//! use graph_rs_types::entitytypes::DriveItem;
+//! use graph_rs::prelude::*;
 //!
 //! let graph = Graph::new("ACCESS_TOKEN");
 //! // To use the V1.0 endpoint:
 //! let mut req = graph.v1().me().drive().root_children();
-//! let collection: Collection<DriveItem> = req.send().unwrap();
+//! let drive_item_collection = req.send().unwrap();
 //! pirntln!("{:#?}", collection);
 //!
 //! // Use the Graph beta endpoint.
 //! let mut req = graph.beta().me().drive().recent();
-//! let collection: Collection<DriveItem> = req.send().unwrap();
+//! let  drive_item_collection = req.send().unwrap();
 //! pirntln!("{:#?}", collection);
 //! ```
 //!
@@ -87,7 +79,7 @@
 //! ```rust,ignore
 //! let mut graph = Graph::try_from(oauth).unwrap();
 //! let req = graph.v1().me().drive().recent();
-//! let drive_item: Collection<DriveItem> = req.send().unwrap();
+//! let drive_item = req.send().unwrap();
 //! println!("{:#?}", drive_item);
 //! ```
 //!
@@ -95,25 +87,24 @@
 //! users.
 //! # Example
 //! ```rust,ignore
-//! use graph_rs::client::Graph;
+//! use graph_rs::prelude::*;
 //!
-//! let graph = Graph::new("TOKEN");
+//! let client = Graph::new("TOKEN");
 //!
-//! let mut req = graph.v1()
+//! let drive_item = client.v1()
 //!                 .me()
 //!                 .drive()
-//!                 .get_item()
-//!                 .by_id("ITEM_ID");
-//! let drive_item = req.send()?;
+//!                 .get_item("ITEM_ID")
+//!                 .send()?;
 //! println!("{:#?}", drive_item);
 //!
-//! // Or get the item by path
-//! let mut req = drive.v1()
+//! // Or get the item by path.
+//! // Always start paths with :/ and end with :
+//! let drive_item = drive.v1()
 //!                 .me()
 //!                 .drive()
-//!                 .get_item()
-//!                 .by_path("Documents/file.txt");
-//! let drive_item = req.send()?;
+//!                 .get_item(":/Documents/file.txt:")
+//!                 .send()?;
 //! println!("{:#?}", drive_item);
 //! ```
 
@@ -127,14 +118,18 @@ extern crate strum_macros;
 extern crate log;
 extern crate pretty_env_logger;
 extern crate reqwest;
-#[macro_use]
 pub extern crate serde_derive;
 pub extern crate serde;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 #[macro_use]
+pub extern crate url_serde;
+#[macro_use]
 extern crate getset;
+extern crate handlebars;
 
+// mod client needs to stay on type
+// for macro use.
 #[macro_use]
 pub mod client;
 pub mod calendar;
@@ -145,7 +140,6 @@ pub mod mail;
 pub mod onenote;
 pub mod types;
 pub mod url;
-pub mod users;
 
 pub static GRAPH_URL: &str = "https://graph.microsoft.com/v1.0";
 pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";

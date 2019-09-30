@@ -1,6 +1,4 @@
 use graph_rs::prelude::*;
-use graph_rs_types::complextypes::PasswordProfile;
-use graph_rs_types::entitytypes::User;
 
 // For more info on users see: https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0
 
@@ -13,6 +11,8 @@ use graph_rs_types::entitytypes::User;
 
 // Delegate (Personal microsoft accounts) are not supported in the Graph API.
 
+static USER_ID: &str = "USER_ID";
+
 fn main() {
     list_users();
     get_user();
@@ -24,16 +24,14 @@ fn main() {
 fn list_users() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let collection: GraphResponse<Collection<User>> = client.v1().user().list().send().unwrap();
+    let collection = client.v1().users(USER_ID).list().send().unwrap();
     println!("{:#?}", collection.value());
 }
-
-static USER_ID: &str = "USER_ID";
 
 fn get_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let user: GraphResponse<User> = client.v1().user().get().by_id(USER_ID).send().unwrap();
+    let user = client.v1().users(USER_ID).get().send().unwrap();
 
     println!("{:#?}", user.value());
 }
@@ -41,23 +39,26 @@ fn get_user() {
 fn create_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    // Create the users password profile.
-    let mut password_profile: PasswordProfile = PasswordProfile::default();
-    password_profile.force_change_password_next_sign_in = Some(false);
-    password_profile.force_change_password_next_sign_in_with_mfa = Some(false);
-    password_profile.password = Some("PASSWORD".into());
+    // Create a password profile. Change the password below
+    // to one that meets the Microsoft password requirements.
+    let password_profile = serde_json::json!({
+        "force_change_password_next_sign_in": false,
+        "force_change_password_next_sign_in_with_mfa": false,
+        "password": "PASSWORD",
+    });
 
     // Create a user. The fields below are the minimum required values.
-    let mut user: User = User::default();
-    user.account_enabled = Some(true);
-    user.display_name = Some("FirstName LastName".into());
-    user.mail_nickname = Some("user".into());
-    user.password_profile = Some(password_profile);
-    user.user_principal_name = Some("user@domain.com".into());
+    let user = serde_json::json!({
+        "account_enabled": true,
+        "display_name": "FirstName LastName",
+        "mail_nickname": "user",
+        "password_profile": password_profile,
+        "user_principal_name": "user@domain.com"
+    });
 
-    let user: GraphResponse<User> = client.v1().user().create(&user).send().unwrap();
+    let user: serde_json::Value = client.v1().users("").create(&user).json().unwrap();
 
-    println!("{:#?}", user.value());
+    println!("{:#?}", user);
 }
 
 // Create a default user and update only the properties that
@@ -66,16 +67,11 @@ fn create_user() {
 fn update_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let mut user: User = User::default();
-    user.business_phones = Some(vec!["888-888-8888".to_string()]);
+    let user = serde_json::json!({
+        "business_phones": ["888-888-8888"]
+    });
 
-    let response = client
-        .v1()
-        .user()
-        .update(&user)
-        .by_id(USER_ID)
-        .send()
-        .unwrap();
+    let response = client.v1().users(USER_ID).update(&user).send().unwrap();
 
     println!("{:#?}", response);
 }
@@ -83,7 +79,7 @@ fn update_user() {
 fn delete_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let response = client.v1().user().delete().by_id(USER_ID).send().unwrap();
+    let response = client.v1().users(USER_ID).delete().send().unwrap();
 
     println!("{:#?}", response);
 }

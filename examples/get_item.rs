@@ -9,14 +9,8 @@ fn main() {
 
 fn get_drive_item(item_id: &str) {
     let graph = Graph::new("ACCESS_TOKEN");
-    let drive_item: GraphResponse<DriveItem> = graph
-        .v1()
-        .me()
-        .drive()
-        .get_item()
-        .by_id(item_id)
-        .send()
-        .unwrap();
+    let drive_item: GraphResponse<DriveItem> =
+        graph.v1().me().drive().get_item(item_id).send().unwrap();
     println!("{:#?}", drive_item);
 }
 
@@ -29,8 +23,7 @@ fn get_sites_drive_item(item_id: &str, sites_id: &str) {
         .v1()
         .sites(sites_id)
         .drive()
-        .get_item()
-        .by_id(item_id)
+        .get_item(item_id)
         .send()
         .unwrap();
     println!("{:#?}", drive_item);

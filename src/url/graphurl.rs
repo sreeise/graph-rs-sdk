@@ -2,10 +2,8 @@ use graph_error::GraphFailure;
 use std::ffi::OsStr;
 use std::iter::Iterator;
 use std::ops::{Deref, Index, Range, RangeFrom, RangeFull, RangeTo};
-use std::path::Path;
 use std::str::FromStr;
 use url::form_urlencoded::Serializer;
-use url::percent_encoding::{percent_encode, DEFAULT_ENCODE_SET};
 use url::{PathSegmentsMut, Position, Url, UrlQuery};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -90,47 +88,6 @@ impl GraphUrl {
     pub fn replace(&mut self, input: &str) -> Result<(), GraphFailure> {
         self.url = Url::parse(input)?;
         Ok(())
-    }
-
-    /// Format a path in the URL. If the given path is not
-    /// valid UTF-8 then this will perform a lossy conversion.
-    pub fn format_path<P: AsRef<Path>>(&mut self, path: P) {
-        if path.as_ref().eq(Path::new("")) {
-            if !self.ends_with(":") {
-                let path = self.url.path().to_owned();
-                self.set_path(format!("{}:", path).as_str());
-            }
-            return;
-        }
-
-        if !self.ends_with(":") {
-            let path = self.url.path().to_owned();
-            self.set_path(format!("{}:", path).as_str());
-        }
-
-        if let Ok(mut p) = self.url.path_segments_mut() {
-            let path: &Path = path.as_ref();
-            if !path.ends_with(":") {
-                if let Some(b) = path.to_str() {
-                    p.extend(percent_encode(
-                        format!("{}:", b).as_bytes(),
-                        DEFAULT_ENCODE_SET,
-                    ));
-                } else {
-                    let os_str = path.as_os_str();
-                    let mut os_string = os_str.to_os_string();
-                    os_string.push(":");
-                    p.extend(&[os_string.to_string_lossy()]);
-                }
-            } else if let Some(s) = path.to_str() {
-                p.extend(percent_encode(s.as_bytes(), DEFAULT_ENCODE_SET));
-            } else {
-                let os_str = path.as_os_str();
-                let mut os_string = os_str.to_os_string();
-                os_string.push(":");
-                p.extend(&[os_string.to_string_lossy()]);
-            }
-        }
     }
 
     pub fn count(&mut self, value: &str) {

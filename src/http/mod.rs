@@ -3,7 +3,7 @@ mod download;
 mod graphresponse;
 mod iotools;
 mod request;
-mod responseclient;
+mod intoresponse;
 mod uploadsession;
 
 pub use byterange::*;
@@ -11,5 +11,5 @@ pub use download::*;
 pub use graphresponse::*;
 pub use iotools::*;
 pub use request::*;
-pub use responseclient::*;
+pub use intoresponse::*;
 pub use uploadsession::*;
