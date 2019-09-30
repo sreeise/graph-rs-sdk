@@ -1,20 +1,21 @@
 use crate::client::*;
-use crate::http::ResponseClient;
-use crate::url::UrlOrdering;
+use crate::http::{GraphResponse, IntoResponse};
 use graph_rs_types::entitytypes::ItemActivity;
+use graph_rs_types::entitytypes::List;
 use reqwest::Method;
 use std::marker::PhantomData;
 
-client_struct!(ListRequest);
+register_client!(ListRequest,);
 
 impl<'a, I> ListRequest<'a, I> {
-    pub fn item_activity(&self, list_id: &str) -> ResponseClient<'a, I, ItemActivity> {
-        self.client
-            .request()
-            .insert(UrlOrdering::ItemPath("lists".into()))
-            .insert(UrlOrdering::Last(format!("{}/activities", list_id)))
-            .set_method(Method::GET)
-            .format_ord();
-        ResponseClient::new(self.client)
-    }
+    get!( | get, List => "lists/{{id}}" );
+    get!( | activity, ItemActivity => "lists/{{id}}/activities" );
+    get!(
+        || item_activity,
+        ItemActivity =>
+        "lists/{{id}}/activities/{{id2}}"
+    );
+    post!( [ create_item, ItemActivity => "lists/{{id}}/items" ] );
+    delete!( [ delete_item, GraphResponse<()> => "lists/{{id}}/items" ] );
+    patch!( [ || update_item, GraphResponse<()> => "lists/{{id}}/items/{{id2}}/fields" ] );
 }

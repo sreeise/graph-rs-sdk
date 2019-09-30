@@ -55,8 +55,7 @@ fn bench_get_item(client: Graph, s: String) {
         .v1()
         .me()
         .drive()
-        .get_item()
-        .by_id("b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI");
+        .get_item("b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI");
     client.url_mut(|url| {
         assert_eq!(url.to_string(), s);
     })

@@ -86,7 +86,7 @@ impl FetchClient {
         // The filename* indicates that the filename is encoded
         if let Some(value) = v.iter().find(|s| s.starts_with("filename*=utf-8''")) {
             let s = value.replace("filename*=utf-8''", "");
-            if let Ok(s) = url::percent_encoding::percent_decode(s.as_bytes()).decode_utf8() {
+            if let Ok(s) = percent_encoding::percent_decode(s.as_bytes()).decode_utf8() {
                 return Some(OsString::from(s.to_string()));
             }
         }

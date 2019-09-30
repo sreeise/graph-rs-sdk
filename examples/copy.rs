@@ -34,8 +34,7 @@ fn copy_item() {
         .v1()
         .me()
         .drive()
-        .copy(Some(DRIVE_FILE_COPY_NAME), &item_ref)
-        .by_id(item_id.as_str())
+        .copy(item_id.as_str(), Some(DRIVE_FILE_COPY_NAME), &item_ref)
         .send()
         .unwrap();
 

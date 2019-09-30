@@ -21,8 +21,7 @@ fn create_new_folder() {
         .v1()
         .me()
         .drive()
-        .create_folder(FOLDER_NAME, None)
-        .by_id(PARENT_ID)
+        .create_folder(PARENT_ID, FOLDER_NAME, None)
         .send()
         .unwrap();
     println!("{:#?}", drive_item);

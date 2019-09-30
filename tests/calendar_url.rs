@@ -14,25 +14,39 @@ fn list_calendars() {
 #[test]
 fn get_calendars() {
     let client = Graph::new("");
-    client.v1().me().calendar().get();
+    client.v1().me().calendar().get_default();
     assert_url_eq(&client, "/me/calendar");
 
-    client.v1().users("32p99453").calendar().get();
-    assert_url_eq(&client, "/users/32p99453/calendar")
+    client.v1().users("32p99453").calendar().get_default();
+    assert_url_eq(&client, "/users/32p99453/calendar");
+
+    let client = Graph::new("");
+    client.v1().me().calendar().get("2442");
+    assert_url_eq(&client, "/me/calendars/2442");
+
+    client.v1().users("32p99453").calendar().get("2442");
+    assert_url_eq(&client, "/users/32p99453/calendars/2442");
 }
 
 #[test]
 fn update_calendars() {
     let client = Graph::new("");
-    client.v1().me().calendar().update(&String::new());
-    assert_url_eq(&client, "/me/calendars");
+    client.v1().me().calendar().update_default(&String::new());
+    assert_url_eq(&client, "/me/calendar");
 
     client
         .v1()
         .users("32p99453")
         .calendar()
-        .update(&String::new());
-    assert_url_eq(&client, "/users/32p99453/calendars")
+        .update_default(&String::new());
+    assert_url_eq(&client, "/users/32p99453/calendar");
+
+    client
+        .v1()
+        .users("32p99453")
+        .calendar()
+        .update("2442", &String::new());
+    assert_url_eq(&client, "/users/32p99453/calendars/2442");
 }
 
 #[test]
@@ -52,14 +66,13 @@ fn create_calendars() {
 #[test]
 fn delete_calendars() {
     let client = Graph::new("");
-    client.v1().me().calendar().delete().by_id("1234");
+    client.v1().me().calendar().delete("1234");
     assert_url_eq(&client, "/me/calendars/1234");
 
     client
         .v1()
         .sites("32p99453")
         .calendar()
-        .create(&String::new())
-        .by_id("1234");
+        .delete("1234");
     assert_url_eq(&client, "/sites/32p99453/calendars/1234")
 }
