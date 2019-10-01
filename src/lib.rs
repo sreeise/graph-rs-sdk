@@ -118,8 +118,8 @@ extern crate strum_macros;
 extern crate log;
 extern crate pretty_env_logger;
 extern crate reqwest;
-pub extern crate serde_derive;
 pub extern crate serde;
+pub extern crate serde_derive;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 #[macro_use]

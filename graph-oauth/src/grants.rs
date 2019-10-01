@@ -18,6 +18,8 @@ pub enum GrantType {
     AuthorizationCode,
     Implicit,
     OpenId,
+    ClientCredentials,
+    ResourceOwnerPasswordCredentials,
 }
 
 impl GrantType {
@@ -134,6 +136,35 @@ impl GrantType {
                     OAuthCredential::RefreshToken,
                     OAuthCredential::GrantType,
                     OAuthCredential::Scopes,
+                ],
+            },
+            GrantType::ClientCredentials => match grant_request {
+                GrantRequest::Authorization => vec![
+                    OAuthCredential::ClientId,
+                    OAuthCredential::RedirectURI,
+                    OAuthCredential::State,
+                ],
+                GrantRequest::AccessToken | GrantRequest::RefreshToken => vec![
+                    OAuthCredential::ClientId,
+                    OAuthCredential::ClientSecret,
+                    OAuthCredential::GrantType,
+                    OAuthCredential::Scopes,
+                    OAuthCredential::ClientAssertion,
+                    OAuthCredential::ClientAssertionType,
+                ],
+            },
+            GrantType::ResourceOwnerPasswordCredentials => match grant_request {
+                GrantRequest::Authorization |
+                GrantRequest::AccessToken |
+                GrantRequest::RefreshToken => vec![
+                    OAuthCredential::ClientId,
+                    OAuthCredential::ClientSecret,
+                    OAuthCredential::GrantType,
+                    OAuthCredential::Username,
+                    OAuthCredential::Password,
+                    OAuthCredential::Scopes,
+                    OAuthCredential::RedirectURI,
+                    OAuthCredential::ClientAssertion,
                 ],
             },
         }

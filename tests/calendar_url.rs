@@ -69,10 +69,6 @@ fn delete_calendars() {
     client.v1().me().calendar().delete("1234");
     assert_url_eq(&client, "/me/calendars/1234");
 
-    client
-        .v1()
-        .sites("32p99453")
-        .calendar()
-        .delete("1234");
+    client.v1().sites("32p99453").calendar().delete("1234");
     assert_url_eq(&client, "/sites/32p99453/calendars/1234")
 }

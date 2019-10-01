@@ -1,25 +1,27 @@
 # graph-oauth
 
-OAuth2 for rust-onedrive.
+OAuth2 for graph-rs.
 
-### Stable and Unstable Features
+### Authorization Flows and Microsoft Graph
 
-The v1.0 OneDrive REST API token and code flows for Microsoft Graph and Microsoft Accounts
-are stable and will not undergo any major changes.
+    1. Token Flow - v1.0
+    2. Code Flow - v1.0
+    3. Authorization Code Grant - v1.0 and beta
+    4. Open ID - v1.0 and beta
+    5. Implicit - v1.0 and beta
+    6. Client Credentials - v1.0 and beta
+    7. Resource Owner Password Credentials - v1.0 and beta
 
-To use these two authorization flows:
+Using authorization flows:
     
-    let oauth = OAuth::token_flow();
-    // and
-    let oauth = OAuth::code_flow();
+    let mut oauth = OAuth::new();
+    oauth.authorization_url("https://login.micorosoft.com/oauth2.authorize");
+    // Add scopes and token urls if needed.
+    
+    let mut request = oauth.build().authorization_code_grant();
+    let access_token = request.access_token().send().unwrap();
 
-For more information on the token and code flows see:
+For a better understanding see the examples directory.
 
-https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online
-
-
-https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online
-
-All other authorization flows are considered unstable and may undergo substantial changes.
-These include the open id, client credentials, and authorization code grants for the v2.0
-Microsoft identity platform.
+For more information on Microsoft graph and OAuth 2.0 authorization flows see:
+https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-app-types

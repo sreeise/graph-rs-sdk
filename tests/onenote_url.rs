@@ -360,7 +360,12 @@ fn get_page() {
 #[test]
 fn update_page() {
     let client = Graph::new("");
-    client.v1().me().one_note().pages().update(ID, &String::new());
+    client
+        .v1()
+        .me()
+        .one_note()
+        .pages()
+        .update(ID, &String::new());
     assert_url_eq(&client, format!("/me/onenote/pages/{}/content", ID));
 
     client

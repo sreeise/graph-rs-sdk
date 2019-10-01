@@ -17,7 +17,13 @@ pub fn list_messages() {
 #[test]
 pub fn list_mail_folder_messages() {
     let client = Graph::new("");
-    let _ = client.v1().me().mail().mail_folder().messages().list("32p99453");
+    let _ = client
+        .v1()
+        .me()
+        .mail()
+        .mail_folder()
+        .messages()
+        .list("32p99453");
     assert_url_eq(&client, "/me/mailFolders/32p99453/messages");
 
     let _ = client
@@ -45,12 +51,7 @@ pub fn get_messages() {
     let _ = client.v1().me().mail().messages().get("1234");
     assert_url_eq(&client, "/me/messages/1234");
 
-    let _ = client
-        .v1()
-        .sites("32p99453")
-        .mail()
-        .messages()
-        .get("1234");
+    let _ = client.v1().sites("32p99453").mail().messages().get("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234");
 }
 
@@ -108,13 +109,14 @@ pub fn update_messages() {
 #[test]
 pub fn update_mail_folder_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail()
-        .mail_folder()
-        .messages()
-        .update("99453", "1234", &String::new());
+    let _ =
+        client
+            .v1()
+            .me()
+            .mail()
+            .mail_folder()
+            .messages()
+            .update("99453", "1234", &String::new());
     assert_url_eq(&client, "/me/mailFolders/99453/messages/1234");
 
     let _ = client
@@ -145,12 +147,7 @@ pub fn create_messages() {
 #[test]
 pub fn create_mail_folder() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail()
-        .mail_folder()
-        .create(&String::new());
+    let _ = client.v1().me().mail().mail_folder().create(&String::new());
     assert_url_eq(&client, "/me/mailFolders");
 
     let _ = client
@@ -202,7 +199,12 @@ pub fn delete_mail_folder_messages() {
 #[test]
 pub fn copy_messages() {
     let client = Graph::new("");
-    let _ = client.v1().me().mail().messages().copy("1234", &String::new());
+    let _ = client
+        .v1()
+        .me()
+        .mail()
+        .messages()
+        .copy("1234", &String::new());
     assert_url_eq(&client, "/me/messages/1234/copy");
 
     let _ = client
@@ -287,12 +289,7 @@ pub fn move_mail_folder_messages() {
 #[test]
 pub fn create_reply_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail()
-        .messages()
-        .create_reply("1234");
+    let _ = client.v1().me().mail().messages().create_reply("1234");
     assert_url_eq(&client, "/me/messages/1234/createReply");
 
     let _ = client
@@ -332,12 +329,7 @@ pub fn create_reply_mail_folder_messages() {
 #[test]
 pub fn create_reply_all_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail()
-        .messages()
-        .create_reply_all("1234");
+    let _ = client.v1().me().mail().messages().create_reply_all("1234");
     assert_url_eq(&client, "/me/messages/1234/createReplyAll");
 
     let _ = client
@@ -380,7 +372,12 @@ pub fn create_reply_all_mail_folder_messages() {
 #[test]
 pub fn reply_messages() {
     let client = Graph::new("");
-    let _ = client.v1().me().mail().messages().reply("1234", &String::new());
+    let _ = client
+        .v1()
+        .me()
+        .mail()
+        .messages()
+        .reply("1234", &String::new());
     assert_url_eq(&client, "/me/messages/1234/reply");
 
     let _ = client
@@ -440,13 +437,14 @@ pub fn reply_all_messages() {
 #[test]
 pub fn reply_all_mail_folder_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail()
-        .mail_folder()
-        .messages()
-        .reply_all("99453","1234", &String::new());
+    let _ =
+        client
+            .v1()
+            .me()
+            .mail()
+            .mail_folder()
+            .messages()
+            .reply_all("99453", "1234", &String::new());
     assert_url_eq(&client, "/me/mailFolders/99453/messages/1234/replyAll");
 
     let _ = client
@@ -455,7 +453,7 @@ pub fn reply_all_mail_folder_messages() {
         .mail()
         .mail_folder()
         .messages()
-        .reply_all("99453","1234", &String::new());
+        .reply_all("99453", "1234", &String::new());
     assert_url_eq(
         &client,
         "/sites/32p99453/mailFolders/99453/messages/1234/replyAll",
@@ -465,12 +463,7 @@ pub fn reply_all_mail_folder_messages() {
 #[test]
 pub fn create_forward_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail()
-        .messages()
-        .create_forward("1234");
+    let _ = client.v1().me().mail().messages().create_forward("1234");
     assert_url_eq(&client, "/me/messages/1234/createForward");
 
     let _ = client
@@ -530,13 +523,14 @@ pub fn forward_messages() {
 #[test]
 pub fn forward_mail_folder_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail()
-        .mail_folder()
-        .messages()
-        .forward("99453", "1234", &String::new());
+    let _ =
+        client
+            .v1()
+            .me()
+            .mail()
+            .mail_folder()
+            .messages()
+            .forward("99453", "1234", &String::new());
     assert_url_eq(&client, "/me/mailFolders/99453/messages/1234/forward");
 
     let _ = client
@@ -592,12 +586,7 @@ pub fn send_mail_mail_folder_messages() {
 #[test]
 pub fn send_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail()
-        .messages()
-        .send_message("1234");
+    let _ = client.v1().me().mail().messages().send_message("1234");
     assert_url_eq(&client, "/me/messages/1234/send");
 
     let _ = client

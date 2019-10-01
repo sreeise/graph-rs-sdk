@@ -43,7 +43,7 @@ pub struct AccessToken {
     access_token: String,
     token_type: String,
     expires_in: i64,
-    scope: String,
+    scope: Option<String>,
     refresh_token: Option<String>,
     user_id: Option<String>,
     id_token: Option<String>,
@@ -63,7 +63,7 @@ impl AccessToken {
         AccessToken {
             token_type: token_type.into(),
             expires_in,
-            scope: scope.into(),
+            scope: Some(scope.into()),
             access_token: access_token.into(),
             refresh_token: None,
             user_id: None,
@@ -80,9 +80,9 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// access_token.token_type("Bearer");
+    /// access_token.set_token_type("Bearer");
     /// ```
-    pub fn token_type(&mut self, s: &str) -> &mut AccessToken {
+    pub fn set_token_type(&mut self, s: &str) -> &mut AccessToken {
         self.token_type = s.into();
         self
     }
@@ -94,9 +94,9 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// access_token.expires_in(3600);
+    /// access_token.set_expires_in(3600);
     /// ```
-    pub fn expires_in(&mut self, expires_in: i64) -> &mut AccessToken {
+    pub fn set_expires_in(&mut self, expires_in: i64) -> &mut AccessToken {
         self.expires_in = expires_in;
         self.timestamp = Some(Utc::now() + Duration::seconds(expires_in));
         self
@@ -109,10 +109,10 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// access_token.scope("Read Read.Write");
+    /// access_token.set_scope("Read Read.Write");
     /// ```
-    pub fn scope(&mut self, s: &str) -> &mut AccessToken {
-        self.scope = s.into();
+    pub fn set_scope(&mut self, s: &str) -> &mut AccessToken {
+        self.scope = Some(s.to_string());
         self
     }
 
@@ -123,9 +123,9 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// access_token.access_token("ASODFIUJ34KJ;LADSK");
+    /// access_token.set_bearer_token("ASODFIUJ34KJ;LADSK");
     /// ```
-    pub fn access_token(&mut self, s: &str) -> &mut AccessToken {
+    pub fn set_bearer_token(&mut self, s: &str) -> &mut AccessToken {
         self.access_token = s.into();
         self
     }
@@ -137,10 +137,10 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// access_token.refresh_token(Some("#ASOD323U5342"));
+    /// access_token.set_refresh_token("#ASOD323U5342");
     /// ```
-    pub fn refresh_token(&mut self, s: Option<&str>) -> &mut AccessToken {
-        self.refresh_token = s.map(|s| s.to_string());
+    pub fn set_refresh_token(&mut self, s: &str) -> &mut AccessToken {
+        self.refresh_token = Some(s.to_string());
         self
     }
 
@@ -151,10 +151,10 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// access_token.user_id(Some("user_id"));
+    /// access_token.set_user_id("user_id");
     /// ```
-    pub fn user_id(&mut self, s: Option<&str>) -> &mut AccessToken {
-        self.user_id = s.map(|s| s.to_string());
+    pub fn set_user_id(&mut self, s: &str) -> &mut AccessToken {
+        self.user_id = Some(s.to_string());
         self
     }
 
@@ -165,10 +165,10 @@ impl AccessToken {
     /// # use graph_oauth::oauth::{AccessToken, IdToken};
     ///
     /// let mut access_token = AccessToken::default();
-    /// access_token.id_token(Some("id_token".into()));
+    /// access_token.set_id_token("id_token");
     /// ```
-    pub fn id_token(&mut self, s: Option<String>) -> &mut AccessToken {
-        self.id_token = s;
+    pub fn set_id_token(&mut self, s: &str) -> &mut AccessToken {
+        self.id_token = Some(s.to_string());
         self
     }
 
@@ -193,10 +193,10 @@ impl AccessToken {
     /// # use graph_oauth::oauth::IdToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// access_token.state(Some("state"));
+    /// access_token.set_state("state");
     /// ```
-    pub fn state(&mut self, s: Option<&str>) -> &mut AccessToken {
-        self.state = s.map(|s| s.to_string());
+    pub fn set_state(&mut self, s: &str) -> &mut AccessToken {
+        self.state = Some(s.to_string());
         self
     }
 
@@ -210,7 +210,7 @@ impl AccessToken {
     /// access_token.timestamp();
     /// // The timestamp is in UTC.
     /// ```
-    pub fn timestamp(&mut self) {
+    pub fn gen_timestamp(&mut self) {
         self.timestamp = Some(Utc::now() + Duration::seconds(self.expires_in));
     }
 
@@ -221,9 +221,9 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// println!("{:#?}", access_token.get_token_type());
+    /// println!("{:#?}", access_token.token_type());
     /// ```
-    pub fn get_token_type(&self) -> &str {
+    pub fn token_type(&self) -> &str {
         self.token_type.as_str()
     }
 
@@ -236,9 +236,9 @@ impl AccessToken {
     /// let mut access_token = AccessToken::default();
     /// // This is the original amount that was set not the difference.
     /// // To get the difference you can use access_token.elapsed().
-    /// println!("{:#?}", access_token.get_expires_in());
+    /// println!("{:#?}", access_token.expires_in());
     /// ```
-    pub fn get_expires_in(&self) -> i64 {
+    pub fn expires_in(&self) -> i64 {
         self.expires_in
     }
 
@@ -249,10 +249,10 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// println!("{:#?}", access_token.get_scopes());
+    /// println!("{:#?}", access_token.scopes());
     /// ```
-    pub fn get_scopes(&self) -> &str {
-        self.scope.as_str()
+    pub fn scopes(&self) -> Option<&String> {
+        self.scope.as_ref()
     }
 
     /// Get the access token.
@@ -262,9 +262,9 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// println!("{:#?}", access_token.get_access_token());
+    /// println!("{:#?}", access_token.bearer_token());
     /// ```
-    pub fn get_access_token(&self) -> &str {
+    pub fn bearer_token(&self) -> &str {
         self.access_token.as_str()
     }
 
@@ -275,9 +275,9 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// println!("{:#?}", access_token.get_user_id());
+    /// println!("{:#?}", access_token.user_id());
     /// ```
-    pub fn get_user_id(&self) -> Option<String> {
+    pub fn user_id(&self) -> Option<String> {
         self.user_id.clone()
     }
 
@@ -288,9 +288,9 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// println!("{:#?}", access_token.get_refresh_token());
+    /// println!("{:#?}", access_token.refresh_token());
     /// ```
-    pub fn get_refresh_token(self) -> Option<String> {
+    pub fn refresh_token(self) -> Option<String> {
         match self.refresh_token {
             Some(t) => Some(t.clone()),
             None => None,
@@ -304,9 +304,9 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// println!("{:#?}", access_token.get_id_token());
+    /// println!("{:#?}", access_token.id_token());
     /// ```
-    pub fn get_id_token(&self) -> Option<String> {
+    pub fn id_token(&self) -> Option<String> {
         self.id_token.clone()
     }
 
@@ -317,9 +317,9 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// println!("{:#?}", access_token.get_state());
+    /// println!("{:#?}", access_token.state());
     /// ```
-    pub fn get_state(&self) -> Option<String> {
+    pub fn state(&self) -> Option<String> {
         self.state.clone()
     }
 
@@ -330,12 +330,13 @@ impl AccessToken {
     /// # use graph_oauth::oauth::AccessToken;
     ///
     /// let mut access_token = AccessToken::default();
-    /// println!("{:#?}", access_token.get_timestamp());
+    /// println!("{:#?}", access_token.timestamp());
     /// ```
-    pub fn get_timestamp(&self) -> Option<DateTime<Utc>> {
+    pub fn timestamp(&self) -> Option<DateTime<Utc>> {
         self.timestamp
     }
 
+    // TODO: This should checked using the bearer token.
     /// Check whether the access token is expired. An access token is considerd
     /// expired when there is a negative difference between the timestamp set
     /// for the access token and the expires_in field.
@@ -354,6 +355,7 @@ impl AccessToken {
         true
     }
 
+    // TODO: This should checked using the bearer token.
     /// Get the time left in seconds until the access token expires.
     /// See the HumanTime crate. If you just need to know if the access token
     /// is expired then use the is_expired() message which returns a boolean
@@ -384,7 +386,7 @@ impl Default for AccessToken {
         AccessToken {
             token_type: String::new(),
             expires_in: 0,
-            scope: String::new(),
+            scope: None,
             access_token: String::new(),
             refresh_token: None,
             user_id: None,
@@ -400,7 +402,7 @@ impl TryFrom<&str> for AccessToken {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let mut access_token: AccessToken = serde_json::from_str(value)?;
-        access_token.timestamp();
+        access_token.gen_timestamp();
         Ok(access_token)
     }
 }
@@ -439,7 +441,7 @@ impl TryFrom<&mut Response> for AccessToken {
             return Err(GraphFailure::from(graph_error));
         }
         let mut access_token: AccessToken = value.json()?;
-        access_token.timestamp();
+        access_token.gen_timestamp();
         Ok(access_token)
     }
 }

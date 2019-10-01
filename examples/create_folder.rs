@@ -2,6 +2,7 @@ use from_as::*;
 use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
 use graph_rs_types::entitytypes::DriveItem;
+use std::collections::HashMap;
 use std::convert::TryFrom;
 
 static FOLDER_NAME: &str = "NEW_FOLDER_NAME";
@@ -16,12 +17,20 @@ fn main() {
 fn create_new_folder() {
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
     let drive = Graph::try_from(&oauth).unwrap();
+    let folder: HashMap<String, serde_json::Value> = HashMap::new();
 
     let drive_item: GraphResponse<DriveItem> = drive
         .v1()
         .me()
         .drive()
-        .create_folder(PARENT_ID, FOLDER_NAME, None)
+        .create_folder(
+            PARENT_ID,
+            &serde_json::json!({
+                "name": FOLDER_NAME,
+                "folder": folder,
+                "@microsoft.graph.conflictBehavior": "fail"
+            }),
+        )
         .send()
         .unwrap();
     println!("{:#?}", drive_item);

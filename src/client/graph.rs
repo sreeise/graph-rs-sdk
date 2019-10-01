@@ -154,7 +154,7 @@ impl From<String> for Graph {
 impl From<&AccessToken> for Graph {
     fn from(token: &AccessToken) -> Self {
         let mut request = GraphRequest::from(GraphUrl::from_str(GRAPH_URL).unwrap());
-        request.set_token(token.get_access_token());
+        request.set_token(token.bearer_token());
         Graph {
             request: RefCell::new(request),
             is_v1: Cell::new(true),
@@ -166,11 +166,9 @@ impl TryFrom<&OAuth> for Graph {
     type Error = GraphFailure;
 
     fn try_from(oauth: &OAuth) -> Result<Self, Self::Error> {
-        let access_token = oauth
-            .get_access_token()
-            .ok_or_else(|| GraphFailure::none_err("access_token"))?;
+        let access_token = oauth.get_access_token()?;
         let mut request = GraphRequest::from(GraphUrl::from_str(GRAPH_URL).unwrap());
-        request.set_token(access_token.get_access_token());
+        request.set_token(access_token.bearer_token());
         Ok(Graph {
             request: RefCell::new(request),
             is_v1: Cell::new(true),

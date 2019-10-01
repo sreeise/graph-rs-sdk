@@ -8,7 +8,6 @@ pub fn main() {
 
 pub fn list_thumbnails() {
     let graph = Graph::new(ACCESS_TOKEN);
-    let collection =
-        graph.v1().me().drive().thumbnails().send().unwrap();
+    let collection = graph.v1().me().drive().thumbnails().send().unwrap();
     println!("{:#?}", collection.value());
 }

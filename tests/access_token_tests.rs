@@ -11,26 +11,29 @@ use test_tools::support::cleanup::CleanUp;
 fn get_method() {
     let mut access_token = AccessToken::default();
     access_token
-        .expires_in(3600)
-        .token_type("bearer")
-        .access_token("ASODFIUJ34KJ;LADSK")
-        .scope("offline")
-        .refresh_token(Some("eyJh...9323"));
-    assert_eq!(access_token.get_expires_in(), 3600);
-    assert_eq!(access_token.get_token_type(), "bearer");
-    assert_eq!(access_token.get_access_token(), "ASODFIUJ34KJ;LADSK");
-    assert_eq!(access_token.get_scopes(), "offline");
-    assert_eq!(access_token.get_refresh_token(), Some("eyJh...9323".into()));
+        .set_expires_in(3600)
+        .set_token_type("bearer")
+        .set_bearer_token("ASODFIUJ34KJ;LADSK")
+        .set_scope("offline")
+        .set_refresh_token("eyJh...9323");
+    assert_eq!(access_token.expires_in(), 3600);
+    assert_eq!(access_token.token_type(), "bearer");
+    assert_eq!(access_token.bearer_token(), "ASODFIUJ34KJ;LADSK");
+    assert_eq!(access_token.scopes(), Some(&"offline".into()));
+    assert_eq!(
+        access_token.refresh_token(),
+        Some("eyJh...9323".to_string())
+    );
 }
 
 #[test]
 fn access_token_field_encoding() {
     // Internally this is base64.
     let mut access_token = AccessToken::default();
-    access_token.access_token("ASDFJ;34LIUASDOFI NASDOFIUY OP");
+    access_token.set_bearer_token("ASDFJ;34LIUASDOFI NASDOFIUY OP");
     assert_eq!(
         "ASDFJ;34LIUASDOFI NASDOFIUY OP",
-        access_token.get_access_token()
+        access_token.bearer_token()
     );
 }
 
@@ -53,13 +56,10 @@ fn oauth_json_file() {
 
     let mut builder = AccessToken::default();
     builder
-        .token_type("token")
-        .access_token("access_token")
-        .expires_in(3600)
-        .scope("scope")
-        .refresh_token(None)
-        .user_id(None)
-        .id_token(None);
+        .set_token_type("token")
+        .set_bearer_token("access_token")
+        .set_expires_in(3600)
+        .set_scope("scope");
 
     oauth.as_file(&file_location).unwrap();
 
@@ -91,11 +91,11 @@ fn oauth_json_file() {
 #[test]
 fn is_expired_test() {
     let mut access_token = AccessToken::default();
-    access_token.expires_in(1);
+    access_token.set_expires_in(1);
     thread::sleep(Duration::from_secs(3));
     assert_eq!(access_token.is_expired(), true);
     let mut access_token = AccessToken::default();
-    access_token.expires_in(10);
+    access_token.set_expires_in(10);
     thread::sleep(Duration::from_secs(4));
     assert_eq!(access_token.is_expired(), false);
 }

@@ -13,7 +13,6 @@ use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use reqwest::Method;
 use serde::export::PhantomData;
 use serde_json::json;
-use std::collections::HashMap;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
@@ -132,6 +131,9 @@ impl<'a, I> DriveRequest<'a, I> {
     get!( special_music, Collection<DriveItem> => "{{drive_root}}/special/music" );
     get!( special_music_children, Collection<DriveItem> => "{{drive_root}}/special/music/children" );
 
+    //     post!( [ || forward, GraphResponse<()> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/forward" ] );
+
+
     pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, DriveItem> {
         self.client.request().set_method(Method::GET);
         render_path!(
@@ -169,54 +171,37 @@ impl<'a, I> DriveRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn create_folder<S: AsRef<str>>(
+    pub fn create_folder<S: AsRef<str>, B: serde::Serialize>(
         &'a self,
         id: S,
-        name: &str,
-        conflict_behavior: Option<&str>,
+        drive_item: &B,
     ) -> IntoResponse<'a, I, DriveItem> {
-        let folder: HashMap<String, serde_json::Value> = HashMap::new();
-        if let Some(c) = conflict_behavior {
-            let data =
-                json!({ "name": name, "folder": folder,  "microsoft_graph_conflict_behavior": c });
-            self.client
-                .request()
-                .set_method(Method::POST)
-                .set_body(serde_json::to_string(&data).unwrap());
+        self.client
+            .request()
+            .set_method(Method::POST)
+            .set_body(serde_json::to_string(drive_item).unwrap());
+
+        if id.as_ref().is_empty() {
+            render_path!(self.client, "{{drive_root_path}}/children", &json!({}));
         } else {
-            let data = json!({ "name": name, "folder": folder });
-            self.client
-                .request()
-                .set_method(Method::POST)
-                .set_body(serde_json::to_string(&data).unwrap());
+            render_path!(
+                self.client,
+                template(id.as_ref(), "children").as_str(),
+                &json!({ "id": encode(id.as_ref()) })
+            );
         }
-        render_path!(
-            self.client,
-            template(id.as_ref(), "children").as_str(),
-            &json!({"id": encode(id.as_ref()) })
-        );
         IntoResponse::new(self.client)
     }
 
-    pub fn copy<S: AsRef<str>, T: serde::Serialize>(
+    pub fn copy<S: AsRef<str>, B: serde::Serialize>(
         &'a self,
         id: S,
-        name: Option<&str>,
-        item_ref: &T,
+        body: &B,
     ) -> IntoResponse<'a, I, GraphResponse<()>> {
-        if let Some(name) = name {
-            let data = json!({ "name": name, "parent_reference": item_ref });
-            self.client
-                .request()
-                .set_method(Method::POST)
-                .set_body(serde_json::to_string(&data).unwrap());
-        } else {
-            let data = json!({ "parent_reference": item_ref });
-            self.client
-                .request()
-                .set_method(Method::POST)
-                .set_body(serde_json::to_string(&data).unwrap());
-        }
+        self.client
+            .request()
+            .set_method(Method::POST)
+            .set_body(serde_json::to_string(body).unwrap());
         render_path!(
             self.client,
             template(id.as_ref(), "copy").as_str(),
@@ -354,13 +339,13 @@ impl<'a, I> DriveRequest<'a, I> {
     pub fn preview<S: AsRef<str>, B: serde::Serialize>(
         &'a self,
         id: S,
-        embeddable_url: Option<&B>,
+        body: Option<&B>,
     ) -> IntoResponse<'a, I, ItemPreviewInfo> {
-        if let Some(embeddable_url) = embeddable_url {
+        if let Some(body) = body {
             self.client
                 .request()
                 .set_method(Method::POST)
-                .set_body(serde_json::to_string(embeddable_url).unwrap());
+                .set_body(serde_json::to_string(body).unwrap());
         } else {
             self.client
                 .request()
@@ -406,34 +391,15 @@ impl<'a, I> DriveRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn check_in<S: AsRef<str>>(
+    pub fn check_in<S: AsRef<str>, B: serde::Serialize>(
         &'a self,
         id: S,
-        check_in_as: Option<&str>,
-        comment: Option<&str>,
+        body: &B,
     ) -> IntoResponse<'a, I, GraphResponse<()>> {
-        if let Some(check_in_as) = check_in_as {
-            if let Some(comment) = comment {
-                self.client.request().set_body(
-                    serde_json::to_string_pretty(
-                        &json!({ "checkInAs": check_in_as, "comment": comment }),
-                    )
-                    .unwrap(),
-                );
-            } else {
-                self.client.request().set_body(
-                    serde_json::to_string_pretty(&json!({ "checkInAs": check_in_as })).unwrap(),
-                );
-            }
-        } else if let Some(comment) = comment {
-            self.client
-                .request()
-                .set_body(serde_json::to_string_pretty(&json!({ "comment": comment })).unwrap());
-        } else {
-            self.client
-                .request()
-                .header(CONTENT_LENGTH, HeaderValue::from(0));
-        }
+        self.client
+            .request()
+            .set_method(Method::POST)
+            .set_body(serde_json::to_string(body).unwrap());
         render_path!(
             self.client,
             template(id.as_ref(), "checkin").as_str(),
