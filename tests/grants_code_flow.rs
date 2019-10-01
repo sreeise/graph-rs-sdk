@@ -49,13 +49,10 @@ fn access_token() {
 
     let mut builder = AccessToken::default();
     builder
-        .token_type("token")
-        .access_token("access_token")
-        .expires_in(3600)
-        .scope("scope")
-        .refresh_token(None)
-        .user_id(None)
-        .id_token(None);
+        .set_token_type("token")
+        .set_bearer_token("access_token")
+        .set_expires_in(3600)
+        .set_scope("scope");
 
     let code_body = oauth
         .encode_uri(GrantType::CodeFlow, GrantRequest::AccessToken)
@@ -74,7 +71,7 @@ fn refresh_token() {
         .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
     let mut access_token = AccessToken::new("access_token", 3600, "Read.Write", "asfasf");
-    access_token.refresh_token(Some("32LKLASDKJ"));
+    access_token.set_refresh_token("32LKLASDKJ");
     oauth.access_token(access_token);
 
     let body = oauth
@@ -96,7 +93,7 @@ fn get_refresh_token() {
         .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token?");
 
     let mut access_token = AccessToken::new("access_token", 3600, "Read.Write", "asfasf");
-    access_token.refresh_token(Some("32LKLASDKJ"));
+    access_token.set_refresh_token("32LKLASDKJ");
     oauth.access_token(access_token);
 
     assert_eq!("32LKLASDKJ", oauth.get_refresh_token().unwrap());

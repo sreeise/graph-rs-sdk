@@ -425,21 +425,21 @@ fn drive_create_folder() {
         .v1()
         .me()
         .drive()
-        .create_folder(ID, "name", Some("replace"));
+        .create_folder(ID, &serde_json::json!({}));
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
 
     let _ = client
         .v1()
         .drives(RID)
         .drive()
-        .create_folder(ID, "name", Some("replace"));
+        .create_folder(ID, &serde_json::json!({}));
     assert_url_eq(&client, id_path("drives", "items", Some("children")));
 
     let _ = client
         .v1()
         .sites(RID)
         .drive()
-        .create_folder(ID, "name", Some("replace"));
+        .create_folder(ID, &serde_json::json!({}));
     assert_url_eq(&client, id_path("sites", "drive/items", Some("children")));
 }
 
@@ -450,14 +450,14 @@ fn drive_create_folder_path() {
         .v1()
         .me()
         .drive()
-        .create_folder(":/Documents:", "name", Some("replace"));
+        .create_folder(":/Documents:", &serde_json::json!({}));
     assert_url_eq(&client, "/me/drive/root:/Documents:/children");
 
     let _ = client
         .v1()
         .drives(RID)
         .drive()
-        .create_folder(":/Documents:", "name", Some("replace"));
+        .create_folder(":/Documents:", &serde_json::json!({}));
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents:/children",
@@ -467,7 +467,7 @@ fn drive_create_folder_path() {
         .v1()
         .sites(RID)
         .drive()
-        .create_folder(":/Documents:", "name", Some("replace"));
+        .create_folder(":/Documents:", &serde_json::json!({}));
     assert_url_eq(
         &client,
         "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents:/children",
@@ -477,7 +477,7 @@ fn drive_create_folder_path() {
         .v1()
         .groups(RID)
         .drive()
-        .create_folder(":/Documents:", "name", Some("replace"));
+        .create_folder(":/Documents:", &serde_json::json!({}));
     assert_url_eq(
         &client,
         "/groups/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents:/children",
@@ -487,7 +487,7 @@ fn drive_create_folder_path() {
         .v1()
         .users(RID)
         .drive()
-        .create_folder(":/Documents:", "name", Some("replace"));
+        .create_folder(":/Documents:", &serde_json::json!({}));
     assert_url_eq(
         &client,
         "/users/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents:/children",
@@ -887,13 +887,13 @@ pub fn drive_check_out() {
 #[test]
 pub fn drive_check_in() {
     let client = get_drive();
-    let _ = client.v1().me().drive().check_in(ID, None, None);
+    let _ = client.v1().me().drive().check_in(ID, &serde_json::json!({}));
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
 
-    let _ = client.v1().drives(RID).drive().check_in(ID, None, None);
+    let _ = client.v1().drives(RID).drive().check_in(ID, &serde_json::json!({}));
     assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
 
-    let _ = client.v1().sites(RID).drive().check_in(ID, None, None);
+    let _ = client.v1().sites(RID).drive().check_in(ID, &serde_json::json!({}));
     assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
 }
 

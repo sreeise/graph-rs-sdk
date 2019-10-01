@@ -62,6 +62,8 @@ pub enum OAuthCredential {
     PostLogoutRedirectURI,
     LogoutURL,
     AdminConsent,
+    Username,
+    Password,
 }
 
 impl OAuthCredential {
@@ -96,6 +98,8 @@ impl OAuthCredential {
             OAuthCredential::LogoutURL => "logout_url",
             OAuthCredential::PostLogoutRedirectURI => "post_logout_redirect_uri",
             OAuthCredential::AdminConsent => "admin_consent",
+            OAuthCredential::Username => "username",
+            OAuthCredential::Password => "password",
         }
     }
 }
@@ -579,6 +583,32 @@ impl OAuth {
         self.insert(OAuthCredential::PostLogoutRedirectURI, value)
     }
 
+    /// Set the redirect uri that user will be redirected to after logging out.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::{OAuth, OAuthCredential};
+    /// # let mut oauth = OAuth::new();
+    /// oauth.username("user");
+    /// assert!(oauth.contains(OAuthCredential::Username))
+    /// ```
+    pub fn username(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::Username, value)
+    }
+
+    /// Set the redirect uri that user will be redirected to after logging out.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::{OAuth, OAuthCredential};
+    /// # let mut oauth = OAuth::new();
+    /// oauth.password("user");
+    /// assert!(oauth.contains(OAuthCredential::Password))
+    /// ```
+    pub fn password(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::Password, value)
+    }
+
     /// Add a scope' for the OAuth URL.
     ///
     /// # Example
@@ -761,7 +791,7 @@ impl OAuth {
     /// # use graph_oauth::oauth::AccessToken;
     /// # let mut oauth = OAuth::new();
     /// let mut  access_token = AccessToken::default();
-    /// access_token.refresh_token(Some("refresh_token"));
+    /// access_token.set_refresh_token("refresh_token");
     /// oauth.access_token(access_token);
     ///
     /// let refresh_token = oauth.get_refresh_token().unwrap();
@@ -769,7 +799,7 @@ impl OAuth {
     /// ```
     pub fn get_refresh_token(&self) -> OAuthReq<String> {
         match self.get_access_token() {
-            Some(token) => match token.get_refresh_token() {
+            Some(token) => match token.refresh_token() {
                 Some(t) => Ok(t),
                 None => OAuthError::error_from::<String>(OAuthCredential::RefreshToken),
             },
@@ -1020,6 +1050,36 @@ impl OAuth {
                     Ok(encoder.finish())
                 },
             },
+            GrantType::ClientCredentials => match request_type {
+                GrantRequest::Authorization => {
+                    self.form_encode_credentials(
+                        GrantType::ClientCredentials.available_credentials(GrantRequest::Authorization),
+                        &mut encoder,
+                    );
+                    let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
+                    if !url.ends_with('?') {
+                        url.push('?');
+                    }
+                    url.push_str(encoder.finish().as_str());
+                    Ok(url)
+                },
+                GrantRequest::AccessToken | GrantRequest::RefreshToken => {
+                    self.pre_request_check(GrantType::ClientCredentials, request_type);
+                    self.form_encode_credentials(
+                        GrantType::ClientCredentials.available_credentials(request_type),
+                        &mut encoder,
+                    );
+                    Ok(encoder.finish())
+                },
+            },
+            GrantType::ResourceOwnerPasswordCredentials => {
+                self.pre_request_check(GrantType::ResourceOwnerPasswordCredentials, request_type);
+                self.form_encode_credentials(
+                    GrantType::ResourceOwnerPasswordCredentials.available_credentials(request_type),
+                    &mut encoder,
+                );
+                Ok(encoder.finish())
+            }
         }
     }
 
@@ -1068,7 +1128,44 @@ impl OAuth {
                     let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
                 }
             },
+            GrantType::ClientCredentials => {
+                if request_type.eq(&GrantRequest::AccessToken) ||
+                    request_type.eq(&GrantRequest::RefreshToken)
+                {
+                    let _ = self.entry(OAuthCredential::GrantType, "client_credentials");
+                }
+            },
+            GrantType::ResourceOwnerPasswordCredentials => {
+                if request_type.eq(&GrantRequest::RefreshToken) {
+                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                } else {
+                    let _ = self.entry(OAuthCredential::GrantType, "password");
+                }
+            },
         }
+    }
+}
+
+/// Extend the OAuth credentials.
+///
+/// # Example
+/// ```
+/// # use graph_oauth::oauth::{OAuth, OAuthCredential};
+/// # use std::collections::HashMap;
+/// # let mut oauth = OAuth::new();
+/// let mut map: HashMap<OAuthCredential, &str> = HashMap::new();
+/// map.insert(OAuthCredential::ClientId, "client_id");
+/// map.insert(OAuthCredential::ClientSecret, "client_secret");
+///
+/// oauth.extend(map);
+/// # assert_eq!(oauth.get(OAuthCredential::ClientId), Some("client_id".to_string()));
+/// # assert_eq!(oauth.get(OAuthCredential::ClientSecret), Some("client_secret".to_string()));
+/// ```
+impl<V: ToString> Extend<(OAuthCredential, V)> for OAuth {
+    fn extend<I: IntoIterator<Item = (OAuthCredential, V)>>(&mut self, iter: I) {
+        iter.into_iter().for_each(|entry| {
+            self.insert(entry.0, entry.1);
+        });
     }
 }
 
@@ -1164,28 +1261,41 @@ impl GrantSelector {
             grant: GrantType::OpenId,
         }
     }
-}
 
-/// Extend the OAuth credentials.
-///
-/// # Example
-/// ```
-/// # use graph_oauth::oauth::{OAuth, OAuthCredential};
-/// # use std::collections::HashMap;
-/// # let mut oauth = OAuth::new();
-/// let mut map: HashMap<OAuthCredential, &str> = HashMap::new();
-/// map.insert(OAuthCredential::ClientId, "client_id");
-/// map.insert(OAuthCredential::ClientSecret, "client_secret");
-///
-/// oauth.extend(map);
-/// # assert_eq!(oauth.get(OAuthCredential::ClientId), Some("client_id".to_string()));
-/// # assert_eq!(oauth.get(OAuthCredential::ClientSecret), Some("client_secret".to_string()));
-/// ```
-impl<V: ToString> Extend<(OAuthCredential, V)> for OAuth {
-    fn extend<I: IntoIterator<Item = (OAuthCredential, V)>>(&mut self, iter: I) {
-        iter.into_iter().for_each(|entry| {
-            self.insert(entry.0, entry.1);
-        });
+    /// Create a new instance for the open id connect grant.
+    ///
+    /// # See
+    /// [Microsoft Client Credentials](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().client_credentials();
+    /// ```
+    pub fn client_credentials(self) -> AccessTokenGrant {
+        AccessTokenGrant {
+            oauth: self.0,
+            grant: GrantType::ClientCredentials,
+        }
+    }
+
+    /// Create a new instance for the resource owner password credentials grant.
+    ///
+    /// # See
+    /// [Microsoft Resource Owner Password Credentials](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().resource_owner_password_credentials();
+    /// ```
+    pub fn resource_owner_password_credentials(self) -> AccessTokenGrant {
+        AccessTokenGrant {
+            oauth: self.0,
+            grant: GrantType::ResourceOwnerPasswordCredentials,
+        }
     }
 }
 
@@ -1211,6 +1321,13 @@ impl AccessTokenRequest {
         let client = reqwest::Client::builder().build()?;
         let builder = client.post(self.uri.as_str()).form(&self.params);
         AccessToken::try_from(builder)
+    }
+
+    pub fn json(&mut self) -> OAuthReq<serde_json::Value> {
+        let client = reqwest::Client::builder().build()?;
+        let builder = client.post(self.uri.as_str()).form(&self.params);
+        let mut response = builder.send()?;
+        Ok(response.json()?)
     }
 }
 

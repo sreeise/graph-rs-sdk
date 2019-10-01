@@ -67,7 +67,7 @@ fn refresh_token_uri() {
         .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
     let mut access_token = AccessToken::new("access_token", 3600, "Read.Write Fall.Down", "asfasf");
-    access_token.refresh_token(Some("32LKLASDKJ"));
+    access_token.set_refresh_token("32LKLASDKJ");
     oauth.access_token(access_token);
 
     let body = oauth

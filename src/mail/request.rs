@@ -1,7 +1,7 @@
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
 use crate::types::collection::Collection;
-use graph_rs_types::entitytypes::{Message, MailFolder};
+use graph_rs_types::entitytypes::{MailFolder, Message};
 use handlebars::*;
 use reqwest::Method;
 use std::marker::PhantomData;

@@ -18,13 +18,7 @@ fn main() {
 fn check_out_item() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client
-        .v1()
-        .me()
-        .drive()
-        .check_out(ITEM_ID)
-        .send()
-        .unwrap();
+    let response = client.v1().me().drive().check_out(ITEM_ID).send().unwrap();
 
     // Should be 204 for a successful check out.
     println!("{:#?}", response.status());
@@ -37,16 +31,19 @@ fn check_in_item() {
 
     // checkInAs: Optional. The desired status of the document after the check-in
     // operation is complete. Can be 'published' or 'unspecified'.
-    let check_in_as = Some("CHECK_IN_AS");
+    let check_in_as = "CHECK_IN_AS";
 
     // comment: A check-in comment that is associated with the version.
-    let comment = Some("COMMENT");
+    let comment = "COMMENT";
 
     let response = client
         .v1()
         .me()
         .drive()
-        .check_in(ITEM_ID, check_in_as, comment)
+        .check_in(ITEM_ID, &serde_json::json!({
+            "comment": comment,
+            "checkInAs": check_in_as
+        }))
         .send()
         .unwrap();
 

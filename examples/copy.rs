@@ -1,40 +1,40 @@
 use graph_rs::prelude::*;
-use graph_rs_types::complextypes::ItemReference;
-use graph_rs_types::entitytypes::DriveItem;
 use std::thread;
 use std::time::Duration;
 
 // Set the name of the file you want to copy
 // and a name for the copy of the file.
-static DRIVE_FILE: &str = "YOUR_DRIVE_FILE_NAME";
 static DRIVE_FILE_COPY_NAME: &str = "FILE_NAME_OF_COPY";
+
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+static ITEM_ID: &str = "ITEM_ID";
 
 fn main() {
     copy_item();
 }
 
 fn copy_item() {
-    let graph = Graph::new("ACCESS_TOKEN");
-    let mut collection: GraphResponse<Collection<DriveItem>> =
-        graph.v1().me().drive().root_children().send().unwrap();
-
-    // The file or folder that you want to copy.
-    let drive_item: DriveItem = collection.as_mut().find_by_name(DRIVE_FILE).unwrap();
-    let item_id = drive_item.id.clone().unwrap();
+    let graph = Graph::new(ACCESS_TOKEN);
 
     // The DriveItem copy request uses a ItemReference (parent reference) which contains
     // the metadata for the drive id and path specifying where the new copy should be placed.
     // The path below in the ItemReference is typically the same path as the drive item
     // requested above so the copy of the item will be placed in the same folder. This can
     // be changed to wherever you would like the copy placed.
-    let mut item_ref = ItemReference::default();
-    item_ref.path = Some("/drive/root:/Documents".into());
 
     let mut response: GraphResponse<()> = graph
         .v1()
         .me()
         .drive()
-        .copy(item_id.as_str(), Some(DRIVE_FILE_COPY_NAME), &item_ref)
+        .copy(
+            ITEM_ID,
+            &serde_json::json!({
+                "name": DRIVE_FILE_COPY_NAME,
+                "parent_reference": {
+                    "path": "/drive/root:/Documents"
+                }
+            }),
+        )
         .send()
         .unwrap();
 

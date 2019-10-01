@@ -63,6 +63,22 @@ impl<T> Collection<T> {
             self.value = Some(vec);
         }
     }
+
+    pub fn len(&self) -> usize {
+        if let Some(v) = self.value.as_ref() {
+            v.len()
+        } else {
+            0
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        if let Some(v) = self.value.as_ref() {
+            v.is_empty()
+        } else {
+            true
+        }
+    }
 }
 
 impl<T> Eq for Collection<T> where T: std::cmp::PartialEq {}
