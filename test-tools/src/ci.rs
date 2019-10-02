@@ -1,5 +1,5 @@
-use std::env;
 use graph_rs::oauth::{AccessToken, OAuth};
+use std::env;
 
 pub struct CI;
 
@@ -16,8 +16,7 @@ impl CI {
 
     pub fn request_access_token() -> Option<AccessToken> {
         if let Ok(value) = env::var("TRAVIS") {
-            let _ = env::var("TRAVIS_SECURE_ENV_VARS")
-                .expect("Env TRAVIS_SECURE_ENV_VARS not set");
+            let _ = env::var("TRAVIS_SECURE_ENV_VARS").expect("Env TRAVIS_SECURE_ENV_VARS not set");
             if value.eq("true") {
                 let mut oauth = OAuth::new();
                 let tenant = env::var("TEST_APP_TENANT").expect("Missing env TEST_APP_TENANT");
@@ -39,7 +38,7 @@ impl CI {
                             "https://login.microsoftonline.com/{}/oauth2/v2.0/token",
                             tenant
                         )
-                            .as_str(),
+                        .as_str(),
                     );
                 let mut req = oauth.build().client_credentials();
                 if let Ok(token) = req.access_token().send() {
@@ -51,12 +50,12 @@ impl CI {
     }
 
     pub fn test_credentials<F>(f: F)
-        where
-            F: Fn(Option<(String, String)>),
+    where
+        F: Fn(Option<(String, String)>),
     {
         if let Some(token) = CI::request_access_token() {
             let t = token.bearer_token();
-            let id = env::var("TEST_APP_USER_ID").expect("Missing env USER_ID");
+            let id = env::var("TEST_APP_USER_ID").expect("Missing env TEST_APP_USER_ID");
             f(Some((t.to_string(), id)));
         }
     }

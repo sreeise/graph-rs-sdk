@@ -133,7 +133,6 @@ impl<'a, I> DriveRequest<'a, I> {
 
     //     post!( [ || forward, GraphResponse<()> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/forward" ] );
 
-
     pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, DriveItem> {
         self.client.request().set_method(Method::GET);
         render_path!(
