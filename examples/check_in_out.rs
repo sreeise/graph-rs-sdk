@@ -40,10 +40,13 @@ fn check_in_item() {
         .v1()
         .me()
         .drive()
-        .check_in(ITEM_ID, &serde_json::json!({
-            "comment": comment,
-            "checkInAs": check_in_as
-        }))
+        .check_in(
+            ITEM_ID,
+            &serde_json::json!({
+                "comment": comment,
+                "checkInAs": check_in_as
+            }),
+        )
         .send()
         .unwrap();
 

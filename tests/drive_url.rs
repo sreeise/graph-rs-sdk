@@ -887,13 +887,25 @@ pub fn drive_check_out() {
 #[test]
 pub fn drive_check_in() {
     let client = get_drive();
-    let _ = client.v1().me().drive().check_in(ID, &serde_json::json!({}));
+    let _ = client
+        .v1()
+        .me()
+        .drive()
+        .check_in(ID, &serde_json::json!({}));
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
 
-    let _ = client.v1().drives(RID).drive().check_in(ID, &serde_json::json!({}));
+    let _ = client
+        .v1()
+        .drives(RID)
+        .drive()
+        .check_in(ID, &serde_json::json!({}));
     assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
 
-    let _ = client.v1().sites(RID).drive().check_in(ID, &serde_json::json!({}));
+    let _ = client
+        .v1()
+        .sites(RID)
+        .drive()
+        .check_in(ID, &serde_json::json!({}));
     assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
 }
 
