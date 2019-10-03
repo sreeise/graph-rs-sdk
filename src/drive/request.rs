@@ -131,8 +131,6 @@ impl<'a, I> DriveRequest<'a, I> {
     get!( special_music, Collection<DriveItem> => "{{drive_root}}/special/music" );
     get!( special_music_children, Collection<DriveItem> => "{{drive_root}}/special/music/children" );
 
-    //     post!( [ || forward, GraphResponse<()> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/forward" ] );
-
     pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, DriveItem> {
         self.client.request().set_method(Method::GET);
         render_path!(
@@ -274,29 +272,41 @@ impl<'a, I> DriveRequest<'a, I> {
         Ok(IntoResponse::new(self.client))
     }
 
-    pub fn upload_new<ID: AsRef<str>, P: AsRef<Path>>(
+    pub fn upload_new<S: AsRef<str>, P: AsRef<Path>>(
         &'a self,
-        parent_id: ID,
+        id: S,
         file: P,
     ) -> GraphResult<IntoResponse<'a, I, DriveItem>> {
-        let name = file
-            .as_ref()
-            .file_name()
-            .ok_or_else(|| GraphFailure::none_err("file_name"))?
-            .to_string_lossy()
-            .to_string();
-        self.client
-            .request()
-            .set_method(Method::PUT)
-            .set_body(File::open(file)?);
-        render_path!(
-            self.client,
-            "{{drive_item}}/{{id}}/{{file_name}}/content",
-            &json!({
-                "id": parent_id.as_ref(),
-                "file_name": name,
-            })
-        );
+        if id.as_ref().starts_with(':') {
+            self.client
+                .request()
+                .set_method(Method::PUT)
+                .set_body(File::open(file)?);
+            render_path!(
+                self.client,
+                template(id.as_ref(), "content").as_str(),
+                &json!({"id": encode(id.as_ref()) })
+            );
+        } else {
+            let name = file
+                .as_ref()
+                .file_name()
+                .ok_or_else(|| GraphFailure::none_err("file_name"))?
+                .to_string_lossy()
+                .to_string();
+            self.client
+                .request()
+                .set_method(Method::PUT)
+                .set_body(File::open(file)?);
+            render_path!(
+                self.client,
+                "{{drive_item}}/{{id}}/{{file_name}}/content",
+                &json!({
+                    "id": id.as_ref(),
+                    "file_name": name,
+                })
+            );
+        }
         Ok(IntoResponse::new(self.client))
     }
 
