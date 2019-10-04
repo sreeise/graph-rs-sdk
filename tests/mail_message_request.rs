@@ -1,9 +1,9 @@
 use graph_rs::prelude::*;
-use test_tools::ci::CI;
+use test_tools::oauthrequest::OAuthRequest;
 
 #[test]
 fn list_and_get_messages() {
-    CI::test_credentials(|t| {
+    OAuthRequest::test_credentials(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             if let Ok(res) = client

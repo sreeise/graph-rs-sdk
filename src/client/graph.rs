@@ -103,6 +103,10 @@ impl<'a> Graph {
         self.request.borrow().ident()
     }
 
+    pub fn set_token(&self, token: &str) {
+        self.request().set_token(token);
+    }
+
     pub(crate) fn request(&self) -> RefMut<GraphRequest> {
         self.request.borrow_mut()
     }
@@ -111,21 +115,21 @@ impl<'a> Graph {
     where
         F: Fn(&GraphUrl),
     {
-        f(&self.request.borrow().url)
+        f(&self.request.borrow().as_ref())
     }
 
     pub fn url_mut<F>(&self, f: F)
     where
         F: Fn(&mut GraphUrl),
     {
-        f(&mut self.request.borrow_mut().url)
+        f(&mut self.request.borrow_mut().as_mut())
     }
 
     pub fn fn_mut_url<F>(&self, mut f: F)
     where
         F: FnMut(&mut GraphUrl),
     {
-        f(&mut self.request.borrow_mut().url)
+        f(&mut self.request.borrow_mut().as_mut())
     }
 }
 

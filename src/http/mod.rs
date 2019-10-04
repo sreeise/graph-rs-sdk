@@ -1,3 +1,4 @@
+mod batch;
 mod byterange;
 mod download;
 mod graphresponse;
@@ -6,6 +7,7 @@ mod iotools;
 mod request;
 mod uploadsession;
 
+pub use batch::*;
 pub use byterange::*;
 pub use download::*;
 pub use graphresponse::*;

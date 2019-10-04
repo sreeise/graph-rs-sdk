@@ -1,8 +1,10 @@
 use crate::client::*;
-use crate::http::{GraphResponse, UploadSessionClient};
-use graph_error::{GraphFailure, GraphResult};
-use graph_rs_types::complextypes::UploadSession;
+use crate::http::download::Download;
+use crate::http::{FetchClient, GraphResponse, UploadSessionClient};
+use graph_error::GraphResult;
+use std::ffi::OsStr;
 use std::marker::PhantomData;
+use std::path::PathBuf;
 
 /// A trait for sending an API request and converting the response
 /// to a suitable Rust type.
@@ -81,6 +83,26 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
     }
 }
 
+impl<'a, I> IntoResponse<'a, I, FetchClient> {
+    pub fn rename(&self, name: &OsStr) -> &Self {
+        self.client.request().rename_download(name.to_os_string());
+        self
+    }
+
+    pub fn set_extension(&self, ext: &str) -> &Self {
+        self.client.request().set_download_extension(Some(ext));
+        self
+    }
+}
+
+impl<'a, I> ToResponse for IntoResponse<'a, I, FetchClient> {
+    type Output = GraphResult<PathBuf>;
+
+    fn send(&self) -> Self::Output {
+        self.client.request().download().send()
+    }
+}
+
 impl<'a, I> ToResponse for IntoResponse<'a, I, GraphResponse<()>> {
     type Output = GraphResult<GraphResponse<()>>;
 
@@ -104,20 +126,6 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, UploadSessionClient> {
     type Output = GraphResult<UploadSessionClient>;
 
     fn send(&self) -> Self::Output {
-        let mut response = self.client.request().builder().send()?;
-        if let Some(err) = GraphFailure::from_response(&mut response) {
-            return Err(err);
-        }
-
-        let upload_session: UploadSession = response.json()?;
-        let mut session = UploadSessionClient::new(upload_session)?;
-        let file = self
-            .client
-            .request()
-            .upload_session_file
-            .clone()
-            .ok_or_else(|| GraphFailure::none_err("file for upload session"))?;
-        session.set_file(file)?;
-        Ok(session)
+        self.client.request().upload_session()
     }
 }

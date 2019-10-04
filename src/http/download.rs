@@ -1,4 +1,5 @@
 use crate::http::IoTools;
+use crate::url::GraphUrl;
 use graph_error::GraphFailure;
 use graph_error::{GraphError, GraphResult};
 use reqwest::{RequestBuilder, Response};
@@ -8,40 +9,26 @@ use std::path::Path;
 use std::path::PathBuf;
 
 pub trait Download {
-    fn download(&mut self) -> GraphResult<FetchClient>;
+    fn download(&mut self) -> FetchClient;
 }
 
 /// The FetchBuilder provides an abstraction for downloading files.
 pub struct FetchClient {
     path: PathBuf,
     token: String,
-    target_url: String,
+    target_url: GraphUrl,
     file_name: Option<OsString>,
     extension: Option<String>,
     redirect: Option<RequestBuilder>,
     client: reqwest::Client,
 }
 
-impl Default for FetchClient {
-    fn default() -> Self {
-        FetchClient {
-            path: Default::default(),
-            token: Default::default(),
-            target_url: Default::default(),
-            file_name: None,
-            extension: None,
-            redirect: None,
-            client: reqwest::Client::new(),
-        }
-    }
-}
-
 impl FetchClient {
-    pub fn new(target_url: &str, path: PathBuf, token: &str) -> FetchClient {
+    pub fn new(target_url: GraphUrl, path: PathBuf, token: &str) -> FetchClient {
         FetchClient {
             path,
             token: token.into(),
-            target_url: target_url.into(),
+            target_url,
             file_name: None,
             extension: None,
             redirect: None,
@@ -111,7 +98,7 @@ impl FetchClient {
             if GraphError::is_error(status) {
                 return Err(GraphFailure::try_from(&mut response).unwrap_or_default());
             }
-            self.target_url = response.url().as_str().to_string();
+            self.target_url = GraphUrl::parse(response.url().as_str()).unwrap();
         }
 
         let mut response = self
