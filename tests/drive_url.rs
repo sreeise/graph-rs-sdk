@@ -652,7 +652,7 @@ pub fn drive_upload_new() {
         .drive()
         .upload_new(ID, "./test_files/item_test/drive_info.json")
         .unwrap();
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/drive_info.json/content");
+    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content");
 
     let _ = client
         .v1()
@@ -662,7 +662,7 @@ pub fn drive_upload_new() {
         .unwrap();
     assert_url_eq(
         &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/drive_info.json/content",
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content",
     );
 
     let _ = client
@@ -673,7 +673,7 @@ pub fn drive_upload_new() {
         .unwrap();
     assert_url_eq(
         &client,
-        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/drive_info.json/content",
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content",
     );
 }
 

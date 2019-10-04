@@ -1,5 +1,6 @@
 use crate::error::GraphError;
 use base64;
+use from_as::FromToError;
 use reqwest::Response;
 use serde_json;
 use std::cell::BorrowMutError;
@@ -31,6 +32,7 @@ pub enum GraphFailure {
     HyperError(hyper::Error),
     HyperHttpError(hyper::http::Error),
     HyperInvalidUri(hyper::http::uri::InvalidUri),
+    FromAsFileError(FromToError),
 }
 
 impl GraphFailure {
@@ -90,6 +92,7 @@ impl fmt::Display for GraphFailure {
             GraphFailure::HyperError(ref err) => write!(f, "Hyper error:\n{:#?}", err),
             GraphFailure::HyperHttpError(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
             GraphFailure::HyperInvalidUri(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
+            GraphFailure::FromAsFileError(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
         }
     }
 }
@@ -113,6 +116,7 @@ impl error::Error for GraphFailure {
             GraphFailure::HyperError(ref err) => err.description(),
             GraphFailure::HyperHttpError(ref err) => err.description(),
             GraphFailure::HyperInvalidUri(ref err) => err.description(),
+            GraphFailure::FromAsFileError(ref err) => err.description(),
         }
     }
 
@@ -134,6 +138,7 @@ impl error::Error for GraphFailure {
             GraphFailure::HyperError(ref err) => Some(err),
             GraphFailure::HyperHttpError(ref err) => Some(err),
             GraphFailure::HyperInvalidUri(ref err) => Some(err),
+            GraphFailure::FromAsFileError(ref err) => Some(err),
         }
     }
 }
@@ -237,6 +242,12 @@ impl From<hyper::http::Error> for GraphFailure {
 impl From<hyper::http::uri::InvalidUri> for GraphFailure {
     fn from(err: hyper::http::uri::InvalidUri) -> Self {
         GraphFailure::HyperInvalidUri(err)
+    }
+}
+
+impl From<FromToError> for GraphFailure {
+    fn from(err: FromToError) -> Self {
+        GraphFailure::FromAsFileError(err)
     }
 }
 

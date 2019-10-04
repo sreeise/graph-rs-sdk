@@ -1,7 +1,8 @@
 use crate::client::Ident;
-use crate::http::{Download, FetchClient, GraphResponse};
+use crate::http::{Download, FetchClient, GraphResponse, UploadSessionClient};
 use crate::url::GraphUrl;
 use graph_error::{GraphFailure, GraphResult};
+use graph_rs_types::complextypes::UploadSession;
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{Method, RedirectPolicy, RequestBuilder};
@@ -45,16 +46,17 @@ impl DownloadRequest {
 }
 
 pub struct GraphRequest {
-    pub url: GraphUrl,
-    pub method: Method,
-    pub body: Option<reqwest::Body>,
-    pub upload_session_file: Option<PathBuf>,
-    pub download_request: DownloadRequest,
+    url: GraphUrl,
+    method: Method,
+    body: Option<reqwest::Body>,
+    upload_session_file: Option<PathBuf>,
+    download_request: DownloadRequest,
     headers: HeaderMap<HeaderValue>,
     token: String,
     ident: Ident,
     registry: Handlebars,
     client: reqwest::Client,
+    redirect_client: reqwest::Client,
 }
 
 impl GraphRequest {
@@ -84,10 +86,6 @@ impl GraphRequest {
         self.body.as_ref()
     }
 
-    pub fn body_mut(&mut self) -> &mut Option<reqwest::Body> {
-        &mut self.body
-    }
-
     pub fn set_body<B: Into<reqwest::Body>>(&mut self, body: B) -> &mut Self {
         self.body = Some(body.into());
         self
@@ -95,10 +93,6 @@ impl GraphRequest {
 
     pub fn headers(&self) -> &HeaderMap<HeaderValue> {
         &self.headers
-    }
-
-    pub fn headers_mut(&mut self) -> &mut HeaderMap<HeaderValue> {
-        &mut self.headers
     }
 
     pub fn header(&mut self, name: impl IntoHeaderName, value: HeaderValue) -> &mut Self {
@@ -131,52 +125,64 @@ impl GraphRequest {
         self
     }
 
+    pub fn set_download_dir<P: AsRef<Path>>(&mut self, path: P) {
+        self.download_request
+            .set_directory(PathBuf::from(path.as_ref()));
+    }
+
     pub fn rename_download(&mut self, name: OsString) {
         self.download_request.file_name = Some(name);
+    }
+
+    pub fn set_download_extension(&mut self, extension: Option<&str>) {
+        self.download_request.set_extension(extension);
     }
 
     pub fn registry(&mut self) -> &mut Handlebars {
         &mut self.registry
     }
 
-    pub fn redirect(&mut self) -> GraphResult<RequestBuilder> {
-        let client = reqwest::Client::builder()
-            .redirect(RedirectPolicy::custom(|attempt| {
-                // There should be only 1 redirect to download a drive item.
-                if attempt.previous().len() > 1 {
-                    return attempt.too_many_redirects();
-                }
-                attempt.stop()
-            }))
-            .build()
-            .map_err(GraphFailure::from)?;
+    pub fn upload_session(&mut self) -> GraphResult<UploadSessionClient> {
+        let mut response = self.builder().send()?;
+        if let Some(err) = GraphFailure::from_response(&mut response) {
+            return Err(err);
+        }
 
-        let method = self.method().clone();
-        let url = self.url().to_string();
+        let upload_session: UploadSession = response.json()?;
+        let mut session = UploadSessionClient::new(upload_session)?;
+        let file = self
+            .upload_session_file
+            .clone()
+            .ok_or_else(|| GraphFailure::none_err("file for upload session"))?;
+        session.set_file(file)?;
+        Ok(session)
+    }
+
+    pub fn redirect(&mut self) -> RequestBuilder {
         let mut headers = self.headers().clone();
+        self.headers.clear();
 
         if !headers.contains_key(CONTENT_TYPE) {
             headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
         }
 
         if let Some(body) = self.body.take() {
-            Ok(client
-                .request(method, &url)
+            self.redirect_client
+                .request(self.method.clone(), self.url.as_str())
                 .headers(headers)
                 .bearer_auth(self.token.as_str())
-                .body(body))
+                .body(body)
         } else {
-            Ok(client
-                .request(method, &url)
+            self.redirect_client
+                .request(self.method.clone(), self.url.as_str())
                 .headers(headers)
-                .bearer_auth(self.token.as_str()))
+                .bearer_auth(self.token.as_str())
         }
     }
 
     pub fn builder(&mut self) -> RequestBuilder {
-        let method = self.method().clone();
-        let url = self.url().to_string();
         let mut headers = self.headers().clone();
+        self.headers.clear();
 
         if !headers.contains_key(CONTENT_TYPE) {
             headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
@@ -184,13 +190,13 @@ impl GraphRequest {
 
         if let Some(body) = self.body.take() {
             self.client
-                .request(method, &url)
+                .request(self.method.clone(), self.url.as_str())
                 .headers(headers)
                 .bearer_auth(self.token.as_str())
                 .body(body)
         } else {
             self.client
-                .request(method, &url)
+                .request(self.method.clone(), self.url.as_str())
                 .headers(headers)
                 .bearer_auth(self.token.as_str())
         }
@@ -250,6 +256,18 @@ impl AsMut<GraphUrl> for GraphRequest {
 
 impl From<GraphUrl> for GraphRequest {
     fn from(url: GraphUrl) -> Self {
+        let redirect_client = reqwest::Client::builder()
+            .redirect(RedirectPolicy::custom(|attempt| {
+                // There should be only 1 redirect to download a drive item.
+                if attempt.previous().len() > 1 {
+                    return attempt.too_many_redirects();
+                }
+                attempt.stop()
+            }))
+            .build()
+            .map_err(GraphFailure::from)
+            .unwrap();
+
         GraphRequest {
             url,
             method: Default::default(),
@@ -261,38 +279,28 @@ impl From<GraphUrl> for GraphRequest {
             ident: Default::default(),
             registry: Handlebars::new(),
             client: reqwest::Client::new(),
+            redirect_client,
         }
     }
 }
 
 impl From<Url> for GraphRequest {
     fn from(url: Url) -> Self {
-        GraphRequest {
-            url: GraphUrl::from(url),
-            method: Default::default(),
-            body: Default::default(),
-            headers: Default::default(),
-            upload_session_file: Default::default(),
-            token: Default::default(),
-            download_request: Default::default(),
-            ident: Default::default(),
-            registry: Handlebars::new(),
-            client: reqwest::Client::new(),
-        }
+        GraphRequest::from(GraphUrl::from(url))
     }
 }
 
 impl Download for GraphRequest {
-    fn download(&mut self) -> GraphResult<FetchClient> {
+    fn download(&mut self) -> FetchClient {
         let mut fetch_client = FetchClient::new(
-            self.url.as_str(),
+            self.url.clone(),
             self.download_request.directory.to_path_buf(),
             self.token.as_str(),
         );
 
         if !self.download_request.is_direct_download {
             info!("Using redirect on download");
-            let builder: RequestBuilder = self.redirect()?;
+            let builder: RequestBuilder = self.redirect();
             fetch_client.set_redirect(builder);
         }
 
@@ -304,6 +312,6 @@ impl Download for GraphRequest {
             fetch_client.set_extension(ext);
         }
 
-        Ok(fetch_client)
+        fetch_client
     }
 }

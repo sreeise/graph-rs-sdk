@@ -20,14 +20,14 @@ pub fn download() {
     let client = Graph::try_from(&oauth).unwrap();
 
     // Download the file. The file will be downloaded with the same name.
-    let mut req = client
+    let path_buf: PathBuf = client
         .v1()
         .me()
         .drive()
         .download(ITEM_ID, "./examples/example_files")
+        .send()
         .unwrap();
 
-    let path_buf: PathBuf = req.send().unwrap();
     println!("{:#?}", path_buf);
 }
 
@@ -43,18 +43,15 @@ pub fn download_and_format(extension: &str) {
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
     let client = Graph::try_from(&oauth).unwrap();
 
-    let mut req = client
+    let path_buf: PathBuf = client
         .v1()
         .me()
         .drive()
         .download(ITEM_ID, "./examples/example_files")
+        // Select the format.
+        .set_extension(extension)
+        .send()
         .unwrap();
-
-    // Select the format.
-    req.set_extension(extension);
-
-    // Send the request and download the file.
-    let path_buf: PathBuf = req.send().unwrap();
 
     println!("{:#?}", path_buf.metadata());
 }
@@ -65,18 +62,15 @@ fn download_and_rename(name: &str) {
     let client = Graph::try_from(&oauth).unwrap();
 
     // Create the download request.
-    let mut req = client
+    let path_buf: PathBuf = client
         .v1()
         .me()
         .drive()
         .download(ITEM_ID, "./examples/example_files")
+        // Rename the file
+        .rename(&OsString::from(name))
+        .send()
         .unwrap();
-
-    // Rename the file
-    req.rename(OsString::from(name));
-
-    // Send the request and download the file.
-    let path_buf: PathBuf = req.send().unwrap();
 
     println!("{:#?}", path_buf.metadata());
 }
@@ -87,15 +81,13 @@ fn download_by_path(path: &str) {
     let client = Graph::new("");
 
     // Create the download request.
-    let mut req = client
+    let path_buf: PathBuf = client
         .v1()
         .me()
         .drive()
         .download(path, "./examples/example_files")
+        .send()
         .unwrap();
-
-    // Send the request and download the file.
-    let path_buf: PathBuf = req.send().unwrap();
 
     println!("{:#?}", path_buf.metadata());
 }

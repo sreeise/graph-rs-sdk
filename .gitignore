@@ -10,3 +10,7 @@ Cargo.lock
 # For testing in development
 src/bin
 examples/example_files/**
+
+# Env file for testing
+.env
+env.toml

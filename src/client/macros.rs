@@ -24,6 +24,44 @@ macro_rules! register_client {
             }
         }
     };
+
+    ( $name:ident, $($helper:ident => $value:expr, $value2:expr, $identity:expr,)* ) => {
+        pub struct $name<'a, I> {
+            client: &'a Graph,
+            ident: PhantomData<I>,
+        }
+
+        impl<'a, I> $name<'a, I> {
+            pub fn new(client: &'a Graph) -> $name<'a, I> {
+                let ident = client.ident();
+                $(
+                    client.request().registry().register_helper(
+                        stringify!($helper),
+                        Box::new(
+                            move |_: &Helper,
+                                _: &Handlebars,
+                                _: &Context,
+                                _: &mut RenderContext,
+                                out: &mut dyn Output|
+                            -> HelperResult {
+                                if ident.ne(&$identity) {
+                                    out.write($value)?;
+                                } else {
+                                    out.write($value2)?;
+                                }
+                                Ok(())
+                            },
+                        ),
+                    );
+                )*
+
+                $name {
+                    client,
+                    ident: PhantomData,
+                }
+            }
+        }
+    };
 }
 
 #[macro_use]
@@ -310,6 +348,7 @@ macro_rules! register_method {
       }
     };
 }
+
 #[macro_use]
 macro_rules! get {
     ( $name:ident, $T:ty => $template:expr ) => {

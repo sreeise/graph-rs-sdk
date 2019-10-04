@@ -2,16 +2,18 @@ use graph_error::GraphResult;
 use graph_rs::prelude::*;
 use std::collections::HashMap;
 use std::error::Error;
+use std::ffi::OsStr;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::Duration;
-use test_tools::ci::CI;
+use test_tools::oauthrequest::OAuthRequest;
+use test_tools::support::cleanup::CleanUp;
 
 #[test]
 fn common_paths() {
-    if let Some(token) = CI::request_access_token() {
+    if let Some(token) = OAuthRequest::request_access_token() {
         let t = token.1.bearer_token().clone();
         get_drive(t, token.0.as_str());
         get_recent(t, token.0.as_str());
@@ -21,28 +23,37 @@ fn common_paths() {
 
 fn get_recent(token: &str, rid: &str) {
     let client = Graph::new(token);
-    if let Err(_) = client.v1().drives(rid).drive().recent().send() {
-        panic!("Request Error. Method: drive recent");
+    if let Err(e) = client.v1().drives(rid).drive().recent().send() {
+        panic!(
+            "Request Error. Method: drive recent. Error: {:#?}",
+            e.description()
+        );
     }
 }
 
 fn get_drive(token: &str, rid: &str) {
     let client = Graph::new(token);
-    if let Err(_) = client.v1().drives(rid).drive().drive().send() {
-        panic!("Request Error. Method: drive root");
+    if let Err(e) = client.v1().drives(rid).drive().drive().send() {
+        panic!(
+            "Request Error. Method: drive root. Error: {:#?}",
+            e.description()
+        );
     }
 }
 
 fn get_root(token: &str, rid: &str) {
     let client = Graph::new(token);
-    if let Err(_) = client.v1().drives(rid).drive().root().send() {
-        panic!("Request Error. Method: drive root");
+    if let Err(e) = client.v1().drives(rid).drive().root().send() {
+        panic!(
+            "Request Error. Method: drive root. Error: {:#?}",
+            e.description()
+        );
     }
 }
 
 #[test]
 fn create_delete_folder() {
-    CI::test_credentials(|t| {
+    OAuthRequest::test_credentials(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             let folder: HashMap<String, serde_json::Value> = HashMap::new();
@@ -73,11 +84,17 @@ fn create_delete_folder() {
 
                 if let Ok(res) = req {
                     assert!(res.error().is_none());
-                } else if let Err(_) = req {
-                    panic!("Request error. Method: drive delete");
+                } else if let Err(e) = req {
+                    panic!(
+                        "Request error. Method: drive delete. Error: {:#?}",
+                        e.description()
+                    );
                 }
-            } else if let Err(_) = create_folder_res {
-                panic!("Request error. Method: create folder");
+            } else if let Err(e) = create_folder_res {
+                panic!(
+                    "Request error. Method: create folder. Error: {:#?}",
+                    e.description()
+                );
             }
         }
     });
@@ -85,7 +102,7 @@ fn create_delete_folder() {
 
 #[test]
 fn root_children_list_versions_get_item() {
-    CI::test_credentials(|t| {
+    OAuthRequest::test_credentials(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             if let Ok(res) = client
@@ -129,7 +146,7 @@ fn root_children_list_versions_get_item() {
 
 #[test]
 fn drive_check_in_out() {
-    CI::test_credentials(|t| {
+    OAuthRequest::test_credentials(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
 
@@ -176,15 +193,24 @@ fn drive_check_in_out() {
 
 #[test]
 fn drive_download() {
-    CI::test_credentials(|t| {
+    OAuthRequest::test_credentials(|t| {
         if let Some((id, bearer)) = t {
+            let file_location = "./test_files/test_document.docx";
+            let mut clean_up = CleanUp::new(|| {
+                let path = Path::new(file_location);
+                if path.exists() {
+                    std::fs::remove_file(path).unwrap();
+                }
+            });
+
+            clean_up.rm_files(file_location.into());
+
             let client = Graph::new(bearer.as_str());
             let req: GraphResult<PathBuf> = client
                 .v1()
                 .drives(id.as_str())
                 .drive()
                 .download(":/test_document.docx:", "./test_files")
-                .unwrap()
                 .send();
 
             if let Ok(path_buf) = req {
@@ -200,8 +226,46 @@ fn drive_download() {
 }
 
 #[test]
+fn drive_download_format() {
+    OAuthRequest::test_credentials(|t| {
+        if let Some((id, bearer)) = t {
+            let file_location = "./test_files/test_document.pdf";
+            let mut clean_up = CleanUp::new(|| {
+                let path = Path::new(file_location);
+                if path.exists() {
+                    std::fs::remove_file(path).unwrap();
+                }
+            });
+
+            clean_up.rm_files(file_location.into());
+
+            let client = Graph::new(bearer.as_str());
+            let req: GraphResult<PathBuf> = client
+                .v1()
+                .drives(id.as_str())
+                .drive()
+                .download(":/test_document.docx:", "./test_files")
+                .format("pdf")
+                .rename(&OsStr::new("test_document.pdf"))
+                .send();
+
+            if let Ok(path_buf) = req {
+                assert!(path_buf.exists());
+                assert_eq!(path_buf.extension(), Some(OsStr::new("pdf")));
+                assert_eq!(path_buf.file_name(), Some(OsStr::new("test_document.pdf")));
+            } else if let Err(e) = req {
+                panic!(
+                    "Request Error. Method: drive check_out. Error: {:#?}",
+                    e.description()
+                );
+            }
+        }
+    });
+}
+
+#[test]
 fn drive_update() {
-    CI::test_credentials(|t| {
+    OAuthRequest::test_credentials(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             let req = client
@@ -255,7 +319,7 @@ fn drive_update() {
 
 #[test]
 fn drive_upload_new_and_replace_and_delete() {
-    CI::test_credentials(|t| {
+    OAuthRequest::test_credentials(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             let upload_res = client

@@ -83,6 +83,21 @@ impl<T> Collection<T> {
 
 impl<T> Eq for Collection<T> where T: std::cmp::PartialEq {}
 
+impl Collection<serde_json::Value> {
+    pub fn get<I: serde_json::value::Index>(
+        &self,
+        idx: usize,
+        index: I,
+    ) -> Option<&serde_json::Value> {
+        if let Some(ref vec) = self.value {
+            if let Some(value) = vec.get(idx) {
+                return value.get(index);
+            }
+        }
+        None
+    }
+}
+
 impl Collection<DriveItem> {
     pub fn sort_by_name(&mut self) {
         if let Some(ref mut vec) = self.value {

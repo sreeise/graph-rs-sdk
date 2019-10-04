@@ -1,6 +1,6 @@
 use crate::client::*;
+use crate::http::GraphResponse;
 use crate::http::IntoResponse;
-use crate::http::{Download, GraphResponse};
 use crate::http::{FetchClient, UploadSessionClient};
 use crate::types::collection::Collection;
 use graph_error::{GraphFailure, GraphResult};
@@ -14,7 +14,7 @@ use reqwest::Method;
 use serde::export::PhantomData;
 use serde_json::json;
 use std::fs::File;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 fn template(s: &str, last: &str) -> String {
     if s.starts_with(':') {
@@ -36,78 +36,12 @@ fn encode(s: &str) -> String {
     }
 }
 
-pub struct DriveRequest<'a, I> {
-    client: &'a Graph,
-    ident: PhantomData<I>,
-}
-
-impl<'a, I> DriveRequest<'a, I> {
-    pub fn new(client: &'a Graph) -> DriveRequest<'a, I> {
-        let ident = client.ident();
-        client.request().registry().register_helper(
-            "drive_item",
-            Box::new(
-                move |_: &Helper,
-                      _: &Handlebars,
-                      _: &Context,
-                      _: &mut RenderContext,
-                      out: &mut dyn Output|
-                      -> HelperResult {
-                    match ident {
-                        Ident::Drives => {
-                            out.write("items")?;
-                        },
-                        _ => {
-                            out.write("drive/items")?;
-                        },
-                    }
-                    Ok(())
-                },
-            ),
-        );
-
-        client.request().registry().register_helper(
-            "drive_root",
-            Box::new(
-                move |_: &Helper,
-                      _: &Handlebars,
-                      _: &Context,
-                      _: &mut RenderContext,
-                      out: &mut dyn Output|
-                      -> HelperResult {
-                    if ident.ne(&Ident::Drives) {
-                        out.write("drive")?;
-                    }
-                    Ok(())
-                },
-            ),
-        );
-
-        client.request().registry().register_helper(
-            "drive_root_path",
-            Box::new(
-                move |_: &Helper,
-                      _: &Handlebars,
-                      _: &Context,
-                      _: &mut RenderContext,
-                      out: &mut dyn Output|
-                      -> HelperResult {
-                    if ident.ne(&Ident::Drives) {
-                        out.write("drive/root")?;
-                    } else {
-                        out.write("root")?;
-                    }
-                    Ok(())
-                },
-            ),
-        );
-
-        DriveRequest {
-            client,
-            ident: PhantomData,
-        }
-    }
-}
+register_client!(
+    DriveRequest,
+    drive_item => "drive/items", "items", Ident::Drives,
+    drive_root => "drive", "", Ident::Drives,
+    drive_root_path => "drive/root", "root", Ident::Drives,
+);
 
 impl<'a, I> DriveRequest<'a, I> {
     get!( drive, BaseItem => "{{drive_root}}" );
@@ -300,7 +234,7 @@ impl<'a, I> DriveRequest<'a, I> {
                 .set_body(File::open(file)?);
             render_path!(
                 self.client,
-                "{{drive_item}}/{{id}}/{{file_name}}/content",
+                "{{drive_item}}/{{id}}:/{{file_name}}:/content",
                 &json!({
                     "id": id.as_ref(),
                     "file_name": name,
@@ -373,7 +307,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         directory: P,
-    ) -> GraphResult<FetchClient> {
+    ) -> IntoResponse<'a, I, FetchClient> {
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
@@ -382,9 +316,8 @@ impl<'a, I> DriveRequest<'a, I> {
         self.client
             .request()
             .set_method(Method::GET)
-            .download_request
-            .set_directory(PathBuf::from(directory.as_ref()));
-        self.client.request().download()
+            .set_download_dir(directory.as_ref());
+        IntoResponse::new(self.client)
     }
 
     pub fn check_out<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<()>> {
