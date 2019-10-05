@@ -54,7 +54,7 @@ fn get_root(token: &str, rid: &str) {
 
 #[test]
 fn create_delete_folder() {
-    OAuthRequest::test_credentials(|t| {
+    OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             let folder: HashMap<String, serde_json::Value> = HashMap::new();
@@ -103,7 +103,7 @@ fn create_delete_folder() {
 
 #[test]
 fn root_children_list_versions_get_item() {
-    OAuthRequest::test_credentials(|t| {
+    OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             if let Ok(res) = client
@@ -147,7 +147,7 @@ fn root_children_list_versions_get_item() {
 
 #[test]
 fn drive_check_in_out() {
-    OAuthRequest::test_credentials(|t| {
+    OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
 
@@ -194,7 +194,7 @@ fn drive_check_in_out() {
 
 #[test]
 fn drive_download() {
-    OAuthRequest::test_credentials(|t| {
+    OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let file_location = "./test_files/test_document.docx";
             let mut clean_up = CleanUp::new(|| {
@@ -229,7 +229,7 @@ fn drive_download() {
 
 #[test]
 fn drive_download_format() {
-    OAuthRequest::test_credentials(|t| {
+    OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let file_location = "./test_files/test_document.pdf";
             let mut clean_up = CleanUp::new(|| {
@@ -268,7 +268,7 @@ fn drive_download_format() {
 
 #[test]
 fn drive_update() {
-    OAuthRequest::test_credentials(|t| {
+    OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             let req = client
@@ -322,7 +322,7 @@ fn drive_update() {
 
 #[test]
 fn drive_upload_new_and_replace_and_delete() {
-    OAuthRequest::test_credentials(|t| {
+    OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             let upload_res = client

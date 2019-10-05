@@ -4,7 +4,7 @@ use test_tools::oauthrequest::OAuthRequest;
 
 #[test]
 fn user_request_test() {
-    OAuthRequest::test_credentials(|t| {
+    OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             let users = client.v1().users(id.as_str()).list().value();

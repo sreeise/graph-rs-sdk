@@ -133,13 +133,17 @@ impl GraphRequest {
         self
     }
 
+    pub fn ident(&self) -> Ident {
+        self.ident
+    }
+
     pub fn set_ident(&mut self, ident: Ident) -> &mut Self {
         self.ident = ident;
         self
     }
 
-    pub fn ident(&self) -> Ident {
-        self.ident
+    pub(crate) fn token(&mut self) -> &String {
+        &self.token
     }
 
     pub fn download(&mut self, request: GraphRequestBuilder) -> FetchClient {

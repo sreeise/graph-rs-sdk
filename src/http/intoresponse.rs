@@ -1,7 +1,11 @@
 use crate::client::*;
 use crate::http::{GraphResponse, UploadSessionClient};
+use crate::types::batch::BatchResponse;
 use graph_error::GraphResult;
+use reqwest::header::{HeaderValue, ACCEPT};
 use std::marker::PhantomData;
+use std::sync::mpsc::{channel, Receiver};
+use std::thread;
 
 /// A trait for sending an API request and converting the response
 /// to a suitable Rust type.
@@ -111,5 +115,37 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, UploadSessionClient> {
         self.client
             .request()
             .upload_session(self.client.take_builder())
+    }
+}
+
+impl<'a, I> ToResponse for IntoResponse<'a, I, BatchResponse> {
+    type Output = GraphResult<Receiver<serde_json::Value>>;
+
+    fn send(&self) -> Self::Output {
+        let builder = self.client.take_builder();
+        let response: GraphResponse<serde_json::Value> = self.client.request().execute(builder)?;
+        let (sender, receiver) = channel();
+        sender.send(response.value().clone()).unwrap();
+        let token = self.client.request().token().clone();
+
+        thread::spawn(move || {
+            let mut next_link = response.value()["@odata.nextLink"]
+                .as_str()
+                .map(|s| s.to_string());
+            let client = reqwest::Client::new();
+            while let Some(next) = next_link {
+                let mut res = client
+                    .post(next.as_str())
+                    .header(ACCEPT, HeaderValue::from_static("application/json"))
+                    .bearer_auth(token.as_str())
+                    .send()
+                    .unwrap();
+                let value: serde_json::Value = res.json().unwrap();
+                next_link = value["@odata.nextLink"].as_str().map(|s| s.to_string());
+                sender.send(value).unwrap();
+            }
+        });
+
+        Ok(receiver)
     }
 }

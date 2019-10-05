@@ -5,6 +5,7 @@ use crate::http::{GraphRequestBuilder, GraphResponse};
 use crate::lists::ListRequest;
 use crate::mail::MailRequest;
 use crate::onenote::OneNoteRequest;
+use crate::types::batch::BatchResponse;
 use crate::types::collection::Collection;
 use crate::url::GraphUrl;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
@@ -12,6 +13,7 @@ use graph_error::GraphFailure;
 use graph_oauth::oauth::{AccessToken, OAuth};
 use graph_rs_types::entitytypes::{Drive, Group, Site, User};
 use handlebars::*;
+use reqwest::header::{HeaderValue, ACCEPT};
 use reqwest::Method;
 use std::cell::{Cell, RefCell, RefMut};
 use std::convert::TryFrom;
@@ -237,6 +239,23 @@ impl<'a> Identify<'a> {
     pub fn users<S: AsRef<str>>(&self, id: S) -> IdentUsers<'a, IdentifyCommon> {
         self.client.request().set_ident(Ident::Users);
         IdentUsers::new(id.as_ref(), self.client)
+    }
+
+    pub fn batch<B: serde::Serialize>(
+        &self,
+        batch: &B,
+    ) -> IntoResponse<'a, IdentifyCommon, BatchResponse> {
+        self.client
+            .builder()
+            .set_method(Method::POST)
+            .header(ACCEPT, HeaderValue::from_static("application/json"))
+            .set_body(serde_json::to_string(batch).unwrap());
+        render_path!(
+            self.client,
+            "$batch",
+            &serde_json::json!({})
+        );
+        IntoResponse::new(self.client)
     }
 }
 
