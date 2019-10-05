@@ -1,37 +1,32 @@
-use crate::http::IoTools;
+use crate::http::{GraphRequestBuilder, IoTools};
 use crate::url::GraphUrl;
 use graph_error::GraphFailure;
 use graph_error::{GraphError, GraphResult};
-use reqwest::{RequestBuilder, Response};
+use reqwest::{Method, Response};
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
 
-pub trait Download {
-    fn download(&mut self) -> FetchClient;
-}
-
 /// The FetchBuilder provides an abstraction for downloading files.
 pub struct FetchClient {
     path: PathBuf,
     token: String,
-    target_url: GraphUrl,
     file_name: Option<OsString>,
     extension: Option<String>,
-    redirect: Option<RequestBuilder>,
+    request: GraphRequestBuilder,
     client: reqwest::Client,
 }
 
 impl FetchClient {
-    pub fn new(target_url: GraphUrl, path: PathBuf, token: &str) -> FetchClient {
+    pub fn new(token: &str, request: GraphRequestBuilder) -> FetchClient {
+        let path = request.download_dir.clone().unwrap();
         FetchClient {
             path,
             token: token.into(),
-            target_url,
             file_name: None,
             extension: None,
-            redirect: None,
+            request,
             client: reqwest::Client::new(),
         }
     }
@@ -46,6 +41,10 @@ impl FetchClient {
         self
     }
 
+    pub fn set_dir<P: AsRef<Path>>(&mut self, path: P) {
+        self.path = path.as_ref().to_path_buf();
+    }
+
     pub fn directory(&self) -> &PathBuf {
         &self.path
     }
@@ -58,12 +57,16 @@ impl FetchClient {
         self.extension.as_ref()
     }
 
+    pub fn url(&self) -> &GraphUrl {
+        self.request.url()
+    }
+
     pub fn send(&mut self) -> GraphResult<PathBuf> {
         self.download(self.path.clone())
     }
 
-    pub(crate) fn set_redirect(&mut self, redirect: RequestBuilder) {
-        self.redirect = Some(redirect);
+    pub fn format(&mut self, format: &str) {
+        self.request.url.format(format);
     }
 
     fn parse_content_disposition(&mut self, header: &str) -> Option<OsString> {
@@ -92,18 +95,27 @@ impl FetchClient {
         // Create the directory if it does not exist.
         IoTools::create_dir(&directory)?;
 
-        if let Some(redirect) = self.redirect.take() {
-            let mut response = redirect.send()?;
+        if !self.request.is_direct_download {
+            let mut response = self
+                .client
+                .request(self.request.method().clone(), self.request.url().as_str())
+                .bearer_auth(self.token.as_str())
+                .headers(self.request.headers().clone())
+                .send()?;
+
             let status = response.status().as_u16();
             if GraphError::is_error(status) {
                 return Err(GraphFailure::try_from(&mut response).unwrap_or_default());
             }
-            self.target_url = GraphUrl::parse(response.url().as_str()).unwrap();
+            let mut request =
+                GraphRequestBuilder::new(GraphUrl::parse(response.url().as_str()).unwrap());
+            request.set_method(Method::GET);
+            self.request = request;
         }
 
         let mut response = self
             .client
-            .get(self.target_url.as_str())
+            .get(self.request.url().as_str())
             .bearer_auth(self.token.as_str())
             .send()?;
 

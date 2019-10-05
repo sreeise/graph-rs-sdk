@@ -53,7 +53,7 @@ impl<'a, I> OneNoteNoteBookRequest<'a, I> {
         let mut vec: Vec<&str> = s.split('/').collect();
         vec.retain(|s| !s.is_empty());
         self.client
-            .request()
+            .builder()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&vec);

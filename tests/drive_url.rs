@@ -1,5 +1,6 @@
 use graph_rs::http::Session;
 use graph_rs::prelude::*;
+use graph_rs::GRAPH_URL;
 use test_tools::drive::*;
 
 static RID: &str = "T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x";
@@ -830,44 +831,59 @@ pub fn drive_restore_version_path() {
 #[test]
 pub fn drive_download() {
     let client = get_drive();
-    let _ = client.v1().me().drive().download(ID, "./test_files");
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content");
+    let download_client = client.v1().me().drive().download(ID, "./test_files");
+    assert_eq!(download_client.url().to_string(), format!("{}/{}", GRAPH_URL, "me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content"));
 
-    let _ = client.v1().drives(RID).drive().download(ID, "./test_files");
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content");
+    let download_client = client.v1().drives(RID).drive().download(ID, "./test_files");
+    assert_eq!(
+        download_client.url().to_string(),
+        format!("{}/{}", GRAPH_URL, "drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content")
+    );
 
-    let _ = client.v1().sites(RID).drive().download(ID, "./test_files");
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content");
+    let download_client = client.v1().sites(RID).drive().download(ID, "./test_files");
+    assert_eq!(
+        download_client.url().to_string(),
+        format!("{}/{}", GRAPH_URL, "sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content")
+    );
 }
 
 #[test]
 pub fn drive_download_path() {
     let client = get_drive();
-    let _ = client
+    let download_client = client
         .v1()
         .me()
         .drive()
         .download(":/file.docx:", "./test_files");
-    assert_url_eq(&client, "/me/drive/root:/file.docx:/content");
+    assert_eq!(
+        download_client.url().to_string(),
+        format!("{}/{}", GRAPH_URL, "me/drive/root:/file.docx:/content")
+    );
 
-    let _ = client
+    let download_client = client
         .v1()
         .drives(RID)
         .drive()
         .download(":/file.docx:", "./test_files");
-    assert_url_eq(
-        &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/file.docx:/content",
+    assert_eq!(
+        download_client.url().to_string(),
+        format!(
+            "{}/{}",
+            GRAPH_URL, "drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/file.docx:/content"
+        )
     );
 
-    let _ = client
+    let download_client = client
         .v1()
         .sites(RID)
         .drive()
         .download(":/file.docx:", "./test_files");
-    assert_url_eq(
-        &client,
-        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/file.docx:/content",
+    assert_eq!(
+        download_client.url().to_string(),
+        format!(
+            "{}/{}",
+            GRAPH_URL, "sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/file.docx:/content"
+        )
     );
 }
 

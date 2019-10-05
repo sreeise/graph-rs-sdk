@@ -1,7 +1,7 @@
 use crate::calendar::CalendarRequest;
 use crate::drive::DriveRequest;
-use crate::http::GraphResponse;
 use crate::http::{GraphRequest, IntoResponse};
+use crate::http::{GraphRequestBuilder, GraphResponse};
 use crate::lists::ListRequest;
 use crate::mail::MailRequest;
 use crate::onenote::OneNoteRequest;
@@ -47,6 +47,8 @@ impl Default for Ident {
 
 pub struct Graph {
     request: RefCell<GraphRequest>,
+    builder: RefCell<GraphRequestBuilder>,
+    registry: RefCell<Handlebars>,
     is_v1: Cell<bool>,
 }
 
@@ -69,10 +71,14 @@ impl<'a> Graph {
     ///     .json()?;
     /// ```
     pub fn new(token: &str) -> Graph {
-        let mut request = GraphRequest::from(GraphUrl::from_str(GRAPH_URL).unwrap());
+        let mut request = GraphRequest::default();
         request.set_token(token);
         Graph {
             request: RefCell::new(request),
+            builder: RefCell::new(GraphRequestBuilder::new(
+                GraphUrl::from_str(GRAPH_URL).unwrap(),
+            )),
+            registry: RefCell::new(Handlebars::new()),
             is_v1: Cell::new(true),
         }
     }
@@ -80,14 +86,14 @@ impl<'a> Graph {
     /// Use the v1.0 Graph API
     pub fn v1(&'a self) -> Identify<'a> {
         self.is_v1.set(true);
-        self.request().as_mut().replace(GRAPH_URL).unwrap();
+        self.builder().as_mut().replace(GRAPH_URL).unwrap();
         Identify { client: &self }
     }
 
     /// Use the Graph beta API
     pub fn beta(&'a self) -> Identify<'a> {
         self.is_v1.set(false);
-        self.request().as_mut().replace(GRAPH_URL_BETA).unwrap();
+        self.builder().as_mut().replace(GRAPH_URL_BETA).unwrap();
         Identify { client: &self }
     }
 
@@ -111,45 +117,58 @@ impl<'a> Graph {
         self.request.borrow_mut()
     }
 
+    pub(crate) fn builder(&self) -> RefMut<GraphRequestBuilder> {
+        self.builder.borrow_mut()
+    }
+
+    pub(crate) fn take_builder(&self) -> GraphRequestBuilder {
+        self.builder.replace(GraphRequestBuilder::new(
+            GraphUrl::from_str(GRAPH_URL).unwrap(),
+        ))
+    }
+
+    pub(crate) fn registry(&self) -> RefMut<Handlebars> {
+        self.registry.borrow_mut()
+    }
+
     pub fn url_ref<F>(&self, f: F)
     where
         F: Fn(&GraphUrl),
     {
-        f(&self.request.borrow().as_ref())
+        f(&self.builder.borrow().as_ref())
     }
 
     pub fn url_mut<F>(&self, f: F)
     where
         F: Fn(&mut GraphUrl),
     {
-        f(&mut self.request.borrow_mut().as_mut())
+        f(&mut self.builder().as_mut())
     }
 
     pub fn fn_mut_url<F>(&self, mut f: F)
     where
         F: FnMut(&mut GraphUrl),
     {
-        f(&mut self.request.borrow_mut().as_mut())
+        f(&mut self.builder().as_mut())
     }
 }
 
 impl From<&str> for Graph {
     fn from(token: &str) -> Self {
-        let mut request = GraphRequest::from(GraphUrl::from_str(GRAPH_URL).unwrap());
-        request.set_token(token);
-        Graph {
-            request: RefCell::new(request),
-            is_v1: Cell::new(true),
-        }
+        Graph::new(token)
     }
 }
 
 impl From<String> for Graph {
     fn from(token: String) -> Self {
-        let mut request = GraphRequest::from(GraphUrl::from_str(GRAPH_URL).unwrap());
+        let mut request = GraphRequest::default();
         request.set_token(token.as_ref());
         Graph {
             request: RefCell::new(request),
+            builder: RefCell::new(GraphRequestBuilder::new(
+                GraphUrl::from_str(GRAPH_URL).unwrap(),
+            )),
+            registry: RefCell::new(Handlebars::new()),
             is_v1: Cell::new(true),
         }
     }
@@ -157,10 +176,14 @@ impl From<String> for Graph {
 
 impl From<&AccessToken> for Graph {
     fn from(token: &AccessToken) -> Self {
-        let mut request = GraphRequest::from(GraphUrl::from_str(GRAPH_URL).unwrap());
+        let mut request = GraphRequest::default();
         request.set_token(token.bearer_token());
         Graph {
             request: RefCell::new(request),
+            builder: RefCell::new(GraphRequestBuilder::new(
+                GraphUrl::from_str(GRAPH_URL).unwrap(),
+            )),
+            registry: RefCell::new(Handlebars::new()),
             is_v1: Cell::new(true),
         }
     }
@@ -171,12 +194,7 @@ impl TryFrom<&OAuth> for Graph {
 
     fn try_from(oauth: &OAuth) -> Result<Self, Self::Error> {
         let access_token = oauth.get_access_token()?;
-        let mut request = GraphRequest::from(GraphUrl::from_str(GRAPH_URL).unwrap());
-        request.set_token(access_token.bearer_token());
-        Ok(Graph {
-            request: RefCell::new(request),
-            is_v1: Cell::new(true),
-        })
+        Ok(Graph::from(&access_token))
     }
 }
 

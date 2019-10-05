@@ -66,7 +66,7 @@ impl<'a, I> DriveRequest<'a, I> {
     get!( special_music_children, Collection<DriveItem> => "{{drive_root}}/special/music/children" );
 
     pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, DriveItem> {
-        self.client.request().set_method(Method::GET);
+        self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
             template(id.as_ref(), "").as_str(),
@@ -81,7 +81,7 @@ impl<'a, I> DriveRequest<'a, I> {
         body: &B,
     ) -> IntoResponse<'a, I, DriveItem> {
         self.client
-            .request()
+            .builder()
             .set_method(Method::PATCH)
             .set_body(serde_json::to_string(body).unwrap());
         render_path!(
@@ -93,7 +93,7 @@ impl<'a, I> DriveRequest<'a, I> {
     }
 
     pub fn delete<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<()>> {
-        self.client.request().set_method(Method::DELETE);
+        self.client.builder().set_method(Method::DELETE);
         render_path!(
             self.client,
             template(id.as_ref(), "").as_str(),
@@ -108,7 +108,7 @@ impl<'a, I> DriveRequest<'a, I> {
         drive_item: &B,
     ) -> IntoResponse<'a, I, DriveItem> {
         self.client
-            .request()
+            .builder()
             .set_method(Method::POST)
             .set_body(serde_json::to_string(drive_item).unwrap());
 
@@ -130,7 +130,7 @@ impl<'a, I> DriveRequest<'a, I> {
         body: &B,
     ) -> IntoResponse<'a, I, GraphResponse<()>> {
         self.client
-            .request()
+            .builder()
             .set_method(Method::POST)
             .set_body(serde_json::to_string(body).unwrap());
         render_path!(
@@ -145,6 +145,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &self,
         id: S,
     ) -> IntoResponse<'a, I, Collection<DriveItemVersion>> {
+        self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
             template(id.as_ref(), "versions").as_str(),
@@ -159,6 +160,7 @@ impl<'a, I> DriveRequest<'a, I> {
         thumb_id: &str,
         size: &str,
     ) -> IntoResponse<'a, I, Thumbnail> {
+        self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
             template(id.as_ref(), "thumbnails/{{thumb_id}}/{{size}}").as_str(),
@@ -177,6 +179,7 @@ impl<'a, I> DriveRequest<'a, I> {
         thumb_id: &str,
         size: &str,
     ) -> IntoResponse<'a, I, Vec<u8>> {
+        self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
             template(id.as_ref(), "thumbnails/{{thumb_id}}/{{size}}/content").as_str(),
@@ -189,13 +192,13 @@ impl<'a, I> DriveRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn upload_replace<ID: AsRef<str>, P: AsRef<Path>>(
+    pub fn upload_replace<S: AsRef<str>, P: AsRef<Path>>(
         &'a self,
-        id: ID,
+        id: S,
         file: P,
     ) -> GraphResult<IntoResponse<'a, I, DriveItem>> {
         self.client
-            .request()
+            .builder()
             .set_method(Method::PUT)
             .set_body(File::open(file)?);
         render_path!(
@@ -213,7 +216,7 @@ impl<'a, I> DriveRequest<'a, I> {
     ) -> GraphResult<IntoResponse<'a, I, DriveItem>> {
         if id.as_ref().starts_with(':') {
             self.client
-                .request()
+                .builder()
                 .set_method(Method::PUT)
                 .set_body(File::open(file)?);
             render_path!(
@@ -229,7 +232,7 @@ impl<'a, I> DriveRequest<'a, I> {
                 .to_string_lossy()
                 .to_string();
             self.client
-                .request()
+                .builder()
                 .set_method(Method::PUT)
                 .set_body(File::open(file)?);
             render_path!(
@@ -249,6 +252,7 @@ impl<'a, I> DriveRequest<'a, I> {
         id: S,
         version_id: S,
     ) -> IntoResponse<'a, I, GraphResponse<()>> {
+        self.client.builder().set_method(Method::POST);
         render_path!(
             self.client,
             template(id.as_ref(), "versions/{{version_id}}/restoreVersion").as_str(),
@@ -267,7 +271,7 @@ impl<'a, I> DriveRequest<'a, I> {
         body: B,
     ) -> IntoResponse<'a, I, UploadSessionClient> {
         self.client
-            .request()
+            .builder()
             .set_method(Method::POST)
             .set_upload_session(file)
             .set_body(serde_json::to_string(&json!({ "item": body })).unwrap());
@@ -286,12 +290,12 @@ impl<'a, I> DriveRequest<'a, I> {
     ) -> IntoResponse<'a, I, ItemPreviewInfo> {
         if let Some(body) = body {
             self.client
-                .request()
+                .builder()
                 .set_method(Method::POST)
                 .set_body(serde_json::to_string(body).unwrap());
         } else {
             self.client
-                .request()
+                .builder()
                 .set_method(Method::POST)
                 .header(CONTENT_LENGTH, HeaderValue::from(0));
         }
@@ -303,21 +307,17 @@ impl<'a, I> DriveRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn download<S: AsRef<str>, P: AsRef<Path>>(
-        &'a self,
-        id: S,
-        directory: P,
-    ) -> IntoResponse<'a, I, FetchClient> {
+    pub fn download<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> FetchClient {
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
         self.client
-            .request()
+            .builder()
             .set_method(Method::GET)
             .set_download_dir(directory.as_ref());
-        IntoResponse::new(self.client)
+        self.client.request().download(self.client.take_builder())
     }
 
     pub fn check_out<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<()>> {
@@ -327,7 +327,7 @@ impl<'a, I> DriveRequest<'a, I> {
             &json!({ "id": encode(id.as_ref()) })
         );
         self.client
-            .request()
+            .builder()
             .set_method(Method::POST)
             .header(CONTENT_LENGTH, HeaderValue::from(0));
         IntoResponse::new(self.client)
@@ -338,16 +338,15 @@ impl<'a, I> DriveRequest<'a, I> {
         id: S,
         body: &B,
     ) -> IntoResponse<'a, I, GraphResponse<()>> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .set_body(serde_json::to_string(body).unwrap());
         render_path!(
             self.client,
             template(id.as_ref(), "checkin").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        self.client.request().set_method(Method::POST);
+        self.client
+            .builder()
+            .set_method(Method::POST)
+            .set_body(serde_json::to_string(body).unwrap());
         IntoResponse::new(self.client)
     }
 }
