@@ -3,7 +3,7 @@ use test_tools::oauthrequest::OAuthRequest;
 
 #[test]
 fn list_and_get_messages() {
-    OAuthRequest::test_credentials(|t| {
+    OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
             if let Ok(res) = client

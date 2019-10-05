@@ -128,7 +128,7 @@ impl OAuthRequest {
         None
     }
 
-    pub fn test_credentials<F>(f: F)
+    pub fn access_token_fn<F>(f: F)
     where
         F: Fn(Option<(String, String)>),
     {
