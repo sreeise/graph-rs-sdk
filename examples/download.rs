@@ -20,13 +20,13 @@ pub fn download() {
     let client = Graph::try_from(&oauth).unwrap();
 
     // Download the file. The file will be downloaded with the same name.
-    let path_buf: PathBuf = client
+    let mut download_client = client
         .v1()
         .me()
         .drive()
-        .download(ITEM_ID, "./examples/example_files")
-        .send()
-        .unwrap();
+        .download(ITEM_ID, "./examples/example_files");
+
+    let path_buf = download_client.send().unwrap();
 
     println!("{:#?}", path_buf);
 }
@@ -38,20 +38,19 @@ pub fn download() {
 //
 // For more info on download formats see:
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content_format?view=odsp-graph-online
-pub fn download_and_format(extension: &str) {
+pub fn download_and_format(format: &str) {
     // Get the access token from OAuth for the Drive API.
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
     let client = Graph::try_from(&oauth).unwrap();
 
-    let path_buf: PathBuf = client
+    let mut download_client = client
         .v1()
         .me()
         .drive()
-        .download(ITEM_ID, "./examples/example_files")
-        // Select the format.
-        .set_extension(extension)
-        .send()
-        .unwrap();
+        .download(ITEM_ID, "./examples/example_files");
+
+    download_client.format(format);
+    let path_buf: PathBuf = download_client.send().unwrap();
 
     println!("{:#?}", path_buf.metadata());
 }
@@ -62,15 +61,16 @@ fn download_and_rename(name: &str) {
     let client = Graph::try_from(&oauth).unwrap();
 
     // Create the download request.
-    let path_buf: PathBuf = client
+    let mut download_client = client
         .v1()
         .me()
         .drive()
-        .download(ITEM_ID, "./examples/example_files")
-        // Rename the file
-        .rename(&OsString::from(name))
-        .send()
-        .unwrap();
+        .download(ITEM_ID, "./examples/example_files");
+
+    // // Rename the file or rename it after downloading using PathBuf.
+    download_client.rename(OsString::from(name));
+
+    let path_buf: PathBuf = download_client.send().unwrap();
 
     println!("{:#?}", path_buf.metadata());
 }
@@ -81,13 +81,13 @@ fn download_by_path(path: &str) {
     let client = Graph::new("");
 
     // Create the download request.
-    let path_buf: PathBuf = client
+    let mut download_client = client
         .v1()
         .me()
         .drive()
-        .download(path, "./examples/example_files")
-        .send()
-        .unwrap();
+        .download(path, "./examples/example_files");
+
+    let path_buf: PathBuf = download_client.send().unwrap();
 
     println!("{:#?}", path_buf.metadata());
 }

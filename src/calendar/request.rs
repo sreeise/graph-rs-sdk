@@ -34,16 +34,16 @@ impl<'a, I> CalendarViewRequest<'a, I> {
         end_date_time: &str,
     ) -> IntoResponse<'a, I, Collection<Calendar>> {
         self.client
-            .request()
+            .builder()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&["calendar", "calendarView"]);
         self.client
-            .request()
+            .builder()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .request()
+            .builder()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
@@ -56,16 +56,16 @@ impl<'a, I> CalendarViewRequest<'a, I> {
         end_date_time: &str,
     ) -> IntoResponse<'a, I, Collection<Calendar>> {
         self.client
-            .request()
+            .builder()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&["calendars", id, "calendarView"]);
         self.client
-            .request()
+            .builder()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .request()
+            .builder()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
@@ -78,16 +78,16 @@ impl<'a, I> CalendarViewRequest<'a, I> {
         end_date_time: &str,
     ) -> IntoResponse<'a, I, Collection<Calendar>> {
         self.client
-            .request()
+            .builder()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&["calendarGroup", "calendars", calendar_id, "calendarView"]);
         self.client
-            .request()
+            .builder()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .request()
+            .builder()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
@@ -101,7 +101,7 @@ impl<'a, I> CalendarViewRequest<'a, I> {
         end_date_time: &str,
     ) -> IntoResponse<'a, I, Collection<Calendar>> {
         self.client
-            .request()
+            .builder()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&[
@@ -112,11 +112,11 @@ impl<'a, I> CalendarViewRequest<'a, I> {
                 "calendarView",
             ]);
         self.client
-            .request()
+            .builder()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .request()
+            .builder()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)

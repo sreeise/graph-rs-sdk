@@ -3,6 +3,7 @@ use graph_rs::prelude::*;
 use std::collections::HashMap;
 use std::error::Error;
 use std::ffi::OsStr;
+use std::ffi::OsString;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -206,12 +207,13 @@ fn drive_download() {
             clean_up.rm_files(file_location.into());
 
             let client = Graph::new(bearer.as_str());
-            let req: GraphResult<PathBuf> = client
+            let mut download = client
                 .v1()
                 .drives(id.as_str())
                 .drive()
-                .download(":/test_document.docx:", "./test_files")
-                .send();
+                .download(":/test_document.docx:", "./test_files");
+
+            let req: GraphResult<PathBuf> = download.send();
 
             if let Ok(path_buf) = req {
                 assert!(path_buf.exists());
@@ -240,14 +242,15 @@ fn drive_download_format() {
             clean_up.rm_files(file_location.into());
 
             let client = Graph::new(bearer.as_str());
-            let req: GraphResult<PathBuf> = client
+            let mut download = client
                 .v1()
                 .drives(id.as_str())
                 .drive()
-                .download(":/test_document.docx:", "./test_files")
-                .format("pdf")
-                .rename(&OsStr::new("test_document.pdf"))
-                .send();
+                .download(":/test_document.docx:", "./test_files");
+
+            download.format("pdf");
+            download.rename(OsString::from("test_document.pdf"));
+            let req: GraphResult<PathBuf> = download.send();
 
             if let Ok(path_buf) = req {
                 assert!(path_buf.exists());

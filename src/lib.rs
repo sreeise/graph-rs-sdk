@@ -112,9 +112,6 @@ extern crate from_as;
 extern crate graph_error;
 extern crate graph_oauth;
 pub extern crate graph_rs_types;
-extern crate strum;
-extern crate strum_macros;
-#[macro_use]
 extern crate log;
 extern crate pretty_env_logger;
 extern crate reqwest;
@@ -122,6 +119,8 @@ pub extern crate serde;
 pub extern crate serde_derive;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
+extern crate strum;
+extern crate strum_macros;
 #[macro_use]
 pub extern crate url_serde;
 #[macro_use]

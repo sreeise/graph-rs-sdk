@@ -12,8 +12,7 @@ macro_rules! register_client {
             pub fn new(client: &'a Graph) -> $name<'a, I> {
 
                 $(
-                    client.request()
-                        .registry()
+                    client.registry()
                         .register_helper(stringify!($helper), Box::new($helper));
                 )*
 
@@ -35,7 +34,7 @@ macro_rules! register_client {
             pub fn new(client: &'a Graph) -> $name<'a, I> {
                 let ident = client.ident();
                 $(
-                    client.request().registry().register_helper(
+                    client.registry().register_helper(
                         stringify!($helper),
                         Box::new(
                             move |_: &Helper,
@@ -78,13 +77,11 @@ macro_rules! register_ident_client {
         impl<'a, I> $name<'a, I> {
             pub fn new(id: &str, client: &'a Graph) -> $name<'a, I> {
                 $(
-                    client.request()
-                        .registry()
+                    client.registry()
                         .register_helper(stringify!($helper), Box::new($helper));
                 )*
                 let id_string = id.to_string();
-                client.request()
-                    .registry()
+                client.registry()
                     .register_helper("RID",
                     Box::new(move |
                         _: &Helper,
@@ -108,12 +105,12 @@ macro_rules! register_ident_client {
                 let ident = self.client.ident();
                 if self.client.ident().eq(&Ident::Me) {
                     self.client
-                        .request()
+                        .builder()
                         .as_mut()
                         .extend_path(&[ident.as_ref()]);
                 } else {
                     self.client
-                        .request()
+                        .builder()
                         .as_mut()
                         .extend_path(&[ident.as_ref(), self.id.as_str()]);
                 }
@@ -167,25 +164,23 @@ macro_rules! register_helper {
 macro_rules! render_path {
     ($client:expr, $template:expr, $json:expr) => {
         let path = $client
-            .request()
             .registry()
             .render_template($template, $json)
             .unwrap();
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $client.request().as_mut().extend_path(&vec);
+        $client.builder().as_mut().extend_path(&vec);
     };
 
     ($client:expr, $template:expr, $json:expr, $last:expr ) => {
         let path = $client
-            .request()
             .registry()
             .render_template($template, $json)
             .unwrap();
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
         vec.extend($last);
-        $client.request().as_mut().extend_path(&vec);
+        $client.builder().as_mut().extend_path(&vec);
     };
 }
 
@@ -193,19 +188,17 @@ macro_rules! register_template {
     ( $self:expr, $name:ident, $template:expr ) => {
         let s = $self
             .client
-            .request()
             .registry()
             .render(stringify!($name - $template), &serde_json::json!({}))
             .unwrap();
         let mut vec: Vec<&str> = s.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $self.client.request().as_mut().extend_path(&vec);
+        $self.client.builder().as_mut().extend_path(&vec);
     };
 
     ( $self:expr, $name:ident, $template:expr, $id:expr ) => {
         let s = $self
             .client
-            .request()
             .registry()
             .render(
                 stringify!($name - $template),
@@ -214,13 +207,12 @@ macro_rules! register_template {
             .unwrap();
         let mut vec: Vec<&str> = s.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $self.client.request().as_mut().extend_path(&vec);
+        $self.client.builder().as_mut().extend_path(&vec);
     };
 
     ( $self:expr, $name:ident, $template:expr, $id:expr, $id2:expr ) => {
         let s = $self
             .client
-            .request()
             .registry()
             .render(
                 stringify!($name - $template),
@@ -229,13 +221,12 @@ macro_rules! register_template {
             .unwrap();
         let mut vec: Vec<&str> = s.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $self.client.request().as_mut().extend_path(&vec);
+        $self.client.builder().as_mut().extend_path(&vec);
     };
 
     ( $self:expr, $name:ident, $template:expr, $id:expr, $id2:expr, $id3:expr ) => {
         let s = $self
             .client
-            .request()
             .registry()
             .render(
                 stringify!($name - $template),
@@ -244,18 +235,17 @@ macro_rules! register_template {
             .unwrap();
         let mut vec: Vec<&str> = s.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $self.client.request().as_mut().extend_path(&vec);
+        $self.client.builder().as_mut().extend_path(&vec);
     };
 
     ( $client:expr => $template:expr, $id:expr ) => {
         let s = $client
-            .request()
             .registry()
             .render($template, &serde_json::json!({ "id": $id }))
             .unwrap();
         let mut vec: Vec<&str> = s.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $client.request().as_mut().extend_path(&vec);
+       $client.builder().as_mut().extend_path(&vec);
     };
 }
 
@@ -263,8 +253,10 @@ macro_rules! register_template {
 macro_rules! register_method {
     ( $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name(&'a self) -> IntoResponse<'a, I, $T> {
-        self.client.request()
-            .set_method($m)
+        self.client.builder()
+            .set_method($m);
+
+        self.client
             .registry()
             .register_template_string(stringify!($name-$template), $template)
             .unwrap();
@@ -275,8 +267,10 @@ macro_rules! register_method {
 
     ( | $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, $T> {
-        self.client.request()
-            .set_method($m)
+        self.client.builder()
+            .set_method($m);
+
+        self.client
             .registry()
             .register_template_string(stringify!($name-$template), $template)
             .unwrap();
@@ -287,8 +281,10 @@ macro_rules! register_method {
 
     ( || $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S) -> IntoResponse<'a, I, $T> {
-        self.client.request()
-            .set_method($m)
+        self.client.builder()
+            .set_method($m);
+
+        self.client
             .registry()
             .register_template_string(stringify!($name-$template), $template)
             .unwrap();
@@ -299,8 +295,10 @@ macro_rules! register_method {
 
     ( ||| $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S) -> IntoResponse<'a, I, $T> {
-        self.client.request()
-            .set_method($m)
+        self.client.builder()
+            .set_method($m);
+
+        self.client
             .registry()
             .register_template_string(stringify!($name-$template), $template)
             .unwrap();
@@ -311,9 +309,11 @@ macro_rules! register_method {
 
     ( [ $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<B: serde::Serialize>(&'a self, body: &B) -> IntoResponse<'a, I, $T> {
-        self.client.request()
+        self.client.builder()
             .set_method($m)
-            .set_body(serde_json::to_string_pretty(body).unwrap())
+            .set_body(serde_json::to_string_pretty(body).unwrap());
+
+        self.client
             .registry()
             .register_template_string(stringify!($name-$template), $template)
             .unwrap();
@@ -324,9 +324,11 @@ macro_rules! register_method {
 
     ( [ | $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, body: &B) -> IntoResponse<'a, I, $T> {
-        self.client.request()
+        self.client.builder()
             .set_method($m)
-            .set_body(serde_json::to_string_pretty(body).unwrap())
+            .set_body(serde_json::to_string_pretty(body).unwrap());
+
+        self.client
             .registry()
             .register_template_string(stringify!($name-$template), $template)
             .unwrap();
@@ -337,9 +339,11 @@ macro_rules! register_method {
 
     ( [ || $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, body: &B) -> IntoResponse<'a, I, $T> {
-        self.client.request()
+        self.client.builder()
             .set_method($m)
-            .set_body(serde_json::to_string_pretty(body).unwrap())
+            .set_body(serde_json::to_string_pretty(body).unwrap());
+
+        self.client
             .registry()
             .register_template_string(stringify!($name-$template), $template)
             .unwrap();
