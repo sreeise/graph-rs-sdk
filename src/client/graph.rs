@@ -4,7 +4,7 @@ use crate::http::{GraphRequest, IntoResponse};
 use crate::http::{GraphRequestBuilder, GraphResponse};
 use crate::lists::ListRequest;
 use crate::mail::MailRequest;
-use crate::onenote::OneNoteRequest;
+use crate::onenote::OnenoteRequest;
 use crate::types::batch::BatchResponse;
 use crate::types::collection::Collection;
 use crate::url::GraphUrl;

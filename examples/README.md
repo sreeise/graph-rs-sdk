@@ -21,8 +21,7 @@ and access tokens.
     let drive_item: GraphResponse<DriveItem> = client.v1()
                         .me()
                         .drive()
-                        .get_item()
-                        .by_id("ITEM_ID");
+                        .get_item("ITEM_ID")
                         .send()
                         .unwrap():
     println!("{:#?}", drive_item.value()):

@@ -761,6 +761,15 @@ pub fn drive_list_children() {
 
     let _ = client.v1().sites(RID).drive().list_children(ID);
     assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
+
+    let _ = client.v1().me().drive().list_children(":/Documents/item.docx:");
+    assert_url_eq(&client, "/me/drive/root:/Documents/item.docx:/children");
+
+    let _ = client.v1().drives(RID).drive().list_children(":/Documents/item.docx:");
+    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/item.docx:/children");
+
+    let _ = client.v1().sites(RID).drive().list_children(":/Documents/item.docx:");
+    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/item.docx:/children");
 }
 
 #[test]
@@ -955,4 +964,10 @@ pub fn drive_item_activities() {
 
     let _ = client.v1().sites(RID).drive().item_activity(ID);
     assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities");
+
+    let _ = client.v1().drives(RID).drive().item_activity(":/Documents/item.txt:");
+    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/item.txt:/activities");
+
+    let _ = client.v1().sites(RID).drive().item_activity(":/Documents/item.txt:");
+    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/item.txt:/activities");
 }

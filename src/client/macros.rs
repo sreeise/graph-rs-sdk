@@ -136,9 +136,9 @@ macro_rules! register_ident_client {
                 CalendarRequest::new(self.client)
             }
 
-            pub fn one_note(&'a self) -> OneNoteRequest<'a, I> {
+            pub fn onenote(&'a self) -> OnenoteRequest<'a, I> {
                 self.set_path();
-                OneNoteRequest::new(self.client)
+                OnenoteRequest::new(self.client)
             }
         }
     }

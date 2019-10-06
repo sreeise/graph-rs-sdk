@@ -49,8 +49,6 @@ impl<'a, I> DriveRequest<'a, I> {
     get!( recent, Collection<DriveItem> => "{{drive_root}}/recent" );
     get!( delta, Collection<DriveItem> => "{{drive_root}}/root/delta" );
     get!( root_children, Collection<DriveItem> => "{{drive_root}}/root/children" );
-    get!( | list_children, Collection<DriveItem> => "{{drive_item}}/{{id}}/children" );
-    get!( | item_activity, Collection<ItemActivity> => "{{drive_item}}/{{id}}/activities" );
     get!( drive_activity, Collection<ItemActivity> => "{{drive_root}}/activities" );
     get!( thumbnails, Collection<ThumbnailSet> => "{{drive_item}}/thumbnails" );
     get!( shared_with_me, Collection<DriveItem> => "{{drive_root}}/sharedWithMe" );
@@ -64,6 +62,26 @@ impl<'a, I> DriveRequest<'a, I> {
     get!( special_app_root_children, Collection<DriveItem> => "{{drive_root}}/special/approot/children" );
     get!( special_music, Collection<DriveItem> => "{{drive_root}}/special/music" );
     get!( special_music_children, Collection<DriveItem> => "{{drive_root}}/special/music/children" );
+
+    pub fn list_children<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, Collection<DriveItem>> {
+        self.client.builder().set_method(Method::GET);
+        render_path!(
+            self.client,
+            &template(id.as_ref(), "children"),
+            &json!({ "id": encode(id.as_ref()) })
+        );
+        IntoResponse::new(self.client)
+    }
+
+    pub fn item_activity<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, Collection<DriveItem>> {
+        self.client.builder().set_method(Method::GET);
+        render_path!(
+            self.client,
+            &template(id.as_ref(), "activities"),
+            &json!({ "id": encode(id.as_ref()) })
+        );
+        IntoResponse::new(self.client)
+    }
 
     pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, DriveItem> {
         self.client.builder().set_method(Method::GET);
