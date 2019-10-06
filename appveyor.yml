@@ -1,5 +1,19 @@
 environment:
   SSL_CERT_FILE: "C:\\OpenSSL\\cacert.pem"
+
+  TEST_APP_ID:
+    secure: BxdmP2b27g5X5MtNtrPn//nEU910jKuc35acBP87NutqghfHdcfGs4hzYX+P9kgp
+  TEST_APP_SECRET:
+    secure: TuKrAyGpAdArLUujhZUrwTYpQCmHv/ZsOL4w+au5b3W16d/UNJbXaZlA4lJVfEYO
+  TEST_APP_USER_NAME:
+    secure: rBiJxlAihHp810szCSz2v/C4khRkXUFUHjcDibYw5TTCfEfRtS1kwsu2T2cqOaXp
+  TEST_APP_PASSWORD:
+    secure: h0LX6syLa7EtRVjYBOIbnSe7BA+fka3DBYHPJPrANhw=
+  TEST_APP_TENANT:
+    secure: UyWna7PmLBrBDldEt3nU8MjvVNWPl0DznY7KQxJHCq7FGmIdf1ZzyV9KWS7Is9fj
+  TEST_APP_USER_ID:
+    secure: a9Ub4PSHMHvqaTopXIFadzDgeueMah1hMVd1mNiG+JjWEiWUTgI6J1jEvm5PaEHE
+
   matrix:
     - TARGET: i686-pc-windows-msvc
       BITS: 32

@@ -1,14 +1,21 @@
 use graph_rs::prelude::*;
-use test_tools::oauthrequest::OAuthRequest;
 use std::error::Error;
+use test_tools::oauthrequest::OAuthRequest;
+use test_tools::oauthrequest::THROTTLE_MUTEX;
 
 #[test]
 fn list_get_notebooks_and_sections() {
+    if OAuthRequest::is_appveyor() {
+        return;
+    }
+
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
+            let _lock = THROTTLE_MUTEX.lock().unwrap();
             let client = Graph::new(bearer.as_str());
 
-            let notebooks = client.v1()
+            let notebooks = client
+                .v1()
                 .users(id.as_str())
                 .onenote()
                 .notebooks()
@@ -16,40 +23,63 @@ fn list_get_notebooks_and_sections() {
                 .value();
 
             if let Ok(collection) = notebooks {
-                let name = collection.value()["value"][0]["displayName"].as_str().unwrap();
-                assert_eq!(name, "TestNotebook");
+                let vec = collection.value()["value"].as_array().unwrap();
 
-                let notebook_id = collection.value()["value"][0]["id"].as_str().unwrap();
-                let get_notebook = client.v1()
+                let mut found_test_notebook = false;
+                let mut notebook_id = String::new();
+                for value in vec.iter() {
+                    if value["displayName"].as_str().unwrap().eq("TestNotebook") {
+                        found_test_notebook = true;
+                        notebook_id.push_str(value["id"].as_str().unwrap());
+                    }
+                }
+
+                assert!(found_test_notebook);
+                let get_notebook = client
+                    .v1()
                     .users(id.as_str())
                     .onenote()
                     .notebooks()
-                    .get(notebook_id)
+                    .get(notebook_id.as_str())
                     .value();
 
                 if let Ok(notebook) = get_notebook {
-                    let notebook_name = notebook.value()["displayName"].as_str().unwrap();
-                    assert_eq!("TestNotebook", notebook_name);
+                    assert_eq!(
+                        "TestNotebook",
+                        notebook.value()["displayName"].as_str().unwrap()
+                    );
                 } else if let Err(e) = get_notebook {
-                    panic!("Request error. Method: onenote notebooks get. Error: {:#?}", e.description());
+                    panic!(
+                        "Request error. Method: onenote notebooks get. Error: {:#?}",
+                        e.description()
+                    );
                 }
 
-                let sections = client.v1()
+                let sections = client
+                    .v1()
                     .users(id.as_str())
                     .onenote()
                     .notebooks()
-                    .list_sections(notebook_id)
+                    .list_sections(notebook_id.as_str())
                     .value();
 
                 if let Ok(collection) = sections {
-                    let section_name = collection.value()["value"][0]["displayName"].as_str().unwrap();
+                    let section_name = collection.value()["value"][0]["displayName"]
+                        .as_str()
+                        .unwrap();
                     assert_eq!("TestSection", section_name);
                 } else if let Err(e) = sections {
-                    panic!("Request error. Method: onenote notebooks list sections. Error: {:#?}", e.description());
+                    panic!(
+                        "Request error. Method: onenote notebooks list sections. Error: {:#?}",
+                        e.description()
+                    );
                 }
-
             } else if let Err(e) = notebooks {
-                panic!("Request error. Method: onenote notebooks list. Error: {:#?}", e.description());
+                panic!(
+                    "Request error. Method: onenote notebooks list. Error: {:#?}",
+                    e.description()
+                );
             }
-        }});
+        }
+    });
 }

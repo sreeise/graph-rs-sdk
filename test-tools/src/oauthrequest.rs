@@ -2,6 +2,14 @@ use from_as::*;
 use graph_rs::oauth::{AccessToken, OAuth};
 use std::env;
 use std::io::Read;
+use std::sync::Mutex;
+
+// static mutex's that are used for preventing test failures
+// due to too many concurrent requests for Microsoft Graph.
+lazy_static! {
+    pub static ref THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
+    pub static ref DRIVE_THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
+}
 
 /*
 For local testing create a env.toml file in the root of the
@@ -23,11 +31,19 @@ pub struct OAuth2 {
 pub struct OAuthRequest;
 
 impl OAuthRequest {
+    pub fn is_local() -> bool {
+        env::var("GRAPH_TEST_ENV") == Ok("true".to_string())
+    }
+
     pub fn is_travis() -> bool {
         env::var("TRAVIS") == Ok("true".to_string())
     }
 
-    pub fn is_travis_env_set() -> bool {
+    pub fn is_appveyor() -> bool {
+        env::var("APPVEYOR") == Ok("True".to_string())
+    }
+
+    pub fn is_test_env_set() -> bool {
         env::var("TEST_APP_TENANT").is_ok() &&
             env::var("TEST_APP_ID").is_ok() &&
             env::var("TEST_APP_SECRET").is_ok() &&
@@ -40,7 +56,7 @@ impl OAuthRequest {
         env::var("GRAPH_TEST_ENV") == Ok("true".to_string())
     }
 
-    pub fn request_token_toml_env() -> Option<(String, AccessToken)> {
+    pub fn request_token_from_toml() -> Option<(String, AccessToken)> {
         if let Ok(oauth2) = OAuth2::from_file("./env.toml") {
             let access_token = OAuthRequest::access_token(
                 oauth2.client_id.as_str(),
@@ -92,37 +108,41 @@ impl OAuthRequest {
         }
     }
 
+    fn request_token_from_env() -> Option<(String, AccessToken)> {
+        let tenant = env::var("TEST_APP_TENANT").expect("Missing env TEST_APP_TENANT");
+        let id = env::var("TEST_APP_ID").expect("Missing env TEST_APP_ID");
+        let secret = env::var("TEST_APP_SECRET").expect("Missing env TEST_APP_SECRET");
+        let username =
+            env::var("TEST_APP_USER_NAME").expect("Missing env TEST_APP_USER_NAME");
+        let password =
+            env::var("TEST_APP_PASSWORD").expect("Missing env TEST_APP_PASSWORD");
+        let user_id =
+            env::var("TEST_APP_USER_ID").expect("Missing env TEST_APP_USER_ID");
+
+        if let Some(token) = OAuthRequest::access_token(
+            id.as_str(),
+            secret.as_str(),
+            username.as_str(),
+            password.as_str(),
+            tenant.as_str(),
+            &["https://graph.microsoft.com/.default"],
+        ) {
+            Some((user_id, token))
+        } else {
+            None
+        }
+    }
+
     pub fn request_access_token() -> Option<(String, AccessToken)> {
-        if let Ok(env) = env::var("GRAPH_TEST_ENV") {
-            if env.eq("true") {
-                return OAuthRequest::request_token_toml_env();
-            }
-        } else if OAuthRequest::is_travis_env_set() {
-            if let Ok(value) = env::var("TRAVIS") {
+        if OAuthRequest::is_local() {
+            return OAuthRequest::request_token_from_toml();
+        } else if OAuthRequest::is_test_env_set() {
+            if OAuthRequest::is_travis() {
                 let _ =
                     env::var("TRAVIS_SECURE_ENV_VARS").expect("Env TRAVIS_SECURE_ENV_VARS not set");
-                if value.eq("true") {
-                    let tenant = env::var("TEST_APP_TENANT").expect("Missing env TEST_APP_TENANT");
-                    let id = env::var("TEST_APP_ID").expect("Missing env TEST_APP_ID");
-                    let secret = env::var("TEST_APP_SECRET").expect("Missing env TEST_APP_SECRET");
-                    let username =
-                        env::var("TEST_APP_USER_NAME").expect("Missing env TEST_APP_USER_NAME");
-                    let password =
-                        env::var("TEST_APP_PASSWORD").expect("Missing env TEST_APP_PASSWORD");
-                    let user_id =
-                        env::var("TEST_APP_USER_ID").expect("Missing env TEST_APP_USER_ID");
-
-                    if let Some(token) = OAuthRequest::access_token(
-                        id.as_str(),
-                        secret.as_str(),
-                        username.as_str(),
-                        password.as_str(),
-                        tenant.as_str(),
-                        &["https://graph.microsoft.com/.default"],
-                    ) {
-                        return Some((user_id, token));
-                    }
-                }
+                return OAuthRequest::request_token_from_env();
+            } else if OAuthRequest::is_appveyor() {
+                return OAuthRequest::request_token_from_env();
             }
         }
         None

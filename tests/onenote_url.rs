@@ -76,23 +76,13 @@ fn create_notebook() {
 #[test]
 fn get_recent_notebooks() {
     let client = Graph::new("");
-    client
-        .v1()
-        .me()
-        .onenote()
-        .notebooks()
-        .recent(true);
+    client.v1().me().onenote().notebooks().recent(true);
     assert_url_eq(
         &client,
         "/me/onenote/notebooks/getRecentNotebooks(includePersonalNotebooks=true)",
     );
 
-    client
-        .v1()
-        .sites(RID)
-        .onenote()
-        .notebooks()
-        .recent(false);
+    client.v1().sites(RID).onenote().notebooks().recent(false);
     assert_url_eq(
         &client,
         format!(
@@ -249,12 +239,7 @@ fn list_section_group() {
 #[test]
 fn section_group_list_sections() {
     let client = Graph::new("");
-    client
-        .v1()
-        .me()
-        .onenote()
-        .section_group()
-        .list_sections(ID);
+    client.v1().me().onenote().section_group().list_sections(ID);
     assert_url_eq(
         &client,
         format!("/me/onenote/sectionGroups/{}/sections", ID),

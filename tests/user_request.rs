@@ -1,11 +1,17 @@
 use graph_rs::prelude::*;
 use std::error::Error;
 use test_tools::oauthrequest::OAuthRequest;
+use test_tools::oauthrequest::THROTTLE_MUTEX;
 
 #[test]
 fn user_request_test() {
+    if OAuthRequest::is_appveyor() {
+        return;
+    }
+
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
+            let _lock = THROTTLE_MUTEX.lock().unwrap();
             let client = Graph::new(bearer.as_str());
             let users = client.v1().users(id.as_str()).list().value();
 

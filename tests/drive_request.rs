@@ -11,14 +11,18 @@ use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::OAuthRequest;
 use test_tools::support::cleanup::CleanUp;
+use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
 
 #[test]
 fn common_paths() {
-    if let Some(token) = OAuthRequest::request_access_token() {
-        let t = token.1.bearer_token().clone();
-        get_drive(t, token.0.as_str());
-        get_recent(t, token.0.as_str());
-        get_root(t, token.0.as_str());
+    if OAuthRequest::is_travis() || OAuthRequest::is_local() {
+        let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+        if let Some(token) = OAuthRequest::request_access_token() {
+            let t = token.1.bearer_token().clone();
+            get_drive(t, token.0.as_str());
+            get_recent(t, token.0.as_str());
+            get_root(t, token.0.as_str());
+        }
     }
 }
 
@@ -54,6 +58,7 @@ fn get_root(token: &str, rid: &str) {
 
 #[test]
 fn create_delete_folder() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
@@ -103,6 +108,7 @@ fn create_delete_folder() {
 
 #[test]
 fn root_children_list_versions_get_item() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
@@ -147,6 +153,7 @@ fn root_children_list_versions_get_item() {
 
 #[test]
 fn drive_check_in_out() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
@@ -167,7 +174,7 @@ fn drive_check_in_out() {
                 );
             }
 
-            thread::sleep(Duration::from_secs(3));
+            thread::sleep(Duration::from_secs(2));
             let req = client
                 .v1()
                 .drives(id.as_str())
@@ -194,6 +201,7 @@ fn drive_check_in_out() {
 
 #[test]
 fn drive_download() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let file_location = "./test_files/test_document.docx";
@@ -229,6 +237,7 @@ fn drive_download() {
 
 #[test]
 fn drive_download_format() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let file_location = "./test_files/test_document.pdf";
@@ -268,6 +277,7 @@ fn drive_download_format() {
 
 #[test]
 fn drive_update() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
@@ -322,6 +332,7 @@ fn drive_update() {
 
 #[test]
 fn drive_upload_new_and_replace_and_delete() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
@@ -348,6 +359,7 @@ fn drive_upload_new_and_replace_and_delete() {
                 file.write_all("Test Update File".as_bytes()).unwrap();
                 file.sync_all().unwrap();
 
+                thread::sleep(Duration::from_secs(2));
                 let upload_replace = client
                     .v1()
                     .drives(id.as_str())
