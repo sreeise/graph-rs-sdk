@@ -112,12 +112,9 @@ impl OAuthRequest {
         let tenant = env::var("TEST_APP_TENANT").expect("Missing env TEST_APP_TENANT");
         let id = env::var("TEST_APP_ID").expect("Missing env TEST_APP_ID");
         let secret = env::var("TEST_APP_SECRET").expect("Missing env TEST_APP_SECRET");
-        let username =
-            env::var("TEST_APP_USER_NAME").expect("Missing env TEST_APP_USER_NAME");
-        let password =
-            env::var("TEST_APP_PASSWORD").expect("Missing env TEST_APP_PASSWORD");
-        let user_id =
-            env::var("TEST_APP_USER_ID").expect("Missing env TEST_APP_USER_ID");
+        let username = env::var("TEST_APP_USER_NAME").expect("Missing env TEST_APP_USER_NAME");
+        let password = env::var("TEST_APP_PASSWORD").expect("Missing env TEST_APP_PASSWORD");
+        let user_id = env::var("TEST_APP_USER_ID").expect("Missing env TEST_APP_USER_ID");
 
         if let Some(token) = OAuthRequest::access_token(
             id.as_str(),

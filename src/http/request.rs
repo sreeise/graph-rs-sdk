@@ -1,13 +1,13 @@
 use crate::client::Ident;
 use crate::http::{FetchClient, GraphResponse, UploadSessionClient};
 use crate::url::GraphUrl;
+use crate::GRAPH_URL;
 use graph_error::{GraphFailure, GraphResult};
 use graph_rs_types::complextypes::UploadSession;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{Method, RedirectPolicy, RequestBuilder};
 use std::path::{Path, PathBuf};
 use url::Url;
-use crate::GRAPH_URL;
 
 #[derive(Clone, Eq, PartialEq)]
 pub enum GraphRequestType {
