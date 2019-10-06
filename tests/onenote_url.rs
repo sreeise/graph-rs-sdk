@@ -7,27 +7,27 @@ static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6ROD
 #[test]
 fn list_notebooks() {
     let client = Graph::new("");
-    client.v1().me().one_note().note_books().list();
+    client.v1().me().onenote().notebooks().list();
     assert_url_eq(&client, "/me/onenote/notebooks");
 
-    client.v1().groups(RID).one_note().note_books().list();
+    client.v1().groups(RID).onenote().notebooks().list();
     assert_url_eq(&client, format!("/groups/{}/onenote/notebooks", RID));
 
-    client.v1().sites(RID).one_note().note_books().list();
+    client.v1().sites(RID).onenote().notebooks().list();
     assert_url_eq(&client, format!("/sites/{}/onenote/notebooks", RID));
 }
 
 #[test]
 fn notebooks_list_sections() {
     let client = Graph::new("");
-    client.v1().me().one_note().note_books().list_sections(ID);
+    client.v1().me().onenote().notebooks().list_sections(ID);
     assert_url_eq(&client, format!("/me/onenote/notebooks/{}/sections", ID));
 
     client
         .v1()
         .sites(RID)
-        .one_note()
-        .note_books()
+        .onenote()
+        .notebooks()
         .list_sections(ID);
     assert_url_eq(
         &client,
@@ -38,10 +38,10 @@ fn notebooks_list_sections() {
 #[test]
 fn get_notebook() {
     let client = Graph::new("");
-    client.v1().me().one_note().note_books().get(ID);
+    client.v1().me().onenote().notebooks().get(ID);
     assert_url_eq(&client, format!("/me/onenote/notebooks/{}", ID));
 
-    client.v1().sites(RID).one_note().note_books().get(ID);
+    client.v1().sites(RID).onenote().notebooks().get(ID);
     assert_url_eq(&client, format!("/sites/{}/onenote/notebooks/{}", RID, ID));
 }
 
@@ -51,24 +51,24 @@ fn create_notebook() {
     client
         .v1()
         .me()
-        .one_note()
-        .note_books()
+        .onenote()
+        .notebooks()
         .create(&String::new());
     assert_url_eq(&client, "/me/onenote/notebooks");
 
     client
         .v1()
         .groups(RID)
-        .one_note()
-        .note_books()
+        .onenote()
+        .notebooks()
         .create(&String::new());
     assert_url_eq(&client, format!("/groups/{}/onenote/notebooks", RID));
 
     client
         .v1()
         .sites(RID)
-        .one_note()
-        .note_books()
+        .onenote()
+        .notebooks()
         .create(&String::new());
     assert_url_eq(&client, format!("/sites/{}/onenote/notebooks", RID));
 }
@@ -79,9 +79,9 @@ fn get_recent_notebooks() {
     client
         .v1()
         .me()
-        .one_note()
-        .note_books()
-        .recent_note_books(true);
+        .onenote()
+        .notebooks()
+        .recent(true);
     assert_url_eq(
         &client,
         "/me/onenote/notebooks/getRecentNotebooks(includePersonalNotebooks=true)",
@@ -90,9 +90,9 @@ fn get_recent_notebooks() {
     client
         .v1()
         .sites(RID)
-        .one_note()
-        .note_books()
-        .recent_note_books(false);
+        .onenote()
+        .notebooks()
+        .recent(false);
     assert_url_eq(
         &client,
         format!(
@@ -108,16 +108,16 @@ fn notebook_create_section() {
     client
         .v1()
         .me()
-        .one_note()
-        .note_books()
+        .onenote()
+        .notebooks()
         .create_section(ID, &String::new());
     assert_url_eq(&client, format!("/me/onenote/notebooks/{}/sections", ID));
 
     client
         .v1()
         .sites(RID)
-        .one_note()
-        .note_books()
+        .onenote()
+        .notebooks()
         .create_section(ID, &String::new());
     assert_url_eq(
         &client,
@@ -131,8 +131,8 @@ fn copy_notebook() {
     client
         .v1()
         .me()
-        .one_note()
-        .note_books()
+        .onenote()
+        .notebooks()
         .copy(ID, &String::new());
     assert_url_eq(
         &client,
@@ -142,8 +142,8 @@ fn copy_notebook() {
     client
         .v1()
         .sites(RID)
-        .one_note()
-        .note_books()
+        .onenote()
+        .notebooks()
         .copy(ID, &String::new());
     assert_url_eq(
         &client,
@@ -154,20 +154,20 @@ fn copy_notebook() {
 #[test]
 fn list_sections() {
     let client = Graph::new("");
-    client.v1().me().one_note().sections().list();
+    client.v1().me().onenote().sections().list();
     assert_url_eq(&client, "/me/onenote/sections");
 
-    client.v1().sites(RID).one_note().sections().list();
+    client.v1().sites(RID).onenote().sections().list();
     assert_url_eq(&client, format!("/sites/{}/onenote/sections", RID));
 }
 
 #[test]
 fn list_section_pages() {
     let client = Graph::new("");
-    client.v1().me().one_note().sections().list_pages(ID);
+    client.v1().me().onenote().sections().list_pages(ID);
     assert_url_eq(&client, format!("/me/onenote/sections/{}/pages", ID));
 
-    client.v1().sites(RID).one_note().sections().list_pages(ID);
+    client.v1().sites(RID).onenote().sections().list_pages(ID);
     assert_url_eq(
         &client,
         format!("/sites/{}/onenote/sections/{}/pages", RID, ID),
@@ -177,10 +177,10 @@ fn list_section_pages() {
 #[test]
 fn get_section() {
     let client = Graph::new("");
-    client.v1().me().one_note().sections().get(ID);
+    client.v1().me().onenote().sections().get(ID);
     assert_url_eq(&client, format!("/me/onenote/sections/{}", ID));
 
-    client.v1().sites(RID).one_note().sections().get(ID);
+    client.v1().sites(RID).onenote().sections().get(ID);
     assert_url_eq(&client, format!("/sites/{}/onenote/sections/{}", RID, ID));
 }
 
@@ -190,7 +190,7 @@ fn sections_copy_to_note_book() {
     client
         .v1()
         .me()
-        .one_note()
+        .onenote()
         .sections()
         .copy_to_notebook(ID, &String::new());
     assert_url_eq(
@@ -201,7 +201,7 @@ fn sections_copy_to_note_book() {
     client
         .v1()
         .sites(RID)
-        .one_note()
+        .onenote()
         .sections()
         .copy_to_notebook(ID, &String::new());
     assert_url_eq(
@@ -216,7 +216,7 @@ fn sections_copy_to_section_group() {
     client
         .v1()
         .me()
-        .one_note()
+        .onenote()
         .sections()
         .copy_to_section_group(ID, &String::new());
     assert_url_eq(
@@ -227,7 +227,7 @@ fn sections_copy_to_section_group() {
     client
         .v1()
         .sites(RID)
-        .one_note()
+        .onenote()
         .sections()
         .copy_to_section_group(ID, &String::new());
     assert_url_eq(
@@ -239,10 +239,10 @@ fn sections_copy_to_section_group() {
 #[test]
 fn list_section_group() {
     let client = Graph::new("");
-    client.v1().me().one_note().section_group().list();
+    client.v1().me().onenote().section_group().list();
     assert_url_eq(&client, "/me/onenote/sectionGroups");
 
-    client.v1().sites(RID).one_note().section_group().list();
+    client.v1().sites(RID).onenote().section_group().list();
     assert_url_eq(&client, format!("/sites/{}/onenote/sectionGroups", RID));
 }
 
@@ -252,7 +252,7 @@ fn section_group_list_sections() {
     client
         .v1()
         .me()
-        .one_note()
+        .onenote()
         .section_group()
         .list_sections(ID);
     assert_url_eq(
@@ -263,7 +263,7 @@ fn section_group_list_sections() {
     client
         .v1()
         .sites(RID)
-        .one_note()
+        .onenote()
         .section_group()
         .list_sections(ID);
     assert_url_eq(
@@ -275,10 +275,10 @@ fn section_group_list_sections() {
 #[test]
 fn get_section_group() {
     let client = Graph::new("");
-    client.v1().me().one_note().section_group().get(ID);
+    client.v1().me().onenote().section_group().get(ID);
     assert_url_eq(&client, format!("/me/onenote/sectionGroups/{}", ID));
 
-    client.v1().sites(RID).one_note().section_group().get(ID);
+    client.v1().sites(RID).onenote().section_group().get(ID);
     assert_url_eq(
         &client,
         format!("/sites/{}/onenote/sectionGroups/{}", RID, ID),
@@ -291,7 +291,7 @@ fn create_section_group() {
     client
         .v1()
         .me()
-        .one_note()
+        .onenote()
         .section_group()
         .create(ID, &String::new());
     assert_url_eq(
@@ -302,7 +302,7 @@ fn create_section_group() {
     client
         .v1()
         .sites(RID)
-        .one_note()
+        .onenote()
         .section_group()
         .create(ID, &String::new());
     assert_url_eq(
@@ -317,7 +317,7 @@ fn section_group_create_section() {
     client
         .v1()
         .me()
-        .one_note()
+        .onenote()
         .section_group()
         .create_section(ID, &String::new());
     assert_url_eq(
@@ -328,7 +328,7 @@ fn section_group_create_section() {
     client
         .v1()
         .sites(RID)
-        .one_note()
+        .onenote()
         .section_group()
         .create_section(ID, &String::new());
     assert_url_eq(
@@ -340,20 +340,20 @@ fn section_group_create_section() {
 #[test]
 fn list_pages() {
     let client = Graph::new("");
-    client.v1().me().one_note().pages().list();
+    client.v1().me().onenote().pages().list();
     assert_url_eq(&client, "/me/onenote/pages");
 
-    client.v1().sites(RID).one_note().pages().list();
+    client.v1().sites(RID).onenote().pages().list();
     assert_url_eq(&client, format!("/sites/{}/onenote/pages", RID));
 }
 
 #[test]
 fn get_page() {
     let client = Graph::new("");
-    client.v1().me().one_note().pages().get(ID);
+    client.v1().me().onenote().pages().get(ID);
     assert_url_eq(&client, format!("/me/onenote/pages/{}", ID));
 
-    client.v1().sites(RID).one_note().pages().get(ID);
+    client.v1().sites(RID).onenote().pages().get(ID);
     assert_url_eq(&client, format!("/sites/{}/onenote/pages/{}", RID, ID));
 }
 
@@ -363,7 +363,7 @@ fn update_page() {
     client
         .v1()
         .me()
-        .one_note()
+        .onenote()
         .pages()
         .update(ID, &String::new());
     assert_url_eq(&client, format!("/me/onenote/pages/{}/content", ID));
@@ -371,7 +371,7 @@ fn update_page() {
     client
         .v1()
         .sites(RID)
-        .one_note()
+        .onenote()
         .pages()
         .update(ID, &String::new());
     assert_url_eq(
@@ -383,10 +383,10 @@ fn update_page() {
 #[test]
 fn delete_page() {
     let client = Graph::new("");
-    client.v1().me().one_note().pages().delete(ID);
+    client.v1().me().onenote().pages().delete(ID);
     assert_url_eq(&client, format!("/me/onenote/pages/{}", ID));
 
-    client.v1().sites(RID).one_note().pages().delete(ID);
+    client.v1().sites(RID).onenote().pages().delete(ID);
     assert_url_eq(&client, format!("/sites/{}/onenote/pages/{}", RID, ID));
 }
 
@@ -396,7 +396,7 @@ fn pages_copy_to_section() {
     client
         .v1()
         .me()
-        .one_note()
+        .onenote()
         .pages()
         .copy_to_section(ID, &String::new());
     assert_url_eq(&client, format!("/me/onenote/pages/{}/copyToSection", ID));
@@ -404,7 +404,7 @@ fn pages_copy_to_section() {
     client
         .v1()
         .sites(RID)
-        .one_note()
+        .onenote()
         .pages()
         .copy_to_section(ID, &String::new());
     assert_url_eq(

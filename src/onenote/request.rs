@@ -7,34 +7,34 @@ use reqwest::Method;
 use std::marker::PhantomData;
 
 register_client!(
-    OneNoteRequest,
+    OnenoteRequest,
     notebook => "onenote/notebooks",
     section => "onenote/sections",
     section_group => "onenote/sectionGroups",
     pages => "onenote/pages",
 );
 
-impl<'a, I> OneNoteRequest<'a, I> {
-    pub fn note_books(&self) -> OneNoteNoteBookRequest<'a, I> {
-        OneNoteNoteBookRequest::new(self.client)
+impl<'a, I> OnenoteRequest<'a, I> {
+    pub fn notebooks(&self) -> OnenoteNotebookRequest<'a, I> {
+        OnenoteNotebookRequest::new(self.client)
     }
 
-    pub fn sections(&self) -> OneNoteSectionRequest<'a, I> {
-        OneNoteSectionRequest::new(self.client)
+    pub fn sections(&self) -> OnenoteSectionRequest<'a, I> {
+        OnenoteSectionRequest::new(self.client)
     }
 
-    pub fn section_group(&self) -> OneNoteSectionGroupRequest<'a, I> {
-        OneNoteSectionGroupRequest::new(self.client)
+    pub fn section_group(&self) -> OnenoteSectionGroupRequest<'a, I> {
+        OnenoteSectionGroupRequest::new(self.client)
     }
 
-    pub fn pages(&self) -> OneNotePageRequest<'a, I> {
-        OneNotePageRequest::new(self.client)
+    pub fn pages(&self) -> OnenotePageRequest<'a, I> {
+        OnenotePageRequest::new(self.client)
     }
 }
 
-register_client!(OneNoteNoteBookRequest,);
+register_client!(OnenoteNotebookRequest,);
 
-impl<'a, I> OneNoteNoteBookRequest<'a, I> {
+impl<'a, I> OnenoteNotebookRequest<'a, I> {
     get!( list, Collection<Notebook> => "{{notebook}}" );
     get!( | list_sections, Collection<OnenoteSection> => "{{notebook}}/{{id}}/sections" );
     get!( | get, Notebook => "{{notebook}}/{{id}}" );
@@ -42,7 +42,7 @@ impl<'a, I> OneNoteNoteBookRequest<'a, I> {
     post!( [ | copy, OnenoteSection => "{{notebook}}/{{id}}/copyNotebook" ] );
     post!( [ | create_section, OnenoteSection => "{{notebook}}/{{id}}/sections" ] );
 
-    pub fn recent_note_books(
+    pub fn recent(
         &self,
         include_personal_notebooks: bool,
     ) -> IntoResponse<'a, I, Notebook> {
@@ -61,9 +61,9 @@ impl<'a, I> OneNoteNoteBookRequest<'a, I> {
     }
 }
 
-register_client!(OneNoteSectionRequest,);
+register_client!(OnenoteSectionRequest,);
 
-impl<'a, I> OneNoteSectionRequest<'a, I> {
+impl<'a, I> OnenoteSectionRequest<'a, I> {
     get!( list, Collection<OnenoteSection> => "{{section}}" );
     get!( | list_pages, Collection<OnenotePage> => "{{section}}/{{id}}/pages" );
     get!( | get, OnenoteSection => "{{section}}/{{id}}" );
@@ -71,9 +71,9 @@ impl<'a, I> OneNoteSectionRequest<'a, I> {
     post!( [ | copy_to_section_group, GraphResponse<()> => "{{section}}/{{id}}/copyToSectionGroup" ] );
 }
 
-register_client!(OneNoteSectionGroupRequest,);
+register_client!(OnenoteSectionGroupRequest,);
 
-impl<'a, I> OneNoteSectionGroupRequest<'a, I> {
+impl<'a, I> OnenoteSectionGroupRequest<'a, I> {
     get!( list, Collection<SectionGroup> => "{{section_group}}" );
     get!( | list_sections, Collection<OnenoteSection> => "{{section_group}}/{{id}}/sections" );
     get!( | get, SectionGroup => "{{section_group}}/{{id}}" );
@@ -81,9 +81,9 @@ impl<'a, I> OneNoteSectionGroupRequest<'a, I> {
     post!( [ | create_section, SectionGroup => "{{section_group}}/{{id}}/sections" ] );
 }
 
-register_client!(OneNotePageRequest,);
+register_client!(OnenotePageRequest,);
 
-impl<'a, I> OneNotePageRequest<'a, I> {
+impl<'a, I> OnenotePageRequest<'a, I> {
     get!( list, Collection<OnenotePage> => "{{pages}}" );
     get!( | get, OnenotePage => "{{pages}}/{{id}}" );
     patch!( [ | update, OnenotePage => "{{pages}}/{{id}}/content" ] );
