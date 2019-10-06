@@ -1,7 +1,7 @@
 use crate::client::*;
-use crate::http::{GraphResponse, GraphRequestType};
 use crate::http::IntoResponse;
 use crate::http::{FetchClient, UploadSessionClient};
+use crate::http::{GraphRequestType, GraphResponse};
 use crate::types::collection::Collection;
 use graph_error::{GraphFailure, GraphResult};
 use graph_rs_types::complextypes::{ItemPreviewInfo, Thumbnail};

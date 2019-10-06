@@ -1,12 +1,12 @@
-use crate::http::{GraphRequestBuilder, IoTools, GraphRequest, GraphRequestType};
+use crate::http::{GraphRequest, GraphRequestBuilder, GraphRequestType, IoTools};
 use crate::url::GraphUrl;
 use graph_error::GraphFailure;
 use graph_error::{GraphError, GraphResult};
 use reqwest::{Method, Response};
+use std::cell::RefCell;
 use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
-use std::cell::RefCell;
 
 /// The FetchBuilder provides an abstraction for downloading files.
 pub struct FetchClient {
@@ -20,7 +20,7 @@ pub struct FetchClient {
 impl FetchClient {
     pub fn new(token: &str, request: GraphRequestBuilder) -> FetchClient {
         let path = request.download_dir.clone().unwrap();
-        let mut client =  GraphRequest::default();
+        let mut client = GraphRequest::default();
         client.set_token(token);
         FetchClient {
             path,
@@ -99,27 +99,18 @@ impl FetchClient {
 
         if self.request.borrow().req_type == GraphRequestType::Redirect {
             let request = self.request.replace(GraphRequestBuilder::default());
-            let mut response = self
-                .client
-                .borrow_mut()
-                .build(request)
-                .send()?;
+            let mut response = self.client.borrow_mut().build(request).send()?;
 
             if let Some(err) = GraphFailure::from_response(&mut response) {
                 return Err(err);
             }
-            let mut request =
-                GraphRequestBuilder::new(GraphUrl::from(response.url().clone()));
+            let mut request = GraphRequestBuilder::new(GraphUrl::from(response.url().clone()));
             request.set_method(Method::GET);
             self.request.replace(request);
         }
 
         let request = self.request.replace(GraphRequestBuilder::default());
-        let mut response = self
-            .client
-            .borrow_mut()
-            .build(request)
-            .send()?;
+        let mut response = self.client.borrow_mut().build(request).send()?;
 
         if let Some(err) = GraphFailure::from_response(&mut response) {
             return Err(err);

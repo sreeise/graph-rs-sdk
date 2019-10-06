@@ -10,8 +10,8 @@ use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::OAuthRequest;
-use test_tools::support::cleanup::CleanUp;
 use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
+use test_tools::support::cleanup::CleanUp;
 
 #[test]
 fn common_paths() {
