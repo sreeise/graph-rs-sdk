@@ -9,12 +9,12 @@ use std::string::ToString;
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct InnerError {
     #[serde(skip_serializing_if = "Option::is_none")]
-    code: Option<String>,
+    pub code: Option<String>,
     #[serde(rename = "request-id")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    request_id: Option<String>,
+    pub request_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    date: Option<String>,
+    pub date: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -78,6 +78,48 @@ impl GraphError {
 
     pub fn set_error_message(&mut self, error_message: ErrorMessage) {
         self.error_message = error_message;
+    }
+
+    pub fn message(&self) -> Option<String> {
+        self.error_message.error.as_ref()?.message.clone()
+    }
+
+    pub fn code_property(&self) -> Option<String> {
+        self.error_message.error.as_ref()?.code.clone()
+    }
+
+    pub fn inner_error(&self) -> Option<&InnerError> {
+        self.error_message.error.as_ref()?.inner_error.as_ref()
+    }
+
+    pub fn request_id(&self) -> Option<String> {
+        self.error_message
+            .error
+            .as_ref()?
+            .inner_error
+            .as_ref()?
+            .request_id
+            .clone()
+    }
+
+    pub fn date(&self) -> Option<String> {
+        self.error_message
+            .error
+            .as_ref()?
+            .inner_error
+            .as_ref()?
+            .date
+            .clone()
+    }
+
+    pub fn detailed_error_code(&self) -> Option<String> {
+        self.error_message
+            .error
+            .as_ref()?
+            .inner_error
+            .as_ref()?
+            .code
+            .clone()
     }
 }
 

@@ -3,6 +3,8 @@ extern crate serde;
 extern crate serde_derive;
 extern crate rand;
 extern crate serde_json;
+#[macro_use]
+extern crate lazy_static;
 
 pub mod common;
 pub mod drive;

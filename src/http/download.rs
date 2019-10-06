@@ -1,33 +1,33 @@
-use crate::http::{GraphRequestBuilder, IoTools};
+use crate::http::{GraphRequestBuilder, IoTools, GraphRequest, GraphRequestType};
 use crate::url::GraphUrl;
 use graph_error::GraphFailure;
 use graph_error::{GraphError, GraphResult};
 use reqwest::{Method, Response};
-use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
+use std::cell::RefCell;
 
 /// The FetchBuilder provides an abstraction for downloading files.
 pub struct FetchClient {
     path: PathBuf,
-    token: String,
     file_name: Option<OsString>,
     extension: Option<String>,
-    request: GraphRequestBuilder,
-    client: reqwest::Client,
+    request: RefCell<GraphRequestBuilder>,
+    client: RefCell<GraphRequest>,
 }
 
 impl FetchClient {
     pub fn new(token: &str, request: GraphRequestBuilder) -> FetchClient {
         let path = request.download_dir.clone().unwrap();
+        let mut client =  GraphRequest::default();
+        client.set_token(token);
         FetchClient {
             path,
-            token: token.into(),
             file_name: None,
             extension: None,
-            request,
-            client: reqwest::Client::new(),
+            request: RefCell::new(request),
+            client: RefCell::new(client),
         }
     }
 
@@ -57,8 +57,8 @@ impl FetchClient {
         self.extension.as_ref()
     }
 
-    pub fn url(&self) -> &GraphUrl {
-        self.request.url()
+    pub fn url(&self) -> GraphUrl {
+        self.request.borrow().url().clone()
     }
 
     pub fn send(&mut self) -> GraphResult<PathBuf> {
@@ -66,7 +66,9 @@ impl FetchClient {
     }
 
     pub fn format(&mut self, format: &str) {
-        self.request.url.format(format);
+        let mut request = self.request.borrow_mut();
+        request.set_request_type(GraphRequestType::Redirect);
+        request.url.format(format);
     }
 
     fn parse_content_disposition(&mut self, header: &str) -> Option<OsString> {
@@ -95,35 +97,32 @@ impl FetchClient {
         // Create the directory if it does not exist.
         IoTools::create_dir(&directory)?;
 
-        if !self.request.is_direct_download {
+        if self.request.borrow().req_type == GraphRequestType::Redirect {
+            let request = self.request.replace(GraphRequestBuilder::default());
             let mut response = self
                 .client
-                .request(self.request.method().clone(), self.request.url().as_str())
-                .bearer_auth(self.token.as_str())
-                .headers(self.request.headers().clone())
+                .borrow_mut()
+                .build(request)
                 .send()?;
 
-            let status = response.status().as_u16();
-            if GraphError::is_error(status) {
-                return Err(GraphFailure::try_from(&mut response).unwrap_or_default());
+            if let Some(err) = GraphFailure::from_response(&mut response) {
+                return Err(err);
             }
             let mut request =
-                GraphRequestBuilder::new(GraphUrl::parse(response.url().as_str()).unwrap());
+                GraphRequestBuilder::new(GraphUrl::from(response.url().clone()));
             request.set_method(Method::GET);
-            self.request = request;
+            self.request.replace(request);
         }
 
+        let request = self.request.replace(GraphRequestBuilder::default());
         let mut response = self
             .client
-            .get(self.request.url().as_str())
-            .bearer_auth(self.token.as_str())
+            .borrow_mut()
+            .build(request)
             .send()?;
 
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(&mut response).unwrap_or_default(),
-            ));
+        if let Some(err) = GraphFailure::from_response(&mut response) {
+            return Err(err);
         }
 
         // If a filename was specified beforehand.

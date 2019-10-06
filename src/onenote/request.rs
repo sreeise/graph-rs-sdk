@@ -42,10 +42,7 @@ impl<'a, I> OnenoteNotebookRequest<'a, I> {
     post!( [ | copy, OnenoteSection => "{{notebook}}/{{id}}/copyNotebook" ] );
     post!( [ | create_section, OnenoteSection => "{{notebook}}/{{id}}/sections" ] );
 
-    pub fn recent(
-        &self,
-        include_personal_notebooks: bool,
-    ) -> IntoResponse<'a, I, Notebook> {
+    pub fn recent(&self, include_personal_notebooks: bool) -> IntoResponse<'a, I, Notebook> {
         let s = format!(
             "onenote/notebooks/getRecentNotebooks(includePersonalNotebooks={})",
             include_personal_notebooks

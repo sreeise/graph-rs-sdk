@@ -7,7 +7,9 @@ use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{Method, RedirectPolicy, RequestBuilder};
 use std::path::{Path, PathBuf};
 use url::Url;
+use crate::GRAPH_URL;
 
+#[derive(Clone, Eq, PartialEq)]
 pub enum GraphRequestType {
     Basic,
     Redirect,
@@ -26,7 +28,6 @@ pub struct GraphRequestBuilder {
     pub headers: HeaderMap<HeaderValue>,
     pub upload_session_file: Option<PathBuf>,
     pub download_dir: Option<PathBuf>,
-    pub is_direct_download: bool,
     pub req_type: GraphRequestType,
 }
 
@@ -41,7 +42,6 @@ impl GraphRequestBuilder {
             headers,
             upload_session_file: None,
             download_dir: None,
-            is_direct_download: false,
             req_type: Default::default(),
         }
     }
@@ -86,11 +86,6 @@ impl GraphRequestBuilder {
         self
     }
 
-    pub fn set_direct_download(&mut self, value: bool) -> &mut Self {
-        self.is_direct_download = value;
-        self
-    }
-
     pub fn set_download_dir<P: AsRef<Path>>(&mut self, dir: P) -> &mut Self {
         self.download_dir = Some(dir.as_ref().to_path_buf());
         self
@@ -98,6 +93,11 @@ impl GraphRequestBuilder {
 
     pub fn set_upload_session<P: AsRef<Path>>(&mut self, file: P) -> &mut Self {
         self.upload_session_file = Some(file.as_ref().to_path_buf());
+        self
+    }
+
+    pub fn set_request_type(&mut self, req_type: GraphRequestType) -> &mut Self {
+        self.req_type = req_type;
         self
     }
 }
@@ -117,6 +117,12 @@ impl AsMut<GraphUrl> for GraphRequestBuilder {
 impl From<Url> for GraphRequestBuilder {
     fn from(url: Url) -> Self {
         GraphRequestBuilder::new(GraphUrl::from(url))
+    }
+}
+
+impl Default for GraphRequestBuilder {
+    fn default() -> Self {
+        GraphRequestBuilder::new(GraphUrl::parse(GRAPH_URL).unwrap())
     }
 }
 
@@ -204,15 +210,18 @@ impl GraphRequest {
 
     pub fn response(&mut self, request: GraphRequestBuilder) -> GraphResult<reqwest::Response> {
         let builder = self.build(request);
-        Ok(builder.send()?)
+        let mut response = builder.send()?;
+        if let Some(err) = GraphFailure::from_response(&mut response) {
+            return Err(err);
+        }
+        Ok(response)
     }
 
     pub fn execute<T>(&mut self, request: GraphRequestBuilder) -> GraphResult<GraphResponse<T>>
     where
         for<'de> T: serde::Deserialize<'de>,
     {
-        let builder = self.build(request);
-        let mut response = builder.send()?;
+        let mut response = self.response(request)?;
         let value: T = response.json()?;
         Ok(GraphResponse::new(response, value))
     }

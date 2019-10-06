@@ -1,8 +1,14 @@
 use graph_rs::prelude::*;
 use test_tools::oauthrequest::OAuthRequest;
+use test_tools::oauthrequest::THROTTLE_MUTEX;
 
 #[test]
 fn list_and_get_messages() {
+    if OAuthRequest::is_appveyor() {
+        return;
+    }
+
+    let _lock = THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());

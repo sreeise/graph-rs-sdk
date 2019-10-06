@@ -1,5 +1,5 @@
 use crate::client::*;
-use crate::http::GraphResponse;
+use crate::http::{GraphResponse, GraphRequestType};
 use crate::http::IntoResponse;
 use crate::http::{FetchClient, UploadSessionClient};
 use crate::types::collection::Collection;
@@ -63,7 +63,10 @@ impl<'a, I> DriveRequest<'a, I> {
     get!( special_music, Collection<DriveItem> => "{{drive_root}}/special/music" );
     get!( special_music_children, Collection<DriveItem> => "{{drive_root}}/special/music/children" );
 
-    pub fn list_children<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, Collection<DriveItem>> {
+    pub fn list_children<S: AsRef<str>>(
+        &'a self,
+        id: S,
+    ) -> IntoResponse<'a, I, Collection<DriveItem>> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -73,7 +76,10 @@ impl<'a, I> DriveRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn item_activity<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, Collection<DriveItem>> {
+    pub fn item_activity<S: AsRef<str>>(
+        &'a self,
+        id: S,
+    ) -> IntoResponse<'a, I, Collection<DriveItem>> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -334,7 +340,8 @@ impl<'a, I> DriveRequest<'a, I> {
         self.client
             .builder()
             .set_method(Method::GET)
-            .set_download_dir(directory.as_ref());
+            .set_download_dir(directory.as_ref())
+            .set_request_type(GraphRequestType::Redirect);
         self.client.request().download(self.client.take_builder())
     }
 
