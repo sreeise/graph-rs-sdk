@@ -5,6 +5,7 @@ use crate::GRAPH_URL;
 use graph_error::{GraphFailure, GraphResult};
 use graph_rs_types::complextypes::UploadSession;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
+use reqwest::multipart;
 use reqwest::{Method, RedirectPolicy, RequestBuilder};
 use std::path::{Path, PathBuf};
 use url::Url;
@@ -13,6 +14,7 @@ use url::Url;
 pub enum GraphRequestType {
     Basic,
     Redirect,
+    Multipart,
 }
 
 impl Default for GraphRequestType {
@@ -28,6 +30,7 @@ pub struct GraphRequestBuilder {
     pub headers: HeaderMap<HeaderValue>,
     pub upload_session_file: Option<PathBuf>,
     pub download_dir: Option<PathBuf>,
+    pub form: Option<multipart::Form>,
     pub req_type: GraphRequestType,
 }
 
@@ -42,6 +45,7 @@ impl GraphRequestBuilder {
             headers,
             upload_session_file: None,
             download_dir: None,
+            form: None,
             req_type: Default::default(),
         }
     }
@@ -93,6 +97,12 @@ impl GraphRequestBuilder {
 
     pub fn set_upload_session<P: AsRef<Path>>(&mut self, file: P) -> &mut Self {
         self.upload_session_file = Some(file.as_ref().to_path_buf());
+        self
+    }
+
+    pub fn set_form(&mut self, form: multipart::Form) -> &mut Self {
+        self.form = Some(form);
+        self.req_type = GraphRequestType::Multipart;
         self
     }
 
@@ -205,6 +215,12 @@ impl GraphRequest {
                         .bearer_auth(self.token.as_str())
                 }
             },
+            GraphRequestType::Multipart => self
+                .client
+                .request(request.method, request.url.as_str())
+                .headers(request.headers)
+                .multipart(request.form.unwrap())
+                .bearer_auth(self.token.as_str()),
         }
     }
 

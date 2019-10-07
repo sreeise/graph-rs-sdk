@@ -1,7 +1,7 @@
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
 use crate::types::collection::Collection;
-use graph_rs_types::entitytypes::{Calendar, CalendarGroup};
+use graph_rs_types::entitytypes::{Calendar, CalendarGroup, Event};
 use reqwest::Method;
 use std::marker::PhantomData;
 
@@ -11,6 +11,7 @@ impl<'a, I> CalendarRequest<'a, I> {
     get!( list, Collection<Calendar> => "calendars" );
     get!( get_default, Calendar => "calendar" );
     get!( | get, Calendar => "calendars/{{id}}" );
+    get!( list_events, Collection<Event> => "calendars/events" );
     patch!( [ update_default, Calendar => "calendar" ] );
     patch!( [ | update, Calendar => "calendars/{{id}}" ] );
     post!( | create, Calendar => "calendars" );
@@ -130,6 +131,7 @@ impl<'a, I> CalendarGroupRequest<'a, I> {
     get!( | get, CalendarGroup => "calendarGroups/{{id}}" );
     get!( list_default_calendars, Collection<Calendar> => "calendarGroup/calendars" );
     get!( | list_calendars, Collection<Calendar> => "calendarGroups/{{id}}/calendars" );
+    get!( || list_events, Collection<Event> => "calendarGroup/{{id}}/calendars/{{id2}}/events" );
     post!([create, CalendarGroup => "calendarGroups"]);
     post!([
         create_default_calendar,

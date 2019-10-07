@@ -1,14 +1,13 @@
 use crate::http::{GraphRequest, GraphRequestBuilder, GraphRequestType, IoTools};
 use crate::url::GraphUrl;
-use graph_error::GraphFailure;
-use graph_error::{GraphError, GraphResult};
+use graph_error::{GraphFailure, GraphResult};
 use reqwest::{Method, Response};
 use std::cell::RefCell;
 use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
 
-/// The FetchBuilder provides an abstraction for downloading files.
+/// Provides an abstraction for downloading files.
 pub struct FetchClient {
     path: PathBuf,
     file_name: Option<OsString>,
