@@ -1,111 +1,56 @@
-//! graph-rs is an API client for Microsoft Graph and Graph Beta.
-//! Callers can utilize the oauth module to authenticate users
-//! and receive an access token. This access token can then be used
-//! in the drive module to make OneDrive resource requests.
+//! Graph-rs is an API client for Microsoft Graph V1.0 and Graph Beta.
+//!
+//! If you run into issues related to graph-rs specifically please
+//! file an issue on github: https://github.com/sreeise/graph-rs
 //!
 //! # Example
 //! ```rust,ignore
 //! use graph_rs::prelude::*;
 //!
-//! let graph = Graph::new("ACCESS_TOKEN");
-//! // To use the V1.0 endpoint:
-//! let mut req = graph.v1().me().drive().root_children();
-//! let drive_item_collection = req.send().unwrap();
-//! pirntln!("{:#?}", collection);
+//! let client = Graph::new("ACCESS_TOKEN");
+//!
+//! // Use the V1.0 endpoint:
+//! let collection = client.v1()
+//!     .me()
+//!     .drive()
+//!     .root_children()
+//!     .send()?;
+//! pirntln!("{:#?}", collection.value());
 //!
 //! // Use the Graph beta endpoint.
-//! let mut req = graph.beta().me().drive().recent();
-//! let  drive_item_collection = req.send().unwrap();
-//! pirntln!("{:#?}", collection);
+//! let collection = client.beta()
+//!     .me()
+//!     .drive()
+//!     .root_children()
+//!     .send()?;
+//! pirntln!("{:#?}", collection.value());
 //! ```
 //!
-//! The graph-oauth crate was created for use with rust-onedrive to
-//! authorize users and get access tokens.
-//! # Example
-//! ```
-//! // For better understanding see the examples directory and the graph-oauth crate.
-//! use graph_rs::oauth::OAuth;
-//!
-//! let mut oauth = OAuth::new();
-//! oauth.client_id("<CLIENT ID>")
-//!     .client_secret("<CLIENT SECRET>")
-//!     .redirect_uri("http://localhost:8000")
-//!     .add_scope("Files.Read")
-//!     .add_scope("Files.ReadWrite")
-//!     .add_scope("Files.Read.All")
-//!     .add_scope("Files.ReadWrite.All")
-//!     .add_scope("wl.offline_access")
-//!     .authorize_url("https://login.live.com/oauth20_authorize.srf?")
-//!     .access_token_url("https://login.live.com/oauth20_token.srf");
-//! ```
-//!
-//! Users can then authenticate in the browser using a selected
-//! grant type.
-//! ```rust,ignore
-//! let mut oauth_code_grant = oauth.build().authorization_code_grant();
-//!
-//! // Opens the users default browser to the Microsoft login page.
-//! let mut req = oauth_code_grant.browser_authorization();
-//! ```
-//! After the user has authenticated they will be redirected to the redirect url
-//! given above. In this instance  a temporary access code will be appended onto
-//! the end of redirect url. This code can then be used to request
-//! an access token.
-//!
-//! Currently there is no other way to authenticate and get long term access tokens
-//! for OneDrive except through the browser.
-//!
-//! # Example
-//! ```
-//! # use graph_rs::oauth::OAuth;
-//! # let mut oauth = OAuth::new();
-//! oauth.access_code("temporary access code");
-//! ```
-//!
-//! The access token can then be requested by selecting an OAuth
-//! grant type. The authorization code grant is shown here.
-//! ```rust,ignore
-//! let mut oauth_code_grant = oauth.build().authorization_code_grant();
-//! let req = oauth_code_grant.access_token();
-//! let access_token = oauth.send().unwrap();
-//! println!("{:#?}", access_token);
-//! ```
-//!
-//! Once the access token has been retrieved the drive module
-//! can be used to make authenticated requests to the OneDrive v1.0
-//! or Graph Beta APIs
-//!
-//! # Example
-//! ```rust,ignore
-//! let mut graph = Graph::try_from(oauth).unwrap();
-//! let req = graph.v1().me().drive().recent();
-//! let drive_item = req.send().unwrap();
-//! println!("{:#?}", drive_item);
-//! ```
-//!
-//! You can also select a specific resource: me, drives, sites, or
-//! users.
+//! Choose between me, drives, users, groups, and sites.
 //! # Example
 //! ```rust,ignore
 //! use graph_rs::prelude::*;
 //!
 //! let client = Graph::new("TOKEN");
 //!
-//! let drive_item = client.v1()
-//!                 .me()
-//!                 .drive()
-//!                 .get_item("ITEM_ID")
-//!                 .send()?;
-//! println!("{:#?}", drive_item);
+//! // Users
+//! let response = client.v1()
+//!     .users("ID")
+//!     .mail()
+//!     .messages()
+//!     .list()
+//!     .send()?;
+//! // Collection of messages.
+//! println!("{:#?}", response.value());
 //!
-//! // Or get the item by path.
-//! // Always start paths with :/ and end with :
-//! let drive_item = drive.v1()
-//!                 .me()
-//!                 .drive()
-//!                 .get_item(":/Documents/file.txt:")
-//!                 .send()?;
-//! println!("{:#?}", drive_item);
+//! // Groups
+//! let response = client.v1()
+//!     .groups("ID")
+//!     .list_members()
+//!     .send()?;
+//! // Group members.
+//! println!("{:#?}", response.value());
+//!
 //! ```
 
 extern crate from_as;
@@ -122,23 +67,31 @@ pub extern crate serde_yaml;
 extern crate strum;
 extern crate strum_macros;
 #[macro_use]
-pub extern crate url_serde;
+extern crate url_serde;
 #[macro_use]
 extern crate getset;
 extern crate handlebars;
 
 // mod client needs to stay on type
 // for macro use.
+/// Main Graph client.
 #[macro_use]
 pub mod client;
+/// Calendar request client.
 pub mod calendar;
+/// Contacts request client.
 pub mod contacts;
+/// OneDrive request client.
 pub mod drive;
 pub mod http;
 pub mod lists;
+/// Mail request client.
 pub mod mail;
+/// OneNote request client.
 pub mod onenote;
+/// Types used crate wide.
 pub mod types;
+/// Url type for graph-rs.
 pub mod url;
 
 pub static GRAPH_URL: &str = "https://graph.microsoft.com/v1.0";
@@ -159,6 +112,7 @@ pub mod oauth {
     pub use graph_oauth::scope;
 }
 
+/// Reexport of graph-error crate.
 pub mod error {
     pub use graph_error::*;
 }
