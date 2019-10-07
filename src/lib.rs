@@ -132,6 +132,7 @@ extern crate handlebars;
 #[macro_use]
 pub mod client;
 pub mod calendar;
+pub mod contacts;
 pub mod drive;
 pub mod http;
 pub mod lists;

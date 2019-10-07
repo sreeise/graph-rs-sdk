@@ -140,6 +140,11 @@ macro_rules! register_ident_client {
                 self.set_path();
                 OnenoteRequest::new(self.client)
             }
+
+            pub fn contacts(&'a self) -> ContactsRequest<'a, I> {
+                self.set_path();
+                ContactsRequest::new(self.client)
+            }
         }
     }
 }
