@@ -1,4 +1,5 @@
 use crate::calendar::CalendarRequest;
+use crate::contacts::ContactsRequest;
 use crate::drive::DriveRequest;
 use crate::http::{DeltaRequest, GraphRequest, IntoResponse};
 use crate::http::{GraphRequestBuilder, GraphResponse};
