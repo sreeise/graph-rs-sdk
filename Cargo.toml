@@ -5,8 +5,7 @@ authors = ["sreeise"]
 edition = "2018"
 readme = "README.md"
 license = "MIT"
-# To be removed when the project is more stable.
-publish = false
+
 exclude = [
     "test_files/*",
     "tests/*",

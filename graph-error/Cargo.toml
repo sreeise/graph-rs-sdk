@@ -3,8 +3,6 @@ name = "graph-error"
 version = "0.1.0"
 authors = ["sreeise"]
 edition = "2018"
-# To be removed when the project is more stable.
-publish = false
 
 [dependencies]
 reqwest = "0.9.6"
