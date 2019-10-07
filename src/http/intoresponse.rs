@@ -1,8 +1,9 @@
 use crate::client::*;
 use crate::http::{GraphResponse, UploadSessionClient};
-use crate::types::batch::BatchResponse;
-use graph_error::GraphResult;
+use crate::onenote::OnenotePageContent;
+use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderValue, ACCEPT};
+use std::cell::RefCell;
 use std::marker::PhantomData;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
@@ -19,6 +20,7 @@ pub struct IntoResponse<'a, I, T> {
     client: &'a Graph,
     ident: PhantomData<I>,
     phantom: PhantomData<T>,
+    error: RefCell<Option<GraphFailure>>,
 }
 
 impl<'a, I, T> IntoResponse<'a, I, T> {
@@ -27,6 +29,16 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
             client,
             ident: PhantomData,
             phantom: PhantomData,
+            error: RefCell::new(None),
+        }
+    }
+
+    pub(crate) fn new_error(client: &'a Graph, error: GraphFailure) -> IntoResponse<I, T> {
+        IntoResponse {
+            client,
+            ident: PhantomData,
+            phantom: PhantomData,
+            error: RefCell::new(Some(error)),
         }
     }
 
@@ -71,6 +83,9 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
     }
 
     pub fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
         let mut response = self.client.request().response(self.client.take_builder())?;
         let value: serde_json::Value = response.json()?;
         Ok(GraphResponse::new(response, value))
@@ -80,6 +95,9 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
     where
         for<'de> U: serde::Deserialize<'de>,
     {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
         let mut response = self.client.request().response(self.client.take_builder())?;
         Ok(response.json()?)
     }
@@ -89,6 +107,9 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, GraphResponse<()>> {
     type Output = GraphResult<GraphResponse<()>>;
 
     fn send(&self) -> Self::Output {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
         Ok(GraphResponse::new(
             self.client.request().response(self.client.take_builder())?,
             (),
@@ -103,6 +124,9 @@ where
     type Output = GraphResult<GraphResponse<T>>;
 
     fn send(&self) -> Self::Output {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
         let builder = self.client.take_builder();
         self.client.request().execute(builder)
     }
@@ -112,16 +136,38 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, UploadSessionClient> {
     type Output = GraphResult<UploadSessionClient>;
 
     fn send(&self) -> Self::Output {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
         self.client
             .request()
             .upload_session(self.client.take_builder())
     }
 }
 
-impl<'a, I> ToResponse for IntoResponse<'a, I, BatchResponse> {
+impl<'a, I> ToResponse for IntoResponse<'a, I, OnenotePageContent> {
+    type Output = GraphResult<GraphResponse<OnenotePageContent>>;
+
+    fn send(&self) -> Self::Output {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
+        let builder = self.client.take_builder();
+        let mut response = self.client.request().response(builder)?;
+        let content = OnenotePageContent::from(response.text()?);
+        Ok(GraphResponse::new(response, content))
+    }
+}
+
+pub struct DeltaRequest;
+
+impl<'a, I> ToResponse for IntoResponse<'a, I, DeltaRequest> {
     type Output = GraphResult<Receiver<serde_json::Value>>;
 
     fn send(&self) -> Self::Output {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
         let builder = self.client.take_builder();
         let response: GraphResponse<serde_json::Value> = self.client.request().execute(builder)?;
         let (sender, receiver) = channel();

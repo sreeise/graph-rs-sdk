@@ -1,17 +1,19 @@
 use crate::calendar::CalendarRequest;
 use crate::drive::DriveRequest;
-use crate::http::{GraphRequest, IntoResponse};
+use crate::http::{DeltaRequest, GraphRequest, IntoResponse};
 use crate::http::{GraphRequestBuilder, GraphResponse};
 use crate::lists::ListRequest;
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
-use crate::types::batch::BatchResponse;
 use crate::types::collection::Collection;
 use crate::url::GraphUrl;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
 use graph_oauth::oauth::{AccessToken, OAuth};
-use graph_rs_types::entitytypes::{Drive, Group, Site, User};
+use graph_rs_types::entitytypes::{
+    Conversation, ConversationThread, DirectoryObject, Drive, Event, Group, GroupLifecyclePolicy,
+    ProfilePhoto, Site, User,
+};
 use handlebars::*;
 use reqwest::header::{HeaderValue, ACCEPT};
 use reqwest::Method;
@@ -244,7 +246,7 @@ impl<'a> Identify<'a> {
     pub fn batch<B: serde::Serialize>(
         &self,
         batch: &B,
-    ) -> IntoResponse<'a, IdentifyCommon, BatchResponse> {
+    ) -> IntoResponse<'a, IdentifyCommon, DeltaRequest> {
         self.client
             .builder()
             .set_method(Method::POST)
@@ -263,6 +265,7 @@ register_ident_client!(IdentMe,);
 
 impl<'a, I> IdentMe<'a, I> {
     get!( get, User => "me" );
+    get!( list_events, Collection<Event> => "me/events" );
 }
 
 register_ident_client!(IdentDrives,);
@@ -280,7 +283,38 @@ impl<'a, I> IdentSites<'a, I> {
 register_ident_client!(IdentGroups,);
 
 impl<'a, I> IdentGroups<'a, I> {
-    get!( get, Group => "groups/{{RID}}" );
+    get!( list, Collection<Group> => "groups" );
+    get!( | get, Group => "groups/{{RID}}" );
+    get!( delta, DeltaRequest => "groups/delta" );
+    get!( list_events, Collection<Event> => "groups/{{RID}}/events" );
+    get!( list_lifecycle_policies, Collection<GroupLifecyclePolicy> => "groups/{{RID}}/groupLifecyclePolicies" );
+    get!( member_of, Collection<DirectoryObject> => "groups/{{RID}}/memberOf" );
+    get!( transitive_member_of, Collection<DirectoryObject> => "groups/{{RID}}/transitiveMemberOf" );
+    get!( list_members, Collection<DirectoryObject> => "groups/{{RID}}/members"  );
+    get!( list_transitive_members, Collection<DirectoryObject> => "groups/{{RID}}/transitiveMembers" );
+    get!( owners, Collection<User> => "groups/{{RID}}/owners" );
+    get!( list_photos, Collection<ProfilePhoto> => "groups/{{RID}}/photos" );
+    post!( [ create, Group => "groups" ] );
+    post!( [ member_groups, Collection<String> => "groups/{{RID}}/getMemberGroups" ] );
+    post!( [ member_objects, Collection<String> => "groups/{{RID}}/getMemberObjects" ] );
+    post!( remove_favorite, GraphResponse<()> => "groups/{{RID}}/removeFavorite" );
+    post!( renew, GraphResponse<()> => "groups/{{RID}}/renew" );
+    post!( reset_unseen_count, GraphResponse<()> => "groups/{{RID}}/resetUnseenCount" );
+    post!( subscribe_by_mail, GraphResponse<()> => "groups/{{RID}}/subscribeByMail" );
+    post!( unsubscribe_by_mail, GraphResponse<()> => "groups/{{RID}}/unsubscribeByMail" );
+    post!( [ validate_properties, GraphResponse<()> => "groups/{{RID}}/validateProperties" ] );
+    patch!( [ update, Group => "groups/{{RID}}" ] );
+    delete!( delete, GraphResponse<()> => "groups/{{RID}}" );
+    delete!( | remove_member, GraphResponse<()> => "groups/{{RID}}/members/{{id}}/$ref" );
+    delete!( | remove_owner, GraphResponse<()> => "groups/{{RID}}/owners/{{id}}/$ref" );
+
+    pub fn conversations(&self) -> GroupConversationRequest<'a, I> {
+        GroupConversationRequest::new(self.client)
+    }
+
+    pub fn group_lifecycle_policies(&self) -> GroupLifecyclePolicyRequest<'a, I> {
+        GroupLifecyclePolicyRequest::new(self.client)
+    }
 }
 
 register_ident_client!(IdentUsers,);
@@ -288,7 +322,40 @@ register_ident_client!(IdentUsers,);
 impl<'a, I> IdentUsers<'a, I> {
     get!( get, User => "users/{{RID}}" );
     get!( list, Collection<User> => "users" );
+    get!( list_events, Collection<Event> => "users/{{RID}}/events" );
+    get!( | list_joined_group_photos, Collection<ProfilePhoto> => "users/{{RID}}/joinedGroups/{{id}}/photos" );
     post!( [ create, User => "users" ] );
     patch!( [ update, GraphResponse<()> => "users/{{RID}}" ] );
     delete!( delete, GraphResponse<()> => "users/{{RID}}" );
+}
+
+register_client!(
+    GroupLifecyclePolicyRequest,
+    glp => "groupLifecyclePolicies",
+);
+
+impl<'a, I> GroupLifecyclePolicyRequest<'a, I> {
+    get!( list, Collection<GroupLifecyclePolicy> => "{{glp}}" );
+    get!( | get, Collection<GroupLifecyclePolicy> => "{{glp}}/{{id}}" );
+    post!( [ create, GroupLifecyclePolicy => "{{glp}}" ] );
+    post!( [ | add_group, serde_json::Value => "{{glp}}/{{id}}/addGroup" ] );
+    post!( [ | remove_group, serde_json::Value =>  "{{glp}}/{{id}}/removeGroup" ] );
+    patch!( [ | update, GroupLifecyclePolicy => "{{glp}}/{{id}}" ] );
+    patch!( | delete, GraphResponse<()> => "{{glp}}/{{id}}" );
+}
+
+register_client!(
+    GroupConversationRequest,
+    co => "conversations",
+);
+
+impl<'a, I> GroupConversationRequest<'a, I> {
+    get!( list, Collection<Conversation> => "groups/{{RID}}/{{co}}" );
+    get!( | list_threads, Collection<ConversationThread> => "groups/{{RID}}/{{co}}/{{id}}/threads" );
+    get!( list_accepted_senders, Collection<DirectoryObject> => "groups/{{RID}}/acceptedSenders" );
+    get!( | get, Conversation => "groups/{{RID}}/{{co}}/{{id}}" );
+    post!( [ create, Conversation => "groups/{{RID}}/{{co}}" ] );
+    post!( [ | create_thread, ConversationThread => "groups/{{RID}}/{{co}}/{{id}}/threads" ] );
+    post!( [ create_accepted_sender, GraphResponse<()> => "groups/{{RID}}/acceptedSenders/$ref" ] );
+    delete!( | delete, GraphResponse<()> => "groups/{{RID}}/{{co}}/{{id}}" );
 }
