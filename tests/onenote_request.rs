@@ -88,6 +88,10 @@ fn list_get_notebooks_and_sections() {
 
 #[test]
 fn create_delete_page() {
+    if OAuthRequest::is_appveyor() {
+        return;
+    }
+
     let _lock = THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, token)) = t {
