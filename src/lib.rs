@@ -84,7 +84,6 @@ pub mod contacts;
 /// OneDrive request client.
 pub mod drive;
 pub mod http;
-pub mod lists;
 /// Mail request client.
 pub mod mail;
 /// OneNote request client.

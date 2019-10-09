@@ -3,7 +3,6 @@ use crate::contacts::ContactsRequest;
 use crate::drive::DriveRequest;
 use crate::http::{DeltaRequest, GraphRequest, IntoResponse};
 use crate::http::{GraphRequestBuilder, GraphResponse};
-use crate::lists::ListRequest;
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
 use crate::types::collection::Collection;
@@ -12,7 +11,8 @@ use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
 use graph_oauth::oauth::{AccessToken, OAuth};
 use graph_rs_types::entitytypes::{
-    Conversation, ConversationThread, DirectoryObject, Drive, Event, Group, GroupLifecyclePolicy,
+    Conversation, ConversationThread, DirectoryObject, Drive, Event, FieldValueSet, Group,
+    GroupLifecyclePolicy, ItemActivityStat, ItemAnalytics, List, ListItem, ListItemVersion,
     ProfilePhoto, Site, User,
 };
 use handlebars::*;
@@ -263,25 +263,84 @@ impl<'a> Identify<'a> {
 }
 
 register_ident_client!(IdentMe,);
+register_ident_client!(IdentDrives,);
+register_ident_client!(IdentSites,);
+register_ident_client!(IdentGroups,);
+register_ident_client!(IdentUsers,);
 
 impl<'a, I> IdentMe<'a, I> {
     get!( get, User => "me" );
     get!( list_events, Collection<Event> => "me/events" );
 }
 
-register_ident_client!(IdentDrives,);
-
 impl<'a, I> IdentDrives<'a, I> {
     get!( get, Drive => "drive/{{RID}}" );
 }
 
-register_ident_client!(IdentSites,);
-
 impl<'a, I> IdentSites<'a, I> {
     get!( get, Site => "sites/{{RID}}" );
+    get!( list_subsites, Collection<Site> => "sites/{{RID}}/sites" );
+    get!( root, Site => "sites/root" );
+    get!( | root_tenant, Site => "sites/{{id}}" );
+    get!( analytics, ItemAnalytics => "sites/{{RID}}/analytics" );
+    get!( | item_analytics, ItemAnalytics => "sites/{{RID}}/items/{{id}}/analytics" );
+    get!( | list_item_versions, ListItemVersion => "sites/{{RID}}/items/{{id}}/versions" );
+
+    pub fn lists(&'a self) -> SiteListRequest<'a, I> {
+        SiteListRequest::new(self.client)
+    }
+
+    pub fn activities_by_interval(
+        &'a self,
+        start: &str,
+        end: Option<&str>,
+        interval: &str,
+    ) -> IntoResponse<'a, I, ItemActivityStat> {
+        self.client.builder().set_method(Method::GET);
+
+        if let Some(end) = end {
+            let interval = format!(
+                "sites/{{{{RID}}}}/getActivitiesByInterval(startDateTime='{}',endDateTime='{}',interval='{}')",
+                start,
+                end,
+                interval
+            );
+            render_path!(self.client, &interval);
+        } else {
+            let interval = format!(
+                "sites/{{{{RID}}}}/getActivitiesByInterval(startDateTime='{}',interval='{}')",
+                start, interval
+            );
+            render_path!(self.client, &interval);
+        }
+        IntoResponse::new(self.client)
+    }
 }
 
-register_ident_client!(IdentGroups,);
+register_client!(SiteListRequest,);
+
+impl<'a, I> SiteListRequest<'a, I> {
+    get!( list, Collection<List> => "sites/{{RID}}/lists" );
+    get!( | get, List => "sites/{{RID}}/lists/{{id}}" );
+    post!( [ create, List => "sites/{{RID}}/lists" ] );
+
+    pub fn items(&'a self) -> SiteListItemRequest<'a, I> {
+        SiteListItemRequest::new(self.client)
+    }
+}
+
+register_client!(SiteListItemRequest,);
+
+impl<'a, I> SiteListItemRequest<'a, I> {
+    get!( | list, Collection<ListItem> => "sites/{{RID}}/lists/{{id}}/items" );
+    get!( || get, ListItem => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" );
+    get!( || analytics, ItemAnalytics => "sites/{{RID}}/lists/{{id}}/items/{{id2}}/analytics" );
+    get!( || list_versions, ListItemVersion => "sites/{{RID}}/lists/{{id}}/items/{{id2}}/versions" );
+    post!( [ | create, ListItem => "sites/{{RID}}/lists/{{id}}/items" ] );
+    patch!( [ || update, FieldValueSet => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" ] );
+    patch!( [ || update_columns, FieldValueSet => "sites/{{RID}}/lists/{{id}}/items/{{id2}}/fields" ] );
+    delete!( || delete, GraphResponse<()> => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" );
+}
 
 impl<'a, I> IdentGroups<'a, I> {
     get!( list, Collection<Group> => "groups" );
@@ -295,6 +354,7 @@ impl<'a, I> IdentGroups<'a, I> {
     get!( list_transitive_members, Collection<DirectoryObject> => "groups/{{RID}}/transitiveMembers" );
     get!( owners, Collection<User> => "groups/{{RID}}/owners" );
     get!( list_photos, Collection<ProfilePhoto> => "groups/{{RID}}/photos" );
+    get!( root_site, Collection<ProfilePhoto> => "groups/{{RID}}/sites/root" );
     post!( [ create, Group => "groups" ] );
     post!( [ member_groups, Collection<String> => "groups/{{RID}}/getMemberGroups" ] );
     post!( [ member_objects, Collection<String> => "groups/{{RID}}/getMemberObjects" ] );
@@ -316,18 +376,6 @@ impl<'a, I> IdentGroups<'a, I> {
     pub fn group_lifecycle_policies(&self) -> GroupLifecyclePolicyRequest<'a, I> {
         GroupLifecyclePolicyRequest::new(self.client)
     }
-}
-
-register_ident_client!(IdentUsers,);
-
-impl<'a, I> IdentUsers<'a, I> {
-    get!( get, User => "users/{{RID}}" );
-    get!( list, Collection<User> => "users" );
-    get!( list_events, Collection<Event> => "users/{{RID}}/events" );
-    get!( | list_joined_group_photos, Collection<ProfilePhoto> => "users/{{RID}}/joinedGroups/{{id}}/photos" );
-    post!( [ create, User => "users" ] );
-    patch!( [ update, GraphResponse<()> => "users/{{RID}}" ] );
-    delete!( delete, GraphResponse<()> => "users/{{RID}}" );
 }
 
 register_client!(
@@ -359,4 +407,14 @@ impl<'a, I> GroupConversationRequest<'a, I> {
     post!( [ | create_thread, ConversationThread => "groups/{{RID}}/{{co}}/{{id}}/threads" ] );
     post!( [ create_accepted_sender, GraphResponse<()> => "groups/{{RID}}/acceptedSenders/$ref" ] );
     delete!( | delete, GraphResponse<()> => "groups/{{RID}}/{{co}}/{{id}}" );
+}
+
+impl<'a, I> IdentUsers<'a, I> {
+    get!( get, User => "users/{{RID}}" );
+    get!( list, Collection<User> => "users" );
+    get!( list_events, Collection<Event> => "users/{{RID}}/events" );
+    get!( | list_joined_group_photos, Collection<ProfilePhoto> => "users/{{RID}}/joinedGroups/{{id}}/photos" );
+    post!( [ create, User => "users" ] );
+    patch!( [ update, GraphResponse<()> => "users/{{RID}}" ] );
+    delete!( delete, GraphResponse<()> => "users/{{RID}}" );
 }
