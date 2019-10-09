@@ -5,9 +5,7 @@ use crate::http::{GraphRequestType, GraphResponse};
 use crate::types::collection::Collection;
 use graph_error::{GraphFailure, GraphResult};
 use graph_rs_types::complextypes::{ItemPreviewInfo, Thumbnail};
-use graph_rs_types::entitytypes::{
-    BaseItem, DriveItem, DriveItemVersion, ItemActivity, ThumbnailSet,
-};
+use graph_rs_types::entitytypes::{BaseItem, DriveItem, DriveItemVersion, ItemActivity, ThumbnailSet, ItemActivityStat};
 use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use reqwest::Method;
@@ -372,6 +370,36 @@ impl<'a, I> DriveRequest<'a, I> {
             .builder()
             .set_method(Method::POST)
             .set_body(serde_json::to_string(body).unwrap());
+        IntoResponse::new(self.client)
+    }
+
+    pub fn activities_by_interval<S: AsRef<str>>(
+        &'a self,
+        id: S,
+        start: &str,
+        end: Option<&str>,
+        interval: &str,
+    ) -> IntoResponse<'a, I, ItemActivityStat> {
+        self.client.builder().set_method(Method::GET);
+        if let Some(end) = end {
+            let interval = format!(
+                "getActivitiesByInterval(startDateTime='{}',endDateTime='{}',interval='{}')",
+                start,
+                end,
+                interval
+            );
+            render_path!(self.client, &template(id.as_ref(), &interval), &serde_json::json!({
+               "id": id.as_ref(),
+            }));
+        } else {
+            let interval = format!(
+                "getActivitiesByInterval(startDateTime='{}',interval='{}')",
+                start, interval
+            );
+            render_path!(self.client, &template(id.as_ref(), &interval), &serde_json::json!({
+                "id": id.as_ref(),
+            }));
+        }
         IntoResponse::new(self.client)
     }
 }

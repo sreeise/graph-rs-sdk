@@ -121,11 +121,6 @@ macro_rules! register_ident_client {
                 DriveRequest::new(self.client)
             }
 
-            pub fn lists(&'a self) -> ListRequest<'a, I> {
-                self.set_path();
-                ListRequest::new(self.client)
-            }
-
             pub fn mail(&'a self) -> MailRequest<'a, I> {
                 self.set_path();
                 MailRequest::new(self.client)
@@ -167,6 +162,16 @@ macro_rules! register_helper {
 
 #[macro_use]
 macro_rules! render_path {
+    ($client:expr, $template:expr) => {
+        let path = $client
+            .registry()
+            .render_template($template, &serde_json::json!({}))
+            .unwrap();
+        let mut vec: Vec<&str> = path.split("/").collect();
+        vec.retain(|s| !s.is_empty());
+        $client.builder().as_mut().extend_path(&vec);
+    };
+
     ($client:expr, $template:expr, $json:expr) => {
         let path = $client
             .registry()
