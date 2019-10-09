@@ -50,7 +50,7 @@ pub fn drive_upload_session() {
     let _ = client.v1().me().drive().upload_session(
         ":/Documents/complete_drive_item.json:",
         "./test_files/item_test/complete_drive_item.json",
-        Session::default(),
+        &Session::default(),
     );
     assert_url_eq(
         &client,
@@ -60,7 +60,7 @@ pub fn drive_upload_session() {
     let _ = client.v1().drives(RID).drive().upload_session(
         ":/Documents/complete_drive_item.json:",
         "./test_files/item_test/complete_drive_item.json",
-        Session::default(),
+        &Session::default(),
     );
     assert_url_eq(
         &client,
@@ -651,16 +651,14 @@ pub fn drive_upload_new() {
         .v1()
         .me()
         .drive()
-        .upload_new(ID, "./test_files/item_test/drive_info.json")
-        .unwrap();
+        .upload_new(ID, "./test_files/item_test/drive_info.json");
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content");
 
     let _ = client
         .v1()
         .drives(RID)
         .drive()
-        .upload_new(ID, "./test_files/item_test/drive_info.json")
-        .unwrap();
+        .upload_new(ID, "./test_files/item_test/drive_info.json");
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content",
@@ -670,8 +668,7 @@ pub fn drive_upload_new() {
         .v1()
         .sites(RID)
         .drive()
-        .upload_new(ID, "./test_files/item_test/drive_info.json")
-        .unwrap();
+        .upload_new(ID, "./test_files/item_test/drive_info.json");
     assert_url_eq(
         &client,
         "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content",

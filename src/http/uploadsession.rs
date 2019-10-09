@@ -4,7 +4,7 @@ use graph_error::{GraphFailure, GraphResult};
 use graph_rs_types::complextypes::FileSystemInfo;
 use graph_rs_types::complextypes::UploadSession;
 use reqwest::header::{CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
-use reqwest::Response;
+use reqwest::{Response, RequestBuilder};
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 
@@ -64,12 +64,10 @@ impl UploadSessionClient {
         Ok(())
     }
 
-    pub fn cancel(&mut self) -> GraphResult<Response> {
+    pub fn cancel(&mut self) -> RequestBuilder {
         self.client
             .delete(self.upload_session_url.as_str())
             .header(CONTENT_TYPE, "application/json")
-            .send()
-            .map_err(GraphFailure::from)
     }
 
     pub fn status(&mut self) -> GraphResult<Response> {

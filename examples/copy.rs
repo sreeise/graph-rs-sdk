@@ -1,6 +1,7 @@
 use graph_rs::prelude::*;
 use std::thread;
 use std::time::Duration;
+use graph_rs::types::content::Content;
 
 // Set the name of the file you want to copy
 // and a name for the copy of the file.
@@ -22,7 +23,7 @@ fn copy_item() {
     // requested above so the copy of the item will be placed in the same folder. This can
     // be changed to wherever you would like the copy placed.
 
-    let mut response: GraphResponse<()> = graph
+    let mut response: GraphResponse<Content> = graph
         .v1()
         .me()
         .drive()

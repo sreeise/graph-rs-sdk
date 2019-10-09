@@ -31,7 +31,6 @@ fn upload_file() {
         .me()
         .drive()
         .upload_replace(DRIVE_PARENT_ID, LOCAL_FILE_PATH)
-        .unwrap()
         .send()
         .unwrap();
 
@@ -46,7 +45,6 @@ fn upload_new() {
         .me()
         .drive()
         .upload_new(DRIVE_PARENT_ID, LOCAL_FILE_PATH)
-        .unwrap()
         .send()
         .unwrap();
     println!("{:#?}", drive_item);
@@ -64,7 +62,6 @@ fn sites_upload_new() {
         .sites(RESOURCE_ID)
         .drive()
         .upload_new(DRIVE_PARENT_ID, LOCAL_FILE_PATH)
-        .unwrap()
         .send()
         .unwrap();
     println!("{:#?}", drive_item);

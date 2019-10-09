@@ -35,7 +35,7 @@ fn upload_session_replace() {
         .v1()
         .me()
         .drive()
-        .upload_session(PARENT_ITEM_ID, PATH_TO_FILE, upload)
+        .upload_session(PARENT_ITEM_ID, PATH_TO_FILE, &upload)
         .send();
 
     if let Ok(session) = session {
@@ -50,6 +50,7 @@ fn upload_session_replace() {
                 },
                 Ok(NextSession::Done((drive_item, _response))) => {
                     println!("Session finished. DriveItem: {:#?}", drive_item);
+                    break;
                 },
                 Err(e) => {
                     println!("Error: {:#?}", e);
