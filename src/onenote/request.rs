@@ -1,6 +1,7 @@
 use crate::client::Graph;
-use crate::http::{GraphResponse, IntoResponse};
+use crate::http::{FetchClient, GraphRequestType, GraphResponse, IntoResponse};
 use crate::types::collection::Collection;
+use crate::types::content::Content;
 use graph_error::GraphFailure;
 use graph_rs_types::entitytypes::{Notebook, OnenotePage, OnenoteSection, SectionGroup};
 use handlebars::*;
@@ -11,35 +12,6 @@ use std::fs::File;
 use std::io::ErrorKind;
 use std::marker::PhantomData;
 use std::path::Path;
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct OnenotePageContent {
-    content: String,
-}
-
-impl OnenotePageContent {
-    pub fn new(content: &str) -> OnenotePageContent {
-        OnenotePageContent {
-            content: content.into(),
-        }
-    }
-
-    pub fn as_str(&self) -> &str {
-        self.content.as_str()
-    }
-}
-
-impl ToString for OnenotePageContent {
-    fn to_string(&self) -> String {
-        self.content.to_string()
-    }
-}
-
-impl From<String> for OnenotePageContent {
-    fn from(content: String) -> Self {
-        OnenotePageContent { content }
-    }
-}
 
 register_client!(
     OnenoteRequest,
@@ -129,8 +101,8 @@ impl<'a, I> OnenoteSectionRequest<'a, I> {
     get!( list, Collection<OnenoteSection> => "{{section}}" );
     get!( | list_pages, Collection<OnenotePage> => "{{section}}/{{id}}/pages" );
     get!( | get, OnenoteSection => "{{section}}/{{id}}" );
-    post!( [ | copy_to_notebook, GraphResponse<()> => "{{section}}/{{id}}/copyToNotebook" ] );
-    post!( [ | copy_to_section_group, GraphResponse<()> => "{{section}}/{{id}}/copyToSectionGroup" ] );
+    post!( [ | copy_to_notebook, GraphResponse<Content> => "{{section}}/{{id}}/copyToNotebook" ] );
+    post!( [ | copy_to_section_group, GraphResponse<Content> => "{{section}}/{{id}}/copyToSectionGroup" ] );
 
     pub fn create_page<S: AsRef<str>, P: AsRef<Path>>(
         &self,
@@ -182,8 +154,22 @@ register_client!(OnenotePageRequest,);
 impl<'a, I> OnenotePageRequest<'a, I> {
     get!( list, Collection<OnenotePage> => "{{pages}}" );
     get!( | get, OnenotePage => "{{pages}}/{{id}}" );
-    get!( | content, OnenotePageContent => "{{pages}}/{{id}}/content" );
+    get!( | content, GraphResponse<Content> => "{{pages}}/{{id}}/content" );
     patch!( [ | update, OnenotePage => "{{pages}}/{{id}}/content" ] );
-    post!( [ | copy_to_section, GraphResponse<()> => "{{pages}}/{{id}}/copyToSection" ] );
-    delete!( | delete, GraphResponse<()> => "{{pages}}/{{id}}" );
+    post!( [ | copy_to_section, GraphResponse<Content> => "{{pages}}/{{id}}/copyToSection" ] );
+    delete!( | delete, GraphResponse<Content> => "{{pages}}/{{id}}" );
+
+    pub fn download<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> FetchClient {
+        render_path!(
+            self.client,
+            "{{pages}}/{{id}}/content",
+            &serde_json::json!({ "id": id.as_ref() })
+        );
+        self.client
+            .builder()
+            .set_method(Method::GET)
+            .set_download_dir(directory.as_ref())
+            .set_request_type(GraphRequestType::Redirect);
+        self.client.request().download(self.client.take_builder())
+    }
 }

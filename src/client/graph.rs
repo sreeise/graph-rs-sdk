@@ -5,7 +5,7 @@ use crate::http::{DeltaRequest, GraphRequest, IntoResponse};
 use crate::http::{GraphRequestBuilder, GraphResponse};
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
-use crate::types::collection::Collection;
+use crate::types::{collection::Collection, content::Content};
 use crate::url::GraphUrl;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
@@ -339,7 +339,7 @@ impl<'a, I> SiteListItemRequest<'a, I> {
     post!( [ | create, ListItem => "sites/{{RID}}/lists/{{id}}/items" ] );
     patch!( [ || update, FieldValueSet => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" ] );
     patch!( [ || update_columns, FieldValueSet => "sites/{{RID}}/lists/{{id}}/items/{{id2}}/fields" ] );
-    delete!( || delete, GraphResponse<()> => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" );
+    delete!( || delete, GraphResponse<Content> => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" );
 }
 
 impl<'a, I> IdentGroups<'a, I> {
@@ -358,16 +358,16 @@ impl<'a, I> IdentGroups<'a, I> {
     post!( [ create, Group => "groups" ] );
     post!( [ member_groups, Collection<String> => "groups/{{RID}}/getMemberGroups" ] );
     post!( [ member_objects, Collection<String> => "groups/{{RID}}/getMemberObjects" ] );
-    post!( remove_favorite, GraphResponse<()> => "groups/{{RID}}/removeFavorite" );
-    post!( renew, GraphResponse<()> => "groups/{{RID}}/renew" );
-    post!( reset_unseen_count, GraphResponse<()> => "groups/{{RID}}/resetUnseenCount" );
-    post!( subscribe_by_mail, GraphResponse<()> => "groups/{{RID}}/subscribeByMail" );
-    post!( unsubscribe_by_mail, GraphResponse<()> => "groups/{{RID}}/unsubscribeByMail" );
-    post!( [ validate_properties, GraphResponse<()> => "groups/{{RID}}/validateProperties" ] );
+    post!( remove_favorite, GraphResponse<Content> => "groups/{{RID}}/removeFavorite" );
+    post!( renew, GraphResponse<Content> => "groups/{{RID}}/renew" );
+    post!( reset_unseen_count, GraphResponse<Content> => "groups/{{RID}}/resetUnseenCount" );
+    post!( subscribe_by_mail, GraphResponse<Content> => "groups/{{RID}}/subscribeByMail" );
+    post!( unsubscribe_by_mail, GraphResponse<Content> => "groups/{{RID}}/unsubscribeByMail" );
+    post!( [ validate_properties, GraphResponse<Content> => "groups/{{RID}}/validateProperties" ] );
     patch!( [ update, Group => "groups/{{RID}}" ] );
-    delete!( delete, GraphResponse<()> => "groups/{{RID}}" );
-    delete!( | remove_member, GraphResponse<()> => "groups/{{RID}}/members/{{id}}/$ref" );
-    delete!( | remove_owner, GraphResponse<()> => "groups/{{RID}}/owners/{{id}}/$ref" );
+    delete!( delete, GraphResponse<Content> => "groups/{{RID}}" );
+    delete!( | remove_member, GraphResponse<Content> => "groups/{{RID}}/members/{{id}}/$ref" );
+    delete!( | remove_owner, GraphResponse<Content> => "groups/{{RID}}/owners/{{id}}/$ref" );
 
     pub fn conversations(&self) -> GroupConversationRequest<'a, I> {
         GroupConversationRequest::new(self.client)
@@ -390,7 +390,7 @@ impl<'a, I> GroupLifecyclePolicyRequest<'a, I> {
     post!( [ | add_group, serde_json::Value => "{{glp}}/{{id}}/addGroup" ] );
     post!( [ | remove_group, serde_json::Value =>  "{{glp}}/{{id}}/removeGroup" ] );
     patch!( [ | update, GroupLifecyclePolicy => "{{glp}}/{{id}}" ] );
-    patch!( | delete, GraphResponse<()> => "{{glp}}/{{id}}" );
+    patch!( | delete, GraphResponse<Content> => "{{glp}}/{{id}}" );
 }
 
 register_client!(
@@ -405,8 +405,8 @@ impl<'a, I> GroupConversationRequest<'a, I> {
     get!( | get, Conversation => "groups/{{RID}}/{{co}}/{{id}}" );
     post!( [ create, Conversation => "groups/{{RID}}/{{co}}" ] );
     post!( [ | create_thread, ConversationThread => "groups/{{RID}}/{{co}}/{{id}}/threads" ] );
-    post!( [ create_accepted_sender, GraphResponse<()> => "groups/{{RID}}/acceptedSenders/$ref" ] );
-    delete!( | delete, GraphResponse<()> => "groups/{{RID}}/{{co}}/{{id}}" );
+    post!( [ create_accepted_sender, GraphResponse<Content> => "groups/{{RID}}/acceptedSenders/$ref" ] );
+    delete!( | delete, GraphResponse<Content> => "groups/{{RID}}/{{co}}/{{id}}" );
 }
 
 impl<'a, I> IdentUsers<'a, I> {
@@ -415,6 +415,6 @@ impl<'a, I> IdentUsers<'a, I> {
     get!( list_events, Collection<Event> => "users/{{RID}}/events" );
     get!( | list_joined_group_photos, Collection<ProfilePhoto> => "users/{{RID}}/joinedGroups/{{id}}/photos" );
     post!( [ create, User => "users" ] );
-    patch!( [ update, GraphResponse<()> => "users/{{RID}}" ] );
-    delete!( delete, GraphResponse<()> => "users/{{RID}}" );
+    patch!( [ update, GraphResponse<Content> => "users/{{RID}}" ] );
+    delete!( delete, GraphResponse<Content> => "users/{{RID}}" );
 }

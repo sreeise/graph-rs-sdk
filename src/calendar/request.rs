@@ -1,6 +1,6 @@
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
-use crate::types::collection::Collection;
+use crate::types::{collection::Collection, content::Content};
 use graph_rs_types::entitytypes::{Calendar, CalendarGroup, Event};
 use reqwest::Method;
 use std::marker::PhantomData;
@@ -15,7 +15,7 @@ impl<'a, I> CalendarRequest<'a, I> {
     patch!( [ update_default, Calendar => "calendar" ] );
     patch!( [ | update, Calendar => "calendars/{{id}}" ] );
     post!( | create, Calendar => "calendars" );
-    delete!( | delete, GraphResponse<()> => "calendars/{{id}}" );
+    delete!( | delete, GraphResponse<Content> => "calendars/{{id}}" );
 
     pub fn views(&self) -> CalendarViewRequest<'a, I> {
         CalendarViewRequest::new(self.client)
@@ -132,7 +132,7 @@ impl<'a, I> CalendarGroupRequest<'a, I> {
     get!( list_default_calendars, Collection<Calendar> => "calendarGroup/calendars" );
     get!( | list_calendars, Collection<Calendar> => "calendarGroups/{{id}}/calendars" );
     get!( || list_events, Collection<Event> => "calendarGroup/{{id}}/calendars/{{id2}}/events" );
-    post!([create, CalendarGroup => "calendarGroups"]);
+    post!( [ create, CalendarGroup => "calendarGroups" ] );
     post!([
         create_default_calendar,
         CalendarGroup =>
@@ -140,5 +140,5 @@ impl<'a, I> CalendarGroupRequest<'a, I> {
     ]);
     post!( [ | create_calendar, Calendar => "calendarGroups/{{id}}/calendars" ] );
     patch!( [ | update, CalendarGroup => "calendarGroups/{{id}}" ] );
-    delete!( | delete, GraphResponse<()> => "calendarGroups/{{id}}" );
+    delete!( | delete, GraphResponse<Content> => "calendarGroups/{{id}}" );
 }
