@@ -1,11 +1,13 @@
 use crate::client::*;
-use crate::http::IntoResponse;
-use crate::http::{FetchClient, UploadSessionClient};
-use crate::http::{GraphRequestType, GraphResponse};
+use crate::http::{
+    DeltaRequest, FetchClient, GraphRequestType, GraphResponse, IntoResponse, UploadSessionClient,
+};
 use crate::types::collection::Collection;
 use graph_error::{GraphFailure, GraphResult};
 use graph_rs_types::complextypes::{ItemPreviewInfo, Thumbnail};
-use graph_rs_types::entitytypes::{BaseItem, DriveItem, DriveItemVersion, ItemActivity, ThumbnailSet, ItemActivityStat};
+use graph_rs_types::entitytypes::{
+    BaseItem, DriveItem, DriveItemVersion, ItemActivity, ItemActivityStat, ThumbnailSet,
+};
 use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use reqwest::Method;
@@ -45,7 +47,7 @@ impl<'a, I> DriveRequest<'a, I> {
     get!( drive, BaseItem => "{{drive_root}}" );
     get!( root, DriveItem => "{{drive_root}}/root" );
     get!( recent, Collection<DriveItem> => "{{drive_root}}/recent" );
-    get!( delta, Collection<DriveItem> => "{{drive_root}}/root/delta" );
+    get!( delta, DeltaRequest => "{{drive_root}}/root/delta" );
     get!( root_children, Collection<DriveItem> => "{{drive_root}}/root/children" );
     get!( drive_activity, Collection<ItemActivity> => "{{drive_root}}/activities" );
     get!( thumbnails, Collection<ThumbnailSet> => "{{drive_item}}/thumbnails" );
@@ -384,21 +386,27 @@ impl<'a, I> DriveRequest<'a, I> {
         if let Some(end) = end {
             let interval = format!(
                 "getActivitiesByInterval(startDateTime='{}',endDateTime='{}',interval='{}')",
-                start,
-                end,
-                interval
+                start, end, interval
             );
-            render_path!(self.client, &template(id.as_ref(), &interval), &serde_json::json!({
-               "id": id.as_ref(),
-            }));
+            render_path!(
+                self.client,
+                &template(id.as_ref(), &interval),
+                &serde_json::json!({
+                   "id": id.as_ref(),
+                })
+            );
         } else {
             let interval = format!(
                 "getActivitiesByInterval(startDateTime='{}',interval='{}')",
                 start, interval
             );
-            render_path!(self.client, &template(id.as_ref(), &interval), &serde_json::json!({
-                "id": id.as_ref(),
-            }));
+            render_path!(
+                self.client,
+                &template(id.as_ref(), &interval),
+                &serde_json::json!({
+                    "id": id.as_ref(),
+                })
+            );
         }
         IntoResponse::new(self.client)
     }

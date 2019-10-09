@@ -7,7 +7,12 @@ pub fn lists_activities() {
     let _ = client.v1().sites("32p99453").lists().get("32p99453");
     assert_url_eq(&client, "/sites/32p99453/lists/32p99453");
 
-    let _ = client.v1().sites("32p99453").lists().items().get("1s390sd", "1s390sd");
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .lists()
+        .items()
+        .get("1s390sd", "1s390sd");
     assert_url_eq(&client, "/sites/32p99453/lists/1s390sd/items/1s390sd");
 
     let _ = client

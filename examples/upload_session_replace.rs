@@ -5,7 +5,7 @@ use graph_rs::prelude::*;
 // and iterating through the individual upload session values.
 // See https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession?view=odsp-graph-online
 
-static ITEM_ID: &str = "ITEM_ID";
+static PARENT_ITEM_ID: &str = "ITEM_ID";
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 // The file you want to upload.
@@ -35,7 +35,7 @@ fn upload_session_replace() {
         .v1()
         .me()
         .drive()
-        .upload_session(ITEM_ID, PATH_TO_FILE, upload)
+        .upload_session(PARENT_ITEM_ID, PATH_TO_FILE, upload)
         .send();
 
     if let Ok(session) = session {
