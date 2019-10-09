@@ -53,7 +53,7 @@
 //!
 //! ```
 
-extern crate from_as;
+pub extern crate from_as;
 extern crate graph_error;
 extern crate graph_oauth;
 pub extern crate graph_rs_types;

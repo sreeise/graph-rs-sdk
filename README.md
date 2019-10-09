@@ -6,9 +6,9 @@
 ### Graph API Client in Rust
 
 Disclaimer:
-This project integrates mainly with the OneDrive API and much of this work is finished. Other API 
-integrations are still being worked on. Since a good part of this API is unstable it should not 
-be used in production. 
+Integrates with OneDrive, Mail (messages and mail folder), Calendars, and OneNote. 
+Additional APIs are being added and may not be stable. Please create an issues if you 
+experience any problems. Note that some APIs may be specific to the Graph v1.0 or Graph beta. 
 
 ### Install and Building - Requires Rust nightly
 For Windows install the Windows build tools (And related Visual Studio components for Rust to work on Windows).
@@ -24,21 +24,12 @@ Of the portions that are implemented there are also examples and docs. Run:
 
     $ cargo doc --no-deps --open
 
-### Benchmarks
-
-Criterion.rs is being used to run benchmarks. The basic commands are the same;
-
-    $ cargo bench
-    
-The benchmark tests are a work in progress and several tests still need to be
-added/worked on.
-
 ### Use - subject to change.
 
 See the examples directory for more.
 
 OneDrive
-
+```rust
     use graph_rs::prelude::*;
     
     let client = Graph::new("ACCESS_TOKEN");
@@ -80,16 +71,18 @@ OneDrive
         .value()?;
         
     println!("{:#?}", response.value());
+```
     
-Mail
+### Mail
 
+```rust
         use graph_rs::prelude::*;
         
         let client = Graph::new("ACCESS_TOKEN");
         
         // Returns serde_json::Value
         let json = client.v1()
-              .users(id.as_str())
+              .users("ITEM_ID")
               .mail()
               .messages()
               .list()
@@ -115,7 +108,7 @@ Mail
         }))
         .value()?;
         
-        println!({:#?}, response.value()); // => Message
+        println!("{:#?}", response.value()); // => Message
         
         let send_mail_response = client.v1()
             .me()
@@ -125,11 +118,13 @@ Mail
             .send()?;
                                        
         assert!(send_mail_response.status().as_u16(), 202);
+```
         
 Use your own struct. Anything that implements serde::Serialize
 can be used for things like creating messages for mail or creating
 a folder for OneDrive.
-        
+
+```rust
         #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
         struct Message {
             subject: String,
@@ -176,10 +171,11 @@ a folder for OneDrive.
             .value()?;
             
         println!(":#?", response);
-            
+```            
         
 #### Use your own struct for the response
 
+```rust
         use graph_rs::prelude::*;
         
         let client = Graph::new("ACCESS_TOKEN");
@@ -198,10 +194,12 @@ a folder for OneDrive.
             .json()?;
         
         println!("{:#?}", response);
+```
         
 
 #### OData Queries
 
+```rust
     use graph_rs::prelude::*;
             
     let client = Graph::new("ACCESS_TOKEN");
@@ -216,6 +214,7 @@ a folder for OneDrive.
         .value()?;
     
     println!("{:#?}", response.value()):
+```
         
         
 ### Coverage
