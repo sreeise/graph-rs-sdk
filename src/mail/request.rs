@@ -1,7 +1,8 @@
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
 use crate::types::{collection::Collection, content::Content};
-use graph_rs_types::entitytypes::{Attachment, MailFolder, Message};
+use graph_rs_types::entitytypes::{Attachment, MailFolder, Message, MessageRule};
+use graph_rs_types::complextypes::MailTips;
 use handlebars::*;
 use reqwest::Method;
 use std::marker::PhantomData;
@@ -13,6 +14,8 @@ register_client!(
 );
 
 impl<'a, I> MailRequest<'a, I> {
+    get!( mail_tips, Collection<MailTips> => "getMailTips" );
+
     pub fn messages(&'a self) -> MessageRequest<'a, I> {
         MessageRequest::new(self.client)
     }
@@ -35,8 +38,8 @@ impl<'a, I> MessageRequest<'a, I> {
     post!( | send_message, Message => "{{mm}}/{{id}}/send" );
     post!( [ create, Message => "{{mm}}" ] );
     post!( [ send_mail, GraphResponse<Content> => "sendMail" ] );
-    post!( [ | copy, GraphResponse<Content> => "{{mm}}/{{id}}/copy" ] );
-    post!( [ | move_message, GraphResponse<Content> => "{{mm}}/{{id}}/move" ] );
+    post!( [ | copy, Message => "{{mm}}/{{id}}/copy" ] );
+    post!( [ | move_message, Message => "{{mm}}/{{id}}/move" ] );
     post!( [ | reply, GraphResponse<Content> => "{{mm}}/{{id}}/reply" ] );
     post!( [ | reply_all, GraphResponse<Content> => "{{mm}}/{{id}}/replyAll" ] );
     post!( [ | add_attachment, Attachment => "{{mm}}/{{id}}/attachments" ] );
@@ -49,6 +52,8 @@ register_client!(MailFolderRequest,);
 impl<'a, I> MailFolderRequest<'a, I> {
     get!( list, Collection<MailFolder> => "{{mf}}" );
     get!( | get, MailFolder => "{{mf}}/{{id}}" );
+    get!( list_rules, Collection<MessageRule> => "{{mf}}/inbox/messageRules" );
+    get!( [ create_rule, MessageRule => "{{mf}}/inbox/messageRules" ] );
     post!( [ | copy, MailFolder => "{{mf}}/{{id}}/copy" ] );
     post!( [ create, MailFolder => "{{mf}}" ] );
     patch!( [ | update, MailFolder => "{{mf}}/{{id}}" ] );
@@ -67,8 +72,8 @@ impl<'a, I> MailFolderMessageRequest<'a, I> {
     get!( || list_attachments, Collection<Attachment> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" );
     post!( [ || reply, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/reply" ] );
     post!( [ || reply_all, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/replyAll" ] );
-    post!( [ || copy, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/copy" ] );
-    post!( [ || move_message, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/move" ] );
+    post!( [ || copy, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/copy" ] );
+    post!( [ || move_message, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/move" ] );
     post!( [ || forward, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/forward" ] );
     post!( || create_forward, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/createForward" );
     post!( [ | create, Message => "{{mf}}/{{id}}/{{mm}}" ] );
