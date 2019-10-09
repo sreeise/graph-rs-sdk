@@ -1,14 +1,12 @@
-use crate::http::ByteRange;
+use crate::http::HttpByteRange;
 use from_as::*;
-use graph_error::{GraphError, GraphFailure, GraphResult};
+use graph_error::{GraphFailure, GraphResult};
 use graph_rs_types::complextypes::FileSystemInfo;
 use graph_rs_types::complextypes::UploadSession;
-use graph_rs_types::entitytypes::DriveItem;
 use reqwest::header::{CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
-use reqwest::{RequestBuilder, Response};
-use std::collections::VecDeque;
+use reqwest::Response;
 use std::convert::TryFrom;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, AsFile, FromFile)]
 pub struct Session {
@@ -30,14 +28,12 @@ pub trait StartUploadSession {
 
 pub enum NextSession {
     Next((UploadSession, Response)),
-    Done((Box<DriveItem>, Response)),
+    Done((Box<serde_json::Value>, Response)),
 }
 
 pub struct UploadSessionClient {
     upload_session_url: String,
-    file_size: u64,
-    file: PathBuf,
-    pub byte_ranges: VecDeque<(u64, u64, Vec<u8>)>,
+    byte_ranges: HttpByteRange,
     client: reqwest::Client,
 }
 
@@ -49,11 +45,14 @@ impl UploadSessionClient {
             .ok_or_else(|| GraphFailure::none_err("upload url from response"))?;
         Ok(UploadSessionClient {
             upload_session_url: url.to_string(),
-            file_size: 0,
-            file: Default::default(),
             byte_ranges: Default::default(),
             client: reqwest::Client::new(),
         })
+    }
+
+    pub fn from_range<P: AsRef<Path>>(&mut self, start: u64, end: u64, file: P) -> GraphResult<()> {
+        self.byte_ranges = HttpByteRange::from_range(start, end, file)?;
+        Ok(())
     }
 
     pub fn has_next(&self) -> bool {
@@ -61,17 +60,16 @@ impl UploadSessionClient {
     }
 
     pub fn set_file(&mut self, file: PathBuf) -> GraphResult<()> {
-        self.file = file;
-        let byte_reader = ByteRange::new(self.file.clone());
-        self.file_size = byte_reader.file_size()?;
-        self.byte_ranges = byte_reader.read_to_vec()?;
+        self.byte_ranges = HttpByteRange::try_from(file)?;
         Ok(())
     }
 
-    pub fn cancel(&mut self) -> RequestBuilder {
+    pub fn cancel(&mut self) -> GraphResult<Response> {
         self.client
             .delete(self.upload_session_url.as_str())
             .header(CONTENT_TYPE, "application/json")
+            .send()
+            .map_err(GraphFailure::from)
     }
 
     pub fn status(&mut self) -> GraphResult<Response> {
@@ -87,18 +85,7 @@ impl Iterator for UploadSessionClient {
     type Item = GraphResult<NextSession>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let next = self.byte_ranges.pop_front()?;
-        let mut content_length = next.1 - next.0;
-        content_length += 1;
-        let start = next.0.to_string();
-        let end = next.1.to_string();
-        let file_size = self.file_size.to_string();
-        let content_range = format!(
-            "bytes {}-{}/{}",
-            start.as_str(),
-            end.as_str(),
-            file_size.as_str()
-        );
+        let (body, content_length, content_range) = self.byte_ranges.pop_front()?;
 
         // The Authorization header and bearer token should only be sent
         // when issuing the POST during the first step.
@@ -108,20 +95,19 @@ impl Iterator for UploadSessionClient {
             .header(CONTENT_TYPE, "application/json")
             .header(CONTENT_LENGTH, content_length)
             .header(CONTENT_RANGE, content_range)
-            .body(next.2)
+            .body(body)
             .send()
             .map_err(GraphFailure::from);
 
         if let Ok(mut response) = response {
-            let status = response.status().as_u16();
-            if GraphError::is_error(status) {
-                return Some(Err(GraphFailure::from(
-                    GraphError::try_from(&mut response).unwrap_or_default(),
-                )));
+            if let Some(e) = GraphFailure::from_response(&mut response) {
+                return Some(Err(e));
             }
 
+            let status = response.status().as_u16();
             if status.eq(&200) || status.eq(&201) {
-                let result: GraphResult<DriveItem> = response.json().map_err(GraphFailure::from);
+                let result: GraphResult<serde_json::Value> =
+                    response.json().map_err(GraphFailure::from);
                 match result {
                     Ok(drive_item) => {
                         return Some(Ok(NextSession::Done((Box::new(drive_item), response))))

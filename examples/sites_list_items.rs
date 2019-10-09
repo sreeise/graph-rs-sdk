@@ -1,7 +1,4 @@
 use graph_rs::prelude::*;
-use graph_oauth::oauth::OAuth;
-use std::convert::TryFrom;
-use from_as::*;
 
 static ACCESS_TOKEN: &str = "<SITE_ID>";
 
@@ -14,6 +11,8 @@ fn main() {
     create_list();
     list_all_list_items();
     create_list_item();
+    get_list_item();
+    update_list_item();
     delete_list_item();
 }
 
