@@ -1,6 +1,6 @@
 use crate::client::Graph;
 use crate::http::{DeltaRequest, GraphResponse, IntoResponse};
-use crate::types::collection::Collection;
+use crate::types::{collection::Collection, content::Content};
 use graph_rs_types::entitytypes::{Contact, ContactFolder};
 use handlebars::*;
 use reqwest::Method;
@@ -18,7 +18,7 @@ impl<'a, I> ContactsRequest<'a, I> {
     get!( | get, Contact => "{{ct}}/{{id}}" );
     post!( [ create, Contact => "{{ct}}" ] );
     patch!( [ | update, Contact => "{{ct}}/{{id}}" ] );
-    delete!( | delete, GraphResponse<()> => "{{ct}}/{{id}}" );
+    delete!( | delete, GraphResponse<Content> => "{{ct}}/{{id}}" );
 
     pub fn contacts_folder(&'a self) -> ContactsFolderRequest<'a, I> {
         ContactsFolderRequest::new(self.client)
@@ -33,7 +33,7 @@ impl<'a, I> ContactsFolderRequest<'a, I> {
     get!( | list_child_folders, Collection<ContactFolder> => "{{cf}}/{{id}}/childFolders" );
     post!( [ | create_child_folder, ContactFolder => "{{cf}}/{{id}}/childFolders" ] );
     patch!( [ | update, ContactFolder => "{{cf}}/{{id}}" ] );
-    delete!( | delete, GraphResponse<()> => "{{cf}}/{{id}}" );
+    delete!( | delete, GraphResponse<Content> => "{{cf}}/{{id}}" );
 
     pub fn contacts(&'a self) -> ContactsFolderContactsRequest<'a, I> {
         ContactsFolderContactsRequest::new(self.client)
@@ -46,5 +46,5 @@ impl<'a, I> ContactsFolderContactsRequest<'a, I> {
     get!( | delta, DeltaRequest => "{{cf}}/{{id}}/{{ct}}/delta" );
     get!( | list, Collection<Contact> => "{{cf}}/{{id}}/{{ct}}" );
     post!( [ | create, Contact => "{{cf}}/{{id}}" ] );
-    delete!( || delete, GraphResponse<()> => "{{cf}}/{{id}}/{{ct}}/{{id2}}" );
+    delete!( || delete, GraphResponse<Content> => "{{cf}}/{{id}}/{{ct}}/{{id2}}" );
 }

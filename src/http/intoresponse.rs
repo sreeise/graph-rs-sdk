@@ -1,9 +1,10 @@
 use crate::client::*;
 use crate::http::{GraphResponse, UploadSessionClient};
-use crate::onenote::OnenotePageContent;
+use crate::types::content::Content;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderValue, ACCEPT};
 use std::cell::RefCell;
+use std::convert::TryFrom;
 use std::marker::PhantomData;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
@@ -14,6 +15,7 @@ pub trait ToResponse {
     type Output;
 
     fn send(&self) -> Self::Output;
+    fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>>;
 }
 
 pub struct IntoResponse<'a, I, T> {
@@ -82,7 +84,7 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
         self
     }
 
-    pub fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
+    fn to_serde_json(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
@@ -103,20 +105,6 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
     }
 }
 
-impl<'a, I> ToResponse for IntoResponse<'a, I, GraphResponse<()>> {
-    type Output = GraphResult<GraphResponse<()>>;
-
-    fn send(&self) -> Self::Output {
-        if self.error.borrow().is_some() {
-            return Err(self.error.replace(None).unwrap());
-        }
-        Ok(GraphResponse::new(
-            self.client.request().response(self.client.take_builder())?,
-            (),
-        ))
-    }
-}
-
 impl<'a, I, T> ToResponse for IntoResponse<'a, I, T>
 where
     for<'de> T: serde::Deserialize<'de>,
@@ -129,6 +117,10 @@ where
         }
         let builder = self.client.take_builder();
         self.client.request().execute(builder)
+    }
+
+    fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        self.to_serde_json()
     }
 }
 
@@ -143,19 +135,41 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, UploadSessionClient> {
             .request()
             .upload_session(self.client.take_builder())
     }
+
+    fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        self.to_serde_json()
+    }
 }
 
-impl<'a, I> ToResponse for IntoResponse<'a, I, OnenotePageContent> {
-    type Output = GraphResult<GraphResponse<OnenotePageContent>>;
+impl<'a, I> ToResponse for IntoResponse<'a, I, GraphResponse<Content>> {
+    type Output = GraphResult<GraphResponse<Content>>;
 
     fn send(&self) -> Self::Output {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
         let builder = self.client.take_builder();
+        let response = self.client.request().response(builder)?;
+        Ok(GraphResponse::try_from(response)?)
+    }
+
+    fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
+        let builder = self.client.take_builder();
         let mut response = self.client.request().response(builder)?;
-        let content = OnenotePageContent::from(response.text()?);
-        Ok(GraphResponse::new(response, content))
+        if let Ok(content) = response.text() {
+            Ok(GraphResponse::new(
+                response,
+                serde_json::json!({ "content": content }),
+            ))
+        } else {
+            Ok(GraphResponse::new(
+                response,
+                serde_json::json!({ "content": "" }),
+            ))
+        }
     }
 }
 
@@ -193,5 +207,9 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, DeltaRequest> {
         });
 
         Ok(receiver)
+    }
+
+    fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        self.to_serde_json()
     }
 }

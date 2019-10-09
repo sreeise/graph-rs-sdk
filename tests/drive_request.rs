@@ -158,7 +158,7 @@ fn drive_check_in_out() {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
 
-            let req: GraphResult<GraphResponse<()>> = client
+            let req = client
                 .v1()
                 .drives(id.as_str())
                 .drive()
@@ -344,7 +344,6 @@ fn drive_upload_new_and_replace_and_delete() {
                     ":/test_upload_file.txt:",
                     "./test_files/test_upload_file.txt",
                 )
-                .unwrap()
                 .value();
 
             if let Ok(value) = upload_res {
@@ -365,7 +364,6 @@ fn drive_upload_new_and_replace_and_delete() {
                     .drives(id.as_str())
                     .drive()
                     .upload_replace(item_id, "./test_files/test_upload_file.txt")
-                    .unwrap()
                     .value();
 
                 if let Ok(value) = upload_replace {

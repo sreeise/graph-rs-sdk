@@ -3,7 +3,8 @@ use crate::http::{
     DeltaRequest, FetchClient, GraphRequestType, GraphResponse, IntoResponse, UploadSessionClient,
 };
 use crate::types::collection::Collection;
-use graph_error::{GraphFailure, GraphResult};
+use crate::types::content::Content;
+use graph_error::GraphFailure;
 use graph_rs_types::complextypes::{ItemPreviewInfo, Thumbnail};
 use graph_rs_types::entitytypes::{
     BaseItem, DriveItem, DriveItemVersion, ItemActivity, ItemActivityStat, ThumbnailSet,
@@ -104,10 +105,15 @@ impl<'a, I> DriveRequest<'a, I> {
         id: S,
         body: &B,
     ) -> IntoResponse<'a, I, DriveItem> {
-        self.client
-            .builder()
-            .set_method(Method::PATCH)
-            .set_body(serde_json::to_string(body).unwrap());
+        let body = serde_json::to_string(body);
+        if let Ok(body) = body {
+            self.client
+                .builder()
+                .set_method(Method::PATCH)
+                .set_body(body);
+        } else if let Err(e) = body {
+            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+        }
         render_path!(
             self.client,
             template(id.as_ref(), "").as_str(),
@@ -116,7 +122,7 @@ impl<'a, I> DriveRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn delete<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<()>> {
+    pub fn delete<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<Content>> {
         self.client.builder().set_method(Method::DELETE);
         render_path!(
             self.client,
@@ -129,12 +135,17 @@ impl<'a, I> DriveRequest<'a, I> {
     pub fn create_folder<S: AsRef<str>, B: serde::Serialize>(
         &'a self,
         id: S,
-        drive_item: &B,
+        body: &B,
     ) -> IntoResponse<'a, I, DriveItem> {
-        self.client
-            .builder()
-            .set_method(Method::POST)
-            .set_body(serde_json::to_string(drive_item).unwrap());
+        let body = serde_json::to_string(body);
+        if let Ok(body) = body {
+            self.client
+                .builder()
+                .set_method(Method::POST)
+                .set_body(body);
+        } else if let Err(e) = body {
+            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+        }
 
         if id.as_ref().is_empty() {
             render_path!(self.client, "{{drive_root_path}}/children", &json!({}));
@@ -152,11 +163,16 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         body: &B,
-    ) -> IntoResponse<'a, I, GraphResponse<()>> {
-        self.client
-            .builder()
-            .set_method(Method::POST)
-            .set_body(serde_json::to_string(body).unwrap());
+    ) -> IntoResponse<'a, I, GraphResponse<Content>> {
+        let body = serde_json::to_string(body);
+        if let Ok(body) = body {
+            self.client
+                .builder()
+                .set_method(Method::POST)
+                .set_body(body);
+        } else if let Err(e) = body {
+            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+        }
         render_path!(
             self.client,
             template(id.as_ref(), "copy").as_str(),
@@ -220,62 +236,74 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         file: P,
-    ) -> GraphResult<IntoResponse<'a, I, DriveItem>> {
+    ) -> IntoResponse<'a, I, DriveItem> {
+        let file = File::open(file).map_err(GraphFailure::from);
+        if let Err(err) = file {
+            return IntoResponse::new_error(self.client, err);
+        }
+
         self.client
             .builder()
             .set_method(Method::PUT)
-            .set_body(File::open(file)?);
+            .set_body(file.unwrap());
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
             &json!({"id": encode(id.as_ref()) })
         );
-        Ok(IntoResponse::new(self.client))
+        IntoResponse::new(self.client)
     }
 
     pub fn upload_new<S: AsRef<str>, P: AsRef<Path>>(
         &'a self,
         id: S,
         file: P,
-    ) -> GraphResult<IntoResponse<'a, I, DriveItem>> {
+    ) -> IntoResponse<'a, I, DriveItem> {
         if id.as_ref().starts_with(':') {
+            let file = File::open(file).map_err(GraphFailure::from);
+            if let Err(err) = file {
+                return IntoResponse::new_error(self.client, err);
+            }
             self.client
                 .builder()
                 .set_method(Method::PUT)
-                .set_body(File::open(file)?);
+                .set_body(file.unwrap());
             render_path!(
                 self.client,
                 template(id.as_ref(), "content").as_str(),
                 &json!({"id": encode(id.as_ref()) })
             );
         } else {
-            let name = file
-                .as_ref()
-                .file_name()
-                .ok_or_else(|| GraphFailure::none_err("file_name"))?
-                .to_string_lossy()
-                .to_string();
-            self.client
-                .builder()
-                .set_method(Method::PUT)
-                .set_body(File::open(file)?);
+            let name = file.as_ref().file_name();
+            if name.is_none() {
+                return IntoResponse::new_error(self.client, GraphFailure::none_err("file_name"));
+            }
             render_path!(
                 self.client,
                 "{{drive_item}}/{{id}}:/{{file_name}}:/content",
                 &json!({
                     "id": id.as_ref(),
-                    "file_name": name,
+                    "file_name": name.unwrap(),
                 })
             );
+
+            let file = File::open(file).map_err(GraphFailure::from);
+            if let Err(err) = file {
+                return IntoResponse::new_error(self.client, err);
+            }
+            self.client
+                .builder()
+                .set_method(Method::PUT)
+                .set_body(file.unwrap());
         }
-        Ok(IntoResponse::new(self.client))
+        IntoResponse::new(self.client)
     }
 
     pub fn restore_version<S: AsRef<str>>(
         &'a self,
         id: S,
         version_id: S,
-    ) -> IntoResponse<'a, I, GraphResponse<()>> {
+    ) -> IntoResponse<'a, I, GraphResponse<Content>> {
         self.client.builder().set_method(Method::POST);
         render_path!(
             self.client,
@@ -292,13 +320,18 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         file: P,
-        body: B,
+        body: &B,
     ) -> IntoResponse<'a, I, UploadSessionClient> {
-        self.client
-            .builder()
-            .set_method(Method::POST)
-            .set_upload_session(file)
-            .set_body(serde_json::to_string(&json!({ "item": body })).unwrap());
+        let body = serde_json::to_string(body);
+        if let Ok(body) = body {
+            self.client
+                .builder()
+                .set_method(Method::POST)
+                .set_upload_session(file)
+                .set_body(body);
+        } else if let Err(e) = body {
+            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+        }
         render_path!(
             self.client,
             template(id.as_ref(), "createUploadSession").as_str(),
@@ -313,10 +346,15 @@ impl<'a, I> DriveRequest<'a, I> {
         body: Option<&B>,
     ) -> IntoResponse<'a, I, ItemPreviewInfo> {
         if let Some(body) = body {
-            self.client
-                .builder()
-                .set_method(Method::POST)
-                .set_body(serde_json::to_string(body).unwrap());
+            let body = serde_json::to_string(body);
+            if let Ok(body) = body {
+                self.client
+                    .builder()
+                    .set_method(Method::POST)
+                    .set_body(body);
+            } else if let Err(e) = body {
+                return IntoResponse::new_error(self.client, GraphFailure::from(e));
+            }
         } else {
             self.client
                 .builder()
@@ -328,6 +366,16 @@ impl<'a, I> DriveRequest<'a, I> {
             template(id.as_ref(), "preview").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
+        IntoResponse::new(self.client)
+    }
+
+    pub fn content<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<Content>> {
+        render_path!(
+            self.client,
+            template(id.as_ref(), "content").as_str(),
+            &json!({ "id": encode(id.as_ref()) })
+        );
+        self.client.builder().set_method(Method::GET);
         IntoResponse::new(self.client)
     }
 
@@ -345,7 +393,10 @@ impl<'a, I> DriveRequest<'a, I> {
         self.client.request().download(self.client.take_builder())
     }
 
-    pub fn check_out<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<()>> {
+    pub fn check_out<S: AsRef<str>>(
+        &'a self,
+        id: S,
+    ) -> IntoResponse<'a, I, GraphResponse<Content>> {
         render_path!(
             self.client,
             template(id.as_ref(), "checkout").as_str(),
@@ -362,16 +413,44 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         body: &B,
-    ) -> IntoResponse<'a, I, GraphResponse<()>> {
+    ) -> IntoResponse<'a, I, GraphResponse<Content>> {
         render_path!(
             self.client,
             template(id.as_ref(), "checkin").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        self.client
-            .builder()
-            .set_method(Method::POST)
-            .set_body(serde_json::to_string(body).unwrap());
+
+        let body = serde_json::to_string(body);
+        if let Ok(body) = body {
+            self.client
+                .builder()
+                .set_method(Method::POST)
+                .set_body(body);
+        } else if let Err(e) = body {
+            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+        }
+        IntoResponse::new(self.client)
+    }
+
+    pub fn move_item<S: AsRef<str>, B: serde::Serialize>(
+        &'a self,
+        id: S,
+        body: &B,
+    ) -> IntoResponse<'a, I, DriveItem> {
+        let body = serde_json::to_string(body);
+        if let Ok(body) = body {
+            self.client
+                .builder()
+                .set_method(Method::PATCH)
+                .set_body(body);
+        } else if let Err(e) = body {
+            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+        }
+        render_path!(
+            self.client,
+            template(id.as_ref(), "").as_str(),
+            &json!({ "id": id.as_ref() })
+        );
         IntoResponse::new(self.client)
     }
 

@@ -1,6 +1,6 @@
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
-use crate::types::collection::Collection;
+use crate::types::{collection::Collection, content::Content};
 use graph_rs_types::entitytypes::{Attachment, MailFolder, Message};
 use handlebars::*;
 use reqwest::Method;
@@ -31,17 +31,17 @@ impl<'a, I> MessageRequest<'a, I> {
     post!( | create_reply, Message => "{{mm}}/{{id}}/createReply" );
     post!( | create_reply_all, Message => "{{mm}}/{{id}}/createReplyAll" );
     post!( | create_forward, Message => "{{mm}}/{{id}}/createForward" );
-    post!( [ | forward, GraphResponse<()> => "{{mm}}/{{id}}/forward" ] );
+    post!( [ | forward, GraphResponse<Content> => "{{mm}}/{{id}}/forward" ] );
     post!( | send_message, Message => "{{mm}}/{{id}}/send" );
     post!( [ create, Message => "{{mm}}" ] );
-    post!( [ send_mail, GraphResponse<()> => "sendMail" ] );
-    post!( [ | copy, GraphResponse<()> => "{{mm}}/{{id}}/copy" ] );
-    post!( [ | move_message, GraphResponse<()> => "{{mm}}/{{id}}/move" ] );
-    post!( [ | reply, GraphResponse<()> => "{{mm}}/{{id}}/reply" ] );
-    post!( [ | reply_all, GraphResponse<()> => "{{mm}}/{{id}}/replyAll" ] );
+    post!( [ send_mail, GraphResponse<Content> => "sendMail" ] );
+    post!( [ | copy, GraphResponse<Content> => "{{mm}}/{{id}}/copy" ] );
+    post!( [ | move_message, GraphResponse<Content> => "{{mm}}/{{id}}/move" ] );
+    post!( [ | reply, GraphResponse<Content> => "{{mm}}/{{id}}/reply" ] );
+    post!( [ | reply_all, GraphResponse<Content> => "{{mm}}/{{id}}/replyAll" ] );
     post!( [ | add_attachment, Attachment => "{{mm}}/{{id}}/attachments" ] );
     patch!( [ | update, Message => "{{mm}}/{{id}}" ] );
-    delete!( | delete, GraphResponse<()> => "{{mm}}/{{id}}" );
+    delete!( | delete, GraphResponse<Content> => "{{mm}}/{{id}}" );
 }
 
 register_client!(MailFolderRequest,);
@@ -52,7 +52,7 @@ impl<'a, I> MailFolderRequest<'a, I> {
     post!( [ | copy, MailFolder => "{{mf}}/{{id}}/copy" ] );
     post!( [ create, MailFolder => "{{mf}}" ] );
     patch!( [ | update, MailFolder => "{{mf}}/{{id}}" ] );
-    delete!( | delete, GraphResponse<()> => "{{mf}}/{{id}}" );
+    delete!( | delete, GraphResponse<Content> => "{{mf}}/{{id}}" );
 
     pub fn messages(&'a self) -> MailFolderMessageRequest<'a, I> {
         MailFolderMessageRequest::new(self.client)
@@ -65,17 +65,17 @@ impl<'a, I> MailFolderMessageRequest<'a, I> {
     get!( | list, Collection<Message> => "{{mf}}/{{id}}/messages" );
     get!( || get, Collection<Message> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
     get!( || list_attachments, Collection<Attachment> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" );
-    post!( [ || reply, GraphResponse<()> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/reply" ] );
-    post!( [ || reply_all, GraphResponse<()> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/replyAll" ] );
-    post!( [ || copy, GraphResponse<()> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/copy" ] );
-    post!( [ || move_message, GraphResponse<()> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/move" ] );
-    post!( [ || forward, GraphResponse<()> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/forward" ] );
+    post!( [ || reply, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/reply" ] );
+    post!( [ || reply_all, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/replyAll" ] );
+    post!( [ || copy, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/copy" ] );
+    post!( [ || move_message, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/move" ] );
+    post!( [ || forward, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/forward" ] );
     post!( || create_forward, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/createForward" );
     post!( [ | create, Message => "{{mf}}/{{id}}/{{mm}}" ] );
     post!( || create_reply, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/createReply" );
     post!( || create_reply_all, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/createReplyAll" );
-    post!( [ send_mail, GraphResponse<()> => "sendMail" ] );
+    post!( [ send_mail, GraphResponse<Content> => "sendMail" ] );
     post!( [ || add_attachment, Attachment => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" ] );
     patch!( [ || update, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}" ] );
-    delete!( || delete, GraphResponse<()> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
+    delete!( || delete, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
 }
