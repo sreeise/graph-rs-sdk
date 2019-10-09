@@ -614,16 +614,12 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::scope;
     /// # let mut oauth = OAuth::new();
     ///
-    /// oauth.add_scope("Read")
-    ///     .add_scope("Write")
-    ///     .add_scope("ReadWrite.All");
-    ///
-    /// // Or using static scopes
-    /// oauth.add_scope(scope::FILES_READ)
-    ///       .add_scope(scope::FILES_READ_WRITE);
+    /// oauth.add_scope("Sites.Read")
+    ///     .add_scope("Sites.ReadWrite")
+    ///     .add_scope("Sites.ReadWrite.All");
+    /// assert_eq!(oauth.join_scopes(" "), "Sites.Read Sites.ReadWrite Sites.ReadWrite.All");
     /// ```
     pub fn add_scope<T: ToString>(&mut self, scope: T) -> &mut OAuth {
         self.scopes.insert(scope.to_string());
@@ -671,18 +667,13 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::scope;
     /// # use std::collections::HashSet;
     /// # let mut oauth = OAuth::new();
     ///
     /// let scopes1 = vec!["Files.Read", "Files.ReadWrite"];
     /// oauth.extend_scopes(&scopes1);
     ///
-    /// // Or using static scopes
-    /// let scopes2 = vec![scope::FILES_READ_SELECTED, scope::FILES_READ_WRITE_SELECTED];
-    /// oauth.extend_scopes(&scopes2);
-    ///
-    /// assert_eq!(oauth.join_scopes(" "), "Files.Read Files.Read.Selected Files.ReadWrite Files.ReadWrite.Selected");
+    /// assert_eq!(oauth.join_scopes(" "), "Files.Read Files.ReadWrite");
     /// ```
     pub fn extend_scopes<T: ToString, I: IntoIterator<Item = (T)>>(
         &mut self,
@@ -697,18 +688,14 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::scope;
     /// # let mut oauth = OAuth::new();
     ///
     /// oauth.add_scope("Files.Read");
     /// assert_eq!(oauth.contains_scope("Files.Read"), true);
     ///
     /// // Or using static scopes
-    /// oauth.add_scope(scope::FILES_READ_WRITE);
-    /// assert_eq!(oauth.contains_scope(scope::FILES_READ_WRITE), true);
-    ///
-    /// oauth.remove_scope(scope::FILES_READ_WRITE);
-    /// assert_eq!(oauth.contains_scope(scope::FILES_READ_WRITE), false);
+    /// oauth.add_scope("File.ReadWrite");
+    /// assert!(oauth.contains_scope("File.ReadWrite"));
     /// ```
     pub fn contains_scope<T: ToString>(&self, scope: T) -> bool {
         self.scopes.contains(&scope.to_string())
@@ -719,18 +706,12 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::scope;
     /// # let mut oauth = OAuth::new();
     ///
     /// oauth.add_scope("scope");
+    /// # assert!(oauth.contains_scope("scope"));
     /// oauth.remove_scope("scope");
-    ///
-    /// // Or using static scopes
-    /// oauth.add_scope(scope::FILES_READ);
-    /// assert_eq!(oauth.contains_scope(scope::FILES_READ), true);
-    ///
-    /// oauth.remove_scope(scope::FILES_READ);
-    /// assert_eq!(oauth.contains_scope(scope::FILES_READ), false);
+    ///# assert!(!oauth.contains_scope("scope"));
     /// ```
     pub fn remove_scope<T: AsRef<str>>(&mut self, scope: T) {
         self.scopes.remove(scope.as_ref());
@@ -742,8 +723,10 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # let mut oauth = OAuth::new();
+    ///
     /// oauth.add_scope("Files.Read").add_scope("Files.ReadWrite");
     /// assert_eq!("Files.Read Files.ReadWrite", oauth.join_scopes(" "));
+    ///
     /// oauth.clear_scopes();
     /// assert!(oauth.get_scopes().is_empty());
     /// ```

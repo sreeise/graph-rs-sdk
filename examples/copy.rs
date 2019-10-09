@@ -1,7 +1,7 @@
 use graph_rs::prelude::*;
+use graph_rs::types::content::Content;
 use std::thread;
 use std::time::Duration;
-use graph_rs::types::content::Content;
 
 // Set the name of the file you want to copy
 // and a name for the copy of the file.

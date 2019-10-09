@@ -4,7 +4,7 @@ use graph_error::{GraphFailure, GraphResult};
 use graph_rs_types::complextypes::FileSystemInfo;
 use graph_rs_types::complextypes::UploadSession;
 use reqwest::header::{CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
-use reqwest::{Response, RequestBuilder};
+use reqwest::{RequestBuilder, Response};
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 

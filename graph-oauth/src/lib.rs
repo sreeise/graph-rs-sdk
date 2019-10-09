@@ -79,11 +79,6 @@ mod grants;
 mod idtoken;
 pub mod jwt;
 mod oautherror;
-mod scopes;
-
-pub mod scope {
-    pub use crate::scopes::*;
-}
 
 pub mod oauth {
     pub use crate::accesstoken::AccessToken;
@@ -97,6 +92,5 @@ pub mod oauth {
     pub use crate::grants::GrantType;
     pub use crate::idtoken::IdToken;
     pub use crate::oautherror::OAuthError;
-    pub use crate::scope;
     pub use crate::strum::IntoEnumIterator;
 }

@@ -1,9 +1,9 @@
 use graph_rs::prelude::*;
-use test_tools::oauthrequest::OAuthRequest;
-use test_tools::oauthrequest::THROTTLE_MUTEX;
 use std::error::Error;
 use std::thread;
 use std::time::Duration;
+use test_tools::oauthrequest::OAuthRequest;
+use test_tools::oauthrequest::THROTTLE_MUTEX;
 
 #[test]
 fn list_and_get_messages() {
@@ -60,7 +60,8 @@ fn mail_create_and_delete_message() {
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
-            let result = client.v1()
+            let result = client
+                .v1()
                 .users(id.as_str())
                 .mail()
                 .messages()
@@ -85,19 +86,25 @@ fn mail_create_and_delete_message() {
                 let message_id = message.value()["id"].as_str().unwrap();
 
                 thread::sleep(Duration::from_secs(2));
-                let delete_res = client.v1()
+                let delete_res = client
+                    .v1()
                     .users(id.as_str())
                     .mail()
                     .messages()
                     .delete(message_id)
                     .send();
                 if let Err(e) = delete_res {
-                    panic!("Request error. Method: mail messages delete. Error: {:#?}", e.description());
+                    panic!(
+                        "Request error. Method: mail messages delete. Error: {:#?}",
+                        e.description()
+                    );
                 }
             } else if let Err(e) = result {
-                panic!("Request error. Method: mail messages create. Error: {:#?}", e.description());
+                panic!(
+                    "Request error. Method: mail messages create. Error: {:#?}",
+                    e.description()
+                );
             }
-
         }
     });
 }

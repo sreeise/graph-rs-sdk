@@ -108,7 +108,6 @@ pub mod prelude {
 pub mod oauth {
     pub use graph_oauth::jwt;
     pub use graph_oauth::oauth::*;
-    pub use graph_oauth::scope;
 }
 
 /// Reexport of graph-error crate.
