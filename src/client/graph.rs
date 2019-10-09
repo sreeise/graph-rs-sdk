@@ -13,7 +13,7 @@ use graph_oauth::oauth::{AccessToken, OAuth};
 use graph_rs_types::entitytypes::{
     Conversation, ConversationThread, DirectoryObject, Drive, Event, FieldValueSet, Group,
     GroupLifecyclePolicy, ItemActivityStat, ItemAnalytics, List, ListItem, ListItemVersion,
-    ProfilePhoto, Site, User, UserSettings
+    ProfilePhoto, Site, User, UserSettings,
 };
 use handlebars::*;
 use reqwest::header::{HeaderValue, ACCEPT};

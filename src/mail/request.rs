@@ -1,8 +1,8 @@
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
 use crate::types::{collection::Collection, content::Content};
-use graph_rs_types::entitytypes::{Attachment, MailFolder, Message, MessageRule};
 use graph_rs_types::complextypes::MailTips;
+use graph_rs_types::entitytypes::{Attachment, MailFolder, Message, MessageRule};
 use handlebars::*;
 use reqwest::Method;
 use std::marker::PhantomData;

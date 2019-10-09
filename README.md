@@ -28,96 +28,164 @@ Of the portions that are implemented there are also examples and docs. Run:
 
 See the examples directory for more.
 
-OneDrive
-```rust
-    use graph_rs::prelude::*;
-    
-    let client = Graph::new("ACCESS_TOKEN");
-    
-    let response = client.v1()
-        .me()
-        .drive()
-        .get_item("ITEM_ID")
-        .send()?;
-    
-    println!("{:#?}", response.value());
-    
-    let folder: HashMap<String, serde_json::Value> = HashMap::new();
+Each request has an three ways of getting the response. The responses are returned with the headers
+and the deserialized body (if there is one) wrapped in the GraphResponse struct.
 
-    let drive_item = client
-        .v1()
-        .me()
-        .drive()
-        .create_folder(
-            "PARENT_FOLDER_ID",
-            &serde_json::json!({
-                "name": "docs",
-                "folder": folder,
-                "@microsoft.graph.conflictBehavior": "fail"
-            }),
-        )
-        .value()?;
+##### serde_json::Value response
+The value() method returns the response in JSON using serde_json::Value.
+
+The json() method can be used to convert the response to your own types. These
+types must implement serde::Deserialize.
+
+```rust
+use graph_rs::prelude::*;
         
-    println!("{:#?}", drive_item):
-    
-    // Use path based addressing
-    // Pass the location of the item to get from the root folder.
-    // Start the path with :/ and end with :
-    
-    let response = client.v1()
-        .me()
-        .drive()
-        .get_item(":/document.docx:")
-        .value()?;
+let client = Graph::new("ACCESS_TOKEN");
+
+// returns GraphResponse<serde_json::Value>
+let value_response = client.v1()
+    .me()
+    .get()
+    .value()?;
+
+println!("{:#?}", value_response);
+```
+
+##### Custom Types
+The json() method can be used to convert the response to your own types. These
+types must implement serde::Deserialize.
+
+```rust
+use graph_rs::prelude::*;
         
-    println!("{:#?}", response.value());
+let client = Graph::new("ACCESS_TOKEN");
+        
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DriveItem {
+    id: Option<String>,
+    name: Option<String>,
+    // ... Any other fields
+}
+        
+let response: DriveItem = client.v1()
+    .me()
+    .drive()
+    .get_item("ITEM_ID")
+    .json()?;
+        
+println!("{:#?}", response);   
+``` 
+
+#### The send method and Graph types
+The send() method always returns a struct based on that request. These structs are Graph types generated
+from the Microsoft Graph metadata document located here: https://graph.microsoft.com/v1.0/$metadata
+Beware that the fields on these types do not change and sending a request that alters the response, such 
+as OData queries, may not return the all of the fields requested. If you use OData query parameters it is 
+recommended that use use your own struct or the the value method for serde_json::Value.
+
+```rust
+use graph_rs::prelude::*;
+
+// Returns GraphResponse<Collection<DriveItem>>
+let response = client.v1()
+    .me()
+    .drive()
+    .root_children()
+    .send()?;
+        
+println!("{:#?}", response);  
+```
+
+### OneDrive
+```rust
+use graph_rs::prelude::*;
+    
+let client = Graph::new("ACCESS_TOKEN");
+    
+let response = client.v1()
+    .me()
+    .drive()
+    .get_item("ITEM_ID")
+    .send()?;
+    
+println!("{:#?}", response.value());
+    
+let folder: HashMap<String, serde_json::Value> = HashMap::new();
+
+let drive_item = client
+    .v1()
+    .me()
+    .drive()
+    .create_folder(
+        "PARENT_FOLDER_ID",
+         &serde_json::json!({
+            "name": "docs",
+            "folder": folder,
+            "@microsoft.graph.conflictBehavior": "fail"
+         }),
+    )
+    .value()?;
+        
+println!("{:#?}", drive_item):
+    
+// Use path based addressing
+// Pass the location of the item to get from the root folder.
+ // Start the path with :/ and end with :
+    
+let response = client.v1()
+    .me()
+    .drive()
+    .get_item(":/document.docx:")
+    .value()?;
+        
+println!("{:#?}", response.value());
 ```
     
 ### Mail
 
 ```rust
-        use graph_rs::prelude::*;
+use graph_rs::prelude::*;
         
-        let client = Graph::new("ACCESS_TOKEN");
+let client = Graph::new("ACCESS_TOKEN");
         
-        // Returns serde_json::Value
-        let json = client.v1()
-              .users("ITEM_ID")
-              .mail()
-              .messages()
-              .list()
-              .value()?;
+// Returns serde_json::Value
+let json = client.v1()
+    .users("USER_ID")
+    .mail()
+    .messages()
+    .list()
+    .value()?;
               
-        // Create a message
-        let response = client.v1()
-            .me()
-            .mail()
-            .messages()
-            .create(&serde_json::json!({
-                "subject":"Did you see last night's game?",
-                "importance":"Low",
-                "body":{
-                    "contentType":"HTML",
-                    "content":"They were <b>awesome</b>!"
-                },
-                "toRecipients":[{
-                    "emailAddress":{
-                        "address":"AdeleV@contoso.onmicrosoft.com"
-                    }
-                }]
-        }))
-        .value()?;
+// Create a message
+let response = client.v1()
+    .users("USER_ID")
+    .mail()
+    .messages()
+    .create(&serde_json::json!({
+        "subject":"Did you see last night's game?",
+        "importance":"Low",
+        "body":{
+            "contentType":"HTML",
+                "content":"They were <b>awesome</b>!"
+            },
+        "toRecipients":[{
+            "emailAddress":{
+                "address":"AdeleV@contoso.onmicrosoft.com"
+            }
+        }]
+    }))
+    .value()?;
         
-        println!("{:#?}", response.value()); // => Message
+println!("{:#?}", response.value()); // => Message
         
-        let send_mail_response = client.v1()
-            .me()
-            .mail()
-            .messages()
-            .send_mail()
-            .send()?;
+let send_mail_response = client.v1()
+    .me()
+    .mail()
+    .messages()
+    .send_mail()
+    .send()?;
                                        
-        assert!(send_mail_response.status().as_u16(), 202);
+println!("{:#?}", send_mail_response);
 ```
         
 Use your own struct. Anything that implements serde::Serialize
@@ -125,95 +193,71 @@ can be used for things like creating messages for mail or creating
 a folder for OneDrive.
 
 ```rust
-        #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-        struct Message {
-            subject: String,
-            importance: String,
-            body: HashMap<String, String>,
-            #[serde(rename = "toRecipients")]
-            to_recipients: Vec<ToRecipient>,
-        }
+ #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+struct Message {
+    subject: String,
+    importance: String,
+    body: HashMap<String, String>,
+    #[serde(rename = "toRecipients")]
+    to_recipients: Vec<ToRecipient>,
+}
 
-        #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-        struct ToRecipient {
-            #[serde(rename = "emailAddress")]
-            email_address: EmailAddress,
-        }
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+struct ToRecipient {
+    #[serde(rename = "emailAddress")]
+    email_address: EmailAddress,
+}
 
-        #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-        struct EmailAddress {
-            address: String,
-        }
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+    struct EmailAddress {
+        address: String,
+    }
 
-        let mut body = HashMap::new();
-        body.insert("contentType".to_string(), "HTML".to_string());
-        body.insert("content".to_string(), "They were <b>awesome</b>!".to_string());
+let mut body = HashMap::new();
+body.insert("contentType".to_string(), "HTML".to_string());
+body.insert("content".to_string(), "They were <b>awesome</b>!".to_string());
         
-        let message = Message {
-            subject: "Did you see last night's game?".into(),
-            importance: "Low".into(),
-            body,
-            to_recipients: vec![
-                ToRecipient {
-                    email_address: EmailAddress {
-                        address : "AdeleV@contoso.onmicrosoft.com".into()        
-                    }                
-                }
-            ]
+let message = Message {
+    subject: "Did you see last night's game?".into(),
+    importance: "Low".into(),
+    body,
+    to_recipients: vec![
+        ToRecipient {
+            email_address: EmailAddress {
+                address : "AdeleV@contoso.onmicrosoft.com".into()        
+            }                
         }
+    ]
+}
         
-        // Create a message
-        let response = client.v1()
-            .me()
-            .mail()
-            .messages()
-            .create(&message)
-            .value()?;
+// Create a message
+let response = client.v1()
+    .me()
+    .mail()
+    .messages()
+    .create(&message)
+    .value()?;
             
-        println!(":#?", response);
-```            
-        
-#### Use your own struct for the response
-
-```rust
-        use graph_rs::prelude::*;
-        
-        let client = Graph::new("ACCESS_TOKEN");
-        
-        #[derive(Debug, Serialize, Deserialize)]
-        pub struct DriveItem {
-            id: Option<String>,
-            name: Option<String>,
-            // ... Any other fields
-        }
-        
-        let response: DriveItem = client.v1()
-            .me()
-            .drive()
-            .get_item("ITEM_ID")
-            .json()?;
-        
-        println!("{:#?}", response);
-```
-        
+println!(":#?", response);
+```              
 
 #### OData Queries
 
 ```rust
-    use graph_rs::prelude::*;
+use graph_rs::prelude::*;
             
-    let client = Graph::new("ACCESS_TOKEN");
+let client = Graph::new("ACCESS_TOKEN");
     
-    // Get all files in the root of the drive
-    // and select only specific properties.
-    let response = client.v1()
-        .me()
-        .drive()
-        .root_children()
-        .select(&["id", "name"])
-        .value()?;
+// Get all files in the root of the drive
+// and select only specific properties.
+let response = client.v1()
+    .me()
+    .drive()
+    .root_children()
+    .select(&["id", "name"])
+    .value()?;
     
-    println!("{:#?}", response.value()):
+println!("{:#?}", response.value()):
 ```
         
         
@@ -329,7 +373,7 @@ Get User                | [x]
 Create User             | [x]
 Update User             | [x]
 Delete User             | [x]
-Get Delta               | [ ]
+Get Delta               | [x]
 
 OneNote
 
