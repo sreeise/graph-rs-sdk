@@ -5,7 +5,7 @@ use crate::http::{DeltaRequest, GraphRequest, IntoResponse};
 use crate::http::{GraphRequestBuilder, GraphResponse};
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
-use crate::types::{collection::Collection, content::Content};
+use crate::types::{boolresponse::BoolResponse, collection::Collection, content::Content};
 use crate::url::GraphUrl;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
@@ -13,7 +13,7 @@ use graph_oauth::oauth::{AccessToken, OAuth};
 use graph_rs_types::entitytypes::{
     Conversation, ConversationThread, DirectoryObject, Drive, Event, FieldValueSet, Group,
     GroupLifecyclePolicy, ItemActivityStat, ItemAnalytics, List, ListItem, ListItemVersion,
-    ProfilePhoto, Site, User,
+    ProfilePhoto, Site, User, UserSettings
 };
 use handlebars::*;
 use reqwest::header::{HeaderValue, ACCEPT};
@@ -271,6 +271,8 @@ register_ident_client!(IdentUsers,);
 impl<'a, I> IdentMe<'a, I> {
     get!( get, User => "me" );
     get!( list_events, Collection<Event> => "me/events" );
+    get!( settings, UserSettings => "me/settings" );
+    patch!( [ update_settings, UserSettings => "me/settings" ] );
 }
 
 impl<'a, I> IdentDrives<'a, I> {
@@ -356,6 +358,10 @@ impl<'a, I> IdentGroups<'a, I> {
     get!( list_photos, Collection<ProfilePhoto> => "groups/{{RID}}/photos" );
     get!( root_site, Collection<ProfilePhoto> => "groups/{{RID}}/sites/root" );
     post!( [ create, Group => "groups" ] );
+    post!( add_favorite, GraphResponse<Content> => "groups/{{RID}}/addFavorite" );
+    post!( [ add_member, GraphResponse<Content> => "groups/{{RID}}/members/$ref" ] );
+    post!( [ add_owner, GraphResponse<Content> => "groups/{{RID}}/owners/$ref" ] );
+    post!( [ check_member_groups, Collection<String> => "groups/{{RID}}/checkMemberGroups" ] );
     post!( [ member_groups, Collection<String> => "groups/{{RID}}/getMemberGroups" ] );
     post!( [ member_objects, Collection<String> => "groups/{{RID}}/getMemberObjects" ] );
     post!( remove_favorite, GraphResponse<Content> => "groups/{{RID}}/removeFavorite" );
@@ -387,8 +393,8 @@ impl<'a, I> GroupLifecyclePolicyRequest<'a, I> {
     get!( list, Collection<GroupLifecyclePolicy> => "{{glp}}" );
     get!( | get, Collection<GroupLifecyclePolicy> => "{{glp}}/{{id}}" );
     post!( [ create, GroupLifecyclePolicy => "{{glp}}" ] );
-    post!( [ | add_group, serde_json::Value => "{{glp}}/{{id}}/addGroup" ] );
-    post!( [ | remove_group, serde_json::Value =>  "{{glp}}/{{id}}/removeGroup" ] );
+    post!( [ | add_group, BoolResponse => "{{glp}}/{{id}}/addGroup" ] );
+    post!( [ | remove_group, BoolResponse =>  "{{glp}}/{{id}}/removeGroup" ] );
     patch!( [ | update, GroupLifecyclePolicy => "{{glp}}/{{id}}" ] );
     patch!( | delete, GraphResponse<Content> => "{{glp}}/{{id}}" );
 }
@@ -411,10 +417,13 @@ impl<'a, I> GroupConversationRequest<'a, I> {
 
 impl<'a, I> IdentUsers<'a, I> {
     get!( get, User => "users/{{RID}}" );
+    get!( settings, UserSettings => "users/{{RID}}/settings" );
     get!( list, Collection<User> => "users" );
     get!( list_events, Collection<Event> => "users/{{RID}}/events" );
     get!( | list_joined_group_photos, Collection<ProfilePhoto> => "users/{{RID}}/joinedGroups/{{id}}/photos" );
     post!( [ create, User => "users" ] );
+    post!( delta, DeltaRequest => "users" );
     patch!( [ update, GraphResponse<Content> => "users/{{RID}}" ] );
+    patch!( [ update_settings, UserSettings => "users/{{RID}}/settings" ] );
     delete!( delete, GraphResponse<Content> => "users/{{RID}}" );
 }
