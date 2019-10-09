@@ -278,6 +278,12 @@ impl<'a, I> DriveRequest<'a, I> {
             if name.is_none() {
                 return IntoResponse::new_error(self.client, GraphFailure::none_err("file_name"));
             }
+            let name = name
+                .unwrap()
+                .to_str();
+            if name.is_none() {
+                return IntoResponse::new_error(self.client, GraphFailure::none_err("filename has invalid characters. Must be UTF-8"));
+            }
             render_path!(
                 self.client,
                 "{{drive_item}}/{{id}}:/{{file_name}}:/content",

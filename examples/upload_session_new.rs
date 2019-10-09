@@ -33,7 +33,7 @@ fn upload_session_new() {
         .v1()
         .me()
         .drive()
-        .upload_session(PATH_IN_ONE_DRIVE, PATH_TO_FILE, upload)
+        .upload_session(PATH_IN_ONE_DRIVE, PATH_TO_FILE, &upload)
         .send();
 
     if let Ok(mut session) = session {
