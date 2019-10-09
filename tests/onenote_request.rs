@@ -118,13 +118,13 @@ fn create_delete_page() {
 
                 if let Err(e) = delete_res {
                     panic!(
-                        "Request error. Method onenote pages delete page {:#?}",
+                        "Request error. Method onenote pages delete page: Error: {:#?}",
                         e.description()
                     );
                 }
             } else if let Err(e) = res {
                 panic!(
-                    "Request error. Method onenote create page {:#?}",
+                    "Request error. Method onenote create page. Error: {:#?}",
                     e.description()
                 );
             }
