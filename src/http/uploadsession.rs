@@ -42,7 +42,7 @@ impl UploadSessionClient {
         let url = upload_session
             .upload_url
             .as_ref()
-            .ok_or_else(|| GraphFailure::none_err("upload url from response"))?;
+            .ok_or_else(|| GraphFailure::invalid("upload url from response"))?;
         Ok(UploadSessionClient {
             upload_session_url: url.to_string(),
             byte_ranges: Default::default(),

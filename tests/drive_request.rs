@@ -215,7 +215,7 @@ fn drive_download() {
             clean_up.rm_files(file_location.into());
 
             let client = Graph::new(bearer.as_str());
-            let mut download = client
+            let download = client
                 .v1()
                 .drives(id.as_str())
                 .drive()
@@ -251,7 +251,7 @@ fn drive_download_format() {
             clean_up.rm_files(file_location.into());
 
             let client = Graph::new(bearer.as_str());
-            let mut download = client
+            let download = client
                 .v1()
                 .drives(id.as_str())
                 .drive()

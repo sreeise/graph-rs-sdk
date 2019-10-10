@@ -20,7 +20,7 @@ pub fn download() {
     let client = Graph::try_from(&oauth).unwrap();
 
     // Download the file. The file will be downloaded with the same name.
-    let mut download_client = client
+    let download_client = client
         .v1()
         .me()
         .drive()
@@ -43,7 +43,7 @@ pub fn download_and_format(format: &str) {
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
     let client = Graph::try_from(&oauth).unwrap();
 
-    let mut download_client = client
+    let download_client = client
         .v1()
         .me()
         .drive()
@@ -61,7 +61,7 @@ fn download_and_rename(name: &str) {
     let client = Graph::try_from(&oauth).unwrap();
 
     // Create the download request.
-    let mut download_client = client
+    let download_client = client
         .v1()
         .me()
         .drive()
@@ -81,7 +81,7 @@ fn download_by_path(path: &str) {
     let client = Graph::new("");
 
     // Create the download request.
-    let mut download_client = client
+    let download_client = client
         .v1()
         .me()
         .drive()
@@ -90,4 +90,28 @@ fn download_by_path(path: &str) {
     let path_buf: PathBuf = download_client.send().unwrap();
 
     println!("{:#?}", path_buf.metadata());
+}
+
+// The default settings for downloading is to create
+// any missing directory. You can change this by passing a
+// download config. This will will fail if the directory does not exist.
+#[allow(dead_code)]
+fn download_with_config() {
+    let client = Graph::new("");
+
+    let download_client = client
+        .v1()
+        .me()
+        .drive()
+        .download(ITEM_ID, "./example/example_files/download_dir");
+
+    download_client.create_dir_all(false);
+
+    let result = download_client.send();
+
+    if let Ok(path_buf) = result {
+        println!("{:#?}", path_buf);
+    } else if let Err(e) = result {
+        println!("{:#?}", e);
+    }
 }

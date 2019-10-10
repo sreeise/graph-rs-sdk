@@ -13,4 +13,5 @@ serde_derive = "^1.0"
 base64 = "0.10.1"
 url = "1.7.2"
 hyper = "0.12.33"
+snafu = "0.5.0"
 from_as = { git = "https://github.com/sreeise/from_as" }
