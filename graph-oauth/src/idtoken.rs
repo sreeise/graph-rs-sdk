@@ -1,6 +1,6 @@
 use crate::oautherror::OAuthError;
 use from_as::*;
-use graph_error::{GraphFailure, AsRes};
+use graph_error::{AsRes, GraphFailure};
 use std::borrow::Cow;
 use std::convert::TryFrom;
 use std::str::FromStr;
@@ -90,7 +90,9 @@ impl FromStr for IdToken {
                 b"id_token" => id_token.id_token(value.as_ref()),
                 b"state" => id_token.state(value.as_ref()),
                 b"session_state" => id_token.session_state(value.as_ref()),
-                _ => return GraphFailure::invalid("Invalid key value pair in string.").as_err_res(),
+                _ => {
+                    return GraphFailure::invalid("Invalid key value pair in string.").as_err_res()
+                },
             }
         }
         Ok(id_token)
