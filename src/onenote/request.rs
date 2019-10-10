@@ -1,5 +1,5 @@
 use crate::client::Graph;
-use crate::http::{FetchClient, GraphRequestType, GraphResponse, IntoResponse};
+use crate::http::{DownloadClient, GraphRequestType, GraphResponse, IntoResponse};
 use crate::types::collection::Collection;
 use crate::types::content::Content;
 use graph_error::GraphFailure;
@@ -159,7 +159,11 @@ impl<'a, I> OnenotePageRequest<'a, I> {
     post!( [ | copy_to_section, GraphResponse<Content> => "{{pages}}/{{id}}/copyToSection" ] );
     delete!( | delete, GraphResponse<Content> => "{{pages}}/{{id}}" );
 
-    pub fn download<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> FetchClient {
+    pub fn download<S: AsRef<str>, P: AsRef<Path>>(
+        &'a self,
+        id: S,
+        directory: P,
+    ) -> DownloadClient {
         render_path!(
             self.client,
             "{{pages}}/{{id}}/content",

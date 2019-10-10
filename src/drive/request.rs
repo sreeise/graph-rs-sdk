@@ -1,10 +1,11 @@
 use crate::client::*;
 use crate::http::{
-    DeltaRequest, FetchClient, GraphRequestType, GraphResponse, IntoResponse, UploadSessionClient,
+    DeltaRequest, DownloadClient, GraphRequestType, GraphResponse, IntoResponse,
+    UploadSessionClient,
 };
 use crate::types::collection::Collection;
 use crate::types::content::Content;
-use graph_error::GraphFailure;
+use graph_error::{GraphFailure, GraphRsError};
 use graph_rs_types::complextypes::{ItemPreviewInfo, Thumbnail};
 use graph_rs_types::entitytypes::{
     BaseItem, DriveItem, DriveItemVersion, ItemActivity, ItemActivityStat, ThumbnailSet,
@@ -276,13 +277,13 @@ impl<'a, I> DriveRequest<'a, I> {
         } else {
             let name = file.as_ref().file_name();
             if name.is_none() {
-                return IntoResponse::new_error(self.client, GraphFailure::none_err("file_name"));
+                return IntoResponse::new_error(self.client, GraphFailure::invalid("file_name"));
             }
             let name = name.unwrap().to_str();
             if name.is_none() {
                 return IntoResponse::new_error(
                     self.client,
-                    GraphFailure::none_err("filename has invalid characters. Must be UTF-8"),
+                    GraphFailure::internal(GraphRsError::FileNameInvalidUTF8),
                 );
             }
             render_path!(
@@ -386,7 +387,11 @@ impl<'a, I> DriveRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn download<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> FetchClient {
+    pub fn download<S: AsRef<str>, P: AsRef<Path>>(
+        &'a self,
+        id: S,
+        directory: P,
+    ) -> DownloadClient {
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),

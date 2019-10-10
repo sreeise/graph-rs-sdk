@@ -1,0 +1,2 @@
+This file is for download tests. Do not remove. This is for testing that the download client
+fails when downloading this file already exists.

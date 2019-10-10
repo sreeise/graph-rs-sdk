@@ -1,8 +1,7 @@
 use crate::graph_rs_types::entitytypes::BaseItem;
 use crate::graph_rs_types::entitytypes::DriveItem;
 use from_as::*;
-use graph_error::GraphResult;
-use graph_error::{GraphError, GraphFailure};
+use graph_error::{GraphResult, GraphError, GraphFailure};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reqwest::Response;
 
@@ -84,7 +83,18 @@ impl<T> Collection<T> {
 impl<T> Eq for Collection<T> where T: std::cmp::PartialEq {}
 
 impl Collection<serde_json::Value> {
-    pub fn get<I: serde_json::value::Index>(
+    pub fn get(&mut self, name: &str) -> Vec<serde_json::Value> {
+        if let Some(ref mut vec) = self.value {
+            vec.iter()
+                .map(|i| i[name].clone())
+                .filter(|i| !i.is_null())
+                .collect()
+        } else {
+            vec![]
+        }
+    }
+
+    pub fn get_index<I: serde_json::value::Index>(
         &self,
         idx: usize,
         index: I,
@@ -111,17 +121,15 @@ impl Collection<DriveItem> {
         }
     }
 
-    pub fn file_names(&mut self) -> GraphResult<Vec<String>> {
+    pub fn file_names(&mut self) -> Vec<String> {
         if let Some(ref mut vec) = self.value {
-            let v: Vec<String> = vec
-                .clone()
-                .into_par_iter()
+             vec.into_par_iter()
                 .map(|i| i.name.clone())
                 .flatten()
-                .collect();
-            return Ok(v);
+                .collect()
+        } else {
+            vec![]
         }
-        Err(GraphFailure::none_err("No available file names"))
     }
 
     pub fn find_by_name(&mut self, name: &str) -> Option<DriveItem> {

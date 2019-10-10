@@ -27,7 +27,7 @@ fn drive_item_value_by_name() {
 fn drive_item_file_names() {
     let mut collection: Collection<DriveItem> =
         Collection::from_file("./test_files/item_test/drive_recent.json").unwrap();
-    let file_names: Vec<String> = collection.file_names().unwrap();
+    let file_names: Vec<String> = collection.file_names();
     assert!(file_names.contains(&"Temperatures.xlsx".to_string()));
     assert!(file_names.contains(&"Business Card.pdf".to_string()));
 }

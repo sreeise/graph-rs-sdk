@@ -1,5 +1,5 @@
 use crate::client::Ident;
-use crate::http::{FetchClient, GraphResponse, UploadSessionClient};
+use crate::http::{DownloadClient, GraphResponse, UploadSessionClient};
 use crate::url::GraphUrl;
 use crate::GRAPH_URL;
 use graph_error::{GraphFailure, GraphResult};
@@ -162,8 +162,8 @@ impl GraphRequest {
         &self.token
     }
 
-    pub fn download(&mut self, request: GraphRequestBuilder) -> FetchClient {
-        FetchClient::new(self.token.as_str(), request)
+    pub fn download(&mut self, request: GraphRequestBuilder) -> DownloadClient {
+        DownloadClient::new(self.token.as_str(), request)
     }
 
     pub fn upload_session(
@@ -173,7 +173,7 @@ impl GraphRequest {
         let file = request
             .upload_session_file
             .clone()
-            .ok_or_else(|| GraphFailure::none_err("file for upload session"))?;
+            .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
         let mut response = self.response(request)?;
         if let Some(err) = GraphFailure::from_response(&mut response) {
             return Err(err);
