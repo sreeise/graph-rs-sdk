@@ -1,7 +1,7 @@
 use crate::graph_rs_types::entitytypes::BaseItem;
 use crate::graph_rs_types::entitytypes::DriveItem;
 use from_as::*;
-use graph_error::{GraphResult, GraphError, GraphFailure};
+use graph_error::{GraphError, GraphFailure, GraphResult};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reqwest::Response;
 
@@ -123,7 +123,7 @@ impl Collection<DriveItem> {
 
     pub fn file_names(&mut self) -> Vec<String> {
         if let Some(ref mut vec) = self.value {
-             vec.into_par_iter()
+            vec.into_par_iter()
                 .map(|i| i.name.clone())
                 .flatten()
                 .collect()

@@ -597,3 +597,159 @@ pub fn send_messages() {
         .send_message("1234");
     assert_url_eq(&client, "/sites/32p99453/messages/1234/send");
 }
+
+#[test]
+fn mail_outlook_category() {
+    let client = Graph::new("");
+
+    let _ = client.v1().me().mail().outlook_category().list();
+    assert_url_eq(&client, "/me/outlook/masterCategories");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .outlook_category()
+        .list();
+    assert_url_eq(&client, "/sites/32p99453/outlook/masterCategories");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .outlook_category()
+        .get("1234");
+    assert_url_eq(&client, "/sites/32p99453/outlook/masterCategories/1234");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .outlook_category()
+        .create(&serde_json::json!({}));
+    assert_url_eq(&client, "/sites/32p99453/outlook/masterCategories");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .outlook_category()
+        .update("1234", &serde_json::json!({}));
+    assert_url_eq(&client, "/sites/32p99453/outlook/masterCategories/1234");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .outlook_category()
+        .delete("1234");
+    assert_url_eq(&client, "/sites/32p99453/outlook/masterCategories/1234");
+}
+
+#[test]
+fn mail_folder_rules() {
+    let client = Graph::new("");
+
+    let _ = client.v1().me().mail().mail_folder().rules().list();
+    assert_url_eq(&client, "/me/mailFolders/inbox/messageRules");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .mail_folder()
+        .rules()
+        .list();
+    assert_url_eq(&client, "/sites/32p99453/mailFolders/inbox/messageRules");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .mail_folder()
+        .rules()
+        .get("1234");
+    assert_url_eq(
+        &client,
+        "/sites/32p99453/mailFolders/inbox/messageRules/1234",
+    );
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .mail_folder()
+        .rules()
+        .create(&serde_json::json!({}));
+    assert_url_eq(&client, "/sites/32p99453/mailFolders/inbox/messageRules");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .mail_folder()
+        .rules()
+        .update("1234", &serde_json::json!({}));
+    assert_url_eq(
+        &client,
+        "/sites/32p99453/mailFolders/inbox/messageRules/1234",
+    );
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .mail_folder()
+        .rules()
+        .delete("1234");
+    assert_url_eq(
+        &client,
+        "/sites/32p99453/mailFolders/inbox/messageRules/1234",
+    );
+}
+
+#[test]
+fn mail_focused_inbox() {
+    let client = Graph::new("");
+
+    let _ = client.v1().me().mail().focused_inbox().list_overrides();
+    assert_url_eq(&client, "/me/inferenceClassification/overrides");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .focused_inbox()
+        .list_overrides();
+    assert_url_eq(&client, "/sites/32p99453/inferenceClassification/overrides");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .focused_inbox()
+        .create_override(&serde_json::json!({}));
+    assert_url_eq(&client, "/sites/32p99453/inferenceClassification/overrides");
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .focused_inbox()
+        .update_override("1234", &serde_json::json!({}));
+    assert_url_eq(
+        &client,
+        "/sites/32p99453/inferenceClassification/overrides/1234",
+    );
+
+    let _ = client
+        .v1()
+        .sites("32p99453")
+        .mail()
+        .focused_inbox()
+        .delete_override("1234");
+    assert_url_eq(
+        &client,
+        "/sites/32p99453/inferenceClassification/overrides/1234",
+    );
+}

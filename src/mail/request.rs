@@ -2,7 +2,9 @@ use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
 use crate::types::{collection::Collection, content::Content};
 use graph_rs_types::complextypes::MailTips;
-use graph_rs_types::entitytypes::{Attachment, MailFolder, Message, MessageRule};
+use graph_rs_types::entitytypes::{
+    Attachment, InferenceClassificationOverride, MailFolder, Message, MessageRule, OutlookCategory,
+};
 use handlebars::*;
 use reqwest::Method;
 use std::marker::PhantomData;
@@ -11,6 +13,9 @@ register_client!(
     MailRequest,
     mm => "messages",
     mf => "mailFolders",
+    mfmr => "mailFolders/inbox/messageRules",
+    ico => "inferenceClassification/overrides",
+    olc => "outlook/masterCategories",
 );
 
 impl<'a, I> MailRequest<'a, I> {
@@ -22,6 +27,14 @@ impl<'a, I> MailRequest<'a, I> {
 
     pub fn mail_folder(&'a self) -> MailFolderRequest<'a, I> {
         MailFolderRequest::new(self.client)
+    }
+
+    pub fn focused_inbox(&'a self) -> FocusedInboxRequest<'a, I> {
+        FocusedInboxRequest::new(self.client)
+    }
+
+    pub fn outlook_category(&'a self) -> OutlookCategoryRequest<'a, I> {
+        OutlookCategoryRequest::new(self.client)
     }
 }
 
@@ -51,9 +64,8 @@ register_client!(MailFolderRequest,);
 
 impl<'a, I> MailFolderRequest<'a, I> {
     get!( list, Collection<MailFolder> => "{{mf}}" );
+    get!( | list_child_folders, Collection<MailFolder> => "{{mf}}/{{id}}/childFolders" );
     get!( | get, MailFolder => "{{mf}}/{{id}}" );
-    get!( list_rules, Collection<MessageRule> => "{{mf}}/inbox/messageRules" );
-    get!( [ create_rule, MessageRule => "{{mf}}/inbox/messageRules" ] );
     post!( [ | copy, MailFolder => "{{mf}}/{{id}}/copy" ] );
     post!( [ create, MailFolder => "{{mf}}" ] );
     patch!( [ | update, MailFolder => "{{mf}}/{{id}}" ] );
@@ -61,6 +73,10 @@ impl<'a, I> MailFolderRequest<'a, I> {
 
     pub fn messages(&'a self) -> MailFolderMessageRequest<'a, I> {
         MailFolderMessageRequest::new(self.client)
+    }
+
+    pub fn rules(&'a self) -> MailRuleRequest<'a, I> {
+        MailRuleRequest::new(self.client)
     }
 }
 
@@ -83,4 +99,33 @@ impl<'a, I> MailFolderMessageRequest<'a, I> {
     post!( [ || add_attachment, Attachment => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" ] );
     patch!( [ || update, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}" ] );
     delete!( || delete, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
+}
+
+register_client!(MailRuleRequest,);
+
+impl<'a, I> MailRuleRequest<'a, I> {
+    get!( list, Collection<MessageRule> => "{{mfmr}}" );
+    get!( | get, MessageRule => "{{mfmr}}/{{id}}" );
+    post!( [ create, MessageRule => "{{mfmr}}" ] );
+    patch!( [ | update, MessageRule => "{{mfmr}}/{{id}}" ] );
+    delete!( | delete, GraphResponse<Content> => "{{mfmr}}/{{id}}" );
+}
+
+register_client!(FocusedInboxRequest,);
+
+impl<'a, I> FocusedInboxRequest<'a, I> {
+    get!( list_overrides, Collection<InferenceClassificationOverride> => "{{ico}}" );
+    patch!( [ create_override, InferenceClassificationOverride => "{{ico}}" ] );
+    patch!( [ | update_override, InferenceClassificationOverride => "{{ico}}/{{id}}" ] );
+    delete!( | delete_override, GraphResponse<Content> => "{{ico}}/{{id}}"  );
+}
+
+register_client!(OutlookCategoryRequest,);
+
+impl<'a, I> OutlookCategoryRequest<'a, I> {
+    get!( list, Collection<OutlookCategory> => "{{olc}}" );
+    get!( | get, OutlookCategory => "{{olc}}/{{id}}" );
+    post!( [ create, OutlookCategory  => "{{olc}}" ] );
+    patch!( [ | update, OutlookCategory  => "{{olc}}/{{id}}" ] );
+    delete!( | delete, GraphResponse<Content> => "{{olc}}/{{id}}" );
 }
