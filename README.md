@@ -206,7 +206,30 @@ let send_mail_response = client.v1()
     .me()
     .mail()
     .messages()
-    .send_mail("MESSAGE_ID")
+    .send_mail(&serde_json::json!({
+        "message": {
+            "subject": "Meet for lunch?",
+            "body": {
+                "contentType": "Text",
+                "content": "The new cafeteria is open."
+            },
+            "toRecipients": [
+                {
+                    "emailAddress": {
+                        "address": "fannyd@contoso.onmicrosoft.com"
+                    }
+                }
+            ],
+            "ccRecipients": [
+                {
+                    "emailAddress": {
+                        "address": "danas@contoso.onmicrosoft.com"
+                    }
+                }
+            ]
+        },
+        "saveToSentItems": "false"
+        }))
     .send()?;
                                        
 println!("{:#?}", send_mail_response);
