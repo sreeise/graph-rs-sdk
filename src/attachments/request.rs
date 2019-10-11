@@ -64,6 +64,7 @@ register_client!(MailMessageAttachmentRequest,);
 
 impl<'a, I> MailMessageAttachmentRequest<'a, I> {
     get!( || get, Attachment => "messages/{{id}}/attachments/{{id2}}" );
+    post!( [ | add, Attachment => "messages/{{id}}/attachments" ] );
     get!( || content, GraphResponse<Content> => "messages/{{id}}/attachments/{{id2}}/$value" );
     delete!( || delete, GraphResponse<Content> => "messages/{{id}}/attachments/{{id2}}" );
 
@@ -77,6 +78,7 @@ register_client!(MailFolderMessageAttachmentRequest,);
 impl<'a, I> MailFolderMessageAttachmentRequest<'a, I> {
     get!( ||| get, Attachment => "mailFolders/{{id}}/messages/{{id2}}/attachments/{{id3}}" );
     get!( ||| content, GraphResponse<Content> => "mailFolders/{{id}}/messages/{{id2}}/attachments/{{id3}}/$value" );
+    post!( [ || add, Attachment => "mailFolders/{{id}}/messages/{{id2}}/attachments" ] );
     delete!( ||| delete, GraphResponse<Content> => "mailFolders/{{id}}/messages/{{id2}}/attachments/{{id3}}" );
 
     fn render_child_folder_path<S: AsRef<str>>(
