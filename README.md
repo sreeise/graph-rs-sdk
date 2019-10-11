@@ -6,7 +6,7 @@
 ### Graph API Client in Rust
 
 Disclaimer:
-Integrates with OneDrive, Mail (messages and mail folder), Calendars, and OneNote. 
+Integrates with OneDrive, Mail, Calendars, and OneNote. 
 Additional APIs are being added and may not be stable. Please create an issues if you 
 experience any problems. Note that some APIs may be specific to the Graph v1.0 or Graph beta. 
 
@@ -80,8 +80,8 @@ println!("{:#?}", response);
 The send() method always returns a struct based on that request. These structs are Graph types generated
 from the Microsoft Graph metadata document located here: https://graph.microsoft.com/v1.0/$metadata
 Beware that the fields on these types do not change and sending a request that alters the response, such 
-as OData queries, may not return the all of the fields requested. If you use OData query parameters it is 
-recommended that use use your own struct or the the value method for serde_json::Value.
+as OData queries, may not return all of the fields requested. If you use OData queries it is 
+recommended that you use your own struct or the the value() method for the response.
 
 ```rust
 use graph_rs::prelude::*;
@@ -177,6 +177,30 @@ let response = client.v1()
     .value()?;
         
 println!("{:#?}", response.value()); // => Message
+
+// Create a message in a well known folder
+let draft_message_response = client.v1()
+    .me()
+    .mail()
+    .mail_folder()
+    .messages()
+    .create("drafts", &serde_json::json!({
+        "subject":"Did you see last night's game?",
+        "importance":"Low",
+        "body":{
+            "contentType":"HTML",
+            "content":"They were <b>awesome</b>!"
+        },
+        "toRecipients":[
+            {
+                "emailAddress":{
+                    "address":"AdeleV@contoso.onmicrosoft.com"
+                }
+            }
+         ]
+    })).value();
+
+println!("{:#?}", draft_message_response);
         
 let send_mail_response = client.v1()
     .me()
@@ -259,6 +283,60 @@ let response = client.v1()
     
 println!("{:#?}", response.value()):
 ```
+   
+#### Batch Requests
+
+Batch requests use a mpsc::channel and return the receiver
+for responses.
+
+```rust
+static USER_ID: &str = "USER_ID";
+
+let client = Graph::new("ACCESS_TOKEN");
+
+let json = serde_json::json!({
+    "requests": [
+        {
+            "id": "1",
+            "method": "GET",
+            "url": format!("/users/{}/drive", USER_ID)
+        },
+        {
+            "id": "2",
+            "method": "GET",
+            "url": format!("/users/{}/drive/root", USER_ID)
+        },
+        {
+            "id": "3",
+            "method": "GET",
+            "url": format!("/users/{}/drive/recent", USER_ID)
+        },
+        {
+            "id": "4",
+            "method": "GET",
+            "url": format!("/users/{}/drive/root/children", USER_ID)
+        },
+        {
+            "id": "5",
+            "method": "GET",
+            "url": format!("/users/{}/drive/activities", USER_ID)
+        }
+    ]
+});
+
+let recv = client.v1()
+    .batch(&json)
+    .send()?;
+
+match recv.recv() {
+    Ok(value) => {
+        println!("{:#?}", value);
+    },
+    Err(e) => {
+        println!("Error: {:#?}", e);
+    },
+}
+```   
         
         
 ### Coverage
@@ -275,8 +353,7 @@ OneDrive API               | Covered
 List Children              | [x]
 Get Item                   | [x]
 Get Drive                  | [x]
-List Drives                | [ ] 
-List Children              | [ ] 
+List Drives                | [x] 
 Recent Files               | [x] 
 Shared Files               | [x] 
 Get Thumbnails             | [x]
@@ -314,8 +391,8 @@ Message - Reply                         | [x]
 Message - Reply All                     | [x]
 Message - Send                          | [x]
 Message - Send Mail                     | [x]
-Message - List Attachment               | [ ]
-Message - Add Attachment                | [ ]
+Message - List Attachment               | [x]
+Message - Add Attachment                | [x]
 Mail Folder - List                      | [x]
 Mail Folder - Get                       | [x]
 Mail Folder - Create                    | [x]
@@ -330,14 +407,13 @@ Mail Folder - Message Create Reply      | [x]
 Mail Folder - Message Create Reply All  | [x]
 Mail Folder - Message Reply             | [x]
 Mail Folder - Message Reply All         | [x]
-Mail Folder - Get Message Delta         | [ ]
-Mail Folder - List Child Folders        | [ ]
-Mail Folder - Create Child Folder       | [ ]
-Delta                                   | [ ]
-Attachments                             | [ ]
-Search Folder                           | [ ]
-Rules                                   | [ ]
-Focused Inbox                           | [ ]
+Mail Folder - Get Message Delta         | [x]
+Mail Folder - List Child Folders        | [x]
+Mail Folder - Create Child Folder       | [x]
+Attachments                             | [x]
+Search Folder                           | [x]
+Rules                                   | [x]
+Focused Inbox                           | [x]
 
 Calendars
 
@@ -357,8 +433,8 @@ Delete Calendar Group   | [x]
 Get Schedule            | [ ]
 Find Meeting Times      | [ ]
 Calendar Events         | [ ]
-Calendar Attachments    | [ ]
-Categories              | [ ]
+Calendar Attachments    | [x]
+Categories              | [x]
 List Views              | [x]
 Calendar Group View     | [x]
 Get Delta View          | [ ]
