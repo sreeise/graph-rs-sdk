@@ -1,3 +1,4 @@
+use crate::attachments::{CalendarAttachmentRequest, CalendarGroupAttachmentRequest};
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
 use crate::types::{collection::Collection, content::Content};
@@ -16,6 +17,10 @@ impl<'a, I> CalendarRequest<'a, I> {
     patch!( [ | update, Calendar => "calendars/{{id}}" ] );
     post!( | create, Calendar => "calendars" );
     delete!( | delete, GraphResponse<Content> => "calendars/{{id}}" );
+
+    pub fn attachments(&'a self) -> CalendarAttachmentRequest<'a, I> {
+        CalendarAttachmentRequest::new(self.client)
+    }
 
     pub fn views(&self) -> CalendarViewRequest<'a, I> {
         CalendarViewRequest::new(self.client)
@@ -141,4 +146,8 @@ impl<'a, I> CalendarGroupRequest<'a, I> {
     post!( [ | create_calendar, Calendar => "calendarGroups/{{id}}/calendars" ] );
     patch!( [ | update, CalendarGroup => "calendarGroups/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "calendarGroups/{{id}}" );
+
+    pub fn attachments(&'a self) -> CalendarGroupAttachmentRequest<'a, I> {
+        CalendarGroupAttachmentRequest::new(self.client)
+    }
 }

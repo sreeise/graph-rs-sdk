@@ -1,3 +1,4 @@
+use crate::attachments::{MailFolderMessageAttachmentRequest, MailMessageAttachmentRequest};
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
 use crate::types::{collection::Collection, content::Content};
@@ -58,6 +59,10 @@ impl<'a, I> MessageRequest<'a, I> {
     post!( [ | add_attachment, Attachment => "{{mm}}/{{id}}/attachments" ] );
     patch!( [ | update, Message => "{{mm}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{mm}}/{{id}}" );
+
+    pub fn attachments(&'a self) -> MailMessageAttachmentRequest<'a, I> {
+        MailMessageAttachmentRequest::new(self.client)
+    }
 }
 
 register_client!(MailFolderRequest,);
@@ -68,6 +73,7 @@ impl<'a, I> MailFolderRequest<'a, I> {
     get!( | get, MailFolder => "{{mf}}/{{id}}" );
     post!( [ | copy, MailFolder => "{{mf}}/{{id}}/copy" ] );
     post!( [ create, MailFolder => "{{mf}}" ] );
+    post!( [ create_child_folder, MailFolder => "{{mf}}/childFolders" ] );
     patch!( [ | update, MailFolder => "{{mf}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{mf}}/{{id}}" );
 
@@ -77,6 +83,10 @@ impl<'a, I> MailFolderRequest<'a, I> {
 
     pub fn rules(&'a self) -> MailRuleRequest<'a, I> {
         MailRuleRequest::new(self.client)
+    }
+
+    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a, I> {
+        MailFolderMessageAttachmentRequest::new(self.client)
     }
 }
 
@@ -99,6 +109,10 @@ impl<'a, I> MailFolderMessageRequest<'a, I> {
     post!( [ || add_attachment, Attachment => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" ] );
     patch!( [ || update, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}" ] );
     delete!( || delete, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
+
+    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a, I> {
+        MailFolderMessageAttachmentRequest::new(self.client)
+    }
 }
 
 register_client!(MailRuleRequest,);
