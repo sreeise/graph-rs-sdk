@@ -39,7 +39,11 @@ fn download_config_file_exists() {
                     GraphFailure::GraphRsError(err) => {
                         match err {
                             GraphRsError::DownloadFileExists { name} => {
-                                assert_eq!(name, "./test_files/downloadtestdoc.txt".to_string());
+                                if cfg!(target_os = "windows") {
+                                    assert_eq!(name, "./test_files\\downloadtestdoc.txt".to_string());
+                                } else {
+                                    assert_eq!(name, "./test_files/downloadtestdoc.txt".to_string());
+                                }
                             },
                             _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
                         }
@@ -47,7 +51,7 @@ fn download_config_file_exists() {
                     _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err.description())
                 }
             } else if let Ok(path) = result {
-                panic!("Download request should have thrown GraphRsError::DownloadFileExists. Instead got successful PatBuf: {:#?}", path);
+                panic!("Download request should have thrown GraphRsError::DownloadFileExists. Instead got successful PathBuf: {:#?}", path);
             }
         }
     });
@@ -80,6 +84,6 @@ fn download_is_err_config_dir_no_exists() {
             _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err.description())
         }
     } else if let Ok(path) = result {
-        panic!("Download request should have thrown GraphRsError::DownloadDirNoExists. Instead got successful PatBuf: {:#?}", path);
+        panic!("Download request should have thrown GraphRsError::DownloadDirNoExists. Instead got successful PathBuf: {:#?}", path);
     }
 }
