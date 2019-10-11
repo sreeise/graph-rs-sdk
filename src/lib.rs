@@ -88,6 +88,8 @@ pub mod http;
 pub mod mail;
 /// OneNote request client.
 pub mod onenote;
+// Attachment request client.
+pub mod attachments;
 /// Types used crate wide.
 pub mod types;
 /// Url type for graph-rs.

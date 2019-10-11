@@ -140,6 +140,11 @@ macro_rules! register_ident_client {
                 self.set_path();
                 ContactsRequest::new(self.client)
             }
+
+            pub fn attachments(&'a self) -> AttachmentRequest<'a, I> {
+                self.set_path();
+                AttachmentRequest::new(self.client)
+            }
         }
     }
 }
@@ -251,6 +256,25 @@ macro_rules! register_method {
       }
     };
 
+    ( |||| $name:ident, $T:ty => $template:expr, $m:expr ) => {
+      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S, id4: S) -> IntoResponse<'a, I, $T> {
+        self.client.builder()
+            .set_method($m);
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({
+                "id": id.as_ref(),
+                "id2": id2.as_ref(),
+                "id3": id3.as_ref(),
+                "id4": id4.as_ref()
+            })
+        );
+        IntoResponse::new(self.client)
+      }
+    };
+
     ( [ $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<B: serde::Serialize>(&'a self, body: &B) -> IntoResponse<'a, I, $T> {
         self.client.builder()
@@ -294,6 +318,21 @@ macro_rules! register_method {
         IntoResponse::new(self.client)
       }
     };
+
+    ( [ ||| $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
+      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, id3: S, body: &B) -> IntoResponse<'a, I, $T> {
+        self.client.builder()
+            .set_method($m)
+            .set_body(serde_json::to_string_pretty(body).unwrap());
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({ "id": id.as_ref(), "id2": id2.as_ref(), "id3": id3.as_ref() })
+        );
+        IntoResponse::new(self.client)
+      }
+    };
 }
 
 #[macro_use]
@@ -318,6 +357,10 @@ macro_rules! get {
         register_method!( ||| $name, $T => $template, Method::GET);
     };
 
+    ( |||| $name:ident, $T:ty => $template:expr ) => {
+        register_method!( |||| $name, $T => $template, Method::GET);
+    };
+
     ( [ $name:ident, $T:ty => $template:expr ] ) => {
         register_method!( [ $name, $T => $template, Method::GET ] );
     };
@@ -328,6 +371,10 @@ macro_rules! get {
 
     ( [ || $name:ident, $T:ty, $template:expr ] ) => {
         register_method!( [ || $name, $T => $template, Method::GET ]);
+    };
+
+    ( [ ||| $name:ident, $T:ty, $template:expr ] ) => {
+        register_method!( [ ||| $name, $T => $template, Method::GET ]);
     };
 }
 
@@ -353,6 +400,10 @@ macro_rules! post {
         register_method!( ||| $name, $T => $template, Method::POST);
     };
 
+    ( |||| $name:ident, $T:ty => $template:expr ) => {
+        register_method!( |||| $name, $T => $template, Method::POST);
+    };
+
     ( [ $name:ident, $T:ty => $template:expr ] ) => {
         register_method!( [ $name, $T => $template, Method::POST ] );
     };
@@ -363,6 +414,10 @@ macro_rules! post {
 
     ( [ || $name:ident, $T:ty => $template:expr ] ) => {
         register_method!( [ || $name, $T => $template, Method::POST ]);
+    };
+
+    ( [ ||| $name:ident, $T:ty => $template:expr ] ) => {
+        register_method!( [ ||| $name, $T => $template, Method::POST ]);
     };
 }
 
@@ -388,6 +443,10 @@ macro_rules! patch {
         register_method!( ||| $name, $T => $template, Method::PATCH);
     };
 
+    ( |||| $name:ident, $T:ty => $template:expr ) => {
+        register_method!( |||| $name, $T => $template, Method::PATCH);
+    };
+
     ( [ $name:ident, $T:ty => $template:expr ] ) => {
         register_method!( [ $name, $T => $template, Method::PATCH ] );
     };
@@ -398,6 +457,10 @@ macro_rules! patch {
 
     ( [ || $name:ident, $T:ty => $template:expr ] ) => {
         register_method!( [ || $name, $T => $template, Method::PATCH ]);
+    };
+
+    ( [ ||| $name:ident, $T:ty => $template:expr ] ) => {
+        register_method!( [ ||| $name, $T => $template, Method::PATCH ]);
     };
 }
 
@@ -424,6 +487,10 @@ macro_rules! put {
         register_method!( ||| $name, $T => $template, Method::PUT);
     };
 
+    ( |||| $name:ident, $T:ty => $template:expr ) => {
+        register_method!( |||| $name, $T => $template, Method::PUT);
+    };
+
     ( [ $name:ident, $T:ty => $template:expr ] ) => {
         register_method!( [ $name, $T => $template, Method::PUT ] );
     };
@@ -434,6 +501,10 @@ macro_rules! put {
 
     ( [ || $name:ident, $T:ty => $template:expr ] ) => {
         register_method!( [ || $name, $T => $template, Method::PUT ]);
+    };
+
+    ( [ ||| $name:ident, $T:ty => $template:expr ] ) => {
+        register_method!( [ ||| $name, $T => $template, Method::PUT ]);
     };
 }
 
@@ -459,6 +530,10 @@ macro_rules! delete {
         register_method!( ||| $name, $T => $template, Method::DELETE);
     };
 
+    ( |||| $name:ident, $T:ty => $template:expr ) => {
+        register_method!( |||| $name, $T => $template, Method::DELETE);
+    };
+
     ( [ $name:ident, $T:ty => $template:expr ] ) => {
         register_method!( [ $name, $T => $template, Method::DELETE ] );
     };
@@ -469,5 +544,9 @@ macro_rules! delete {
 
     ( [ || $name:ident, $T:ty => $template:expr ] ) => {
         register_method!( [ || $name, $T => $template, Method::DELETE ]);
+    };
+
+    ( [ ||| $name:ident, $T:ty => $template:expr ] ) => {
+        register_method!( [ ||| $name, $T => $template, Method::DELETE ]);
     };
 }

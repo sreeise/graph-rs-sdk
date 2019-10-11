@@ -1,3 +1,6 @@
+use crate::attachments::{
+    AttachmentRequest, ThreadConvoPostAttachmentRequest, ThreadPostAttachmentRequest,
+};
 use crate::calendar::CalendarRequest;
 use crate::contacts::ContactsRequest;
 use crate::drive::DriveRequest;
@@ -12,7 +15,7 @@ use graph_error::GraphFailure;
 use graph_oauth::oauth::{AccessToken, OAuth};
 use graph_rs_types::entitytypes::{
     Conversation, ConversationThread, DirectoryObject, Drive, Event, FieldValueSet, Group,
-    GroupLifecyclePolicy, ItemActivityStat, ItemAnalytics, List, ListItem, ListItemVersion,
+    GroupLifecyclePolicy, ItemActivityStat, ItemAnalytics, List, ListItem, ListItemVersion, Post,
     ProfilePhoto, Site, User, UserSettings,
 };
 use handlebars::*;
@@ -379,6 +382,14 @@ impl<'a, I> IdentGroups<'a, I> {
         GroupConversationRequest::new(self.client)
     }
 
+    pub fn conversation_posts(&'a self) -> GroupConversationPostRequest<'a, I> {
+        GroupConversationPostRequest::new(self.client)
+    }
+
+    pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a, I> {
+        GroupThreadPostRequest::new(self.client)
+    }
+
     pub fn group_lifecycle_policies(&self) -> GroupLifecyclePolicyRequest<'a, I> {
         GroupLifecyclePolicyRequest::new(self.client)
     }
@@ -413,6 +424,42 @@ impl<'a, I> GroupConversationRequest<'a, I> {
     post!( [ | create_thread, ConversationThread => "groups/{{RID}}/{{co}}/{{id}}/threads" ] );
     post!( [ create_accepted_sender, GraphResponse<Content> => "groups/{{RID}}/acceptedSenders/$ref" ] );
     delete!( | delete, GraphResponse<Content> => "groups/{{RID}}/{{co}}/{{id}}" );
+
+    pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a, I> {
+        GroupThreadPostRequest::new(self.client)
+    }
+
+    pub fn conversation_posts(&'a self) -> GroupConversationPostRequest<'a, I> {
+        GroupConversationPostRequest::new(self.client)
+    }
+}
+
+register_client!(GroupThreadPostRequest,);
+
+impl<'a, I> GroupThreadPostRequest<'a, I> {
+    get!( | list, Collection<Post> => "groups/{{RID}}/threads/{{id}}/posts" );
+    get!( || get, Post => "groups/{{RID}}/threads/{{id}}/posts/{{id2}}" );
+    post!( [ || reply, GraphResponse<Content> => "groups/{{RID}}/threads/{{id}}/posts/{{id2}}/reply" ] );
+    post!( [ || forward, GraphResponse<Content> => "groups/{{RID}}/threads/{{id}}/posts/{{id2}}/forward" ] );
+
+    pub fn attachments(&'a self) -> ThreadPostAttachmentRequest<'a, I> {
+        render_path!(self.client, "groups/{{RID}}");
+        ThreadPostAttachmentRequest::new(self.client)
+    }
+}
+
+register_client!(GroupConversationPostRequest,);
+
+impl<'a, I> GroupConversationPostRequest<'a, I> {
+    get!( || list, Collection<Post> => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts" );
+    get!( ||| get, Post => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts/{{id3}}" );
+    post!( [ ||| reply, GraphResponse<Content> => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/reply" ] );
+    post!( [ ||| forward, GraphResponse<Content> => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/forward" ] );
+
+    pub fn attachments(&'a self) -> ThreadConvoPostAttachmentRequest<'a, I> {
+        render_path!(self.client, "groups/{{RID}}");
+        ThreadConvoPostAttachmentRequest::new(self.client)
+    }
 }
 
 impl<'a, I> IdentUsers<'a, I> {
