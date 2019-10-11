@@ -81,7 +81,7 @@ The send() method always returns a struct based on that request. These structs a
 from the Microsoft Graph metadata document located here: https://graph.microsoft.com/v1.0/$metadata
 Beware that the fields on these types do not change and sending a request that alters the response, such 
 as OData queries, may not return all of the fields requested. If you use OData queries it is 
-recommended that you use your own struct or the the value() method for the response.
+recommended that you use your own struct or the value() method for the response.
 
 ```rust
 use graph_rs::prelude::*;
@@ -206,7 +206,7 @@ let send_mail_response = client.v1()
     .me()
     .mail()
     .messages()
-    .send_mail()
+    .send_mail("MESSAGE_ID")
     .send()?;
                                        
 println!("{:#?}", send_mail_response);
