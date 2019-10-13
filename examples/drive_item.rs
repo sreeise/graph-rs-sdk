@@ -30,7 +30,7 @@ fn drive_root_children(graph: &mut Graph) {
 }
 
 fn special_docs(graph: &mut Graph) {
-    let drive_item: GraphResponse<Collection<DriveItem>> =
+    let drive_item: GraphResponse<DriveItem> =
         graph.v1().me().drive().special_documents().send().unwrap();
     println!("{:#?}", drive_item);
 }

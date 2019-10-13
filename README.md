@@ -313,6 +313,9 @@ Batch requests use a mpsc::channel and return the receiver
 for responses.
 
 ```rust
+use graph_rs::prelude::*;
+use std::error::Error;
+
 static USER_ID: &str = "USER_ID";
 
 let client = Graph::new("ACCESS_TOKEN");
@@ -342,22 +345,44 @@ let json = serde_json::json!({
         {
             "id": "5",
             "method": "GET",
-            "url": format!("/users/{}/drive/activities", USER_ID)
+            "url": format!("/users/{}/drive/special/documents", USER_ID)
         }
     ]
 });
 
-let recv = client.v1()
+let recv = client
+    .v1()
     .batch(&json)
-    .send()?;
+    .send();
 
-match recv.recv() {
-    Ok(value) => {
-        println!("{:#?}", value);
-    },
-    Err(e) => {
-        println!("Error: {:#?}", e);
-    },
+loop {
+    match recv.recv() {
+        Ok(delta) => {
+            match delta {
+                Delta::Next(response) => {
+                    println!("{:#?}", response);
+                },
+                Delta::Done(err) => {
+                    println!("Finished");
+
+                    // If the delta request ended in an error Delta::Done
+                    // will return Some(GraphFailure)
+                    if let Some(err) = err {
+                        println!("Error: {:#?}", err);
+                        println!("Description: {:#?}", err.description());
+                    }
+
+                    // All next links have been called.
+                    // Break here. The channel has been closed.
+                    break;
+                },
+            }
+        },
+        Err(e) => {
+            println!("{:#?}", e.description());
+            break;
+        },
+    }
 }
 ```   
         

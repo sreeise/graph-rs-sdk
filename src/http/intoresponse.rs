@@ -1,8 +1,9 @@
 use crate::client::*;
 use crate::http::{GraphResponse, UploadSessionClient};
-use crate::types::content::Content;
+use crate::types::delta::{Delta, NextLink};
+use crate::types::{content::Content, delta::DeltaRequest};
 use graph_error::{GraphFailure, GraphResult};
-use reqwest::header::{HeaderValue, ACCEPT};
+use reqwest::header::CONTENT_TYPE;
 use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::marker::PhantomData;
@@ -13,9 +14,10 @@ use std::thread;
 /// to a suitable Rust type.
 pub trait ToResponse {
     type Output;
+    type SerdeJson;
 
     fn send(&self) -> Self::Output;
-    fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>>;
+    fn value(&self) -> Self::SerdeJson;
 }
 
 pub struct IntoResponse<'a, I, T> {
@@ -42,6 +44,11 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
             phantom: PhantomData,
             error: RefCell::new(Some(error)),
         }
+    }
+
+    pub fn query(&self, key: &str, value: &str) -> &Self {
+        self.client.builder().as_mut().append_query_pair(key, value);
+        self
     }
 
     pub fn select(&self, value: &[&str]) -> &Self {
@@ -84,7 +91,70 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
         self
     }
 
-    fn to_serde_json(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
+    fn delta<U: 'static + Send + NextLink + Clone>(&self) -> Receiver<Delta<U>>
+    where
+        for<'de> U: serde::Deserialize<'de>,
+    {
+        let (sender, receiver) = channel();
+        if self.error.borrow().is_some() {
+            sender.send(Delta::Done(self.error.replace(None))).unwrap();
+            return receiver;
+        }
+
+        let builder = self.client.take_builder();
+        let response: GraphResult<GraphResponse<U>> = self.client.request().execute(builder);
+        if let Err(err) = response {
+            sender.send(Delta::Done(Some(err))).unwrap();
+            return receiver;
+        }
+
+        let token = self.client.request().token().clone();
+        let response = response.unwrap();
+        let mut next_link = response.value().next_link();
+        sender.send(Delta::Next(response)).unwrap();
+
+        thread::spawn(move || {
+            let client = reqwest::Client::new();
+            while let Some(next) = next_link {
+                let res = client
+                    .get(next.as_str())
+                    .header(CONTENT_TYPE, "application/json")
+                    .bearer_auth(token.as_str())
+                    .send()
+                    .map_err(GraphFailure::from);
+
+                if let Err(err) = res {
+                    next_link = None;
+                    sender.send(Delta::Done(Some(err))).unwrap();
+                } else {
+                    let mut response = res.unwrap();
+                    if let Some(err) = GraphFailure::from_response(&mut response) {
+                        next_link = None;
+                        sender.send(Delta::Done(Some(err))).unwrap();
+                    } else {
+                        let value_res: GraphResult<U> = response.json().map_err(GraphFailure::from);
+                        match value_res {
+                            Ok(value) => {
+                                next_link = value.next_link();
+                                sender
+                                    .send(Delta::Next(GraphResponse::new(response, value)))
+                                    .unwrap();
+                            },
+                            Err(err) => {
+                                next_link = None;
+                                sender.send(Delta::Done(Some(err))).unwrap();
+                            },
+                        }
+                    }
+                }
+            }
+            sender.send(Delta::Done(None)).unwrap();
+        });
+
+        receiver
+    }
+
+    fn serde_json(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
@@ -110,6 +180,7 @@ where
     for<'de> T: serde::Deserialize<'de>,
 {
     type Output = GraphResult<GraphResponse<T>>;
+    type SerdeJson = GraphResult<GraphResponse<serde_json::Value>>;
 
     fn send(&self) -> Self::Output {
         if self.error.borrow().is_some() {
@@ -119,13 +190,14 @@ where
         self.client.request().execute(builder)
     }
 
-    fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
-        self.to_serde_json()
+    fn value(&self) -> Self::SerdeJson {
+        self.serde_json()
     }
 }
 
 impl<'a, I> ToResponse for IntoResponse<'a, I, UploadSessionClient> {
     type Output = GraphResult<UploadSessionClient>;
+    type SerdeJson = GraphResult<GraphResponse<serde_json::Value>>;
 
     fn send(&self) -> Self::Output {
         if self.error.borrow().is_some() {
@@ -136,13 +208,14 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, UploadSessionClient> {
             .upload_session(self.client.take_builder())
     }
 
-    fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
-        self.to_serde_json()
+    fn value(&self) -> Self::SerdeJson {
+        self.serde_json()
     }
 }
 
 impl<'a, I> ToResponse for IntoResponse<'a, I, GraphResponse<Content>> {
     type Output = GraphResult<GraphResponse<Content>>;
+    type SerdeJson = GraphResult<GraphResponse<serde_json::Value>>;
 
     fn send(&self) -> Self::Output {
         if self.error.borrow().is_some() {
@@ -153,7 +226,7 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, GraphResponse<Content>> {
         Ok(GraphResponse::try_from(response)?)
     }
 
-    fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
+    fn value(&self) -> Self::SerdeJson {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
@@ -173,43 +246,19 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, GraphResponse<Content>> {
     }
 }
 
-pub struct DeltaRequest;
-
-impl<'a, I> ToResponse for IntoResponse<'a, I, DeltaRequest> {
-    type Output = GraphResult<Receiver<serde_json::Value>>;
+impl<'a, I, T: 'static + Send + NextLink + Clone> ToResponse
+    for IntoResponse<'a, I, DeltaRequest<T>>
+where
+    for<'de> T: serde::Deserialize<'de>,
+{
+    type Output = Receiver<Delta<T>>;
+    type SerdeJson = Receiver<Delta<serde_json::Value>>;
 
     fn send(&self) -> Self::Output {
-        if self.error.borrow().is_some() {
-            return Err(self.error.replace(None).unwrap());
-        }
-        let builder = self.client.take_builder();
-        let response: GraphResponse<serde_json::Value> = self.client.request().execute(builder)?;
-        let (sender, receiver) = channel();
-        sender.send(response.value().clone()).unwrap();
-        let token = self.client.request().token().clone();
-
-        thread::spawn(move || {
-            let mut next_link = response.value()["@odata.nextLink"]
-                .as_str()
-                .map(|s| s.to_string());
-            let client = reqwest::Client::new();
-            while let Some(next) = next_link {
-                let mut res = client
-                    .post(next.as_str())
-                    .header(ACCEPT, HeaderValue::from_static("application/json"))
-                    .bearer_auth(token.as_str())
-                    .send()
-                    .unwrap();
-                let value: serde_json::Value = res.json().unwrap();
-                next_link = value["@odata.nextLink"].as_str().map(|s| s.to_string());
-                sender.send(value).unwrap();
-            }
-        });
-
-        Ok(receiver)
+        self.delta::<T>()
     }
 
-    fn value(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
-        self.to_serde_json()
+    fn value(&self) -> Self::SerdeJson {
+        self.delta::<serde_json::Value>()
     }
 }

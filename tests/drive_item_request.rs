@@ -10,7 +10,6 @@ use rocket::http::Status;
 use rocket::local::Client;
 use rocket::Rocket;
 use rocket_codegen::routes;
-use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
 
@@ -64,12 +63,21 @@ fn main() {
     rocket().launch();
 }
 
-fn rocket_request_drive_item(request: &str) -> Collection<DriveItem> {
+fn rocket_request_drive_item_collection(request: &str) -> Collection<DriveItem> {
     let client = Client::new(rocket()).expect("valid rocket instance");
     let mut response = client.get(request).dispatch();
     assert_eq!(response.status(), Status::Ok);
     let drive_item: Collection<DriveItem> =
-        Collection::try_from(response.body_string().unwrap()).unwrap();
+        serde_json::from_str(response.body_string().as_ref().unwrap()).unwrap();
+    drive_item
+}
+
+fn rocket_request_drive_item(request: &str) -> DriveItem {
+    let client = Client::new(rocket()).expect("valid rocket instance");
+    let mut response = client.get(request).dispatch();
+    assert_eq!(response.status(), Status::Ok);
+    let drive_item: DriveItem =
+        serde_json::from_str(response.body_string().as_ref().unwrap()).unwrap();
     drive_item
 }
 
@@ -102,8 +110,8 @@ fn drive_info_item() {
 
 #[test]
 fn drive_root_item() {
-    let drive_item = rocket_request_drive_item("/v1.0/me/drive/root/children");
-    assert_eq!(drive_item.odata_context(), &Some("https://graph.microsoft.com/v1.0/$metadata#users('48d31887-5fad-4d73-a9f5-3c356e68a038')/drive/root/children".to_string()));
+    let drive_item = rocket_request_drive_item_collection("/v1.0/me/drive/root/children");
+    assert_eq!(drive_item.odata_context(), Some(&"https://graph.microsoft.com/v1.0/$metadata#users('48d31887-5fad-4d73-a9f5-3c356e68a038')/drive/root/children".to_string()));
     assert_eq!(
         drive_item.index(1).unwrap().created_date_time,
         Some("2017-08-07T16:16:30Z".into())
@@ -137,17 +145,14 @@ fn drive_root_item() {
 
 #[test]
 fn drive_recent_item() {
-    let drive_item = rocket_request_drive_item("/v1.0/me/drive/recent");
+    let drive_item = rocket_request_drive_item_collection("/v1.0/me/drive/recent");
     assert_eq!(drive_item.index(1).unwrap().web_url, Some("https://m365x214355-my.sharepoint.com/personal/meganb_m365x214355_onmicrosoft_com/_layouts/15/Doc.aspx?sourcedoc=%7B2964723D-9E45-470E-8FE4-85CEDA9D4018%7D&file=Carbon%20Deposits%20Analysis.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1".into()));
 }
 
 #[test]
 fn drive_special_photo_folder() {
     let drive_item = rocket_request_drive_item("/v1.0/me/drive/special/photos");
-    let vec: Vec<DriveItem> = drive_item.value().clone().unwrap();
-    assert!(vec.len() > 0);
-    let value = vec.get(0).unwrap();
-    assert_eq!(value.id.as_ref().unwrap(), "189302sal4098740fjhlk34");
+    assert_eq!(drive_item.id.as_ref().unwrap(), "189302sal4098740fjhlk34");
 }
 
 #[test]
@@ -155,7 +160,7 @@ fn drive_item_versions() {
     let drive_item_versions: Collection<DriveItem> =
         rocket_request_drive_item_versions("/v1.0/me/versions");
     println!("{:#?}", drive_item_versions);
-    let vec = drive_item_versions.value().as_ref().unwrap();
+    let vec = drive_item_versions.value().unwrap().clone();
     assert!(vec.len() > 0);
     let value = vec.get(0).unwrap();
     assert_eq!(

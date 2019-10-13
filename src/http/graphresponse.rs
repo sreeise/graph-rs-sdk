@@ -1,5 +1,6 @@
 use crate::types::asyncjobstatus::AsyncJobStatus;
 use crate::types::content::Content;
+use crate::types::delta::{DeltaLink, MetadataLink, NextLink};
 use from_as::TryFrom;
 use graph_error::{GraphError, GraphFailure, GraphResult};
 
@@ -98,5 +99,32 @@ impl TryFrom<reqwest::Response> for GraphResponse<Content> {
         } else {
             Ok(GraphResponse::new(value, Content::from(String::new())))
         }
+    }
+}
+
+impl<T> NextLink for GraphResponse<T>
+where
+    T: NextLink,
+{
+    fn next_link(&self) -> Option<String> {
+        self.value.next_link()
+    }
+}
+
+impl<T> DeltaLink for GraphResponse<T>
+where
+    T: DeltaLink,
+{
+    fn delta_link(&self) -> Option<String> {
+        self.value.delta_link()
+    }
+}
+
+impl<T> MetadataLink for GraphResponse<T>
+where
+    T: MetadataLink,
+{
+    fn metadata_link(&self) -> Option<String> {
+        self.value.metadata_link()
     }
 }

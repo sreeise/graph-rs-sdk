@@ -28,7 +28,7 @@ pub trait StartUploadSession {
 
 pub enum NextSession {
     Next((UploadSession, Response)),
-    Done((Box<serde_json::Value>, Response)),
+    Done((serde_json::Value, Response)),
 }
 
 pub struct UploadSessionClient {
@@ -107,9 +107,7 @@ impl Iterator for UploadSessionClient {
                 let result: GraphResult<serde_json::Value> =
                     response.json().map_err(GraphFailure::from);
                 match result {
-                    Ok(drive_item) => {
-                        return Some(Ok(NextSession::Done((Box::new(drive_item), response))))
-                    },
+                    Ok(value) => return Some(Ok(NextSession::Done((value, response)))),
                     Err(e) => return Some(Err(e)),
                 }
             } else {

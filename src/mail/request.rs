@@ -1,7 +1,7 @@
 use crate::attachments::{MailFolderMessageAttachmentRequest, MailMessageAttachmentRequest};
 use crate::client::Graph;
-use crate::http::{DeltaRequest, GraphResponse, IntoResponse};
-use crate::types::{collection::Collection, content::Content};
+use crate::http::{GraphResponse, IntoResponse};
+use crate::types::{collection::Collection, content::Content, delta::DeltaRequest};
 use graph_rs_types::complextypes::MailTips;
 use graph_rs_types::entitytypes::{
     Attachment, InferenceClassificationOverride, MailFolder, Message, MessageRule, OutlookCategory,
@@ -45,7 +45,6 @@ impl<'a, I> MessageRequest<'a, I> {
     get!( list, Collection<Message> => "{{mm}}" );
     get!( | get, Message => "{{mm}}/{{id}}" );
     get!( content, GraphResponse<Content> => "{{mm}}/{{id}}/$value" );
-    get!( delta, DeltaRequest => "{{mm}}" );
     post!( | create_reply, Message => "{{mm}}/{{id}}/createReply" );
     post!( | create_reply_all, Message => "{{mm}}/{{id}}/createReplyAll" );
     post!( | create_forward, Message => "{{mm}}/{{id}}/createForward" );
@@ -71,7 +70,7 @@ impl<'a, I> MailFolderRequest<'a, I> {
     get!( list, Collection<MailFolder> => "{{mf}}" );
     get!( | list_child_folders, Collection<MailFolder> => "{{mf}}/{{id}}/childFolders" );
     get!( | get, MailFolder => "{{mf}}/{{id}}" );
-    get!( | delta, DeltaRequest => "{{mf}}/{{id}}" );
+    get!( delta, DeltaRequest<Collection<MailFolder>> => "{{mf}}/delta" );
     get!( archive, MailFolder => "{{mf}}/archive" );
     get!( inbox, MailFolder => "{{mf}}/inbox" );
     get!( clutter, MailFolder => "{{mf}}/clutter" );
