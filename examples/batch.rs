@@ -1,10 +1,14 @@
 use graph_rs::prelude::*;
+use std::error::Error;
 
 // This example shows batch requests to perform multiple requests at once.
 // The response may not return all at one time. In these cases a next link url
 // is given to get the next response. The batch method will continue calling
 // the next link until there is none. Each response is sent using a channel
-// and the channel receiver will return a serde_json::Value each time.
+// and the channel receiver will return each response which can be either a
+// serde_json::Value or a Graph type depending on whether you choose to use
+// the send() or value() method. The send() method returns a Graph type while
+// value() returns serde_json::Value.
 
 // For more info on batch requests see https://docs.microsoft.com/en-us/graph/json-batching?context=graph%2Fapi%2F1.0&view=graph-rest-1.0
 
@@ -39,19 +43,40 @@ fn main() {
             {
                 "id": "5",
                 "method": "GET",
-                "url": format!("/users/{}/drive/activities", USER_ID)
+                "url": format!("/users/{}/drive/special/documents", USER_ID)
             }
         ]
     });
 
-    let recv = client.v1().batch(&json).send().unwrap();
+    let recv = client.v1().batch(&json).send();
 
-    match recv.recv() {
-        Ok(value) => {
-            println!("{:#?}", value);
-        },
-        Err(e) => {
-            println!("Error: {:#?}", e);
-        },
+    loop {
+        match recv.recv() {
+            Ok(delta) => {
+                match delta {
+                    Delta::Next(response) => {
+                        println!("{:#?}", response);
+                    },
+                    Delta::Done(err) => {
+                        println!("All Done");
+
+                        // If the delta request ended in an error Delta::Done
+                        // will return Some(GraphFailure)
+                        if let Some(err) = err {
+                            println!("Error: {:#?}", err);
+                            println!("Description: {:#?}", err.description());
+                        }
+
+                        // Break here. The channel has been closed.
+                        break;
+                    },
+                }
+            },
+            Err(e) => {
+                println!("Error {:#?}", e);
+                println!("Description: {:#?}", e.description());
+                break;
+            },
+        }
     }
 }

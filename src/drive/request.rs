@@ -1,10 +1,10 @@
 use crate::client::*;
 use crate::http::{
-    DeltaRequest, DownloadClient, GraphRequestType, GraphResponse, IntoResponse,
-    UploadSessionClient,
+    DownloadClient, GraphRequestType, GraphResponse, IntoResponse, UploadSessionClient,
 };
 use crate::types::collection::Collection;
 use crate::types::content::Content;
+use crate::types::delta::DeltaRequest;
 use graph_error::{GraphFailure, GraphRsError};
 use graph_rs_types::complextypes::{ItemPreviewInfo, Thumbnail};
 use graph_rs_types::entitytypes::{
@@ -49,20 +49,21 @@ impl<'a, I> DriveRequest<'a, I> {
     get!( drive, BaseItem => "{{drive_root}}" );
     get!( root, DriveItem => "{{drive_root}}/root" );
     get!( recent, Collection<DriveItem> => "{{drive_root}}/recent" );
-    get!( delta, DeltaRequest => "{{drive_root}}/root/delta" );
+    get!( delta, DeltaRequest<Collection<DriveItem>> => "{{drive_root}}/root/delta" );
     get!( root_children, Collection<DriveItem> => "{{drive_root}}/root/children" );
     get!( drive_activity, Collection<ItemActivity> => "{{drive_root}}/activities" );
     get!( thumbnails, Collection<ThumbnailSet> => "{{drive_item}}/thumbnails" );
     get!( shared_with_me, Collection<DriveItem> => "{{drive_root}}/sharedWithMe" );
-    get!( special_documents, Collection<DriveItem> => "{{drive_root}}/special/documents" );
+    get!( | special_folder, DriveItem => "{{drive_root}}/special/{{id}}" );
+    get!( special_documents, DriveItem => "{{drive_root}}/special/documents" );
     get!( special_documents_children, Collection<DriveItem> => "{{drive_root}}/special/documents/children" );
-    get!( special_photos, Collection<DriveItem> => "{{drive_root}}/special/photos" );
+    get!( special_photos, DriveItem => "{{drive_root}}/special/photos" );
     get!( special_photos_children, Collection<DriveItem> => "{{drive_root}}/special/photos/children" );
-    get!( special_camera_roll, Collection<DriveItem> => "{{drive_root}}/special/cameraroll" );
+    get!( special_camera_roll, DriveItem => "{{drive_root}}/special/cameraroll" );
     get!( special_camera_roll_children, Collection<DriveItem> => "{{drive_root}}/special/cameraroll/children" );
-    get!( special_app_root, Collection<DriveItem> => "{{drive_root}}/special/approot" );
+    get!( special_app_root, DriveItem => "{{drive_root}}/special/approot" );
     get!( special_app_root_children, Collection<DriveItem> => "{{drive_root}}/special/approot/children" );
-    get!( special_music, Collection<DriveItem> => "{{drive_root}}/special/music" );
+    get!( special_music, DriveItem => "{{drive_root}}/special/music" );
     get!( special_music_children, Collection<DriveItem> => "{{drive_root}}/special/music/children" );
 
     pub fn list_children<S: AsRef<str>>(

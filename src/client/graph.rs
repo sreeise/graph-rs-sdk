@@ -4,11 +4,13 @@ use crate::attachments::{
 use crate::calendar::CalendarRequest;
 use crate::contacts::ContactsRequest;
 use crate::drive::DriveRequest;
-use crate::http::{DeltaRequest, GraphRequest, IntoResponse};
+use crate::http::{GraphRequest, IntoResponse};
 use crate::http::{GraphRequestBuilder, GraphResponse};
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
-use crate::types::{boolresponse::BoolResponse, collection::Collection, content::Content};
+use crate::types::{
+    boolresponse::BoolResponse, collection::Collection, content::Content, delta::DeltaRequest,
+};
 use crate::url::GraphUrl;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
@@ -250,7 +252,7 @@ impl<'a> Identify<'a> {
     pub fn batch<B: serde::Serialize>(
         &self,
         batch: &B,
-    ) -> IntoResponse<'a, IdentifyCommon, DeltaRequest> {
+    ) -> IntoResponse<'a, IdentifyCommon, DeltaRequest<serde_json::Value>> {
         self.client
             .builder()
             .set_method(Method::POST)
@@ -350,7 +352,7 @@ impl<'a, I> SiteListItemRequest<'a, I> {
 impl<'a, I> IdentGroups<'a, I> {
     get!( list, Collection<Group> => "groups" );
     get!( | get, Group => "groups/{{RID}}" );
-    get!( delta, DeltaRequest => "groups/delta" );
+    get!( delta, DeltaRequest<Collection<Group>> => "groups/delta" );
     get!( list_events, Collection<Event> => "groups/{{RID}}/events" );
     get!( list_lifecycle_policies, Collection<GroupLifecyclePolicy> => "groups/{{RID}}/groupLifecyclePolicies" );
     get!( member_of, Collection<DirectoryObject> => "groups/{{RID}}/memberOf" );
@@ -467,9 +469,9 @@ impl<'a, I> IdentUsers<'a, I> {
     get!( settings, UserSettings => "users/{{RID}}/settings" );
     get!( list, Collection<User> => "users" );
     get!( list_events, Collection<Event> => "users/{{RID}}/events" );
+    get!( delta, DeltaRequest<Collection<User>> => "users" );
     get!( | list_joined_group_photos, Collection<ProfilePhoto> => "users/{{RID}}/joinedGroups/{{id}}/photos" );
     post!( [ create, User => "users" ] );
-    post!( delta, DeltaRequest => "users" );
     patch!( [ update, GraphResponse<Content> => "users/{{RID}}" ] );
     patch!( [ update_settings, UserSettings => "users/{{RID}}/settings" ] );
     delete!( delete, GraphResponse<Content> => "users/{{RID}}" );

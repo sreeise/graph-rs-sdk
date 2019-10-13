@@ -1,20 +1,10 @@
-use crate::graph_rs_types::entitytypes::BaseItem;
-use crate::graph_rs_types::entitytypes::DriveItem;
+use crate::types::delta::{DeltaLink, MetadataLink, NextLink};
 use from_as::*;
-use graph_error::{GraphError, GraphFailure, GraphResult};
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use reqwest::Response;
 
 /// A Collection stores a collection of items returned from the API such
 /// as a collection of DriveItem's or User's.
-#[derive(
-    Default, Debug, Clone, PartialEq, Serialize, Deserialize, Setters, Getters, FromFile, AsFile,
-)]
-#[set = "pub set"]
-#[get = "pub"]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Collection<T> {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    drive_info: Option<BaseItem>,
     #[serde(rename = "@odata.nextLink")]
     #[serde(skip_serializing_if = "Option::is_none")]
     odata_next_link: Option<String>,
@@ -30,19 +20,29 @@ pub struct Collection<T> {
 
 impl<T> Collection<T> {
     pub fn new(
-        drive_info: Option<BaseItem>,
         next_link: Option<String>,
         delta_link: Option<String>,
         context: Option<String>,
         value: Option<Vec<T>>,
     ) -> Collection<T> {
         Collection {
-            drive_info,
             odata_next_link: next_link,
             odata_delta_link: delta_link,
             odata_context: context,
             value,
         }
+    }
+
+    pub fn odata_next_link(&self) -> Option<&String> {
+        self.odata_next_link.as_ref()
+    }
+
+    pub fn odata_delta_link(&self) -> Option<&String> {
+        self.odata_delta_link.as_ref()
+    }
+
+    pub fn odata_context(&self) -> Option<&String> {
+        self.odata_context.as_ref()
     }
 
     pub fn index(&self, idx: usize) -> Option<&T> {
@@ -78,99 +78,17 @@ impl<T> Collection<T> {
             true
         }
     }
+
+    pub fn value(&self) -> Option<&Vec<T>> {
+        self.value.as_ref()
+    }
+
+    pub fn value_mut(&mut self) -> &mut Option<Vec<T>> {
+        &mut self.value
+    }
 }
 
 impl<T> Eq for Collection<T> where T: std::cmp::PartialEq {}
-
-impl Collection<serde_json::Value> {
-    pub fn get(&mut self, name: &str) -> Vec<serde_json::Value> {
-        if let Some(ref mut vec) = self.value {
-            vec.iter()
-                .map(|i| i[name].clone())
-                .filter(|i| !i.is_null())
-                .collect()
-        } else {
-            vec![]
-        }
-    }
-
-    pub fn get_index<I: serde_json::value::Index>(
-        &self,
-        idx: usize,
-        index: I,
-    ) -> Option<&serde_json::Value> {
-        if let Some(ref vec) = self.value {
-            if let Some(value) = vec.get(idx) {
-                return value.get(index);
-            }
-        }
-        None
-    }
-}
-
-impl Collection<DriveItem> {
-    pub fn sort_by_name(&mut self) {
-        if let Some(ref mut vec) = self.value {
-            vec.sort_by(|a, b| a.name.cmp(&b.name));
-        }
-    }
-
-    pub fn sort_by_id(&mut self) {
-        if let Some(ref mut vec) = self.value {
-            vec.sort_by(|a, b| a.id.cmp(&b.id));
-        }
-    }
-
-    pub fn file_names(&mut self) -> Vec<String> {
-        if let Some(ref mut vec) = self.value {
-            vec.into_par_iter()
-                .map(|i| i.name.clone())
-                .flatten()
-                .collect()
-        } else {
-            vec![]
-        }
-    }
-
-    pub fn find_by_name(&mut self, name: &str) -> Option<DriveItem> {
-        if let Some(vec) = self.value.as_ref() {
-            if let Some(value) = vec.iter().find(|s| s.name == Some(name.into())) {
-                return Some(value.clone());
-            }
-        }
-        None
-    }
-
-    pub fn find_by_id(&mut self, id: &str) -> Option<DriveItem> {
-        if let Some(vec) = self.value.as_ref() {
-            if let Some(value) = vec.iter().find(|s| s.id == Some(id.into())) {
-                return Some(value.clone());
-            }
-        }
-        None
-    }
-}
-
-impl<T> From<BaseItem> for Collection<T>
-where
-    for<'de> T: serde::Deserialize<'de>,
-{
-    fn from(drive_info: BaseItem) -> Self {
-        Collection::new(Some(drive_info), None, None, None, None)
-    }
-}
-
-impl From<Vec<DriveItem>> for Collection<DriveItem> {
-    fn from(vec: Vec<DriveItem>) -> Self {
-        Collection::new(None, None, None, None, Some(vec))
-    }
-}
-
-impl From<DriveItem> for Collection<DriveItem> {
-    fn from(drive_item: DriveItem) -> Self {
-        Collection::new(None, None, None, None, Some(vec![drive_item]))
-    }
-}
 
 impl<T> IntoIterator for Collection<T>
 where
@@ -184,88 +102,20 @@ where
     }
 }
 
-impl TryFrom<&str> for Collection<DriveItem> {
-    type Error = GraphFailure;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let mut c: Collection<DriveItem> = serde_json::from_str(value)?;
-        if c.value.is_none() {
-            let v: GraphResult<DriveItem> =
-                serde_json::from_str(&value).map_err(GraphFailure::from);
-            if v.is_ok() {
-                c.set_value(Some(vec![v?]));
-            } else {
-                let vec_value: GraphResult<Vec<DriveItem>> =
-                    serde_json::from_str(&value).map_err(GraphFailure::from);
-                if vec_value.is_ok() {
-                    c.set_value(Some(vec_value?));
-                }
-            }
-        }
-        Ok(c)
+impl<T> NextLink for Collection<T> {
+    fn next_link(&self) -> Option<String> {
+        self.odata_next_link.clone()
     }
 }
 
-impl TryFrom<String> for Collection<DriveItem> {
-    type Error = GraphFailure;
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        Collection::try_from(value.as_str())
+impl<T> DeltaLink for Collection<T> {
+    fn delta_link(&self) -> Option<String> {
+        self.odata_delta_link.clone()
     }
 }
 
-impl TryFrom<&mut Response> for Collection<DriveItem> {
-    type Error = GraphFailure;
-
-    fn try_from(value: &mut Response) -> Result<Self, Self::Error> {
-        let status = value.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        let mut c: Collection<DriveItem> = value.json()?;
-        if c.value.is_none() {
-            let v: GraphResult<DriveItem> = value.json().map_err(GraphFailure::from);
-            if v.is_ok() {
-                c.set_value(Some(vec![v?]));
-            } else {
-                let vec_value: GraphResult<Vec<DriveItem>> =
-                    value.json().map_err(GraphFailure::from);
-                if vec_value.is_ok() {
-                    c.set_value(Some(vec_value?));
-                }
-            }
-        }
-        Ok(c)
-    }
-}
-
-impl TryFrom<&mut Response> for Collection<BaseItem> {
-    type Error = GraphFailure;
-
-    fn try_from(value: &mut Response) -> Result<Self, Self::Error> {
-        let status = value.status().as_u16();
-        if GraphError::is_error(status) {
-            return Err(GraphFailure::from(
-                GraphError::try_from(status).unwrap_or_default(),
-            ));
-        }
-
-        let mut c: Collection<BaseItem> = value.json()?;
-        if c.value.is_none() {
-            let v: GraphResult<BaseItem> = value.json().map_err(GraphFailure::from);
-            if v.is_ok() {
-                c.set_value(Some(vec![v?]));
-            } else {
-                let vec_value: GraphResult<Vec<BaseItem>> =
-                    value.json().map_err(GraphFailure::from);
-                if vec_value.is_ok() {
-                    c.set_value(Some(vec_value?));
-                }
-            }
-        }
-        Ok(c)
+impl<T> MetadataLink for Collection<T> {
+    fn metadata_link(&self) -> Option<String> {
+        self.odata_context.clone()
     }
 }

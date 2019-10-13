@@ -104,6 +104,7 @@ pub mod prelude {
     pub use crate::http::GraphResponse;
     pub use crate::http::ToResponse;
     pub use crate::types::collection::Collection;
+    pub use crate::types::delta::*;
 }
 
 /// Reexport of graph-oauth crate.
