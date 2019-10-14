@@ -107,10 +107,12 @@ impl<'a> Graph {
         Identify { client: &self }
     }
 
+    /// Check if the current host is v1.0.
     pub fn is_v1(&self) -> bool {
         self.is_v1.get()
     }
 
+    /// Check if the current host is beta.
     pub fn is_beta(&self) -> bool {
         !self.is_v1.get()
     }
@@ -119,6 +121,7 @@ impl<'a> Graph {
         self.request.borrow().ident()
     }
 
+    /// Set the access token used for requests.
     pub fn set_token(&self, token: &str) {
         self.request().set_token(token);
     }

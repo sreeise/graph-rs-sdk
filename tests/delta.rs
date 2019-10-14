@@ -7,7 +7,6 @@ fn delta_req() {
     let _lock = THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
-            let mut is_done = false;
             let client = Graph::from(bearer);
             let delta_recv = client.v1().users(id.as_str()).delta().value();
 
