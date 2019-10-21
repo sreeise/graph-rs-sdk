@@ -354,15 +354,15 @@ impl<'a, I> SiteListItemRequest<'a, I> {
 
 impl<'a, I> IdentGroups<'a, I> {
     get!( list, Collection<Group> => "groups" );
-    get!( | get, Group => "groups/{{RID}}" );
+    get!( get, Group => "groups/{{RID}}" );
     get!( delta, DeltaRequest<Collection<Group>> => "groups/delta" );
     get!( list_events, Collection<Event> => "groups/{{RID}}/events" );
     get!( list_lifecycle_policies, Collection<GroupLifecyclePolicy> => "groups/{{RID}}/groupLifecyclePolicies" );
-    get!( member_of, Collection<DirectoryObject> => "groups/{{RID}}/memberOf" );
-    get!( transitive_member_of, Collection<DirectoryObject> => "groups/{{RID}}/transitiveMemberOf" );
+    get!( list_member_of, Collection<DirectoryObject> => "groups/{{RID}}/memberOf" );
+    get!( list_transitive_member_of, Collection<DirectoryObject> => "groups/{{RID}}/transitiveMemberOf" );
     get!( list_members, Collection<DirectoryObject> => "groups/{{RID}}/members"  );
     get!( list_transitive_members, Collection<DirectoryObject> => "groups/{{RID}}/transitiveMembers" );
-    get!( owners, Collection<User> => "groups/{{RID}}/owners" );
+    get!( list_owners, Collection<User> => "groups/{{RID}}/owners" );
     get!( list_photos, Collection<ProfilePhoto> => "groups/{{RID}}/photos" );
     get!( root_site, Collection<ProfilePhoto> => "groups/{{RID}}/sites/root" );
     post!( [ create, Group => "groups" ] );
