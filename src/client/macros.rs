@@ -65,6 +65,42 @@ macro_rules! register_client {
 
 #[macro_use]
 macro_rules! register_ident_client {
+    ( $name:ident, $($helper:ident => $value:expr,)* ()) => {
+        $( register_helper!($helper, $value); )*
+
+        pub struct $name<'a, I> {
+            client: &'a Graph,
+            ident: PhantomData<I>,
+        }
+
+        impl<'a, I> $name<'a, I> {
+            pub fn new(id: &str, client: &'a Graph) -> $name<'a, I> {
+                $(
+                    client.registry()
+                        .register_helper(stringify!($helper), Box::new($helper));
+                )*
+                let id_string = id.to_string();
+                client.registry()
+                    .register_helper("RID",
+                    Box::new(move |
+                        _: &Helper,
+                        _: &Handlebars,
+                        _: &Context,
+                        _: &mut RenderContext,
+                        out: &mut dyn Output|
+                        -> HelperResult {
+                            out.write(&id_string)?;
+                            Ok(())
+                    }));
+
+                $name {
+                    client,
+                    ident: PhantomData,
+                }
+            }
+        }
+    };
+
     ( $name:ident, $($helper:ident => $value:expr,)* ) => {
         $( register_helper!($helper, $value); )*
 
@@ -146,7 +182,7 @@ macro_rules! register_ident_client {
                 AttachmentRequest::new(self.client)
             }
         }
-    }
+    };
 }
 
 #[macro_use]

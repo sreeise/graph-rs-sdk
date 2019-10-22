@@ -99,12 +99,6 @@ impl ToString for SpecialFolder {
     }
 }
 
-pub fn assert_url_eq<T: AsRef<str>>(client: &Graph, path: T) {
-    client.url_ref(|url| {
-        assert_eq!(vec![GRAPH_URL, path.as_ref()].join(""), url.to_string());
-    });
-}
-
 pub fn assert_url_special(client: &Graph, endpoint: SpecialFolder) {
     client.url_ref(|url| {
         if client.ident().eq(&Ident::Me) {

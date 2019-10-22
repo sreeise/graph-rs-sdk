@@ -150,20 +150,6 @@ impl<'a> Graph {
     {
         f(&self.builder.borrow().as_ref())
     }
-
-    pub fn url_mut<F>(&self, f: F)
-    where
-        F: Fn(&mut GraphUrl),
-    {
-        f(&mut self.builder().as_mut())
-    }
-
-    pub fn fn_mut_url<F>(&self, mut f: F)
-    where
-        F: FnMut(&mut GraphUrl),
-    {
-        f(&mut self.builder().as_mut())
-    }
 }
 
 impl From<&str> for Graph {
@@ -244,6 +230,14 @@ impl<'a> Identify<'a> {
     pub fn groups<S: AsRef<str>>(&self, id: S) -> IdentGroups<'a, IdentifyCommon> {
         self.client.request().set_ident(Ident::Groups);
         IdentGroups::new(id.as_ref(), self.client)
+    }
+
+    /// Select the group lifecycle policies endpoint.
+    pub fn group_lifecycle_policies<S: AsRef<str>>(
+        &self,
+        id: S,
+    ) -> GroupLifecyclePolicyRequest<'a, IdentifyCommon> {
+        GroupLifecyclePolicyRequest::new(id.as_ref(), self.client)
     }
 
     /// Select the users endpoint.
@@ -394,25 +388,6 @@ impl<'a, I> IdentGroups<'a, I> {
     pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a, I> {
         GroupThreadPostRequest::new(self.client)
     }
-
-    pub fn group_lifecycle_policies(&self) -> GroupLifecyclePolicyRequest<'a, I> {
-        GroupLifecyclePolicyRequest::new(self.client)
-    }
-}
-
-register_client!(
-    GroupLifecyclePolicyRequest,
-    glp => "groupLifecyclePolicies",
-);
-
-impl<'a, I> GroupLifecyclePolicyRequest<'a, I> {
-    get!( list, Collection<GroupLifecyclePolicy> => "{{glp}}" );
-    get!( | get, Collection<GroupLifecyclePolicy> => "{{glp}}/{{id}}" );
-    post!( [ create, GroupLifecyclePolicy => "{{glp}}" ] );
-    post!( [ | add_group, BoolResponse => "{{glp}}/{{id}}/addGroup" ] );
-    post!( [ | remove_group, BoolResponse =>  "{{glp}}/{{id}}/removeGroup" ] );
-    patch!( [ | update, GroupLifecyclePolicy => "{{glp}}/{{id}}" ] );
-    patch!( | delete, GraphResponse<Content> => "{{glp}}/{{id}}" );
 }
 
 register_client!(
@@ -478,4 +453,20 @@ impl<'a, I> IdentUsers<'a, I> {
     patch!( [ update, GraphResponse<Content> => "users/{{RID}}" ] );
     patch!( [ update_settings, UserSettings => "users/{{RID}}/settings" ] );
     delete!( delete, GraphResponse<Content> => "users/{{RID}}" );
+}
+
+register_ident_client!(
+    GroupLifecyclePolicyRequest,
+    glp => "groupLifecyclePolicies",
+    ()
+);
+
+impl<'a, I> GroupLifecyclePolicyRequest<'a, I> {
+    get!( list, Collection<GroupLifecyclePolicy> => "{{glp}}" );
+    get!( get, Collection<GroupLifecyclePolicy> => "{{glp}}/{{RID}}" );
+    post!( [ create, GroupLifecyclePolicy => "{{glp}}" ] );
+    post!( [ add_group, BoolResponse => "{{glp}}/{{RID}}/addGroup" ] );
+    post!( [ remove_group, BoolResponse =>  "{{glp}}/{{RID}}/removeGroup" ] );
+    patch!( [ update, GroupLifecyclePolicy => "{{glp}}/{{RID}}" ] );
+    patch!( delete, GraphResponse<Content> => "{{glp}}/{{RID}}" );
 }

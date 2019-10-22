@@ -1,7 +1,7 @@
 use graph_rs::http::Session;
 use graph_rs::prelude::*;
 use graph_rs::GRAPH_URL;
-use test_tools::drive::*;
+use test_tools::assert_url_eq;
 
 static RID: &str = "T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x";
 static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";
@@ -28,7 +28,7 @@ fn query_mutate() {
         .drive()
         .select(&["name"])
         .top("3");
-    client.url_mut(|url| {
+    client.url_ref(|url| {
         assert_eq!(
             "https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x?select=name&top=3",
             url.as_str()
@@ -36,7 +36,7 @@ fn query_mutate() {
     });
 
     let _ = client.v1().drives(RID).drive().root().expand(&["children"]);
-    client.url_mut(|url| {
+    client.url_ref(|url| {
         assert_eq!(
             "https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root?expand=children",
             url.as_str()

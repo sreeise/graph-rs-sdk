@@ -1,5 +1,5 @@
-use graph_rs::prelude::*;
 use graph_error::GraphResult;
+use graph_rs::prelude::*;
 
 static ACCESS_TOKEN: &str = "<ACCESS_TOKEN>";
 
@@ -11,14 +11,12 @@ fn main() {}
 fn get_or_list_groups() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1()
-        .groups(GROUP_ID)
-        .get()
-        .send()?;
+    let response = client.v1().groups(GROUP_ID).get().send()?;
 
     println!("Group response: {:#?}", response);
 
-    let response = client.v1()
+    let response = client
+        .v1()
         .groups("") // Won't be used
         .list()
         .send()?;
@@ -32,25 +30,28 @@ fn get_or_list_groups() -> GraphResult<()> {
 fn add_favorites_members_owners() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1()
-        .groups(GROUP_ID)
-        .add_favorite()
-        .send()?;
+    let response = client.v1().groups(GROUP_ID).add_favorite().send()?;
 
     println!("Add favorite response: {:#?}", response);
 
     let directory_object_id = "<DIRECTORY_OBJECT_ID>";
-    let response = client.v1()
+    let response = client
+        .v1()
         .groups(GROUP_ID)
         .add_member(&serde_json::json!({
-            "@odata.id": format!("https://graph.microsoft.com/v1.0/directoryObjects/{}", directory_object_id)
+            "@odata.id":
+                format!(
+                    "https://graph.microsoft.com/v1.0/directoryObjects/{}",
+                    directory_object_id
+                )
         }))
         .send()?;
 
     println!("Add member response: {:#?}", response);
 
     let user_id = "<USER_ID>";
-    let response = client.v1()
+    let response = client
+        .v1()
         .groups(GROUP_ID)
         .add_owner(&serde_json::json!({
             "@odata.id": format!("https://graph.microsoft.com/v1.0/users/{}", user_id)
@@ -66,7 +67,8 @@ fn add_favorites_members_owners() -> GraphResult<()> {
 fn create_update_delete_group() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1()
+    let response = client
+        .v1()
         .groups("") // Won't be used.
         .create(&serde_json::json!({
             "description": "Self help community for library",
@@ -82,7 +84,8 @@ fn create_update_delete_group() -> GraphResult<()> {
 
     println!("Create group: {:#?}", response);
 
-    let response = client.v1()
+    let response = client
+        .v1()
         .groups(GROUP_ID)
         .update(&serde_json::json!({
             "description": "description-value",
@@ -99,10 +102,7 @@ fn create_update_delete_group() -> GraphResult<()> {
 
     println!("Update group: {:#?}", response);
 
-    let response = client.v1()
-        .groups(GROUP_ID)
-        .delete()
-        .send()?;
+    let response = client.v1().groups(GROUP_ID).delete().send()?;
 
     println!("Delete group: {:#?}", response);
 
@@ -113,45 +113,35 @@ fn create_update_delete_group() -> GraphResult<()> {
 fn list_methods() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1()
-        .groups(GROUP_ID)
-        .list_members()
-        .send()?;
+    let response = client.v1().groups(GROUP_ID).list_members().send()?;
 
     println!("{:#?}", response);
 
-    let response = client.v1()
-        .groups(GROUP_ID)
-        .list_member_of()
-        .send()?;
+    let response = client.v1().groups(GROUP_ID).list_member_of().send()?;
 
     println!("{:#?}", response);
 
-    let response = client.v1()
+    let response = client
+        .v1()
         .groups(GROUP_ID)
         .list_transitive_members()
         .send()?;
 
     println!("{:#?}", response);
 
-    let response = client.v1()
+    let response = client
+        .v1()
         .groups(GROUP_ID)
         .list_transitive_member_of()
         .send()?;
 
     println!("{:#?}", response);
 
-    let response = client.v1()
-        .groups(GROUP_ID)
-        .list_owners()
-        .send()?;
+    let response = client.v1().groups(GROUP_ID).list_owners().send()?;
 
     println!("{:#?}", response);
 
-    let response = client.v1()
-        .groups(GROUP_ID)
-        .list_photos()
-        .send()?;
+    let response = client.v1().groups(GROUP_ID).list_photos().send()?;
 
     println!("{:#?}", response);
 
@@ -162,15 +152,13 @@ fn list_methods() -> GraphResult<()> {
 fn remove_methods() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1()
-        .groups(GROUP_ID)
-        .remove_favorite()
-        .send()?;
+    let response = client.v1().groups(GROUP_ID).remove_favorite().send()?;
 
     println!("{:#?}", response);
 
     let member_id = "<MEMBER_ID>";
-    let response = client.v1()
+    let response = client
+        .v1()
         .groups(GROUP_ID)
         .remove_member(member_id)
         .send()?;
@@ -178,9 +166,75 @@ fn remove_methods() -> GraphResult<()> {
     println!("{:#?}", response);
 
     let owner_id = "<OWNER_ID>";
-    let response = client.v1()
-        .groups(GROUP_ID)
-        .remove_owner(owner_id)
+    let response = client.v1().groups(GROUP_ID).remove_owner(owner_id).send()?;
+
+    println!("{:#?}", response);
+
+    Ok(())
+}
+
+static GROUP_LIFECYCLE_POLICY_ID: &str = "<GROUP_LIFECYCLE_POLICY_ID>";
+
+#[allow(dead_code)]
+fn lifecycle_policies() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let response = client
+        .v1()
+        .group_lifecycle_policies("") // Won't be used.
+        .list()
+        .send()?;
+
+    println!("{:#?}", response);
+
+    let response = client
+        .v1()
+        .group_lifecycle_policies(GROUP_LIFECYCLE_POLICY_ID)
+        .get()
+        .send()?;
+
+    println!("{:#?}", response);
+
+    let response = client
+        .v1()
+        .group_lifecycle_policies("") // Won't be used.
+        .create(&serde_json::json!({
+            "groupLifetimeInDays": 100,
+            "managedGroupTypes": "Selected",
+            "alternateNotificationEmails": "admin@contoso.com"
+        }))
+        .send()?;
+
+    println!("{:#?}", response);
+
+    let response = client
+        .v1()
+        .group_lifecycle_policies(GROUP_LIFECYCLE_POLICY_ID)
+        .update(&serde_json::json!({
+            "groupLifetimeInDays": 100,
+            "managedGroupTypes": "Selected",
+            "alternateNotificationEmails": "admin@contoso.com"
+        }))
+        .send()?;
+
+    println!("{:#?}", response);
+
+    let response = client
+        .v1()
+        .group_lifecycle_policies(GROUP_LIFECYCLE_POLICY_ID)
+        .add_group(&serde_json::json!({
+            "groupId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+        }))
+        .send()?;
+
+    println!("{:#?}", response);
+
+    let response = client
+        .v1()
+        .group_lifecycle_policies(GROUP_LIFECYCLE_POLICY_ID)
+        .remove_group(&serde_json::json!({
+            "groupId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+        }))
         .send()?;
 
     println!("{:#?}", response);
