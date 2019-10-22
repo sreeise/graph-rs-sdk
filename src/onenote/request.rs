@@ -2,14 +2,14 @@ use crate::client::Graph;
 use crate::http::{DownloadClient, GraphRequestType, GraphResponse, IntoResponse};
 use crate::types::collection::Collection;
 use crate::types::content::Content;
-use graph_error::GraphFailure;
+use graph_error::GraphRsError;
+use graph_error::{AsRes, GraphFailure};
 use graph_rs_types::entitytypes::{Notebook, OnenotePage, OnenoteSection, SectionGroup};
 use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
 use reqwest::Method;
 use std::ffi::OsStr;
 use std::fs::File;
-use std::io::ErrorKind;
 use std::marker::PhantomData;
 use std::path::Path;
 
@@ -43,15 +43,21 @@ impl<'a, I> OnenoteRequest<'a, I> {
     }
 
     pub fn create_page<P: AsRef<Path>>(&self, file: P) -> IntoResponse<'a, I, OnenotePage> {
-        render_path!(self.client, "{{pages}}", &serde_json::json!({}));
+        render_path!(self.client, "{{pages}}");
 
         if !file.as_ref().extension().eq(&Some(OsStr::new("html"))) {
             return IntoResponse::new_error(
                 self.client,
-                GraphFailure::Io(std::io::Error::new(
-                    ErrorKind::InvalidData,
-                    "Invalid extension. File must be html",
-                )),
+                GraphRsError::InvalidFileExtension {
+                    requires: "html".to_string(),
+                    found: file
+                        .as_ref()
+                        .extension()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_string(),
+                }
+                .as_failure(),
             );
         }
 
@@ -80,17 +86,14 @@ impl<'a, I> OnenoteNotebookRequest<'a, I> {
     post!( [ | create_section, OnenoteSection => "{{notebook}}/{{id}}/sections" ] );
 
     pub fn recent(&self, include_personal_notebooks: bool) -> IntoResponse<'a, I, Notebook> {
-        let s = format!(
-            "onenote/notebooks/getRecentNotebooks(includePersonalNotebooks={})",
-            include_personal_notebooks
+        render_path!(
+            self.client,
+            format!(
+                "{{{{notebook}}}}/getRecentNotebooks(includePersonalNotebooks={})",
+                include_personal_notebooks
+            ).as_str()
         );
-        let mut vec: Vec<&str> = s.split('/').collect();
-        vec.retain(|s| !s.is_empty());
-        self.client
-            .builder()
-            .set_method(Method::GET)
-            .as_mut()
-            .extend_path(&vec);
+        self.client.builder().set_method(Method::GET);
         IntoResponse::new(self.client)
     }
 }
@@ -118,10 +121,16 @@ impl<'a, I> OnenoteSectionRequest<'a, I> {
         if !file.as_ref().extension().eq(&Some(OsStr::new("html"))) {
             return IntoResponse::new_error(
                 self.client,
-                GraphFailure::Io(std::io::Error::new(
-                    ErrorKind::InvalidData,
-                    "Invalid extension. File must be html",
-                )),
+                GraphRsError::InvalidFileExtension {
+                    requires: "html".to_string(),
+                    found: file
+                        .as_ref()
+                        .extension()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_string(),
+                }
+                .as_failure(),
             );
         }
 
