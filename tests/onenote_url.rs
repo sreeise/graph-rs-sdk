@@ -1,5 +1,5 @@
 use graph_rs::prelude::*;
-use test_tools::drive::assert_url_eq;
+use test_tools::assert_url_eq;
 
 static RID: &str = "T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x";
 static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";

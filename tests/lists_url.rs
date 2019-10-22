@@ -1,5 +1,5 @@
 use graph_rs::prelude::*;
-use test_tools::drive::assert_url_eq;
+use test_tools::assert_url_eq;
 
 #[test]
 pub fn lists_activities() {
