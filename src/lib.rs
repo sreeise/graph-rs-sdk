@@ -117,3 +117,8 @@ pub mod oauth {
 pub mod error {
     pub use graph_error::*;
 }
+
+/// Reexport of reqwest headers for use with API requests.
+pub mod header {
+    pub use reqwest::header::*;
+}

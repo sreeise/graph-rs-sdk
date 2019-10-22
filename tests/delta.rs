@@ -9,11 +9,13 @@ fn delta_req() {
         if let Some((id, bearer)) = t {
             let client = Graph::from(bearer);
             let delta_recv = client.v1().users(id.as_str()).delta().value();
+            let mut is_done = false;
 
             loop {
                 match delta_recv.recv() {
                     Ok(delta) => match delta {
                         Delta::Next(response) => {
+                            assert!(!is_done);
                             assert!(response.error().is_none());
                         },
                         Delta::Done(err) => {
@@ -23,6 +25,7 @@ fn delta_req() {
                                     err.description()
                                 );
                             }
+                            is_done = true;
                             break;
                         },
                     },
@@ -34,6 +37,7 @@ fn delta_req() {
                     },
                 }
             }
+            assert!(is_done);
         }
     });
 }
