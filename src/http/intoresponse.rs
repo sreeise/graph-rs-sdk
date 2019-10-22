@@ -3,7 +3,7 @@ use crate::http::{GraphResponse, UploadSessionClient};
 use crate::types::delta::{Delta, NextLink};
 use crate::types::{content::Content, delta::DeltaRequest};
 use graph_error::{GraphFailure, GraphResult};
-use reqwest::header::CONTENT_TYPE;
+use reqwest::header::{HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::marker::PhantomData;
@@ -91,6 +91,11 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
         self
     }
 
+    pub fn header(&self, name: impl IntoHeaderName, value: HeaderValue) -> &Self {
+        self.client.builder().header(name, value);
+        self
+    }
+
     fn delta<U: 'static + Send + NextLink + Clone>(&self) -> Receiver<Delta<U>>
     where
         for<'de> U: serde::Deserialize<'de>,
@@ -114,6 +119,7 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
         sender.send(Delta::Next(response)).unwrap();
 
         thread::spawn(move || {
+            let mut is_done = false;
             let client = reqwest::Client::new();
             while let Some(next) = next_link {
                 let res = client
@@ -126,11 +132,13 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
                 if let Err(err) = res {
                     next_link = None;
                     sender.send(Delta::Done(Some(err))).unwrap();
+                    is_done = true;
                 } else {
                     let mut response = res.unwrap();
                     if let Some(err) = GraphFailure::from_response(&mut response) {
                         next_link = None;
                         sender.send(Delta::Done(Some(err))).unwrap();
+                        is_done = true;
                     } else {
                         let value_res: GraphResult<U> = response.json().map_err(GraphFailure::from);
                         match value_res {
@@ -143,12 +151,15 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
                             Err(err) => {
                                 next_link = None;
                                 sender.send(Delta::Done(Some(err))).unwrap();
+                                is_done = true;
                             },
                         }
                     }
                 }
             }
-            sender.send(Delta::Done(None)).unwrap();
+            if !is_done {
+                sender.send(Delta::Done(None)).unwrap();
+            }
         });
 
         receiver
