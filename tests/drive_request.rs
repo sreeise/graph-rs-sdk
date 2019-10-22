@@ -1,4 +1,5 @@
-use graph_error::GraphResult;
+use graph_error::{GraphError, GraphResult};
+use graph_rs::http::{NextSession, Session};
 use graph_rs::prelude::*;
 use std::collections::HashMap;
 use std::error::Error;
@@ -395,6 +396,78 @@ fn drive_upload_new_and_replace_and_delete() {
             } else if let Err(e) = upload_res {
                 panic!(
                     "Request Error. Method: drive upload. Error: {:#?}",
+                    e.description()
+                );
+            }
+        }
+    });
+}
+
+#[test]
+fn drive_upload_session() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+    OAuthRequest::access_token_fn(|t| {
+        if let Some((id, bearer)) = t {
+            let client = Graph::new(bearer.as_str());
+
+            let mut upload = Session::default();
+            upload.microsoft_graph_conflict_behavior = Some("fail".to_string());
+
+            let session = client
+                .v1()
+                .users(id.as_str())
+                .drive()
+                .upload_session(
+                    ":/upload_session_file.txt:",
+                    "./test_files/upload_session_file.txt",
+                    &upload,
+                )
+                .send();
+
+            if let Ok(mut session) = session {
+                let cancel_request = session.cancel();
+                let mut iter = session.into_iter();
+
+                while let Some(next) = iter.next() {
+                    match next {
+                        Ok(NextSession::Next((_, response))) => {
+                            assert!(!GraphError::is_error(response.status().as_u16()));
+                        },
+                        Ok(NextSession::Done((drive_item, response))) => {
+                            assert!(!GraphError::is_error(response.status().as_u16()));
+                            let drive_item_id =
+                                drive_item["id"].as_str().unwrap_or_default().to_string();
+                            thread::sleep(Duration::from_secs(2));
+
+                            let delete_res = client
+                                .v1()
+                                .users(id.as_str())
+                                .drive()
+                                .delete(drive_item_id.as_str())
+                                .send();
+
+                            if let Ok(res) = delete_res {
+                                assert!(res.error().is_none());
+                            } else if let Err(e) = delete_res {
+                                panic!(
+                                    "Request error. Upload session new. Error: {:#?}",
+                                    e.description()
+                                );
+                            }
+                            break;
+                        },
+                        Err(e) => {
+                            let _ = cancel_request.send().unwrap();
+                            panic!(
+                                "Request error. Upload session new. Error: {:#?}",
+                                e.description()
+                            );
+                        },
+                    }
+                }
+            } else if let Err(e) = session {
+                panic!(
+                    "Request error. Upload session new. Error: {:#?}",
                     e.description()
                 );
             }
