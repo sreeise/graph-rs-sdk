@@ -1,3 +1,4 @@
+use graph_rs::error::{GraphFailure, GraphRsError};
 use graph_rs::prelude::*;
 use std::error::Error;
 use std::thread;
@@ -130,4 +131,71 @@ fn create_delete_page() {
             }
         }
     });
+}
+
+#[test]
+fn onenote_create_page_invalid_ext() {
+    let client = Graph::new("");
+
+    let response = client
+        .v1()
+        .me()
+        .onenote()
+        .create_page("./test_files/test_upload_file.txt")
+        .send();
+
+    if let Err(err) = response {
+        match err {
+            GraphFailure::GraphRsError(err) => match err {
+                GraphRsError::InvalidFileExtension { requires, found } => {
+                    assert_eq!("html", requires);
+                    assert_eq!("txt", found);
+                },
+                _ => {
+                    panic!("Unexpected error thrown: {}", err.description());
+                },
+            },
+            _ => {
+                panic!("Unexpected error thrown: {}", err.description());
+            },
+        }
+    } else if let Ok(_) = response {
+        panic!(
+            "Unexpected successful response. GraphRsError::InvalidFileExtension should have thrown"
+        );
+    }
+}
+
+#[test]
+fn onenote_sections_create_page_invalid_ext() {
+    let client = Graph::new("");
+
+    let response = client
+        .v1()
+        .me()
+        .onenote()
+        .sections()
+        .create_page("id", "./test_files/test_upload_file.txt")
+        .send();
+
+    if let Err(err) = response {
+        match err {
+            GraphFailure::GraphRsError(err) => match err {
+                GraphRsError::InvalidFileExtension { requires, found } => {
+                    assert_eq!("html", requires);
+                    assert_eq!("txt", found);
+                },
+                _ => {
+                    panic!("Unexpected error thrown: {}", err.description());
+                },
+            },
+            _ => {
+                panic!("Unexpected error thrown: {}", err.description());
+            },
+        }
+    } else if let Ok(_) = response {
+        panic!(
+            "Unexpected successful response. GraphRsError::InvalidFileExtension should have thrown"
+        );
+    }
 }

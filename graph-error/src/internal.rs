@@ -16,10 +16,16 @@ pub enum GraphRsError {
     FileNameInvalidUTF8,
     #[snafu(display("Missing or invalid: Error: {}", msg))]
     InvalidOrMissing { msg: String },
+    #[snafu(display("Invalid file extension. Requires {} but found {}", requires, found))]
+    InvalidFileExtension { requires: String, found: String },
 }
 
 impl AsRes for GraphRsError {
     fn as_err_res<T>(self) -> GraphResult<T> {
         GraphFailure::internal(self).as_err_res()
+    }
+
+    fn as_failure(self) -> GraphFailure {
+        GraphFailure::internal(self)
     }
 }
