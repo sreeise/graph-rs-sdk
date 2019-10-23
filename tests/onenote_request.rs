@@ -108,7 +108,7 @@ fn create_delete_page() {
             if let Ok(page) = res {
                 let page_id = page.value()["id"].as_str().unwrap();
 
-                thread::sleep(Duration::from_secs(2));
+                thread::sleep(Duration::from_secs(5));
                 let delete_res = client
                     .v1()
                     .users(&id)
