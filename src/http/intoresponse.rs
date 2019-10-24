@@ -254,8 +254,7 @@ impl<'a> ToResponse for IntoResponse<'a, GraphResponse<Content>> {
     }
 }
 
-impl<'a, T: 'static + Send + NextLink + Clone> ToResponse
-    for IntoResponse<'a, DeltaRequest<T>>
+impl<'a, T: 'static + Send + NextLink + Clone> ToResponse for IntoResponse<'a, DeltaRequest<T>>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
