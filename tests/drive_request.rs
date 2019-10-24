@@ -15,49 +15,6 @@ use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
 use test_tools::support::cleanup::CleanUp;
 
 #[test]
-fn common_paths() {
-    if OAuthRequest::is_travis() || OAuthRequest::is_local() {
-        let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-        if let Some(token) = OAuthRequest::request_access_token() {
-            let t = token.1.bearer_token().clone();
-            get_drive(t, token.0.as_str());
-            get_recent(t, token.0.as_str());
-            get_root(t, token.0.as_str());
-        }
-    }
-}
-
-fn get_recent(token: &str, rid: &str) {
-    let client = Graph::new(token);
-    if let Err(e) = client.v1().drives(rid).drive().recent().send() {
-        panic!(
-            "Request Error. Method: drive recent. Error: {:#?}",
-            e.description()
-        );
-    }
-}
-
-fn get_drive(token: &str, rid: &str) {
-    let client = Graph::new(token);
-    if let Err(e) = client.v1().drives(rid).drive().drive().send() {
-        panic!(
-            "Request Error. Method: drive root. Error: {:#?}",
-            e.description()
-        );
-    }
-}
-
-fn get_root(token: &str, rid: &str) {
-    let client = Graph::new(token);
-    if let Err(e) = client.v1().drives(rid).drive().root().send() {
-        panic!(
-            "Request Error. Method: drive root. Error: {:#?}",
-            e.description()
-        );
-    }
-}
-
-#[test]
 fn create_delete_folder() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
@@ -108,45 +65,36 @@ fn create_delete_folder() {
 }
 
 #[test]
-fn root_children_list_versions_get_item() {
+fn list_versions_get_item() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
-            if let Ok(res) = client
+            let get_item_res = client
                 .v1()
-                .drives(id.as_str())
+                .users(id.as_str())
                 .drive()
-                .root_children()
-                .send()
-            {
-                let value = res.value().index(0).clone().unwrap();
-                let item_id = value.id.clone().unwrap();
+                .get_item(":/copy_folder:")
+                .value();
 
-                if let Err(e) = client
-                    .v1()
-                    .drives(id.as_str())
-                    .drive()
-                    .list_versions(item_id.as_str())
-                    .send()
-                {
-                    panic!("Request Error. Method: list versions. Error: {:#?}", e);
-                }
+            if let Ok(res) = get_item_res {
+                assert!(res.value()["id"].as_str().is_some());
+                let item_id = res.value()["id"].as_str().unwrap();
 
-                let req = client
+                let versions_res = client
                     .v1()
-                    .drives(id.as_str())
+                    .users(id.as_str())
                     .drive()
-                    .get_item(item_id.as_str())
+                    .list_versions(item_id)
                     .value();
 
-                if let Err(_) = req {
-                    panic!("Request Error. Method: drive get_item");
-                } else if let Ok(res) = req {
-                    assert!(res.value()["name"].as_str().is_some());
+                if let Ok(res) = versions_res {
+                    assert!(res.error().is_none());
+                } else if let Err(e) = versions_res {
+                    panic!("Request Error. Method: list versions. Error: {:#?}", e.description());
                 }
-            } else {
-                panic!("Request Error. Method: drive root children");
+            } else if let Err(e) = get_item_res {
+                panic!("Request Error. Method: drive get_item. Error: {:#?}", e.description());
             }
         }
     });
