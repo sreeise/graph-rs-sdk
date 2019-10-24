@@ -405,10 +405,7 @@ impl<'a> DriveRequest<'a> {
         self.client.request().download(self.client.take_builder())
     }
 
-    pub fn check_out<S: AsRef<str>>(
-        &'a self,
-        id: S,
-    ) -> IntoResponse<'a, GraphResponse<Content>> {
+    pub fn check_out<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, GraphResponse<Content>> {
         render_path!(
             self.client,
             template(id.as_ref(), "checkout").as_str(),

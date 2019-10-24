@@ -91,10 +91,16 @@ fn list_versions_get_item() {
                 if let Ok(res) = versions_res {
                     assert!(res.error().is_none());
                 } else if let Err(e) = versions_res {
-                    panic!("Request Error. Method: list versions. Error: {:#?}", e.description());
+                    panic!(
+                        "Request Error. Method: list versions. Error: {:#?}",
+                        e.description()
+                    );
                 }
             } else if let Err(e) = get_item_res {
-                panic!("Request Error. Method: drive get_item. Error: {:#?}", e.description());
+                panic!(
+                    "Request Error. Method: drive get_item. Error: {:#?}",
+                    e.description()
+                );
             }
         }
     });
