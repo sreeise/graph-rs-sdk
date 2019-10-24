@@ -10,7 +10,6 @@ use reqwest::header::{HeaderValue, CONTENT_TYPE};
 use reqwest::Method;
 use std::ffi::OsStr;
 use std::fs::File;
-use std::marker::PhantomData;
 use std::path::Path;
 
 register_client!(
@@ -21,28 +20,28 @@ register_client!(
     pages => "onenote/pages",
 );
 
-impl<'a, I> OnenoteRequest<'a, I> {
+impl<'a> OnenoteRequest<'a> {
     get!( list_sections, Collection<SectionGroup> => "{{section}}" );
     get!( list_section_groups, Collection<SectionGroup> => "{{section_group}}" );
     get!( list_pages, Collection<SectionGroup> => "{{pages}}" );
 
-    pub fn notebooks(&self) -> OnenoteNotebookRequest<'a, I> {
+    pub fn notebooks(&self) -> OnenoteNotebookRequest<'a> {
         OnenoteNotebookRequest::new(self.client)
     }
 
-    pub fn sections(&self) -> OnenoteSectionRequest<'a, I> {
+    pub fn sections(&self) -> OnenoteSectionRequest<'a> {
         OnenoteSectionRequest::new(self.client)
     }
 
-    pub fn section_group(&self) -> OnenoteSectionGroupRequest<'a, I> {
+    pub fn section_group(&self) -> OnenoteSectionGroupRequest<'a> {
         OnenoteSectionGroupRequest::new(self.client)
     }
 
-    pub fn pages(&self) -> OnenotePageRequest<'a, I> {
+    pub fn pages(&self) -> OnenotePageRequest<'a> {
         OnenotePageRequest::new(self.client)
     }
 
-    pub fn create_page<P: AsRef<Path>>(&self, file: P) -> IntoResponse<'a, I, OnenotePage> {
+    pub fn create_page<P: AsRef<Path>>(&self, file: P) -> IntoResponse<'a, OnenotePage> {
         render_path!(self.client, "{{pages}}");
 
         if !file.as_ref().extension().eq(&Some(OsStr::new("html"))) {
@@ -77,7 +76,7 @@ impl<'a, I> OnenoteRequest<'a, I> {
 
 register_client!(OnenoteNotebookRequest,);
 
-impl<'a, I> OnenoteNotebookRequest<'a, I> {
+impl<'a> OnenoteNotebookRequest<'a> {
     get!( list, Collection<Notebook> => "{{notebook}}" );
     get!( | list_sections, Collection<OnenoteSection> => "{{notebook}}/{{id}}/sections" );
     get!( | get, Notebook => "{{notebook}}/{{id}}" );
@@ -85,7 +84,7 @@ impl<'a, I> OnenoteNotebookRequest<'a, I> {
     post!( [ | copy, OnenoteSection => "{{notebook}}/{{id}}/copyNotebook" ] );
     post!( [ | create_section, OnenoteSection => "{{notebook}}/{{id}}/sections" ] );
 
-    pub fn recent(&self, include_personal_notebooks: bool) -> IntoResponse<'a, I, Notebook> {
+    pub fn recent(&self, include_personal_notebooks: bool) -> IntoResponse<'a, Notebook> {
         render_path!(
             self.client,
             format!(
@@ -100,7 +99,7 @@ impl<'a, I> OnenoteNotebookRequest<'a, I> {
 
 register_client!(OnenoteSectionRequest,);
 
-impl<'a, I> OnenoteSectionRequest<'a, I> {
+impl<'a> OnenoteSectionRequest<'a> {
     get!( list, Collection<OnenoteSection> => "{{section}}" );
     get!( | list_pages, Collection<OnenotePage> => "{{section}}/{{id}}/pages" );
     get!( | get, OnenoteSection => "{{section}}/{{id}}" );
@@ -111,7 +110,7 @@ impl<'a, I> OnenoteSectionRequest<'a, I> {
         &self,
         id: S,
         file: P,
-    ) -> IntoResponse<'a, I, OnenotePage> {
+    ) -> IntoResponse<'a, OnenotePage> {
         render_path!(
             self.client,
             "{{section}}/{{id}}/pages",
@@ -150,7 +149,7 @@ impl<'a, I> OnenoteSectionRequest<'a, I> {
 
 register_client!(OnenoteSectionGroupRequest,);
 
-impl<'a, I> OnenoteSectionGroupRequest<'a, I> {
+impl<'a> OnenoteSectionGroupRequest<'a> {
     get!( list, Collection<SectionGroup> => "{{section_group}}" );
     get!( | list_sections, Collection<OnenoteSection> => "{{section_group}}/{{id}}/sections" );
     get!( | get, SectionGroup => "{{section_group}}/{{id}}" );
@@ -160,7 +159,7 @@ impl<'a, I> OnenoteSectionGroupRequest<'a, I> {
 
 register_client!(OnenotePageRequest,);
 
-impl<'a, I> OnenotePageRequest<'a, I> {
+impl<'a> OnenotePageRequest<'a> {
     get!( list, Collection<OnenotePage> => "{{pages}}" );
     get!( | get, OnenotePage => "{{pages}}/{{id}}" );
     get!( | content, GraphResponse<Content> => "{{pages}}/{{id}}/content" );

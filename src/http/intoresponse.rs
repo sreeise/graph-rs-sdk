@@ -20,28 +20,25 @@ pub trait ToResponse {
     fn value(&self) -> Self::SerdeJson;
 }
 
-pub struct IntoResponse<'a, I, T> {
+pub struct IntoResponse<'a, T> {
     client: &'a Graph,
-    ident: PhantomData<I>,
-    phantom: PhantomData<T>,
+    ident: PhantomData<T>,
     error: RefCell<Option<GraphFailure>>,
 }
 
-impl<'a, I, T> IntoResponse<'a, I, T> {
-    pub fn new(client: &'a Graph) -> IntoResponse<I, T> {
+impl<'a, T> IntoResponse<'a, T> {
+    pub fn new(client: &'a Graph) -> IntoResponse<'a, T> {
         IntoResponse {
             client,
             ident: PhantomData,
-            phantom: PhantomData,
             error: RefCell::new(None),
         }
     }
 
-    pub(crate) fn new_error(client: &'a Graph, error: GraphFailure) -> IntoResponse<I, T> {
+    pub(crate) fn new_error(client: &'a Graph, error: GraphFailure) -> IntoResponse<'a, T> {
         IntoResponse {
             client,
             ident: PhantomData,
-            phantom: PhantomData,
             error: RefCell::new(Some(error)),
         }
     }
@@ -186,7 +183,7 @@ impl<'a, I, T> IntoResponse<'a, I, T> {
     }
 }
 
-impl<'a, I, T> ToResponse for IntoResponse<'a, I, T>
+impl<'a, T> ToResponse for IntoResponse<'a, T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
@@ -206,7 +203,7 @@ where
     }
 }
 
-impl<'a, I> ToResponse for IntoResponse<'a, I, UploadSessionClient> {
+impl<'a> ToResponse for IntoResponse<'a, UploadSessionClient> {
     type Output = GraphResult<UploadSessionClient>;
     type SerdeJson = GraphResult<GraphResponse<serde_json::Value>>;
 
@@ -224,7 +221,7 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, UploadSessionClient> {
     }
 }
 
-impl<'a, I> ToResponse for IntoResponse<'a, I, GraphResponse<Content>> {
+impl<'a> ToResponse for IntoResponse<'a, GraphResponse<Content>> {
     type Output = GraphResult<GraphResponse<Content>>;
     type SerdeJson = GraphResult<GraphResponse<serde_json::Value>>;
 
@@ -257,8 +254,8 @@ impl<'a, I> ToResponse for IntoResponse<'a, I, GraphResponse<Content>> {
     }
 }
 
-impl<'a, I, T: 'static + Send + NextLink + Clone> ToResponse
-    for IntoResponse<'a, I, DeltaRequest<T>>
+impl<'a, T: 'static + Send + NextLink + Clone> ToResponse
+    for IntoResponse<'a, DeltaRequest<T>>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
