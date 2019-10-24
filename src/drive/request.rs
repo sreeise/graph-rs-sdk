@@ -13,7 +13,6 @@ use graph_rs_types::entitytypes::{
 use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use reqwest::Method;
-use serde::export::PhantomData;
 use serde_json::json;
 use std::fs::File;
 use std::path::Path;
@@ -45,7 +44,7 @@ register_client!(
     drive_root_path => "drive/root", "root", Ident::Drives,
 );
 
-impl<'a, I> DriveRequest<'a, I> {
+impl<'a> DriveRequest<'a> {
     get!( drive, BaseItem => "{{drive_root}}" );
     get!( root, DriveItem => "{{drive_root}}/root" );
     get!( recent, Collection<DriveItem> => "{{drive_root}}/recent" );
@@ -69,7 +68,7 @@ impl<'a, I> DriveRequest<'a, I> {
     pub fn list_children<S: AsRef<str>>(
         &'a self,
         id: S,
-    ) -> IntoResponse<'a, I, Collection<DriveItem>> {
+    ) -> IntoResponse<'a, Collection<DriveItem>> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -82,7 +81,7 @@ impl<'a, I> DriveRequest<'a, I> {
     pub fn item_activity<S: AsRef<str>>(
         &'a self,
         id: S,
-    ) -> IntoResponse<'a, I, Collection<DriveItem>> {
+    ) -> IntoResponse<'a, Collection<DriveItem>> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -92,7 +91,7 @@ impl<'a, I> DriveRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, DriveItem> {
+    pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, DriveItem> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -106,7 +105,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         body: &B,
-    ) -> IntoResponse<'a, I, DriveItem> {
+    ) -> IntoResponse<'a, DriveItem> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
@@ -124,7 +123,7 @@ impl<'a, I> DriveRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn delete<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<Content>> {
+    pub fn delete<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, GraphResponse<Content>> {
         self.client.builder().set_method(Method::DELETE);
         render_path!(
             self.client,
@@ -138,7 +137,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         body: &B,
-    ) -> IntoResponse<'a, I, DriveItem> {
+    ) -> IntoResponse<'a, DriveItem> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
@@ -165,7 +164,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         body: &B,
-    ) -> IntoResponse<'a, I, GraphResponse<Content>> {
+    ) -> IntoResponse<'a, GraphResponse<Content>> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
@@ -186,7 +185,7 @@ impl<'a, I> DriveRequest<'a, I> {
     pub fn list_versions<S: AsRef<str>>(
         &self,
         id: S,
-    ) -> IntoResponse<'a, I, Collection<DriveItemVersion>> {
+    ) -> IntoResponse<'a, Collection<DriveItemVersion>> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -201,7 +200,7 @@ impl<'a, I> DriveRequest<'a, I> {
         id: S,
         thumb_id: &str,
         size: &str,
-    ) -> IntoResponse<'a, I, Thumbnail> {
+    ) -> IntoResponse<'a, Thumbnail> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -220,7 +219,7 @@ impl<'a, I> DriveRequest<'a, I> {
         id: S,
         thumb_id: &str,
         size: &str,
-    ) -> IntoResponse<'a, I, Vec<u8>> {
+    ) -> IntoResponse<'a, Vec<u8>> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -238,7 +237,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         file: P,
-    ) -> IntoResponse<'a, I, DriveItem> {
+    ) -> IntoResponse<'a, DriveItem> {
         let file = File::open(file).map_err(GraphFailure::from);
         if let Err(err) = file {
             return IntoResponse::new_error(self.client, err);
@@ -260,7 +259,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         file: P,
-    ) -> IntoResponse<'a, I, DriveItem> {
+    ) -> IntoResponse<'a, DriveItem> {
         if id.as_ref().starts_with(':') {
             let file = File::open(file).map_err(GraphFailure::from);
             if let Err(err) = file {
@@ -312,7 +311,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         version_id: S,
-    ) -> IntoResponse<'a, I, GraphResponse<Content>> {
+    ) -> IntoResponse<'a, GraphResponse<Content>> {
         self.client.builder().set_method(Method::POST);
         render_path!(
             self.client,
@@ -330,7 +329,7 @@ impl<'a, I> DriveRequest<'a, I> {
         id: S,
         file: P,
         body: &B,
-    ) -> IntoResponse<'a, I, UploadSessionClient> {
+    ) -> IntoResponse<'a, UploadSessionClient> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
@@ -353,7 +352,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         body: Option<&B>,
-    ) -> IntoResponse<'a, I, ItemPreviewInfo> {
+    ) -> IntoResponse<'a, ItemPreviewInfo> {
         if let Some(body) = body {
             let body = serde_json::to_string(body);
             if let Ok(body) = body {
@@ -378,7 +377,7 @@ impl<'a, I> DriveRequest<'a, I> {
         IntoResponse::new(self.client)
     }
 
-    pub fn content<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, GraphResponse<Content>> {
+    pub fn content<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, GraphResponse<Content>> {
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
@@ -409,7 +408,7 @@ impl<'a, I> DriveRequest<'a, I> {
     pub fn check_out<S: AsRef<str>>(
         &'a self,
         id: S,
-    ) -> IntoResponse<'a, I, GraphResponse<Content>> {
+    ) -> IntoResponse<'a, GraphResponse<Content>> {
         render_path!(
             self.client,
             template(id.as_ref(), "checkout").as_str(),
@@ -426,7 +425,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         body: &B,
-    ) -> IntoResponse<'a, I, GraphResponse<Content>> {
+    ) -> IntoResponse<'a, GraphResponse<Content>> {
         render_path!(
             self.client,
             template(id.as_ref(), "checkin").as_str(),
@@ -449,7 +448,7 @@ impl<'a, I> DriveRequest<'a, I> {
         &'a self,
         id: S,
         body: &B,
-    ) -> IntoResponse<'a, I, DriveItem> {
+    ) -> IntoResponse<'a, DriveItem> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
@@ -473,7 +472,7 @@ impl<'a, I> DriveRequest<'a, I> {
         start: &str,
         end: Option<&str>,
         interval: &str,
-    ) -> IntoResponse<'a, I, ItemActivityStat> {
+    ) -> IntoResponse<'a, ItemActivityStat> {
         self.client.builder().set_method(Method::GET);
         if let Some(end) = end {
             let interval = format!(

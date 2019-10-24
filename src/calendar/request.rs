@@ -4,11 +4,10 @@ use crate::http::{GraphResponse, IntoResponse};
 use crate::types::{collection::Collection, content::Content};
 use graph_rs_types::entitytypes::{Calendar, CalendarGroup, Event};
 use reqwest::Method;
-use std::marker::PhantomData;
 
 register_client!(CalendarRequest,);
 
-impl<'a, I> CalendarRequest<'a, I> {
+impl<'a> CalendarRequest<'a> {
     get!( list, Collection<Calendar> => "calendars" );
     get!( get_default, Calendar => "calendar" );
     get!( | get, Calendar => "calendars/{{id}}" );
@@ -18,27 +17,27 @@ impl<'a, I> CalendarRequest<'a, I> {
     post!( | create, Calendar => "calendars" );
     delete!( | delete, GraphResponse<Content> => "calendars/{{id}}" );
 
-    pub fn attachments(&'a self) -> CalendarAttachmentRequest<'a, I> {
+    pub fn attachments(&'a self) -> CalendarAttachmentRequest<'a> {
         CalendarAttachmentRequest::new(self.client)
     }
 
-    pub fn views(&self) -> CalendarViewRequest<'a, I> {
+    pub fn views(&self) -> CalendarViewRequest<'a> {
         CalendarViewRequest::new(self.client)
     }
 
-    pub fn groups(&self) -> CalendarGroupRequest<'a, I> {
+    pub fn groups(&self) -> CalendarGroupRequest<'a> {
         CalendarGroupRequest::new(self.client)
     }
 }
 
 register_client!(CalendarViewRequest,);
 
-impl<'a, I> CalendarViewRequest<'a, I> {
+impl<'a> CalendarViewRequest<'a> {
     pub fn list_default_view(
         &self,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, I, Collection<Calendar>> {
+    ) -> IntoResponse<'a, Collection<Calendar>> {
         self.client
             .builder()
             .set_method(Method::GET)
@@ -60,7 +59,7 @@ impl<'a, I> CalendarViewRequest<'a, I> {
         id: &str,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, I, Collection<Calendar>> {
+    ) -> IntoResponse<'a, Collection<Calendar>> {
         self.client
             .builder()
             .set_method(Method::GET)
@@ -82,7 +81,7 @@ impl<'a, I> CalendarViewRequest<'a, I> {
         calendar_id: &str,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, I, Collection<Calendar>> {
+    ) -> IntoResponse<'a, Collection<Calendar>> {
         self.client
             .builder()
             .set_method(Method::GET)
@@ -105,7 +104,7 @@ impl<'a, I> CalendarViewRequest<'a, I> {
         calendar_id: &str,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, I, Collection<Calendar>> {
+    ) -> IntoResponse<'a, Collection<Calendar>> {
         self.client
             .builder()
             .set_method(Method::GET)
@@ -131,7 +130,7 @@ impl<'a, I> CalendarViewRequest<'a, I> {
 
 register_client!(CalendarGroupRequest,);
 
-impl<'a, I> CalendarGroupRequest<'a, I> {
+impl<'a> CalendarGroupRequest<'a> {
     get!( list, Collection<CalendarGroup> => "calendarGroups" );
     get!( | get, CalendarGroup => "calendarGroups/{{id}}" );
     get!( list_default_calendars, Collection<Calendar> => "calendarGroup/calendars" );
@@ -147,7 +146,7 @@ impl<'a, I> CalendarGroupRequest<'a, I> {
     patch!( [ | update, CalendarGroup => "calendarGroups/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "calendarGroups/{{id}}" );
 
-    pub fn attachments(&'a self) -> CalendarGroupAttachmentRequest<'a, I> {
+    pub fn attachments(&'a self) -> CalendarGroupAttachmentRequest<'a> {
         CalendarGroupAttachmentRequest::new(self.client)
     }
 }

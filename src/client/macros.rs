@@ -3,13 +3,12 @@ macro_rules! register_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ) => {
         $( register_helper!($helper, $value); )*
 
-        pub struct $name<'a, I> {
+        pub struct $name<'a> {
             client: &'a Graph,
-            ident: PhantomData<I>,
         }
 
-        impl<'a, I> $name<'a, I> {
-            pub fn new(client: &'a Graph) -> $name<'a, I> {
+        impl<'a> $name<'a> {
+            pub fn new(client: &'a Graph) -> $name<'a> {
 
                 $(
                     client.registry()
@@ -18,20 +17,18 @@ macro_rules! register_client {
 
                 $name {
                     client,
-                    ident: PhantomData,
                 }
             }
         }
     };
 
     ( $name:ident, $($helper:ident => $value:expr, $value2:expr, $identity:expr,)* ) => {
-        pub struct $name<'a, I> {
+        pub struct $name<'a> {
             client: &'a Graph,
-            ident: PhantomData<I>,
         }
 
-        impl<'a, I> $name<'a, I> {
-            pub fn new(client: &'a Graph) -> $name<'a, I> {
+        impl<'a> $name<'a> {
+            pub fn new(client: &'a Graph) -> $name<'a> {
                 let ident = client.ident();
                 $(
                     client.registry().register_helper(
@@ -56,7 +53,6 @@ macro_rules! register_client {
 
                 $name {
                     client,
-                    ident: PhantomData,
                 }
             }
         }
@@ -68,13 +64,12 @@ macro_rules! register_ident_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ()) => {
         $( register_helper!($helper, $value); )*
 
-        pub struct $name<'a, I> {
+        pub struct $name<'a> {
             client: &'a Graph,
-            ident: PhantomData<I>,
         }
 
-        impl<'a, I> $name<'a, I> {
-            pub fn new(id: &str, client: &'a Graph) -> $name<'a, I> {
+        impl<'a> $name<'a> {
+            pub fn new(id: &str, client: &'a Graph) -> $name<'a> {
                 $(
                     client.registry()
                         .register_helper(stringify!($helper), Box::new($helper));
@@ -95,7 +90,6 @@ macro_rules! register_ident_client {
 
                 $name {
                     client,
-                    ident: PhantomData,
                 }
             }
         }
@@ -104,14 +98,13 @@ macro_rules! register_ident_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ) => {
         $( register_helper!($helper, $value); )*
 
-        pub struct $name<'a, I> {
+        pub struct $name<'a> {
             client: &'a Graph,
-            ident: PhantomData<I>,
             id: String,
         }
 
-        impl<'a, I> $name<'a, I> {
-            pub fn new(id: &str, client: &'a Graph) -> $name<'a, I> {
+        impl<'a> $name<'a> {
+            pub fn new(id: &str, client: &'a Graph) -> $name<'a> {
                 $(
                     client.registry()
                         .register_helper(stringify!($helper), Box::new($helper));
@@ -132,7 +125,6 @@ macro_rules! register_ident_client {
 
                 $name {
                     client,
-                    ident: PhantomData,
                     id: id.into(),
                 }
             }
@@ -152,32 +144,32 @@ macro_rules! register_ident_client {
                 }
             }
 
-            pub fn drive(&'a self) -> DriveRequest<'a, I> {
+            pub fn drive(&'a self) -> DriveRequest<'a> {
                 self.set_path();
                 DriveRequest::new(self.client)
             }
 
-            pub fn mail(&'a self) -> MailRequest<'a, I> {
+            pub fn mail(&'a self) -> MailRequest<'a> {
                 self.set_path();
                 MailRequest::new(self.client)
             }
 
-            pub fn calendar(&'a self) -> CalendarRequest<'a, I> {
+            pub fn calendar(&'a self) -> CalendarRequest<'a> {
                 self.set_path();
                 CalendarRequest::new(self.client)
             }
 
-            pub fn onenote(&'a self) -> OnenoteRequest<'a, I> {
+            pub fn onenote(&'a self) -> OnenoteRequest<'a> {
                 self.set_path();
                 OnenoteRequest::new(self.client)
             }
 
-            pub fn contacts(&'a self) -> ContactsRequest<'a, I> {
+            pub fn contacts(&'a self) -> ContactsRequest<'a> {
                 self.set_path();
                 ContactsRequest::new(self.client)
             }
 
-            pub fn attachments(&'a self) -> AttachmentRequest<'a, I> {
+            pub fn attachments(&'a self) -> AttachmentRequest<'a> {
                 self.set_path();
                 AttachmentRequest::new(self.client)
             }
@@ -238,7 +230,7 @@ macro_rules! render_path {
 #[macro_use]
 macro_rules! register_method {
     ( $name:ident, $T:ty => $template:expr, $m:expr ) => {
-      pub fn $name(&'a self) -> IntoResponse<'a, I, $T> {
+      pub fn $name(&'a self) -> IntoResponse<'a, $T> {
         self.client.builder()
             .set_method($m);
 
@@ -251,7 +243,7 @@ macro_rules! register_method {
     };
 
     ( | $name:ident, $T:ty => $template:expr, $m:expr ) => {
-      pub fn $name<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, I, $T> {
+      pub fn $name<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, $T> {
         self.client.builder()
             .set_method($m);
 
@@ -265,7 +257,7 @@ macro_rules! register_method {
     };
 
     ( || $name:ident, $T:ty => $template:expr, $m:expr ) => {
-      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S) -> IntoResponse<'a, I, $T> {
+      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S) -> IntoResponse<'a, $T> {
         self.client.builder()
             .set_method($m);
 
@@ -279,7 +271,7 @@ macro_rules! register_method {
     };
 
     ( ||| $name:ident, $T:ty => $template:expr, $m:expr ) => {
-      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S) -> IntoResponse<'a, I, $T> {
+      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S) -> IntoResponse<'a, $T> {
         self.client.builder()
             .set_method($m);
 
@@ -293,7 +285,7 @@ macro_rules! register_method {
     };
 
     ( |||| $name:ident, $T:ty => $template:expr, $m:expr ) => {
-      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S, id4: S) -> IntoResponse<'a, I, $T> {
+      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S, id4: S) -> IntoResponse<'a, $T> {
         self.client.builder()
             .set_method($m);
 
@@ -312,7 +304,7 @@ macro_rules! register_method {
     };
 
     ( [ $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
-      pub fn $name<B: serde::Serialize>(&'a self, body: &B) -> IntoResponse<'a, I, $T> {
+      pub fn $name<B: serde::Serialize>(&'a self, body: &B) -> IntoResponse<'a, $T> {
         self.client.builder()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
@@ -326,7 +318,7 @@ macro_rules! register_method {
     };
 
     ( [ | $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
-      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, body: &B) -> IntoResponse<'a, I, $T> {
+      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, body: &B) -> IntoResponse<'a, $T> {
         self.client.builder()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
@@ -341,7 +333,7 @@ macro_rules! register_method {
     };
 
     ( [ || $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
-      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, body: &B) -> IntoResponse<'a, I, $T> {
+      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, body: &B) -> IntoResponse<'a, $T> {
         self.client.builder()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
@@ -356,7 +348,7 @@ macro_rules! register_method {
     };
 
     ( [ ||| $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
-      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, id3: S, body: &B) -> IntoResponse<'a, I, $T> {
+      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, id3: S, body: &B) -> IntoResponse<'a, $T> {
         self.client.builder()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());

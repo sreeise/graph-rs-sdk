@@ -8,7 +8,6 @@ use graph_rs_types::entitytypes::{
 };
 use handlebars::*;
 use reqwest::Method;
-use std::marker::PhantomData;
 
 register_client!(
     MailRequest,
@@ -19,29 +18,29 @@ register_client!(
     olc => "outlook/masterCategories",
 );
 
-impl<'a, I> MailRequest<'a, I> {
+impl<'a> MailRequest<'a> {
     get!( mail_tips, Collection<MailTips> => "getMailTips" );
 
-    pub fn messages(&'a self) -> MessageRequest<'a, I> {
+    pub fn messages(&'a self) -> MessageRequest<'a> {
         MessageRequest::new(self.client)
     }
 
-    pub fn mail_folder(&'a self) -> MailFolderRequest<'a, I> {
+    pub fn mail_folder(&'a self) -> MailFolderRequest<'a> {
         MailFolderRequest::new(self.client)
     }
 
-    pub fn focused_inbox(&'a self) -> FocusedInboxRequest<'a, I> {
+    pub fn focused_inbox(&'a self) -> FocusedInboxRequest<'a> {
         FocusedInboxRequest::new(self.client)
     }
 
-    pub fn outlook_category(&'a self) -> OutlookCategoryRequest<'a, I> {
+    pub fn outlook_category(&'a self) -> OutlookCategoryRequest<'a> {
         OutlookCategoryRequest::new(self.client)
     }
 }
 
 register_client!(MessageRequest,);
 
-impl<'a, I> MessageRequest<'a, I> {
+impl<'a> MessageRequest<'a> {
     get!( list, Collection<Message> => "{{mm}}" );
     get!( | get, Message => "{{mm}}/{{id}}" );
     get!( content, GraphResponse<Content> => "{{mm}}/{{id}}/$value" );
@@ -59,14 +58,14 @@ impl<'a, I> MessageRequest<'a, I> {
     patch!( [ | update, Message => "{{mm}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{mm}}/{{id}}" );
 
-    pub fn attachments(&'a self) -> MailMessageAttachmentRequest<'a, I> {
+    pub fn attachments(&'a self) -> MailMessageAttachmentRequest<'a> {
         MailMessageAttachmentRequest::new(self.client)
     }
 }
 
 register_client!(MailFolderRequest,);
 
-impl<'a, I> MailFolderRequest<'a, I> {
+impl<'a> MailFolderRequest<'a> {
     get!( list, Collection<MailFolder> => "{{mf}}" );
     get!( | list_child_folders, Collection<MailFolder> => "{{mf}}/{{id}}/childFolders" );
     get!( | get, MailFolder => "{{mf}}/{{id}}" );
@@ -95,22 +94,22 @@ impl<'a, I> MailFolderRequest<'a, I> {
     patch!( [ | update, MailFolder => "{{mf}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{mf}}/{{id}}" );
 
-    pub fn messages(&'a self) -> MailFolderMessageRequest<'a, I> {
+    pub fn messages(&'a self) -> MailFolderMessageRequest<'a> {
         MailFolderMessageRequest::new(self.client)
     }
 
-    pub fn rules(&'a self) -> MailRuleRequest<'a, I> {
+    pub fn rules(&'a self) -> MailRuleRequest<'a> {
         MailRuleRequest::new(self.client)
     }
 
-    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a, I> {
+    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a> {
         MailFolderMessageAttachmentRequest::new(self.client)
     }
 }
 
 register_client!(MailFolderMessageRequest,);
 
-impl<'a, I> MailFolderMessageRequest<'a, I> {
+impl<'a> MailFolderMessageRequest<'a> {
     get!( | list, Collection<Message> => "{{mf}}/{{id}}/messages" );
     get!( || get, Collection<Message> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
     get!( || list_attachments, Collection<Attachment> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" );
@@ -162,14 +161,14 @@ impl<'a, I> MailFolderMessageRequest<'a, I> {
     patch!( [ || update, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}" ] );
     delete!( || delete, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
 
-    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a, I> {
+    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a> {
         MailFolderMessageAttachmentRequest::new(self.client)
     }
 }
 
 register_client!(MailRuleRequest,);
 
-impl<'a, I> MailRuleRequest<'a, I> {
+impl<'a> MailRuleRequest<'a> {
     get!( list, Collection<MessageRule> => "{{mfmr}}" );
     get!( | get, MessageRule => "{{mfmr}}/{{id}}" );
     post!( [ create, MessageRule => "{{mfmr}}" ] );
@@ -179,7 +178,7 @@ impl<'a, I> MailRuleRequest<'a, I> {
 
 register_client!(FocusedInboxRequest,);
 
-impl<'a, I> FocusedInboxRequest<'a, I> {
+impl<'a> FocusedInboxRequest<'a> {
     get!( list_overrides, Collection<InferenceClassificationOverride> => "{{ico}}" );
     patch!( [ create_override, InferenceClassificationOverride => "{{ico}}" ] );
     patch!( [ | update_override, InferenceClassificationOverride => "{{ico}}/{{id}}" ] );
@@ -188,7 +187,7 @@ impl<'a, I> FocusedInboxRequest<'a, I> {
 
 register_client!(OutlookCategoryRequest,);
 
-impl<'a, I> OutlookCategoryRequest<'a, I> {
+impl<'a> OutlookCategoryRequest<'a> {
     get!( list, Collection<OutlookCategory> => "{{olc}}" );
     get!( | get, OutlookCategory => "{{olc}}/{{id}}" );
     post!( [ create, OutlookCategory  => "{{olc}}" ] );

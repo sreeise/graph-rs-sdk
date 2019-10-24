@@ -4,7 +4,6 @@ use crate::types::{collection::Collection, content::Content, delta::DeltaRequest
 use graph_rs_types::entitytypes::{Contact, ContactFolder};
 use handlebars::*;
 use reqwest::Method;
-use std::marker::PhantomData;
 
 register_client!(
     ContactsRequest,
@@ -12,7 +11,7 @@ register_client!(
     cf => "contactfolders",
 );
 
-impl<'a, I> ContactsRequest<'a, I> {
+impl<'a> ContactsRequest<'a> {
     get!( delta, DeltaRequest<Collection<Contact>> => "{{ct}}/delta" );
     get!( list, Collection<Contact> => "{{ct}}" );
     get!( | get, Contact => "{{ct}}/{{id}}" );
@@ -20,14 +19,14 @@ impl<'a, I> ContactsRequest<'a, I> {
     patch!( [ | update, Contact => "{{ct}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{ct}}/{{id}}" );
 
-    pub fn contacts_folder(&'a self) -> ContactsFolderRequest<'a, I> {
+    pub fn contacts_folder(&'a self) -> ContactsFolderRequest<'a> {
         ContactsFolderRequest::new(self.client)
     }
 }
 
 register_client!(ContactsFolderRequest,);
 
-impl<'a, I> ContactsFolderRequest<'a, I> {
+impl<'a> ContactsFolderRequest<'a> {
     get!( delta, DeltaRequest<Collection<ContactFolder>> => "{{cf}}/delta" );
     get!( | get, ContactFolder => "{{cf}}/{{id}}" );
     get!( | list_child_folders, Collection<ContactFolder> => "{{cf}}/{{id}}/childFolders" );
@@ -35,14 +34,14 @@ impl<'a, I> ContactsFolderRequest<'a, I> {
     patch!( [ | update, ContactFolder => "{{cf}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{cf}}/{{id}}" );
 
-    pub fn contacts(&'a self) -> ContactsFolderContactsRequest<'a, I> {
+    pub fn contacts(&'a self) -> ContactsFolderContactsRequest<'a> {
         ContactsFolderContactsRequest::new(self.client)
     }
 }
 
 register_client!(ContactsFolderContactsRequest,);
 
-impl<'a, I> ContactsFolderContactsRequest<'a, I> {
+impl<'a> ContactsFolderContactsRequest<'a> {
     get!( | delta, DeltaRequest<Collection<Contact>> => "{{cf}}/{{id}}/{{ct}}/delta" );
     get!( | list, Collection<Contact> => "{{cf}}/{{id}}/{{ct}}" );
     post!( [ | create, Contact => "{{cf}}/{{id}}" ] );

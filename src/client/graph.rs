@@ -25,7 +25,6 @@ use reqwest::header::{HeaderValue, ACCEPT};
 use reqwest::Method;
 use std::cell::{Cell, RefCell, RefMut};
 use std::convert::TryFrom;
-use std::marker::PhantomData;
 use std::str::FromStr;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
@@ -201,33 +200,27 @@ pub struct Identify<'a> {
     client: &'a Graph,
 }
 
-// Constraint for the me only path.
-pub struct IdentifyMe {}
-
-// Constraint for the non-me paths.
-pub struct IdentifyCommon {}
-
 impl<'a> Identify<'a> {
     /// Select the me endpoint.
-    pub fn me(&self) -> IdentMe<'a, IdentifyMe> {
+    pub fn me(&self) -> IdentMe<'a> {
         self.client.request().set_ident(Ident::Me);
         IdentMe::new("", self.client)
     }
 
     /// Select the drives endpoint.
-    pub fn drives<S: AsRef<str>>(&self, id: S) -> IdentDrives<'a, IdentifyCommon> {
+    pub fn drives<S: AsRef<str>>(&self, id: S) -> IdentDrives<'a> {
         self.client.request().set_ident(Ident::Drives);
         IdentDrives::new(id.as_ref(), self.client)
     }
 
     /// Select the sites endpoint.
-    pub fn sites<S: AsRef<str>>(&self, id: S) -> IdentSites<'a, IdentifyCommon> {
+    pub fn sites<S: AsRef<str>>(&self, id: S) -> IdentSites<'a> {
         self.client.request().set_ident(Ident::Sites);
         IdentSites::new(id.as_ref(), self.client)
     }
 
     /// Select the groups endpoint.
-    pub fn groups<S: AsRef<str>>(&self, id: S) -> IdentGroups<'a, IdentifyCommon> {
+    pub fn groups<S: AsRef<str>>(&self, id: S) -> IdentGroups<'a> {
         self.client.request().set_ident(Ident::Groups);
         IdentGroups::new(id.as_ref(), self.client)
     }
@@ -236,12 +229,12 @@ impl<'a> Identify<'a> {
     pub fn group_lifecycle_policies<S: AsRef<str>>(
         &self,
         id: S,
-    ) -> GroupLifecyclePolicyRequest<'a, IdentifyCommon> {
+    ) -> GroupLifecyclePolicyRequest<'a> {
         GroupLifecyclePolicyRequest::new(id.as_ref(), self.client)
     }
 
     /// Select the users endpoint.
-    pub fn users<S: AsRef<str>>(&self, id: S) -> IdentUsers<'a, IdentifyCommon> {
+    pub fn users<S: AsRef<str>>(&self, id: S) -> IdentUsers<'a> {
         self.client.request().set_ident(Ident::Users);
         IdentUsers::new(id.as_ref(), self.client)
     }
@@ -249,7 +242,7 @@ impl<'a> Identify<'a> {
     pub fn batch<B: serde::Serialize>(
         &self,
         batch: &B,
-    ) -> IntoResponse<'a, IdentifyCommon, DeltaRequest<serde_json::Value>> {
+    ) -> IntoResponse<'a, DeltaRequest<serde_json::Value>> {
         self.client
             .builder()
             .set_method(Method::POST)
@@ -270,18 +263,18 @@ register_ident_client!(IdentSites,);
 register_ident_client!(IdentGroups,);
 register_ident_client!(IdentUsers,);
 
-impl<'a, I> IdentMe<'a, I> {
+impl<'a> IdentMe<'a> {
     get!( get, User => "me" );
     get!( list_events, Collection<Event> => "me/events" );
     get!( settings, UserSettings => "me/settings" );
     patch!( [ update_settings, UserSettings => "me/settings" ] );
 }
 
-impl<'a, I> IdentDrives<'a, I> {
+impl<'a> IdentDrives<'a> {
     get!( get, Drive => "drive/{{RID}}" );
 }
 
-impl<'a, I> IdentSites<'a, I> {
+impl<'a> IdentSites<'a> {
     get!( get, Site => "sites/{{RID}}" );
     get!( list_subsites, Collection<Site> => "sites/{{RID}}/sites" );
     get!( root, Site => "sites/root" );
@@ -290,7 +283,7 @@ impl<'a, I> IdentSites<'a, I> {
     get!( | item_analytics, ItemAnalytics => "sites/{{RID}}/items/{{id}}/analytics" );
     get!( | list_item_versions, ListItemVersion => "sites/{{RID}}/items/{{id}}/versions" );
 
-    pub fn lists(&'a self) -> SiteListRequest<'a, I> {
+    pub fn lists(&'a self) -> SiteListRequest<'a> {
         SiteListRequest::new(self.client)
     }
 
@@ -299,7 +292,7 @@ impl<'a, I> IdentSites<'a, I> {
         start: &str,
         end: Option<&str>,
         interval: &str,
-    ) -> IntoResponse<'a, I, ItemActivityStat> {
+    ) -> IntoResponse<'a, ItemActivityStat> {
         self.client.builder().set_method(Method::GET);
 
         if let Some(end) = end {
@@ -323,19 +316,19 @@ impl<'a, I> IdentSites<'a, I> {
 
 register_client!(SiteListRequest,);
 
-impl<'a, I> SiteListRequest<'a, I> {
+impl<'a> SiteListRequest<'a> {
     get!( list, Collection<List> => "sites/{{RID}}/lists" );
     get!( | get, List => "sites/{{RID}}/lists/{{id}}" );
     post!( [ create, List => "sites/{{RID}}/lists" ] );
 
-    pub fn items(&'a self) -> SiteListItemRequest<'a, I> {
+    pub fn items(&'a self) -> SiteListItemRequest<'a> {
         SiteListItemRequest::new(self.client)
     }
 }
 
 register_client!(SiteListItemRequest,);
 
-impl<'a, I> SiteListItemRequest<'a, I> {
+impl<'a> SiteListItemRequest<'a> {
     get!( | list, Collection<ListItem> => "sites/{{RID}}/lists/{{id}}/items" );
     get!( || get, ListItem => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" );
     get!( || analytics, ItemAnalytics => "sites/{{RID}}/lists/{{id}}/items/{{id2}}/analytics" );
@@ -346,7 +339,7 @@ impl<'a, I> SiteListItemRequest<'a, I> {
     delete!( || delete, GraphResponse<Content> => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" );
 }
 
-impl<'a, I> IdentGroups<'a, I> {
+impl<'a> IdentGroups<'a> {
     get!( list, Collection<Group> => "groups" );
     get!( get, Group => "groups/{{RID}}" );
     get!( delta, DeltaRequest<Collection<Group>> => "groups/delta" );
@@ -377,15 +370,15 @@ impl<'a, I> IdentGroups<'a, I> {
     delete!( | remove_member, GraphResponse<Content> => "groups/{{RID}}/members/{{id}}/$ref" );
     delete!( | remove_owner, GraphResponse<Content> => "groups/{{RID}}/owners/{{id}}/$ref" );
 
-    pub fn conversations(&self) -> GroupConversationRequest<'a, I> {
+    pub fn conversations(&self) -> GroupConversationRequest<'a> {
         GroupConversationRequest::new(self.client)
     }
 
-    pub fn conversation_posts(&'a self) -> GroupConversationPostRequest<'a, I> {
+    pub fn conversation_posts(&'a self) -> GroupConversationPostRequest<'a> {
         GroupConversationPostRequest::new(self.client)
     }
 
-    pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a, I> {
+    pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a> {
         GroupThreadPostRequest::new(self.client)
     }
 }
@@ -395,7 +388,7 @@ register_client!(
     co => "conversations",
 );
 
-impl<'a, I> GroupConversationRequest<'a, I> {
+impl<'a> GroupConversationRequest<'a> {
     get!( list, Collection<Conversation> => "groups/{{RID}}/{{co}}" );
     get!( | list_threads, Collection<ConversationThread> => "groups/{{RID}}/{{co}}/{{id}}/threads" );
     get!( list_accepted_senders, Collection<DirectoryObject> => "groups/{{RID}}/acceptedSenders" );
@@ -405,24 +398,24 @@ impl<'a, I> GroupConversationRequest<'a, I> {
     post!( [ create_accepted_sender, GraphResponse<Content> => "groups/{{RID}}/acceptedSenders/$ref" ] );
     delete!( | delete, GraphResponse<Content> => "groups/{{RID}}/{{co}}/{{id}}" );
 
-    pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a, I> {
+    pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a> {
         GroupThreadPostRequest::new(self.client)
     }
 
-    pub fn conversation_posts(&'a self) -> GroupConversationPostRequest<'a, I> {
+    pub fn conversation_posts(&'a self) -> GroupConversationPostRequest<'a> {
         GroupConversationPostRequest::new(self.client)
     }
 }
 
 register_client!(GroupThreadPostRequest,);
 
-impl<'a, I> GroupThreadPostRequest<'a, I> {
+impl<'a> GroupThreadPostRequest<'a> {
     get!( | list, Collection<Post> => "groups/{{RID}}/threads/{{id}}/posts" );
     get!( || get, Post => "groups/{{RID}}/threads/{{id}}/posts/{{id2}}" );
     post!( [ || reply, GraphResponse<Content> => "groups/{{RID}}/threads/{{id}}/posts/{{id2}}/reply" ] );
     post!( [ || forward, GraphResponse<Content> => "groups/{{RID}}/threads/{{id}}/posts/{{id2}}/forward" ] );
 
-    pub fn attachments(&'a self) -> ThreadPostAttachmentRequest<'a, I> {
+    pub fn attachments(&'a self) -> ThreadPostAttachmentRequest<'a> {
         render_path!(self.client, "groups/{{RID}}");
         ThreadPostAttachmentRequest::new(self.client)
     }
@@ -430,19 +423,19 @@ impl<'a, I> GroupThreadPostRequest<'a, I> {
 
 register_client!(GroupConversationPostRequest,);
 
-impl<'a, I> GroupConversationPostRequest<'a, I> {
+impl<'a> GroupConversationPostRequest<'a> {
     get!( || list, Collection<Post> => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts" );
     get!( ||| get, Post => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts/{{id3}}" );
     post!( [ ||| reply, GraphResponse<Content> => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/reply" ] );
     post!( [ ||| forward, GraphResponse<Content> => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/forward" ] );
 
-    pub fn attachments(&'a self) -> ThreadConvoPostAttachmentRequest<'a, I> {
+    pub fn attachments(&'a self) -> ThreadConvoPostAttachmentRequest<'a> {
         render_path!(self.client, "groups/{{RID}}");
         ThreadConvoPostAttachmentRequest::new(self.client)
     }
 }
 
-impl<'a, I> IdentUsers<'a, I> {
+impl<'a> IdentUsers<'a> {
     get!( get, User => "users/{{RID}}" );
     get!( settings, UserSettings => "users/{{RID}}/settings" );
     get!( list, Collection<User> => "users" );
@@ -461,7 +454,7 @@ register_ident_client!(
     ()
 );
 
-impl<'a, I> GroupLifecyclePolicyRequest<'a, I> {
+impl<'a> GroupLifecyclePolicyRequest<'a> {
     get!( list, Collection<GroupLifecyclePolicy> => "{{glp}}" );
     get!( get, Collection<GroupLifecyclePolicy> => "{{glp}}/{{RID}}" );
     post!( [ create, GroupLifecyclePolicy => "{{glp}}" ] );
