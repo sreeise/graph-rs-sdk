@@ -1,6 +1,6 @@
 use crate::idtoken::IdToken;
-use crate::jwt::JwtParser;
-use chrono::{DateTime, Duration, Utc};
+use crate::jwt::{Claim, JsonWebToken, JwtParser};
+use chrono::{DateTime, Duration, TimeZone, Utc};
 use chrono_humanize::HumanTime;
 use from_as::*;
 use graph_error::{GraphError, GraphFailure, GraphHeaders};
@@ -8,37 +8,48 @@ use reqwest::RequestBuilder;
 use reqwest::Response;
 use serde_json;
 use std::convert::TryFrom;
+use std::fmt;
 
-/// AccessToken that is used for api calls to OneDrive and Graph.
+/// OAuth 2.0 Access Token
 ///
-/// The implementation of AccessToken is very generic. Callers should
-/// utilize the builder: oauth::AccessTokenBuilder or use OAuth which
-/// sets AccessTokens automatically. Those who wish to make their own
-/// requests can use the provided TryFrom trait implementations for
-/// converting from a reqwest::Response to an AccessToken:
-///
-///
-/// An access token represents the metadata for a OAuth 2.0 access token.
-/// The token_type, expires_in, scope, and access_token fields are required.
-/// The access_token field is the field normally used to make authenticated
-/// queries.
-///
+/// Create a new AccessToken.
 /// # Example
-/// ```rust,ignore
-/// use graph_rs::oauth::AccessToken;
-/// let access_token = AccessToken::try_from(&mut response); // -> Result<AccessToken>
+/// ```
+/// # use graph_oauth::oauth::AccessToken;
+/// let access_token = AccessToken::new("Bearer", 3600, "Read Read.Write", "ASODFIUJ34KJ;LADSK");
 /// ```
 ///
-/// AccessTokens are returned from the OAuth impl.
+/// You can also get the claims using the claims() method as well as
+/// the remaining duration that the access token is valid using the elapsed()
+/// method.
+///
+/// Tokens returned for personal microsoft accounts that use legacy MSA
+/// are encrypted and cannot be parsed. This bearer token may still be
+/// valid but the jwt() method will return None.
+/// For more info see:
+/// [Microsoft identity platform acccess tokens](https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens)
+///
+///
+/// For tokens where the JWT can be parsed the elapsed() method uses
+/// the `exp` field in the JWT's claims. If the claims do not contain an
+/// `exp` field or the token could not be parsed the elapsed() method
+/// uses the expires_in field returned in the response body to caculate
+/// the remaining time. These fields are only used once during
+/// initialization to set a timestamp for future expiration of the access
+/// token.
+///
 /// # Example
-/// ```rust,ignore
-/// let mut oauth = OAuth::default();
-/// let mut oauth_code_grant = oauth.build().authorization_code_grant();
-/// let req = oauth_code_grant.access_token();
-/// let access_token = oauth.send().unwrap();
-/// println!("{:#?}", access_token);
 /// ```
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, AsFile, FromFile)]
+/// # use graph_oauth::oauth::AccessToken;
+/// # let access_token = AccessToken::new("Bearer", 3600, "Read Read.Write", "ASODFIUJ34KJ;LADSK");
+///
+/// // Claims
+/// println!("{:#?}", access_token.claims());
+///
+/// // Duration left until expired.
+/// println!("{:#?}", access_token.elapsed());
+/// ```
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
 pub struct AccessToken {
     access_token: String,
     token_type: String,
@@ -49,18 +60,13 @@ pub struct AccessToken {
     id_token: Option<String>,
     state: Option<String>,
     timestamp: Option<DateTime<Utc>>,
+    #[serde(skip)]
+    jwt: Option<JsonWebToken>,
 }
 
 impl AccessToken {
-    /// Create a new AccessToken.
-    ///
-    /// # Example
-    /// ```
-    /// # use graph_oauth::oauth::AccessToken;
-    /// let access_token = AccessToken::new("Bearer", 3600, "Read Read.Write", "ASODFIUJ34KJ;LADSK");
-    /// ```
     pub fn new(token_type: &str, expires_in: i64, scope: &str, access_token: &str) -> AccessToken {
-        AccessToken {
+        let mut token = AccessToken {
             token_type: token_type.into(),
             expires_in,
             scope: Some(scope.into()),
@@ -70,7 +76,10 @@ impl AccessToken {
             id_token: None,
             state: None,
             timestamp: Some(Utc::now() + Duration::seconds(expires_in)),
-        }
+            jwt: None,
+        };
+        token.parse_jwt();
+        token
     }
 
     /// Set the token type.
@@ -370,14 +379,40 @@ impl AccessToken {
     /// ```
     pub fn elapsed(&self) -> Option<HumanTime> {
         if let Some(timestamp) = self.timestamp {
-            let ht = HumanTime::from(timestamp + Duration::seconds(self.expires_in));
+            let ht = HumanTime::from(timestamp);
             return Some(ht);
         }
         None
     }
 
-    pub fn is_valid_jwt(&self) -> bool {
-        JwtParser::parse(&self.access_token).is_ok()
+    fn parse_jwt(&mut self) {
+        let mut set_timestamp = false;
+        if let Ok(jwt) = JwtParser::parse(self.bearer_token()) {
+            if let Some(claims) = jwt.claims() {
+                if let Some(claim) = claims
+                    .iter()
+                    .find(|item| item.key().eq(&String::from("exp")))
+                {
+                    let value = claim.value();
+                    let number = value.as_i64().unwrap();
+                    self.timestamp = Some(Utc.timestamp(number, 0));
+                    set_timestamp = true;
+                }
+            }
+            self.jwt = Some(jwt);
+        }
+
+        if !set_timestamp {
+            self.gen_timestamp();
+        }
+    }
+
+    pub fn claims(&self) -> Option<Vec<Claim>> {
+        self.jwt.as_ref()?.claims()
+    }
+
+    pub fn jwt(&self) -> Option<&JsonWebToken> {
+        self.jwt.as_ref()
     }
 }
 
@@ -393,6 +428,7 @@ impl Default for AccessToken {
             id_token: None,
             state: None,
             timestamp: Some(Utc::now() + Duration::seconds(0)),
+            jwt: None,
         }
     }
 }
@@ -402,7 +438,7 @@ impl TryFrom<&str> for AccessToken {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let mut access_token: AccessToken = serde_json::from_str(value)?;
-        access_token.gen_timestamp();
+        access_token.parse_jwt();
         Ok(access_token)
     }
 }
@@ -441,7 +477,18 @@ impl TryFrom<&mut Response> for AccessToken {
             return Err(GraphFailure::from(graph_error));
         }
         let mut access_token: AccessToken = value.json()?;
-        access_token.gen_timestamp();
+        access_token.parse_jwt();
         Ok(access_token)
+    }
+}
+
+impl fmt::Debug for AccessToken {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "[bearer token not shown]\ntoken_type: {:#?}\nexpires_in: \
+             {:#?}\nscope: {:#?}\nuser_id: {:#?}\nstate: {:#?}\ntimestamp: {:#?}",
+            self.token_type, self.expires_in, self.scope, self.user_id, self.state, self.timestamp,
+        )
     }
 }

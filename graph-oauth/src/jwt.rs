@@ -63,9 +63,11 @@ impl Claim {
     }
 }
 
+impl Eq for Claim {}
+
 /// Algorithms used in JSON web tokens (JWT).
 /// Does not implement a complete set of Algorithms used in JWTs.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize, EnumIter)]
+#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Serialize, Deserialize, EnumIter)]
 pub enum Algorithm {
     HS256,
     HS384,
@@ -117,7 +119,7 @@ impl Header {
     }
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct JsonWebToken {
     jwt_type: Option<JwtType>,
     header: Option<Header>,
@@ -206,12 +208,13 @@ impl JwtParser {
 
             let claims_map: Map<String, Value> = serde_json::from_str(&v_owned)?;
 
-            for (i, t) in &claims_map {
-                claims.push(Claim {
-                    key: i.to_owned(),
-                    value: t.to_owned(),
-                });
-            }
+            claims = claims_map
+                .iter()
+                .map(|(key, value)| Claim {
+                    key: key.to_owned(),
+                    value: value.to_owned(),
+                })
+                .collect();
         };
 
         if let Some(c) = claims.iter().find(|v| v.key == "cty") {
