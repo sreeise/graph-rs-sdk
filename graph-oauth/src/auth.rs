@@ -4,6 +4,8 @@ use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
 use from_as::*;
 use graph_error::GraphFailure;
+use openssl::rand::rand_bytes;
+use openssl::sha;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
 use std::convert::TryFrom;
@@ -521,6 +523,53 @@ impl OAuth {
     /// ```
     pub fn code_challenge_method(&mut self, value: &str) -> &mut OAuth {
         self.insert(OAuthCredential::CodeChallengeMethod, value)
+    }
+
+    /// Generate a code challenge and code verifier for the
+    /// authorization code grant flow using proof key for
+    /// code exchange (PKCE) and SHA256.
+    ///
+    /// This method automatically sets the code_verifier,
+    /// code_challenge, and code_challenge_method fields.
+    ///
+    /// For authorization, the code_challenge_method parameter in the request body
+    /// is automatically set to 'S256'.
+    ///
+    /// Internally this method uses the Rust implementation of
+    /// openssl and the rand_bytes method to generate a secure random
+    /// 32-octet sequence that is base64 URL encoded (no padding).
+    /// This sequence is hashed using SHA256 and base64 URL encoded
+    /// (no padding) resulting in a 43-octet URL safe string.
+    ///
+    /// For more info on PKCE and entropy see: https://tools.ietf.org/html/rfc7636#section-7.1
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::oauth::OAuthCredential;
+    /// use openssl::sha::sha256;
+    ///
+    /// let mut oauth = OAuth::new();
+    /// oauth.generate_sha256_challenge_and_verifier();
+    ///
+    /// # assert!(oauth.contains(OAuthCredential::CodeChallenge));
+    /// # assert!(oauth.contains(OAuthCredential::CodeVerifier));
+    /// # assert!(oauth.contains(OAuthCredential::CodeChallengeMethod));
+    /// # let challenge = oauth.get(OAuthCredential::CodeChallenge).unwrap();
+    /// # let hash = sha256(oauth.get(OAuthCredential::CodeVerifier).unwrap().as_bytes());
+    /// # let verifier = base64::encode_config(&hash, base64::URL_SAFE_NO_PAD);
+    /// # assert_eq!(challenge, verifier);
+    ///```
+    pub fn generate_sha256_challenge_and_verifier(&mut self) -> &mut OAuth {
+        let mut buf = [0; 32];
+        rand_bytes(&mut buf).unwrap();
+        let verifier = base64::encode_config(&buf, base64::URL_SAFE_NO_PAD);
+        let code_challenge =
+            base64::encode_config(&sha::sha256(&verifier.as_bytes()), base64::URL_SAFE_NO_PAD);
+        self.code_verifier(&verifier);
+        self.code_challenge(&code_challenge);
+        self.code_challenge_method("S256");
+        self
     }
 
     /// Set the login hint.
@@ -1300,13 +1349,22 @@ pub struct AccessTokenRequest {
 }
 
 impl AccessTokenRequest {
+    /// Send the request for an access token. The response body
+    /// be will converted to an access token and returned.
     pub fn send(&mut self) -> OAuthReq<AccessToken> {
         let client = reqwest::Client::builder().build()?;
         let builder = client.post(self.uri.as_str()).form(&self.params);
         AccessToken::try_from(builder)
     }
 
-    pub fn json(&mut self) -> OAuthReq<serde_json::Value> {
+    /// Send the request for an access token. This method
+    /// can be used to convert response bodies to custom
+    /// objects using the serde crate. The object must implement
+    /// serde deserialize.
+    pub fn json<T>(&mut self) -> OAuthReq<T>
+    where
+        for<'de> T: serde::Deserialize<'de>,
+    {
         let client = reqwest::Client::builder().build()?;
         let builder = client.post(self.uri.as_str()).form(&self.params);
         let mut response = builder.send()?;

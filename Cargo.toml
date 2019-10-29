@@ -36,6 +36,7 @@ openssl-sys = "0.9"
 rayon = "1.0.3"
 getset = "0.0.7"
 log = "0.4"
+base64 = "0.10.1"
 pretty_env_logger = "0.3"
 handlebars = "2.0.2"
 openssl = { version = "^0.10", features = ["vendored"] }
@@ -58,10 +59,10 @@ rocket_codegen = "0.4.2"
 serde = "^1.0"
 serde_json = "^1.0"
 serde_derive = "^1.0"
+lazy_static = "1.4.0"
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
 test-tools = { path = "./test-tools" }
-criterion = "0.2"
 
 [badges]
 travis-ci = { repository = "https://github.com/sreeise/graph-rs", branch = "master" }
