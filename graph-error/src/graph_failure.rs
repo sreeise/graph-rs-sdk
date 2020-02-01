@@ -2,7 +2,7 @@ use crate::error::GraphError;
 use crate::internal::GraphRsError;
 use crate::GraphResult;
 use base64;
-use from_as::FromToError;
+use from_as::FromAsError;
 use reqwest::Response;
 use serde_json;
 use std::cell::BorrowMutError;
@@ -40,7 +40,7 @@ pub enum GraphFailure {
     HyperError(hyper::Error),
     HyperHttpError(hyper::http::Error),
     HyperInvalidUri(hyper::http::uri::InvalidUri),
-    FromAsFileError(FromToError),
+    FromAsFileError(FromAsError),
     GraphRsError(GraphRsError),
 }
 
@@ -260,8 +260,8 @@ impl From<hyper::http::uri::InvalidUri> for GraphFailure {
     }
 }
 
-impl From<FromToError> for GraphFailure {
-    fn from(err: FromToError) -> Self {
+impl From<FromAsError> for GraphFailure {
+    fn from(err: FromAsError) -> Self {
         GraphFailure::FromAsFileError(err)
     }
 }
