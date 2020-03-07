@@ -31,7 +31,9 @@ impl IoTools {
 
         handle.join().expect("Thread could not be joined");
         match receiver.recv() {
-            Ok(t) => Ok(t.ok_or_else(|| GraphFailure::not_found("Unknown error downloading file"))?),
+            Ok(t) => {
+                Ok(t.ok_or_else(|| GraphFailure::not_found("Unknown error downloading file"))?)
+            },
             Err(e) => Err(GraphFailure::from(e)),
         }
     }

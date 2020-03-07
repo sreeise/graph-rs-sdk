@@ -724,10 +724,7 @@ impl OAuth {
     ///
     /// assert_eq!(oauth.join_scopes(" "), "Files.Read Files.ReadWrite");
     /// ```
-    pub fn extend_scopes<T: ToString, I: IntoIterator<Item = T>>(
-        &mut self,
-        iter: I,
-    ) -> &mut Self {
+    pub fn extend_scopes<T: ToString, I: IntoIterator<Item = T>>(&mut self, iter: I) -> &mut Self {
         self.scopes.extend(iter.into_iter().map(|s| s.to_string()));
         self
     }
