@@ -98,7 +98,7 @@ where
     type IntoIter = ::std::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.value.clone().unwrap_or_default().into_iter()
+        self.value.unwrap_or_default().into_iter()
     }
 }
 

@@ -1,5 +1,4 @@
 use graph_rs::prelude::*;
-use std::error::Error;
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::OAuthRequest;
@@ -96,13 +95,13 @@ fn mail_create_and_delete_message() {
                 if let Err(e) = delete_res {
                     panic!(
                         "Request error. Method: mail messages delete. Error: {:#?}",
-                        e.description()
+                        e
                     );
                 }
             } else if let Err(e) = result {
                 panic!(
                     "Request error. Method: mail messages create. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
         }

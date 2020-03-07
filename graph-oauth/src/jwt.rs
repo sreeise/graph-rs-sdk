@@ -1,6 +1,5 @@
 use crate::auth::OAuthReq;
 use crate::oautherror::OAuthError;
-use base64;
 use serde_json::Map;
 use serde_json::Value;
 use std::collections::HashMap;

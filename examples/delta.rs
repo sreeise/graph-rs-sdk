@@ -31,7 +31,7 @@ fn main() {
                         // will return Some(GraphFailure)
                         if let Some(err) = err {
                             println!("Error: {:#?}", err);
-                            println!("Description: {:#?}", err.description());
+                            println!("Description: {:#?}", err);
                         }
 
                         // All next links have been called.
@@ -41,7 +41,7 @@ fn main() {
                 }
             },
             Err(e) => {
-                println!("{:#?}", e.description());
+                println!("{:#?}", e);
                 break;
             },
         }
@@ -88,7 +88,7 @@ pub fn call_response_delta_link() {
                             // will return Some(GraphFailure)
                             if let Some(err) = err {
                                 println!("Error: {:#?}", err);
-                                println!("Description: {:#?}", err.description());
+                                println!("Description: {:#?}", err);
                             }
 
                             // All next links have been called.
@@ -151,7 +151,7 @@ fn delta_my_type() {
                             // will return Some(GraphFailure)
                             if let Some(err) = err {
                                 println!("Error: {:#?}", err);
-                                println!("Description: {:#?}", err.description());
+                                println!("Description: {:#?}", err);
                             }
 
                             // All next links have been called.

@@ -65,7 +65,6 @@
 
 #![feature(vec_remove_item)]
 #![feature(try_trait)]
-#![feature(custom_attribute)]
 #[macro_use]
 extern crate serde_derive;
 extern crate strum;

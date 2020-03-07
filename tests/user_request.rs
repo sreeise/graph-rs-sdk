@@ -1,5 +1,4 @@
 use graph_rs::prelude::*;
-use std::error::Error;
 use test_tools::oauthrequest::OAuthRequest;
 use test_tools::oauthrequest::THROTTLE_MUTEX;
 
@@ -20,7 +19,7 @@ fn user_request_test() {
             } else if let Err(e) = users {
                 panic!(
                     "Request error. Method: users list. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
 
@@ -31,7 +30,7 @@ fn user_request_test() {
             } else if let Err(e) = user_res {
                 panic!(
                     "Request error. Method: users list. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
         }

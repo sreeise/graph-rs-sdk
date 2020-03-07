@@ -1,10 +1,8 @@
 use crate::error::GraphError;
 use crate::internal::GraphRsError;
 use crate::GraphResult;
-use base64;
 use from_as::FromAsError;
 use reqwest::Response;
-use serde_json;
 use std::cell::BorrowMutError;
 use std::convert::TryFrom;
 use std::error::Error;
@@ -14,7 +12,6 @@ use std::str::Utf8Error;
 use std::sync::mpsc;
 use std::sync::mpsc::RecvError;
 use std::{error, fmt, io, num, string};
-use url;
 
 pub trait AsRes<RHS = Self> {
     fn as_err_res<T>(self) -> GraphResult<T>;
@@ -111,29 +108,6 @@ impl fmt::Display for GraphFailure {
 }
 
 impl error::Error for GraphFailure {
-    fn description(&self) -> &str {
-        match *self {
-            GraphFailure::Io(ref err) => err.description(),
-            GraphFailure::Parse(ref err) => error::Error::description(err),
-            GraphFailure::ParseString(ref err) => error::Error::description(err),
-            GraphFailure::Utf8Error(ref err) => err.description(),
-            GraphFailure::ReqwestError(ref err) => err.description(),
-            GraphFailure::ReqwestHeaderToStr(ref err) => err.description(),
-            GraphFailure::SerdeError(ref err) => err.description(),
-            GraphFailure::SerdeYamlError(ref err) => err.description(),
-            GraphFailure::DecodeError(ref err) => err.description(),
-            GraphFailure::GraphError(ref err) => err.description(),
-            GraphFailure::RecvError(ref err) => err.description(),
-            GraphFailure::BorrowMutError(ref err) => err.description(),
-            GraphFailure::UrlParseError(ref err) => error::Error::description(err),
-            GraphFailure::HyperError(ref err) => err.description(),
-            GraphFailure::HyperHttpError(ref err) => err.description(),
-            GraphFailure::HyperInvalidUri(ref err) => err.description(),
-            GraphFailure::FromAsFileError(ref err) => err.description(),
-            GraphFailure::GraphRsError(ref err) => err.description(),
-        }
-    }
-
     fn source<'a>(&'a self) -> Option<&(dyn Error + 'static)> {
         match *self {
             GraphFailure::Io(ref err) => Some(err),

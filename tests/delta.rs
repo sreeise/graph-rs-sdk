@@ -1,5 +1,4 @@
 use graph_rs::prelude::*;
-use std::error::Error;
 use test_tools::oauthrequest::*;
 
 #[test]
@@ -22,7 +21,7 @@ fn delta_req() {
                             if let Some(err) = err {
                                 panic!(
                                     "Request Error. Method: Users delta. Error: {:#?}",
-                                    err.description()
+                                    err
                                 );
                             }
                             is_done = true;
@@ -32,7 +31,7 @@ fn delta_req() {
                     Err(err) => {
                         panic!(
                             "Request Error. Method: Users delta. Error: {:#?}",
-                            err.description()
+                            err
                         );
                     },
                 }

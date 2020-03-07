@@ -1,6 +1,5 @@
 use graph_rs::error::*;
 use graph_rs::prelude::*;
-use std::error::Error;
 use test_tools::oauthrequest::OAuthRequest;
 use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
 
@@ -48,7 +47,7 @@ fn download_config_file_exists() {
                             _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
                         }
                     },
-                    _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err.description())
+                    _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
                 }
             } else if let Ok(path) = result {
                 panic!("Download request should have thrown GraphRsError::DownloadFileExists. Instead got successful PathBuf: {:#?}", path);
@@ -81,7 +80,7 @@ fn download_is_err_config_dir_no_exists() {
                     _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err)
                 }
             },
-            _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err.description())
+            _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err)
         }
     } else if let Ok(path) = result {
         panic!("Download request should have thrown GraphRsError::DownloadDirNoExists. Instead got successful PathBuf: {:#?}", path);

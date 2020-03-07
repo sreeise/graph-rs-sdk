@@ -64,7 +64,7 @@ fn main() {
                         // will return Some(GraphFailure)
                         if let Some(err) = err {
                             println!("Error: {:#?}", err);
-                            println!("Description: {:#?}", err.description());
+                            println!("Description: {:#?}", err);
                         }
 
                         // Break here. The channel has been closed.
@@ -74,7 +74,7 @@ fn main() {
             },
             Err(e) => {
                 println!("Error {:#?}", e);
-                println!("Description: {:#?}", e.description());
+                println!("Description: {:#?}", e);
                 break;
             },
         }

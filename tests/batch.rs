@@ -1,6 +1,5 @@
 use graph_rs::prelude::*;
 use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
-use std::error::Error;
 use test_tools::oauthrequest::OAuthRequest;
 
 #[test]
@@ -92,7 +91,7 @@ pub fn batch_request() {
                         },
                         Delta::Done(err) => {
                             if let Some(err) = err {
-                                panic!("Request Error. Method: drive batch - received error on Delta::Done. Error: {:#?}", err.description());
+                                panic!("Request Error. Method: drive batch - received error on Delta::Done. Error: {:#?}", err);
                             } else {
                                 break;
                             }
@@ -101,7 +100,7 @@ pub fn batch_request() {
                     Err(e) => {
                         panic!(
                             "Request error. Method: batch. Error: {:#?}",
-                            e.description()
+                            e
                         );
                     },
                 }
