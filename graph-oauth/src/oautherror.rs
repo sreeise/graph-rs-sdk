@@ -52,12 +52,6 @@ impl fmt::Display for OAuthError {
 }
 
 impl error::Error for OAuthError {
-    fn description(&self) -> &str {
-        match *self {
-            OAuthError::GraphFailure(ref err) => err.description(),
-        }
-    }
-
     fn source<'a>(&'a self) -> Option<&(dyn Error + 'static)> {
         match *self {
             OAuthError::GraphFailure(ref err) => Some(err),

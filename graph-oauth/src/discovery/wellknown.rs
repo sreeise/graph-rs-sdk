@@ -1,5 +1,4 @@
 use graph_error::GraphFailure;
-use serde;
 
 pub trait WellKnown {
     fn signing_keys<T>(url: &str) -> Result<T, GraphFailure>

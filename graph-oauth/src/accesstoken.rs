@@ -6,7 +6,6 @@ use from_as::*;
 use graph_error::{GraphError, GraphFailure, GraphHeaders};
 use reqwest::RequestBuilder;
 use reqwest::Response;
-use serde_json;
 use std::convert::TryFrom;
 use std::fmt;
 
@@ -301,7 +300,7 @@ impl AccessToken {
     /// ```
     pub fn refresh_token(self) -> Option<String> {
         match self.refresh_token {
-            Some(t) => Some(t.clone()),
+            Some(t) => Some(t),
             None => None,
         }
     }

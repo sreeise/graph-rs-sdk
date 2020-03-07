@@ -1,6 +1,5 @@
 use graph_rs::error::{GraphFailure, GraphRsError};
 use graph_rs::prelude::*;
-use std::error::Error;
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::OAuthRequest;
@@ -31,7 +30,7 @@ fn list_get_notebooks_and_sections() {
                 let mut found_test_notebook = false;
                 let mut notebook_id = String::new();
                 for value in vec.iter() {
-                    if value["displayName"].as_str().unwrap().eq("TestNotebook") {
+                    if value["Name"].as_str().unwrap().eq("TestNotebook") {
                         found_test_notebook = true;
                         notebook_id.push_str(value["id"].as_str().unwrap());
                     }
@@ -49,12 +48,12 @@ fn list_get_notebooks_and_sections() {
                 if let Ok(notebook) = get_notebook {
                     assert_eq!(
                         "TestNotebook",
-                        notebook.value()["displayName"].as_str().unwrap()
+                        notebook.value()["Name"].as_str().unwrap()
                     );
                 } else if let Err(e) = get_notebook {
                     panic!(
                         "Request error. Method: onenote notebooks get. Error: {:#?}",
-                        e.description()
+                        e
                     );
                 }
 
@@ -67,20 +66,20 @@ fn list_get_notebooks_and_sections() {
                     .value();
 
                 if let Ok(collection) = sections {
-                    let section_name = collection.value()["value"][0]["displayName"]
+                    let section_name = collection.value()["value"][0]["Name"]
                         .as_str()
                         .unwrap();
                     assert_eq!("TestSection", section_name);
                 } else if let Err(e) = sections {
                     panic!(
                         "Request error. Method: onenote notebooks list sections. Error: {:#?}",
-                        e.description()
+                        e
                     );
                 }
             } else if let Err(e) = notebooks {
                 panic!(
                     "Request error. Method: onenote notebooks list. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
         }
@@ -120,13 +119,13 @@ fn create_delete_page() {
                 if let Err(e) = delete_res {
                     panic!(
                         "Request error. Method onenote pages delete page: Error: {:#?}",
-                        e.description()
+                        e
                     );
                 }
             } else if let Err(e) = res {
                 panic!(
                     "Request error. Method onenote create page. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
         }
@@ -152,11 +151,11 @@ fn onenote_create_page_invalid_ext() {
                     assert_eq!("txt", found);
                 },
                 _ => {
-                    panic!("Unexpected error thrown: {}", err.description());
+                    panic!("Unexpected error thrown: {}", err);
                 },
             },
             _ => {
-                panic!("Unexpected error thrown: {}", err.description());
+                panic!("Unexpected error thrown: {}", err);
             },
         }
     } else if let Ok(_) = response {
@@ -186,11 +185,11 @@ fn onenote_sections_create_page_invalid_ext() {
                     assert_eq!("txt", found);
                 },
                 _ => {
-                    panic!("Unexpected error thrown: {}", err.description());
+                    panic!("Unexpected error thrown: {}", err);
                 },
             },
             _ => {
-                panic!("Unexpected error thrown: {}", err.description());
+                panic!("Unexpected error thrown: {}", err);
             },
         }
     } else if let Ok(_) = response {

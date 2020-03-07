@@ -2,7 +2,6 @@ use graph_error::{GraphError, GraphResult};
 use graph_rs::http::{NextSession, Session};
 use graph_rs::prelude::*;
 use std::collections::HashMap;
-use std::error::Error;
 use std::ffi::OsStr;
 use std::ffi::OsString;
 use std::fs::OpenOptions;
@@ -51,13 +50,13 @@ fn create_delete_folder() {
                 } else if let Err(e) = req {
                     panic!(
                         "Request error. Method: drive delete. Error: {:#?}",
-                        e.description()
+                        e
                     );
                 }
             } else if let Err(e) = create_folder_res {
                 panic!(
                     "Request error. Method: create folder. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
         }
@@ -93,13 +92,13 @@ fn list_versions_get_item() {
                 } else if let Err(e) = versions_res {
                     panic!(
                         "Request Error. Method: list versions. Error: {:#?}",
-                        e.description()
+                        e
                     );
                 }
             } else if let Err(e) = get_item_res {
                 panic!(
                     "Request Error. Method: drive get_item. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
         }
@@ -109,49 +108,51 @@ fn list_versions_get_item() {
 #[test]
 fn drive_check_in_out() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    OAuthRequest::access_token_fn(|t| {
-        if let Some((id, bearer)) = t {
-            let client = Graph::new(bearer.as_str());
+    if OAuthRequest::is_local() {
+        OAuthRequest::access_token_fn(|t| {
+            if let Some((id, bearer)) = t {
+                let client = Graph::new(bearer.as_str());
 
-            let req = client
-                .v1()
-                .drives(id.as_str())
-                .drive()
-                .check_out(":/test_check_out_document.docx:")
-                .send();
+                let req = client
+                    .v1()
+                    .drives(id.as_str())
+                    .drive()
+                    .check_out(":/test_check_out_document.docx:")
+                    .send();
 
-            if let Ok(res) = req {
-                assert!(res.error().is_none());
-            } else if let Err(e) = req {
-                panic!(
-                    "Request Error. Method: drive check_out. Error: {:#?}",
-                    e.description()
-                );
-            }
+                if let Ok(res) = req {
+                    assert!(res.error().is_none());
+                } else if let Err(e) = req {
+                    panic!(
+                        "Request Error. Method: drive check_out. Error: {:#?}",
+                        e
+                    );
+                }
 
-            thread::sleep(Duration::from_secs(2));
-            let req = client
-                .v1()
-                .drives(id.as_str())
-                .drive()
-                .check_in(
-                    ":/test_check_out_document.docx:",
-                    &serde_json::json!({
+                thread::sleep(Duration::from_secs(2));
+                let req = client
+                    .v1()
+                    .drives(id.as_str())
+                    .drive()
+                    .check_in(
+                        ":/test_check_out_document.docx:",
+                        &serde_json::json!({
                         "comment": "test check in",
                     }),
-                )
-                .send();
+                    )
+                    .send();
 
-            if let Ok(res) = req {
-                assert!(res.error().is_none());
-            } else if let Err(e) = req {
-                panic!(
-                    "Request Error. Method: drive check_in. Error: {:#?}",
-                    e.description()
-                );
+                if let Ok(res) = req {
+                    assert!(res.error().is_none());
+                } else if let Err(e) = req {
+                    panic!(
+                        "Request Error. Method: drive check_in. Error: {:#?}",
+                        e
+                    );
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 #[test]
@@ -183,7 +184,7 @@ fn drive_download() {
             } else if let Err(e) = req {
                 panic!(
                     "Request Error. Method: drive check_out. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
         }
@@ -193,41 +194,43 @@ fn drive_download() {
 #[test]
 fn drive_download_format() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    OAuthRequest::access_token_fn(|t| {
-        if let Some((id, bearer)) = t {
-            let file_location = "./test_files/test_document.pdf";
-            let mut clean_up = CleanUp::new(|| {
-                let path = Path::new(file_location);
-                if path.exists() {
-                    std::fs::remove_file(path).unwrap();
+    if OAuthRequest::is_local() {
+        OAuthRequest::access_token_fn(|t| {
+            if let Some((id, bearer)) = t {
+                let file_location = "./test_files/test_document.pdf";
+                let mut clean_up = CleanUp::new(|| {
+                    let path = Path::new(file_location);
+                    if path.exists() {
+                        std::fs::remove_file(path).unwrap();
+                    }
+                });
+
+                clean_up.rm_files(file_location.into());
+
+                let client = Graph::new(bearer.as_str());
+                let download = client
+                    .v1()
+                    .drives(id.as_str())
+                    .drive()
+                    .download(":/test_document.docx:", "./test_files");
+
+                download.format("pdf");
+                download.rename(OsString::from("test_document.pdf"));
+                let req: GraphResult<PathBuf> = download.send();
+
+                if let Ok(path_buf) = req {
+                    assert!(path_buf.exists());
+                    assert_eq!(path_buf.extension(), Some(OsStr::new("pdf")));
+                    assert_eq!(path_buf.file_name(), Some(OsStr::new("test_document.pdf")));
+                } else if let Err(e) = req {
+                    panic!(
+                        "Request Error. Method: drive check_out. Error: {:#?}",
+                        e
+                    );
                 }
-            });
-
-            clean_up.rm_files(file_location.into());
-
-            let client = Graph::new(bearer.as_str());
-            let download = client
-                .v1()
-                .drives(id.as_str())
-                .drive()
-                .download(":/test_document.docx:", "./test_files");
-
-            download.format("pdf");
-            download.rename(OsString::from("test_document.pdf"));
-            let req: GraphResult<PathBuf> = download.send();
-
-            if let Ok(path_buf) = req {
-                assert!(path_buf.exists());
-                assert_eq!(path_buf.extension(), Some(OsStr::new("pdf")));
-                assert_eq!(path_buf.file_name(), Some(OsStr::new("test_document.pdf")));
-            } else if let Err(e) = req {
-                panic!(
-                    "Request Error. Method: drive check_out. Error: {:#?}",
-                    e.description()
-                );
             }
-        }
-    });
+        });
+    }
 }
 
 #[test]
@@ -272,13 +275,13 @@ fn drive_update() {
                 } else if let Err(e) = req {
                     panic!(
                         "Request Error. Method: drive update. Error: {:#?}",
-                        e.description()
+                        e
                     );
                 }
             } else if let Err(e) = req {
                 panic!(
                     "Request Error. Method: drive check_out. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
         }
@@ -327,7 +330,7 @@ fn drive_upload_new_and_replace_and_delete() {
                 } else if let Err(e) = upload_replace {
                     panic!(
                         "Request Error. Method: drive upload replace. Error: {:#?}",
-                        e.description()
+                        e
                     );
                 }
 
@@ -344,13 +347,13 @@ fn drive_upload_new_and_replace_and_delete() {
                 } else if let Err(e) = delete_res {
                     panic!(
                         "Request Error. Method: drive delete. Error: {:#?}",
-                        e.description()
+                        e
                     );
                 }
             } else if let Err(e) = upload_res {
                 panic!(
                     "Request Error. Method: drive upload. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
         }
@@ -405,7 +408,7 @@ fn drive_upload_session() {
                             } else if let Err(e) = delete_res {
                                 panic!(
                                     "Request error. Upload session new. Error: {:#?}",
-                                    e.description()
+                                    e
                                 );
                             }
                             break;
@@ -414,7 +417,7 @@ fn drive_upload_session() {
                             let _ = cancel_request.send().unwrap();
                             panic!(
                                 "Request error. Upload session new. Error: {:#?}",
-                                e.description()
+                                e
                             );
                         },
                     }
@@ -422,7 +425,7 @@ fn drive_upload_session() {
             } else if let Err(e) = session {
                 panic!(
                     "Request error. Upload session new. Error: {:#?}",
-                    e.description()
+                    e
                 );
             }
         }

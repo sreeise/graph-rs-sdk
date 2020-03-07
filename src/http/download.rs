@@ -108,9 +108,10 @@ impl DownloadClient {
 
         if let Some(value) = v.last() {
             if value.starts_with("filename=") {
-                let s = value.replace("\"", "");
-                let s = s.replace("filename=", "");
-                return Some(OsString::from(s.to_string()));
+                return Some(OsString::from(
+                    value.replace("\"", "")
+                    .replace("filename=", "")
+                ));
             }
         }
         None

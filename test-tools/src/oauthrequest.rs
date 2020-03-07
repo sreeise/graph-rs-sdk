@@ -68,7 +68,7 @@ impl OAuthRequest {
             );
             if let Some(token) = access_token {
                 if let Some(user_id) = oauth2.user_id {
-                    return Some((user_id.to_string(), token));
+                    return Some((user_id, token));
                 } else {
                     return Some((String::new(), token));
                 }
