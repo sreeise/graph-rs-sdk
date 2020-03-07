@@ -19,20 +19,14 @@ fn delta_req() {
                         },
                         Delta::Done(err) => {
                             if let Some(err) = err {
-                                panic!(
-                                    "Request Error. Method: Users delta. Error: {:#?}",
-                                    err
-                                );
+                                panic!("Request Error. Method: Users delta. Error: {:#?}", err);
                             }
                             is_done = true;
                             break;
                         },
                     },
                     Err(err) => {
-                        panic!(
-                            "Request Error. Method: Users delta. Error: {:#?}",
-                            err
-                        );
+                        panic!("Request Error. Method: Users delta. Error: {:#?}", err);
                     },
                 }
             }

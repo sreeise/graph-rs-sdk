@@ -17,10 +17,7 @@ fn user_request_test() {
             if let Ok(response) = users {
                 assert!(response.error().is_none());
             } else if let Err(e) = users {
-                panic!(
-                    "Request error. Method: users list. Error: {:#?}",
-                    e
-                );
+                panic!("Request error. Method: users list. Error: {:#?}", e);
             }
 
             let user_res = client.v1().users(id.as_str()).get().value();
@@ -28,10 +25,7 @@ fn user_request_test() {
             if let Ok(response) = user_res {
                 assert!(response.error().is_none());
             } else if let Err(e) = user_res {
-                panic!(
-                    "Request error. Method: users list. Error: {:#?}",
-                    e
-                );
+                panic!("Request error. Method: users list. Error: {:#?}", e);
             }
         }
     })

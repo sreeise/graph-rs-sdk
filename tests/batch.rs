@@ -98,10 +98,7 @@ pub fn batch_request() {
                         },
                     },
                     Err(e) => {
-                        panic!(
-                            "Request error. Method: batch. Error: {:#?}",
-                            e
-                        );
+                        panic!("Request error. Method: batch. Error: {:#?}", e);
                     },
                 }
             }

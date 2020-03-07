@@ -48,16 +48,10 @@ fn create_delete_folder() {
                 if let Ok(res) = req {
                     assert!(res.error().is_none());
                 } else if let Err(e) = req {
-                    panic!(
-                        "Request error. Method: drive delete. Error: {:#?}",
-                        e
-                    );
+                    panic!("Request error. Method: drive delete. Error: {:#?}", e);
                 }
             } else if let Err(e) = create_folder_res {
-                panic!(
-                    "Request error. Method: create folder. Error: {:#?}",
-                    e
-                );
+                panic!("Request error. Method: create folder. Error: {:#?}", e);
             }
         }
     });
@@ -90,16 +84,10 @@ fn list_versions_get_item() {
                 if let Ok(res) = versions_res {
                     assert!(res.error().is_none());
                 } else if let Err(e) = versions_res {
-                    panic!(
-                        "Request Error. Method: list versions. Error: {:#?}",
-                        e
-                    );
+                    panic!("Request Error. Method: list versions. Error: {:#?}", e);
                 }
             } else if let Err(e) = get_item_res {
-                panic!(
-                    "Request Error. Method: drive get_item. Error: {:#?}",
-                    e
-                );
+                panic!("Request Error. Method: drive get_item. Error: {:#?}", e);
             }
         }
     });
@@ -123,10 +111,7 @@ fn drive_check_in_out() {
                 if let Ok(res) = req {
                     assert!(res.error().is_none());
                 } else if let Err(e) = req {
-                    panic!(
-                        "Request Error. Method: drive check_out. Error: {:#?}",
-                        e
-                    );
+                    panic!("Request Error. Method: drive check_out. Error: {:#?}", e);
                 }
 
                 thread::sleep(Duration::from_secs(2));
@@ -137,18 +122,15 @@ fn drive_check_in_out() {
                     .check_in(
                         ":/test_check_out_document.docx:",
                         &serde_json::json!({
-                        "comment": "test check in",
-                    }),
+                            "comment": "test check in",
+                        }),
                     )
                     .send();
 
                 if let Ok(res) = req {
                     assert!(res.error().is_none());
                 } else if let Err(e) = req {
-                    panic!(
-                        "Request Error. Method: drive check_in. Error: {:#?}",
-                        e
-                    );
+                    panic!("Request Error. Method: drive check_in. Error: {:#?}", e);
                 }
             }
         });
@@ -182,10 +164,7 @@ fn drive_download() {
             if let Ok(path_buf) = req {
                 assert!(path_buf.exists());
             } else if let Err(e) = req {
-                panic!(
-                    "Request Error. Method: drive check_out. Error: {:#?}",
-                    e
-                );
+                panic!("Request Error. Method: drive check_out. Error: {:#?}", e);
             }
         }
     });
@@ -223,10 +202,7 @@ fn drive_download_format() {
                     assert_eq!(path_buf.extension(), Some(OsStr::new("pdf")));
                     assert_eq!(path_buf.file_name(), Some(OsStr::new("test_document.pdf")));
                 } else if let Err(e) = req {
-                    panic!(
-                        "Request Error. Method: drive check_out. Error: {:#?}",
-                        e
-                    );
+                    panic!("Request Error. Method: drive check_out. Error: {:#?}", e);
                 }
             }
         });
@@ -273,16 +249,10 @@ fn drive_update() {
                         Some("update_test_document.docx")
                     );
                 } else if let Err(e) = req {
-                    panic!(
-                        "Request Error. Method: drive update. Error: {:#?}",
-                        e
-                    );
+                    panic!("Request Error. Method: drive update. Error: {:#?}", e);
                 }
             } else if let Err(e) = req {
-                panic!(
-                    "Request Error. Method: drive check_out. Error: {:#?}",
-                    e
-                );
+                panic!("Request Error. Method: drive check_out. Error: {:#?}", e);
             }
         }
     });
@@ -345,16 +315,10 @@ fn drive_upload_new_and_replace_and_delete() {
                 if let Ok(result) = delete_res {
                     assert!(result.error().is_none());
                 } else if let Err(e) = delete_res {
-                    panic!(
-                        "Request Error. Method: drive delete. Error: {:#?}",
-                        e
-                    );
+                    panic!("Request Error. Method: drive delete. Error: {:#?}", e);
                 }
             } else if let Err(e) = upload_res {
-                panic!(
-                    "Request Error. Method: drive upload. Error: {:#?}",
-                    e
-                );
+                panic!("Request Error. Method: drive upload. Error: {:#?}", e);
             }
         }
     });
@@ -406,27 +370,18 @@ fn drive_upload_session() {
                             if let Ok(res) = delete_res {
                                 assert!(res.error().is_none());
                             } else if let Err(e) = delete_res {
-                                panic!(
-                                    "Request error. Upload session new. Error: {:#?}",
-                                    e
-                                );
+                                panic!("Request error. Upload session new. Error: {:#?}", e);
                             }
                             break;
                         },
                         Err(e) => {
                             let _ = cancel_request.send().unwrap();
-                            panic!(
-                                "Request error. Upload session new. Error: {:#?}",
-                                e
-                            );
+                            panic!("Request error. Upload session new. Error: {:#?}", e);
                         },
                     }
                 }
             } else if let Err(e) = session {
-                panic!(
-                    "Request error. Upload session new. Error: {:#?}",
-                    e
-                );
+                panic!("Request error. Upload session new. Error: {:#?}", e);
             }
         }
     });
