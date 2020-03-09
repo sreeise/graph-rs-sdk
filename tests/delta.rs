@@ -7,7 +7,7 @@ fn delta_req() {
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
             let client = Graph::from(bearer);
-            let delta_recv = client.v1().users(id.as_str()).delta().value();
+            let delta_recv = client.v1().users(id.as_str()).delta().send();
             let mut is_done = false;
 
             loop {

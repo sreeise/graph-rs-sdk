@@ -12,7 +12,7 @@ fn user_request_test() {
         if let Some((id, bearer)) = t {
             let _lock = THROTTLE_MUTEX.lock().unwrap();
             let client = Graph::new(bearer.as_str());
-            let users = client.v1().users(id.as_str()).list().value();
+            let users = client.v1().users(id.as_str()).list().send();
 
             if let Ok(response) = users {
                 assert!(response.error().is_none());
@@ -20,7 +20,7 @@ fn user_request_test() {
                 panic!("Request error. Method: users list. Error: {:#?}", e);
             }
 
-            let user_res = client.v1().users(id.as_str()).get().value();
+            let user_res = client.v1().users(id.as_str()).get().send();
 
             if let Ok(response) = user_res {
                 assert!(response.error().is_none());

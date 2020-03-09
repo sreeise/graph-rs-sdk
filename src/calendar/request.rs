@@ -2,19 +2,18 @@ use crate::attachments::{CalendarAttachmentRequest, CalendarGroupAttachmentReque
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
 use crate::types::{collection::Collection, content::Content};
-use graph_rs_types::entitytypes::{Calendar, CalendarGroup, Event};
 use reqwest::Method;
 
 register_client!(CalendarRequest,);
 
 impl<'a> CalendarRequest<'a> {
-    get!( list, Collection<Calendar> => "calendars" );
-    get!( get_default, Calendar => "calendar" );
-    get!( | get, Calendar => "calendars/{{id}}" );
-    get!( list_events, Collection<Event> => "calendars/events" );
-    patch!( [ update_default, Calendar => "calendar" ] );
-    patch!( [ | update, Calendar => "calendars/{{id}}" ] );
-    post!( | create, Calendar => "calendars" );
+    get!( list, Collection<serde_json::Value> => "calendars" );
+    get!( get_default, serde_json::Value => "calendar" );
+    get!( | get, serde_json::Value => "calendars/{{id}}" );
+    get!( list_events, Collection<serde_json::Value> => "calendars/events" );
+    patch!( [ update_default, serde_json::Value => "calendar" ] );
+    patch!( [ | update, serde_json::Value => "calendars/{{id}}" ] );
+    post!( | create, serde_json::Value => "calendars" );
     delete!( | delete, GraphResponse<Content> => "calendars/{{id}}" );
 
     pub fn attachments(&'a self) -> CalendarAttachmentRequest<'a> {
@@ -37,7 +36,7 @@ impl<'a> CalendarViewRequest<'a> {
         &self,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, Collection<Calendar>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
         self.client
             .builder()
             .set_method(Method::GET)
@@ -59,7 +58,7 @@ impl<'a> CalendarViewRequest<'a> {
         id: &str,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, Collection<Calendar>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
         self.client
             .builder()
             .set_method(Method::GET)
@@ -81,7 +80,7 @@ impl<'a> CalendarViewRequest<'a> {
         calendar_id: &str,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, Collection<Calendar>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
         self.client
             .builder()
             .set_method(Method::GET)
@@ -104,7 +103,7 @@ impl<'a> CalendarViewRequest<'a> {
         calendar_id: &str,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, Collection<Calendar>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
         self.client
             .builder()
             .set_method(Method::GET)
@@ -131,19 +130,19 @@ impl<'a> CalendarViewRequest<'a> {
 register_client!(CalendarGroupRequest,);
 
 impl<'a> CalendarGroupRequest<'a> {
-    get!( list, Collection<CalendarGroup> => "calendarGroups" );
-    get!( | get, CalendarGroup => "calendarGroups/{{id}}" );
-    get!( list_default_calendars, Collection<Calendar> => "calendarGroup/calendars" );
-    get!( | list_calendars, Collection<Calendar> => "calendarGroups/{{id}}/calendars" );
-    get!( || list_events, Collection<Event> => "calendarGroup/{{id}}/calendars/{{id2}}/events" );
-    post!( [ create, CalendarGroup => "calendarGroups" ] );
+    get!( list, Collection<serde_json::Value> => "calendarGroups" );
+    get!( | get, serde_json::Value => "calendarGroups/{{id}}" );
+    get!( list_default_calendars, Collection<serde_json::Value> => "calendarGroup/calendars" );
+    get!( | list_calendars, Collection<serde_json::Value> => "calendarGroups/{{id}}/calendars" );
+    get!( || list_events, Collection<serde_json::Value> => "calendarGroup/{{id}}/calendars/{{id2}}/events" );
+    post!( [ create, serde_json::Value => "calendarGroups" ] );
     post!([
         create_default_calendar,
-        CalendarGroup =>
+        serde_json::Value =>
         "calendarGroups/calendars"
     ]);
-    post!( [ | create_calendar, Calendar => "calendarGroups/{{id}}/calendars" ] );
-    patch!( [ | update, CalendarGroup => "calendarGroups/{{id}}" ] );
+    post!( [ | create_calendar, serde_json::Value => "calendarGroups/{{id}}/calendars" ] );
+    patch!( [ | update, serde_json::Value => "calendarGroups/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "calendarGroups/{{id}}" );
 
     pub fn attachments(&'a self) -> CalendarGroupAttachmentRequest<'a> {

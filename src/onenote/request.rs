@@ -4,7 +4,6 @@ use crate::types::collection::Collection;
 use crate::types::content::Content;
 use graph_error::GraphRsError;
 use graph_error::{AsRes, GraphFailure};
-use graph_rs_types::entitytypes::{Notebook, OnenotePage, OnenoteSection, SectionGroup};
 use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
 use reqwest::Method;
@@ -21,9 +20,9 @@ register_client!(
 );
 
 impl<'a> OnenoteRequest<'a> {
-    get!( list_sections, Collection<SectionGroup> => "{{section}}" );
-    get!( list_section_groups, Collection<SectionGroup> => "{{section_group}}" );
-    get!( list_pages, Collection<SectionGroup> => "{{pages}}" );
+    get!( list_sections, Collection<serde_json::Value> => "{{section}}" );
+    get!( list_section_groups, Collection<serde_json::Value> => "{{section_group}}" );
+    get!( list_pages, Collection<serde_json::Value> => "{{pages}}" );
 
     pub fn notebooks(&self) -> OnenoteNotebookRequest<'a> {
         OnenoteNotebookRequest::new(self.client)
@@ -41,7 +40,7 @@ impl<'a> OnenoteRequest<'a> {
         OnenotePageRequest::new(self.client)
     }
 
-    pub fn create_page<P: AsRef<Path>>(&self, file: P) -> IntoResponse<'a, OnenotePage> {
+    pub fn create_page<P: AsRef<Path>>(&self, file: P) -> IntoResponse<'a, serde_json::Value> {
         render_path!(self.client, "{{pages}}");
 
         if !file.as_ref().extension().eq(&Some(OsStr::new("html"))) {
@@ -77,14 +76,14 @@ impl<'a> OnenoteRequest<'a> {
 register_client!(OnenoteNotebookRequest,);
 
 impl<'a> OnenoteNotebookRequest<'a> {
-    get!( list, Collection<Notebook> => "{{notebook}}" );
-    get!( | list_sections, Collection<OnenoteSection> => "{{notebook}}/{{id}}/sections" );
-    get!( | get, Notebook => "{{notebook}}/{{id}}" );
-    post!( [ create, Notebook => "{{notebook}}" ]);
-    post!( [ | copy, OnenoteSection => "{{notebook}}/{{id}}/copyNotebook" ] );
-    post!( [ | create_section, OnenoteSection => "{{notebook}}/{{id}}/sections" ] );
+    get!( list, Collection<serde_json::Value> => "{{notebook}}" );
+    get!( | list_sections, Collection<serde_json::Value> => "{{notebook}}/{{id}}/sections" );
+    get!( | get, serde_json::Value => "{{notebook}}/{{id}}" );
+    post!( [ create, serde_json::Value => "{{notebook}}" ]);
+    post!( [ | copy, serde_json::Value => "{{notebook}}/{{id}}/copyNotebook" ] );
+    post!( [ | create_section, serde_json::Value => "{{notebook}}/{{id}}/sections" ] );
 
-    pub fn recent(&self, include_personal_notebooks: bool) -> IntoResponse<'a, Notebook> {
+    pub fn recent(&self, include_personal_notebooks: bool) -> IntoResponse<'a, serde_json::Value> {
         render_path!(
             self.client,
             format!(
@@ -100,9 +99,9 @@ impl<'a> OnenoteNotebookRequest<'a> {
 register_client!(OnenoteSectionRequest,);
 
 impl<'a> OnenoteSectionRequest<'a> {
-    get!( list, Collection<OnenoteSection> => "{{section}}" );
-    get!( | list_pages, Collection<OnenotePage> => "{{section}}/{{id}}/pages" );
-    get!( | get, OnenoteSection => "{{section}}/{{id}}" );
+    get!( list, Collection<serde_json::Value> => "{{section}}" );
+    get!( | list_pages, Collection<serde_json::Value> => "{{section}}/{{id}}/pages" );
+    get!( | get, serde_json::Value => "{{section}}/{{id}}" );
     post!( [ | copy_to_notebook, GraphResponse<Content> => "{{section}}/{{id}}/copyToNotebook" ] );
     post!( [ | copy_to_section_group, GraphResponse<Content> => "{{section}}/{{id}}/copyToSectionGroup" ] );
 
@@ -110,7 +109,7 @@ impl<'a> OnenoteSectionRequest<'a> {
         &self,
         id: S,
         file: P,
-    ) -> IntoResponse<'a, OnenotePage> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         render_path!(
             self.client,
             "{{section}}/{{id}}/pages",
@@ -150,20 +149,20 @@ impl<'a> OnenoteSectionRequest<'a> {
 register_client!(OnenoteSectionGroupRequest,);
 
 impl<'a> OnenoteSectionGroupRequest<'a> {
-    get!( list, Collection<SectionGroup> => "{{section_group}}" );
-    get!( | list_sections, Collection<OnenoteSection> => "{{section_group}}/{{id}}/sections" );
-    get!( | get, SectionGroup => "{{section_group}}/{{id}}" );
-    post!( [ | create, SectionGroup => "{{section_group}}/{{id}}/sectionGroups" ] );
-    post!( [ | create_section, SectionGroup => "{{section_group}}/{{id}}/sections" ] );
+    get!( list, Collection<serde_json::Value> => "{{section_group}}" );
+    get!( | list_sections, Collection<serde_json::Value> => "{{section_group}}/{{id}}/sections" );
+    get!( | get, serde_json::Value => "{{section_group}}/{{id}}" );
+    post!( [ | create, serde_json::Value => "{{section_group}}/{{id}}/sectionGroups" ] );
+    post!( [ | create_section, serde_json::Value => "{{section_group}}/{{id}}/sections" ] );
 }
 
 register_client!(OnenotePageRequest,);
 
 impl<'a> OnenotePageRequest<'a> {
-    get!( list, Collection<OnenotePage> => "{{pages}}" );
-    get!( | get, OnenotePage => "{{pages}}/{{id}}" );
+    get!( list, Collection<serde_json::Value> => "{{pages}}" );
+    get!( | get, serde_json::Value => "{{pages}}/{{id}}" );
     get!( | content, GraphResponse<Content> => "{{pages}}/{{id}}/content" );
-    patch!( [ | update, OnenotePage => "{{pages}}/{{id}}/content" ] );
+    patch!( [ | update, serde_json::Value => "{{pages}}/{{id}}/content" ] );
     post!( [ | copy_to_section, GraphResponse<Content> => "{{pages}}/{{id}}/copyToSection" ] );
     delete!( | delete, GraphResponse<Content> => "{{pages}}/{{id}}" );
 

@@ -56,7 +56,6 @@
 pub extern crate from_as;
 extern crate graph_error;
 extern crate graph_oauth;
-pub extern crate graph_rs_types;
 extern crate log;
 extern crate pretty_env_logger;
 extern crate reqwest;

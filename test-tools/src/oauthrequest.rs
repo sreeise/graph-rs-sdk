@@ -52,10 +52,6 @@ impl OAuthRequest {
             env::var("TEST_APP_USER_ID").is_ok()
     }
 
-    pub fn is_file_env_set() -> bool {
-        env::var("GRAPH_TEST_ENV") == Ok("true".to_string())
-    }
-
     pub fn request_token_from_toml() -> Option<(String, AccessToken)> {
         if let Ok(oauth2) = OAuth2::from_file("./env.toml") {
             let access_token = OAuthRequest::access_token(

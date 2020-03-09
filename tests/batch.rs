@@ -61,7 +61,7 @@ pub fn batch_request() {
                 ]
             });
 
-            let recv = client.v1().batch(&json).value();
+            let recv = client.v1().batch(&json).send();
 
             loop {
                 match recv.recv() {

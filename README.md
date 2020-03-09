@@ -26,29 +26,27 @@ Of the portions that are implemented there are also examples and docs. Run:
 
 ### Use - subject to change.
 
-See the examples directory for more.
-
-Each request has an three ways of getting the response. The responses are returned with the headers
-and the deserialized body (if there is one) wrapped in the GraphResponse struct.
-
-##### serde_json::Value response
-The value() method returns the response in JSON using serde_json::Value.
-
-The json() method can be used to convert the response to your own types. These
-types must implement serde::Deserialize.
+#### The send method and Graph types
+The send() method is the main method for sending a request. The return value will be wrapped
+in a response object and the body will be one of:
+   
+    1. serde_json::Value
+    
+    2. Collection<serde_json::Value>
+   
+    3. Content (204 responses that return a content field)
 
 ```rust
 use graph_rs::prelude::*;
-        
-let client = Graph::new("ACCESS_TOKEN");
 
-// returns GraphResponse<serde_json::Value>
-let value_response = client.v1()
+// Returns GraphResponse<Collection<serde_json::Value>>
+let response = client.v1()
     .me()
-    .get()
-    .value()?;
-
-println!("{:#?}", value_response);
+    .drive()
+    .root_children()
+    .send();
+        
+println!("{:#?}", response);  
 ```
 
 ##### Custom Types
@@ -75,26 +73,6 @@ let response: DriveItem = client.v1()
         
 println!("{:#?}", response);   
 ``` 
-
-#### The send method and Graph types
-The send() method always returns a struct based on that request. These structs are Graph types generated
-from the Microsoft Graph metadata document located here: https://graph.microsoft.com/v1.0/$metadata
-Beware that the fields on these types do not change and sending a request that alters the response, such 
-as OData queries, may not return all of the fields requested. If you use OData queries it is 
-recommended that you use your own struct or the value() method for the response.
-
-```rust
-use graph_rs::prelude::*;
-
-// Returns GraphResponse<Collection<DriveItem>>
-let response = client.v1()
-    .me()
-    .drive()
-    .root_children()
-    .send()?;
-        
-println!("{:#?}", response);  
-```
 
 ### OneDrive
 ```rust
@@ -124,19 +102,19 @@ let drive_item = client
             "@microsoft.graph.conflictBehavior": "fail"
          }),
     )
-    .value()?;
+    .send()?;
         
 println!("{:#?}", drive_item):
     
 // Use path based addressing
-// Pass the location of the item to get from the root folder.
- // Start the path with :/ and end with :
+// Pass the location of the item to get from the OneDrive root folder.
+// Start the path with :/ and end with :
     
 let response = client.v1()
     .me()
     .drive()
     .get_item(":/document.docx:")
-    .value()?;
+    .send()?;
         
 println!("{:#?}", response.value());
 ```
@@ -283,7 +261,7 @@ let response = client.v1()
     .mail()
     .messages()
     .create(&message)
-    .value()?;
+    .send()?;
             
 println!(":#?", response);
 ```              
@@ -302,7 +280,7 @@ let response = client.v1()
     .drive()
     .root_children()
     .select(&["id", "name"])
-    .value()?;
+    .send()?;
     
 println!("{:#?}", response.value()):
 ```

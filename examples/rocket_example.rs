@@ -10,7 +10,6 @@ extern crate reqwest;
 use from_as::*;
 use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
-use graph_rs_types::entitytypes::DriveItem;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
 use std::convert::TryFrom;
@@ -208,7 +207,7 @@ fn recent() {
 
 #[allow(dead_code)]
 fn recent_from_file() {
-    let item: Collection<DriveItem> =
+    let item: Collection<serde_json::Value> =
         Collection::from_file("./examples/example_files/drive_recent.json").unwrap();
     println!("{:#?}", &item);
 }

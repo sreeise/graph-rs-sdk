@@ -86,9 +86,23 @@ impl<T> Collection<T> {
     pub fn value_mut(&mut self) -> &mut Option<Vec<T>> {
         &mut self.value
     }
+
+    pub fn clone_inner(&mut self) -> Vec<T> where T: std::clone::Clone {
+        self.value.clone().unwrap_or_default().to_vec()
+    }
+
+    pub fn into_inner(self) -> Vec<T> {
+        self.value.unwrap_or_default()
+    }
 }
 
 impl<T> Eq for Collection<T> where T: std::cmp::PartialEq {}
+
+impl<T> Into<Vec<T>> for Collection<T> {
+    fn into(self) -> Vec<T> {
+        self.value.unwrap_or_default()
+    }
+}
 
 impl<T> IntoIterator for Collection<T>
 where

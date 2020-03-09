@@ -44,10 +44,6 @@ graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
 from_as = { git = "https://github.com/sreeise/from_as" }
 
-[dependencies.graph-rs-types]
-git = "https://github.com/sreeise/graph-rs-types"
-features = ["option"]
-
 [dev-dependencies.rocket_contrib]
 version = "0.4.2"
 default-features = false

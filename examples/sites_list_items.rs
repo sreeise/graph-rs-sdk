@@ -39,7 +39,7 @@ pub fn create_list() {
                 "template": "genericList"
             }
         }))
-        .value();
+        .send();
 
     if let Ok(list_response) = list_result {
         println!("{:#?}", list_response);
@@ -57,7 +57,7 @@ fn list_all_list_items() {
         .lists()
         .items()
         .list(LIST_ID)
-        .value();
+        .send();
 
     println!("{:#?}", list_item_response);
 }
@@ -80,7 +80,7 @@ fn create_list_item() {
                 }
             }),
         )
-        .value();
+        .send();
 
     println!("{:#?}", list_item_response);
 }
@@ -105,7 +105,7 @@ fn update_list_item() {
                 }
             }),
         )
-        .value();
+        .send();
 
     println!("{:#?}", list_item_response);
 }
@@ -119,7 +119,7 @@ fn get_list_item() {
         .lists()
         .items()
         .get(LIST_ID, LIST_ITEM_ID)
-        .value();
+        .send();
 
     println!("{:#?}", list_item_response);
 }

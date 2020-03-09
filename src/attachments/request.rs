@@ -2,13 +2,12 @@ use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
 use crate::types::collection::Collection;
 use crate::types::content::Content;
-use graph_rs_types::entitytypes::Attachment;
 use reqwest::Method;
 
 register_client!(AttachmentRequest,);
 
 impl<'a> AttachmentRequest<'a> {
-    get!( | get, Attachment => "attachments/{{id}}" );
+    get!( | get, serde_json::Value => "attachments/{{id}}" );
     get!( | content, GraphResponse<Content> => "attachments/{{id}}/$value" );
     delete!( | delete, GraphResponse<Content> => "attachments/{{id}}" );
 
@@ -40,10 +39,10 @@ impl<'a> AttachmentRequest<'a> {
 register_client!(CalendarAttachmentRequest,);
 
 impl<'a> CalendarAttachmentRequest<'a> {
-    get!( || get_default, Attachment => "events/{{id}}/attachments/{{id}}" );
+    get!( || get_default, serde_json::Value => "events/{{id}}/attachments/{{id}}" );
     get!( || default_content, GraphResponse<Content> => "events/{{id}}/attachments/{{id}}/$value" );
     delete!( || delete_default, GraphResponse<Content> => "events/{{id}}/attachments/{{id}}" );
-    get!( ||| get, Attachment => "calendar/{{id}}/events/{{id2}}/attachments/{{id3}}" );
+    get!( ||| get, serde_json::Value => "calendar/{{id}}/events/{{id2}}/attachments/{{id3}}" );
     get!( ||| content, GraphResponse<Content> => "calendar/{{id}}/events/{{id2}}/attachments/{{id3}}/$value" );
     delete!( ||| delete, GraphResponse<Content> => "calendar/{{id}}/events/{{id2}}/attachments/{{id3}}" );
 }
@@ -51,10 +50,10 @@ impl<'a> CalendarAttachmentRequest<'a> {
 register_client!(CalendarGroupAttachmentRequest,);
 
 impl<'a> CalendarGroupAttachmentRequest<'a> {
-    get!( ||| get_default, Attachment => "calendargroup/calendars/{{id}}/events/{{id2}}/attachments/{{id3}}" );
+    get!( ||| get_default, serde_json::Value => "calendargroup/calendars/{{id}}/events/{{id2}}/attachments/{{id3}}" );
     get!( ||| default_content, GraphResponse<Content> => "calendargroup/calendars/{{id}}/events/{{id2}}/attachments/{{id3}}/$value" );
     delete!( ||| delete_default, GraphResponse<Content> => "calendargroup/calendars/{{id}}/events/{{id2}}/attachments/{{id3}}" );
-    get!( |||| get, Attachment => "calendargroups/{{id}}/calendars/{{id2}}/events/{{id3}}/attachments/{{id4}}" );
+    get!( |||| get, serde_json::Value => "calendargroups/{{id}}/calendars/{{id2}}/events/{{id3}}/attachments/{{id4}}" );
     get!( |||| content, GraphResponse<Content> => "calendargroups/{{id}}/calendars/{{id2}}/events/{{id3}}/attachments/{{id4}}/$value" );
     delete!( |||| delete, GraphResponse<Content> => "calendargroups/{{id}}/calendars/{{id2}}/events/{{id3}}/attachments/{{id4}}" );
 }
@@ -62,8 +61,8 @@ impl<'a> CalendarGroupAttachmentRequest<'a> {
 register_client!(MailMessageAttachmentRequest,);
 
 impl<'a> MailMessageAttachmentRequest<'a> {
-    get!( || get, Attachment => "messages/{{id}}/attachments/{{id2}}" );
-    post!( [ | add, Attachment => "messages/{{id}}/attachments" ] );
+    get!( || get, serde_json::Value => "messages/{{id}}/attachments/{{id2}}" );
+    post!( [ | add, serde_json::Value => "messages/{{id}}/attachments" ] );
     get!( || content, GraphResponse<Content> => "messages/{{id}}/attachments/{{id2}}/$value" );
     delete!( || delete, GraphResponse<Content> => "messages/{{id}}/attachments/{{id2}}" );
 
@@ -75,9 +74,9 @@ impl<'a> MailMessageAttachmentRequest<'a> {
 register_client!(MailFolderMessageAttachmentRequest,);
 
 impl<'a> MailFolderMessageAttachmentRequest<'a> {
-    get!( ||| get, Attachment => "mailFolders/{{id}}/messages/{{id2}}/attachments/{{id3}}" );
+    get!( ||| get, serde_json::Value => "mailFolders/{{id}}/messages/{{id2}}/attachments/{{id3}}" );
     get!( ||| content, GraphResponse<Content> => "mailFolders/{{id}}/messages/{{id2}}/attachments/{{id3}}/$value" );
-    post!( [ || add, Attachment => "mailFolders/{{id}}/messages/{{id2}}/attachments" ] );
+    post!( [ || add, serde_json::Value => "mailFolders/{{id}}/messages/{{id2}}/attachments" ] );
     delete!( ||| delete, GraphResponse<Content> => "mailFolders/{{id}}/messages/{{id2}}/attachments/{{id3}}" );
 
     fn render_child_folder_path<S: AsRef<str>>(
@@ -124,7 +123,7 @@ impl<'a> MailFolderMessageAttachmentRequest<'a> {
         child_folders: &[&str],
         message_id: S,
         attachment_id: S,
-    ) -> IntoResponse<'a, Attachment> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         self.client.builder().set_method(Method::GET);
         self.render_child_folder_path(
             mail_folder_id,
@@ -142,7 +141,7 @@ impl<'a> MailFolderMessageAttachmentRequest<'a> {
         child_folders: &[&str],
         message_id: S,
         attachment_id: S,
-    ) -> IntoResponse<'a, Attachment> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         self.client.builder().set_method(Method::GET);
         self.render_child_folder_path(
             mail_folder_id,
@@ -160,7 +159,7 @@ impl<'a> MailFolderMessageAttachmentRequest<'a> {
         child_folders: &[&str],
         message_id: S,
         attachment_id: S,
-    ) -> IntoResponse<'a, Attachment> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         self.client.builder().set_method(Method::DELETE);
         self.render_child_folder_path(
             mail_folder_id,
@@ -176,8 +175,8 @@ impl<'a> MailFolderMessageAttachmentRequest<'a> {
 register_client!(ThreadPostAttachmentRequest,);
 
 impl<'a> ThreadPostAttachmentRequest<'a> {
-    get!( || list, Collection<Attachment> => "threads/{{id}}/posts/{{id2}}/attachments" );
-    get!( ||| get, Attachment => "threads/{{id}}/posts/{{id2}}/attachments/{{id3}}" );
+    get!( || list, Collection<serde_json::Value> => "threads/{{id}}/posts/{{id2}}/attachments" );
+    get!( ||| get, serde_json::Value => "threads/{{id}}/posts/{{id2}}/attachments/{{id3}}" );
     get!( ||| content, GraphResponse<Content> => "threads/{{id}}/posts/{{id2}}/attachments/{{id3}}/$value" );
     delete!( ||| delete, GraphResponse<Content> => "threads/{{id}}/posts/{{id2}}/attachments/{{id3}}" );
 }
@@ -185,8 +184,8 @@ impl<'a> ThreadPostAttachmentRequest<'a> {
 register_client!(ThreadConvoPostAttachmentRequest,);
 
 impl<'a> ThreadConvoPostAttachmentRequest<'a> {
-    get!( ||| list, Collection<Attachment> => "conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/attachments" );
-    get!( |||| get, Attachment => "conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/attachments/{{id4}}" );
+    get!( ||| list, Collection<serde_json::Value> => "conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/attachments" );
+    get!( |||| get, serde_json::Value => "conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/attachments/{{id4}}" );
     get!( |||| content, GraphResponse<Content> => "conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/attachments/{{id4}}/$value" );
     delete!( |||| delete, GraphResponse<Content> => "conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/attachments/{{id4}}" );
 }

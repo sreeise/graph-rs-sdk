@@ -44,8 +44,8 @@ fn upload_session_new() {
             match next {
                 Ok(NextSession::Next((session, response))) => {
                     println!("\nResponse: {:#?}\n", response);
-                    println!("Expiration date time: {:#?}", session.expiration_date_time);
-                    println!("Next expected ranges: {:#?}", session.next_expected_ranges);
+                    println!("Expiration date time: {:#?}", session["expirationDateTime"]);
+                    println!("Next expected ranges: {:#?}", session["nextExpectedRanges"]);
                 },
                 Ok(NextSession::Done((drive_item, response))) => {
                     // When the upload session is done the drive item metadata
