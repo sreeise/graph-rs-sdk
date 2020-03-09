@@ -1,8 +1,10 @@
 use crate::auth::OAuthReq;
 use crate::oautherror::OAuthError;
+use graph_error::GraphFailure;
 use serde_json::Map;
 use serde_json::Value;
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::str::FromStr;
 
 /// Enum for the type of JSON web token (JWT).
@@ -12,19 +14,23 @@ pub enum JwtType {
     JWE,
 }
 
-impl JwtType {
-    pub fn type_from(count: usize) -> Option<JwtType> {
-        match count {
-            2 => Some(JwtType::JWS),
-            4 => Some(JwtType::JWE),
-            _ => None,
-        }
-    }
-
-    pub fn as_str(self) -> &'static str {
+impl AsRef<str> for JwtType {
+    fn as_ref(&self) -> &str {
         match self {
             JwtType::JWE => "JWE",
             JwtType::JWS => "JWS",
+        }
+    }
+}
+
+impl TryFrom<usize> for JwtType {
+    type Error = GraphFailure;
+
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        match value {
+            2 => Ok(JwtType::JWS),
+            4 => Ok(JwtType::JWE),
+            _ => OAuthError::invalid_data("Invalid Key"),
         }
     }
 }
@@ -87,7 +93,7 @@ impl FromStr for Algorithm {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "HS256" => Ok(Algorithm::HS256),
-            "HS384" => Ok(Algorithm::ES384),
+            "HS384" => Ok(Algorithm::HS384),
             "HS512" => Ok(Algorithm::HS512),
             "RS256" => Ok(Algorithm::RS256),
             "RS384" => Ok(Algorithm::RS384),
@@ -183,9 +189,8 @@ impl JwtParser {
         jwt.header = Some(jwt_header);
 
         // Step 6
-        let count = input.matches('.').count();
-        let jwt_type =
-            JwtType::type_from(count).ok_or_else(|| OAuthError::invalid("Invalid Key"))?;
+        let count: usize = input.matches('.').count();
+        let jwt_type = JwtType::try_from(count)?;
 
         jwt.jwt_type = Some(jwt_type);
 
