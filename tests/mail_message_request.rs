@@ -20,10 +20,10 @@ fn list_and_get_messages() {
                 .mail()
                 .messages()
                 .list()
-                .value()
+                .send()
             {
-                let value = res.value().clone();
-                let value = value["value"][0].clone();
+                let value = res.value().value().unwrap();
+                let value = value[0].clone();
                 let message_id = value["id"].as_str().unwrap();
 
                 let get_req = client
@@ -32,7 +32,7 @@ fn list_and_get_messages() {
                     .mail()
                     .messages()
                     .get(message_id)
-                    .value();
+                    .send();
 
                 if let Ok(response) = get_req {
                     println!("{:#?}", response);
@@ -79,7 +79,7 @@ fn mail_create_and_delete_message() {
                             }
                     ]
                 }))
-                .value();
+                .send();
 
             if let Ok(message) = result {
                 let message_id = message.value()["id"].as_str().unwrap();

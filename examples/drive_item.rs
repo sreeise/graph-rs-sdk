@@ -1,7 +1,6 @@
 use from_as::*;
 use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
-use graph_rs_types::entitytypes::DriveItem;
 use std::convert::TryFrom;
 
 fn main() {
@@ -19,24 +18,22 @@ fn main() {
 }
 
 fn drive_root(graph: &mut Graph) {
-    let drive_item: GraphResponse<DriveItem> = graph.v1().me().drive().root().send().unwrap();
+    let drive_item: GraphResponse<serde_json::Value> = graph.v1().me().drive().root().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn drive_root_children(graph: &mut Graph) {
-    let drive_item: GraphResponse<Collection<DriveItem>> =
-        graph.v1().me().drive().root_children().send().unwrap();
+    let drive_item = graph.v1().me().drive().root_children().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn special_docs(graph: &mut Graph) {
-    let drive_item: GraphResponse<DriveItem> =
-        graph.v1().me().drive().special_documents().send().unwrap();
+    let drive_item = graph.v1().me().drive().special_documents().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn special_docs_child(graph: &mut Graph) {
-    let drive_item: GraphResponse<Collection<DriveItem>> = graph
+    let drive_item = graph
         .v1()
         .me()
         .drive()

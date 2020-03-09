@@ -26,8 +26,8 @@ fn update() {
         .me()
         .drive()
         .update(ITEM_ID, &value)
-        .value()
+        .send()
         .unwrap();
 
-    println!("{:#?}", updated.value());
+    println!("{:#?}", updated);
 }

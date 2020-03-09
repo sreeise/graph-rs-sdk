@@ -22,15 +22,17 @@ fn list_get_notebooks_and_sections() {
                 .onenote()
                 .notebooks()
                 .list()
-                .value();
+                .send();
+
+            println!("{:#?}", notebooks);
 
             if let Ok(collection) = notebooks {
-                let vec = collection.value()["value"].as_array().unwrap();
+                let vec = collection.value().value().unwrap();
 
                 let mut found_test_notebook = false;
                 let mut notebook_id = String::new();
                 for value in vec.iter() {
-                    if value["Name"].as_str().unwrap().eq("TestNotebook") {
+                    if value["displayName"].as_str().unwrap().eq("TestNotebook") {
                         found_test_notebook = true;
                         notebook_id.push_str(value["id"].as_str().unwrap());
                     }
@@ -43,10 +45,10 @@ fn list_get_notebooks_and_sections() {
                     .onenote()
                     .notebooks()
                     .get(notebook_id.as_str())
-                    .value();
+                    .send();
 
                 if let Ok(notebook) = get_notebook {
-                    assert_eq!("TestNotebook", notebook.value()["Name"].as_str().unwrap());
+                    assert_eq!("TestNotebook", notebook.value()["displayName"].as_str().unwrap());
                 } else if let Err(e) = get_notebook {
                     panic!(
                         "Request error. Method: onenote notebooks get. Error: {:#?}",
@@ -60,10 +62,11 @@ fn list_get_notebooks_and_sections() {
                     .onenote()
                     .notebooks()
                     .list_sections(notebook_id.as_str())
-                    .value();
+                    .send();
 
                 if let Ok(collection) = sections {
-                    let section_name = collection.value()["value"][0]["Name"].as_str().unwrap();
+                    let vec = collection.into_value().into_inner();
+                    let section_name = vec[0]["displayName"].as_str().unwrap();
                     assert_eq!("TestSection", section_name);
                 } else if let Err(e) = sections {
                     panic!(
@@ -97,7 +100,7 @@ fn create_delete_page() {
                 .users(&id)
                 .onenote()
                 .create_page("./test_files/onenotepage.html")
-                .value();
+                .send();
 
             if let Ok(page) = res {
                 let page_id = page.value()["id"].as_str().unwrap();

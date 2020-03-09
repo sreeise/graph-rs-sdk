@@ -6,10 +6,6 @@ use crate::types::collection::Collection;
 use crate::types::content::Content;
 use crate::types::delta::DeltaRequest;
 use graph_error::{GraphFailure, GraphRsError};
-use graph_rs_types::complextypes::{ItemPreviewInfo, Thumbnail};
-use graph_rs_types::entitytypes::{
-    BaseItem, DriveItem, DriveItemVersion, ItemActivity, ItemActivityStat, ThumbnailSet,
-};
 use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use reqwest::Method;
@@ -45,30 +41,30 @@ register_client!(
 );
 
 impl<'a> DriveRequest<'a> {
-    get!( drive, BaseItem => "{{drive_root}}" );
-    get!( root, DriveItem => "{{drive_root}}/root" );
-    get!( recent, Collection<DriveItem> => "{{drive_root}}/recent" );
-    get!( delta, DeltaRequest<Collection<DriveItem>> => "{{drive_root}}/root/delta" );
-    get!( root_children, Collection<DriveItem> => "{{drive_root}}/root/children" );
-    get!( drive_activity, Collection<ItemActivity> => "{{drive_root}}/activities" );
-    get!( thumbnails, Collection<ThumbnailSet> => "{{drive_item}}/thumbnails" );
-    get!( shared_with_me, Collection<DriveItem> => "{{drive_root}}/sharedWithMe" );
-    get!( | special_folder, DriveItem => "{{drive_root}}/special/{{id}}" );
-    get!( special_documents, DriveItem => "{{drive_root}}/special/documents" );
-    get!( special_documents_children, Collection<DriveItem> => "{{drive_root}}/special/documents/children" );
-    get!( special_photos, DriveItem => "{{drive_root}}/special/photos" );
-    get!( special_photos_children, Collection<DriveItem> => "{{drive_root}}/special/photos/children" );
-    get!( special_camera_roll, DriveItem => "{{drive_root}}/special/cameraroll" );
-    get!( special_camera_roll_children, Collection<DriveItem> => "{{drive_root}}/special/cameraroll/children" );
-    get!( special_app_root, DriveItem => "{{drive_root}}/special/approot" );
-    get!( special_app_root_children, Collection<DriveItem> => "{{drive_root}}/special/approot/children" );
-    get!( special_music, DriveItem => "{{drive_root}}/special/music" );
-    get!( special_music_children, Collection<DriveItem> => "{{drive_root}}/special/music/children" );
+    get!( drive, serde_json::Value => "{{drive_root}}" );
+    get!( root, serde_json::Value => "{{drive_root}}/root" );
+    get!( recent, Collection<serde_json::Value> => "{{drive_root}}/recent" );
+    get!( delta, DeltaRequest<Collection<serde_json::Value>> => "{{drive_root}}/root/delta" );
+    get!( root_children, Collection<serde_json::Value> => "{{drive_root}}/root/children" );
+    get!( drive_activity, Collection<serde_json::Value> => "{{drive_root}}/activities" );
+    get!( thumbnails, Collection<serde_json::Value> => "{{drive_item}}/thumbnails" );
+    get!( shared_with_me, Collection<serde_json::Value> => "{{drive_root}}/sharedWithMe" );
+    get!( | special_folder, serde_json::Value => "{{drive_root}}/special/{{id}}" );
+    get!( special_documents, serde_json::Value => "{{drive_root}}/special/documents" );
+    get!( special_documents_children, Collection<serde_json::Value> => "{{drive_root}}/special/documents/children" );
+    get!( special_photos, serde_json::Value => "{{drive_root}}/special/photos" );
+    get!( special_photos_children, Collection<serde_json::Value> => "{{drive_root}}/special/photos/children" );
+    get!( special_camera_roll, serde_json::Value => "{{drive_root}}/special/cameraroll" );
+    get!( special_camera_roll_children, Collection<serde_json::Value> => "{{drive_root}}/special/cameraroll/children" );
+    get!( special_app_root, serde_json::Value => "{{drive_root}}/special/approot" );
+    get!( special_app_root_children, Collection<serde_json::Value> => "{{drive_root}}/special/approot/children" );
+    get!( special_music, serde_json::Value => "{{drive_root}}/special/music" );
+    get!( special_music_children, Collection<serde_json::Value> => "{{drive_root}}/special/music/children" );
 
     pub fn list_children<S: AsRef<str>>(
         &'a self,
         id: S,
-    ) -> IntoResponse<'a, Collection<DriveItem>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -81,7 +77,7 @@ impl<'a> DriveRequest<'a> {
     pub fn item_activity<S: AsRef<str>>(
         &'a self,
         id: S,
-    ) -> IntoResponse<'a, Collection<DriveItem>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -91,7 +87,7 @@ impl<'a> DriveRequest<'a> {
         IntoResponse::new(self.client)
     }
 
-    pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, DriveItem> {
+    pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, serde_json::Value> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -105,7 +101,7 @@ impl<'a> DriveRequest<'a> {
         &'a self,
         id: S,
         body: &B,
-    ) -> IntoResponse<'a, DriveItem> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
@@ -137,7 +133,7 @@ impl<'a> DriveRequest<'a> {
         &'a self,
         id: S,
         body: &B,
-    ) -> IntoResponse<'a, DriveItem> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
@@ -185,7 +181,7 @@ impl<'a> DriveRequest<'a> {
     pub fn list_versions<S: AsRef<str>>(
         &self,
         id: S,
-    ) -> IntoResponse<'a, Collection<DriveItemVersion>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -200,7 +196,7 @@ impl<'a> DriveRequest<'a> {
         id: S,
         thumb_id: &str,
         size: &str,
-    ) -> IntoResponse<'a, Thumbnail> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         self.client.builder().set_method(Method::GET);
         render_path!(
             self.client,
@@ -237,7 +233,7 @@ impl<'a> DriveRequest<'a> {
         &'a self,
         id: S,
         file: P,
-    ) -> IntoResponse<'a, DriveItem> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         let file = File::open(file).map_err(GraphFailure::from);
         if let Err(err) = file {
             return IntoResponse::new_error(self.client, err);
@@ -259,7 +255,7 @@ impl<'a> DriveRequest<'a> {
         &'a self,
         id: S,
         file: P,
-    ) -> IntoResponse<'a, DriveItem> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         if id.as_ref().starts_with(':') {
             let file = File::open(file).map_err(GraphFailure::from);
             if let Err(err) = file {
@@ -352,7 +348,7 @@ impl<'a> DriveRequest<'a> {
         &'a self,
         id: S,
         body: Option<&B>,
-    ) -> IntoResponse<'a, ItemPreviewInfo> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         if let Some(body) = body {
             let body = serde_json::to_string(body);
             if let Ok(body) = body {
@@ -445,7 +441,7 @@ impl<'a> DriveRequest<'a> {
         &'a self,
         id: S,
         body: &B,
-    ) -> IntoResponse<'a, DriveItem> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
@@ -469,7 +465,7 @@ impl<'a> DriveRequest<'a> {
         start: &str,
         end: Option<&str>,
         interval: &str,
-    ) -> IntoResponse<'a, ItemActivityStat> {
+    ) -> IntoResponse<'a, serde_json::Value> {
         self.client.builder().set_method(Method::GET);
         if let Some(end) = end {
             let interval = format!(

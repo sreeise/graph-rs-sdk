@@ -1,5 +1,5 @@
 use graph_error::{GraphError, GraphResult};
-use graph_rs::http::{NextSession, Session};
+use graph_rs::http::NextSession;
 use graph_rs::prelude::*;
 use std::collections::HashMap;
 use std::ffi::OsStr;
@@ -35,14 +35,14 @@ fn create_delete_folder() {
                 .send();
 
             if let Ok(response) = create_folder_res {
-                let item_id = response.value().id.clone().unwrap();
+                let item_id = response.value()["id"].as_str().unwrap();
                 thread::sleep(Duration::from_secs(2));
 
                 let req = client
                     .v1()
-                    .drives(id.as_str())
+                    .drives(id)
                     .drive()
-                    .delete(item_id.as_str())
+                    .delete(item_id)
                     .send();
 
                 if let Ok(res) = req {
@@ -68,7 +68,7 @@ fn list_versions_get_item() {
                 .users(id.as_str())
                 .drive()
                 .get_item(":/copy_folder:")
-                .value();
+                .send();
 
             if let Ok(res) = get_item_res {
                 assert!(res.value()["id"].as_str().is_some());
@@ -79,7 +79,7 @@ fn list_versions_get_item() {
                     .users(id.as_str())
                     .drive()
                     .list_versions(item_id)
-                    .value();
+                    .send();
 
                 if let Ok(res) = versions_res {
                     assert!(res.error().is_none());
@@ -225,7 +225,7 @@ fn drive_update() {
                         "name": "update_test.docx"
                     }),
                 )
-                .value();
+                .send();
 
             if let Ok(response) = req {
                 assert_eq!(response.value()["name"].as_str(), Some("update_test.docx"));
@@ -241,7 +241,7 @@ fn drive_update() {
                             "name": "update_test_document.docx"
                         }),
                     )
-                    .value();
+                    .send();
 
                 if let Ok(response) = req {
                     assert_eq!(
@@ -272,7 +272,7 @@ fn drive_upload_new_and_replace_and_delete() {
                     ":/test_upload_file.txt:",
                     "./test_files/test_upload_file.txt",
                 )
-                .value();
+                .send();
 
             if let Ok(value) = upload_res {
                 assert!(value.value()["id"].as_str().is_some());
@@ -292,7 +292,7 @@ fn drive_upload_new_and_replace_and_delete() {
                     .drives(id.as_str())
                     .drive()
                     .upload_replace(item_id, "./test_files/test_upload_file.txt")
-                    .value();
+                    .send();
 
                 if let Ok(value) = upload_replace {
                     let item_id2 = value.value()["id"].as_str().unwrap();
@@ -331,8 +331,9 @@ fn drive_upload_session() {
         if let Some((id, bearer)) = t {
             let client = Graph::new(bearer.as_str());
 
-            let mut upload = Session::default();
-            upload.microsoft_graph_conflict_behavior = Some("fail".to_string());
+            let upload = serde_json::json!({
+                "@microsoft.graph.conflictBehavior": Some("fail".to_string())
+            });
 
             let session = client
                 .v1()

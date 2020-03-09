@@ -2,10 +2,6 @@ use crate::attachments::{MailFolderMessageAttachmentRequest, MailMessageAttachme
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
 use crate::types::{collection::Collection, content::Content, delta::DeltaRequest};
-use graph_rs_types::complextypes::MailTips;
-use graph_rs_types::entitytypes::{
-    Attachment, InferenceClassificationOverride, MailFolder, Message, MessageRule, OutlookCategory,
-};
 use handlebars::*;
 use reqwest::Method;
 
@@ -19,7 +15,7 @@ register_client!(
 );
 
 impl<'a> MailRequest<'a> {
-    get!( mail_tips, Collection<MailTips> => "getMailTips" );
+    get!( mail_tips, Collection<serde_json::Value> => "getMailTips" );
 
     pub fn messages(&'a self) -> MessageRequest<'a> {
         MessageRequest::new(self.client)
@@ -41,21 +37,21 @@ impl<'a> MailRequest<'a> {
 register_client!(MessageRequest,);
 
 impl<'a> MessageRequest<'a> {
-    get!( list, Collection<Message> => "{{mm}}" );
-    get!( | get, Message => "{{mm}}/{{id}}" );
+    get!( list, Collection<serde_json::Value> => "{{mm}}" );
+    get!( | get, serde_json::Value => "{{mm}}/{{id}}" );
     get!( content, GraphResponse<Content> => "{{mm}}/{{id}}/$value" );
-    post!( | create_reply, Message => "{{mm}}/{{id}}/createReply" );
-    post!( | create_reply_all, Message => "{{mm}}/{{id}}/createReplyAll" );
-    post!( | create_forward, Message => "{{mm}}/{{id}}/createForward" );
+    post!( | create_reply, serde_json::Value => "{{mm}}/{{id}}/createReply" );
+    post!( | create_reply_all, serde_json::Value => "{{mm}}/{{id}}/createReplyAll" );
+    post!( | create_forward, serde_json::Value => "{{mm}}/{{id}}/createForward" );
     post!( [ | forward, GraphResponse<Content> => "{{mm}}/{{id}}/forward" ] );
-    post!( | send_message, Message => "{{mm}}/{{id}}/send" );
-    post!( [ create, Message => "{{mm}}" ] );
+    post!( | send_message, serde_json::Value => "{{mm}}/{{id}}/send" );
+    post!( [ create, serde_json::Value => "{{mm}}" ] );
     post!( [ send_mail, GraphResponse<Content> => "sendMail" ] );
-    post!( [ | copy, Message => "{{mm}}/{{id}}/copy" ] );
-    post!( [ | move_message, Message => "{{mm}}/{{id}}/move" ] );
+    post!( [ | copy, serde_json::Value => "{{mm}}/{{id}}/copy" ] );
+    post!( [ | move_message, serde_json::Value => "{{mm}}/{{id}}/move" ] );
     post!( [ | reply, GraphResponse<Content> => "{{mm}}/{{id}}/reply" ] );
     post!( [ | reply_all, GraphResponse<Content> => "{{mm}}/{{id}}/replyAll" ] );
-    patch!( [ | update, Message => "{{mm}}/{{id}}" ] );
+    patch!( [ | update, serde_json::Value => "{{mm}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{mm}}/{{id}}" );
 
     pub fn attachments(&'a self) -> MailMessageAttachmentRequest<'a> {
@@ -66,32 +62,32 @@ impl<'a> MessageRequest<'a> {
 register_client!(MailFolderRequest,);
 
 impl<'a> MailFolderRequest<'a> {
-    get!( list, Collection<MailFolder> => "{{mf}}" );
-    get!( | list_child_folders, Collection<MailFolder> => "{{mf}}/{{id}}/childFolders" );
-    get!( | get, MailFolder => "{{mf}}/{{id}}" );
-    get!( delta, DeltaRequest<Collection<MailFolder>> => "{{mf}}/delta" );
-    get!( archive, MailFolder => "{{mf}}/archive" );
-    get!( inbox, MailFolder => "{{mf}}/inbox" );
-    get!( clutter, MailFolder => "{{mf}}/clutter" );
-    get!( conflicts, MailFolder => "{{mf}}/conflicts" );
-    get!( conversation_history, MailFolder => "{{mf}}/conversationhistory" );
-    get!( deleted_items, MailFolder => "{{mf}}/deleteditems" );
-    get!( drafts, MailFolder => "{{mf}}/drafts" );
-    get!( junk_email, MailFolder => "{{mf}}/junkemail" );
-    get!( local_failures, MailFolder => "{{mf}}/localfailures" );
-    get!( msg_folder_root, MailFolder => "{{mf}}/msgfolderroot" );
-    get!( outbox, MailFolder => "{{mf}}/outbox" );
-    get!( recoverable_items_deletions, MailFolder => "{{mf}}/recoverableitemsdeletions" );
-    get!( scheduled, MailFolder => "{{mf}}/scheduled" );
-    get!( search_folders, MailFolder => "{{mf}}/searchfolders" );
-    get!( send_items, MailFolder => "{{mf}}/sentitems" );
-    get!( server_failures, MailFolder => "{{mf}}/serverfailures" );
-    get!( sync_issues, MailFolder => "{{mf}}/syncissues" );
-    post!( [ | copy, MailFolder => "{{mf}}/{{id}}/copy" ] );
-    post!( [ create, MailFolder => "{{mf}}" ] );
-    post!( [ create_child_folder, MailFolder => "{{mf}}/childFolders" ] );
-    post!( [ | move_mail_folder, MailFolder => "{{mf}}/{{id}}/move" ] );
-    patch!( [ | update, MailFolder => "{{mf}}/{{id}}" ] );
+    get!( list, Collection<serde_json::Value> => "{{mf}}" );
+    get!( | list_child_folders, Collection<serde_json::Value> => "{{mf}}/{{id}}/childFolders" );
+    get!( | get, serde_json::Value => "{{mf}}/{{id}}" );
+    get!( delta, DeltaRequest<Collection<serde_json::Value>> => "{{mf}}/delta" );
+    get!( archive, serde_json::Value => "{{mf}}/archive" );
+    get!( inbox, serde_json::Value => "{{mf}}/inbox" );
+    get!( clutter, serde_json::Value => "{{mf}}/clutter" );
+    get!( conflicts, serde_json::Value => "{{mf}}/conflicts" );
+    get!( conversation_history, serde_json::Value => "{{mf}}/conversationhistory" );
+    get!( deleted_items, serde_json::Value => "{{mf}}/deleteditems" );
+    get!( drafts, serde_json::Value => "{{mf}}/drafts" );
+    get!( junk_email, serde_json::Value => "{{mf}}/junkemail" );
+    get!( local_failures, serde_json::Value => "{{mf}}/localfailures" );
+    get!( msg_folder_root, serde_json::Value => "{{mf}}/msgfolderroot" );
+    get!( outbox, serde_json::Value => "{{mf}}/outbox" );
+    get!( recoverable_items_deletions, serde_json::Value => "{{mf}}/recoverableitemsdeletions" );
+    get!( scheduled, serde_json::Value => "{{mf}}/scheduled" );
+    get!( search_folders, serde_json::Value => "{{mf}}/searchfolders" );
+    get!( send_items, serde_json::Value => "{{mf}}/sentitems" );
+    get!( server_failures, serde_json::Value => "{{mf}}/serverfailures" );
+    get!( sync_issues, serde_json::Value => "{{mf}}/syncissues" );
+    post!( [ | copy, serde_json::Value => "{{mf}}/{{id}}/copy" ] );
+    post!( [ create,serde_json::Value => "{{mf}}" ] );
+    post!( [ create_child_folder, serde_json::Value => "{{mf}}/childFolders" ] );
+    post!( [ | move_mail_folder, serde_json::Value => "{{mf}}/{{id}}/move" ] );
+    patch!( [ | update, serde_json::Value => "{{mf}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{mf}}/{{id}}" );
 
     pub fn messages(&'a self) -> MailFolderMessageRequest<'a> {
@@ -110,55 +106,55 @@ impl<'a> MailFolderRequest<'a> {
 register_client!(MailFolderMessageRequest,);
 
 impl<'a> MailFolderMessageRequest<'a> {
-    get!( | list, Collection<Message> => "{{mf}}/{{id}}/messages" );
-    get!( || get, Collection<Message> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
-    get!( || list_attachments, Collection<Attachment> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" );
-    get!( list_archive, Collection<Message> => "{{mf}}/archive/messages" );
-    get!( list_inbox, Collection<Message> => "{{mf}}/inbox/messages" );
-    get!( list_clutter, Collection<Message> => "{{mf}}/clutter/messages" );
-    get!( list_conflicts, Collection<Message> => "{{mf}}/conflicts/messages" );
-    get!( list_conversation_history, Collection<Message> => "{{mf}}/conversationhistory/messages" );
-    get!( list_deleted_items, Collection<Message> => "{{mf}}/deleteditems/messages" );
-    get!( list_drafts, Collection<Message> => "{{mf}}/drafts/messages" );
-    get!( list_junk_email, Collection<Message> => "{{mf}}/junkemail/messages" );
-    get!( list_local_failures, Collection<Message> => "{{mf}}/localfailures/messages" );
-    get!( list_msg_folder_root, Collection<Message> => "{{mf}}/msgfolderroot/messages" );
-    get!( list_outbox, Collection<Message> => "{{mf}}/outbox/messages" );
-    get!( list_recoverable_items_deletions, Collection<Message> => "{{mf}}/recoverableitemsdeletions/messages" );
-    get!( list_scheduled, Collection<Message> => "{{mf}}/scheduled/messages" );
-    get!( list_search_folders, Collection<Message> => "{{mf}}/searchfolders/messages" );
-    get!( list_send_items, Collection<Message> => "{{mf}}/sentitems/messages" );
-    get!( list_server_failures, Collection<Message> => "{{mf}}/serverfailures/messages" );
-    get!( list_sync_issues, Collection<Message> => "{{mf}}/syncissues/messages" );
-    get!( | archive, Message => "{{mf}}/archive/messages/{{id}}" );
-    get!( | inbox, Message => "{{mf}}/inbox/messages/{{id}}" );
-    get!( | clutter, Message => "{{mf}}/clutter/messages/{{id}}" );
-    get!( | conflicts, Message => "{{mf}}/conflicts/messages/{{id}}" );
-    get!( | conversation_history, Message => "{{mf}}/conversationhistory/messages/{{id}}" );
-    get!( | deleted_items, Message => "{{mf}}/deleteditems/messages/{{id}}" );
-    get!( | drafts, Message => "{{mf}}/drafts/messages/{{id}}" );
-    get!( | junk_email, Message => "{{mf}}/junkemail/messages/{{id}}" );
-    get!( | local_failures, Message => "{{mf}}/localfailures/messages/{{id}}" );
-    get!( | msg_folder_root, Message => "{{mf}}/msgfolderroot/messages/{{id}}" );
-    get!( | outbox, Message => "{{mf}}/outbox/messages" );
-    get!( | recoverable_items_deletions, Message => "{{mf}}/recoverableitemsdeletions/messages/{{id}}" );
-    get!( | scheduled, Message => "{{mf}}/scheduled/messages/{{id}}" );
-    get!( | search_folders, Message => "{{mf}}/searchfolders/messages/{{id}}" );
-    get!( | send_items, Message => "{{mf}}/sentitems/messages/{{id}}" );
-    get!( | server_failures, Message => "{{mf}}/serverfailures/messages/{{id}}" );
-    get!( | sync_issues, Message => "{{mf}}/syncissues/messages/{{id}}" );
+    get!( | list, Collection<serde_json::Value> => "{{mf}}/{{id}}/messages" );
+    get!( || get, Collection<serde_json::Value> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
+    get!( || list_attachments, Collection<serde_json::Value> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" );
+    get!( list_archive, Collection<serde_json::Value> => "{{mf}}/archive/messages" );
+    get!( list_inbox, Collection<serde_json::Value> => "{{mf}}/inbox/messages" );
+    get!( list_clutter, Collection<serde_json::Value> => "{{mf}}/clutter/messages" );
+    get!( list_conflicts, Collection<serde_json::Value> => "{{mf}}/conflicts/messages" );
+    get!( list_conversation_history, Collection<serde_json::Value> => "{{mf}}/conversationhistory/messages" );
+    get!( list_deleted_items, Collection<serde_json::Value> => "{{mf}}/deleteditems/messages" );
+    get!( list_drafts, Collection<serde_json::Value> => "{{mf}}/drafts/messages" );
+    get!( list_junk_email, Collection<serde_json::Value> => "{{mf}}/junkemail/messages" );
+    get!( list_local_failures, Collection<serde_json::Value> => "{{mf}}/localfailures/messages" );
+    get!( list_msg_folder_root, Collection<serde_json::Value> => "{{mf}}/msgfolderroot/messages" );
+    get!( list_outbox, Collection<serde_json::Value> => "{{mf}}/outbox/messages" );
+    get!( list_recoverable_items_deletions, Collection<serde_json::Value> => "{{mf}}/recoverableitemsdeletions/messages" );
+    get!( list_scheduled, Collection<serde_json::Value> => "{{mf}}/scheduled/messages" );
+    get!( list_search_folders, Collection<serde_json::Value> => "{{mf}}/searchfolders/messages" );
+    get!( list_send_items, Collection<serde_json::Value> => "{{mf}}/sentitems/messages" );
+    get!( list_server_failures, Collection<serde_json::Value> => "{{mf}}/serverfailures/messages" );
+    get!( list_sync_issues, Collection<serde_json::Value> => "{{mf}}/syncissues/messages" );
+    get!( | archive, serde_json::Value => "{{mf}}/archive/messages/{{id}}" );
+    get!( | inbox, serde_json::Value => "{{mf}}/inbox/messages/{{id}}" );
+    get!( | clutter, serde_json::Value => "{{mf}}/clutter/messages/{{id}}" );
+    get!( | conflicts, serde_json::Value => "{{mf}}/conflicts/messages/{{id}}" );
+    get!( | conversation_history, serde_json::Value => "{{mf}}/conversationhistory/messages/{{id}}" );
+    get!( | deleted_items, serde_json::Value => "{{mf}}/deleteditems/messages/{{id}}" );
+    get!( | drafts, serde_json::Value => "{{mf}}/drafts/messages/{{id}}" );
+    get!( | junk_email, serde_json::Value => "{{mf}}/junkemail/messages/{{id}}" );
+    get!( | local_failures, serde_json::Value => "{{mf}}/localfailures/messages/{{id}}" );
+    get!( | msg_folder_root, serde_json::Value => "{{mf}}/msgfolderroot/messages/{{id}}" );
+    get!( | outbox, serde_json::Value => "{{mf}}/outbox/messages" );
+    get!( | recoverable_items_deletions, serde_json::Value => "{{mf}}/recoverableitemsdeletions/messages/{{id}}" );
+    get!( | scheduled, serde_json::Value => "{{mf}}/scheduled/messages/{{id}}" );
+    get!( | search_folders, serde_json::Value => "{{mf}}/searchfolders/messages/{{id}}" );
+    get!( | send_items, serde_json::Value => "{{mf}}/sentitems/messages/{{id}}" );
+    get!( | server_failures, serde_json::Value => "{{mf}}/serverfailures/messages/{{id}}" );
+    get!( | sync_issues, serde_json::Value => "{{mf}}/syncissues/messages/{{id}}" );
     post!( [ || reply, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/reply" ] );
     post!( [ || reply_all, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/replyAll" ] );
-    post!( [ || copy, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/copy" ] );
-    post!( [ || move_message, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/move" ] );
+    post!( [ || copy, serde_json::Value => "{{mf}}/{{id}}/{{mm}}/{{id2}}/copy" ] );
+    post!( [ || move_message, serde_json::Value => "{{mf}}/{{id}}/{{mm}}/{{id2}}/move" ] );
     post!( [ || forward, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/forward" ] );
-    post!( || create_forward, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/createForward" );
-    post!( [ | create, Message => "{{mf}}/{{id}}/{{mm}}" ] );
-    post!( || create_reply, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/createReply" );
-    post!( || create_reply_all, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}/createReplyAll" );
+    post!( || create_forward, serde_json::Value => "{{mf}}/{{id}}/{{mm}}/{{id2}}/createForward" );
+    post!( [ | create, serde_json::Value => "{{mf}}/{{id}}/{{mm}}" ] );
+    post!( || create_reply, serde_json::Value => "{{mf}}/{{id}}/{{mm}}/{{id2}}/createReply" );
+    post!( || create_reply_all, serde_json::Value => "{{mf}}/{{id}}/{{mm}}/{{id2}}/createReplyAll" );
     post!( [ send_mail, GraphResponse<Content> => "sendMail" ] );
-    post!( [ || add_attachment, Attachment => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" ] );
-    patch!( [ || update, Message => "{{mf}}/{{id}}/{{mm}}/{{id2}}" ] );
+    post!( [ || add_attachment, serde_json::Value => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" ] );
+    patch!( [ || update, serde_json::Value => "{{mf}}/{{id}}/{{mm}}/{{id2}}" ] );
     delete!( || delete, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
 
     pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a> {
@@ -169,28 +165,28 @@ impl<'a> MailFolderMessageRequest<'a> {
 register_client!(MailRuleRequest,);
 
 impl<'a> MailRuleRequest<'a> {
-    get!( list, Collection<MessageRule> => "{{mfmr}}" );
-    get!( | get, MessageRule => "{{mfmr}}/{{id}}" );
-    post!( [ create, MessageRule => "{{mfmr}}" ] );
-    patch!( [ | update, MessageRule => "{{mfmr}}/{{id}}" ] );
+    get!( list, Collection<serde_json::Value> => "{{mfmr}}" );
+    get!( | get, serde_json::Value => "{{mfmr}}/{{id}}" );
+    post!( [ create, serde_json::Value => "{{mfmr}}" ] );
+    patch!( [ | update,serde_json::Value => "{{mfmr}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{mfmr}}/{{id}}" );
 }
 
 register_client!(FocusedInboxRequest,);
 
 impl<'a> FocusedInboxRequest<'a> {
-    get!( list_overrides, Collection<InferenceClassificationOverride> => "{{ico}}" );
-    patch!( [ create_override, InferenceClassificationOverride => "{{ico}}" ] );
-    patch!( [ | update_override, InferenceClassificationOverride => "{{ico}}/{{id}}" ] );
+    get!( list_overrides, Collection<serde_json::Value> => "{{ico}}" );
+    patch!( [ create_override, serde_json::Value=> "{{ico}}" ] );
+    patch!( [ | update_override, serde_json::Value => "{{ico}}/{{id}}" ] );
     delete!( | delete_override, GraphResponse<Content> => "{{ico}}/{{id}}"  );
 }
 
 register_client!(OutlookCategoryRequest,);
 
 impl<'a> OutlookCategoryRequest<'a> {
-    get!( list, Collection<OutlookCategory> => "{{olc}}" );
-    get!( | get, OutlookCategory => "{{olc}}/{{id}}" );
-    post!( [ create, OutlookCategory  => "{{olc}}" ] );
-    patch!( [ | update, OutlookCategory  => "{{olc}}/{{id}}" ] );
+    get!( list, Collection<serde_json::Value> => "{{olc}}" );
+    get!( | get, serde_json::Value => "{{olc}}/{{id}}" );
+    post!( [ create, serde_json::Value  => "{{olc}}" ] );
+    patch!( [ | update, serde_json::Value  => "{{olc}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{olc}}/{{id}}" );
 }

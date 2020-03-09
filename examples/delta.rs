@@ -1,5 +1,4 @@
 use graph_rs::prelude::*;
-use std::error::Error;
 use std::sync::mpsc::Receiver;
 
 /*

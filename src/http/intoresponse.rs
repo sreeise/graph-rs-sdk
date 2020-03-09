@@ -14,10 +14,8 @@ use std::thread;
 /// to a suitable Rust type.
 pub trait ToResponse {
     type Output;
-    type SerdeJson;
 
     fn send(&self) -> Self::Output;
-    fn value(&self) -> Self::SerdeJson;
 }
 
 pub struct IntoResponse<'a, T> {
@@ -162,15 +160,6 @@ impl<'a, T> IntoResponse<'a, T> {
         receiver
     }
 
-    fn serde_json(&self) -> GraphResult<GraphResponse<serde_json::Value>> {
-        if self.error.borrow().is_some() {
-            return Err(self.error.replace(None).unwrap());
-        }
-        let mut response = self.client.request().response(self.client.take_builder())?;
-        let value: serde_json::Value = response.json()?;
-        Ok(GraphResponse::new(response, value))
-    }
-
     pub fn json<U>(&self) -> GraphResult<U>
     where
         for<'de> U: serde::Deserialize<'de>,
@@ -188,7 +177,6 @@ where
     for<'de> T: serde::Deserialize<'de>,
 {
     type Output = GraphResult<GraphResponse<T>>;
-    type SerdeJson = GraphResult<GraphResponse<serde_json::Value>>;
 
     fn send(&self) -> Self::Output {
         if self.error.borrow().is_some() {
@@ -197,15 +185,10 @@ where
         let builder = self.client.take_builder();
         self.client.request().execute(builder)
     }
-
-    fn value(&self) -> Self::SerdeJson {
-        self.serde_json()
-    }
 }
 
 impl<'a> ToResponse for IntoResponse<'a, UploadSessionClient> {
     type Output = GraphResult<UploadSessionClient>;
-    type SerdeJson = GraphResult<GraphResponse<serde_json::Value>>;
 
     fn send(&self) -> Self::Output {
         if self.error.borrow().is_some() {
@@ -215,15 +198,10 @@ impl<'a> ToResponse for IntoResponse<'a, UploadSessionClient> {
             .request()
             .upload_session(self.client.take_builder())
     }
-
-    fn value(&self) -> Self::SerdeJson {
-        self.serde_json()
-    }
 }
 
 impl<'a> ToResponse for IntoResponse<'a, GraphResponse<Content>> {
     type Output = GraphResult<GraphResponse<Content>>;
-    type SerdeJson = GraphResult<GraphResponse<serde_json::Value>>;
 
     fn send(&self) -> Self::Output {
         if self.error.borrow().is_some() {
@@ -233,25 +211,6 @@ impl<'a> ToResponse for IntoResponse<'a, GraphResponse<Content>> {
         let response = self.client.request().response(builder)?;
         Ok(GraphResponse::try_from(response)?)
     }
-
-    fn value(&self) -> Self::SerdeJson {
-        if self.error.borrow().is_some() {
-            return Err(self.error.replace(None).unwrap());
-        }
-        let builder = self.client.take_builder();
-        let mut response = self.client.request().response(builder)?;
-        if let Ok(content) = response.text() {
-            Ok(GraphResponse::new(
-                response,
-                serde_json::json!({ "content": content }),
-            ))
-        } else {
-            Ok(GraphResponse::new(
-                response,
-                serde_json::json!({ "content": "" }),
-            ))
-        }
-    }
 }
 
 impl<'a, T: 'static + Send + NextLink + Clone> ToResponse for IntoResponse<'a, DeltaRequest<T>>
@@ -259,13 +218,8 @@ where
     for<'de> T: serde::Deserialize<'de>,
 {
     type Output = Receiver<Delta<T>>;
-    type SerdeJson = Receiver<Delta<serde_json::Value>>;
 
     fn send(&self) -> Self::Output {
         self.delta::<T>()
-    }
-
-    fn value(&self) -> Self::SerdeJson {
-        self.delta::<serde_json::Value>()
     }
 }

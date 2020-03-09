@@ -1,7 +1,6 @@
 use from_as::*;
 use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
-use graph_rs_types::entitytypes::DriveItem;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 
@@ -19,7 +18,7 @@ fn create_new_folder() {
     let drive = Graph::try_from(&oauth).unwrap();
     let folder: HashMap<String, serde_json::Value> = HashMap::new();
 
-    let drive_item: GraphResponse<DriveItem> = drive
+    let drive_item: GraphResponse<serde_json::Value> = drive
         .v1()
         .me()
         .drive()

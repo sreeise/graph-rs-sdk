@@ -3,7 +3,6 @@ use crate::http::{DownloadClient, GraphResponse, UploadSessionClient};
 use crate::url::GraphUrl;
 use crate::GRAPH_URL;
 use graph_error::{GraphFailure, GraphResult};
-use graph_rs_types::complextypes::UploadSession;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::multipart;
 use reqwest::{Method, RedirectPolicy, RequestBuilder};
@@ -179,7 +178,7 @@ impl GraphRequest {
             return Err(err);
         }
 
-        let upload_session: UploadSession = response.json()?;
+        let upload_session: serde_json::Value = response.json()?;
         let mut session = UploadSessionClient::new(upload_session)?;
         session.set_file(file)?;
         Ok(session)

@@ -19,6 +19,10 @@ impl<T> GraphResponse<T> {
         &self.value
     }
 
+    pub fn into_value(self) -> T {
+        self.value
+    }
+
     pub fn response(&self) -> &reqwest::Response {
         &self.response
     }

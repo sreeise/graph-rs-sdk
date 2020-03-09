@@ -1,8 +1,6 @@
 use crate::http::HttpByteRange;
 use from_as::*;
 use graph_error::{GraphFailure, GraphResult};
-use graph_rs_types::complextypes::FileSystemInfo;
-use graph_rs_types::complextypes::UploadSession;
 use reqwest::header::{CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
 use reqwest::{RequestBuilder, Response};
 use std::convert::TryFrom;
@@ -17,7 +15,7 @@ pub struct Session {
     pub description: Option<String>,
     #[serde(rename = "fileSystemInfo")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub file_system_info: Option<FileSystemInfo>,
+    pub file_system_info: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 }
@@ -27,7 +25,7 @@ pub trait StartUploadSession {
 }
 
 pub enum NextSession {
-    Next((UploadSession, Response)),
+    Next((serde_json::Value, Response)),
     Done((serde_json::Value, Response)),
 }
 
@@ -38,11 +36,8 @@ pub struct UploadSessionClient {
 }
 
 impl UploadSessionClient {
-    pub fn new(upload_session: UploadSession) -> GraphResult<UploadSessionClient> {
-        let url = upload_session
-            .upload_url
-            .as_ref()
-            .ok_or_else(|| GraphFailure::invalid("upload url from response"))?;
+    pub fn new(upload_session: serde_json::Value) -> GraphResult<UploadSessionClient> {
+        let url = upload_session["uploadUrl"].as_str()?;
         Ok(UploadSessionClient {
             upload_session_url: url.to_string(),
             byte_ranges: Default::default(),
@@ -111,7 +106,7 @@ impl Iterator for UploadSessionClient {
                     Err(e) => return Some(Err(e)),
                 }
             } else {
-                let result: GraphResult<UploadSession> =
+                let result: GraphResult<serde_json::Value> =
                     response.json().map_err(GraphFailure::from);
                 match result {
                     Ok(next) => return Some(Ok(NextSession::Next((next, response)))),
