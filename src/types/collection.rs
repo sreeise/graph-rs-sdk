@@ -87,7 +87,10 @@ impl<T> Collection<T> {
         &mut self.value
     }
 
-    pub fn clone_inner(&mut self) -> Vec<T> where T: std::clone::Clone {
+    pub fn clone_inner(&mut self) -> Vec<T>
+    where
+        T: std::clone::Clone,
+    {
         self.value.clone().unwrap_or_default().to_vec()
     }
 

@@ -18,7 +18,8 @@ fn main() {
 }
 
 fn drive_root(graph: &mut Graph) {
-    let drive_item: GraphResponse<serde_json::Value> = graph.v1().me().drive().root().send().unwrap();
+    let drive_item: GraphResponse<serde_json::Value> =
+        graph.v1().me().drive().root().send().unwrap();
     println!("{:#?}", drive_item);
 }
 

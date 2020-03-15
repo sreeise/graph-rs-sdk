@@ -297,10 +297,13 @@ impl<'a> IdentSites<'a> {
                 interval
             ));
         } else {
-            render_path!(self.client, &format!(
-                "sites/{{{{RID}}}}/getActivitiesByInterval(startDateTime='{}',interval='{}')",
-                start, interval
-            ));
+            render_path!(
+                self.client,
+                &format!(
+                    "sites/{{{{RID}}}}/getActivitiesByInterval(startDateTime='{}',interval='{}')",
+                    start, interval
+                )
+            );
         }
         IntoResponse::new(self.client)
     }
@@ -387,8 +390,8 @@ impl<'a> GroupConversationRequest<'a> {
     get!( | get, serde_json::Value => "groups/{{RID}}/{{co}}/{{id}}" );
     post!( [ create, serde_json::Value => "groups/{{RID}}/{{co}}" ] );
     post!( [ | create_thread, serde_json::Value => "groups/{{RID}}/{{co}}/{{id}}/threads" ] );
-    post!( [ create_accepted_sender, GraphResponse<serde_json::Value> => "groups/{{RID}}/acceptedSenders/$ref" ] );
-    delete!( | delete, GraphResponse<serde_json::Value> => "groups/{{RID}}/{{co}}/{{id}}" );
+    post!( [ create_accepted_sender, GraphResponse<Content> => "groups/{{RID}}/acceptedSenders/$ref" ] );
+    delete!( | delete, GraphResponse<Content> => "groups/{{RID}}/{{co}}/{{id}}" );
 
     pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a> {
         GroupThreadPostRequest::new(self.client)

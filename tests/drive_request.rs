@@ -38,12 +38,7 @@ fn create_delete_folder() {
                 let item_id = response.value()["id"].as_str().unwrap();
                 thread::sleep(Duration::from_secs(2));
 
-                let req = client
-                    .v1()
-                    .drives(id)
-                    .drive()
-                    .delete(item_id)
-                    .send();
+                let req = client.v1().drives(id).drive().delete(item_id).send();
 
                 if let Ok(res) = req {
                     assert!(res.error().is_none());
