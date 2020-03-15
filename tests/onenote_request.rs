@@ -48,7 +48,10 @@ fn list_get_notebooks_and_sections() {
                     .send();
 
                 if let Ok(notebook) = get_notebook {
-                    assert_eq!("TestNotebook", notebook.value()["displayName"].as_str().unwrap());
+                    assert_eq!(
+                        "TestNotebook",
+                        notebook.value()["displayName"].as_str().unwrap()
+                    );
                 } else if let Err(e) = get_notebook {
                     panic!(
                         "Request error. Method: onenote notebooks get. Error: {:#?}",

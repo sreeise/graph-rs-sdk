@@ -82,8 +82,7 @@ fn rocket_request_drive_info(request: &str) -> serde_json::Value {
     let client = Client::new(rocket()).expect("valid rocket instance");
     let mut response = client.get(request).dispatch();
     assert_eq!(response.status(), Status::Ok);
-    let drive_info =
-        serde_json::from_str(response.body_string().as_ref().unwrap()).unwrap();
+    let drive_info = serde_json::from_str(response.body_string().as_ref().unwrap()).unwrap();
     drive_info
 }
 
@@ -124,13 +123,7 @@ fn drive_root_item() {
     });
 
     assert_eq!(
-        drive_item
-            .value()
-            .as_ref()
-            .unwrap()
-            .last()
-            .unwrap()
-            ["fileSystemInfo"],
+        drive_item.value().as_ref().unwrap().last().unwrap()["fileSystemInfo"],
         file_system_info
     );
 
@@ -148,7 +141,10 @@ fn drive_recent_item() {
 #[test]
 fn drive_special_photo_folder() {
     let drive_item = rocket_request_drive_item("/v1.0/me/drive/special/photos");
-    assert_eq!(drive_item["id"].as_str().unwrap(), "189302sal4098740fjhlk34");
+    assert_eq!(
+        drive_item["id"].as_str().unwrap(),
+        "189302sal4098740fjhlk34"
+    );
 }
 
 #[test]
@@ -171,6 +167,8 @@ fn drive_item_versions() {
         value["@microsoft.graph.downloadUrl"].as_str().unwrap(),
         "https://public.bl.files.1drv.com"
     );
-    let name = value["lastModifiedBy"]["user"]["displayName"].as_str().unwrap();
+    let name = value["lastModifiedBy"]["user"]["displayName"]
+        .as_str()
+        .unwrap();
     assert_eq!(name, "Megan Bowen");
 }
