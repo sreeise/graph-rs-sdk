@@ -6,10 +6,9 @@
 ### Graph API Client in Rust
 
 Disclaimer:
-Integrates with OneDrive, Mail, Calendars, and OneNote. 
-Additional APIs are being added and may not be stable. Please create an issues if you 
-experience any problems. Note that some APIs may be specific to the Graph v1.0 or Graph beta. 
-
+Integrates with several parts of the Graph API including OneDrive, Mail, Calendars, and OneNote. However,
+I have had limited time to work on this lately and so adding more Graph APIs will be slow.
+ 
 ### Install and Building - Requires Rust nightly
 For Windows install the Windows build tools (And related Visual Studio components for Rust to work on Windows).
 
@@ -132,7 +131,7 @@ let json = client.v1()
     .mail()
     .messages()
     .list()
-    .value()?;
+    .send()?;
               
 // Create a message
 let response = client.v1()
@@ -152,7 +151,7 @@ let response = client.v1()
             }
         }]
     }))
-    .value()?;
+    .send()?;
         
 println!("{:#?}", response.value()); // => Message
 
@@ -176,7 +175,7 @@ let draft_message_response = client.v1()
                 }
             }
          ]
-    })).value();
+    })).send();
 
 println!("{:#?}", draft_message_response);
         
