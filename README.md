@@ -7,7 +7,7 @@
 
 Disclaimer:
 Integrates with several parts of the Graph API including OneDrive, Mail, Calendars, and OneNote. However,
-I have had limited time to work on this lately and so adding more Graph APIs will be slow.
+I have had limited time to work on this lately so future work will be slow.
  
 ### Install and Building - Requires Rust nightly
 For Windows install the Windows build tools (And related Visual Studio components for Rust to work on Windows).
