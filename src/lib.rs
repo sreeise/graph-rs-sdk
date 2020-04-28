@@ -82,6 +82,9 @@ pub mod calendar;
 pub mod contacts;
 /// OneDrive request client.
 pub mod drive;
+/// Groups request client.
+pub mod groups;
+/// Various internal http helpers.
 pub mod http;
 /// Mail request client.
 pub mod mail;
