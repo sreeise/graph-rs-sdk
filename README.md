@@ -12,7 +12,10 @@ I have had limited time to work on this lately so future work will be slow.
 ### Install and Building - Requires Rust nightly
 For Windows install the Windows build tools (And related Visual Studio components for Rust to work on Windows).
 
-Install OpenSSL - see https://docs.rs/openssl for install information.
+Install OpenSSL - The openssl crate has a feature called 'vendored' which is used in this crate. The feature
+automatically downloads openssl for your system but this build process also requires having a C compiler, 
+perl, and make so you will need to install these yourself. see https://docs.rs/openssl for more 
+information.
 
 Normal Rust build using cargo. The nightly version is set in the rust-toolchain file.
 
