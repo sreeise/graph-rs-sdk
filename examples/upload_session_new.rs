@@ -42,16 +42,16 @@ fn upload_session_new() {
 
         while let Some(next) = iter.next() {
             match next {
-                Ok(NextSession::Next((session, response))) => {
+                Ok(NextSession::Next(response)) => {
                     println!("\nResponse: {:#?}\n", response);
-                    println!("Expiration date time: {:#?}", session["expirationDateTime"]);
-                    println!("Next expected ranges: {:#?}", session["nextExpectedRanges"]);
+                    println!("Expiration date time: {:#?}",  response.value()["expirationDateTime"]);
+                    println!("Next expected ranges: {:#?}", response.value()["nextExpectedRanges"]);
                 },
-                Ok(NextSession::Done((drive_item, response))) => {
+                Ok(NextSession::Done(response)) => {
                     // When the upload session is done the drive item metadata
                     // for the uploaded file and the last response is returned.
                     println!("\nResponse: {:#?}\n", response);
-                    println!("Session finished. DriveItem: {:#?}", drive_item);
+                    println!("Session finished. DriveItem: {:#?}", response.value());
                     break;
                 },
                 Err(e) => {

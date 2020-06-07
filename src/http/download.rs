@@ -2,7 +2,7 @@ use crate::graph_error::AsRes;
 use crate::http::{GraphRequest, GraphRequestBuilder, GraphRequestType, IoTools};
 use crate::url::GraphUrl;
 use graph_error::{GraphFailure, GraphResult, GraphRsError};
-use reqwest::{Method, Response};
+use reqwest::{Method, blocking::Response};
 use std::cell::{Cell, Ref, RefCell};
 use std::ffi::OsString;
 use std::path::Path;

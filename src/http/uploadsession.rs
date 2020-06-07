@@ -1,8 +1,8 @@
-use crate::http::HttpByteRange;
+use crate::http::{HttpByteRange, GraphResponse};
 use from_as::*;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
-use reqwest::{RequestBuilder, Response};
+use reqwest::blocking::{RequestBuilder, Response};
 use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 
@@ -25,14 +25,14 @@ pub trait StartUploadSession {
 }
 
 pub enum NextSession {
-    Next((serde_json::Value, Response)),
-    Done((serde_json::Value, Response)),
+    Next(GraphResponse<serde_json::Value>),
+    Done(GraphResponse<serde_json::Value>),
 }
 
 pub struct UploadSessionClient {
     upload_session_url: String,
     byte_ranges: HttpByteRange,
-    client: reqwest::Client,
+    client: reqwest::blocking::Client,
 }
 
 impl UploadSessionClient {
@@ -41,7 +41,7 @@ impl UploadSessionClient {
         Ok(UploadSessionClient {
             upload_session_url: url.to_string(),
             byte_ranges: Default::default(),
-            client: reqwest::Client::new(),
+            client: reqwest::blocking::Client::new(),
         })
     }
 
@@ -99,17 +99,17 @@ impl Iterator for UploadSessionClient {
 
             let status = response.status().as_u16();
             if status.eq(&200) || status.eq(&201) {
-                let result: GraphResult<serde_json::Value> =
-                    response.json().map_err(GraphFailure::from);
+                let result = GraphResponse::try_from(response)
+                    .map_err(GraphFailure::from);
                 match result {
-                    Ok(value) => return Some(Ok(NextSession::Done((value, response)))),
+                    Ok(value) => return Some(Ok(NextSession::Done(value))),
                     Err(e) => return Some(Err(e)),
                 }
             } else {
-                let result: GraphResult<serde_json::Value> =
-                    response.json().map_err(GraphFailure::from);
+                let result = GraphResponse::try_from(response)
+                    .map_err(GraphFailure::from);
                 match result {
-                    Ok(next) => return Some(Ok(NextSession::Next((next, response)))),
+                    Ok(next) => return Some(Ok(NextSession::Next(next))),
                     Err(e) => return Some(Err(e)),
                 }
             }

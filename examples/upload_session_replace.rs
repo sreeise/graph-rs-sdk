@@ -43,13 +43,13 @@ fn upload_session_replace() {
 
         while let Some(next) = iter.next() {
             match next {
-                Ok(NextSession::Next((session, response))) => {
+                Ok(NextSession::Next(response)) => {
                     println!("Response: {:#?}", response);
-                    println!("Expiration date time: {:#?}", session["expirationDateTime"]);
-                    println!("Next expected ranges: {:#?}", session["nextExpectedRanges"]);
+                    println!("Expiration date time: {:#?}",  response.value()["expirationDateTime"]);
+                    println!("Next expected ranges: {:#?}", response.value()["nextExpectedRanges"]);
                 },
-                Ok(NextSession::Done((drive_item, _response))) => {
-                    println!("Session finished. DriveItem: {:#?}", drive_item);
+                Ok(NextSession::Done(response)) => {
+                    println!("Session finished. DriveItem: {:#?}", response.value());
                     break;
                 },
                 Err(e) => {

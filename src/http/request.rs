@@ -4,10 +4,11 @@ use crate::url::GraphUrl;
 use crate::GRAPH_URL;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
-use reqwest::multipart;
-use reqwest::{Method, RedirectPolicy, RequestBuilder};
+use reqwest::blocking::multipart;
+use reqwest::{Method, redirect::Policy, blocking::RequestBuilder};
 use std::path::{Path, PathBuf};
 use url::Url;
+use std::convert::TryFrom;
 
 #[derive(Clone, Eq, PartialEq)]
 pub enum GraphRequestType {
@@ -25,7 +26,7 @@ impl Default for GraphRequestType {
 pub struct GraphRequestBuilder {
     pub url: GraphUrl,
     pub method: Method,
-    pub body: Option<reqwest::Body>,
+    pub body: Option<reqwest::blocking::Body>,
     pub headers: HeaderMap<HeaderValue>,
     pub upload_session_file: Option<PathBuf>,
     pub download_dir: Option<PathBuf>,
@@ -71,11 +72,11 @@ impl GraphRequestBuilder {
         self
     }
 
-    pub fn body(&self) -> Option<&reqwest::Body> {
+    pub fn body(&self) -> Option<&reqwest::blocking::Body> {
         self.body.as_ref()
     }
 
-    pub fn set_body<B: Into<reqwest::Body>>(&mut self, body: B) -> &mut Self {
+    pub fn set_body<B: Into<reqwest::blocking::Body>>(&mut self, body: B) -> &mut Self {
         self.body = Some(body.into());
         self
     }
@@ -138,8 +139,8 @@ impl Default for GraphRequestBuilder {
 pub struct GraphRequest {
     token: String,
     ident: Ident,
-    client: reqwest::Client,
-    redirect_client: reqwest::Client,
+    client: reqwest::blocking::Client,
+    redirect_client: reqwest::blocking::Client,
 }
 
 impl GraphRequest {
@@ -223,7 +224,7 @@ impl GraphRequest {
         }
     }
 
-    pub fn response(&mut self, request: GraphRequestBuilder) -> GraphResult<reqwest::Response> {
+    pub fn response(&mut self, request: GraphRequestBuilder) -> GraphResult<reqwest::blocking::Response> {
         let builder = self.build(request);
         let mut response = builder.send()?;
         if let Some(err) = GraphFailure::from_response(&mut response) {
@@ -236,22 +237,15 @@ impl GraphRequest {
     where
         for<'de> T: serde::Deserialize<'de>,
     {
-        let mut response = self.response(request)?;
-        let value: T = response.json()?;
-        Ok(GraphResponse::new(response, value))
+        let response = self.response(request)?;
+        GraphResponse::try_from(response)
     }
 }
 
 impl Default for GraphRequest {
     fn default() -> Self {
-        let redirect_client = reqwest::Client::builder()
-            .redirect(RedirectPolicy::custom(|attempt| {
-                // There should be only 1 redirect to download a drive item.
-                if attempt.previous().len() > 1 {
-                    return attempt.too_many_redirects();
-                }
-                attempt.stop()
-            }))
+        let redirect_client = reqwest::blocking::Client::builder()
+            .redirect(Policy::limited(2))
             .build()
             .map_err(GraphFailure::from)
             .unwrap();
@@ -259,7 +253,7 @@ impl Default for GraphRequest {
         GraphRequest {
             token: Default::default(),
             ident: Default::default(),
-            client: reqwest::Client::new(),
+            client: reqwest::blocking::Client::new(),
             redirect_client,
         }
     }

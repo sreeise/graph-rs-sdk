@@ -1,6 +1,3 @@
-use from_as::TryFrom;
-use graph_error::GraphFailure;
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Content {
     content: String,
@@ -33,14 +30,5 @@ impl AsRef<str> for Content {
 impl ToString for Content {
     fn to_string(&self) -> String {
         self.content.to_string()
-    }
-}
-
-impl TryFrom<&mut reqwest::Response> for Content {
-    type Error = GraphFailure;
-
-    fn try_from(value: &mut reqwest::Response) -> Result<Self, Self::Error> {
-        let content: String = value.text()?;
-        Ok(Content { content })
     }
 }

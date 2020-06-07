@@ -41,8 +41,8 @@ pub struct GraphHeaders {
     header_map: HeaderMap,
 }
 
-impl From<&mut reqwest::Response> for GraphHeaders {
-    fn from(r: &mut reqwest::Response) -> Self {
+impl From<&reqwest::blocking::Response> for GraphHeaders {
+    fn from(r: &reqwest::blocking::Response) -> Self {
         GraphHeaders {
             url: r.url().as_str().to_string(),
             status: r.status().as_u16(),
@@ -50,3 +50,4 @@ impl From<&mut reqwest::Response> for GraphHeaders {
         }
     }
 }
+

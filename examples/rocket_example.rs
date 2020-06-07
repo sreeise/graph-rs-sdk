@@ -5,7 +5,6 @@ extern crate rocket;
 #[allow(unused_imports)]
 #[macro_use]
 extern crate serde_json;
-extern crate reqwest;
 
 use from_as::*;
 use graph_rs::oauth::OAuth;
