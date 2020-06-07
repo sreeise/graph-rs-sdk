@@ -347,11 +347,12 @@ fn drive_upload_session() {
 
                 while let Some(next) = iter.next() {
                     match next {
-                        Ok(NextSession::Next((_, response))) => {
-                            assert!(!GraphError::is_error(response.status().as_u16()));
+                        Ok(NextSession::Next(response)) => {
+                            assert!(!GraphError::is_error(response.status()));
                         },
-                        Ok(NextSession::Done((drive_item, response))) => {
-                            assert!(!GraphError::is_error(response.status().as_u16()));
+                        Ok(NextSession::Done(response)) => {
+                            assert!(!GraphError::is_error(response.status()));
+                            let drive_item = response.value();
                             let drive_item_id =
                                 drive_item["id"].as_str().unwrap_or_default().to_string();
                             thread::sleep(Duration::from_secs(2));

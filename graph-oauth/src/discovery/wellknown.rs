@@ -16,11 +16,11 @@ impl WellKnown for Commons {
         T: serde::Serialize,
         for<'de> T: serde::Deserialize<'de>,
     {
-        let client = reqwest::Client::builder().build()?;
+        let client = reqwest::blocking::Client::builder().build()?;
         let response = client.get(url).send();
 
         match response {
-            Ok(mut t) => {
+            Ok(t) => {
                 let keys: T = t.json()?;
                 Ok(keys)
             },

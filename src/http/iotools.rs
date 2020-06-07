@@ -1,5 +1,5 @@
 use graph_error::{GraphFailure, GraphResult};
-use reqwest::Response;
+use reqwest::blocking::Response;
 use std::fs::OpenOptions;
 use std::io::copy;
 use std::path::{Path, PathBuf};

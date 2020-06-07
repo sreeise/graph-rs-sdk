@@ -115,7 +115,7 @@ impl<'a, T> IntoResponse<'a, T> {
 
         thread::spawn(move || {
             let mut is_done = false;
-            let client = reqwest::Client::new();
+            let client = reqwest::blocking::Client::new();
             while let Some(next) = next_link {
                 let res = client
                     .get(next.as_str())
@@ -135,12 +135,14 @@ impl<'a, T> IntoResponse<'a, T> {
                         sender.send(Delta::Done(Some(err))).unwrap();
                         is_done = true;
                     } else {
+                        let headers = response.headers().clone();
+                        let status = response.status().as_u16();
                         let value_res: GraphResult<U> = response.json().map_err(GraphFailure::from);
                         match value_res {
                             Ok(value) => {
                                 next_link = value.next_link();
                                 sender
-                                    .send(Delta::Next(GraphResponse::new(response, value)))
+                                    .send(Delta::Next(GraphResponse::new(value, status, headers)))
                                     .unwrap();
                             },
                             Err(err) => {
@@ -167,7 +169,7 @@ impl<'a, T> IntoResponse<'a, T> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        let mut response = self.client.request().response(self.client.take_builder())?;
+        let response = self.client.request().response(self.client.take_builder())?;
         Ok(response.json()?)
     }
 }

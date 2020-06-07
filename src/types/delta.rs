@@ -6,6 +6,7 @@ use reqwest::header::CONTENT_TYPE;
 use serde::export::PhantomData;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
+use std::convert::TryFrom;
 
 pub enum Delta<T> {
     Next(GraphResponse<T>),
@@ -26,7 +27,7 @@ pub trait DeltaLink<RHS = Self> {
         let link = self.delta_link()?;
         let token = access_token.to_string();
         let (sender, receiver) = channel();
-        let client = reqwest::Client::new();
+        let client = reqwest::blocking::Client::new();
         let response = client
             .get(link.as_str())
             .bearer_auth(token.as_str())
@@ -44,6 +45,8 @@ pub trait DeltaLink<RHS = Self> {
             return Some(receiver);
         }
 
+        let headers = res.headers().clone();
+        let status = res.status().as_u16();
         let next: GraphResult<T> = res.json().map_err(GraphFailure::from);
         if let Err(err) = next {
             sender.send(Delta::Done(Some(err))).unwrap();
@@ -53,7 +56,7 @@ pub trait DeltaLink<RHS = Self> {
         let value: T = next.unwrap();
         let mut next_link = value.next_link();
         sender
-            .send(Delta::Next(GraphResponse::new(res, value)))
+            .send(Delta::Next(GraphResponse::new(value, status, headers)))
             .unwrap();
 
         thread::spawn(move || {
@@ -70,6 +73,8 @@ pub trait DeltaLink<RHS = Self> {
                     sender.send(Delta::Done(Some(err))).unwrap();
                 } else {
                     let mut response = res.unwrap();
+                    let headers = response.headers().clone();
+                    let status = response.status().as_u16();
                     if let Some(err) = GraphFailure::from_response(&mut response) {
                         next_link = None;
                         sender.send(Delta::Done(Some(err))).unwrap();
@@ -83,7 +88,7 @@ pub trait DeltaLink<RHS = Self> {
                         let value = value_res.unwrap();
                         next_link = value.next_link();
                         sender
-                            .send(Delta::Next(GraphResponse::new(response, value)))
+                            .send(Delta::Next(GraphResponse::new(value, status, headers)))
                             .unwrap();
                     }
                 }
@@ -100,17 +105,13 @@ pub trait MetadataLink<RHS = Self> {
 
     fn metadata(&self) -> Option<GraphResult<GraphResponse<Content>>> {
         let link = self.metadata_link()?;
-        let client = reqwest::Client::new();
+        let client = reqwest::blocking::Client::new();
         let response = client.get(link.as_str()).send();
 
         if let Err(e) = response {
             Some(Err(GraphFailure::from(e)))
-        } else if let Ok(mut res) = response {
-            if let Ok(text) = res.text() {
-                Some(Ok(GraphResponse::new(res, Content::new(text.as_str()))))
-            } else {
-                Some(Ok(GraphResponse::new(res, Content::new(""))))
-            }
+        } else if let Ok(res) = response {
+            Some(GraphResponse::try_from(res))
         } else {
             None
         }

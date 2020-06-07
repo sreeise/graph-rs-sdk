@@ -4,8 +4,6 @@ use chrono::{DateTime, Duration, TimeZone, Utc};
 use chrono_humanize::HumanTime;
 use from_as::*;
 use graph_error::{GraphError, GraphFailure, GraphHeaders};
-use reqwest::RequestBuilder;
-use reqwest::Response;
 use std::convert::TryFrom;
 use std::fmt;
 
@@ -442,36 +440,36 @@ impl TryFrom<&str> for AccessToken {
     }
 }
 
-impl TryFrom<RequestBuilder> for AccessToken {
+impl TryFrom<reqwest::blocking::RequestBuilder> for AccessToken {
     type Error = GraphFailure;
 
-    fn try_from(value: RequestBuilder) -> Result<Self, Self::Error> {
-        let mut response = value.send()?;
-        let access_token: AccessToken = AccessToken::try_from(&mut response)?;
+    fn try_from(value: reqwest::blocking::RequestBuilder) -> Result<Self, Self::Error> {
+        let response = value.send()?;
+        let access_token: AccessToken = AccessToken::try_from(response)?;
         Ok(access_token)
     }
 }
 
-impl TryFrom<Result<reqwest::Response, reqwest::Error>> for AccessToken {
+impl TryFrom<Result<reqwest::blocking::Response, reqwest::Error>> for AccessToken {
     type Error = GraphFailure;
 
-    fn try_from(value: Result<Response, reqwest::Error>) -> Result<Self, Self::Error> {
-        let mut response = value?;
-        AccessToken::try_from(&mut response)
+    fn try_from(value: Result<reqwest::blocking::Response, reqwest::Error>) -> Result<Self, Self::Error> {
+        let response = value?;
+        AccessToken::try_from(response)
     }
 }
 
-impl TryFrom<&mut Response> for AccessToken {
+impl TryFrom<reqwest::blocking::Response> for AccessToken {
     type Error = GraphFailure;
 
-    fn try_from(value: &mut Response) -> Result<Self, Self::Error>
-    where
-        Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
+    fn try_from(value: reqwest::blocking::Response) -> Result<Self, Self::Error>
+        where
+            Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
         let status = value.status().as_u16();
         if GraphError::is_error(status) {
             let mut graph_error = GraphError::try_from(status)?;
-            let graph_headers = GraphHeaders::from(value);
+            let graph_headers = GraphHeaders::from(&value);
             graph_error.set_headers(graph_headers);
             return Err(GraphFailure::from(graph_error));
         }

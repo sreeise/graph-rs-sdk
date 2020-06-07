@@ -7,12 +7,13 @@ use graph_error::{GraphError, GraphFailure, GraphResult};
 #[derive(Debug)]
 pub struct GraphResponse<T> {
     value: T,
-    response: reqwest::Response,
+    status: u16,
+    headers: reqwest::header::HeaderMap,
 }
 
 impl<T> GraphResponse<T> {
-    pub fn new(response: reqwest::Response, value: T) -> GraphResponse<T> {
-        GraphResponse { value, response }
+    pub fn new(value: T, status: u16, headers: reqwest::header::HeaderMap) -> GraphResponse<T> {
+        GraphResponse { value, status, headers }
     }
 
     pub fn value(&self) -> &T {
@@ -23,37 +24,26 @@ impl<T> GraphResponse<T> {
         self.value
     }
 
-    pub fn response(&self) -> &reqwest::Response {
-        &self.response
-    }
-
-    pub fn response_mut(&mut self) -> &mut reqwest::Response {
-        &mut self.response
-    }
-
-    pub fn status(&self) -> reqwest::StatusCode {
-        self.response.status()
+    pub fn status(&self) -> u16 {
+        self.status
     }
 
     pub fn success(&mut self) -> bool {
-        let status = self.status().as_u16();
-        status == 200 || status == 202 || status == 204
+        self.status == 200 || self.status == 202 || self.status == 204
     }
 
     pub fn error(&self) -> Option<GraphError> {
-        let status = self.status().as_u16();
-        if GraphError::is_error(status) {
-            return Some(GraphError::try_from(status).unwrap_or_default());
+        if GraphError::is_error(self.status) {
+            return Some(GraphError::try_from(self.status).unwrap_or_default());
         }
         None
     }
 
     pub fn async_job_status(&mut self) -> Option<GraphResult<AsyncJobStatus>> {
-        let headers = self.response.headers();
         // The location header contains the URL for monitoring progress.
-        let location: &reqwest::header::HeaderValue = headers.get(reqwest::header::LOCATION)?;
+        let location: &reqwest::header::HeaderValue = self.headers.get(reqwest::header::LOCATION)?;
         let location_str = location.to_str().ok()?;
-        let response = reqwest::Client::new()
+        let response = reqwest::blocking::Client::new()
             .get(location_str)
             .send()
             .map_err(GraphFailure::from);
@@ -82,26 +72,30 @@ impl<T> AsMut<T> for GraphResponse<T> {
     }
 }
 
-impl<T> TryFrom<reqwest::Response> for GraphResponse<T>
+impl<T> TryFrom<reqwest::blocking::Response> for GraphResponse<T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
     type Error = GraphFailure;
 
-    fn try_from(mut response: reqwest::Response) -> GraphResult<GraphResponse<T>> {
+    fn try_from(response: reqwest::blocking::Response) -> GraphResult<GraphResponse<T>> {
+        let headers = response.headers().clone();
+        let status = response.status().as_u16();
         let value: T = response.json()?;
-        Ok(GraphResponse { value, response })
+        Ok(GraphResponse::new(value, status, headers))
     }
 }
 
-impl TryFrom<reqwest::Response> for GraphResponse<Content> {
+impl TryFrom<reqwest::blocking::Response> for GraphResponse<Content> {
     type Error = GraphFailure;
 
-    fn try_from(mut value: reqwest::Response) -> Result<Self, Self::Error> {
-        if let Ok(content) = value.text() {
-            Ok(GraphResponse::new(value, Content::from(content)))
+    fn try_from(response: reqwest::blocking::Response) -> Result<Self, Self::Error> {
+        let headers = response.headers().clone();
+        let status = response.status().as_u16();
+        if let Ok(content) = response.text() {
+            Ok(GraphResponse::new(Content::from(content), status, headers))
         } else {
-            Ok(GraphResponse::new(value, Content::from(String::new())))
+            Ok(GraphResponse::new(Content::from(String::new()), status, headers))
         }
     }
 }

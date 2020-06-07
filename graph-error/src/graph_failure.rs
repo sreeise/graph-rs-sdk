@@ -2,9 +2,7 @@ use crate::error::GraphError;
 use crate::internal::GraphRsError;
 use crate::GraphResult;
 use from_as::FromAsError;
-use reqwest::Response;
 use std::cell::BorrowMutError;
-use std::convert::TryFrom;
 use std::error::Error;
 use std::io::ErrorKind;
 use std::option::NoneError;
@@ -12,6 +10,7 @@ use std::str::Utf8Error;
 use std::sync::mpsc;
 use std::sync::mpsc::RecvError;
 use std::{error, fmt, io, num, string};
+use std::convert::TryFrom;
 
 pub trait AsRes<RHS = Self> {
     fn as_err_res<T>(self) -> GraphResult<T>;
@@ -59,7 +58,7 @@ impl GraphFailure {
         GraphFailure::internal(GraphRsError::InvalidOrMissing { msg: msg.into() })
     }
 
-    pub fn from_response(r: &mut Response) -> Option<GraphFailure> {
+    pub fn from_response(r: &reqwest::blocking::Response) -> Option<GraphFailure> {
         GraphFailure::try_from(r).ok()
     }
 }
@@ -246,10 +245,10 @@ impl From<GraphRsError> for GraphFailure {
     }
 }
 
-impl TryFrom<&mut Response> for GraphFailure {
+impl TryFrom<&reqwest::blocking::Response> for GraphFailure {
     type Error = std::io::Error;
 
-    fn try_from(value: &mut Response) -> Result<Self, Self::Error> {
+    fn try_from(value: &reqwest::blocking::Response) -> Result<Self, Self::Error> {
         Ok(GraphFailure::GraphError(Box::new(GraphError::try_from(
             value,
         )?)))

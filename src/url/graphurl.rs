@@ -137,6 +137,12 @@ impl From<Url> for GraphUrl {
     }
 }
 
+impl From<reqwest::Url> for GraphUrl {
+    fn from(url: reqwest::Url) -> Self {
+        GraphUrl::parse(url.as_str()).unwrap()
+    }
+}
+
 impl FromStr for GraphUrl {
     type Err = GraphFailure;
 
