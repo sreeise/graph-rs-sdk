@@ -58,6 +58,16 @@ impl<T> GraphResponse<T> {
             None
         }
     }
+
+    pub(crate) async fn try_from_async(response: reqwest::Response) -> GraphResult<GraphResponse<T>>
+        where
+                for<'de> T: serde::Deserialize<'de>,
+    {
+        let headers = response.headers().clone();
+        let status = response.status().as_u16();
+        let value: T = response.json().await?;
+        Ok(GraphResponse::new(value, status, headers))
+    }
 }
 
 impl<T> AsRef<T> for GraphResponse<T> {

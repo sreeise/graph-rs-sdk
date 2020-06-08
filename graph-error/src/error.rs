@@ -297,3 +297,24 @@ impl TryFrom<&reqwest::blocking::Response> for GraphError {
         Ok(graph_error)
     }
 }
+
+impl TryFrom<&reqwest::Response> for GraphError {
+    type Error = std::io::Error;
+
+    fn try_from(value: &reqwest::Response) -> Result<Self, Self::Error> {
+        let status = value.status().as_u16();
+        let mut graph_error = GraphError::try_from(status)?;
+
+        /*
+         if value.text().is_ok() {
+             let text = value.text()?;
+             let error_message: ErrorMessage =
+                 serde_json::from_str(text.as_str()).unwrap_or_default();
+             graph_error.error_message = error_message;
+         }
+
+         */
+        graph_error.set_headers(GraphHeaders::from(value));
+        Ok(graph_error)
+    }
+}
