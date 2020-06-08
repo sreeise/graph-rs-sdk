@@ -1,5 +1,5 @@
 use crate::graph_error::AsRes;
-use crate::http::{GraphRequest, GraphRequestBuilder, GraphRequestType, IoTools};
+use crate::http::{BlockingBuilder, GraphRequestType, IoTools, BlockingClient, AsyncClient, AsyncBuilder};
 use crate::url::GraphUrl;
 use graph_error::{GraphFailure, GraphResult, GraphRsError};
 use reqwest::{Method, blocking::Response};
@@ -9,32 +9,17 @@ use std::path::Path;
 use std::path::PathBuf;
 
 /// Provides an abstraction for downloading files.
-pub struct DownloadClient {
+pub struct DownloadClient<C, B> {
     path: RefCell<PathBuf>,
     create_dir_all: Cell<bool>,
     overwrite_existing_file: Cell<bool>,
     file_name: RefCell<Option<OsString>>,
     extension: RefCell<Option<String>>,
-    request: RefCell<GraphRequestBuilder>,
-    client: RefCell<GraphRequest>,
+    request: RefCell<B>,
+    client: RefCell<C>,
 }
 
-impl DownloadClient {
-    pub fn new(token: &str, request: GraphRequestBuilder) -> DownloadClient {
-        let path = request.download_dir.clone().unwrap();
-        let mut client = GraphRequest::default();
-        client.set_token(token);
-        DownloadClient {
-            path: RefCell::new(path),
-            create_dir_all: Cell::new(true),
-            overwrite_existing_file: Cell::new(false),
-            file_name: RefCell::new(None),
-            extension: RefCell::new(None),
-            request: RefCell::new(request),
-            client: RefCell::new(client),
-        }
-    }
-
+impl<C, B> DownloadClient<C, B> {
     pub fn create_dir_all(&self, value: bool) -> &Self {
         self.create_dir_all.set(value);
         self
@@ -80,20 +65,6 @@ impl DownloadClient {
         self.extension.borrow()
     }
 
-    pub fn url(&self) -> GraphUrl {
-        self.request.borrow().url().clone()
-    }
-
-    pub fn send(&self) -> GraphResult<PathBuf> {
-        self.download()
-    }
-
-    pub fn format(&self, format: &str) {
-        let mut request = self.request.borrow_mut();
-        request.set_request_type(GraphRequestType::Redirect);
-        request.url.format(format);
-    }
-
     fn parse_content_disposition(&self, header: &str) -> Option<OsString> {
         let mut v: Vec<&str> = header.split(';').collect();
         v.retain(|s| !s.is_empty());
@@ -115,6 +86,40 @@ impl DownloadClient {
         }
         None
     }
+}
+
+pub type BlockingDownload = DownloadClient<BlockingClient, BlockingBuilder>;
+pub type AsyncDownload = DownloadClient<AsyncClient, AsyncBuilder>;
+
+impl DownloadClient<BlockingClient, BlockingBuilder> {
+    pub fn new(token: &str, request: BlockingBuilder) -> DownloadClient<BlockingClient, BlockingBuilder> {
+        let path = request.download_dir.clone().unwrap();
+        let mut client = BlockingClient::new_blocking();
+        client.set_token(token);
+        DownloadClient {
+            path: RefCell::new(path),
+            create_dir_all: Cell::new(true),
+            overwrite_existing_file: Cell::new(false),
+            file_name: RefCell::new(None),
+            extension: RefCell::new(None),
+            request: RefCell::new(request),
+            client: RefCell::new(client),
+        }
+    }
+
+    pub fn url(&self) -> GraphUrl {
+        self.request.borrow().url().clone()
+    }
+
+    pub fn format(&self, format: &str) {
+        let mut request = self.request.borrow_mut();
+        request.set_request_type(GraphRequestType::Redirect);
+        request.url.format(format);
+    }
+
+    pub fn send(&self) -> GraphResult<PathBuf> {
+        self.download()
+    }
 
     fn download(&self) -> GraphResult<PathBuf> {
         let path = self.path.replace(PathBuf::new());
@@ -128,18 +133,18 @@ impl DownloadClient {
         }
 
         if self.request.borrow().req_type == GraphRequestType::Redirect {
-            let request = self.request.replace(GraphRequestBuilder::default());
+            let request = self.request.replace(BlockingBuilder::default());
             let mut response = self.client.borrow_mut().build(request).send()?;
 
             if let Some(err) = GraphFailure::from_response(&mut response) {
                 return Err(err);
             }
-            let mut request = GraphRequestBuilder::new(GraphUrl::from(response.url().clone()));
+            let mut request = BlockingBuilder::new(GraphUrl::from(response.url().clone()));
             request.set_method(Method::GET);
             self.request.replace(request);
         }
 
-        let request = self.request.replace(GraphRequestBuilder::default());
+        let request = self.request.replace(BlockingBuilder::default());
         let mut response = self.client.borrow_mut().build(request).send()?;
 
         if let Some(err) = GraphFailure::from_response(&mut response) {

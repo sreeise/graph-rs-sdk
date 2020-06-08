@@ -1,6 +1,5 @@
 use reqwest::header::HeaderMap;
-use reqwest::{header, redirect::Policy, IntoUrl};
-use std::cell::RefCell;
+use reqwest::{header, redirect::Policy, IntoUrl, Method};
 use std::future::Future;
 use handlebars::Handlebars;
 use reqwest::Url;
@@ -55,44 +54,50 @@ static JSON_TYPE_HEADER: &str = "application/json";
 
 pub trait RequestClient<RHS = Self> {
     type Output;
+    type Body;
 
-    fn with_headers(&self, headers: HeaderMap) -> &Self;
-    fn get<U: IntoUrl>(&self, url: U) -> Self::Output;
-    fn post<U: IntoUrl, B: serde::Serialize + Sync>(&self, url: U, body: &B) -> Self::Output;
-    fn patch<U: IntoUrl, B: serde::Serialize + Sync>(&self, url: U, body: &B) -> Self::Output;
-    fn put<U: IntoUrl, B: serde::Serialize + Sync>(&self, url: U, body: &B) -> Self::Output;
-    fn delete<U: IntoUrl>(&self, url: U) -> Self::Output;
+    fn with_headers(&mut self, headers: HeaderMap) -> &mut Self;
+    fn set_body<B: Into<Self::Body>>(&mut self, body: B) -> &mut Self;
+    fn get<U: IntoUrl>(&mut self, url: U) -> Self::Output;
+    fn post<U: IntoUrl, B: serde::Serialize + Sync>(&mut self, url: U, body: &B) -> Self::Output;
+    fn patch<U: IntoUrl, B: serde::Serialize + Sync>(&mut self, url: U, body: &B) -> Self::Output;
+    fn put<U: IntoUrl, B: serde::Serialize + Sync>(&mut self, url: U, body: &B) -> Self::Output;
+    fn delete<U: IntoUrl>(&mut self, url: U) -> Self::Output;
 }
 
 macro_rules! request_client_impl {
-    ( $client_type:ty, $output:ty ) => {
+    ( $client_type:ty, $output:ty, $body:ty ) => {
         impl RequestClient for $client_type {
             type Output = $output;
+            type Body = $body;
 
-            fn with_headers(&self, headers: HeaderMap) -> &Self {
-                self.next_request_headers.borrow_mut().replace(headers);
+            fn with_headers(&mut self, headers: HeaderMap) -> &mut Self {
+                self.next_request_headers = Some(headers);
                 self
             }
 
-            fn get<U: IntoUrl>(&self, url: U) -> Self::Output {
-                let mut h = self.next_request_headers.borrow_mut();
-                if h.is_some() {
-                    self.client.get(url).headers(h.take().unwrap()).send()
+            fn set_body<B: Into<Self::Body>>(&mut self, body: B) -> &mut Self {
+                    self.body = Some(body.into());
+                    self
+            }
+
+            fn get<U: IntoUrl>(&mut self, url: U) -> Self::Output {
+                if self.next_request_headers.is_some() {
+                    self.client.get(url).headers(self.next_request_headers.take().unwrap()).send()
                 } else {
                     self.client.get(url).send()
                 }
             }
 
             fn post<U: IntoUrl, B: serde::Serialize + Sync>(
-                &self,
+                &mut self,
                 url: U,
                 body: &B,
             ) -> Self::Output {
                 let body = serde_json::to_string(body).unwrap();
-                let mut h = self.next_request_headers.borrow_mut();
 
-                if h.is_some() {
-                    let mut headers = h.take().unwrap();
+                if self.next_request_headers.is_some() {
+                    let mut headers = self.next_request_headers.take().unwrap();
                     headers.insert(
                         header::CONTENT_TYPE,
                         header::HeaderValue::from_str(JSON_TYPE_HEADER).unwrap(),
@@ -108,15 +113,14 @@ macro_rules! request_client_impl {
             }
 
             fn patch<U: IntoUrl, B: serde::Serialize + Sync>(
-                &self,
+                &mut self,
                 url: U,
                 body: &B,
             ) -> Self::Output {
                 let body = serde_json::to_string(body).unwrap();
-                let mut h = self.next_request_headers.borrow_mut();
 
-                if h.is_some() {
-                    let mut headers = h.take().unwrap();
+                if self.next_request_headers.is_some() {
+                    let mut headers = self.next_request_headers.take().unwrap();
                     headers.insert(
                         header::CONTENT_TYPE,
                         header::HeaderValue::from_str(JSON_TYPE_HEADER).unwrap(),
@@ -132,15 +136,14 @@ macro_rules! request_client_impl {
             }
 
             fn put<U: IntoUrl, B: serde::Serialize + Sync>(
-                &self,
+                &mut self,
                 url: U,
                 body: &B,
             ) -> Self::Output {
                 let body = serde_json::to_string(body).unwrap();
-                let mut h = self.next_request_headers.borrow_mut();
 
-                if h.is_some() {
-                    let mut headers = h.take().unwrap();
+                if self.next_request_headers.is_some() {
+                    let mut headers = self.next_request_headers.take().unwrap();
                     headers.insert(
                         header::CONTENT_TYPE,
                         header::HeaderValue::from_str(JSON_TYPE_HEADER).unwrap(),
@@ -155,10 +158,9 @@ macro_rules! request_client_impl {
                 }
             }
 
-            fn delete<U: IntoUrl>(&self, url: U) -> Self::Output {
-                let mut h = self.next_request_headers.borrow_mut();
-                if h.is_some() {
-                    self.client.delete(url).headers(h.take().unwrap()).send()
+            fn delete<U: IntoUrl>(&mut self, url: U) -> Self::Output {
+                if self.next_request_headers.is_some() {
+                    self.client.delete(url).headers(self.next_request_headers.take().unwrap()).send()
                 } else {
                     self.client.delete(url).send()
                 }
@@ -171,7 +173,8 @@ macro_rules! request_client_impl {
 pub struct AsyncClient {
     pub client: reqwest::Client,
     token: String,
-    next_request_headers: RefCell<Option<HeaderMap>>,
+    next_request_headers: Option<HeaderMap>,
+    body: Option<reqwest::Body>,
 }
 
 impl AsyncClient {
@@ -188,7 +191,8 @@ impl AsyncClient {
                 .build()
                 .unwrap(),
             token: token.into(),
-            next_request_headers: RefCell::new(None),
+            next_request_headers: None,
+            body: None,
         }
     }
 
@@ -205,21 +209,24 @@ impl Default for AsyncClient {
                 .build()
                 .unwrap(),
             token: String::new(),
-            next_request_headers: RefCell::new(None),
+            next_request_headers: None,
+            body: None,
         }
     }
 }
 
 request_client_impl!(
     AsyncClient,
-    impl Future<Output = Result<reqwest::Response, reqwest::Error>>
+    impl Future<Output = Result<reqwest::Response, reqwest::Error>>,
+    reqwest::Body
 );
 
 #[derive(Debug)]
 pub struct BlockingClient {
     pub client: reqwest::blocking::Client,
     token: String,
-    next_request_headers: RefCell<Option<HeaderMap>>,
+    next_request_headers: Option<HeaderMap>,
+    body: Option<reqwest::blocking::Body>
 }
 
 impl BlockingClient {
@@ -232,11 +239,12 @@ impl BlockingClient {
         BlockingClient {
             client: reqwest::blocking::Client::builder()
                 .default_headers(headers)
-                .redirect(Policy::limited(1))
+                .redirect(Policy::limited(2))
                 .build()
                 .unwrap(),
             token: token.into(),
-            next_request_headers: RefCell::new(None),
+            next_request_headers: None,
+            body: None,
         }
     }
 
@@ -249,30 +257,31 @@ impl Default for BlockingClient {
     fn default() -> Self {
         BlockingClient {
             client: reqwest::blocking::Client::builder()
-                .redirect(Policy::limited(1))
+                .redirect(Policy::limited(2))
                 .build()
                 .unwrap(),
             token: String::new(),
-            next_request_headers: RefCell::new(None),
+            next_request_headers: None,
+            body: None,
         }
     }
 }
 
-request_client_impl!(BlockingClient, Result<reqwest::blocking::Response, reqwest::Error>);
+request_client_impl!(BlockingClient, Result<reqwest::blocking::Response, reqwest::Error>, reqwest::blocking::Body);
 
 pub struct HttpClient<'a, T: RequestClient> {
     pub request: T,
-    pub render: RefCell<Render<'a>>,
+    pub render: Render<'a>,
 }
 
 impl<'a, T: RequestClient> HttpClient<'a, T> {
-    pub fn v1(&self) -> &Self {
-        self.render.borrow_mut().v1();
+    pub fn v1(&mut self) -> &mut Self {
+        self.render.v1();
         self
     }
 
-    pub fn beta(&self) -> &Self {
-        self.render.borrow_mut().beta();
+    pub fn beta(&mut self) -> &mut Self {
+        self.render.beta();
         self
     }
 }
@@ -281,14 +290,14 @@ impl<'a> HttpClient<'a, AsyncClient> {
     pub fn new_default_async() -> HttpClient<'a, AsyncClient> {
         HttpClient {
             request: AsyncClient::default(),
-            render: RefCell::new(Render::new_v1()),
+            render: Render::new_v1(),
         }
     }
 
     pub fn new_async(token: &str) -> HttpClient<'a, AsyncClient> {
         HttpClient {
             request: AsyncClient::new(token),
-            render: RefCell::new(Render::new_v1()),
+            render: Render::new_v1(),
         }
     }
 }
@@ -297,14 +306,14 @@ impl<'a> HttpClient<'a, BlockingClient> {
     pub fn new_default_blocking() -> HttpClient<'a, BlockingClient> {
         HttpClient {
             request: BlockingClient::default(),
-            render: RefCell::new(Render::new_v1()),
+            render: Render::new_v1(),
         }
     }
 
     pub fn new_blocking(token: &str) -> HttpClient<'a, BlockingClient> {
         HttpClient {
             request: BlockingClient::new(token),
-            render: RefCell::new(Render::new_v1()),
+            render: Render::new_v1(),
         }
     }
 }

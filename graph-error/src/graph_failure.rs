@@ -61,6 +61,10 @@ impl GraphFailure {
     pub fn from_response(r: &reqwest::blocking::Response) -> Option<GraphFailure> {
         GraphFailure::try_from(r).ok()
     }
+
+    pub fn from_async_response(r: &reqwest::Response) -> Option<GraphFailure> {
+        GraphFailure::try_from(r).ok()
+    }
 }
 
 impl AsRes for GraphFailure {
@@ -249,6 +253,16 @@ impl TryFrom<&reqwest::blocking::Response> for GraphFailure {
     type Error = std::io::Error;
 
     fn try_from(value: &reqwest::blocking::Response) -> Result<Self, Self::Error> {
+        Ok(GraphFailure::GraphError(Box::new(GraphError::try_from(
+            value,
+        )?)))
+    }
+}
+
+impl TryFrom<&reqwest::Response> for GraphFailure {
+    type Error = std::io::Error;
+
+    fn try_from(value: &reqwest::Response) -> Result<Self, Self::Error> {
         Ok(GraphFailure::GraphError(Box::new(GraphError::try_from(
             value,
         )?)))

@@ -1,11 +1,10 @@
 use crate::client::Ident;
-use crate::http::{DownloadClient, GraphResponse, UploadSessionClient};
+use crate::http::{DownloadClient, GraphResponse, UploadSessionClient, BlockingDownload};
 use crate::url::GraphUrl;
 use crate::GRAPH_URL;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
-use reqwest::blocking::multipart;
-use reqwest::{Method, redirect::Policy, blocking::RequestBuilder};
+use reqwest::{Method, redirect::Policy};
 use std::path::{Path, PathBuf};
 use url::Url;
 use std::convert::TryFrom;
@@ -23,19 +22,22 @@ impl Default for GraphRequestType {
     }
 }
 
-pub struct GraphRequestBuilder {
+pub struct GraphRequestBuilder<B, F> {
     pub url: GraphUrl,
     pub method: Method,
-    pub body: Option<reqwest::blocking::Body>,
+    pub body: Option<B>,
     pub headers: HeaderMap<HeaderValue>,
     pub upload_session_file: Option<PathBuf>,
     pub download_dir: Option<PathBuf>,
-    pub form: Option<multipart::Form>,
+    pub form: Option<F>,
     pub req_type: GraphRequestType,
 }
 
-impl GraphRequestBuilder {
-    pub fn new(url: GraphUrl) -> GraphRequestBuilder {
+pub type BlockingBuilder = GraphRequestBuilder<reqwest::blocking::Body, reqwest::blocking::multipart::Form>;
+pub type AsyncBuilder = GraphRequestBuilder<reqwest::Body, reqwest::multipart::Form>;
+
+impl<B, F> GraphRequestBuilder<B, F> {
+    pub fn new(url: GraphUrl) -> GraphRequestBuilder<B, F> {
         let mut headers = HeaderMap::default();
         headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
         GraphRequestBuilder {
@@ -72,11 +74,11 @@ impl GraphRequestBuilder {
         self
     }
 
-    pub fn body(&self) -> Option<&reqwest::blocking::Body> {
+    pub fn body(&self) -> Option<&B> {
         self.body.as_ref()
     }
 
-    pub fn set_body<B: Into<reqwest::blocking::Body>>(&mut self, body: B) -> &mut Self {
+    pub fn set_body(&mut self, body: impl Into<B>) -> &mut Self {
         self.body = Some(body.into());
         self
     }
@@ -100,7 +102,7 @@ impl GraphRequestBuilder {
         self
     }
 
-    pub fn set_form(&mut self, form: multipart::Form) -> &mut Self {
+    pub fn set_form(&mut self, form: F) -> &mut Self {
         self.form = Some(form);
         self.req_type = GraphRequestType::Multipart;
         self
@@ -112,38 +114,38 @@ impl GraphRequestBuilder {
     }
 }
 
-impl AsRef<GraphUrl> for GraphRequestBuilder {
+impl<B, F> AsRef<GraphUrl> for GraphRequestBuilder<B, F> {
     fn as_ref(&self) -> &GraphUrl {
         &self.url
     }
 }
 
-impl AsMut<GraphUrl> for GraphRequestBuilder {
+impl<B, F> AsMut<GraphUrl> for GraphRequestBuilder<B, F> {
     fn as_mut(&mut self) -> &mut GraphUrl {
         &mut self.url
     }
 }
 
-impl From<Url> for GraphRequestBuilder {
+impl<B, F> From<Url> for GraphRequestBuilder<B, F> {
     fn from(url: Url) -> Self {
         GraphRequestBuilder::new(GraphUrl::from(url))
     }
 }
 
-impl Default for GraphRequestBuilder {
+impl Default for BlockingBuilder {
     fn default() -> Self {
         GraphRequestBuilder::new(GraphUrl::parse(GRAPH_URL).unwrap())
     }
 }
 
-pub struct GraphRequest {
+pub struct GraphRequest<C> {
     token: String,
     ident: Ident,
-    client: reqwest::blocking::Client,
-    redirect_client: reqwest::blocking::Client,
+    client: C,
+    redirect_client: C,
 }
 
-impl GraphRequest {
+impl<C> GraphRequest<C> {
     pub fn set_token(&mut self, token: &str) -> &mut Self {
         self.token = token.to_string();
         self
@@ -161,14 +163,34 @@ impl GraphRequest {
     pub(crate) fn token(&mut self) -> &String {
         &self.token
     }
+}
 
-    pub fn download(&mut self, request: GraphRequestBuilder) -> DownloadClient {
+pub type BlockingClient = GraphRequest<reqwest::blocking::Client>;
+pub type AsyncClient = GraphRequest<reqwest::Client>;
+
+impl GraphRequest<reqwest::blocking::Client> {
+    pub fn new_blocking() -> BlockingClient {
+        let redirect_client = reqwest::blocking::Client::builder()
+            .redirect(Policy::limited(2))
+            .build()
+            .map_err(GraphFailure::from)
+            .unwrap();
+
+        GraphRequest {
+            token: Default::default(),
+            ident: Default::default(),
+            client: reqwest::blocking::Client::new(),
+            redirect_client,
+        }
+    }
+
+    pub fn download(&mut self, request: BlockingBuilder) -> BlockingDownload {
         DownloadClient::new(self.token.as_str(), request)
     }
 
     pub fn upload_session(
         &mut self,
-        request: GraphRequestBuilder,
+        request: BlockingBuilder,
     ) -> GraphResult<UploadSessionClient> {
         let file = request
             .upload_session_file
@@ -185,7 +207,7 @@ impl GraphRequest {
         Ok(session)
     }
 
-    pub fn build(&mut self, request: GraphRequestBuilder) -> RequestBuilder {
+    pub fn build(&mut self, request: BlockingBuilder) -> reqwest::blocking::RequestBuilder {
         match request.req_type {
             GraphRequestType::Basic => {
                 if let Some(body) = request.body {
@@ -224,7 +246,7 @@ impl GraphRequest {
         }
     }
 
-    pub fn response(&mut self, request: GraphRequestBuilder) -> GraphResult<reqwest::blocking::Response> {
+    pub fn response(&mut self, request: BlockingBuilder) -> GraphResult<reqwest::blocking::Response> {
         let builder = self.build(request);
         let mut response = builder.send()?;
         if let Some(err) = GraphFailure::from_response(&mut response) {
@@ -233,16 +255,74 @@ impl GraphRequest {
         Ok(response)
     }
 
-    pub fn execute<T>(&mut self, request: GraphRequestBuilder) -> GraphResult<GraphResponse<T>>
-    where
-        for<'de> T: serde::Deserialize<'de>,
+    pub fn execute<T>(&mut self, request: BlockingBuilder) -> GraphResult<GraphResponse<T>>
+        where
+                for<'de> T: serde::Deserialize<'de>,
     {
         let response = self.response(request)?;
         GraphResponse::try_from(response)
     }
 }
 
-impl Default for GraphRequest {
+impl GraphRequest<reqwest::Client> {
+    pub fn build(&mut self, request: AsyncBuilder) -> reqwest::RequestBuilder {
+        match request.req_type {
+            GraphRequestType::Basic => {
+                if let Some(body) = request.body {
+                    self.client
+                        .request(request.method, request.url.as_str())
+                        .headers(request.headers)
+                        .bearer_auth(self.token.as_str())
+                        .body(body)
+                } else {
+                    self.client
+                        .request(request.method, request.url.as_str())
+                        .headers(request.headers)
+                        .bearer_auth(self.token.as_str())
+                }
+            },
+            GraphRequestType::Redirect => {
+                if let Some(body) = request.body {
+                    self.redirect_client
+                        .request(request.method, request.url.as_str())
+                        .headers(request.headers)
+                        .bearer_auth(self.token.as_str())
+                        .body(body)
+                } else {
+                    self.redirect_client
+                        .request(request.method, request.url.as_str())
+                        .headers(request.headers)
+                        .bearer_auth(self.token.as_str())
+                }
+            },
+            GraphRequestType::Multipart => self
+                .client
+                .request(request.method, request.url.as_str())
+                .headers(request.headers)
+                .multipart(request.form.unwrap())
+                .bearer_auth(self.token.as_str()),
+        }
+    }
+
+    pub async fn response(&mut self, request: AsyncBuilder) -> GraphResult<reqwest::Response> {
+        let builder = self.build(request);
+        let response = builder.send().await?;
+        if let Some(err) = GraphFailure::from_async_response(&response) {
+            return Err(err);
+        }
+        Ok(response)
+    }
+
+    pub async fn execute<T>(&mut self, request: AsyncBuilder) -> GraphResult<GraphResponse<T>>
+        where
+                for<'de> T: serde::Deserialize<'de>,
+    {
+        let response = self.response(request).await?;
+        GraphResponse::try_from_async(response).await
+    }
+}
+
+impl Default for GraphRequest<reqwest::blocking::Client> {
     fn default() -> Self {
         let redirect_client = reqwest::blocking::Client::builder()
             .redirect(Policy::limited(2))

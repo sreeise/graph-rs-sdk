@@ -1,5 +1,5 @@
 use crate::client::Graph;
-use crate::http::{DownloadClient, GraphRequestType, GraphResponse, IntoResponse};
+use crate::http::{BlockingDownload, GraphRequestType, GraphResponse, IntoResponse};
 use crate::types::collection::Collection;
 use crate::types::content::Content;
 use graph_error::GraphRsError;
@@ -170,7 +170,7 @@ impl<'a> OnenotePageRequest<'a> {
         &'a self,
         id: S,
         directory: P,
-    ) -> DownloadClient {
+    ) ->BlockingDownload {
         render_path!(
             self.client,
             "{{pages}}/{{id}}/content",

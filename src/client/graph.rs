@@ -5,8 +5,7 @@ use crate::drive::DriveRequest;
 use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
 };
-use crate::http::{GraphRequest, IntoResponse};
-use crate::http::{GraphRequestBuilder, GraphResponse};
+use crate::http::{GraphRequest, IntoResponse, BlockingBuilder, GraphResponse};
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
 use crate::types::{
@@ -51,8 +50,8 @@ impl Default for Ident {
 }
 
 pub struct Graph {
-    request: RefCell<GraphRequest>,
-    builder: RefCell<GraphRequestBuilder>,
+    request: RefCell<GraphRequest<reqwest::blocking::Client>>,
+    builder: RefCell<BlockingBuilder>,
     registry: RefCell<Handlebars>,
     is_v1: Cell<bool>,
 }
@@ -80,7 +79,7 @@ impl<'a> Graph {
         request.set_token(token);
         Graph {
             request: RefCell::new(request),
-            builder: RefCell::new(GraphRequestBuilder::new(
+            builder: RefCell::new(BlockingBuilder::new(
                 GraphUrl::from_str(GRAPH_URL).unwrap(),
             )),
             registry: RefCell::new(Handlebars::new()),
@@ -121,16 +120,16 @@ impl<'a> Graph {
         self.request().set_token(token);
     }
 
-    pub(crate) fn request(&self) -> RefMut<GraphRequest> {
+    pub(crate) fn request(&self) -> RefMut<GraphRequest<reqwest::blocking::Client>> {
         self.request.borrow_mut()
     }
 
-    pub(crate) fn builder(&self) -> RefMut<GraphRequestBuilder> {
+    pub(crate) fn builder(&self) -> RefMut<BlockingBuilder> {
         self.builder.borrow_mut()
     }
 
-    pub(crate) fn take_builder(&self) -> GraphRequestBuilder {
-        self.builder.replace(GraphRequestBuilder::new(
+    pub(crate) fn take_builder(&self) -> BlockingBuilder {
+        self.builder.replace(BlockingBuilder::new(
             GraphUrl::from_str(GRAPH_URL).unwrap(),
         ))
     }
@@ -159,7 +158,7 @@ impl From<String> for Graph {
         request.set_token(token.as_ref());
         Graph {
             request: RefCell::new(request),
-            builder: RefCell::new(GraphRequestBuilder::new(
+            builder: RefCell::new(BlockingBuilder::new(
                 GraphUrl::from_str(GRAPH_URL).unwrap(),
             )),
             registry: RefCell::new(Handlebars::new()),
@@ -174,7 +173,7 @@ impl From<&AccessToken> for Graph {
         request.set_token(token.bearer_token());
         Graph {
             request: RefCell::new(request),
-            builder: RefCell::new(GraphRequestBuilder::new(
+            builder: RefCell::new(BlockingBuilder::new(
                 GraphUrl::from_str(GRAPH_URL).unwrap(),
             )),
             registry: RefCell::new(Handlebars::new()),

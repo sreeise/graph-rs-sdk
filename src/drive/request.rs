@@ -1,7 +1,5 @@
 use crate::client::*;
-use crate::http::{
-    DownloadClient, GraphRequestType, GraphResponse, IntoResponse, UploadSessionClient,
-};
+use crate::http::{BlockingDownload, GraphRequestType, GraphResponse, IntoResponse, UploadSessionClient};
 use crate::types::collection::Collection;
 use crate::types::content::Content;
 use crate::types::delta::DeltaRequest;
@@ -387,7 +385,7 @@ impl<'a> DriveRequest<'a> {
         &'a self,
         id: S,
         directory: P,
-    ) -> DownloadClient {
+    ) -> BlockingDownload {
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
