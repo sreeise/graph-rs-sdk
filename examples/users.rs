@@ -25,7 +25,7 @@ fn list_users() {
     let client = Graph::new("ACCESS_TOKEN");
 
     let collection = client.v1().users(USER_ID).list().send().unwrap();
-    println!("{:#?}", collection.value());
+    println!("{:#?}", collection.body());
 }
 
 fn get_user() {
@@ -33,7 +33,7 @@ fn get_user() {
 
     let user = client.v1().users(USER_ID).get().send().unwrap();
 
-    println!("{:#?}", user.value());
+    println!("{:#?}", user.body());
 }
 
 fn create_user() {

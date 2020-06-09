@@ -6,29 +6,29 @@ use graph_error::{GraphError, GraphFailure, GraphResult};
 
 #[derive(Debug)]
 pub struct GraphResponse<T> {
-    value: T,
+    body: T,
     status: u16,
     headers: reqwest::header::HeaderMap,
 }
 
 impl<T> GraphResponse<T> {
-    pub fn new(value: T, status: u16, headers: reqwest::header::HeaderMap) -> GraphResponse<T> {
-        GraphResponse { value, status, headers }
+    pub fn new(body: T, status: u16, headers: reqwest::header::HeaderMap) -> GraphResponse<T> {
+        GraphResponse { body, status, headers }
     }
 
-    pub fn value(&self) -> &T {
-        &self.value
+    pub fn body(&self) -> &T {
+        &self.body
     }
 
-    pub fn into_value(self) -> T {
-        self.value
+    pub fn body_to_owned(self) -> T {
+        self.body
     }
 
     pub fn status(&self) -> u16 {
         self.status
     }
 
-    pub fn success(&mut self) -> bool {
+    pub fn success(&self) -> bool {
         self.status == 200 || self.status == 202 || self.status == 204
     }
 
@@ -65,20 +65,20 @@ impl<T> GraphResponse<T> {
     {
         let headers = response.headers().clone();
         let status = response.status().as_u16();
-        let value: T = response.json().await?;
-        Ok(GraphResponse::new(value, status, headers))
+        let body: T = response.json().await?;
+        Ok(GraphResponse::new(body, status, headers))
     }
 }
 
 impl<T> AsRef<T> for GraphResponse<T> {
     fn as_ref(&self) -> &T {
-        &self.value
+        &self.body
     }
 }
 
 impl<T> AsMut<T> for GraphResponse<T> {
     fn as_mut(&mut self) -> &mut T {
-        &mut self.value
+        &mut self.body
     }
 }
 
@@ -91,8 +91,8 @@ where
     fn try_from(response: reqwest::blocking::Response) -> GraphResult<GraphResponse<T>> {
         let headers = response.headers().clone();
         let status = response.status().as_u16();
-        let value: T = response.json()?;
-        Ok(GraphResponse::new(value, status, headers))
+        let body: T = response.json()?;
+        Ok(GraphResponse::new(body, status, headers))
     }
 }
 
@@ -115,7 +115,7 @@ where
     T: NextLink,
 {
     fn next_link(&self) -> Option<String> {
-        self.value.next_link()
+        self.body.next_link()
     }
 }
 
@@ -124,7 +124,7 @@ where
     T: DeltaLink,
 {
     fn delta_link(&self) -> Option<String> {
-        self.value.delta_link()
+        self.body.delta_link()
     }
 }
 
@@ -133,6 +133,6 @@ where
     T: MetadataLink,
 {
     fn metadata_link(&self) -> Option<String> {
-        self.value.metadata_link()
+        self.body.metadata_link()
     }
 }

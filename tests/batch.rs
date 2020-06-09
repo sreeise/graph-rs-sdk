@@ -67,7 +67,7 @@ pub fn batch_request() {
                 match recv.recv() {
                     Ok(delta) => match delta {
                         Delta::Next(response) => {
-                            let value = response.value().clone();
+                            let value = response.body().clone();
                             for v in value["responses"].as_array().unwrap().iter() {
                                 match v["id"].as_str().unwrap().as_bytes() {
                                     b"1" => {

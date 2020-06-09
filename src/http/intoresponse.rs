@@ -110,7 +110,7 @@ impl<'a, T> IntoResponse<'a, T> {
 
         let token = self.client.request().token().clone();
         let response = response.unwrap();
-        let mut next_link = response.value().next_link();
+        let mut next_link = response.body().next_link();
         sender.send(Delta::Next(response)).unwrap();
 
         thread::spawn(move || {

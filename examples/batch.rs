@@ -4,10 +4,7 @@ use graph_rs::prelude::*;
 // The response may not return all at one time. In these cases a next link url
 // is given to get the next response. The batch method will continue calling
 // the next link until there is none. Each response is sent using a channel
-// and the channel receiver will return each response which can be either a
-// serde_json::Value or a Graph type depending on whether you choose to use
-// the send() or value() method. The send() method returns a Graph type while
-// value() returns serde_json::Value.
+// and the channel receiver will return each response.
 
 // For more info on batch requests see https://docs.microsoft.com/en-us/graph/json-batching?context=graph%2Fapi%2F1.0&view=graph-rest-1.0
 

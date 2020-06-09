@@ -27,7 +27,7 @@ fn list_get_notebooks_and_sections() {
             println!("{:#?}", notebooks);
 
             if let Ok(collection) = notebooks {
-                let vec = collection.value().value().unwrap();
+                let vec = collection.body().value().unwrap();
 
                 let mut found_test_notebook = false;
                 let mut notebook_id = String::new();
@@ -50,7 +50,7 @@ fn list_get_notebooks_and_sections() {
                 if let Ok(notebook) = get_notebook {
                     assert_eq!(
                         "TestNotebook",
-                        notebook.value()["displayName"].as_str().unwrap()
+                        notebook.body()["displayName"].as_str().unwrap()
                     );
                 } else if let Err(e) = get_notebook {
                     panic!(
@@ -68,7 +68,7 @@ fn list_get_notebooks_and_sections() {
                     .send();
 
                 if let Ok(collection) = sections {
-                    let vec = collection.into_value().into_inner();
+                    let vec = collection.body_to_owned().into_inner();
                     let section_name = vec[0]["displayName"].as_str().unwrap();
                     assert_eq!("TestSection", section_name);
                 } else if let Err(e) = sections {
@@ -106,7 +106,7 @@ fn create_delete_page() {
                 .send();
 
             if let Ok(page) = res {
-                let page_id = page.value()["id"].as_str().unwrap();
+                let page_id = page.body()["id"].as_str().unwrap();
 
                 thread::sleep(Duration::from_secs(5));
                 let delete_res = client

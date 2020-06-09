@@ -22,7 +22,7 @@ fn list_and_get_messages() {
                 .list()
                 .send()
             {
-                let value = res.value().value().unwrap();
+                let value = res.body().value().unwrap();
                 let value = value[0].clone();
                 let message_id = value["id"].as_str().unwrap();
 
@@ -36,7 +36,7 @@ fn list_and_get_messages() {
 
                 if let Ok(response) = get_req {
                     println!("{:#?}", response);
-                    let value = response.value().clone();
+                    let value = response.body().clone();
                     let m_id = value["id"].as_str().unwrap();
                     assert_eq!(m_id, message_id);
                 } else if let Err(_) = get_req {
@@ -82,7 +82,7 @@ fn mail_create_and_delete_message() {
                 .send();
 
             if let Ok(message) = result {
-                let message_id = message.value()["id"].as_str().unwrap();
+                let message_id = message.body()["id"].as_str().unwrap();
 
                 thread::sleep(Duration::from_secs(2));
                 let delete_res = client
