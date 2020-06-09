@@ -165,7 +165,9 @@ impl<'a> OnenotePageRequest<'a> {
     patch!( [ | update, serde_json::Value => "{{pages}}/{{id}}/content" ] );
     post!( [ | copy_to_section, GraphResponse<Content> => "{{pages}}/{{id}}/copyToSection" ] );
     delete!( | delete, GraphResponse<Content> => "{{pages}}/{{id}}" );
+    download!( | download, BlockingDownload => "{{pages}}/{{id}}/content" );
 
+    /*
     pub fn download<S: AsRef<str>, P: AsRef<Path>>(
         &'a self,
         id: S,
@@ -183,4 +185,5 @@ impl<'a> OnenotePageRequest<'a> {
             .set_request_type(GraphRequestType::Redirect);
         self.client.request().download(self.client.take_builder())
     }
+     */
 }

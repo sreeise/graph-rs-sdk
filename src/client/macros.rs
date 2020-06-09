@@ -364,6 +364,25 @@ macro_rules! register_method {
 }
 
 #[macro_use]
+macro_rules! register_download {
+    ( | $name:ident, $T:ty => $template:expr ) => {
+      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
+        self.client.builder()
+            .set_method(reqwest::Method::GET)
+            .set_download_dir(directory.as_ref())
+            .set_request_type(GraphRequestType::Redirect);
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({ "id": id.as_ref() })
+        );
+        self.client.request().download(self.client.take_builder())
+      }
+    };
+}
+
+#[macro_use]
 macro_rules! get {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::GET );
@@ -576,5 +595,12 @@ macro_rules! delete {
 
     ( [ ||| $name:ident, $T:ty => $template:expr ] ) => {
         register_method!( [ ||| $name, $T => $template, Method::DELETE ]);
+    };
+}
+
+#[macro_use]
+macro_rules! download {
+    ( | $name:ident, $T:ty => $template:expr ) => {
+        register_download!( | $name, $T => $template );
     };
 }

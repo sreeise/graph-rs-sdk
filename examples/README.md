@@ -18,19 +18,19 @@ and access tokens.
     let client = Graph::new("ACCESS_TOKEN");
     
     // Drive requests.
-    let drive_item: GraphResponse<DriveItem> = client.v1()
+    let response = client.v1()
                         .me()
                         .drive()
                         .get_item("ITEM_ID")
                         .send()
                         .unwrap():
-    println!("{:#?}", drive_item.value()):
+    println!("{:#?}", response.body()):
     
     // User requests
-    let user: GraphResponse<User> = client.v1()
+    let response = client.v1()
                     .me()
                     .user()
                     .get()
                     .send()
                     .unwrap();
-    println!({:#?}, user.value());
+    println!({:#?}, response.body());
