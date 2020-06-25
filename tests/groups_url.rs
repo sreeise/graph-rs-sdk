@@ -136,19 +136,14 @@ fn group_lifecycle_policies() {
 fn group_conversation() {
     let client = Graph::new("");
 
-    let _ = client
-        .v1()
-        .groups(RID)
-        .conversations()
-        .list();
+    let _ = client.v1().groups(RID).conversations().list();
     assert_url_eq(&client, format!("/groups/{}/conversations", RID));
 
-    let _ = client
-        .v1()
-        .groups(RID)
-        .conversations()
-        .list_threads(ID);
-    assert_url_eq(&client, format!("/groups/{}/conversations/{}/threads", RID, ID));
+    let _ = client.v1().groups(RID).conversations().list_threads(ID);
+    assert_url_eq(
+        &client,
+        format!("/groups/{}/conversations/{}/threads", RID, ID),
+    );
 
     let _ = client
         .v1()
@@ -157,11 +152,7 @@ fn group_conversation() {
         .list_accepted_senders();
     assert_url_eq(&client, format!("/groups/{}/acceptedSenders", RID));
 
-    let _ = client
-        .v1()
-        .groups(RID)
-        .conversations()
-        .get(ID);
+    let _ = client.v1().groups(RID).conversations().get(ID);
     assert_url_eq(&client, format!("/groups/{}/conversations/{}", RID, ID));
 
     let _ = client
@@ -176,7 +167,10 @@ fn group_conversation() {
         .groups(RID)
         .conversations()
         .create_thread(ID, &serde_json::json!({}));
-    assert_url_eq(&client, format!("/groups/{}/conversations/{}/threads", RID, ID));
+    assert_url_eq(
+        &client,
+        format!("/groups/{}/conversations/{}/threads", RID, ID),
+    );
 
     let _ = client
         .v1()
@@ -185,11 +179,7 @@ fn group_conversation() {
         .create_accepted_sender(&serde_json::json!({}));
     assert_url_eq(&client, format!("/groups/{}/acceptedSenders/$ref", RID));
 
-    let _ = client
-        .v1()
-        .groups(RID)
-        .conversations()
-        .delete(ID);
+    let _ = client.v1().groups(RID).conversations().delete(ID);
     assert_url_eq(&client, format!("/groups/{}/conversations/{}", RID, ID));
 }
 
@@ -203,7 +193,10 @@ fn group_conversation_posts() {
         .conversations()
         .conversation_posts()
         .list(ID, ID);
-    assert_url_eq(&client, format!("/groups/{}/conversations/{}/threads/{}/posts", RID, ID, ID));
+    assert_url_eq(
+        &client,
+        format!("/groups/{}/conversations/{}/threads/{}/posts", RID, ID, ID),
+    );
 
     let _ = client
         .v1()
@@ -211,7 +204,13 @@ fn group_conversation_posts() {
         .conversations()
         .conversation_posts()
         .get(ID, ID, ID);
-    assert_url_eq(&client, format!("/groups/{}/conversations/{}/threads/{}/posts/{}", RID, ID, ID, ID));
+    assert_url_eq(
+        &client,
+        format!(
+            "/groups/{}/conversations/{}/threads/{}/posts/{}",
+            RID, ID, ID, ID
+        ),
+    );
 
     let _ = client
         .v1()
@@ -219,7 +218,13 @@ fn group_conversation_posts() {
         .conversations()
         .conversation_posts()
         .reply(ID, ID, ID, &serde_json::json!({}));
-    assert_url_eq(&client, format!("/groups/{}/conversations/{}/threads/{}/posts/{}/reply", RID, ID, ID, ID));
+    assert_url_eq(
+        &client,
+        format!(
+            "/groups/{}/conversations/{}/threads/{}/posts/{}/reply",
+            RID, ID, ID, ID
+        ),
+    );
 
     let _ = client
         .v1()
@@ -227,7 +232,13 @@ fn group_conversation_posts() {
         .conversations()
         .conversation_posts()
         .forward(ID, ID, ID, &serde_json::json!({}));
-    assert_url_eq(&client, format!("/groups/{}/conversations/{}/threads/{}/posts/{}/forward", RID, ID, ID, ID));
+    assert_url_eq(
+        &client,
+        format!(
+            "/groups/{}/conversations/{}/threads/{}/posts/{}/forward",
+            RID, ID, ID, ID
+        ),
+    );
 }
 
 #[test]
@@ -248,7 +259,10 @@ fn group_conversation_thread_posts() {
         .conversations()
         .thread_posts()
         .get(ID, ID);
-    assert_url_eq(&client, format!("/groups/{}/threads/{}/posts/{}", RID, ID, ID));
+    assert_url_eq(
+        &client,
+        format!("/groups/{}/threads/{}/posts/{}", RID, ID, ID),
+    );
 
     let _ = client
         .v1()
@@ -256,7 +270,10 @@ fn group_conversation_thread_posts() {
         .conversations()
         .thread_posts()
         .reply(ID, ID, &serde_json::json!({}));
-    assert_url_eq(&client, format!("/groups/{}/threads/{}/posts/{}/reply", RID, ID, ID));
+    assert_url_eq(
+        &client,
+        format!("/groups/{}/threads/{}/posts/{}/reply", RID, ID, ID),
+    );
 
     let _ = client
         .v1()
@@ -264,5 +281,8 @@ fn group_conversation_thread_posts() {
         .conversations()
         .thread_posts()
         .forward(ID, ID, &serde_json::json!({}));
-    assert_url_eq(&client, format!("/groups/{}/threads/{}/posts/{}/forward", RID, ID, ID));
+    assert_url_eq(
+        &client,
+        format!("/groups/{}/threads/{}/posts/{}/forward", RID, ID, ID),
+    );
 }

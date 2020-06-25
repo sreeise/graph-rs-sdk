@@ -6,7 +6,10 @@ use reqwest::Method;
 
 register_client!(CalendarRequest,);
 
-impl<'a> CalendarRequest<'a> {
+impl<'a, Client> CalendarRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( list, Collection<serde_json::Value> => "calendars" );
     get!( get_default, serde_json::Value => "calendar" );
     get!( | get, serde_json::Value => "calendars/{{id}}" );
@@ -16,38 +19,41 @@ impl<'a> CalendarRequest<'a> {
     post!( | create, serde_json::Value => "calendars" );
     delete!( | delete, GraphResponse<Content> => "calendars/{{id}}" );
 
-    pub fn attachments(&'a self) -> CalendarAttachmentRequest<'a> {
+    pub fn attachments(&'a self) -> CalendarAttachmentRequest<'a, Client> {
         CalendarAttachmentRequest::new(self.client)
     }
 
-    pub fn views(&self) -> CalendarViewRequest<'a> {
+    pub fn views(&self) -> CalendarViewRequest<'a, Client> {
         CalendarViewRequest::new(self.client)
     }
 
-    pub fn groups(&self) -> CalendarGroupRequest<'a> {
+    pub fn groups(&self) -> CalendarGroupRequest<'a, Client> {
         CalendarGroupRequest::new(self.client)
     }
 }
 
 register_client!(CalendarViewRequest,);
 
-impl<'a> CalendarViewRequest<'a> {
+impl<'a, Client> CalendarViewRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     pub fn list_default_view(
         &self,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         self.client
-            .builder()
+            .client()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&["calendar", "calendarView"]);
         self.client
-            .builder()
+            .client()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .builder()
+            .client()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
@@ -58,18 +64,18 @@ impl<'a> CalendarViewRequest<'a> {
         id: &str,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         self.client
-            .builder()
+            .client()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&["calendars", id, "calendarView"]);
         self.client
-            .builder()
+            .client()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .builder()
+            .client()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
@@ -80,18 +86,18 @@ impl<'a> CalendarViewRequest<'a> {
         calendar_id: &str,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         self.client
-            .builder()
+            .client()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&["calendarGroup", "calendars", calendar_id, "calendarView"]);
         self.client
-            .builder()
+            .client()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .builder()
+            .client()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
@@ -103,9 +109,9 @@ impl<'a> CalendarViewRequest<'a> {
         calendar_id: &str,
         start_date_time: &str,
         end_date_time: &str,
-    ) -> IntoResponse<'a, Collection<serde_json::Value>> {
+    ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         self.client
-            .builder()
+            .client()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&[
@@ -116,11 +122,11 @@ impl<'a> CalendarViewRequest<'a> {
                 "calendarView",
             ]);
         self.client
-            .builder()
+            .client()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .builder()
+            .client()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
@@ -129,7 +135,10 @@ impl<'a> CalendarViewRequest<'a> {
 
 register_client!(CalendarGroupRequest,);
 
-impl<'a> CalendarGroupRequest<'a> {
+impl<'a, Client> CalendarGroupRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( list, Collection<serde_json::Value> => "calendarGroups" );
     get!( | get, serde_json::Value => "calendarGroups/{{id}}" );
     get!( list_default_calendars, Collection<serde_json::Value> => "calendarGroup/calendars" );
@@ -145,7 +154,7 @@ impl<'a> CalendarGroupRequest<'a> {
     patch!( [ | update, serde_json::Value => "calendarGroups/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "calendarGroups/{{id}}" );
 
-    pub fn attachments(&'a self) -> CalendarGroupAttachmentRequest<'a> {
+    pub fn attachments(&'a self) -> CalendarGroupAttachmentRequest<'a, Client> {
         CalendarGroupAttachmentRequest::new(self.client)
     }
 }

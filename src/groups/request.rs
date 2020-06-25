@@ -10,7 +10,10 @@ register_client!(
     co => "conversations",
 );
 
-impl<'a> GroupConversationRequest<'a> {
+impl<'a, Client> GroupConversationRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( list, Collection<serde_json::Value> => "groups/{{RID}}/{{co}}" );
     get!( | list_threads, Collection<serde_json::Value> => "groups/{{RID}}/{{co}}/{{id}}/threads" );
     get!( list_accepted_senders, Collection<serde_json::Value> => "groups/{{RID}}/acceptedSenders" );
@@ -20,24 +23,27 @@ impl<'a> GroupConversationRequest<'a> {
     post!( [ create_accepted_sender, GraphResponse<Content> => "groups/{{RID}}/acceptedSenders/$ref" ] );
     delete!( | delete, GraphResponse<Content> => "groups/{{RID}}/{{co}}/{{id}}" );
 
-    pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a> {
+    pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a, Client> {
         GroupThreadPostRequest::new(self.client)
     }
 
-    pub fn conversation_posts(&'a self) -> GroupConversationPostRequest<'a> {
+    pub fn conversation_posts(&'a self) -> GroupConversationPostRequest<'a, Client> {
         GroupConversationPostRequest::new(self.client)
     }
 }
 
 register_client!(GroupConversationPostRequest,);
 
-impl<'a> GroupConversationPostRequest<'a> {
+impl<'a, Client> GroupConversationPostRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( || list, Collection<serde_json::Value> => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts" );
     get!( ||| get, serde_json::Value => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts/{{id3}}" );
     post!( [ ||| reply, GraphResponse<Content> => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/reply" ] );
     post!( [ ||| forward, GraphResponse<Content> => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/forward" ] );
 
-    pub fn attachments(&'a self) -> ThreadConvoPostAttachmentRequest<'a> {
+    pub fn attachments(&'a self) -> ThreadConvoPostAttachmentRequest<'a, Client> {
         render_path!(self.client, "groups/{{RID}}");
         ThreadConvoPostAttachmentRequest::new(self.client)
     }
@@ -45,13 +51,16 @@ impl<'a> GroupConversationPostRequest<'a> {
 
 register_client!(GroupThreadPostRequest,);
 
-impl<'a> GroupThreadPostRequest<'a> {
+impl<'a, Client> GroupThreadPostRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( | list, Collection<serde_json::Value> => "groups/{{RID}}/threads/{{id}}/posts" );
     get!( || get, serde_json::Value => "groups/{{RID}}/threads/{{id}}/posts/{{id2}}" );
     post!( [ || reply, GraphResponse<Content> => "groups/{{RID}}/threads/{{id}}/posts/{{id2}}/reply" ] );
     post!( [ || forward, GraphResponse<Content> => "groups/{{RID}}/threads/{{id}}/posts/{{id2}}/forward" ] );
 
-    pub fn attachments(&'a self) -> ThreadPostAttachmentRequest<'a> {
+    pub fn attachments(&'a self) -> ThreadPostAttachmentRequest<'a, Client> {
         render_path!(self.client, "groups/{{RID}}");
         ThreadPostAttachmentRequest::new(self.client)
     }

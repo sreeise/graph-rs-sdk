@@ -19,8 +19,7 @@ fn delete_id(item_id: &str) {
     let drive = Graph::try_from(&oauth).unwrap();
 
     // Send the request.
-    let response: GraphResponse<Content> =
-        drive.v1().me().drive().delete(item_id).send().unwrap();
+    let response: GraphResponse<Content> = drive.v1().me().drive().delete(item_id).send().unwrap();
 
     println!("{:#?}", response);
     println!("\nItem was deleted: {:#?}", response.success());

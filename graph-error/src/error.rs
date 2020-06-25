@@ -79,6 +79,14 @@ impl GraphError {
         self.error_message = error_message;
     }
 
+    pub fn try_set_error_message(&mut self, msg: &str) {
+        let error_message: Result<ErrorMessage, serde_json::error::Error> =
+            serde_json::from_str(msg);
+        if let Ok(error_message) = error_message {
+            self.set_error_message(error_message);
+        }
+    }
+
     pub fn message(&self) -> Option<String> {
         self.error_message.error.as_ref()?.message.clone()
     }
@@ -120,6 +128,20 @@ impl GraphError {
             .code
             .clone()
     }
+
+    pub async fn try_from_async_with_err_message(value: reqwest::Response) -> Option<GraphError> {
+        let status = value.status().as_u16();
+        let mut graph_error = GraphError::try_from(status).ok()?;
+        graph_error.set_headers(GraphHeaders::from(&value));
+
+        if let Ok(text) = value.text().await {
+            let error_message: ErrorMessage =
+                serde_json::from_str(text.as_str()).unwrap_or_default();
+            graph_error.error_message = error_message;
+        }
+
+        Some(graph_error)
+    }
 }
 
 impl Error for GraphError {
@@ -159,7 +181,7 @@ impl Default for GraphError {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ErrorType {
     BadRequest,
     Unauthorized,
@@ -277,22 +299,30 @@ impl TryFrom<u16> for GraphError {
     }
 }
 
+impl TryFrom<reqwest::blocking::Response> for GraphError {
+    type Error = std::io::Error;
+
+    fn try_from(value: reqwest::blocking::Response) -> Result<Self, Self::Error> {
+        let status = value.status().as_u16();
+        let mut graph_error = GraphError::try_from(status)?;
+        graph_error.set_headers(GraphHeaders::from(&value));
+
+        if let Ok(text) = value.text() {
+            let error_message: ErrorMessage =
+                serde_json::from_str(text.as_str()).unwrap_or_default();
+            graph_error.error_message = error_message;
+        }
+
+        Ok(graph_error)
+    }
+}
+
 impl TryFrom<&reqwest::blocking::Response> for GraphError {
     type Error = std::io::Error;
 
     fn try_from(value: &reqwest::blocking::Response) -> Result<Self, Self::Error> {
         let status = value.status().as_u16();
         let mut graph_error = GraphError::try_from(status)?;
-
-       /*
-        if value.text().is_ok() {
-            let text = value.text()?;
-            let error_message: ErrorMessage =
-                serde_json::from_str(text.as_str()).unwrap_or_default();
-            graph_error.error_message = error_message;
-        }
-
-        */
         graph_error.set_headers(GraphHeaders::from(value));
         Ok(graph_error)
     }
@@ -304,16 +334,6 @@ impl TryFrom<&reqwest::Response> for GraphError {
     fn try_from(value: &reqwest::Response) -> Result<Self, Self::Error> {
         let status = value.status().as_u16();
         let mut graph_error = GraphError::try_from(status)?;
-
-        /*
-         if value.text().is_ok() {
-             let text = value.text()?;
-             let error_message: ErrorMessage =
-                 serde_json::from_str(text.as_str()).unwrap_or_default();
-             graph_error.error_message = error_message;
-         }
-
-         */
         graph_error.set_headers(GraphHeaders::from(value));
         Ok(graph_error)
     }

@@ -6,6 +6,7 @@ use from_as::*;
 use graph_error::GraphFailure;
 use openssl::rand::rand_bytes;
 use openssl::sha;
+use serde::export::PhantomData;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
 use std::convert::TryFrom;
@@ -836,8 +837,18 @@ impl OAuth {
         }
     }
 
-    pub fn build(&mut self) -> GrantSelector {
-        GrantSelector(self.clone())
+    pub fn build(&mut self) -> GrantSelector<AccessTokenGrant> {
+        GrantSelector {
+            oauth: self.clone(),
+            t: PhantomData,
+        }
+    }
+
+    pub fn build_async(&mut self) -> GrantSelector<AsyncAccessTokenGrant> {
+        GrantSelector {
+            oauth: self.clone(),
+            t: PhantomData,
+        }
     }
 
     /// Sign the user out using the OneDrive v1.0 endpoint.
@@ -1198,9 +1209,12 @@ impl<V: ToString> Extend<(OAuthCredential, V)> for OAuth {
     }
 }
 
-pub struct GrantSelector(OAuth);
+pub struct GrantSelector<T> {
+    oauth: OAuth,
+    t: PhantomData<T>,
+}
 
-impl GrantSelector {
+impl GrantSelector<AccessTokenGrant> {
     /// Create a new instance for token flow.
     ///
     /// # See
@@ -1214,7 +1228,7 @@ impl GrantSelector {
     /// ```
     pub fn token_flow(self) -> ImplicitGrant {
         ImplicitGrant {
-            oauth: self.0,
+            oauth: self.oauth,
             grant: GrantType::TokenFlow,
         }
     }
@@ -1232,7 +1246,7 @@ impl GrantSelector {
     /// ```
     pub fn code_flow(self) -> AccessTokenGrant {
         AccessTokenGrant {
-            oauth: self.0,
+            oauth: self.oauth,
             grant: GrantType::CodeFlow,
         }
     }
@@ -1250,7 +1264,7 @@ impl GrantSelector {
     /// ```
     pub fn implicit_grant(self) -> ImplicitGrant {
         ImplicitGrant {
-            oauth: self.0,
+            oauth: self.oauth,
             grant: GrantType::Implicit,
         }
     }
@@ -1268,7 +1282,7 @@ impl GrantSelector {
     /// ```
     pub fn authorization_code_grant(self) -> AccessTokenGrant {
         AccessTokenGrant {
-            oauth: self.0,
+            oauth: self.oauth,
             grant: GrantType::AuthorizationCode,
         }
     }
@@ -1286,7 +1300,7 @@ impl GrantSelector {
     /// ```
     pub fn open_id_connect(self) -> AccessTokenGrant {
         AccessTokenGrant {
-            oauth: self.0,
+            oauth: self.oauth,
             grant: GrantType::OpenId,
         }
     }
@@ -1304,7 +1318,7 @@ impl GrantSelector {
     /// ```
     pub fn client_credentials(self) -> AccessTokenGrant {
         AccessTokenGrant {
-            oauth: self.0,
+            oauth: self.oauth,
             grant: GrantType::ClientCredentials,
         }
     }
@@ -1322,7 +1336,135 @@ impl GrantSelector {
     /// ```
     pub fn resource_owner_password_credentials(self) -> AccessTokenGrant {
         AccessTokenGrant {
-            oauth: self.0,
+            oauth: self.oauth,
+            grant: GrantType::ResourceOwnerPasswordCredentials,
+        }
+    }
+}
+
+impl GrantSelector<AsyncAccessTokenGrant> {
+    /// Create a new instance for token flow.
+    ///
+    /// # See
+    /// [Microsoft Token Flow Authorizaiton](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().token_flow();
+    /// ```
+    pub fn token_flow(self) -> ImplicitGrant {
+        ImplicitGrant {
+            oauth: self.oauth,
+            grant: GrantType::TokenFlow,
+        }
+    }
+
+    /// Create a new instance for code flow.
+    ///
+    /// # See
+    /// [Microsoft Code Flow Authorizaiton](https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().code_flow();
+    /// ```
+    pub fn code_flow(self) -> AsyncAccessTokenGrant {
+        AsyncAccessTokenGrant {
+            oauth: self.oauth,
+            grant: GrantType::CodeFlow,
+        }
+    }
+
+    /// Create a new instance for the implicit grant.
+    ///
+    /// # See
+    /// [Implicit Grant for OAuth 2.0](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().implicit_grant();
+    /// ```
+    pub fn implicit_grant(self) -> ImplicitGrant {
+        ImplicitGrant {
+            oauth: self.oauth,
+            grant: GrantType::Implicit,
+        }
+    }
+
+    /// Create a new instance for authorization code grant.
+    ///
+    /// # See
+    /// [Authorization Code Grant for OAuth 2.0](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().authorization_code_grant();
+    /// ```
+    pub fn authorization_code_grant(self) -> AsyncAccessTokenGrant {
+        AsyncAccessTokenGrant {
+            oauth: self.oauth,
+            grant: GrantType::AuthorizationCode,
+        }
+    }
+
+    /// Create a new instance for the open id connect grant.
+    ///
+    /// # See
+    /// [Microsoft Open ID Connect](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().open_id_connect();
+    /// ```
+    pub fn open_id_connect(self) -> AsyncAccessTokenGrant {
+        AsyncAccessTokenGrant {
+            oauth: self.oauth,
+            grant: GrantType::OpenId,
+        }
+    }
+
+    /// Create a new instance for the open id connect grant.
+    ///
+    /// # See
+    /// [Microsoft Client Credentials](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().client_credentials();
+    /// ```
+    pub fn client_credentials(self) -> AsyncAccessTokenGrant {
+        AsyncAccessTokenGrant {
+            oauth: self.oauth,
+            grant: GrantType::ClientCredentials,
+        }
+    }
+
+    /// Create a new instance for the resource owner password credentials grant.
+    ///
+    /// # See
+    /// [Microsoft Resource Owner Password Credentials](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let open_id = oauth.build().resource_owner_password_credentials();
+    /// ```
+    pub fn resource_owner_password_credentials(self) -> AsyncAccessTokenGrant {
+        AsyncAccessTokenGrant {
+            oauth: self.oauth,
             grant: GrantType::ResourceOwnerPasswordCredentials,
         }
     }
@@ -1366,6 +1508,36 @@ impl AccessTokenRequest {
         let builder = client.post(self.uri.as_str()).form(&self.params);
         let response = builder.send()?;
         Ok(response.json()?)
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+pub struct AsyncAccessTokenRequest {
+    uri: String,
+    params: HashMap<String, String>,
+}
+
+impl AsyncAccessTokenRequest {
+    /// Send the request for an access token. The response body
+    /// be will converted to an access token and returned.
+    pub async fn send(&mut self) -> OAuthReq<AccessToken> {
+        let client = reqwest::Client::new();
+        let builder = client.post(self.uri.as_str()).form(&self.params);
+        AccessToken::try_from_async(builder).await
+    }
+
+    /// Send the request for an access token. This method
+    /// can be used to convert response bodies to custom
+    /// objects using the serde crate. The object must implement
+    /// serde deserialize.
+    pub async fn json<T>(&mut self) -> OAuthReq<T>
+    where
+        for<'de> T: serde::Deserialize<'de>,
+    {
+        let client = reqwest::Client::new();
+        let builder = client.post(self.uri.as_str()).form(&self.params);
+        let response = builder.send().await?;
+        Ok(response.json().await?)
     }
 }
 
@@ -1517,6 +1689,119 @@ impl AccessTokenGrant {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::RefreshToken);
         AccessTokenRequest {
+            uri: self
+                .oauth
+                .get_or_else(OAuthCredential::RefreshTokenURL)
+                .unwrap(),
+            params: self
+                .oauth
+                .params(self.grant.available_credentials(GrantRequest::RefreshToken))
+                .unwrap(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+pub struct AsyncAccessTokenGrant {
+    oauth: OAuth,
+    grant: GrantType,
+}
+
+impl AsyncAccessTokenGrant {
+    pub fn authorization_url(&mut self) -> Url {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::Authorization);
+        let params = self
+            .oauth
+            .params(
+                self.grant
+                    .available_credentials(GrantRequest::Authorization),
+            )
+            .unwrap();
+        let mut url = Url::parse(
+            self.oauth
+                .get_or_else(OAuthCredential::AuthorizeURL)
+                .unwrap()
+                .as_str(),
+        )
+        .unwrap();
+        url.query_pairs_mut().extend_pairs(&params);
+        url
+    }
+
+    /// Make a request for authorization. The default browser for a user
+    /// will be opened to the sign in page where the user will need to
+    /// sign in and agree to any permissions that were set by the provided
+    /// scopes.
+    pub fn browser_authorization(&mut self) -> AuthorizationRequest {
+        AuthorizationRequest {
+            uri: self.authorization_url().to_string(),
+        }
+    }
+
+    /// Make a request for an access token. The token is stored in OAuth and
+    /// will be used to make for making requests for refresh tokens. The below
+    /// example shows how access tokens are stored and retrieved for OAuth:
+    /// # Example
+    /// ```rust,ignore
+    /// # use graph_oauth::oauth::{OAuth, AccessToken};
+    /// let mut oauth: OAuth = OAuth::new();
+    ///
+    /// // As an example create a random access token.
+    /// let mut access_token = AccessToken::default();
+    /// access_token.access_token("12345");
+    /// // Store the token in OAuth if the access token has a refresh token.
+    /// // The refresh token can be later used to request more access tokens.
+    /// oauth.access_token(access_token);
+    /// // You can get the actual bearer token if needed:
+    /// println!("{:#?}", oauth.get_access_token().unwrap().get_access_token());
+    /// ```
+    ///
+    /// Request an access token.
+    /// # Example
+    /// ```rust,ignore
+    /// use graph_oauth::oauth::{Grant, OAuth};
+    /// let mut oauth: OAuth = OAuth::new();
+    ///
+    /// // This assumes the user has been authenticated and
+    /// // the access_code from the request has been given:
+    /// oauth.access_code("access_code");
+    ///
+    /// // To get an access token a access_token_url is needed and the grant_type
+    /// // should be set to token.
+    /// // There are other parameters that may need to be included depending on the
+    /// // authorization flow chosen.
+    /// // The url below is for the v1.0 drive API. You can also use the Graph URLs as well.
+    /// oauth.access_token_url("https://login.live.com/oauth20_token.srf")
+    ///     .response_type("token")
+    ///     .grant_type("authorization_code");
+    ///
+    /// // Make a request for an access token.
+    /// let mut request = oauth.build().authorization_code_grant();
+    /// let access_token = request.access_token().send().unwrap();
+    /// println!("{:#?}", access_token);
+    /// ```
+    pub fn access_token(&mut self) -> AsyncAccessTokenRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::AccessToken);
+        AsyncAccessTokenRequest {
+            uri: self
+                .oauth
+                .get_or_else(OAuthCredential::AccessTokenURL)
+                .unwrap(),
+            params: self
+                .oauth
+                .params(self.grant.available_credentials(GrantRequest::AccessToken))
+                .unwrap(),
+        }
+    }
+
+    /// Request a refresh token. Assumes an access token has already
+    /// been retrieved.
+    pub fn refresh_token(&mut self) -> AsyncAccessTokenRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::RefreshToken);
+        AsyncAccessTokenRequest {
             uri: self
                 .oauth
                 .get_or_else(OAuthCredential::RefreshTokenURL)

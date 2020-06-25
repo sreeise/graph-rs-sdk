@@ -19,7 +19,6 @@ members = [
     "graph-oauth",
     "graph-error",
     "test-tools",
-    "http-client",
 ]
 
 [dependencies]
@@ -30,7 +29,7 @@ serde = { version = "1.0.110", features = ["derive"] }
 serde_json = "1.0.53"
 serde_yaml = "0.8.9"
 serde_derive = "^1.0"
-reqwest = { version = "0.10", features = ["json", "blocking"] }
+reqwest = { version = "0.10", features = ["json", "blocking", "stream"] }
 strum_macros = "0.14.0"
 strum = "0.14.0"
 openssl-sys = "0.9"
@@ -44,6 +43,10 @@ openssl = { version = "^0.10", features = ["vendored"] }
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
 from_as = { git = "https://github.com/sreeise/from_as" }
+tokio = { version = "0.2.21", features = ["full"] }
+async-std = "1.6.0"
+async-trait = "0.1.35"
+bytes = "0.5.4"
 
 [dev-dependencies.rocket_contrib]
 version = "0.4.2"
@@ -60,6 +63,7 @@ lazy_static = "1.4.0"
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
 test-tools = { path = "./test-tools" }
+tokio = { version = "0.2", features = ["full"] }
 
 [badges]
 travis-ci = { repository = "https://github.com/sreeise/graph-rs", branch = "master" }
