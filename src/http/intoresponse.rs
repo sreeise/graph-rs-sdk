@@ -1,5 +1,5 @@
 use crate::client::*;
-use crate::http::{GraphResponse, UploadSessionClient};
+use crate::http::{AsyncClient, BlockingClient, GraphResponse, RequestClient, UploadSessionClient};
 use crate::types::delta::{Delta, NextLink};
 use crate::types::{content::Content, delta::DeltaRequest};
 use graph_error::{GraphFailure, GraphResult};
@@ -18,14 +18,23 @@ pub trait ToResponse {
     fn send(&self) -> Self::Output;
 }
 
-pub struct IntoResponse<'a, T> {
-    client: &'a Graph,
+pub struct IntoResponse<'a, T, Client>
+where
+    Client: crate::http::RequestClient,
+{
+    client: &'a Graph<Client>,
     ident: PhantomData<T>,
     error: RefCell<Option<GraphFailure>>,
 }
 
-impl<'a, T> IntoResponse<'a, T> {
-    pub fn new(client: &'a Graph) -> IntoResponse<'a, T> {
+pub type IntoResBlocking<'a, T> = IntoResponse<'a, T, BlockingClient>;
+pub type IntoResAsync<'a, T> = IntoResponse<'a, T, AsyncClient>;
+
+impl<'a, T, Client> IntoResponse<'a, T, Client>
+where
+    Client: crate::http::RequestClient,
+{
+    pub fn new(client: &'a Graph<Client>) -> IntoResponse<'a, T, Client> {
         IntoResponse {
             client,
             ident: PhantomData,
@@ -33,7 +42,10 @@ impl<'a, T> IntoResponse<'a, T> {
         }
     }
 
-    pub(crate) fn new_error(client: &'a Graph, error: GraphFailure) -> IntoResponse<'a, T> {
+    pub(crate) fn new_error(
+        client: &'a Graph<Client>,
+        error: GraphFailure,
+    ) -> IntoResponse<'a, T, Client> {
         IntoResponse {
             client,
             ident: PhantomData,
@@ -42,55 +54,57 @@ impl<'a, T> IntoResponse<'a, T> {
     }
 
     pub fn query(&self, key: &str, value: &str) -> &Self {
-        self.client.builder().as_mut().append_query_pair(key, value);
+        self.client.client().as_mut().append_query_pair(key, value);
         self
     }
 
     pub fn select(&self, value: &[&str]) -> &Self {
-        self.client.builder().as_mut().select(value);
+        self.client.client().as_mut().select(value);
         self
     }
 
     pub fn expand(&self, value: &[&str]) -> &Self {
-        self.client.builder().as_mut().expand(value);
+        self.client.client().as_mut().expand(value);
         self
     }
 
     pub fn filter(&self, value: &[&str]) -> &Self {
-        self.client.builder().as_mut().filter(value);
+        self.client.client().as_mut().filter(value);
         self
     }
 
     pub fn order_by(&self, value: &[&str]) -> &Self {
-        self.client.builder().as_mut().order_by(value);
+        self.client.client().as_mut().order_by(value);
         self
     }
 
     pub fn search(&self, value: &str) -> &Self {
-        self.client.builder().as_mut().search(value);
+        self.client.client().as_mut().search(value);
         self
     }
 
     pub fn format(&self, value: &str) -> &Self {
-        self.client.builder().as_mut().format(value);
+        self.client.client().as_mut().format(value);
         self
     }
 
     pub fn skip(&self, value: &str) -> &Self {
-        self.client.builder().as_mut().skip(value);
+        self.client.client().as_mut().skip(value);
         self
     }
 
     pub fn top(&self, value: &str) -> &Self {
-        self.client.builder().as_mut().top(value);
+        self.client.client().as_mut().top(value);
         self
     }
 
     pub fn header(&self, name: impl IntoHeaderName, value: HeaderValue) -> &Self {
-        self.client.builder().header(name, value);
+        self.client.client().header(name, value);
         self
     }
+}
 
+impl<'a, T> IntoResBlocking<'a, T> {
     fn delta<U: 'static + Send + NextLink + Clone>(&self) -> Receiver<Delta<U>>
     where
         for<'de> U: serde::Deserialize<'de>,
@@ -101,8 +115,7 @@ impl<'a, T> IntoResponse<'a, T> {
             return receiver;
         }
 
-        let builder = self.client.take_builder();
-        let response: GraphResult<GraphResponse<U>> = self.client.request().execute(builder);
+        let response: GraphResult<GraphResponse<U>> = self.client.request().execute();
         if let Err(err) = response {
             sender.send(Delta::Done(Some(err))).unwrap();
             return receiver;
@@ -169,12 +182,12 @@ impl<'a, T> IntoResponse<'a, T> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        let response = self.client.request().response(self.client.take_builder())?;
+        let response = self.client.request().response()?;
         Ok(response.json()?)
     }
 }
 
-impl<'a, T> ToResponse for IntoResponse<'a, T>
+impl<'a, T> ToResponse for IntoResBlocking<'a, T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
@@ -184,38 +197,34 @@ where
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        let builder = self.client.take_builder();
-        self.client.request().execute(builder)
+        self.client.request().execute()
     }
 }
 
-impl<'a> ToResponse for IntoResponse<'a, UploadSessionClient> {
-    type Output = GraphResult<UploadSessionClient>;
+impl<'a> ToResponse for IntoResBlocking<'a, UploadSessionClient<BlockingClient>> {
+    type Output = GraphResult<UploadSessionClient<BlockingClient>>;
 
     fn send(&self) -> Self::Output {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        self.client
-            .request()
-            .upload_session(self.client.take_builder())
+        self.client.request().upload_session()
     }
 }
 
-impl<'a> ToResponse for IntoResponse<'a, GraphResponse<Content>> {
+impl<'a> ToResponse for IntoResBlocking<'a, GraphResponse<Content>> {
     type Output = GraphResult<GraphResponse<Content>>;
 
     fn send(&self) -> Self::Output {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        let builder = self.client.take_builder();
-        let response = self.client.request().response(builder)?;
+        let response = self.client.request().response()?;
         Ok(GraphResponse::try_from(response)?)
     }
 }
 
-impl<'a, T: 'static + Send + NextLink + Clone> ToResponse for IntoResponse<'a, DeltaRequest<T>>
+impl<'a, T: 'static + Send + NextLink + Clone> ToResponse for IntoResBlocking<'a, DeltaRequest<T>>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
@@ -223,5 +232,16 @@ where
 
     fn send(&self) -> Self::Output {
         self.delta::<T>()
+    }
+}
+
+impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncClient>> {
+    pub async fn send(&self) -> GraphResult<UploadSessionClient<AsyncClient>> {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
+        let mut request = self.client.request();
+        let upload_session = request.upload_session().await;
+        upload_session
     }
 }

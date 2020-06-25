@@ -45,8 +45,14 @@ fn upload_session_replace() {
             match next {
                 Ok(NextSession::Next(response)) => {
                     println!("Response: {:#?}", response);
-                    println!("Expiration date time: {:#?}",  response.body()["expirationDateTime"]);
-                    println!("Next expected ranges: {:#?}", response.body()["nextExpectedRanges"]);
+                    println!(
+                        "Expiration date time: {:#?}",
+                        response.body()["expirationDateTime"]
+                    );
+                    println!(
+                        "Next expected ranges: {:#?}",
+                        response.body()["nextExpectedRanges"]
+                    );
                 },
                 Ok(NextSession::Done(response)) => {
                     println!("Session finished. DriveItem: {:#?}", response.body());

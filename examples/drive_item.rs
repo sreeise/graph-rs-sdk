@@ -1,4 +1,5 @@
 use from_as::*;
+use graph_rs::http::BlockingClient;
 use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
 use std::convert::TryFrom;
@@ -17,23 +18,23 @@ fn main() {
     special_docs_child(&mut graph);
 }
 
-fn drive_root(graph: &mut Graph) {
+fn drive_root(graph: &mut Graph<BlockingClient>) {
     let drive_item: GraphResponse<serde_json::Value> =
         graph.v1().me().drive().root().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
-fn drive_root_children(graph: &mut Graph) {
+fn drive_root_children(graph: &mut Graph<BlockingClient>) {
     let drive_item = graph.v1().me().drive().root_children().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
-fn special_docs(graph: &mut Graph) {
+fn special_docs(graph: &mut Graph<BlockingClient>) {
     let drive_item = graph.v1().me().drive().special_documents().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
-fn special_docs_child(graph: &mut Graph) {
+fn special_docs_child(graph: &mut Graph<BlockingClient>) {
     let drive_item = graph
         .v1()
         .me()

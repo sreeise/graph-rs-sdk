@@ -411,6 +411,22 @@ impl AccessToken {
     pub fn jwt(&self) -> Option<&JsonWebToken> {
         self.jwt.as_ref()
     }
+
+    pub(crate) async fn try_from_async(
+        builder: reqwest::RequestBuilder,
+    ) -> Result<AccessToken, GraphFailure> {
+        let value = builder.send().await?;
+        let status = value.status().as_u16();
+        if GraphError::is_error(status) {
+            let mut graph_error = GraphError::try_from(status)?;
+            let graph_headers = GraphHeaders::from(&value);
+            graph_error.set_headers(graph_headers);
+            return Err(GraphFailure::from(graph_error));
+        }
+        let mut access_token: AccessToken = value.json().await?;
+        access_token.parse_jwt();
+        Ok(access_token)
+    }
 }
 
 impl Default for AccessToken {
@@ -453,7 +469,9 @@ impl TryFrom<reqwest::blocking::RequestBuilder> for AccessToken {
 impl TryFrom<Result<reqwest::blocking::Response, reqwest::Error>> for AccessToken {
     type Error = GraphFailure;
 
-    fn try_from(value: Result<reqwest::blocking::Response, reqwest::Error>) -> Result<Self, Self::Error> {
+    fn try_from(
+        value: Result<reqwest::blocking::Response, reqwest::Error>,
+    ) -> Result<Self, Self::Error> {
         let response = value?;
         AccessToken::try_from(response)
     }
@@ -463,8 +481,8 @@ impl TryFrom<reqwest::blocking::Response> for AccessToken {
     type Error = GraphFailure;
 
     fn try_from(value: reqwest::blocking::Response) -> Result<Self, Self::Error>
-        where
-            Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
+    where
+        Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
     {
         let status = value.status().as_u16();
         if GraphError::is_error(status) {

@@ -3,12 +3,12 @@ macro_rules! register_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ) => {
         $( register_helper!($helper, $value); )*
 
-        pub struct $name<'a> {
-            client: &'a Graph,
+        pub struct $name<'a, Client> where Client: crate::http::RequestClient {
+            client: &'a Graph<Client>,
         }
 
-        impl<'a> $name<'a> {
-            pub fn new(client: &'a Graph) -> $name<'a> {
+        impl<'a, Client> $name<'a, Client> where Client: crate::http::RequestClient {
+            pub fn new(client: &'a Graph<Client>) -> $name<'a, Client> {
 
                 $(
                     client.registry()
@@ -23,12 +23,12 @@ macro_rules! register_client {
     };
 
     ( $name:ident, $($helper:ident => $value:expr, $value2:expr, $identity:expr,)* ) => {
-        pub struct $name<'a> {
-            client: &'a Graph,
+        pub struct $name<'a, Client> where Client: crate::http::RequestClient {
+            client: &'a Graph<Client>,
         }
 
-        impl<'a> $name<'a> {
-            pub fn new(client: &'a Graph) -> $name<'a> {
+        impl<'a, Client> $name<'a, Client> where Client: crate::http::RequestClient {
+            pub fn new(client: &'a Graph<Client>) -> $name<'a, Client> {
                 let ident = client.ident();
                 $(
                     client.registry().register_helper(
@@ -64,12 +64,12 @@ macro_rules! register_ident_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ()) => {
         $( register_helper!($helper, $value); )*
 
-        pub struct $name<'a> {
-            client: &'a Graph,
+        pub struct $name<'a, Client> where Client: crate::http::RequestClient {
+            client: &'a Graph<Client>,
         }
 
-        impl<'a> $name<'a> {
-            pub fn new(id: &str, client: &'a Graph) -> $name<'a> {
+        impl<'a, Client> $name<'a, Client,> where Client: crate::http::RequestClient  {
+            pub fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
                 $(
                     client.registry()
                         .register_helper(stringify!($helper), Box::new($helper));
@@ -98,13 +98,13 @@ macro_rules! register_ident_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ) => {
         $( register_helper!($helper, $value); )*
 
-        pub struct $name<'a> {
-            client: &'a Graph,
+        pub struct $name<'a, Client> where Client: crate::http::RequestClient {
+            client: &'a Graph<Client>,
             id: String,
         }
 
-        impl<'a> $name<'a> {
-            pub fn new(id: &str, client: &'a Graph) -> $name<'a> {
+        impl<'a, Client> $name<'a, Client> where Client: crate::http::RequestClient {
+            pub fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
                 $(
                     client.registry()
                         .register_helper(stringify!($helper), Box::new($helper));
@@ -133,43 +133,43 @@ macro_rules! register_ident_client {
                 let ident = self.client.ident();
                 if self.client.ident().eq(&Ident::Me) {
                     self.client
-                        .builder()
+                        .client()
                         .as_mut()
                         .extend_path(&[ident.as_ref()]);
                 } else {
                     self.client
-                        .builder()
+                        .client()
                         .as_mut()
                         .extend_path(&[ident.as_ref(), self.id.as_str()]);
                 }
             }
 
-            pub fn drive(&'a self) -> DriveRequest<'a> {
+            pub fn drive(&'a self) -> DriveRequest<'a, Client> {
                 self.set_path();
                 DriveRequest::new(self.client)
             }
 
-            pub fn mail(&'a self) -> MailRequest<'a> {
+            pub fn mail(&'a self) -> MailRequest<'a, Client> {
                 self.set_path();
                 MailRequest::new(self.client)
             }
 
-            pub fn calendar(&'a self) -> CalendarRequest<'a> {
+            pub fn calendar(&'a self) -> CalendarRequest<'a, Client> {
                 self.set_path();
                 CalendarRequest::new(self.client)
             }
 
-            pub fn onenote(&'a self) -> OnenoteRequest<'a> {
+            pub fn onenote(&'a self) -> OnenoteRequest<'a, Client> {
                 self.set_path();
                 OnenoteRequest::new(self.client)
             }
 
-            pub fn contacts(&'a self) -> ContactsRequest<'a> {
+            pub fn contacts(&'a self) -> ContactsRequest<'a, Client> {
                 self.set_path();
                 ContactsRequest::new(self.client)
             }
 
-            pub fn attachments(&'a self) -> AttachmentRequest<'a> {
+            pub fn attachments(&'a self) -> AttachmentRequest<'a, Client> {
                 self.set_path();
                 AttachmentRequest::new(self.client)
             }
@@ -202,7 +202,7 @@ macro_rules! render_path {
             .unwrap();
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $client.builder().as_mut().extend_path(&vec);
+        $client.client().as_mut().extend_path(&vec);
     };
 
     ($client:expr, $template:expr, $json:expr) => {
@@ -212,7 +212,7 @@ macro_rules! render_path {
             .unwrap();
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $client.builder().as_mut().extend_path(&vec);
+        $client.client().as_mut().extend_path(&vec);
     };
 
     ($client:expr, $template:expr, $json:expr, $last:expr ) => {
@@ -223,15 +223,17 @@ macro_rules! render_path {
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
         vec.extend($last);
-        $client.builder().as_mut().extend_path(&vec);
+        $client.client().as_mut().extend_path(&vec);
     };
 }
 
 #[macro_use]
 macro_rules! register_method {
     ( $name:ident, $T:ty => $template:expr, $m:expr ) => {
-      pub fn $name(&'a self) -> IntoResponse<'a, $T> {
-        self.client.builder()
+      pub fn $name(&'a self) -> IntoResponse<'a, $T, Client>
+        where Client: crate::http::RequestClient
+      {
+        self.client.client()
             .set_method($m);
 
         render_path!(
@@ -243,8 +245,10 @@ macro_rules! register_method {
     };
 
     ( | $name:ident, $T:ty => $template:expr, $m:expr ) => {
-      pub fn $name<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, $T> {
-        self.client.builder()
+      pub fn $name<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, $T, Client>
+        where Client: crate::http::RequestClient
+      {
+        self.client.client()
             .set_method($m);
 
         render_path!(
@@ -257,8 +261,10 @@ macro_rules! register_method {
     };
 
     ( || $name:ident, $T:ty => $template:expr, $m:expr ) => {
-      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S) -> IntoResponse<'a, $T> {
-        self.client.builder()
+      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S) -> IntoResponse<'a, $T, Client>
+        where Client: crate::http::RequestClient
+      {
+        self.client.client()
             .set_method($m);
 
         render_path!(
@@ -271,8 +277,10 @@ macro_rules! register_method {
     };
 
     ( ||| $name:ident, $T:ty => $template:expr, $m:expr ) => {
-      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S) -> IntoResponse<'a, $T> {
-        self.client.builder()
+      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S) -> IntoResponse<'a, $T, Client>
+        where Client: crate::http::RequestClient
+      {
+        self.client.client()
             .set_method($m);
 
         render_path!(
@@ -285,8 +293,10 @@ macro_rules! register_method {
     };
 
     ( |||| $name:ident, $T:ty => $template:expr, $m:expr ) => {
-      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S, id4: S) -> IntoResponse<'a, $T> {
-        self.client.builder()
+      pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S, id4: S) -> IntoResponse<'a, $T, Client>
+        where Client: crate::http::RequestClient
+      {
+        self.client.client()
             .set_method($m);
 
         render_path!(
@@ -304,8 +314,10 @@ macro_rules! register_method {
     };
 
     ( [ $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
-      pub fn $name<B: serde::Serialize>(&'a self, body: &B) -> IntoResponse<'a, $T> {
-        self.client.builder()
+      pub fn $name<B: serde::Serialize>(&'a self, body: &B) -> IntoResponse<'a, $T, Client>
+        where Client: crate::http::RequestClient
+      {
+        self.client.client()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
 
@@ -318,8 +330,10 @@ macro_rules! register_method {
     };
 
     ( [ | $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
-      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, body: &B) -> IntoResponse<'a, $T> {
-        self.client.builder()
+      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, body: &B) -> IntoResponse<'a, $T, Client>
+        where Client: crate::http::RequestClient
+      {
+        self.client.client()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
 
@@ -333,8 +347,10 @@ macro_rules! register_method {
     };
 
     ( [ || $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
-      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, body: &B) -> IntoResponse<'a, $T> {
-        self.client.builder()
+      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, body: &B) -> IntoResponse<'a, $T, Client>
+        where Client: crate::http::RequestClient
+      {
+        self.client.client()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
 
@@ -348,8 +364,10 @@ macro_rules! register_method {
     };
 
     ( [ ||| $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
-      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, id3: S, body: &B) -> IntoResponse<'a, $T> {
-        self.client.builder()
+      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, id3: S, body: &B) -> IntoResponse<'a, $T, Client>
+        where Client: crate::http::RequestClient
+      {
+        self.client.client()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
 
@@ -367,7 +385,7 @@ macro_rules! register_method {
 macro_rules! register_download {
     ( | $name:ident, $T:ty => $template:expr ) => {
       pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
-        self.client.builder()
+        self.client.client()
             .set_method(reqwest::Method::GET)
             .set_download_dir(directory.as_ref())
             .set_request_type(GraphRequestType::Redirect);
@@ -377,7 +395,7 @@ macro_rules! register_download {
             $template,
             &serde_json::json!({ "id": id.as_ref() })
         );
-        self.client.request().download(self.client.take_builder())
+        self.client.request().download()
       }
     };
 }

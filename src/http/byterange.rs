@@ -172,6 +172,27 @@ impl HttpByteRange {
         ))
     }
 
+    pub async fn async_from_range<P: AsRef<Path>>(
+        start: u64,
+        end: u64,
+        file: P,
+    ) -> std::io::Result<HttpByteRange> {
+        let path: &Path = file.as_ref();
+        let byte_range = ByteRange::new(path.to_path_buf());
+        let file_size = byte_range.file_size()?;
+        Ok(HttpByteRange::new(
+            file_size,
+            byte_range.read_to_vec_range(start, end)?,
+        ))
+    }
+
+    pub async fn try_from_async(value: PathBuf) -> Result<HttpByteRange, GraphFailure> {
+        let byte_range = ByteRange::new(value);
+        let file_size = byte_range.file_size()?;
+        let bytes = byte_range.read_to_vec()?;
+        Ok(HttpByteRange::new(file_size, bytes))
+    }
+
     pub fn file_size(&self) -> u64 {
         self.file_size
     }

@@ -1,4 +1,4 @@
-use graph_rs::http::Session;
+use graph_rs::http::{BlockingClient, Session};
 use graph_rs::prelude::*;
 use graph_rs::GRAPH_URL;
 use test_tools::assert_url_eq;
@@ -14,7 +14,7 @@ fn id_path(name: &str, middle: &str, last: Option<&str>) -> String {
     }
 }
 
-fn get_drive() -> Graph {
+fn get_drive() -> Graph<BlockingClient> {
     Graph::new("")
 }
 

@@ -15,3 +15,4 @@ url = "1.7.2"
 hyper = "0.12.33"
 snafu = "0.5.0"
 from_as = { git = "https://github.com/sreeise/from_as" }
+tokio = { version = "0.2.21", features = ["full"] }

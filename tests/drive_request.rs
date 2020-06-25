@@ -355,7 +355,7 @@ fn drive_upload_session() {
                             let drive_item = response.body();
                             let drive_item_id =
                                 drive_item["id"].as_str().unwrap_or_default().to_string();
-                            thread::sleep(Duration::from_secs(2));
+                            thread::sleep(Duration::from_secs(3));
 
                             let delete_res = client
                                 .v1()

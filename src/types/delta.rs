@@ -3,14 +3,20 @@ use crate::http::GraphResponse;
 use crate::types::content::Content;
 use graph_error::GraphResult;
 use reqwest::header::CONTENT_TYPE;
-use serde::export::PhantomData;
+use serde::export::{Formatter, PhantomData};
+use std::convert::TryFrom;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
-use std::convert::TryFrom;
 
 pub enum Delta<T> {
     Next(GraphResponse<T>),
     Done(Option<GraphFailure>),
+}
+
+impl<T> std::fmt::Debug for Delta<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Cannot debug Delta<T>. You are probably seeing this due to requirements of tokio::spawn")
+    }
 }
 
 pub trait NextLink<RHS = Self> {

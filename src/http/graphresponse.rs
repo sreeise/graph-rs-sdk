@@ -13,7 +13,11 @@ pub struct GraphResponse<T> {
 
 impl<T> GraphResponse<T> {
     pub fn new(body: T, status: u16, headers: reqwest::header::HeaderMap) -> GraphResponse<T> {
-        GraphResponse { body, status, headers }
+        GraphResponse {
+            body,
+            status,
+            headers,
+        }
     }
 
     pub fn body(&self) -> &T {
@@ -41,7 +45,8 @@ impl<T> GraphResponse<T> {
 
     pub fn async_job_status(&mut self) -> Option<GraphResult<AsyncJobStatus>> {
         // The location header contains the URL for monitoring progress.
-        let location: &reqwest::header::HeaderValue = self.headers.get(reqwest::header::LOCATION)?;
+        let location: &reqwest::header::HeaderValue =
+            self.headers.get(reqwest::header::LOCATION)?;
         let location_str = location.to_str().ok()?;
         let response = reqwest::blocking::Client::new()
             .get(location_str)
@@ -60,13 +65,43 @@ impl<T> GraphResponse<T> {
     }
 
     pub(crate) async fn try_from_async(response: reqwest::Response) -> GraphResult<GraphResponse<T>>
-        where
-                for<'de> T: serde::Deserialize<'de>,
+    where
+        for<'de> T: serde::Deserialize<'de>,
     {
-        let headers = response.headers().clone();
         let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            let possible_error = GraphFailure::from_async_response(&response).unwrap_or_default();
+            return Err(GraphFailure::from_async_res_with_err_message(response)
+                .await
+                .ok_or(possible_error)?);
+        }
+
+        let headers = response.headers().clone();
         let body: T = response.json().await?;
         Ok(GraphResponse::new(body, status, headers))
+    }
+
+    pub(crate) async fn try_from_async_content(
+        response: reqwest::Response,
+    ) -> GraphResult<GraphResponse<Content>> {
+        let status = response.status().as_u16();
+        if GraphError::is_error(status) {
+            let possible_error = GraphFailure::from_async_response(&response).unwrap_or_default();
+            return Err(GraphFailure::from_async_res_with_err_message(response)
+                .await
+                .ok_or(possible_error)?);
+        }
+
+        let headers = response.headers().clone();
+        if let Ok(content) = response.text().await {
+            Ok(GraphResponse::new(Content::from(content), status, headers))
+        } else {
+            Ok(GraphResponse::new(
+                Content::from(String::new()),
+                status,
+                headers,
+            ))
+        }
     }
 }
 
@@ -105,7 +140,11 @@ impl TryFrom<reqwest::blocking::Response> for GraphResponse<Content> {
         if let Ok(content) = response.text() {
             Ok(GraphResponse::new(Content::from(content), status, headers))
         } else {
-            Ok(GraphResponse::new(Content::from(String::new()), status, headers))
+            Ok(GraphResponse::new(
+                Content::from(String::new()),
+                status,
+                headers,
+            ))
         }
     }
 }

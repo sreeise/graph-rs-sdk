@@ -14,29 +14,35 @@ register_client!(
     olc => "outlook/masterCategories",
 );
 
-impl<'a> MailRequest<'a> {
+impl<'a, Client> MailRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( mail_tips, Collection<serde_json::Value> => "getMailTips" );
 
-    pub fn messages(&'a self) -> MessageRequest<'a> {
+    pub fn messages(&'a self) -> MessageRequest<'a, Client> {
         MessageRequest::new(self.client)
     }
 
-    pub fn mail_folder(&'a self) -> MailFolderRequest<'a> {
+    pub fn mail_folder(&'a self) -> MailFolderRequest<'a, Client> {
         MailFolderRequest::new(self.client)
     }
 
-    pub fn focused_inbox(&'a self) -> FocusedInboxRequest<'a> {
+    pub fn focused_inbox(&'a self) -> FocusedInboxRequest<'a, Client> {
         FocusedInboxRequest::new(self.client)
     }
 
-    pub fn outlook_category(&'a self) -> OutlookCategoryRequest<'a> {
+    pub fn outlook_category(&'a self) -> OutlookCategoryRequest<'a, Client> {
         OutlookCategoryRequest::new(self.client)
     }
 }
 
 register_client!(MessageRequest,);
 
-impl<'a> MessageRequest<'a> {
+impl<'a, Client> MessageRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( list, Collection<serde_json::Value> => "{{mm}}" );
     get!( | get, serde_json::Value => "{{mm}}/{{id}}" );
     get!( content, GraphResponse<Content> => "{{mm}}/{{id}}/$value" );
@@ -54,14 +60,17 @@ impl<'a> MessageRequest<'a> {
     patch!( [ | update, serde_json::Value => "{{mm}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{mm}}/{{id}}" );
 
-    pub fn attachments(&'a self) -> MailMessageAttachmentRequest<'a> {
+    pub fn attachments(&'a self) -> MailMessageAttachmentRequest<'a, Client> {
         MailMessageAttachmentRequest::new(self.client)
     }
 }
 
 register_client!(MailFolderRequest,);
 
-impl<'a> MailFolderRequest<'a> {
+impl<'a, Client> MailFolderRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( list, Collection<serde_json::Value> => "{{mf}}" );
     get!( | list_child_folders, Collection<serde_json::Value> => "{{mf}}/{{id}}/childFolders" );
     get!( | get, serde_json::Value => "{{mf}}/{{id}}" );
@@ -90,22 +99,25 @@ impl<'a> MailFolderRequest<'a> {
     patch!( [ | update, serde_json::Value => "{{mf}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{mf}}/{{id}}" );
 
-    pub fn messages(&'a self) -> MailFolderMessageRequest<'a> {
+    pub fn messages(&'a self) -> MailFolderMessageRequest<'a, Client> {
         MailFolderMessageRequest::new(self.client)
     }
 
-    pub fn rules(&'a self) -> MailRuleRequest<'a> {
+    pub fn rules(&'a self) -> MailRuleRequest<'a, Client> {
         MailRuleRequest::new(self.client)
     }
 
-    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a> {
+    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a, Client> {
         MailFolderMessageAttachmentRequest::new(self.client)
     }
 }
 
 register_client!(MailFolderMessageRequest,);
 
-impl<'a> MailFolderMessageRequest<'a> {
+impl<'a, Client> MailFolderMessageRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( | list, Collection<serde_json::Value> => "{{mf}}/{{id}}/messages" );
     get!( || get, Collection<serde_json::Value> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
     get!( || list_attachments, Collection<serde_json::Value> => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" );
@@ -157,14 +169,17 @@ impl<'a> MailFolderMessageRequest<'a> {
     patch!( [ || update, serde_json::Value => "{{mf}}/{{id}}/{{mm}}/{{id2}}" ] );
     delete!( || delete, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
 
-    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a> {
+    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a, Client> {
         MailFolderMessageAttachmentRequest::new(self.client)
     }
 }
 
 register_client!(MailRuleRequest,);
 
-impl<'a> MailRuleRequest<'a> {
+impl<'a, Client> MailRuleRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( list, Collection<serde_json::Value> => "{{mfmr}}" );
     get!( | get, serde_json::Value => "{{mfmr}}/{{id}}" );
     post!( [ create, serde_json::Value => "{{mfmr}}" ] );
@@ -174,7 +189,10 @@ impl<'a> MailRuleRequest<'a> {
 
 register_client!(FocusedInboxRequest,);
 
-impl<'a> FocusedInboxRequest<'a> {
+impl<'a, Client> FocusedInboxRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( list_overrides, Collection<serde_json::Value> => "{{ico}}" );
     patch!( [ create_override, serde_json::Value=> "{{ico}}" ] );
     patch!( [ | update_override, serde_json::Value => "{{ico}}/{{id}}" ] );
@@ -183,7 +201,10 @@ impl<'a> FocusedInboxRequest<'a> {
 
 register_client!(OutlookCategoryRequest,);
 
-impl<'a> OutlookCategoryRequest<'a> {
+impl<'a, Client> OutlookCategoryRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( list, Collection<serde_json::Value> => "{{olc}}" );
     get!( | get, serde_json::Value => "{{olc}}/{{id}}" );
     post!( [ create, serde_json::Value  => "{{olc}}" ] );
