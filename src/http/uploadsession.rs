@@ -3,7 +3,9 @@ use crate::url::GraphUrl;
 use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
+use serde::export::Formatter;
 use std::convert::TryFrom;
+use std::fmt::Debug;
 use std::path::{Path, PathBuf};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
@@ -49,10 +51,14 @@ impl<C> UploadSessionClient<C> {
         self.byte_ranges = HttpByteRange::try_from(file)?;
         Ok(())
     }
+}
 
-    pub async fn set_file_async(&mut self, file: PathBuf) -> GraphResult<()> {
-        self.byte_ranges = HttpByteRange::try_from_async(file).await?;
-        Ok(())
+impl<C> Debug for UploadSessionClient<C> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("UploadSessionClient")
+            .field("upload_session_url", &self.upload_session_url)
+            .field("byte_ranges", &self.byte_ranges)
+            .finish()
     }
 }
 
@@ -85,36 +91,6 @@ impl UploadSessionClient<BlockingClient> {
     }
 }
 
-impl UploadSessionClient<AsyncClient> {
-    pub fn new_async(
-        upload_session: serde_json::Value,
-    ) -> GraphResult<UploadSessionClient<AsyncClient>> {
-        let url = upload_session["uploadUrl"].as_str()?;
-        Ok(UploadSessionClient {
-            upload_session_url: url.to_string(),
-            byte_ranges: Default::default(),
-            client: AsyncClient::new_async(GraphUrl::parse(url)?),
-        })
-    }
-
-    pub fn cancel(&mut self) -> reqwest::RequestBuilder {
-        self.client
-            .inner_client()
-            .delete(self.upload_session_url.as_str())
-            .header(CONTENT_TYPE, "application/json")
-    }
-
-    pub async fn status(&mut self) -> GraphResult<reqwest::Response> {
-        self.client
-            .inner_client()
-            .get(self.upload_session_url.as_str())
-            .header(CONTENT_TYPE, "application/json")
-            .send()
-            .await
-            .map_err(GraphFailure::from)
-    }
-}
-
 impl Iterator for UploadSessionClient<BlockingClient> {
     type Item = GraphResult<NextSession>;
 
@@ -140,16 +116,25 @@ impl Iterator for UploadSessionClient<BlockingClient> {
             }
 
             let status = response.status().as_u16();
+            let headers = response.headers().clone();
             if status.eq(&200) || status.eq(&201) {
-                let result = GraphResponse::try_from(response).map_err(GraphFailure::from);
+                let result: GraphResult<serde_json::Value> =
+                    response.json().map_err(GraphFailure::from);
                 match result {
-                    Ok(value) => return Some(Ok(NextSession::Done(value))),
+                    Ok(value) => {
+                        let res = GraphResponse::new(value, status, headers);
+                        return Some(Ok(NextSession::Done(res)));
+                    },
                     Err(e) => return Some(Err(e)),
                 }
             } else {
-                let result = GraphResponse::try_from(response).map_err(GraphFailure::from);
+                let result: GraphResult<serde_json::Value> =
+                    response.json().map_err(GraphFailure::from);
                 match result {
-                    Ok(next) => return Some(Ok(NextSession::Next(next))),
+                    Ok(value) => {
+                        let res = GraphResponse::new(value, status, headers);
+                        return Some(Ok(NextSession::Next(res)));
+                    },
                     Err(e) => return Some(Err(e)),
                 }
             }
@@ -157,6 +142,42 @@ impl Iterator for UploadSessionClient<BlockingClient> {
             return Some(Err(e));
         }
         None
+    }
+}
+
+impl UploadSessionClient<AsyncClient> {
+    pub fn new_async(
+        upload_session: serde_json::Value,
+    ) -> GraphResult<UploadSessionClient<AsyncClient>> {
+        println!("Upload session: {:#?}", upload_session);
+        let url = upload_session["uploadUrl"].as_str()?;
+        Ok(UploadSessionClient {
+            upload_session_url: url.to_string(),
+            byte_ranges: Default::default(),
+            client: AsyncClient::new_async(GraphUrl::parse(url)?),
+        })
+    }
+
+    pub async fn set_file_async(&mut self, file: PathBuf) -> GraphResult<()> {
+        self.byte_ranges = HttpByteRange::try_from_async(file).await?;
+        Ok(())
+    }
+
+    pub fn cancel(&mut self) -> reqwest::RequestBuilder {
+        self.client
+            .inner_client()
+            .delete(self.upload_session_url.as_str())
+            .header(CONTENT_TYPE, "application/json")
+    }
+
+    pub async fn status(&mut self) -> GraphResult<reqwest::Response> {
+        self.client
+            .inner_client()
+            .get(self.upload_session_url.as_str())
+            .header(CONTENT_TYPE, "application/json")
+            .send()
+            .await
+            .map_err(GraphFailure::from)
     }
 }
 
@@ -181,7 +202,11 @@ impl AsyncIterator for UploadSessionClient<AsyncClient> {
             .await
             .map_err(GraphFailure::from);
 
-        if let Ok(response) = response {
+        if let Err(e) = response {
+            println!("Error on initial request: {:#?}", e);
+            self.byte_ranges.clear();
+            return Some(Err(e));
+        } else if let Ok(response) = response {
             if let Some(e) = GraphFailure::from_async_response(&response) {
                 if let Ok(text) = response.text().await {
                     if let Some(e) = e.try_set_graph_error_message(text.as_str()) {
@@ -194,20 +219,22 @@ impl AsyncIterator for UploadSessionClient<AsyncClient> {
 
             let status = response.status().as_u16();
             if status.eq(&200) || status.eq(&201) {
-                let result = GraphResponse::try_from_async(response)
-                    .await
-                    .map_err(GraphFailure::from);
+                let result = GraphResponse::try_from_async(response).await;
                 match result {
                     Ok(value) => return Some(Ok(NextSession::Done(value))),
-                    Err(e) => return Some(Err(e)),
+                    Err(e) => {
+                        self.byte_ranges.clear();
+                        return Some(Err(e));
+                    },
                 }
             } else {
-                let result = GraphResponse::try_from_async(response)
-                    .await
-                    .map_err(GraphFailure::from);
+                let result = GraphResponse::try_from_async(response).await;
                 match result {
                     Ok(next) => return Some(Ok(NextSession::Next(next))),
-                    Err(e) => return Some(Err(e)),
+                    Err(e) => {
+                        self.byte_ranges.clear();
+                        return Some(Err(e));
+                    },
                 }
             }
         }

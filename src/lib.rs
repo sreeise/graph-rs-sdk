@@ -103,10 +103,8 @@ pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 /// Common structs and traits.
 pub mod prelude {
     pub use crate::client::*;
-    pub use crate::http::GraphResponse;
-    pub use crate::http::ToResponse;
-    pub use crate::types::collection::Collection;
-    pub use crate::types::delta::*;
+    pub use crate::http::{AsyncToResponse, GraphResponse, ToResponse};
+    pub use crate::types::{collection::Collection, delta::*};
 }
 
 /// Reexport of graph-oauth crate.

@@ -148,7 +148,7 @@ impl ByteRange {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct HttpByteRange {
     file_size: u64,
     byte_range: VecDeque<(u64, u64, Vec<u8>)>,
@@ -218,6 +218,10 @@ impl HttpByteRange {
                 file_size.as_str()
             ),
         ))
+    }
+
+    pub fn clear(&mut self) {
+        self.byte_range.clear();
     }
 }
 

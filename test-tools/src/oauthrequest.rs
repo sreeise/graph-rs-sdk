@@ -28,6 +28,64 @@ pub struct OAuth2 {
     pub user_id: Option<String>,
 }
 
+struct ClientCredentials {
+    client_id: String,
+    secret: String,
+    username: String,
+    password: String,
+    tenant: String,
+    scope: Vec<String>,
+    user_id: Option<String>,
+}
+
+impl ClientCredentials {
+    pub fn new_env() -> ClientCredentials {
+        ClientCredentials {
+            client_id: env::var("TEST_APP_ID").expect("Missing env TEST_APP_ID"),
+            secret: env::var("TEST_APP_SECRET").expect("Missing env TEST_APP_SECRET"),
+            username: env::var("TEST_APP_USER_NAME").expect("Missing env TEST_APP_USER_NAME"),
+            password: env::var("TEST_APP_PASSWORD").expect("Missing env TEST_APP_PASSWORD"),
+            tenant: env::var("TEST_APP_TENANT").expect("Missing env TEST_APP_TENANT"),
+            scope: vec!["https://graph.microsoft.com/.default".into()],
+            user_id: Some(env::var("TEST_APP_USER_ID").expect("Missing env TEST_APP_USER_ID")),
+        }
+    }
+
+    pub fn new_local() -> Option<ClientCredentials> {
+        if let Ok(oauth2) = OAuth2::from_file("./env.toml") {
+            return Some(ClientCredentials {
+                client_id: oauth2.client_id.to_string(),
+                secret: oauth2.client_secret.to_string(),
+                username: oauth2.username.to_string(),
+                password: oauth2.password.to_string(),
+                tenant: oauth2.tenant.to_string(),
+                scope: vec!["https://graph.microsoft.com/.default".into()],
+                user_id: oauth2.user_id.clone(),
+            });
+        }
+
+        None
+    }
+
+    fn into_oauth(self) -> OAuth {
+        let mut oauth = OAuth::new();
+        oauth
+            .client_id(self.client_id.as_str())
+            .client_secret(self.secret.as_str())
+            .username(self.username.as_str())
+            .password(self.password.as_str())
+            .extend_scopes(self.scope.clone())
+            .access_token_url(
+                format!(
+                    "https://login.microsoftonline.com/{}/oauth2/v2.0/token",
+                    self.tenant.as_str()
+                )
+                .as_str(),
+            );
+        oauth
+    }
+}
+
 pub struct OAuthRequest;
 
 impl OAuthRequest {
@@ -53,71 +111,34 @@ impl OAuthRequest {
     }
 
     pub fn request_token_from_toml() -> Option<(String, AccessToken)> {
-        if let Ok(oauth2) = OAuth2::from_file("./env.toml") {
-            let access_token = OAuthRequest::access_token(
-                oauth2.client_id.as_str(),
-                oauth2.client_secret.as_str(),
-                oauth2.username.as_str(),
-                oauth2.password.as_str(),
-                oauth2.tenant.as_str(),
-                &["https://graph.microsoft.com/.default"],
-            );
-            if let Some(token) = access_token {
-                if let Some(user_id) = oauth2.user_id {
-                    return Some((user_id, token));
-                } else {
-                    return Some((String::new(), token));
-                }
+        let client_creds = ClientCredentials::new_local()?;
+        let user_id = client_creds.user_id.clone();
+        if let Some(token) = OAuthRequest::access_token(client_creds) {
+            if let Some(user_id) = user_id {
+                return Some((user_id, token));
+            } else {
+                return Some((String::new(), token));
             }
         }
+
         None
     }
 
     pub async fn request_token_from_toml_async() -> Option<(String, AccessToken)> {
-        if let Ok(oauth2) = OAuth2::from_file("./env.toml") {
-            let access_token = OAuthRequest::access_token_async(
-                oauth2.client_id.as_str(),
-                oauth2.client_secret.as_str(),
-                oauth2.username.as_str(),
-                oauth2.password.as_str(),
-                oauth2.tenant.as_str(),
-                &["https://graph.microsoft.com/.default"],
-            )
-            .await;
-            if let Some(token) = access_token {
-                if let Some(user_id) = oauth2.user_id {
-                    return Some((user_id, token));
-                } else {
-                    return Some((String::new(), token));
-                }
+        let client_creds = ClientCredentials::new_local()?;
+        let user_id = client_creds.user_id.clone();
+        if let Some(token) = OAuthRequest::access_token_async(client_creds).await {
+            if let Some(user_id) = user_id {
+                return Some((user_id, token));
+            } else {
+                return Some((String::new(), token));
             }
         }
         None
     }
 
-    fn access_token(
-        client_id: &str,
-        secret: &str,
-        username: &str,
-        password: &str,
-        tenant: &str,
-        scope: &[&str],
-    ) -> Option<AccessToken> {
-        let mut oauth = OAuth::new();
-        oauth
-            .client_id(client_id)
-            .client_secret(secret)
-            .username(username)
-            .password(password)
-            .extend_scopes(scope)
-            .access_token_url(
-                format!(
-                    "https://login.microsoftonline.com/{}/oauth2/v2.0/token",
-                    tenant
-                )
-                .as_str(),
-            );
-
+    fn access_token(client_creds: ClientCredentials) -> Option<AccessToken> {
+        let mut oauth = client_creds.into_oauth();
         let mut req = oauth.build().client_credentials();
         if let Ok(token) = req.access_token().send() {
             Some(token)
@@ -126,29 +147,8 @@ impl OAuthRequest {
         }
     }
 
-    async fn access_token_async(
-        client_id: &str,
-        secret: &str,
-        username: &str,
-        password: &str,
-        tenant: &str,
-        scope: &[&str],
-    ) -> Option<AccessToken> {
-        let mut oauth = OAuth::new();
-        oauth
-            .client_id(client_id)
-            .client_secret(secret)
-            .username(username)
-            .password(password)
-            .extend_scopes(scope)
-            .access_token_url(
-                format!(
-                    "https://login.microsoftonline.com/{}/oauth2/v2.0/token",
-                    tenant
-                )
-                .as_str(),
-            );
-
+    async fn access_token_async(client_creds: ClientCredentials) -> Option<AccessToken> {
+        let mut oauth = client_creds.into_oauth();
         let mut req = oauth.build_async().client_credentials();
         if let Ok(token) = req.access_token().send().await {
             Some(token)
@@ -158,21 +158,9 @@ impl OAuthRequest {
     }
 
     fn request_token_from_env() -> Option<(String, AccessToken)> {
-        let tenant = env::var("TEST_APP_TENANT").expect("Missing env TEST_APP_TENANT");
-        let id = env::var("TEST_APP_ID").expect("Missing env TEST_APP_ID");
-        let secret = env::var("TEST_APP_SECRET").expect("Missing env TEST_APP_SECRET");
-        let username = env::var("TEST_APP_USER_NAME").expect("Missing env TEST_APP_USER_NAME");
-        let password = env::var("TEST_APP_PASSWORD").expect("Missing env TEST_APP_PASSWORD");
-        let user_id = env::var("TEST_APP_USER_ID").expect("Missing env TEST_APP_USER_ID");
-
-        if let Some(token) = OAuthRequest::access_token(
-            id.as_str(),
-            secret.as_str(),
-            username.as_str(),
-            password.as_str(),
-            tenant.as_str(),
-            &["https://graph.microsoft.com/.default"],
-        ) {
+        let client_creds = ClientCredentials::new_env();
+        let user_id = client_creds.user_id.clone().unwrap();
+        if let Some(token) = OAuthRequest::access_token(client_creds) {
             Some((user_id, token))
         } else {
             None
@@ -180,23 +168,9 @@ impl OAuthRequest {
     }
 
     async fn request_token_from_env_async() -> Option<(String, AccessToken)> {
-        let tenant = env::var("TEST_APP_TENANT").expect("Missing env TEST_APP_TENANT");
-        let id = env::var("TEST_APP_ID").expect("Missing env TEST_APP_ID");
-        let secret = env::var("TEST_APP_SECRET").expect("Missing env TEST_APP_SECRET");
-        let username = env::var("TEST_APP_USER_NAME").expect("Missing env TEST_APP_USER_NAME");
-        let password = env::var("TEST_APP_PASSWORD").expect("Missing env TEST_APP_PASSWORD");
-        let user_id = env::var("TEST_APP_USER_ID").expect("Missing env TEST_APP_USER_ID");
-
-        if let Some(token) = OAuthRequest::access_token_async(
-            id.as_str(),
-            secret.as_str(),
-            username.as_str(),
-            password.as_str(),
-            tenant.as_str(),
-            &["https://graph.microsoft.com/.default"],
-        )
-        .await
-        {
+        let client_creds = ClientCredentials::new_env();
+        let user_id = client_creds.user_id.clone().unwrap();
+        if let Some(token) = OAuthRequest::access_token_async(client_creds).await {
             Some((user_id, token))
         } else {
             None
@@ -238,18 +212,6 @@ impl OAuthRequest {
         F: Fn(Option<(String, String)>),
     {
         if let Some((user_id, token)) = OAuthRequest::request_access_token() {
-            let t = token.bearer_token();
-            f(Some((user_id, t.to_string())));
-        } else {
-            f(None);
-        }
-    }
-
-    pub async fn access_token_fn_async<F>(f: F)
-    where
-        F: Fn(Option<(String, String)>),
-    {
-        if let Some((user_id, token)) = OAuthRequest::request_access_token_async().await {
             let t = token.bearer_token();
             f(Some((user_id, t.to_string())));
         } else {

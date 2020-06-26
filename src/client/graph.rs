@@ -116,6 +116,10 @@ where
     pub(crate) fn request(&self) -> RefMut<Client> {
         self.request.borrow_mut()
     }
+
+    pub fn debug_request(&self) {
+        println!("{:#?}", self.request.borrow());
+    }
 }
 
 type GraphBlocking = Graph<BlockingClient>;
@@ -276,11 +280,7 @@ where
             .set_method(Method::POST)
             .header(ACCEPT, HeaderValue::from_static("application/json"))
             .set_body(serde_json::to_string(batch).unwrap());
-        render_path!(
-            self.client,
-            "$batch",
-            &serde_json::json!({})
-        );
+        render_path!(self.client, "$batch", &serde_json::json!({}));
         IntoResponse::new(self.client)
     }
 }

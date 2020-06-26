@@ -80,7 +80,9 @@ impl<T> GraphResponse<T> {
         let body: T = response.json().await?;
         Ok(GraphResponse::new(body, status, headers))
     }
+}
 
+impl GraphResponse<Content> {
     pub(crate) async fn try_from_async_content(
         response: reqwest::Response,
     ) -> GraphResult<GraphResponse<Content>> {
