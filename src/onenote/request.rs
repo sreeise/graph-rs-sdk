@@ -66,11 +66,11 @@ where
             );
         }
 
-        if let Err(e) = self.client.client().set_body_with_file(file) {
+        if let Err(e) = self.client.request().set_body_with_file(file) {
             return IntoResponse::new_error(self.client, e);
         }
         self.client
-            .client()
+            .request()
             .header(CONTENT_TYPE, HeaderValue::from_static("text/html"))
             .set_method(Method::POST);
 
@@ -102,7 +102,7 @@ where
                 include_personal_notebooks
             ).as_str()
         );
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         IntoResponse::new(self.client)
     }
 }
@@ -146,11 +146,11 @@ where
             );
         }
 
-        if let Err(e) = self.client.client().set_body_with_file(file) {
+        if let Err(e) = self.client.request().set_body_with_file(file) {
             return IntoResponse::new_error(self.client, e);
         }
         self.client
-            .client()
+            .request()
             .header(CONTENT_TYPE, HeaderValue::from_static("text/html"))
             .set_method(Method::POST);
         IntoResponse::new(self.client)

@@ -110,8 +110,8 @@ impl Iterator for UploadSessionClient<BlockingClient> {
             .send()
             .map_err(GraphFailure::from);
 
-        if let Ok(mut response) = response {
-            if let Some(e) = GraphFailure::from_response(&mut response) {
+        if let Ok(response) = response {
+            if let Some(e) = GraphFailure::from_response(&response) {
                 return Some(Err(e));
             }
 

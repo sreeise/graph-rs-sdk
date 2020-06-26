@@ -19,6 +19,7 @@ pub trait AsRes<RHS = Self> {
 }
 
 #[derive(Debug)]
+#[allow(clippy::large_enum_variant)]
 pub enum GraphFailure {
     Io(io::Error),
     Parse(num::ParseIntError),
@@ -69,7 +70,7 @@ impl GraphFailure {
     pub async fn from_async_res_with_err_message(r: reqwest::Response) -> Option<GraphFailure> {
         GraphError::try_from_async_with_err_message(r)
             .await
-            .map(|e| GraphFailure::from(e))
+            .map(GraphFailure::from)
     }
 
     pub fn try_set_graph_error_message(&self, message: &str) -> Option<GraphFailure> {
@@ -80,8 +81,7 @@ impl GraphFailure {
             }
         };
 
-        if error.is_some() {
-            let mut err = error.unwrap();
+        if let Some(mut err) = error {
             err.try_set_error_message(message);
             return Some(GraphFailure::from(err));
         }

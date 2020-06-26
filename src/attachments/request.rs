@@ -139,7 +139,7 @@ where
         message_id: S,
         attachment_id: S,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         self.render_child_folder_path(
             mail_folder_id,
             child_folders,
@@ -157,7 +157,7 @@ where
         message_id: S,
         attachment_id: S,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         self.render_child_folder_path(
             mail_folder_id,
             child_folders,
@@ -175,7 +175,7 @@ where
         message_id: S,
         attachment_id: S,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
-        self.client.client().set_method(Method::DELETE);
+        self.client.request().set_method(Method::DELETE);
         self.render_child_folder_path(
             mail_folder_id,
             child_folders,

@@ -1,9 +1,7 @@
 use graph_error::GraphFailure;
 use graph_rs::http::AsyncIterator;
-use graph_rs::http::{NextSession, Session};
+use graph_rs::http::NextSession;
 use graph_rs::prelude::*;
-use std::path::PathBuf;
-use test_tools::oauthrequest::OAuthRequest;
 
 // This example shows creating an upload session for a new file
 // and iterating through the individual upload session values.

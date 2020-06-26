@@ -63,52 +63,52 @@ where
     }
 
     pub fn query(&self, key: &str, value: &str) -> &Self {
-        self.client.client().as_mut().append_query_pair(key, value);
+        self.client.request().as_mut().append_query_pair(key, value);
         self
     }
 
     pub fn select(&self, value: &[&str]) -> &Self {
-        self.client.client().as_mut().select(value);
+        self.client.request().as_mut().select(value);
         self
     }
 
     pub fn expand(&self, value: &[&str]) -> &Self {
-        self.client.client().as_mut().expand(value);
+        self.client.request().as_mut().expand(value);
         self
     }
 
     pub fn filter(&self, value: &[&str]) -> &Self {
-        self.client.client().as_mut().filter(value);
+        self.client.request().as_mut().filter(value);
         self
     }
 
     pub fn order_by(&self, value: &[&str]) -> &Self {
-        self.client.client().as_mut().order_by(value);
+        self.client.request().as_mut().order_by(value);
         self
     }
 
     pub fn search(&self, value: &str) -> &Self {
-        self.client.client().as_mut().search(value);
+        self.client.request().as_mut().search(value);
         self
     }
 
     pub fn format(&self, value: &str) -> &Self {
-        self.client.client().as_mut().format(value);
+        self.client.request().as_mut().format(value);
         self
     }
 
     pub fn skip(&self, value: &str) -> &Self {
-        self.client.client().as_mut().skip(value);
+        self.client.request().as_mut().skip(value);
         self
     }
 
     pub fn top(&self, value: &str) -> &Self {
-        self.client.client().as_mut().top(value);
+        self.client.request().as_mut().top(value);
         self
     }
 
     pub fn header(&self, name: impl IntoHeaderName, value: HeaderValue) -> &Self {
-        self.client.client().header(name, value);
+        self.client.request().header(name, value);
         self
     }
 }
@@ -151,8 +151,8 @@ impl<'a, T> IntoResBlocking<'a, T> {
                     sender.send(Delta::Done(Some(err))).unwrap();
                     is_done = true;
                 } else {
-                    let mut response = res.unwrap();
-                    if let Some(err) = GraphFailure::from_response(&mut response) {
+                    let response = res.unwrap();
+                    if let Some(err) = GraphFailure::from_response(&response) {
                         next_link = None;
                         sender.send(Delta::Done(Some(err))).unwrap();
                         is_done = true;
@@ -287,8 +287,7 @@ impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncClient>> {
             return Err(self.error.replace(None).unwrap());
         }
         let mut request = self.client.request();
-        let upload_session = request.upload_session().await;
-        upload_session
+        request.upload_session().await
     }
 }
 

@@ -68,7 +68,7 @@ where
         &'a self,
         id: S,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         render_path!(
             self.client,
             &template(id.as_ref(), "children"),
@@ -81,7 +81,7 @@ where
         &'a self,
         id: S,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         render_path!(
             self.client,
             &template(id.as_ref(), "activities"),
@@ -91,7 +91,7 @@ where
     }
 
     pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, serde_json::Value, Client> {
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         render_path!(
             self.client,
             template(id.as_ref(), "").as_str(),
@@ -108,7 +108,7 @@ where
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
-                .client()
+                .request()
                 .set_method(Method::PATCH)
                 .set_body(body);
         } else if let Err(e) = body {
@@ -126,7 +126,7 @@ where
         &'a self,
         id: S,
     ) -> IntoResponse<'a, GraphResponse<Content>, Client> {
-        self.client.client().set_method(Method::DELETE);
+        self.client.request().set_method(Method::DELETE);
         render_path!(
             self.client,
             template(id.as_ref(), "").as_str(),
@@ -142,7 +142,7 @@ where
     ) -> IntoResponse<'a, serde_json::Value, Client> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client.client().set_method(Method::POST).set_body(body);
+            self.client.request().set_method(Method::POST).set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -166,7 +166,7 @@ where
     ) -> IntoResponse<'a, GraphResponse<Content>, Client> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client.client().set_method(Method::POST).set_body(body);
+            self.client.request().set_method(Method::POST).set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -182,7 +182,7 @@ where
         &self,
         id: S,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         render_path!(
             self.client,
             template(id.as_ref(), "versions").as_str(),
@@ -197,7 +197,7 @@ where
         thumb_id: &str,
         size: &str,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         render_path!(
             self.client,
             template(id.as_ref(), "thumbnails/{{thumb_id}}/{{size}}").as_str(),
@@ -216,7 +216,7 @@ where
         thumb_id: &str,
         size: &str,
     ) -> IntoResponse<'a, Vec<u8>, Client> {
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         render_path!(
             self.client,
             template(id.as_ref(), "thumbnails/{{thumb_id}}/{{size}}/content").as_str(),
@@ -234,11 +234,11 @@ where
         id: S,
         file: P,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
-        if let Err(err) = self.client.client().set_body_with_file(file) {
+        if let Err(err) = self.client.request().set_body_with_file(file) {
             return IntoResponse::new_error(self.client, err);
         }
 
-        self.client.client().set_method(Method::PUT);
+        self.client.request().set_method(Method::PUT);
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
@@ -253,11 +253,11 @@ where
         file: P,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
         if id.as_ref().starts_with(':') {
-            if let Err(err) = self.client.client().set_body_with_file(file) {
+            if let Err(err) = self.client.request().set_body_with_file(file) {
                 return IntoResponse::new_error(self.client, err);
             }
 
-            self.client.client().set_method(Method::PUT);
+            self.client.request().set_method(Method::PUT);
             render_path!(
                 self.client,
                 template(id.as_ref(), "content").as_str(),
@@ -284,10 +284,10 @@ where
                 })
             );
 
-            if let Err(e) = self.client.client().set_body_with_file(file) {
+            if let Err(e) = self.client.request().set_body_with_file(file) {
                 return IntoResponse::new_error(self.client, e);
             }
-            self.client.client().set_method(Method::PUT);
+            self.client.request().set_method(Method::PUT);
         }
         IntoResponse::new(self.client)
     }
@@ -297,7 +297,7 @@ where
         id: S,
         version_id: S,
     ) -> IntoResponse<'a, GraphResponse<Content>, Client> {
-        self.client.client().set_method(Method::POST);
+        self.client.request().set_method(Method::POST);
         render_path!(
             self.client,
             template(id.as_ref(), "versions/{{version_id}}/restoreVersion").as_str(),
@@ -318,7 +318,7 @@ where
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
-                .client()
+                .request()
                 .set_method(Method::POST)
                 .set_upload_session(file)
                 .set_body(body);
@@ -341,13 +341,13 @@ where
         if let Some(body) = body {
             let body = serde_json::to_string(body);
             if let Ok(body) = body {
-                self.client.client().set_method(Method::POST).set_body(body);
+                self.client.request().set_method(Method::POST).set_body(body);
             } else if let Err(e) = body {
                 return IntoResponse::new_error(self.client, GraphFailure::from(e));
             }
         } else {
             self.client
-                .client()
+                .request()
                 .set_method(Method::POST)
                 .header(CONTENT_LENGTH, HeaderValue::from(0));
         }
@@ -368,7 +368,7 @@ where
             template(id.as_ref(), "content").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         IntoResponse::new(self.client)
     }
 
@@ -382,7 +382,7 @@ where
             &json!({ "id": encode(id.as_ref()) })
         );
         self.client
-            .client()
+            .request()
             .set_method(Method::POST)
             .header(CONTENT_LENGTH, HeaderValue::from(0));
         IntoResponse::new(self.client)
@@ -401,7 +401,7 @@ where
 
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client.client().set_method(Method::POST).set_body(body);
+            self.client.request().set_method(Method::POST).set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -416,7 +416,7 @@ where
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
             self.client
-                .client()
+                .request()
                 .set_method(Method::PATCH)
                 .set_body(body);
         } else if let Err(e) = body {
@@ -437,7 +437,7 @@ where
         end: Option<&str>,
         interval: &str,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         if let Some(end) = end {
             let interval = format!(
                 "getActivitiesByInterval(startDateTime='{}',endDateTime='{}',interval='{}')",
@@ -479,7 +479,7 @@ impl<'a> DriveRequest<'a, BlockingClient> {
             &json!({ "id": encode(id.as_ref()) })
         );
         self.client
-            .client()
+            .request()
             .set_method(Method::GET)
             .set_download_dir(directory.as_ref())
             .set_request_type(GraphRequestType::Redirect);
@@ -495,7 +495,7 @@ impl<'a> DriveRequest<'a, AsyncClient> {
             &json!({ "id": encode(id.as_ref()) })
         );
         self.client
-            .client()
+            .request()
             .set_method(Method::GET)
             .set_download_dir(directory.as_ref())
             .set_request_type(GraphRequestType::Redirect);

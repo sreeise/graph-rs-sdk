@@ -133,12 +133,12 @@ macro_rules! register_ident_client {
                 let ident = self.client.ident();
                 if self.client.ident().eq(&Ident::Me) {
                     self.client
-                        .client()
+                        .request()
                         .as_mut()
                         .extend_path(&[ident.as_ref()]);
                 } else {
                     self.client
-                        .client()
+                        .request()
                         .as_mut()
                         .extend_path(&[ident.as_ref(), self.id.as_str()]);
                 }
@@ -202,7 +202,7 @@ macro_rules! render_path {
             .unwrap();
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $client.client().as_mut().extend_path(&vec);
+        $client.request().as_mut().extend_path(&vec);
     };
 
     ($client:expr, $template:expr, $json:expr) => {
@@ -212,7 +212,7 @@ macro_rules! render_path {
             .unwrap();
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $client.client().as_mut().extend_path(&vec);
+        $client.request().as_mut().extend_path(&vec);
     };
 
     ($client:expr, $template:expr, $json:expr, $last:expr ) => {
@@ -223,7 +223,7 @@ macro_rules! render_path {
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
         vec.extend($last);
-        $client.client().as_mut().extend_path(&vec);
+        $client.request().as_mut().extend_path(&vec);
     };
 }
 
@@ -233,7 +233,7 @@ macro_rules! register_method {
       pub fn $name(&'a self) -> IntoResponse<'a, $T, Client>
         where Client: crate::http::RequestClient
       {
-        self.client.client()
+        self.client.request()
             .set_method($m);
 
         render_path!(
@@ -248,7 +248,7 @@ macro_rules! register_method {
       pub fn $name<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, $T, Client>
         where Client: crate::http::RequestClient
       {
-        self.client.client()
+        self.client.request()
             .set_method($m);
 
         render_path!(
@@ -264,7 +264,7 @@ macro_rules! register_method {
       pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S) -> IntoResponse<'a, $T, Client>
         where Client: crate::http::RequestClient
       {
-        self.client.client()
+        self.client.request()
             .set_method($m);
 
         render_path!(
@@ -280,7 +280,7 @@ macro_rules! register_method {
       pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S) -> IntoResponse<'a, $T, Client>
         where Client: crate::http::RequestClient
       {
-        self.client.client()
+        self.client.request()
             .set_method($m);
 
         render_path!(
@@ -296,7 +296,7 @@ macro_rules! register_method {
       pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S, id4: S) -> IntoResponse<'a, $T, Client>
         where Client: crate::http::RequestClient
       {
-        self.client.client()
+        self.client.request()
             .set_method($m);
 
         render_path!(
@@ -317,7 +317,7 @@ macro_rules! register_method {
       pub fn $name<B: serde::Serialize>(&'a self, body: &B) -> IntoResponse<'a, $T, Client>
         where Client: crate::http::RequestClient
       {
-        self.client.client()
+        self.client.request()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
 
@@ -333,7 +333,7 @@ macro_rules! register_method {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, body: &B) -> IntoResponse<'a, $T, Client>
         where Client: crate::http::RequestClient
       {
-        self.client.client()
+        self.client.request()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
 
@@ -350,7 +350,7 @@ macro_rules! register_method {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, body: &B) -> IntoResponse<'a, $T, Client>
         where Client: crate::http::RequestClient
       {
-        self.client.client()
+        self.client.request()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
 
@@ -367,7 +367,7 @@ macro_rules! register_method {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, id3: S, body: &B) -> IntoResponse<'a, $T, Client>
         where Client: crate::http::RequestClient
       {
-        self.client.client()
+        self.client.request()
             .set_method($m)
             .set_body(serde_json::to_string_pretty(body).unwrap());
 
@@ -385,8 +385,8 @@ macro_rules! register_method {
 macro_rules! register_download {
     ( | $name:ident, $T:ty => $template:expr ) => {
       pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
-        self.client.client()
-            .set_method(reqwest::Method::GET)
+        let mut request = self.client.request();
+        request.set_method(reqwest::Method::GET)
             .set_download_dir(directory.as_ref())
             .set_request_type(GraphRequestType::Redirect);
 
@@ -395,7 +395,7 @@ macro_rules! register_download {
             $template,
             &serde_json::json!({ "id": id.as_ref() })
         );
-        self.client.request().download()
+        request.download()
       }
     };
 }

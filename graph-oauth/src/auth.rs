@@ -923,7 +923,7 @@ impl OAuth {
             .for_each(|oac| {
                 if oac.alias().eq("scope") && !self.scopes.is_empty() {
                     encoder.append_pair("scope", self.join_scopes(" ").as_str());
-                } else if let Some(val) = self.get(oac.clone()) {
+                } else if let Some(val) = self.get(*oac) {
                     encoder.append_pair(oac.alias(), val.as_str());
                 }
             });

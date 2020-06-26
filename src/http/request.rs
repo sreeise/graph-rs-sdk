@@ -244,8 +244,8 @@ impl BlockingClient {
 
         println!("upload session file: {:#?}", file);
 
-        let mut response = self.response()?;
-        if let Some(err) = GraphFailure::from_response(&mut response) {
+        let response = self.response()?;
+        if let Some(err) = GraphFailure::from_response(&response) {
             return Err(err);
         }
 
@@ -297,8 +297,8 @@ impl BlockingClient {
 
     pub fn response(&mut self) -> GraphResult<reqwest::blocking::Response> {
         let builder = self.build();
-        let mut response = builder.send()?;
-        if let Some(err) = GraphFailure::from_response(&mut response) {
+        let response = builder.send()?;
+        if let Some(err) = GraphFailure::from_response(&response) {
             return Err(err);
         }
         Ok(response)
@@ -377,8 +377,8 @@ impl AsyncClient {
             .take()
             .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
 
-        let mut response = self.response().await?;
-        if let Some(err) = GraphFailure::from_async_response(&mut response) {
+        let response = self.response().await?;
+        if let Some(err) = GraphFailure::from_async_response(&response) {
             if let Ok(text) = response.text().await {
                 err.try_set_graph_error_message(text.as_str());
             }
