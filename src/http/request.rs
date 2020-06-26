@@ -5,15 +5,17 @@ use crate::http::{
 use crate::url::GraphUrl;
 use crate::GRAPH_URL;
 use graph_error::{GraphFailure, GraphResult};
-use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName};
+use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{redirect::Policy, Method};
+use serde::export::Formatter;
 use std::convert::TryFrom;
+use std::fmt::Debug;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use url::Url;
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum GraphRequestType {
     Basic,
     Redirect,
@@ -26,7 +28,7 @@ impl Default for GraphRequestType {
     }
 }
 
-pub trait RequestClient: AsRef<GraphUrl> + AsMut<GraphUrl> {
+pub trait RequestClient: Debug + AsRef<GraphUrl> + AsMut<GraphUrl> {
     type Body: From<String> + From<Vec<u8>> + From<&'static [u8]> + From<&'static str>;
     type Form;
 
@@ -72,6 +74,20 @@ pub type BlockingClient = GraphRequest<
     reqwest::blocking::multipart::Form,
 >;
 pub type AsyncClient = GraphRequest<reqwest::Client, reqwest::Body, reqwest::multipart::Form>;
+
+impl<Client, Body, Form> Debug for GraphRequest<Client, Body, Form> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GraphRequest")
+            .field("ident", &self.ident)
+            .field("url", &self.url)
+            .field("method", &self.method)
+            .field("headers", &self.headers)
+            .field("upload_session_file", &self.upload_session_file)
+            .field("download_dir", &self.download_dir)
+            .field("req_type", &self.req_type)
+            .finish()
+    }
+}
 
 impl<Client, Body, Form> AsRef<GraphUrl> for GraphRequest<Client, Body, Form> {
     fn as_ref(&self) -> &GraphUrl {
@@ -186,6 +202,9 @@ where
 
 impl BlockingClient {
     pub fn new_blocking(url: GraphUrl) -> BlockingClient {
+        let mut headers = HeaderMap::default();
+        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
         let redirect_client = reqwest::blocking::Client::builder()
             .redirect(Policy::limited(2))
             .build()
@@ -200,7 +219,7 @@ impl BlockingClient {
             url,
             method: Default::default(),
             body: None,
-            headers: Default::default(),
+            headers,
             upload_session_file: None,
             download_dir: None,
             form: None,
@@ -222,6 +241,8 @@ impl BlockingClient {
             .upload_session_file
             .take()
             .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
+
+        println!("upload session file: {:#?}", file);
 
         let mut response = self.response()?;
         if let Some(err) = GraphFailure::from_response(&mut response) {
@@ -316,6 +337,9 @@ impl BlockingClient {
 
 impl AsyncClient {
     pub fn new_async(url: GraphUrl) -> AsyncClient {
+        let mut headers = HeaderMap::default();
+        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
         let redirect_client = reqwest::Client::builder()
             .redirect(Policy::limited(2))
             .build()
@@ -330,7 +354,7 @@ impl AsyncClient {
             url,
             method: Default::default(),
             body: None,
-            headers: Default::default(),
+            headers,
             upload_session_file: None,
             download_dir: None,
             form: None,
@@ -450,6 +474,9 @@ impl AsyncClient {
 
 impl Default for BlockingClient {
     fn default() -> Self {
+        let mut headers = HeaderMap::default();
+        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
         let redirect_client = reqwest::blocking::Client::builder()
             .redirect(Policy::limited(2))
             .build()
@@ -464,7 +491,7 @@ impl Default for BlockingClient {
             url: GraphUrl::parse(GRAPH_URL).unwrap(),
             method: Default::default(),
             body: None,
-            headers: Default::default(),
+            headers,
             upload_session_file: None,
             download_dir: None,
             form: None,
@@ -475,6 +502,9 @@ impl Default for BlockingClient {
 
 impl Default for AsyncClient {
     fn default() -> Self {
+        let mut headers = HeaderMap::default();
+        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
         let redirect_client = reqwest::Client::builder()
             .redirect(Policy::limited(2))
             .build()
@@ -489,7 +519,7 @@ impl Default for AsyncClient {
             url: GraphUrl::parse(GRAPH_URL).unwrap(),
             method: Default::default(),
             body: None,
-            headers: Default::default(),
+            headers,
             upload_session_file: None,
             download_dir: None,
             form: None,

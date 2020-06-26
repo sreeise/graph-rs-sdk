@@ -145,6 +145,10 @@ impl GraphError {
 }
 
 impl Error for GraphError {
+    fn source<'a>(&'a self) -> Option<&(dyn Error + 'static)> {
+        None
+    }
+
     fn description(&self) -> &str {
         if let Some(err) = self.error_message.error.as_ref() {
             if let Some(message) = err.message.as_ref() {
@@ -152,10 +156,6 @@ impl Error for GraphError {
             }
         }
         self.error_info.as_str()
-    }
-
-    fn source<'a>(&'a self) -> Option<&(dyn Error + 'static)> {
-        None
     }
 }
 
