@@ -8,6 +8,7 @@ use std::convert::TryFrom;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
 
+#[allow(clippy::large_enum_variant)]
 pub enum Delta<T> {
     Next(GraphResponse<T>),
     Done(Option<GraphFailure>),
@@ -45,8 +46,8 @@ pub trait DeltaLink<RHS = Self> {
             return Some(receiver);
         }
 
-        let mut res = response.unwrap();
-        if let Some(err) = GraphFailure::from_response(&mut res) {
+        let res = response.unwrap();
+        if let Some(err) = GraphFailure::from_response(&res) {
             sender.send(Delta::Done(Some(err))).unwrap();
             return Some(receiver);
         }
@@ -78,10 +79,10 @@ pub trait DeltaLink<RHS = Self> {
                     next_link = None;
                     sender.send(Delta::Done(Some(err))).unwrap();
                 } else {
-                    let mut response = res.unwrap();
+                    let response = res.unwrap();
                     let headers = response.headers().clone();
                     let status = response.status().as_u16();
-                    if let Some(err) = GraphFailure::from_response(&mut response) {
+                    if let Some(err) = GraphFailure::from_response(&response) {
                         next_link = None;
                         sender.send(Delta::Done(Some(err))).unwrap();
                     }

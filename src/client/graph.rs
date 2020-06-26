@@ -66,7 +66,7 @@ where
 {
     pub fn v1(&'a self) -> Identify<'a, Client> {
         self.is_v1.set(true);
-        self.client()
+        self.request()
             .set_url(GraphUrl::from_str(GRAPH_URL).unwrap());
         Identify { client: &self }
     }
@@ -74,7 +74,7 @@ where
     /// Use the Graph beta API
     pub fn beta(&'a self) -> Identify<'a, Client> {
         self.is_v1.set(false);
-        self.client()
+        self.request()
             .set_url(GraphUrl::from_str(GRAPH_URL_BETA).unwrap());
         Identify { client: &self }
     }
@@ -107,10 +107,6 @@ where
         F: Fn(&GraphUrl),
     {
         f(&self.request.borrow().as_ref())
-    }
-
-    pub(crate) fn client(&self) -> RefMut<Client> {
-        self.request.borrow_mut()
     }
 
     pub(crate) fn request(&self) -> RefMut<Client> {
@@ -276,7 +272,7 @@ where
         batch: &B,
     ) -> IntoResponse<'a, DeltaRequest<serde_json::Value>, Client> {
         self.client
-            .client()
+            .request()
             .set_method(Method::POST)
             .header(ACCEPT, HeaderValue::from_static("application/json"))
             .set_body(serde_json::to_string(batch).unwrap());
@@ -330,7 +326,7 @@ where
         end: Option<&str>,
         interval: &str,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
-        self.client.client().set_method(Method::GET);
+        self.client.request().set_method(Method::GET);
         if let Some(end) = end {
             render_path!(self.client, &format!(
                 "sites/{{{{RID}}}}/getActivitiesByInterval(startDateTime='{}',endDateTime='{}',interval='{}')",

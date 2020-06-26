@@ -129,9 +129,9 @@ impl BlockingDownload {
         }
 
         if self.client.borrow().request_type() == GraphRequestType::Redirect {
-            let mut response = self.client.borrow_mut().build().send()?;
+            let response = self.client.borrow_mut().build().send()?;
 
-            if let Some(err) = GraphFailure::from_response(&mut response) {
+            if let Some(err) = GraphFailure::from_response(&response) {
                 return Err(err);
             }
             self.client
@@ -141,9 +141,8 @@ impl BlockingDownload {
                 .set_url(GraphUrl::from(response.url().clone()));
         }
 
-        let mut response = self.client.borrow_mut().build().send()?;
-
-        if let Some(err) = GraphFailure::from_response(&mut response) {
+        let response = self.client.borrow_mut().build().send()?;
+        if let Some(err) = GraphFailure::from_response(&response) {
             return Err(err);
         }
 
@@ -258,9 +257,8 @@ impl AsyncDownload {
         }
 
         if self.client.borrow().request_type() == GraphRequestType::Redirect {
-            let mut response = self.client.borrow_mut().build().send().await?;
-
-            if let Some(err) = GraphFailure::from_async_response(&mut response) {
+            let response = self.client.borrow_mut().build().send().await?;
+            if let Some(err) = GraphFailure::from_async_response(&response) {
                 return Err(err);
             }
             self.client
@@ -270,9 +268,8 @@ impl AsyncDownload {
                 .set_url(GraphUrl::from(response.url().clone()));
         }
 
-        let mut response = self.client.borrow_mut().build().send().await?;
-
-        if let Some(err) = GraphFailure::from_async_response(&mut response) {
+        let response = self.client.borrow_mut().build().send().await?;
+        if let Some(err) = GraphFailure::from_async_response(&response) {
             return Err(err);
         }
 

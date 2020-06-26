@@ -1,7 +1,7 @@
 use graph_error::GraphError;
-use graph_error::{GraphFailure, GraphResult};
+use graph_error::GraphFailure;
 use graph_rs::http::AsyncIterator;
-use graph_rs::http::{NextSession, Session};
+use graph_rs::http::NextSession;
 use graph_rs::prelude::*;
 use std::path::{Path, PathBuf};
 use std::thread;

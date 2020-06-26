@@ -52,8 +52,8 @@ impl<T> GraphResponse<T> {
             .get(location_str)
             .send()
             .map_err(GraphFailure::from);
-        if let Ok(mut response) = response {
-            if let Some(err) = GraphFailure::from_response(&mut response) {
+        if let Ok(response) = response {
+            if let Some(err) = GraphFailure::from_response(&response) {
                 return Some(Err(err));
             }
             Some(response.json().map_err(GraphFailure::from))

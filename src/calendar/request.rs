@@ -44,16 +44,16 @@ where
         end_date_time: &str,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         self.client
-            .client()
+            .request()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&["calendar", "calendarView"]);
         self.client
-            .client()
+            .request()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .client()
+            .request()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
@@ -66,16 +66,16 @@ where
         end_date_time: &str,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         self.client
-            .client()
+            .request()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&["calendars", id, "calendarView"]);
         self.client
-            .client()
+            .request()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .client()
+            .request()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
@@ -88,16 +88,16 @@ where
         end_date_time: &str,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         self.client
-            .client()
+            .request()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&["calendarGroup", "calendars", calendar_id, "calendarView"]);
         self.client
-            .client()
+            .request()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .client()
+            .request()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
@@ -111,7 +111,7 @@ where
         end_date_time: &str,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         self.client
-            .client()
+            .request()
             .set_method(Method::GET)
             .as_mut()
             .extend_path(&[
@@ -122,11 +122,11 @@ where
                 "calendarView",
             ]);
         self.client
-            .client()
+            .request()
             .as_mut()
             .append_query_pair("startDateTime", start_date_time);
         self.client
-            .client()
+            .request()
             .as_mut()
             .append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)
