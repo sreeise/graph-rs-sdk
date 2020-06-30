@@ -2,7 +2,6 @@ use crate::client::*;
 use crate::http::{AsyncClient, BlockingClient, GraphResponse, RequestClient, UploadSessionClient};
 use crate::types::delta::{Delta, NextLink};
 use crate::types::{content::Content, delta::DeltaRequest};
-use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use std::cell::RefCell;
@@ -10,22 +9,6 @@ use std::convert::TryFrom;
 use std::marker::PhantomData;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
-
-/// A trait for sending an API request and converting the response
-/// to a suitable Rust type.
-pub trait ToResponse {
-    type Output;
-
-    fn send(&self) -> Self::Output;
-}
-
-// Async version of ToResponse.
-#[async_trait]
-pub trait AsyncToResponse {
-    type Output;
-
-    async fn send(&self) -> Self::Output;
-}
 
 pub struct IntoResponse<'a, T, Client>
 where
@@ -196,13 +179,11 @@ impl<'a, T> IntoResBlocking<'a, T> {
     }
 }
 
-impl<'a, T> ToResponse for IntoResBlocking<'a, T>
+impl<'a, T> IntoResBlocking<'a, T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
-    type Output = GraphResult<GraphResponse<T>>;
-
-    fn send(&self) -> Self::Output {
+    pub fn send(&self) -> GraphResult<GraphResponse<T>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
@@ -210,10 +191,8 @@ where
     }
 }
 
-impl<'a> ToResponse for IntoResBlocking<'a, UploadSessionClient<BlockingClient>> {
-    type Output = GraphResult<UploadSessionClient<BlockingClient>>;
-
-    fn send(&self) -> Self::Output {
+impl<'a> IntoResBlocking<'a, UploadSessionClient<BlockingClient>> {
+    pub fn send(&self) -> GraphResult<UploadSessionClient<BlockingClient>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
@@ -221,10 +200,8 @@ impl<'a> ToResponse for IntoResBlocking<'a, UploadSessionClient<BlockingClient>>
     }
 }
 
-impl<'a> ToResponse for IntoResBlocking<'a, GraphResponse<Content>> {
-    type Output = GraphResult<GraphResponse<Content>>;
-
-    fn send(&self) -> Self::Output {
+impl<'a> IntoResBlocking<'a, GraphResponse<Content>> {
+    pub fn send(&self) -> GraphResult<GraphResponse<Content>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
@@ -233,29 +210,53 @@ impl<'a> ToResponse for IntoResBlocking<'a, GraphResponse<Content>> {
     }
 }
 
-impl<'a, T: 'static + Send + NextLink + Clone> ToResponse for IntoResBlocking<'a, DeltaRequest<T>>
+impl<'a, T: 'static + Send + NextLink + Clone> IntoResBlocking<'a, DeltaRequest<T>>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
-    type Output = Receiver<Delta<T>>;
-
-    fn send(&self) -> Self::Output {
+    pub fn send(&self) -> Receiver<Delta<T>> {
         self.delta::<T>()
     }
 }
 
+
 // Async Impl
+
+// We are ok to do async fn's here as long as we don't hold a Send
+// type across an await. This makes easier to do async fn's event though
+// IntoResponse stores non-Send types and is itself a non-Send type.
+// See: https://rust-lang.github.io/async-book/07_workarounds/04_send_approximation.html
 
 impl<'a, T> IntoResAsync<'a, T> {
     pub async fn json<U>(&self) -> GraphResult<U>
     where
-        for<'de> U: serde::Deserialize<'de>,
+        for<'de> U: serde::Deserialize<'de>  + Send + Sync,
     {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
         let response = self.client.request().response().await?;
         Ok(response.json().await?)
+    }
+}
+
+impl<'a, T> IntoResAsync<'a, T>
+    where
+            for<'de> T: serde::Deserialize<'de> + Send + Sync,
+{
+    pub async fn send(&self) -> GraphResult<GraphResponse<T>>  {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
+        let request = self.client.request().build();
+        let response = request
+            .send()
+            .await?;
+
+        if let Some(err) = GraphFailure::from_async_response(&response) {
+            return Err(err);
+        }
+        GraphResponse::try_from_async(response).await
     }
 }
 
@@ -269,18 +270,6 @@ impl<'a> IntoResAsync<'a, GraphResponse<Content>> {
     }
 }
 
-impl<'a, T> IntoResAsync<'a, T>
-where
-    for<'de> T: serde::Deserialize<'de>,
-{
-    pub async fn send(&self) -> GraphResult<GraphResponse<T>> {
-        if self.error.borrow().is_some() {
-            return Err(self.error.replace(None).unwrap());
-        }
-        self.client.request().execute().await
-    }
-}
-
 impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncClient>> {
     pub async fn send(&self) -> GraphResult<UploadSessionClient<AsyncClient>> {
         if self.error.borrow().is_some() {
@@ -290,21 +279,3 @@ impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncClient>> {
         request.upload_session().await
     }
 }
-
-/*
-
-#[async_trait]
-impl<'a, T> AsyncToResponse for IntoResAsync<'a, T>
-where
-    for<'de> T: serde::Deserialize<'de>,
-{
-    type Output = GraphResult<GraphResponse<T>>;
-
-    async fn send(&self) -> Self::Output {
-        if self.error.borrow().is_some() {
-            return Err(self.error.replace(None).unwrap());
-        }
-        Ok(self.client.request().execute().await?)
-    }
-}
- */

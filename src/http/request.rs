@@ -46,6 +46,8 @@ pub trait RequestClient: Debug + AsRef<GraphUrl> + AsMut<GraphUrl> {
     fn set_body_with_file<P: AsRef<Path>>(&mut self, body: P) -> GraphResult<()>;
     fn headers(&self) -> &HeaderMap<HeaderValue>;
     fn header(&mut self, name: impl IntoHeaderName, value: HeaderValue) -> &mut Self;
+    fn set_header_map(&mut self, header_map: HeaderMap) -> &mut Self;
+    fn clear_headers(&mut self) -> &mut Self;
     fn set_download_dir<P: AsRef<Path>>(&mut self, dir: P) -> &mut Self;
     fn set_upload_session<P: AsRef<Path>>(&mut self, file: P) -> &mut Self;
     fn set_form(&mut self, form: Self::Form) -> &mut Self;
@@ -57,7 +59,6 @@ pub struct GraphRequest<Client, Body, Form> {
     token: String,
     ident: Ident,
     client: Client,
-    redirect_client: Client,
     pub url: GraphUrl,
     pub method: Method,
     pub body: Option<Body>,
@@ -67,13 +68,6 @@ pub struct GraphRequest<Client, Body, Form> {
     pub form: Option<Form>,
     pub req_type: GraphRequestType,
 }
-
-pub type BlockingClient = GraphRequest<
-    reqwest::blocking::Client,
-    reqwest::blocking::Body,
-    reqwest::blocking::multipart::Form,
->;
-pub type AsyncClient = GraphRequest<reqwest::Client, reqwest::Body, reqwest::multipart::Form>;
 
 impl<Client, Body, Form> Debug for GraphRequest<Client, Body, Form> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -174,6 +168,16 @@ where
         self
     }
 
+    fn set_header_map(&mut self, header_map: HeaderMap) -> &mut Self {
+        self.headers = header_map;
+        self
+    }
+
+    fn clear_headers(&mut self) -> &mut Self {
+        self.headers.clear();
+        self
+    }
+
     fn set_download_dir<P: AsRef<Path>>(&mut self, dir: P) -> &mut Self {
         self.download_dir = Some(dir.as_ref().to_path_buf());
         self
@@ -200,22 +204,25 @@ where
     }
 }
 
+pub type BlockingClient = GraphRequest<
+    reqwest::blocking::Client,
+    reqwest::blocking::Body,
+    reqwest::blocking::multipart::Form,
+>;
+
 impl BlockingClient {
     pub fn new_blocking(url: GraphUrl) -> BlockingClient {
         let mut headers = HeaderMap::default();
         headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
-        let redirect_client = reqwest::blocking::Client::builder()
-            .redirect(Policy::limited(2))
-            .build()
-            .map_err(GraphFailure::from)
-            .unwrap();
-
         BlockingClient {
             token: Default::default(),
             ident: Default::default(),
-            client: reqwest::blocking::Client::new(),
-            redirect_client,
+            client: reqwest::blocking::Client::builder()
+                .redirect(Policy::limited(2))
+                .build()
+                .map_err(GraphFailure::from)
+                .unwrap(),
             url,
             method: Default::default(),
             body: None,
@@ -242,8 +249,6 @@ impl BlockingClient {
             .take()
             .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
 
-        println!("upload session file: {:#?}", file);
-
         let response = self.response()?;
         if let Some(err) = GraphFailure::from_response(&response) {
             return Err(err);
@@ -256,42 +261,27 @@ impl BlockingClient {
     }
 
     pub fn build(&mut self) -> reqwest::blocking::RequestBuilder {
-        let request = self.clone();
-        match request.req_type {
-            GraphRequestType::Basic => {
-                if let Some(body) = request.body {
+        match self.req_type {
+            GraphRequestType::Basic | GraphRequestType::Redirect => {
+                if self.body.is_some() {
                     self.client
-                        .request(request.method, request.url.as_str())
-                        .headers(request.headers)
+                        .request(self.method.clone(), self.url.as_str())
+                        .headers(self.headers.clone())
                         .bearer_auth(self.token.as_str())
-                        .body(body)
+                        .body(self.body.take().unwrap())
                 } else {
                     self.client
-                        .request(request.method, request.url.as_str())
-                        .headers(request.headers)
-                        .bearer_auth(self.token.as_str())
-                }
-            },
-            GraphRequestType::Redirect => {
-                if let Some(body) = request.body {
-                    self.redirect_client
-                        .request(request.method, request.url.as_str())
-                        .headers(request.headers)
-                        .bearer_auth(self.token.as_str())
-                        .body(body)
-                } else {
-                    self.redirect_client
-                        .request(request.method, request.url.as_str())
-                        .headers(request.headers)
+                        .request(self.method.clone(), self.url.as_str())
+                        .headers(self.headers.clone())
                         .bearer_auth(self.token.as_str())
                 }
             },
             GraphRequestType::Multipart => self
                 .client
-                .request(request.method, request.url.as_str())
-                .headers(request.headers)
-                .multipart(request.form.unwrap())
-                .bearer_auth(self.token.as_str()),
+                .request(self.method.clone(), self.url.as_str())
+                .headers(self.headers.clone())
+                .bearer_auth(self.token.as_str())
+                .multipart(self.form.take().unwrap()),
         }
     }
 
@@ -311,18 +301,15 @@ impl BlockingClient {
         GraphResponse::try_from(self.response()?)
     }
 
-    fn clone(&mut self) -> Self {
-        let redirect_client = reqwest::blocking::Client::builder()
-            .redirect(Policy::limited(2))
-            .build()
-            .map_err(GraphFailure::from)
-            .unwrap();
-
+    pub fn clone(&mut self) -> Self {
         GraphRequest {
             token: self.token.to_string(),
             ident: self.ident,
-            client: reqwest::blocking::Client::new(),
-            redirect_client,
+            client: reqwest::blocking::Client::builder()
+                .redirect(Policy::limited(2))
+                .build()
+                .map_err(GraphFailure::from)
+                .unwrap(),
             url: self.url.clone(),
             method: self.method.clone(),
             body: self.body.take(),
@@ -335,22 +322,52 @@ impl BlockingClient {
     }
 }
 
+impl From<Url> for BlockingClient {
+    fn from(url: Url) -> Self {
+        BlockingClient::new_blocking(GraphUrl::from(url))
+    }
+}
+
+impl Default for BlockingClient {
+    fn default() -> Self {
+        let mut headers = HeaderMap::default();
+        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
+        BlockingClient {
+            token: Default::default(),
+            ident: Default::default(),
+            client: reqwest::blocking::Client::builder()
+                .redirect(Policy::limited(2))
+                .build()
+                .map_err(GraphFailure::from)
+                .unwrap(),
+            url: GraphUrl::parse(GRAPH_URL).unwrap(),
+            method: Default::default(),
+            body: None,
+            headers,
+            upload_session_file: None,
+            download_dir: None,
+            form: None,
+            req_type: Default::default(),
+        }
+    }
+}
+
+pub type AsyncClient = GraphRequest<reqwest::Client, reqwest::Body, reqwest::multipart::Form>;
+
 impl AsyncClient {
     pub fn new_async(url: GraphUrl) -> AsyncClient {
         let mut headers = HeaderMap::default();
         headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
-        let redirect_client = reqwest::Client::builder()
-            .redirect(Policy::limited(2))
-            .build()
-            .map_err(GraphFailure::from)
-            .unwrap();
-
         AsyncClient {
             token: Default::default(),
             ident: Default::default(),
-            client: reqwest::Client::new(),
-            redirect_client,
+            client: reqwest::Client::builder()
+                .redirect(Policy::limited(2))
+                .build()
+                .map_err(GraphFailure::from)
+                .unwrap(),
             url,
             method: Default::default(),
             body: None,
@@ -392,42 +409,30 @@ impl AsyncClient {
     }
 
     pub fn build(&mut self) -> reqwest::RequestBuilder {
-        let request = self.clone();
-        match request.req_type {
-            GraphRequestType::Basic => {
-                if let Some(body) = request.body {
+        let headers = self.headers.clone();
+        self.headers.clear();
+        self.headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        match self.req_type {
+            GraphRequestType::Basic | GraphRequestType::Redirect => {
+                if self.body.is_some() {
                     self.client
-                        .request(request.method, request.url.as_str())
-                        .headers(request.headers)
+                        .request(self.method.clone(), self.url.as_str())
+                        .headers(headers)
                         .bearer_auth(self.token.as_str())
-                        .body(body)
+                        .body(self.body.take().unwrap())
                 } else {
                     self.client
-                        .request(request.method, request.url.as_str())
-                        .headers(request.headers)
-                        .bearer_auth(self.token.as_str())
-                }
-            },
-            GraphRequestType::Redirect => {
-                if let Some(body) = request.body {
-                    self.redirect_client
-                        .request(request.method, request.url.as_str())
-                        .headers(request.headers)
-                        .bearer_auth(self.token.as_str())
-                        .body(body)
-                } else {
-                    self.redirect_client
-                        .request(request.method, request.url.as_str())
-                        .headers(request.headers)
+                        .request(self.method.clone(), self.url.as_str())
+                        .headers(headers)
                         .bearer_auth(self.token.as_str())
                 }
             },
             GraphRequestType::Multipart => self
                 .client
-                .request(request.method, request.url.as_str())
-                .headers(request.headers)
-                .multipart(request.form.unwrap())
-                .bearer_auth(self.token.as_str()),
+                .request(self.method.clone(), self.url.as_str())
+                .headers(self.headers.clone())
+                .bearer_auth(self.token.as_str())
+                .multipart(self.form.take().unwrap()),
         }
     }
 
@@ -448,18 +453,15 @@ impl AsyncClient {
         GraphResponse::try_from_async(response).await
     }
 
-    fn clone(&mut self) -> Self {
-        let redirect_client = reqwest::Client::builder()
-            .redirect(Policy::limited(2))
-            .build()
-            .map_err(GraphFailure::from)
-            .unwrap();
-
+    pub fn clone(&mut self) -> Self {
         GraphRequest {
             token: self.token.to_string(),
             ident: self.ident,
-            client: reqwest::Client::new(),
-            redirect_client,
+            client: reqwest::Client::builder()
+                .redirect(Policy::limited(2))
+                .build()
+                .map_err(GraphFailure::from)
+                .unwrap(),
             url: self.url.clone(),
             method: self.method.clone(),
             body: self.body.take(),
@@ -472,50 +474,19 @@ impl AsyncClient {
     }
 }
 
-impl Default for BlockingClient {
-    fn default() -> Self {
-        let mut headers = HeaderMap::default();
-        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-        let redirect_client = reqwest::blocking::Client::builder()
-            .redirect(Policy::limited(2))
-            .build()
-            .map_err(GraphFailure::from)
-            .unwrap();
-
-        BlockingClient {
-            token: Default::default(),
-            ident: Default::default(),
-            client: reqwest::blocking::Client::new(),
-            redirect_client,
-            url: GraphUrl::parse(GRAPH_URL).unwrap(),
-            method: Default::default(),
-            body: None,
-            headers,
-            upload_session_file: None,
-            download_dir: None,
-            form: None,
-            req_type: Default::default(),
-        }
-    }
-}
-
 impl Default for AsyncClient {
     fn default() -> Self {
         let mut headers = HeaderMap::default();
         headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
-        let redirect_client = reqwest::Client::builder()
-            .redirect(Policy::limited(2))
-            .build()
-            .map_err(GraphFailure::from)
-            .unwrap();
-
         AsyncClient {
             token: Default::default(),
             ident: Default::default(),
-            client: reqwest::Client::new(),
-            redirect_client,
+            client: reqwest::Client::builder()
+                .redirect(Policy::limited(2))
+                .build()
+                .map_err(GraphFailure::from)
+                .unwrap(),
             url: GraphUrl::parse(GRAPH_URL).unwrap(),
             method: Default::default(),
             body: None,
@@ -525,12 +496,6 @@ impl Default for AsyncClient {
             form: None,
             req_type: Default::default(),
         }
-    }
-}
-
-impl From<Url> for BlockingClient {
-    fn from(url: Url) -> Self {
-        BlockingClient::new_blocking(GraphUrl::from(url))
     }
 }
 

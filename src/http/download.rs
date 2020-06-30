@@ -136,6 +136,7 @@ impl BlockingDownload {
             }
             self.client
                 .borrow_mut()
+                .clear_headers()
                 .set_method(Method::GET)
                 .set_request_type(GraphRequestType::Basic)
                 .set_url(GraphUrl::from(response.url().clone()));
@@ -263,6 +264,7 @@ impl AsyncDownload {
             }
             self.client
                 .borrow_mut()
+                .clear_headers()
                 .set_method(Method::GET)
                 .set_request_type(GraphRequestType::Basic)
                 .set_url(GraphUrl::from(response.url().clone()));
@@ -294,10 +296,7 @@ impl AsyncDownload {
             if let Ok(s) = std::str::from_utf8(value.as_ref()) {
                 if let Some(name) = self.parse_content_disposition(s) {
                     if name.len() <= 255 {
-                        println!("filename: {:#?}", name);
-                        println!("before joined path: {:#?}", path);
                         let path = path.join(name);
-                        println!("joined path: {:#?}", path);
                         if path.exists() && !self.is_overwrite_existing_file() {
                             return GraphRsError::DownloadFileExists {
                                 name: path.to_string_lossy().to_string(),
