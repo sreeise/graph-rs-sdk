@@ -223,7 +223,6 @@ impl AsyncIterator for UploadSessionClient<AsyncClient> {
                 match result {
                     Ok(value) => return Some(Ok(NextSession::Done(value))),
                     Err(e) => {
-                        self.byte_ranges.clear();
                         return Some(Err(e));
                     },
                 }
@@ -232,7 +231,6 @@ impl AsyncIterator for UploadSessionClient<AsyncClient> {
                 match result {
                     Ok(next) => return Some(Ok(NextSession::Next(next))),
                     Err(e) => {
-                        self.byte_ranges.clear();
                         return Some(Err(e));
                     },
                 }
