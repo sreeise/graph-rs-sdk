@@ -76,9 +76,25 @@ fn delete_calendars() {
 #[test]
 fn calendar_views() {
     let client = Graph::new("");
-    client.v1().me().calendar().views().list_default_view("0", "1");
-    assert_url_eq(&client, "/me/calendar/calendarView?startDateTime=0&endDateTime=1");
+    client
+        .v1()
+        .me()
+        .calendar()
+        .views()
+        .list_default_view("0", "1");
+    assert_url_eq(
+        &client,
+        "/me/calendar/calendarView?startDateTime=0&endDateTime=1",
+    );
 
-    client.v1().sites("32p99453").calendar().views().list_view("1234", "0", "1");
-    assert_url_eq(&client, "/sites/32p99453/calendars/1234/calendarView?startDateTime=0&endDateTime=1")
+    client
+        .v1()
+        .sites("32p99453")
+        .calendar()
+        .views()
+        .list_view("1234", "0", "1");
+    assert_url_eq(
+        &client,
+        "/sites/32p99453/calendars/1234/calendarView?startDateTime=0&endDateTime=1",
+    )
 }
