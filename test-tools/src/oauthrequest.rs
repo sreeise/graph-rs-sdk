@@ -193,7 +193,6 @@ impl OAuthRequest {
     }
 
     pub async fn request_access_token_async() -> Option<(String, AccessToken)> {
-        env::set_var("GRAPH_TEST_ENV", "true");
         if OAuthRequest::is_local() {
             return OAuthRequest::request_token_from_toml_async().await;
         } else if OAuthRequest::is_test_env_set() {
@@ -212,7 +211,6 @@ impl OAuthRequest {
     where
         F: Fn(Option<(String, String)>),
     {
-        env::set_var("GRAPH_TEST_ENV", "true");
         if let Some((user_id, token)) = OAuthRequest::request_access_token() {
             let t = token.bearer_token();
             f(Some((user_id, t.to_string())));
