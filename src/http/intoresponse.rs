@@ -219,7 +219,6 @@ where
     }
 }
 
-
 // Async Impl
 
 // We are ok to do async fn's here as long as we don't hold a Send
@@ -230,7 +229,7 @@ where
 impl<'a, T> IntoResAsync<'a, T> {
     pub async fn json<U>(&self) -> GraphResult<U>
     where
-        for<'de> U: serde::Deserialize<'de>  + Send + Sync,
+        for<'de> U: serde::Deserialize<'de> + Send + Sync,
     {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
@@ -241,17 +240,15 @@ impl<'a, T> IntoResAsync<'a, T> {
 }
 
 impl<'a, T> IntoResAsync<'a, T>
-    where
-            for<'de> T: serde::Deserialize<'de> + Send + Sync,
+where
+    for<'de> T: serde::Deserialize<'de> + Send + Sync,
 {
-    pub async fn send(&self) -> GraphResult<GraphResponse<T>>  {
+    pub async fn send(&self) -> GraphResult<GraphResponse<T>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
         let request = self.client.request().build();
-        let response = request
-            .send()
-            .await?;
+        let response = request.send().await?;
 
         if let Some(err) = GraphFailure::from_async_response(&response) {
             return Err(err);

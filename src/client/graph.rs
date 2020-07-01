@@ -20,7 +20,7 @@ use graph_oauth::oauth::{AccessToken, OAuth};
 use handlebars::*;
 use reqwest::header::{HeaderValue, ACCEPT};
 use reqwest::Method;
-use std::cell::{Cell, RefCell, RefMut};
+use std::cell::{RefCell, RefMut};
 use std::convert::TryFrom;
 use std::str::FromStr;
 
@@ -51,13 +51,9 @@ impl Default for Ident {
     }
 }
 
-pub struct Graph<Client>
-where
-    Client: crate::http::RequestClient,
-{
+pub struct Graph<Client> {
     request: RefCell<Client>,
     registry: RefCell<Handlebars>,
-    is_v1: Cell<bool>,
 }
 
 impl<'a, Client> Graph<Client>
@@ -65,7 +61,6 @@ where
     Client: crate::http::RequestClient,
 {
     pub fn v1(&'a self) -> Identify<'a, Client> {
-        self.is_v1.set(true);
         self.request()
             .set_url(GraphUrl::from_str(GRAPH_URL).unwrap());
         Identify { client: &self }
@@ -73,7 +68,6 @@ where
 
     /// Use the Graph beta API
     pub fn beta(&'a self) -> Identify<'a, Client> {
-        self.is_v1.set(false);
         self.request()
             .set_url(GraphUrl::from_str(GRAPH_URL_BETA).unwrap());
         Identify { client: &self }
@@ -81,12 +75,16 @@ where
 
     /// Check if the current host is v1.0.
     pub fn is_v1(&self) -> bool {
-        self.is_v1.get()
+        self.request.borrow().url().as_str().starts_with(GRAPH_URL)
     }
 
     /// Check if the current host is beta.
     pub fn is_beta(&self) -> bool {
-        !self.is_v1.get()
+        self.request
+            .borrow()
+            .url()
+            .as_str()
+            .starts_with(GRAPH_URL_BETA)
     }
 
     pub fn ident(&self) -> Ident {
@@ -145,7 +143,6 @@ impl<'a> GraphBlocking {
         Graph {
             request: RefCell::new(request),
             registry: RefCell::new(Handlebars::new()),
-            is_v1: Cell::new(true),
         }
     }
 }
@@ -174,7 +171,6 @@ impl<'a> GraphAsync {
         Graph {
             request: RefCell::new(request),
             registry: RefCell::new(Handlebars::new()),
-            is_v1: Cell::new(true),
         }
     }
 }
@@ -192,7 +188,6 @@ impl From<String> for Graph<BlockingClient> {
         Graph {
             request: RefCell::new(request),
             registry: RefCell::new(Handlebars::new()),
-            is_v1: Cell::new(true),
         }
     }
 }
@@ -204,7 +199,6 @@ impl From<&AccessToken> for Graph<BlockingClient> {
         Graph {
             request: RefCell::new(request),
             registry: RefCell::new(Handlebars::new()),
-            is_v1: Cell::new(true),
         }
     }
 }
@@ -218,10 +212,7 @@ impl TryFrom<&OAuth> for Graph<BlockingClient> {
     }
 }
 
-pub struct Identify<'a, Client>
-where
-    Client: crate::http::RequestClient,
-{
+pub struct Identify<'a, Client> {
     client: &'a Graph<Client>,
 }
 

@@ -135,14 +135,12 @@ where
 
 register_client!(CalendarGroupRequest,);
 
-impl<'a, Client> CalendarGroupRequest<'a, Client>
-where
-    Client: crate::http::RequestClient,
-{
+method_impl!(CalendarGroupRequest,
     get!( list, Collection<serde_json::Value> => "calendarGroups" );
-    get!( | get, serde_json::Value => "calendarGroups/{{id}}" );
     get!( list_default_calendars, Collection<serde_json::Value> => "calendarGroup/calendars" );
+    get!( | get, serde_json::Value => "calendarGroups/{{id}}" );
     get!( | list_calendars, Collection<serde_json::Value> => "calendarGroups/{{id}}/calendars" );
+    delete!( | delete, GraphResponse<Content> => "calendarGroups/{{id}}" );
     get!( || list_events, Collection<serde_json::Value> => "calendarGroup/{{id}}/calendars/{{id2}}/events" );
     post!( [ create, serde_json::Value => "calendarGroups" ] );
     post!([
@@ -152,8 +150,12 @@ where
     ]);
     post!( [ | create_calendar, serde_json::Value => "calendarGroups/{{id}}/calendars" ] );
     patch!( [ | update, serde_json::Value => "calendarGroups/{{id}}" ] );
-    delete!( | delete, GraphResponse<Content> => "calendarGroups/{{id}}" );
+);
 
+impl<'a, Client> CalendarGroupRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     pub fn attachments(&'a self) -> CalendarGroupAttachmentRequest<'a, Client> {
         CalendarGroupAttachmentRequest::new(self.client)
     }

@@ -3,7 +3,7 @@ macro_rules! register_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ) => {
         $( register_helper!($helper, $value); )*
 
-        pub struct $name<'a, Client> where Client: crate::http::RequestClient {
+        pub struct $name<'a, Client> {
             client: &'a Graph<Client>,
         }
 
@@ -23,7 +23,7 @@ macro_rules! register_client {
     };
 
     ( $name:ident, $($helper:ident => $value:expr, $value2:expr, $identity:expr,)* ) => {
-        pub struct $name<'a, Client> where Client: crate::http::RequestClient {
+        pub struct $name<'a, Client> {
             client: &'a Graph<Client>,
         }
 
@@ -64,7 +64,7 @@ macro_rules! register_ident_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ()) => {
         $( register_helper!($helper, $value); )*
 
-        pub struct $name<'a, Client> where Client: crate::http::RequestClient {
+        pub struct $name<'a, Client> {
             client: &'a Graph<Client>,
         }
 
@@ -98,7 +98,7 @@ macro_rules! register_ident_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ) => {
         $( register_helper!($helper, $value); )*
 
-        pub struct $name<'a, Client> where Client: crate::http::RequestClient {
+        pub struct $name<'a, Client> {
             client: &'a Graph<Client>,
             id: String,
         }
@@ -231,7 +231,6 @@ macro_rules! render_path {
 macro_rules! register_method {
     ( $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name(&'a self) -> IntoResponse<'a, $T, Client>
-        where Client: crate::http::RequestClient
       {
         self.client.request()
             .set_method($m);
@@ -246,7 +245,6 @@ macro_rules! register_method {
 
     ( | $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, $T, Client>
-        where Client: crate::http::RequestClient
       {
         self.client.request()
             .set_method($m);
@@ -262,7 +260,6 @@ macro_rules! register_method {
 
     ( || $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S) -> IntoResponse<'a, $T, Client>
-        where Client: crate::http::RequestClient
       {
         self.client.request()
             .set_method($m);
@@ -278,7 +275,6 @@ macro_rules! register_method {
 
     ( ||| $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S) -> IntoResponse<'a, $T, Client>
-        where Client: crate::http::RequestClient
       {
         self.client.request()
             .set_method($m);
@@ -294,7 +290,6 @@ macro_rules! register_method {
 
     ( |||| $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name<S: AsRef<str>>(&'a self, id: S, id2: S, id3: S, id4: S) -> IntoResponse<'a, $T, Client>
-        where Client: crate::http::RequestClient
       {
         self.client.request()
             .set_method($m);
@@ -315,7 +310,6 @@ macro_rules! register_method {
 
     ( [ $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<B: serde::Serialize>(&'a self, body: &B) -> IntoResponse<'a, $T, Client>
-        where Client: crate::http::RequestClient
       {
         self.client.request()
             .set_method($m)
@@ -331,7 +325,6 @@ macro_rules! register_method {
 
     ( [ | $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, body: &B) -> IntoResponse<'a, $T, Client>
-        where Client: crate::http::RequestClient
       {
         self.client.request()
             .set_method($m)
@@ -348,7 +341,6 @@ macro_rules! register_method {
 
     ( [ || $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, body: &B) -> IntoResponse<'a, $T, Client>
-        where Client: crate::http::RequestClient
       {
         self.client.request()
             .set_method($m)
@@ -365,7 +357,6 @@ macro_rules! register_method {
 
     ( [ ||| $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, id3: S, body: &B) -> IntoResponse<'a, $T, Client>
-        where Client: crate::http::RequestClient
       {
         self.client.request()
             .set_method($m)
@@ -620,5 +611,109 @@ macro_rules! delete {
 macro_rules! download {
     ( | $name:ident, $T:ty => $template:expr ) => {
         register_download!( | $name, $T => $template );
+    };
+}
+
+#[macro_use]
+macro_rules! method_impl {
+   ( $impl_name:ident,
+    $( get!($name_get:ident, $T_get:ty => $template_get:expr); )*
+    $( post!($name_post:ident, $T_post:ty => $template_post:expr); )*
+    $( put!($name_put:ident, $T_put:ty => $template_put:expr); )*
+    $( patch!($name_patch:ident, $T_patch:ty => $template_patch:expr); )*
+    $( delete!($name_delete:ident, $T_delete:ty => $template_delete:expr); )*
+
+    $( get!( | $name_get1:ident, $T_get1:ty => $template_get1:expr); )*
+    $( post!( | $name_post1:ident, $T_post1:ty => $template_post1:expr); )*
+    $( put!( | $name_put1:ident, $T_put1:ty => $template_put1:expr); )*
+    $( patch!( | $name_patch1:ident, $T_patch1:ty => $template_patch1:expr); )*
+    $( delete!( | $name_delete1:ident, $T_delete1:ty => $template_delete1:expr); )*
+
+    $( get!( || $name_get2:ident, $T_get2:ty => $template_get2:expr); )*
+    $( post!( || $name_post2:ident, $T_post2:ty => $template_post2:expr); )*
+    $( put!( || $name_put2:ident, $T_put2:ty => $template_put2:expr); )*
+    $( patch!( || $name_patch2:ident, $T_patch2:ty => $template_patch2:expr); )*
+    $( delete!( || $name_delete2:ident, $T_delete2:ty => $template_delete2:expr); )*
+
+    $( get!( ||| $name_get3:ident, $T_get3:ty => $template_get3:expr); )*
+    $( post!( ||| $name_post3:ident, $T_post3:ty => $template_post3:expr); )*
+    $( put!( ||| $name_put3:ident, $T_put3:ty => $template_put3:expr); )*
+    $( patch!( ||| $name_patch3:ident, $T_patch3:ty => $template_patch3:expr); )*
+    $( delete!( ||| $name_delete3:ident, $T_delete3:ty => $template_delete3:expr); )*
+
+    $( get!( [ $name_get1b:ident, $T_get1b:ty => $template_get1b:expr ] ); )*
+    $( post!( [ $name_post1b:ident, $T_post1b:ty => $template_post1b:expr ] ); )*
+    $( put!( [ $name_put1b:ident, $T_put1b:ty => $template_put1b:expr ] ); )*
+    $( patch!( [ $name_patch1b:ident, $T_patch1b:ty => $template_patch1b:expr ] ); )*
+    $( delete!( [ $name_delete1b:ident, $T_delete1b:ty => $template_delete1b:expr ] ); )*
+
+    $( get!( [ | $name_get2b:ident, $T_get2b:ty => $template_get2b:expr ] ); )*
+    $( post!( [ | $name_post2b:ident, $T_post2b:ty => $template_post2b:expr ] ); )*
+    $( put!( [ | $name_put2b:ident, $T_put2b:ty => $template_put2b:expr ] ); )*
+    $( patch!( [ | $name_patch2b:ident, $T_patch2b:ty => $template_patch2b:expr ] ); )*
+    $( delete!( [ | $name_delete2b:ident, $T_delete2b:ty => $template_delete2b:expr ] ); )*
+
+    $( get!( [ || $name_get3b:ident, $T_get3b:ty => $template_get3b:expr ] ); )*
+    $( post!( [ || $name_post3b:ident, $T_post3b:ty => $template_post3b:expr ] ); )*
+    $( put!( [ || $name_put3b:ident, $T_put3b:ty => $template_put3b:expr ] ); )*
+    $( patch!( [ || $name_patch3b:ident, $T_patch3b:ty => $template_patch3b:expr ] ); )*
+    $( delete!( [ || $name_delete3b:ident, $T_delete3b:ty => $template_delete3b:expr ] ); )*
+
+     $( get!( [ ||| $name_get4b:ident, $T_get4b:ty => $template_get4b:expr ] ); )*
+     $( post!( [ ||| $name_post4b:ident, $T_post4b:ty => $template_post4b:expr ] ); )*
+     $( put!( [ ||| $name_put4b:ident, $T_put4b:ty => $template_put4b:expr ] ); )*
+     $( patch!( [ ||| $name_patch4b:ident, $T_patch4b:ty => $template_patch4b:expr ] ); )*
+     $( delete!( [ ||| $name_delete4b:ident, $T_delete4b:ty => $template_delete4b:expr ] ); )*
+
+    ) => {
+        impl<'a, Client> $impl_name<'a, Client> where Client: crate::http::RequestClient {
+            $( get!($name_get, $T_get => $template_get); )*
+            $( post!($name_post, $T_post => $template_post); )*
+            $( put!($name_put, $T_put => $template_put); )*
+            $( patch!($name_patch, $T_patch => $template_patch); )*
+            $( delete!($name_delete, $T_delete => $template_delete); )*
+
+            $( get!( | $name_get1, $T_get1 => $template_get1); )*
+            $( post!( | $name_post1, $T_post1 => $template_post1); )*
+            $( put!( | $name_put1, $T_put1 => $template_put1); )*
+            $( patch!( | $name_patch1, $T_patch1 => $template_patch1); )*
+            $( delete!( | $name_delete1, $T_delete1 => $template_delete1); )*
+
+            $( get!( || $name_get2, $T_get2 => $template_get2); )*
+            $( post!( || $name_post2, $T_post2 => $template_post2); )*
+            $( put!( || $name_put2, $T_put2 => $template_put2); )*
+            $( patch!( || $name_patch2, $T_patch2 => $template_patch2); )*
+            $( delete!( || $name_delete2, $T_delete2 => $template_delete2); )*
+
+            $( get!( ||| $name_get3, $T_get3 => $template_get3); )*
+            $( post!( ||| $name_post3, $T_post3 => $template_post3); )*
+            $( put!( ||| $name_put3, $T_put3 => $template_put3); )*
+            $( patch!( ||| $name_patch3, $T_patch3 => $template_patch3); )*
+            $( delete!( ||| $name_delete3, $T_delete3 => $template_delete3); )*
+
+            $( get!( [ $name_get1b, $T_get1b => $template_get1b ] ); )*
+            $( post!( [ $name_post1b, $T_post1b => $template_post1b ] ); )*
+            $( put!( [ $name_put1b, $T_put1b => $template_put1b ] ); )*
+            $( patch!( [ $name_patch1b, $T_patch1b => $template_patch1b ] ); )*
+            $( delete!( [ $name_delete1b, $T_delete1b => $template_delete1b ] ); )*
+
+            $( get!( [ | $name_get2b, $T_get2b => $template_get2b ] ); )*
+            $( post!( [ | $name_post2b, $T_post2b => $template_post2b ] ); )*
+            $( put!( [ | $name_put2b, $T_put2b => $template_put2b ] ); )*
+            $( patch!( [ | $name_patch2b, $T_patch2b => $template_patch2b ] ); )*
+            $( delete!( [ | $name_delete2b, $T_delete2b => $template_delete2b ] ); )*
+
+            $( get!( [ || $name_get3b, $T_get3b => $template_get3b ] ); )*
+            $( post!( [ || $name_post3b, $T_post3b => $template_post3b ] ); )*
+            $( put!( [ || $name_put3b, $T_put3b => $template_put3b ] ); )*
+            $( patch!( [ || $name_patch3b, $T_patch3b => $template_patch3b ] ); )*
+            $( delete!( [ || $name_delete3b, $T_delete3b => $template_delete3b ] ); )*
+
+            $( get!( [ ||| $name_get4b, $T_get4b => $template_get4b ] ); )*
+            $( post!( [ ||| $name_post4b, $T_post4b => $template_post4b ] ); )*
+            $( put!( [ ||| $name_put4b, $T_put4b => $template_put4b ] ); )*
+            $( patch!( [ ||| $name_patch4b, $T_patch4b => $template_patch4b ] ); )*
+            $( delete!( [ ||| $name_delete4b, $T_delete4b => $template_delete4b ] ); )*
+        }
     };
 }
