@@ -93,12 +93,12 @@ where
         request.set_method(Method::GET);
         let url = request.as_mut();
         url.extend_path(&[
-                "calendarGroup",
-                calendar_group_id,
-                "calendars",
-                calendar_id,
-                "calendarView",
-            ]);
+            "calendarGroup",
+            calendar_group_id,
+            "calendars",
+            calendar_id,
+            "calendarView",
+        ]);
         url.append_query_pair("startDateTime", start_date_time);
         url.append_query_pair("endDateTime", end_date_time);
         IntoResponse::new(self.client)

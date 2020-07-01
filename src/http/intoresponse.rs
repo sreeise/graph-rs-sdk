@@ -234,10 +234,9 @@ impl<'a, T> IntoResAsync<'a, T> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        let response = self.client.request().response().await?;
-        response.json()
-            .await
-            .map_err(GraphFailure::from)
+        let request = self.client.request().build();
+        let response = request.send().await?;
+        response.json().await.map_err(GraphFailure::from)
     }
 }
 
@@ -251,10 +250,6 @@ where
         }
         let request = self.client.request().build();
         let response = request.send().await?;
-
-        if let Some(err) = GraphFailure::from_async_response(&response) {
-            return Err(err);
-        }
         GraphResponse::try_from_async(response).await
     }
 }
@@ -264,7 +259,8 @@ impl<'a> IntoResAsync<'a, GraphResponse<Content>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        let response = self.client.request().response().await?;
+        let request = self.client.request().build();
+        let response = request.send().await?;
         GraphResponse::try_from_async_content(response).await
     }
 }
