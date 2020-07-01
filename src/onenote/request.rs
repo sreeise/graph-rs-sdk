@@ -191,24 +191,3 @@ impl<'a> OnenotePageRequest<'a, BlockingClient> {
 impl<'a> OnenotePageRequest<'a, AsyncClient> {
     download!( | download, AsyncDownload => "{{pages}}/{{id}}/content" );
 }
-
-/*
-
- pub fn download<S: AsRef<str>, P: AsRef<Path>>(
-     &'a self,
-     id: S,
-     directory: P,
- ) ->BlockingDownload {
-     render_path!(
-         self.client,
-         "{{pages}}/{{id}}/content",
-         &serde_json::json!({ "id": id.as_ref() })
-     );
-     self.client
-         .client()
-         .set_method(Method::GET)
-         .set_download_dir(directory.as_ref())
-         .set_request_type(GraphRequestType::Redirect);
-     self.client.request().download(self.client.take_builder())
- }
-*/
