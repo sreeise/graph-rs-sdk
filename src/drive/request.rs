@@ -40,10 +40,7 @@ register_client!(
     drive_root_path => "drive/root", "root", Ident::Drives,
 );
 
-impl<'a, Client> DriveRequest<'a, Client>
-where
-    Client: crate::http::RequestClient,
-{
+method_impl!(DriveRequest,
     get!( drive, serde_json::Value => "{{drive_root}}" );
     get!( root, serde_json::Value => "{{drive_root}}/root" );
     get!( recent, Collection<serde_json::Value> => "{{drive_root}}/recent" );
@@ -52,7 +49,6 @@ where
     get!( drive_activity, Collection<serde_json::Value> => "{{drive_root}}/activities" );
     get!( thumbnails, Collection<serde_json::Value> => "{{drive_item}}/thumbnails" );
     get!( shared_with_me, Collection<serde_json::Value> => "{{drive_root}}/sharedWithMe" );
-    get!( | special_folder, serde_json::Value => "{{drive_root}}/special/{{id}}" );
     get!( special_documents, serde_json::Value => "{{drive_root}}/special/documents" );
     get!( special_documents_children, Collection<serde_json::Value> => "{{drive_root}}/special/documents/children" );
     get!( special_photos, serde_json::Value => "{{drive_root}}/special/photos" );
@@ -63,7 +59,13 @@ where
     get!( special_app_root_children, Collection<serde_json::Value> => "{{drive_root}}/special/approot/children" );
     get!( special_music, serde_json::Value => "{{drive_root}}/special/music" );
     get!( special_music_children, Collection<serde_json::Value> => "{{drive_root}}/special/music/children" );
+    get!( | special_folder, serde_json::Value => "{{drive_root}}/special/{{id}}" );
+);
 
+impl<'a, Client> DriveRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     pub fn list_children<S: AsRef<str>>(
         &'a self,
         id: S,
@@ -142,7 +144,10 @@ where
     ) -> IntoResponse<'a, serde_json::Value, Client> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client.request().set_method(Method::POST).set_body(body);
+            self.client
+                .request()
+                .set_method(Method::POST)
+                .set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -166,7 +171,10 @@ where
     ) -> IntoResponse<'a, GraphResponse<Content>, Client> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client.request().set_method(Method::POST).set_body(body);
+            self.client
+                .request()
+                .set_method(Method::POST)
+                .set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -341,7 +349,10 @@ where
         if let Some(body) = body {
             let body = serde_json::to_string(body);
             if let Ok(body) = body {
-                self.client.request().set_method(Method::POST).set_body(body);
+                self.client
+                    .request()
+                    .set_method(Method::POST)
+                    .set_body(body);
             } else if let Err(e) = body {
                 return IntoResponse::new_error(self.client, GraphFailure::from(e));
             }
@@ -401,7 +412,10 @@ where
 
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client.request().set_method(Method::POST).set_body(body);
+            self.client
+                .request()
+                .set_method(Method::POST)
+                .set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }

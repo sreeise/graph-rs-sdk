@@ -330,26 +330,7 @@ impl From<Url> for BlockingClient {
 
 impl Default for BlockingClient {
     fn default() -> Self {
-        let mut headers = HeaderMap::default();
-        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-        BlockingClient {
-            token: Default::default(),
-            ident: Default::default(),
-            client: reqwest::blocking::Client::builder()
-                .redirect(Policy::limited(2))
-                .build()
-                .map_err(GraphFailure::from)
-                .unwrap(),
-            url: GraphUrl::parse(GRAPH_URL).unwrap(),
-            method: Default::default(),
-            body: None,
-            headers,
-            upload_session_file: None,
-            download_dir: None,
-            form: None,
-            req_type: Default::default(),
-        }
+        BlockingClient::new_blocking(GraphUrl::parse(GRAPH_URL).unwrap())
     }
 }
 
@@ -411,7 +392,8 @@ impl AsyncClient {
     pub fn build(&mut self) -> reqwest::RequestBuilder {
         let headers = self.headers.clone();
         self.headers.clear();
-        self.headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        self.headers
+            .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
         match self.req_type {
             GraphRequestType::Basic | GraphRequestType::Redirect => {
                 if self.body.is_some() {
@@ -476,26 +458,7 @@ impl AsyncClient {
 
 impl Default for AsyncClient {
     fn default() -> Self {
-        let mut headers = HeaderMap::default();
-        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-        AsyncClient {
-            token: Default::default(),
-            ident: Default::default(),
-            client: reqwest::Client::builder()
-                .redirect(Policy::limited(2))
-                .build()
-                .map_err(GraphFailure::from)
-                .unwrap(),
-            url: GraphUrl::parse(GRAPH_URL).unwrap(),
-            method: Default::default(),
-            body: None,
-            headers,
-            upload_session_file: None,
-            download_dir: None,
-            form: None,
-            req_type: Default::default(),
-        }
+        AsyncClient::new_async(GraphUrl::parse(GRAPH_URL).unwrap())
     }
 }
 
