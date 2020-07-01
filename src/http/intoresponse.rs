@@ -235,7 +235,9 @@ impl<'a, T> IntoResAsync<'a, T> {
             return Err(self.error.replace(None).unwrap());
         }
         let response = self.client.request().response().await?;
-        Ok(response.json().await?)
+        response.json()
+            .await
+            .map_err(GraphFailure::from)
     }
 }
 
