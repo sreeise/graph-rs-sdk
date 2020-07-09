@@ -4,16 +4,19 @@ use crate::http::{
 };
 use crate::url::GraphUrl;
 use crate::GRAPH_URL;
+use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult};
+use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{redirect::Policy, Method};
-use serde::export::Formatter;
+use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use url::Url;
+use serde::export::PhantomData;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum GraphRequestType {
@@ -32,7 +35,7 @@ pub trait RequestClient: Debug + AsRef<GraphUrl> + AsMut<GraphUrl> {
     type Body: From<String> + From<Vec<u8>> + From<&'static [u8]> + From<&'static str>;
     type Form;
 
-    fn token(&mut self) -> &String;
+    fn token(&mut self) -> String;
     fn set_token(&mut self, token: &str) -> &mut Self;
     fn ident(&self) -> Ident;
     fn set_ident(&mut self, ident: Ident) -> &mut Self;
@@ -70,7 +73,7 @@ pub struct GraphRequest<Client, Body, Form> {
 }
 
 impl<Client, Body, Form> Debug for GraphRequest<Client, Body, Form> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("GraphRequest")
             .field("ident", &self.ident)
             .field("url", &self.url)
@@ -102,8 +105,8 @@ where
     type Body = Body;
     type Form = Form;
 
-    fn token(&mut self) -> &String {
-        &self.token
+    fn token(&mut self) -> String {
+        self.token.clone()
     }
 
     fn set_token(&mut self, token: &str) -> &mut Self {
@@ -465,5 +468,512 @@ impl Default for AsyncClient {
 impl From<Url> for AsyncClient {
     fn from(url: Url) -> Self {
         AsyncClient::new_async(GraphUrl::from(url))
+    }
+}
+
+pub struct HttpClient<'a, Client, Registry> {
+    client: Client,
+    registry: Registry,
+    phantom: PhantomData<&'a Client>
+}
+
+impl<'a> HttpClient<'a, RefCell<BlockingClient>, RefCell<Handlebars>> {
+    pub fn new(url: GraphUrl) -> HttpClient<'a, RefCell<BlockingClient>, RefCell<Handlebars>> {
+        HttpClient {
+            client: RefCell::new(BlockingClient::new_blocking(url)),
+            registry: RefCell::new(Handlebars::new()),
+            phantom: PhantomData
+        }
+    }
+
+    /*
+    pub(crate) fn request(&self) -> RefMut<BlockingClient> {
+        self.client.borrow_mut()
+    }
+
+    pub(crate) fn registry(&self) -> RefMut<Handlebars>  {
+        self.registry.borrow_mut()
+    }
+     */
+
+/*
+    fn token(&'a self) -> String {
+        self.client.borrow().token.clone()
+    }
+
+    fn set_token(&'a self, token: &str) -> &'a Self {
+        self.client.borrow_mut().token = token.to_string();
+        self
+    }
+
+    fn ident(&'a self) -> Ident {
+        self.client.borrow().ident
+    }
+
+    fn set_ident(&'a self, ident: Ident) -> &'a Self {
+        self.client.borrow_mut().ident = ident;
+        self
+    }
+
+    fn url(&'a self) -> &'a GraphUrl {
+        &self.client.borrow().url
+    }
+
+    fn to_url(&'a self) -> Url {
+        self.client.borrow_mut().url.to_url()
+    }
+
+    fn set_url(&'a self, url: GraphUrl) -> &'a Self {
+        self.client.borrow_mut().url = url;
+        self
+    }
+
+    fn method(&'a self) -> &'a Method {
+        &self.client.borrow_mut().method
+    }
+
+    fn set_method(&'a self, method: Method) -> &'a Self {
+        self.client.borrow_mut().method = method;
+        self
+    }
+
+    fn body(&'a self) -> Option<&'a reqwest::blocking::Body> {
+        self.client.borrow_mut().body.as_ref()
+    }
+
+    fn set_body(&'a self, body: impl Into<reqwest::blocking::Body>) -> &'a Self {
+        self.client.borrow_mut().body = Some(body.into());
+        self
+    }
+
+    fn set_body_with_file<P: AsRef<Path>>(&'a self, path: P) -> GraphResult<()> {
+        let mut file = File::open(path.as_ref())?;
+        let mut buffer = String::new();
+        file.read_to_string(&mut buffer)?;
+        self.set_body(buffer);
+        Ok(())
+    }
+
+    fn headers(&'a self) -> &'a HeaderMap<HeaderValue> {
+        &self.client.borrow().headers
+    }
+
+    fn header(&'a self, name: impl IntoHeaderName, value: HeaderValue) -> &'a Self {
+        self.client.borrow_mut().headers.insert(name, value);
+        self
+    }
+
+    fn set_header_map(&'a self, header_map: HeaderMap) -> &'a Self {
+        self.client.borrow_mut().headers = header_map;
+        self
+    }
+
+    fn clear_headers(&'a self) -> &'a Self {
+        self.client.borrow_mut().headers.clear();
+        self
+    }
+
+
+    fn set_download_dir<P: AsRef<Path>>(&mut self, dir: P) -> &mut Self {
+        self.download_dir = Some(dir.as_ref().to_path_buf());
+        self
+    }
+
+    fn set_upload_session<P: AsRef<Path>>(&mut self, file: P) -> &mut Self {
+        self.upload_session_file = Some(file.as_ref().to_path_buf());
+        self
+    }
+
+    fn set_form(&mut self, form: reqwest::multipart::Form) -> &mut Self {
+        self.form = Some(form);
+        self.req_type = GraphRequestType::Multipart;
+        self
+    }
+
+    fn set_request_type(&mut self, req_type: GraphRequestType) -> &mut Self {
+        self.req_type = req_type;
+        self
+    }
+
+    fn request_type(&self) -> GraphRequestType {
+        self.req_type
+    }
+ */
+}
+
+impl<'a> HttpClient<'a, std::sync::Arc<tokio::sync::Mutex<AsyncClient>>, std::sync::Arc<tokio::sync::Mutex<Handlebars>>> {
+    pub fn new(url: GraphUrl) -> HttpClient<'a, std::sync::Arc<tokio::sync::Mutex<AsyncClient>>, std::sync::Arc<tokio::sync::Mutex<Handlebars>>> {
+        HttpClient {
+            client: std::sync::Arc::new(tokio::sync::Mutex::new(AsyncClient::new_async(url))),
+            registry: std::sync::Arc::new(tokio::sync::Mutex::new(Handlebars::new())),
+            phantom: PhantomData
+        }
+    }
+
+/*
+    async fn token(&'a self) -> String {
+        self.client.lock().await.token.clone()
+    }
+
+    async fn set_token(&'a self, token: &str) -> &'a Self {
+        self.client.lock().await.token = token.to_string();
+        self
+    }
+
+    async fn ident(&'a self) -> Ident {
+        self.client.lock().await.ident
+    }
+
+    async fn set_ident(&'a self, ident: Ident) -> &'a Self {
+        self.client.lock().await.ident = ident;
+        self
+    }
+
+    async fn url(&'a self) -> GraphUrl {
+        self.client.lock().await.url.clone()
+    }
+
+    async fn to_url(&'a self) -> Url {
+        self.client.lock().await.url.to_url()
+    }
+
+    async fn set_url(&'a self, url: GraphUrl) -> &'a Self {
+        self.client.lock().await.url = url;
+        self
+    }
+
+    async fn method(&'a self) -> Method {
+        self.client.lock().await.method.clone()
+    }
+
+    async fn set_method(&'a self, method: Method) -> &'a Self {
+        self.client.lock().await.method = method;
+        self
+    }
+
+    async fn set_body<T: Into<reqwest::Body> + Sync + Send>(&'a self, body: T) -> &'a Self {
+        self.client.lock().await.body = Some(body.into());
+        self
+    }
+
+    async fn set_body_with_file(&'a self, path: &str) -> GraphResult<()> {
+        let buffer = tokio::fs::read_to_string(path).await?;
+        self.set_body(buffer).await;
+        Ok(())
+    }
+
+    async fn header<T: IntoHeaderName + Sync + Send>(
+        &'a self,
+        name: T,
+        value: HeaderValue,
+    ) -> &'a Self {
+        self.client.lock().await.headers.insert(name, value);
+        self
+    }
+
+    async fn set_header_map(&'a self, header_map: HeaderMap) -> &'a Self {
+        self.client.lock().await.headers = header_map;
+        self
+    }
+
+    async fn clear_headers(&'a self) -> &'a Self {
+        self.client.lock().await.headers.clear();
+        self
+    }
+
+    async fn set_download_dir<P: AsRef<Path> + Sync + Send>(&'a self, dir: P) -> &'a Self {
+        self.client.lock().await.download_dir = Some(dir.as_ref().to_path_buf());
+        self
+    }
+
+    async fn set_upload_session<P: AsRef<Path> + Sync + Send>(&'a self, file: P) -> &'a Self {
+        self.client.lock().await.upload_session_file = Some(file.as_ref().to_path_buf());
+        self
+    }
+
+    async fn set_form(&'a self, form: reqwest::multipart::Form) -> &'a Self {
+        let mut inner = self.client.lock().await;
+        inner.form = Some(form);
+        inner.req_type = GraphRequestType::Multipart;
+        self
+    }
+
+    async fn set_request_type(&'a self, req_type: GraphRequestType) -> &'a Self {
+        self.client.lock().await.req_type = req_type;
+        self
+    }
+
+    async fn request_type(&'a self) -> GraphRequestType {
+        self.client.lock().await.req_type
+    }
+ */
+}
+
+
+pub trait SyncRequestClient<'a> {
+    type Body: From<String> + From<Vec<u8>> + From<&'static [u8]> + From<&'static str>;
+    type Form;
+
+    fn token(&'a self) -> String;
+    fn set_token(&'a self, token: &str) -> &'a Self;
+    fn ident(&'a self) -> Ident;
+    fn set_ident(&'a self, ident: Ident) -> &'a Self;
+    fn url(&'a self) -> GraphUrl;
+    fn to_url(&'a self) -> Url;
+    fn set_url(&'a self, url: GraphUrl) -> &'a Self;
+    fn method(&'a self) -> Method;
+    fn set_method(&'a self, method: Method) -> &'a Self;
+    fn set_body<T: Into<Self::Body>>(&'a self, body: T) -> &'a Self;
+    fn set_body_with_file<P: AsRef<Path>>(&'a self, path: P) -> GraphResult<()>;
+    fn header<T: IntoHeaderName>(
+        &'a self,
+        name: T,
+        value: HeaderValue,
+    ) -> &'a Self;
+    fn set_header_map(&'a self, header_map: HeaderMap) -> &'a Self;
+    fn clear_headers(&'a self) -> &'a Self;
+    fn set_download_dir<P: AsRef<Path>>(&'a self, dir: P) -> &'a Self;
+    fn set_upload_session<P: AsRef<Path>>(&'a self, file: P) -> &'a Self;
+    fn set_form(&'a self, form: Self::Form) -> &'a Self;
+    fn set_request_type(&'a self, req_type: GraphRequestType) -> &'a Self;
+    fn request_type(&'a self) -> GraphRequestType;
+}
+
+#[async_trait]
+pub trait AsyncRequestClient<'a> {
+    type Body: From<String> + From<Vec<u8>> + From<&'static [u8]> + From<&'static str>;
+    type Form;
+
+    async fn token(&'a self) -> String;
+    async fn set_token(&'a self, token: &str) -> &'a Self;
+    async fn ident(&'a self) -> Ident;
+    async fn set_ident(&'a self, ident: Ident) -> &'a Self;
+    async fn url(&'a self) -> GraphUrl;
+    async fn to_url(&'a self) -> Url;
+    async fn set_url(&'a self, url: GraphUrl) -> &'a Self;
+    async fn method(&'a self) -> Method;
+    async fn set_method(&'a self, method: Method) -> &'a Self;
+    async fn set_body<T: Into<Self::Body> + Sync + Send>(&'a self, body: T) -> &'a Self;
+    async fn set_body_with_file(&'a self, path: &str) -> GraphResult<()>;
+    async fn header<T: IntoHeaderName + Send + Sync>(
+        &'a self,
+        name: T,
+        value: HeaderValue,
+    ) -> &'a Self;
+    async fn set_header_map(&'a self, header_map: HeaderMap) -> &'a Self;
+    async fn clear_headers(&'a self) -> &'a Self;
+    async fn set_download_dir<P: AsRef<Path> + Sync + Send>(&'a self, dir: P) -> &'a Self;
+    async fn set_upload_session<P: AsRef<Path> + Sync + Send>(&'a self, file: P) -> &'a Self;
+    async fn set_form(&'a self, form: Self::Form) -> &'a Self;
+    async fn set_request_type(&'a self, req_type: GraphRequestType) -> &'a Self;
+    async fn request_type(&'a self) -> GraphRequestType;
+}
+
+
+
+#[async_trait]
+impl<'a> AsyncRequestClient<'a>
+    for HttpClient<
+        'a,
+        std::sync::Arc<tokio::sync::Mutex<AsyncClient>>,
+        std::sync::Arc<tokio::sync::Mutex<Handlebars>>,
+    >
+{
+    type Body = reqwest::Body;
+    type Form = reqwest::multipart::Form;
+
+    async fn token(&'a self) -> String {
+        self.client.lock().await.token.clone()
+    }
+
+    async fn set_token(&'a self, token: &str) -> &'a Self {
+        self.client.lock().await.token = token.to_string();
+        self
+    }
+
+    async fn ident(&'a self) -> Ident {
+        self.client.lock().await.ident
+    }
+
+    async fn set_ident(&'a self, ident: Ident) -> &'a Self {
+        self.client.lock().await.ident = ident;
+        self
+    }
+
+    async fn url(&'a self) -> GraphUrl {
+        self.client.lock().await.url.clone()
+    }
+
+    async fn to_url(&'a self) -> Url {
+        self.client.lock().await.url.to_url()
+    }
+
+    async fn set_url(&'a self, url: GraphUrl) -> &'a Self {
+        self.client.lock().await.url = url;
+        self
+    }
+
+    async fn method(&'a self) -> Method {
+        self.client.lock().await.method.clone()
+    }
+
+    async fn set_method(&'a self, method: Method) -> &'a Self {
+        self.client.lock().await.method = method;
+        self
+    }
+
+    async fn set_body<T: Into<Self::Body> + Sync + Send>(&'a self, body: T) -> &'a Self {
+        self.client.lock().await.body = Some(body.into());
+        self
+    }
+
+    async fn set_body_with_file(&'a self, path: &str) -> GraphResult<()> {
+        let buffer = tokio::fs::read_to_string(path).await?;
+        self.set_body(buffer).await;
+        Ok(())
+    }
+
+    async fn header<T: IntoHeaderName + Sync + Send>(
+        &'a self,
+        name: T,
+        value: HeaderValue,
+    ) -> &'a Self {
+        self.client.lock().await.headers.insert(name, value);
+        self
+    }
+
+    async fn set_header_map(&'a self, header_map: HeaderMap) -> &'a Self {
+        self.client.lock().await.headers = header_map;
+        self
+    }
+
+    async fn clear_headers(&'a self) -> &'a Self {
+        self.client.lock().await.headers.clear();
+        self
+    }
+
+    async fn set_download_dir<P: AsRef<Path> + Sync + Send>(&'a self, dir: P) -> &'a Self {
+        self.client.lock().await.download_dir = Some(dir.as_ref().to_path_buf());
+        self
+    }
+
+    async fn set_upload_session<P: AsRef<Path> + Sync + Send>(&'a self, file: P) -> &'a Self {
+        self.client.lock().await.upload_session_file = Some(file.as_ref().to_path_buf());
+        self
+    }
+
+    async fn set_form(&'a self, form: Self::Form) -> &'a Self {
+        let mut inner = self.client.lock().await;
+        inner.form = Some(form);
+        inner.req_type = GraphRequestType::Multipart;
+        self
+    }
+
+    async fn set_request_type(&'a self, req_type: GraphRequestType) -> &'a Self {
+        self.client.lock().await.req_type = req_type;
+        self
+    }
+
+    async fn request_type(&'a self) -> GraphRequestType {
+        self.client.lock().await.req_type
+    }
+}
+
+impl<'a> SyncRequestClient<'a> for HttpClient<'a, RefCell<BlockingClient>, RefCell<Handlebars>> {
+    type Body = reqwest::blocking::Body;
+    type Form = reqwest::blocking::multipart::Form;
+
+    fn token(&'a self) -> String {
+        self.client.borrow().token.clone()
+    }
+
+    fn set_token(&'a self, token: &str) -> &'a Self {
+        self.client.borrow_mut().token = token.to_string();
+        self
+    }
+
+    fn ident(&'a self) -> Ident {
+        self.client.borrow().ident
+    }
+
+    fn set_ident(&'a self, ident: Ident) -> &'a Self {
+        self.client.borrow_mut().ident = ident;
+        self
+    }
+
+    fn url(&'a self) -> GraphUrl {
+        self.client.borrow().url.clone()
+    }
+
+    fn to_url(&'a self) -> Url {
+        self.client.borrow_mut().url.to_url()
+    }
+
+    fn set_url(&'a self, url: GraphUrl) -> &'a Self {
+        self.client.borrow_mut().url = url;
+        self
+    }
+
+    fn method(&'a self) -> Method {
+        self.client.borrow().method.clone()
+    }
+
+    fn set_method(&'a self, method: Method) -> &'a Self {
+        self.client.borrow_mut().method = method;
+        self
+    }
+
+    fn set_body<T: Into<Self::Body>>(&'a self, body: T) -> &'a Self {
+        self.client.borrow_mut().body = Some(body.into());
+        self
+    }
+
+    fn set_body_with_file<P: AsRef<Path>>(&'a self, path: P) -> GraphResult<()> {
+        let mut file = File::open(path.as_ref())?;
+        let mut buffer = String::new();
+        file.read_to_string(&mut buffer)?;
+        self.set_body(buffer);
+        Ok(())
+    }
+
+    fn header<T: IntoHeaderName>(&'a self, name: T, value: HeaderValue) -> &'a Self {
+        self.client.borrow_mut().headers.insert(name, value);
+        self
+    }
+
+    fn set_header_map(&'a self, header_map: HeaderMap) -> &'a Self {
+        self.client.borrow_mut().headers = header_map;
+        self
+    }
+
+    fn clear_headers(&'a self) -> &'a Self {
+        self.client.borrow_mut().headers.clear();
+        self
+    }
+
+    fn set_download_dir<P: AsRef<Path>>(&'a self, dir: P) -> &'a Self {
+        self.client.borrow_mut().download_dir = Some(dir.as_ref().to_path_buf());
+        self
+    }
+
+    fn set_upload_session<P: AsRef<Path>>(&'a self, file: P) -> &'a Self {
+        self.client.borrow_mut().upload_session_file = Some(file.as_ref().to_path_buf());
+        self
+    }
+
+    fn set_form(&'a self, form: Self::Form) -> &'a Self {
+        let mut inner = self.client.borrow_mut();
+        inner.form = Some(form);
+        inner.req_type = GraphRequestType::Multipart;
+        self
+    }
+
+    fn set_request_type(&'a self, req_type: GraphRequestType) -> &'a Self {
+        self.client.borrow_mut().req_type = req_type;
+        self
+    }
+
+    fn request_type(&'a self) -> GraphRequestType {
+        self.client.borrow().req_type
     }
 }

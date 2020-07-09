@@ -73,6 +73,10 @@ impl GraphUrl {
         self.url.clone()
     }
 
+    pub fn to_reqwest_url(&self) -> reqwest::Url {
+        reqwest::Url::parse(self.as_str()).unwrap()
+    }
+
     pub fn query_pairs_mutable(&mut self) -> Serializer<UrlQuery> {
         self.url.query_pairs_mut()
     }
