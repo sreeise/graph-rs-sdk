@@ -53,6 +53,8 @@
 //!
 //! ```
 
+#![feature(type_alias_impl_trait)]
+
 pub extern crate from_as;
 extern crate graph_error;
 extern crate graph_oauth;
