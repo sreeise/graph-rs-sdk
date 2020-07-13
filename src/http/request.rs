@@ -9,7 +9,6 @@ use graph_error::{GraphFailure, GraphResult};
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{redirect::Policy, Method};
-use serde::export::PhantomData;
 use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::fmt::Debug;
@@ -739,6 +738,8 @@ pub trait SyncRequestClient {
     fn set_form(&self, form: Self::Form);
     fn set_request_type(&self, req_type: GraphRequestType);
     fn request_type(&self) -> GraphRequestType;
+    fn url_ref<F>(&self, f: F) where F: Fn(&GraphUrl);
+    fn url_mut<F>(&self, f: F) where F: Fn(&mut GraphUrl);
 }
 
 #[async_trait]
@@ -765,6 +766,8 @@ pub trait AsyncRequestClient {
     async fn set_form(&self, form: Self::Form);
     async fn set_request_type(&self, req_type: GraphRequestType);
     async fn request_type(&self) -> GraphRequestType;
+    async fn url_ref<F>(&self, f: F) where F: Fn(&GraphUrl) + Send + Sync;
+    async fn url_mut<F>(&self, f: F) where F: Fn(&mut GraphUrl) + Send + Sync;
 }
 
 #[async_trait]
@@ -856,6 +859,14 @@ impl AsyncRequestClient
     async fn request_type(&self) -> GraphRequestType {
         self.client.lock().await.req_type
     }
+
+    async fn url_ref<F>(&self, f: F) where F: Fn(&GraphUrl) + Send + Sync {
+        f(&self.client.lock().await.url)
+    }
+
+    async fn url_mut<F>(&self, f: F) where F: Fn(&mut GraphUrl) + Send + Sync {
+        f(&mut self.client.lock().await.url)
+    }
 }
 
 impl SyncRequestClient for HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>> {
@@ -942,5 +953,13 @@ impl SyncRequestClient for HttpClient<RefCell<BlockingClient>, RefCell<Handlebar
 
     fn request_type(&self) -> GraphRequestType {
         self.client.borrow().req_type
+    }
+
+    fn url_ref<F>(&self, f: F) where F: Fn(&GraphUrl) {
+        f(&self.client.borrow().url)
+    }
+
+    fn url_mut<F>(&self, f: F) where F: Fn(&mut GraphUrl) {
+        f(&mut self.client.borrow_mut().url)
     }
 }
