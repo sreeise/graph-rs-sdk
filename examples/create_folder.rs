@@ -1,8 +1,5 @@
-use from_as::*;
-use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
 use std::collections::HashMap;
-use std::convert::TryFrom;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static FOLDER_NAME: &str = "NEW_FOLDER_NAME";

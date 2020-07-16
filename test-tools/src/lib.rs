@@ -16,7 +16,7 @@ pub mod support;
 pub use files::FileUtils;
 
 use graph_rs::client::Graph;
-use graph_rs::http::{BlockingHttpClient, RequestClient};
+use graph_rs::http::BlockingHttpClient;
 use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
 
 pub fn assert_url_eq<T: AsRef<str>>(client: &Graph<BlockingHttpClient>, path: T) {

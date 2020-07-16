@@ -1,7 +1,7 @@
 use crate::client::Graph;
 use crate::http::{
-    AsyncClient, AsyncDownload, AsyncHttpClient, BlockingClient, BlockingDownload,
-    BlockingHttpClient, GraphRequestType, GraphResponse, IntoResponse, RequestClient,
+    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, GraphRequestType,
+    GraphResponse, IntoResponse, RequestClient,
 };
 use crate::types::collection::Collection;
 use crate::types::content::Content;

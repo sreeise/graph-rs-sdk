@@ -1,7 +1,5 @@
 use crate::graph_error::AsRes;
-use crate::http::{
-    AsyncClient, BaseRequestClient, BlockingClient, GraphRequestType, IoTools, RequestClient,
-};
+use crate::http::{AsyncClient, BaseRequestClient, BlockingClient, GraphRequestType, IoTools};
 use crate::url::GraphUrl;
 use graph_error::{GraphFailure, GraphResult, GraphRsError};
 use reqwest::{blocking::Response, Method};

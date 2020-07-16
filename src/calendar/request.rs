@@ -43,7 +43,7 @@ where
         start_date_time: &str,
         end_date_time: &str,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
-        let mut request = self.client.request();
+        let request = self.client.request();
         request.set_method(Method::GET);
         request.url_mut(|url| {
             url.extend_path(&["calendar", "calendarView"]);
@@ -59,7 +59,7 @@ where
         start_date_time: &str,
         end_date_time: &str,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
-        let mut request = self.client.request();
+        let request = self.client.request();
         request.set_method(Method::GET);
         request.url_mut(|url| {
             url.extend_path(&["calendars", id, "calendarView"]);
@@ -75,7 +75,7 @@ where
         start_date_time: &str,
         end_date_time: &str,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
-        let mut request = self.client.request();
+        let request = self.client.request();
         request.set_method(Method::GET);
         request.url_mut(|url| {
             url.extend_path(&["calendarGroup", "calendars", calendar_id, "calendarView"]);
@@ -92,7 +92,7 @@ where
         start_date_time: &str,
         end_date_time: &str,
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
-        let mut request = self.client.request();
+        let request = self.client.request();
         request.set_method(Method::GET);
         request.url_mut(|url| {
             url.extend_path(&[
