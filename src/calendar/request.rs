@@ -45,10 +45,11 @@ where
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         let mut request = self.client.request();
         request.set_method(Method::GET);
-        let url = request.as_mut();
-        url.extend_path(&["calendar", "calendarView"]);
-        url.append_query_pair("startDateTime", start_date_time);
-        url.append_query_pair("endDateTime", end_date_time);
+        request.url_mut(|url| {
+            url.extend_path(&["calendar", "calendarView"]);
+            url.append_query_pair("startDateTime", start_date_time);
+            url.append_query_pair("endDateTime", end_date_time);
+        });
         IntoResponse::new(self.client)
     }
 
@@ -60,10 +61,11 @@ where
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         let mut request = self.client.request();
         request.set_method(Method::GET);
-        let url = request.as_mut();
-        url.extend_path(&["calendars", id, "calendarView"]);
-        url.append_query_pair("startDateTime", start_date_time);
-        url.append_query_pair("endDateTime", end_date_time);
+        request.url_mut(|url| {
+            url.extend_path(&["calendars", id, "calendarView"]);
+            url.append_query_pair("startDateTime", start_date_time);
+            url.append_query_pair("endDateTime", end_date_time);
+        });
         IntoResponse::new(self.client)
     }
 
@@ -75,10 +77,11 @@ where
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         let mut request = self.client.request();
         request.set_method(Method::GET);
-        let url = request.as_mut();
-        url.extend_path(&["calendarGroup", "calendars", calendar_id, "calendarView"]);
-        url.append_query_pair("startDateTime", start_date_time);
-        url.append_query_pair("endDateTime", end_date_time);
+        request.url_mut(|url| {
+            url.extend_path(&["calendarGroup", "calendars", calendar_id, "calendarView"]);
+            url.append_query_pair("startDateTime", start_date_time);
+            url.append_query_pair("endDateTime", end_date_time);
+        });
         IntoResponse::new(self.client)
     }
 
@@ -91,16 +94,17 @@ where
     ) -> IntoResponse<'a, Collection<serde_json::Value>, Client> {
         let mut request = self.client.request();
         request.set_method(Method::GET);
-        let url = request.as_mut();
-        url.extend_path(&[
-            "calendarGroup",
-            calendar_group_id,
-            "calendars",
-            calendar_id,
-            "calendarView",
-        ]);
-        url.append_query_pair("startDateTime", start_date_time);
-        url.append_query_pair("endDateTime", end_date_time);
+        request.url_mut(|url| {
+            url.extend_path(&[
+                "calendarGroup",
+                calendar_group_id,
+                "calendars",
+                calendar_id,
+                "calendarView",
+            ]);
+            url.append_query_pair("startDateTime", start_date_time);
+            url.append_query_pair("endDateTime", end_date_time);
+        });
         IntoResponse::new(self.client)
     }
 }

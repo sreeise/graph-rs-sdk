@@ -6,7 +6,8 @@ use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
 };
 use crate::http::{
-    AsyncClient, BlockingClient, GraphRequest, GraphResponse, IntoResponse, RequestClient,
+    AsyncClient, AsyncHttpClient, BlockingClient, BlockingHttpClient, GraphRequest, GraphResponse,
+    IntoResponse, RequestClient,
 };
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
@@ -52,8 +53,7 @@ impl Default for Ident {
 }
 
 pub struct Graph<Client> {
-    request: RefCell<Client>,
-    registry: RefCell<Handlebars>,
+    request: Client,
 }
 
 impl<'a, Client> Graph<Client>
@@ -61,63 +61,49 @@ where
     Client: crate::http::RequestClient,
 {
     pub fn v1(&'a self) -> Identify<'a, Client> {
-        self.request()
-            .set_url(GraphUrl::from_str(GRAPH_URL).unwrap());
+        self.request.set_url(GraphUrl::from_str(GRAPH_URL).unwrap());
         Identify { client: &self }
     }
 
     /// Use the Graph beta API
     pub fn beta(&'a self) -> Identify<'a, Client> {
-        self.request()
+        self.request
             .set_url(GraphUrl::from_str(GRAPH_URL_BETA).unwrap());
         Identify { client: &self }
     }
 
     /// Check if the current host is v1.0.
     pub fn is_v1(&self) -> bool {
-        self.request.borrow().url().as_str().starts_with(GRAPH_URL)
+        self.request.url().as_str().starts_with(GRAPH_URL)
     }
 
     /// Check if the current host is beta.
     pub fn is_beta(&self) -> bool {
-        self.request
-            .borrow()
-            .url()
-            .as_str()
-            .starts_with(GRAPH_URL_BETA)
+        self.request.url().as_str().starts_with(GRAPH_URL_BETA)
     }
 
     pub fn ident(&self) -> Ident {
-        self.request.borrow().ident()
+        self.request.ident()
     }
 
     /// Set the access token used for requests.
     pub fn set_token(&self, token: &str) {
-        self.request().set_token(token);
+        self.request.set_token(token);
     }
 
-    pub(crate) fn registry(&self) -> RefMut<Handlebars> {
-        self.registry.borrow_mut()
+    pub(crate) fn request(&self) -> &Client {
+        &self.request
     }
 
-    pub fn url_ref<F>(&self, f: F)
-    where
-        F: Fn(&GraphUrl),
-    {
-        f(&self.request.borrow().as_ref())
-    }
-
-    pub(crate) fn request(&self) -> RefMut<Client> {
-        self.request.borrow_mut()
-    }
-
+    /*
     pub fn debug_request(&self) {
-        println!("{:#?}", self.request.borrow());
+        println!("{:#?}", self.request);
     }
+     */
 }
 
-type GraphBlocking = Graph<BlockingClient>;
-type GraphAsync = Graph<AsyncClient>;
+type GraphBlocking = Graph<BlockingHttpClient>;
+type GraphAsync = Graph<AsyncHttpClient>;
 
 impl<'a> GraphBlocking {
     /// Create a new client with an access token.
@@ -138,12 +124,43 @@ impl<'a> GraphBlocking {
     ///     .json()?;
     /// ```
     pub fn new(token: &str) -> GraphBlocking {
-        let mut request = GraphRequest::new_blocking(GraphUrl::from_str(GRAPH_URL).unwrap());
+        let mut request = BlockingHttpClient::new(GraphUrl::from_str(GRAPH_URL).unwrap());
         request.set_token(token);
-        Graph {
-            request: RefCell::new(request),
-            registry: RefCell::new(Handlebars::new()),
-        }
+        Graph { request }
+    }
+
+    pub fn url_ref<F>(&self, f: F)
+    where
+        F: Fn(&GraphUrl),
+    {
+        self.request.inner_url_ref(f)
+    }
+}
+
+impl From<&str> for GraphBlocking {
+    fn from(token: &str) -> Self {
+        Graph::new(token)
+    }
+}
+
+impl From<String> for GraphBlocking {
+    fn from(token: String) -> Self {
+        Graph::new(token.as_str())
+    }
+}
+
+impl From<&AccessToken> for GraphBlocking {
+    fn from(token: &AccessToken) -> Self {
+        Graph::new(token.bearer_token())
+    }
+}
+
+impl TryFrom<&OAuth> for GraphBlocking {
+    type Error = GraphFailure;
+
+    fn try_from(oauth: &OAuth) -> Result<Self, Self::Error> {
+        let access_token = oauth.get_access_token()?;
+        Ok(Graph::from(&access_token))
     }
 }
 
@@ -166,44 +183,38 @@ impl<'a> GraphAsync {
     ///     .json()?;
     /// ```
     pub fn new_async(token: &str) -> GraphAsync {
-        let mut request = GraphRequest::new_async(GraphUrl::parse(GRAPH_URL).unwrap());
+        let mut request = AsyncHttpClient::new(GraphUrl::parse(GRAPH_URL).unwrap());
         request.set_token(token);
-        Graph {
-            request: RefCell::new(request),
-            registry: RefCell::new(Handlebars::new()),
-        }
+        Graph { request }
+    }
+
+    pub fn url_ref<F>(&self, f: F)
+    where
+        F: Fn(&GraphUrl) + Sync,
+    {
+        self.request.url_ref(f)
     }
 }
 
-impl From<&str> for Graph<BlockingClient> {
+impl From<&str> for GraphAsync {
     fn from(token: &str) -> Self {
-        Graph::new(token)
+        Graph::new_async(token)
     }
 }
 
-impl From<String> for Graph<BlockingClient> {
+impl From<String> for GraphAsync {
     fn from(token: String) -> Self {
-        let mut request = GraphRequest::new_blocking(GraphUrl::parse(GRAPH_URL).unwrap());
-        request.set_token(&token);
-        Graph {
-            request: RefCell::new(request),
-            registry: RefCell::new(Handlebars::new()),
-        }
+        Graph::new_async(token.as_str())
     }
 }
 
-impl From<&AccessToken> for Graph<BlockingClient> {
+impl From<&AccessToken> for GraphAsync {
     fn from(token: &AccessToken) -> Self {
-        let mut request = GraphRequest::new_blocking(GraphUrl::parse(GRAPH_URL).unwrap());
-        request.set_token(token.bearer_token());
-        Graph {
-            request: RefCell::new(request),
-            registry: RefCell::new(Handlebars::new()),
-        }
+        Graph::new_async(token.bearer_token())
     }
 }
 
-impl TryFrom<&OAuth> for Graph<BlockingClient> {
+impl TryFrom<&OAuth> for GraphAsync {
     type Error = GraphFailure;
 
     fn try_from(oauth: &OAuth) -> Result<Self, Self::Error> {
@@ -222,25 +233,25 @@ where
 {
     /// Select the me endpoint.
     pub fn me(&self) -> IdentMe<'a, Client> {
-        self.client.request().set_ident(Ident::Me);
+        self.client.request.set_ident(Ident::Me);
         IdentMe::new("", self.client)
     }
 
     /// Select the drives endpoint.
     pub fn drives<S: AsRef<str>>(&self, id: S) -> IdentDrives<'a, Client> {
-        self.client.request().set_ident(Ident::Drives);
+        self.client.request.set_ident(Ident::Drives);
         IdentDrives::new(id.as_ref(), self.client)
     }
 
     /// Select the sites endpoint.
     pub fn sites<S: AsRef<str>>(&self, id: S) -> IdentSites<'a, Client> {
-        self.client.request().set_ident(Ident::Sites);
+        self.client.request.set_ident(Ident::Sites);
         IdentSites::new(id.as_ref(), self.client)
     }
 
     /// Select the groups endpoint.
     pub fn groups<S: AsRef<str>>(&self, id: S) -> IdentGroups<'a, Client> {
-        self.client.request().set_ident(Ident::Groups);
+        self.client.request.set_ident(Ident::Groups);
         IdentGroups::new(id.as_ref(), self.client)
     }
 
@@ -254,7 +265,7 @@ where
 
     /// Select the users endpoint.
     pub fn users<S: AsRef<str>>(&self, id: S) -> IdentUsers<'a, Client> {
-        self.client.request().set_ident(Ident::Users);
+        self.client.request.set_ident(Ident::Users);
         IdentUsers::new(id.as_ref(), self.client)
     }
 
@@ -262,11 +273,15 @@ where
         &self,
         batch: &B,
     ) -> IntoResponse<'a, DeltaRequest<serde_json::Value>, Client> {
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .header(ACCEPT, HeaderValue::from_static("application/json"))
-            .set_body(serde_json::to_string(batch).unwrap());
+        let client = self.client.request();
+        client.set_method(Method::POST);
+        client.header(ACCEPT, HeaderValue::from_static("application/json"));
+        let body = serde_json::to_string(batch).map_err(GraphFailure::from);
+        if let Err(err) = body {
+            return IntoResponse::new_error(self.client, err);
+        } else if let Ok(body) = body {
+            client.set_body(body);
+        }
         render_path!(self.client, "$batch", &serde_json::json!({}));
         IntoResponse::new(self.client)
     }

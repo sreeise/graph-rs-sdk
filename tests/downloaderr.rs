@@ -1,4 +1,5 @@
 use graph_rs::error::*;
+use graph_rs::http::BlockingHttpClient;
 use graph_rs::prelude::*;
 use test_tools::oauthrequest::OAuthRequest;
 use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
@@ -24,7 +25,7 @@ fn download_config_file_exists() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock();
     OAuthRequest::access_token_fn(|t| {
         if let Some((id, bearer)) = t {
-            let client = Graph::from(bearer);
+            let client = Graph::<BlockingHttpClient>::from(bearer);
 
             let download_client = client
                 .v1()

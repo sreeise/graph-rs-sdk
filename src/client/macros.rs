@@ -11,8 +11,9 @@ macro_rules! register_client {
             pub fn new(client: &'a Graph<Client>) -> $name<'a, Client> {
 
                 $(
-                    client.registry()
-                        .register_helper(stringify!($helper), Box::new($helper));
+                    client.request().registry(|r| {
+                        r.register_helper(stringify!($helper), Box::new($helper));
+                    });
                 )*
 
                 $name {
@@ -31,24 +32,26 @@ macro_rules! register_client {
             pub fn new(client: &'a Graph<Client>) -> $name<'a, Client> {
                 let ident = client.ident();
                 $(
-                    client.registry().register_helper(
-                        stringify!($helper),
-                        Box::new(
-                            move |_: &Helper,
-                                _: &Handlebars,
-                                _: &Context,
-                                _: &mut RenderContext,
-                                out: &mut dyn Output|
-                            -> HelperResult {
-                                if ident.ne(&$identity) {
-                                    out.write($value)?;
-                                } else {
-                                    out.write($value2)?;
-                                }
-                                Ok(())
-                            },
-                        ),
-                    );
+                    client.request().registry(|r| {
+                        r.register_helper(
+                            stringify!($helper),
+                            Box::new(
+                                move |_: &Helper,
+                                    _: &Handlebars,
+                                    _: &Context,
+                                    _: &mut RenderContext,
+                                    out: &mut dyn Output|
+                                -> HelperResult {
+                                    if ident.ne(&$identity) {
+                                        out.write($value)?;
+                                    } else {
+                                        out.write($value2)?;
+                                    }
+                                    Ok(())
+                                },
+                            ),
+                        );
+                    });
                 )*
 
                 $name {
@@ -71,12 +74,14 @@ macro_rules! register_ident_client {
         impl<'a, Client> $name<'a, Client,> where Client: crate::http::RequestClient  {
             pub fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
                 $(
-                    client.registry()
-                        .register_helper(stringify!($helper), Box::new($helper));
+                    client.request().registry(|r| {
+                        r.register_helper(stringify!($helper), Box::new($helper));
+                    });
                 )*
-                let id_string = id.to_string();
-                client.registry()
-                    .register_helper("RID",
+
+                client.request().registry(|r| {
+                    let id_string = id.to_string();
+                    r.register_helper("RID",
                     Box::new(move |
                         _: &Helper,
                         _: &Handlebars,
@@ -87,6 +92,7 @@ macro_rules! register_ident_client {
                             out.write(&id_string)?;
                             Ok(())
                     }));
+                });
 
                 $name {
                     client,
@@ -106,12 +112,12 @@ macro_rules! register_ident_client {
         impl<'a, Client> $name<'a, Client> where Client: crate::http::RequestClient {
             pub fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
                 $(
-                    client.registry()
+                    client.request().registry()
                         .register_helper(stringify!($helper), Box::new($helper));
                 )*
-                let id_string = id.to_string();
-                client.registry()
-                    .register_helper("RID",
+                client.request().registry(|r| {
+                    let id_string = id.to_string();
+                    r.register_helper("RID",
                     Box::new(move |
                         _: &Helper,
                         _: &Handlebars,
@@ -122,6 +128,7 @@ macro_rules! register_ident_client {
                             out.write(&id_string)?;
                             Ok(())
                     }));
+                });
 
                 $name {
                     client,
@@ -134,12 +141,11 @@ macro_rules! register_ident_client {
                 if self.client.ident().eq(&Ident::Me) {
                     self.client
                         .request()
-                        .as_mut()
                         .extend_path(&[ident.as_ref()]);
+
                 } else {
-                    self.client
+                   self.client
                         .request()
-                        .as_mut()
                         .extend_path(&[ident.as_ref(), self.id.as_str()]);
                 }
             }
@@ -197,33 +203,32 @@ macro_rules! register_helper {
 macro_rules! render_path {
     ($client:expr, $template:expr) => {
         let path = $client
-            .registry()
-            .render_template($template, &serde_json::json!({}))
-            .unwrap();
+            .request()
+            .render_template($template, &serde_json::json!({}));
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $client.request().as_mut().extend_path(&vec);
+        $client.request().url_mut(|url| {
+            url.extend_path(&vec);
+        });
     };
 
     ($client:expr, $template:expr, $json:expr) => {
-        let path = $client
-            .registry()
-            .render_template($template, $json)
-            .unwrap();
+        let path = $client.request().render_template($template, $json);
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
-        $client.request().as_mut().extend_path(&vec);
+        $client.request().url_mut(|url| {
+            url.extend_path(&vec);
+        });
     };
 
     ($client:expr, $template:expr, $json:expr, $last:expr ) => {
-        let path = $client
-            .registry()
-            .render_template($template, $json)
-            .unwrap();
+        let path = $client.request().render_template($template, $json);
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
         vec.extend($last);
-        $client.request().as_mut().extend_path(&vec);
+        $client.request().url_mut(|url| {
+            url.extend_path(&vec);
+        });
     };
 }
 
@@ -311,9 +316,9 @@ macro_rules! register_method {
     ( [ $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<B: serde::Serialize>(&'a self, body: &B) -> IntoResponse<'a, $T, Client>
       {
-        self.client.request()
-            .set_method($m)
-            .set_body(serde_json::to_string_pretty(body).unwrap());
+        let client = self.client.request();
+        client.set_method($m);
+        client.set_body(serde_json::to_string_pretty(body).unwrap());
 
         render_path!(
             self.client,
@@ -326,9 +331,9 @@ macro_rules! register_method {
     ( [ | $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, body: &B) -> IntoResponse<'a, $T, Client>
       {
-        self.client.request()
-            .set_method($m)
-            .set_body(serde_json::to_string_pretty(body).unwrap());
+        let client = self.client.request();
+        client.set_method($m);
+        client.set_body(serde_json::to_string_pretty(body).unwrap());
 
         render_path!(
             self.client,
@@ -342,9 +347,9 @@ macro_rules! register_method {
     ( [ || $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, body: &B) -> IntoResponse<'a, $T, Client>
       {
-        self.client.request()
-            .set_method($m)
-            .set_body(serde_json::to_string_pretty(body).unwrap());
+        let client = self.client.request();
+        client.set_method($m);
+        client.set_body(serde_json::to_string_pretty(body).unwrap());
 
         render_path!(
             self.client,
@@ -358,9 +363,9 @@ macro_rules! register_method {
     ( [ ||| $name:ident, $T:ty => $template:expr, $m:expr ] ) => {
       pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, id: S, id2: S, id3: S, body: &B) -> IntoResponse<'a, $T, Client>
       {
-        self.client.request()
-            .set_method($m)
-            .set_body(serde_json::to_string_pretty(body).unwrap());
+        let client = self.client.request();
+        client.set_method($m);
+        client.set_body(serde_json::to_string_pretty(body).unwrap());
 
         render_path!(
             self.client,
@@ -376,17 +381,36 @@ macro_rules! register_method {
 macro_rules! register_download {
     ( | $name:ident, $T:ty => $template:expr ) => {
       pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
-        let mut request = self.client.request();
-        request.set_method(reqwest::Method::GET)
-            .set_download_dir(directory.as_ref())
-            .set_request_type(GraphRequestType::Redirect);
+        let client = self.client.request();
+        client.set_method(reqwest::Method::GET);
+        client.set_download_dir(directory.as_ref().to_path_buf());
+        client.set_request_type(GraphRequestType::Redirect);
 
         render_path!(
             self.client,
             $template,
             &serde_json::json!({ "id": id.as_ref() })
         );
-        request.download()
+        client.download()
+      }
+    };
+}
+
+#[macro_use]
+macro_rules! register_async_download {
+    ( | $name:ident, $T:ty => $template:expr ) => {
+      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
+        let client = self.client.request();
+        client.set_method(reqwest::Method::GET);
+        client.set_download_dir(directory.as_ref().to_path_buf());
+        client.set_request_type(GraphRequestType::Redirect);
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({ "id": id.as_ref() })
+        );
+        client.download().await
       }
     };
 }
@@ -611,6 +635,13 @@ macro_rules! delete {
 macro_rules! download {
     ( | $name:ident, $T:ty => $template:expr ) => {
         register_download!( | $name, $T => $template );
+    };
+}
+
+#[macro_use]
+macro_rules! async_download {
+    ( | $name:ident, $T:ty => $template:expr ) => {
+        register_async_download!( | $name, $T => $template );
     };
 }
 

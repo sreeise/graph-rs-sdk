@@ -16,16 +16,16 @@ pub mod support;
 pub use files::FileUtils;
 
 use graph_rs::client::Graph;
-use graph_rs::http::RequestClient;
+use graph_rs::http::{BlockingHttpClient, RequestClient};
 use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
 
-pub fn assert_url_eq<Client: RequestClient, T: AsRef<str>>(client: &Graph<Client>, path: T) {
+pub fn assert_url_eq<T: AsRef<str>>(client: &Graph<BlockingHttpClient>, path: T) {
     client.url_ref(|url| {
         assert_eq!(format!("{}{}", GRAPH_URL, path.as_ref()), url.to_string());
     });
 }
 
-pub fn assert_url_beta_eq<Client: RequestClient, T: AsRef<str>>(client: &Graph<Client>, path: T) {
+pub fn assert_url_beta_eq<T: AsRef<str>>(client: &Graph<BlockingHttpClient>, path: T) {
     client.url_ref(|url| {
         assert_eq!(
             format!("{}{}", GRAPH_URL_BETA, path.as_ref()),

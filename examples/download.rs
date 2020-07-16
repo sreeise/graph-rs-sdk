@@ -5,6 +5,7 @@ use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::PathBuf;
 
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static ITEM_ID: &str = "ITEM_ID";
 
 fn main() {
@@ -15,9 +16,7 @@ fn main() {
 }
 
 pub fn download() {
-    // Get the access token from OAuth for the Drive API.
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let client = Graph::try_from(&oauth).unwrap();
+    let client = Graph::new(ACCESS_TOKEN);
 
     // Download the file. The file will be downloaded with the same name.
     let download_client = client
@@ -39,9 +38,7 @@ pub fn download() {
 // For more info on download formats see:
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content_format?view=odsp-graph-online
 pub fn download_and_format(format: &str) {
-    // Get the access token from OAuth for the Drive API.
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let client = Graph::try_from(&oauth).unwrap();
+    let client = Graph::new(ACCESS_TOKEN);
 
     let download_client = client
         .v1()
@@ -56,9 +53,7 @@ pub fn download_and_format(format: &str) {
 }
 
 fn download_and_rename(name: &str) {
-    // Get the access token from OAuth for the Drive API.
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let client = Graph::try_from(&oauth).unwrap();
+    let client = Graph::new(ACCESS_TOKEN);
 
     // Create the download request.
     let download_client = client
@@ -78,7 +73,7 @@ fn download_and_rename(name: &str) {
 // The path should always start with :/ and end with :
 // such as :/Documents/item.txt:
 fn download_by_path(path: &str) {
-    let client = Graph::new("");
+    let client = Graph::new(ACCESS_TOKEN);
 
     // Create the download request.
     let download_client = client
@@ -97,7 +92,7 @@ fn download_by_path(path: &str) {
 // download config. This will will fail if the directory does not exist.
 #[allow(dead_code)]
 fn download_with_config() {
-    let client = Graph::new("");
+    let client = Graph::new(ACCESS_TOKEN);
 
     let download_client = client
         .v1()

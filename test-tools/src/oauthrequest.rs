@@ -192,7 +192,7 @@ impl OAuthRequest {
         None
     }
 
-    pub async fn request_access_token_async() -> Option<(String, AccessToken)> {
+    pub async fn request_access_token_async() -> Option<(String, AccessToken)> { ;
         if OAuthRequest::is_local() {
             return OAuthRequest::request_token_from_toml_async().await;
         } else if OAuthRequest::is_test_env_set() {

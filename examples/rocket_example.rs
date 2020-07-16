@@ -194,7 +194,9 @@ pub fn set_and_req_access_code(access_code: &str) {
 #[get("/drive/recent", format = "application/json")]
 fn recent() {
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let drive = Graph::try_from(&oauth).unwrap();
+    let access_token = oauth.get_access_token().unwrap();
+    let token = access_token.bearer_token();
+    let drive = Graph::new(token);
 
     let collection = drive.v1().me().drive().recent().send().unwrap();
 
