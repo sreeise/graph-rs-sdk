@@ -6,8 +6,7 @@ use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
 };
 use crate::http::{
-    AsyncClient, AsyncHttpClient, BlockingClient, BlockingHttpClient, GraphRequest, GraphResponse,
-    IntoResponse, RequestClient,
+    AsyncHttpClient, BlockingHttpClient, GraphResponse, IntoResponse, RequestClient,
 };
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
@@ -21,7 +20,6 @@ use graph_oauth::oauth::{AccessToken, OAuth};
 use handlebars::*;
 use reqwest::header::{HeaderValue, ACCEPT};
 use reqwest::Method;
-use std::cell::{RefCell, RefMut};
 use std::convert::TryFrom;
 use std::str::FromStr;
 
@@ -124,7 +122,7 @@ impl<'a> GraphBlocking {
     ///     .json()?;
     /// ```
     pub fn new(token: &str) -> GraphBlocking {
-        let mut request = BlockingHttpClient::new(GraphUrl::from_str(GRAPH_URL).unwrap());
+        let request = BlockingHttpClient::new(GraphUrl::from_str(GRAPH_URL).unwrap());
         request.set_token(token);
         Graph { request }
     }
@@ -183,7 +181,7 @@ impl<'a> GraphAsync {
     ///     .json()?;
     /// ```
     pub fn new_async(token: &str) -> GraphAsync {
-        let mut request = AsyncHttpClient::new(GraphUrl::parse(GRAPH_URL).unwrap());
+        let request = AsyncHttpClient::new(GraphUrl::parse(GRAPH_URL).unwrap());
         request.set_token(token);
         Graph { request }
     }

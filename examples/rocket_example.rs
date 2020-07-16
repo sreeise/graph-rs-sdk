@@ -11,7 +11,6 @@ use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use std::convert::TryFrom;
 use std::thread;
 use std::time::Duration;
 

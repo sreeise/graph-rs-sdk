@@ -134,7 +134,7 @@ impl<'a, T> IntoResBlocking<'a, T> {
             return receiver;
         }
 
-        let token = self.client.request().token().clone();
+        let token = self.client.request().token();
         let response = response.unwrap();
         let mut next_link = response.body().next_link();
         sender.send(Delta::Next(response)).unwrap();
@@ -212,17 +212,6 @@ where
     }
 }
 
-/*
-impl<'a> IntoResBlocking<'a, UploadSessionClient<BlockingClient>> {
-    pub fn send(&self) -> GraphResult<UploadSessionClient<BlockingClient>> {
-        if self.error.borrow().is_some() {
-            return Err(self.error.replace(None).unwrap());
-        }
-        self.client.request().upload_session()
-    }
-}
-
- */
 impl<'a> IntoResBlocking<'a, UploadSessionClient<BlockingHttpClient>> {
     pub fn send(&self) -> GraphResult<UploadSessionClient<BlockingClient>> {
         if self.error.borrow().is_some() {
@@ -302,7 +291,6 @@ impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncHttpClient>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        let mut request = self.client.request();
-        request.upload_session().await
+        self.client.request().upload_session().await
     }
 }

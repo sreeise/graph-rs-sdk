@@ -1,8 +1,5 @@
-use from_as::*;
-use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
 use graph_rs::types::content::Content;
-use std::convert::TryFrom;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 

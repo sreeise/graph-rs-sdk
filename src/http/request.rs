@@ -1,10 +1,9 @@
-use crate::client::{Graph, Ident};
+use crate::client::Ident;
 use crate::http::{
     AsyncDownload, BlockingDownload, DownloadClient, GraphResponse, UploadSessionClient,
 };
 use crate::url::GraphUrl;
 use crate::GRAPH_URL;
-use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult};
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
@@ -511,23 +510,18 @@ pub trait RequestClient {
     fn extend_path(&self, path: &[&str]);
 }
 
-pub struct HttpClient<Client, Registry> {
+pub struct HttpClient<Client> {
     client: Client,
-    registry: Registry,
 }
 
-pub type AsyncHttpClient = HttpClient<
-    std::sync::Arc<tokio::sync::Mutex<AsyncClient>>,
-    std::sync::Arc<tokio::sync::Mutex<Handlebars>>,
->;
+pub type AsyncHttpClient = HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>>;
 
-pub type BlockingHttpClient = HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>>;
+pub type BlockingHttpClient = HttpClient<RefCell<BlockingClient>>;
 
-impl HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>> {
-    pub fn new(url: GraphUrl) -> HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>> {
+impl HttpClient<RefCell<BlockingClient>> {
+    pub fn new(url: GraphUrl) -> HttpClient<RefCell<BlockingClient>> {
         HttpClient {
             client: RefCell::new(BlockingClient::new_blocking(url)),
-            registry: RefCell::new(Handlebars::new()),
         }
     }
 
@@ -562,7 +556,7 @@ impl HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>> {
     }
 }
 
-impl RequestClient for HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>> {
+impl RequestClient for HttpClient<RefCell<BlockingClient>> {
     type Body = reqwest::blocking::Body;
     type Form = reqwest::blocking::multipart::Form;
 
@@ -682,21 +676,10 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>> 
     }
 }
 
-impl
-    HttpClient<
-        std::sync::Arc<tokio::sync::Mutex<AsyncClient>>,
-        std::sync::Arc<tokio::sync::Mutex<Handlebars>>,
-    >
-{
-    pub fn new(
-        url: GraphUrl,
-    ) -> HttpClient<
-        std::sync::Arc<tokio::sync::Mutex<AsyncClient>>,
-        std::sync::Arc<tokio::sync::Mutex<Handlebars>>,
-    > {
+impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
+    pub fn new(url: GraphUrl) -> HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
         HttpClient {
             client: std::sync::Arc::new(tokio::sync::Mutex::new(AsyncClient::new_async(url))),
-            registry: std::sync::Arc::new(tokio::sync::Mutex::new(Handlebars::new())),
         }
     }
 
@@ -842,23 +825,13 @@ impl
     }
 }
 
-impl Debug
-    for HttpClient<
-        std::sync::Arc<tokio::sync::Mutex<AsyncClient>>,
-        std::sync::Arc<tokio::sync::Mutex<Handlebars>>,
-    >
-{
+impl Debug for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         futures::executor::block_on(self.inner_debug(f))
     }
 }
 
-impl RequestClient
-    for HttpClient<
-        std::sync::Arc<tokio::sync::Mutex<AsyncClient>>,
-        std::sync::Arc<tokio::sync::Mutex<Handlebars>>,
-    >
-{
+impl RequestClient for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
     type Body = reqwest::Body;
     type Form = reqwest::multipart::Form;
 
