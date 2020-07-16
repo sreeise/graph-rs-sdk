@@ -6,8 +6,9 @@
 ### Graph API Client in Rust
 
 Disclaimer:
-Integrates with several parts of the Graph API including OneDrive, Mail, Calendars, and OneNote. However,
-I have had limited time to work on this lately so future work will be slow.
+Integrates with several parts of the Graph API including OneDrive, Mail, Calendars, and OneNote. I would
+like to cover more in the future and will continue to work on this as I get the time. Currently, work is
+being done to fully implement async as well as to parse open api configs to make development easier.
  
 ### Install and Building - Requires Rust nightly
 For Windows install the Windows build tools (And related Visual Studio components for Rust to work on Windows).
@@ -28,6 +29,24 @@ Of the portions that are implemented there are also examples and docs. Run:
 
 ### Use - subject to change.
 
+The client supports both blocking and async requests.
+
+### Blocking Client
+
+To use the blocking client
+
+    let client =  Graph::new("ACCESS_TOKEN");
+
+
+### Async Client
+
+To use the async client
+
+    let client = Graph::new_async("ACCESS_TOKEN");
+    
+The async client mainly uses tokio internally for async utilities suchas working with files so 
+it is recommended to use the tokio runtime.    
+
 #### The send method and Graph types
 The send() method is the main method for sending a request. The return value will be wrapped
 in a response object and the body will be one of:
@@ -41,12 +60,34 @@ in a response object and the body will be one of:
 ```rust
 use graph_rs::prelude::*;
 
+let client =  Graph::new("ACCESS_TOKEN");
+
 // Returns GraphResponse<Collection<serde_json::Value>>
 let response = client.v1()
     .me()
     .drive()
     .root_children()
-    .send();
+    .send()
+    .unwrap();
+        
+println!("{:#?}", response);  
+```
+
+For async requests use the await keyword.
+
+```rust
+use graph_rs::prelude::*;
+
+let client =  Graph::new_async("ACCESS_TOKEN");
+
+// Returns GraphResponse<Collection<serde_json::Value>>
+let response = client.v1()
+    .me()
+    .drive()
+    .root_children()
+    .send()
+    .await
+    .unwrap();
         
 println!("{:#?}", response);  
 ```
