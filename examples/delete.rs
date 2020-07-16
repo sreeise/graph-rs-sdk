@@ -4,6 +4,8 @@ use graph_rs::prelude::*;
 use graph_rs::types::content::Content;
 use std::convert::TryFrom;
 
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
 // Delete items in OneDrive. This will move deleted items to the recycle bin.
 // It is recommended to create a new file that can be used for demonstration purposes here.
 // Deleting an item can be done in 2 different ways shown in the methods below.
@@ -14,12 +16,10 @@ fn main() {
 
 // Delte a drive item by id.
 fn delete_id(item_id: &str) {
-    // Create a new Drive instance.
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let drive = Graph::try_from(&oauth).unwrap();
+    let client = Graph::new(ACCESS_TOKEN);
 
     // Send the request.
-    let response: GraphResponse<Content> = drive.v1().me().drive().delete(item_id).send().unwrap();
+    let response: GraphResponse<Content> = client.v1().me().drive().delete(item_id).send().unwrap();
 
     println!("{:#?}", response);
     println!("\nItem was deleted: {:#?}", response.success());
@@ -27,12 +27,10 @@ fn delete_id(item_id: &str) {
 
 // Deleting an item by path.
 pub fn delete_path(path: &str) {
-    // Create a new Drive instance.
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let drive = Graph::try_from(&oauth).unwrap();
+    let client = Graph::new(ACCESS_TOKEN);
 
     // Send the request.
-    let response: GraphResponse<Content> = drive.v1().me().drive().delete(path).send().unwrap();
+    let response: GraphResponse<Content> = client.v1().me().drive().delete(path).send().unwrap();
 
     println!("{:#?}", response);
     println!("\nItem was deleted: {:#?}", response.success());

@@ -1,5 +1,5 @@
 use graph_rs::client::{Graph, Ident};
-use graph_rs::http::RequestClient;
+use graph_rs::http::{BlockingHttpClient, RequestClient};
 use graph_rs::url::GraphUrl;
 use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
 use url::Url;
@@ -100,7 +100,7 @@ impl ToString for SpecialFolder {
     }
 }
 
-pub fn assert_url_special<Client: RequestClient>(client: &Graph<Client>, endpoint: SpecialFolder) {
+pub fn assert_url_special(client: &Graph<BlockingHttpClient>, endpoint: SpecialFolder) {
     client.url_ref(|url| {
         if client.ident().eq(&Ident::Me) {
             assert_eq!(
@@ -121,8 +121,8 @@ pub fn assert_url_special<Client: RequestClient>(client: &Graph<Client>, endpoin
     })
 }
 
-pub fn assert_url_id_equals<Client: RequestClient>(
-    client: &Graph<Client>,
+pub fn assert_url_id_equals(
+    client: &Graph<BlockingHttpClient>,
     item_id: &str,
     endpoint: SpecialFolder,
 ) {
@@ -158,10 +158,7 @@ pub fn assert_url_id_equals<Client: RequestClient>(
     })
 }
 
-pub fn assert_url_special_beta<Client: RequestClient>(
-    client: &Graph<Client>,
-    endpoint: SpecialFolder,
-) {
+pub fn assert_url_special_beta(client: &Graph<BlockingHttpClient>, endpoint: SpecialFolder) {
     client.url_ref(|url| {
         if client.ident().eq(&Ident::Me) {
             if endpoint.eq(&SpecialFolder::Drive) {
@@ -189,8 +186,8 @@ pub fn assert_url_special_beta<Client: RequestClient>(
     })
 }
 
-pub fn assert_url_id_equals_beta<Client: RequestClient>(
-    client: &Graph<Client>,
+pub fn assert_url_id_equals_beta(
+    client: &Graph<BlockingHttpClient>,
     item_id: &str,
     endpoint: SpecialFolder,
 ) {

@@ -1,4 +1,4 @@
-use crate::client::{Ident, Graph};
+use crate::client::{Graph, Ident};
 use crate::http::{
     AsyncDownload, BlockingDownload, DownloadClient, GraphResponse, UploadSessionClient,
 };
@@ -9,6 +9,7 @@ use graph_error::{GraphFailure, GraphResult};
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{redirect::Policy, Method};
+use serde_json::Value;
 use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::fmt::{Debug, Formatter};
@@ -16,7 +17,6 @@ use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use url::Url;
-
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum GraphRequestType {
@@ -28,142 +28,6 @@ pub enum GraphRequestType {
 impl Default for GraphRequestType {
     fn default() -> Self {
         GraphRequestType::Basic
-    }
-}
-
-pub struct GraphRequestBuilder<Body, Form> {
-    token: String,
-    ident: Ident,
-    pub url: GraphUrl,
-    pub method: Method,
-    pub body: Option<Body>,
-    pub headers: HeaderMap<HeaderValue>,
-    pub upload_session_file: Option<PathBuf>,
-    pub download_dir: Option<PathBuf>,
-    pub form: Option<Form>,
-    pub req_type: GraphRequestType,
-}
-
-impl GraphRequestBuilder<reqwest::blocking::Body, reqwest::blocking::multipart::Form> {
-    pub fn new_blocking(token: &str, url: GraphUrl) -> GraphRequestBuilder<reqwest::blocking::Body, reqwest::blocking::multipart::Form> {
-        GraphRequestBuilder::new(token, url)
-    }
-}
-
-impl GraphRequestBuilder<reqwest::Body, reqwest::multipart::Form> {
-    pub fn new_async(token: &str, url: GraphUrl) -> GraphRequestBuilder<reqwest::Body, reqwest::multipart::Form> {
-        GraphRequestBuilder::new(token, url)
-    }
-}
-
-impl<Body, Form> Debug for GraphRequestBuilder<Body, Form> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("GraphRequest")
-            .field("ident", &self.ident)
-            .field("url", &self.url)
-            .field("method", &self.method)
-            .field("headers", &self.headers)
-            .field("upload_session_file", &self.upload_session_file)
-            .field("download_dir", &self.download_dir)
-            .field("req_type", &self.req_type)
-            .finish()
-    }
-}
-
-
-impl<Body: From<String> + From<Vec<u8>> + From<&'static [u8]> + From<&'static str>, Form> GraphRequestBuilder<Body, Form> {
-    pub fn new(token: &str, url: GraphUrl) -> GraphRequestBuilder<Body, Form> {
-        let mut headers = HeaderMap::default();
-        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-        GraphRequestBuilder {
-            token: token.into(),
-            ident: Default::default(),
-            url,
-            method: Default::default(),
-            body: None,
-            headers,
-            upload_session_file: None,
-            download_dir: None,
-            form: None,
-            req_type: Default::default(),
-        }
-    }
-
-    pub fn token(mut self, token: &str) -> GraphRequestBuilder<Body, Form> {
-        self.token = token.into();
-        self
-    }
-
-    pub fn ident(mut self, ident: Ident) -> GraphRequestBuilder<Body, Form> {
-        self.ident = ident;
-        self
-    }
-
-    pub fn to_graph_url(&self) -> &GraphUrl {
-        &self.url
-    }
-
-    pub fn to_url(&self) -> Url {
-        self.url.to_url()
-    }
-
-    pub fn url(mut self, url: GraphUrl) -> GraphRequestBuilder<Body, Form> {
-        self.url = url;
-        self
-    }
-
-    pub fn method(mut self, method: Method) -> GraphRequestBuilder<Body, Form> {
-        self.method = method;
-        self
-    }
-
-    pub fn body(mut self, body: impl Into<Body>) -> GraphRequestBuilder<Body, Form> {
-        self.body = Some(body.into());
-        self
-    }
-
-    pub fn body_from_file<P: AsRef<Path>>(mut self, path: P) -> GraphRequestBuilder<Body, Form> {
-        let mut file = File::open(path.as_ref()).unwrap();
-        let mut buffer = String::new();
-        file.read_to_string(&mut buffer).unwrap();
-        self.body(buffer)
-    }
-
-    pub fn header(mut self, name: impl IntoHeaderName, value: HeaderValue) -> GraphRequestBuilder<Body, Form> {
-        self.headers.insert(name, value);
-        self
-    }
-
-    pub fn header_map(mut self, header_map: HeaderMap) -> GraphRequestBuilder<Body, Form> {
-        self.headers = header_map;
-        self
-    }
-
-    pub fn clear_headers(mut self) -> GraphRequestBuilder<Body, Form> {
-        self.headers.clear();
-        self
-    }
-
-    pub fn download_dir<P: AsRef<Path>>(mut self, dir: P) -> GraphRequestBuilder<Body, Form> {
-        self.download_dir = Some(dir.as_ref().to_path_buf());
-        self
-    }
-
-    pub fn upload_session<P: AsRef<Path>>(mut self, file: P) -> GraphRequestBuilder<Body, Form> {
-        self.upload_session_file = Some(file.as_ref().to_path_buf());
-        self
-    }
-
-    pub fn form(mut self, form: Form) -> GraphRequestBuilder<Body, Form> {
-        self.form = Some(form);
-        self.req_type = GraphRequestType::Multipart;
-        self
-    }
-
-    pub fn request_type(mut self, req_type: GraphRequestType) -> GraphRequestBuilder<Body, Form> {
-        self.req_type = req_type;
-        self
     }
 }
 
@@ -192,6 +56,7 @@ pub trait BaseRequestClient: Debug + AsRef<GraphUrl> + AsMut<GraphUrl> {
     fn set_form(&mut self, form: Self::Form) -> &mut Self;
     fn set_request_type(&mut self, req_type: GraphRequestType) -> &mut Self;
     fn request_type(&self) -> GraphRequestType;
+    fn registry_as_mut(&mut self) -> &mut Handlebars;
 }
 
 pub struct GraphRequest<Client, Body, Form> {
@@ -206,6 +71,7 @@ pub struct GraphRequest<Client, Body, Form> {
     pub download_dir: Option<PathBuf>,
     pub form: Option<Form>,
     pub req_type: GraphRequestType,
+    pub registry: Handlebars,
 }
 
 impl<Client, Body, Form> Debug for GraphRequest<Client, Body, Form> {
@@ -341,6 +207,10 @@ where
     fn request_type(&self) -> GraphRequestType {
         self.req_type
     }
+
+    fn registry_as_mut(&mut self) -> &mut Handlebars {
+        &mut self.registry
+    }
 }
 
 pub type BlockingClient = GraphRequest<
@@ -370,6 +240,7 @@ impl BlockingClient {
             download_dir: None,
             form: None,
             req_type: Default::default(),
+            registry: Handlebars::new(),
         }
     }
 
@@ -400,27 +271,26 @@ impl BlockingClient {
     }
 
     pub fn build(&mut self) -> reqwest::blocking::RequestBuilder {
+        let headers = self.headers.clone();
+        self.headers.clear();
+        self.headers
+            .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
+        let builder = self
+            .client
+            .request(self.method.clone(), self.url.as_str())
+            .headers(headers)
+            .bearer_auth(self.token.as_str());
+
         match self.req_type {
             GraphRequestType::Basic | GraphRequestType::Redirect => {
                 if self.body.is_some() {
-                    self.client
-                        .request(self.method.clone(), self.url.as_str())
-                        .headers(self.headers.clone())
-                        .bearer_auth(self.token.as_str())
-                        .body(self.body.take().unwrap())
+                    builder.body(self.body.take().unwrap())
                 } else {
-                    self.client
-                        .request(self.method.clone(), self.url.as_str())
-                        .headers(self.headers.clone())
-                        .bearer_auth(self.token.as_str())
+                    builder
                 }
             },
-            GraphRequestType::Multipart => self
-                .client
-                .request(self.method.clone(), self.url.as_str())
-                .headers(self.headers.clone())
-                .bearer_auth(self.token.as_str())
-                .multipart(self.form.take().unwrap()),
+            GraphRequestType::Multipart => builder.multipart(self.form.take().unwrap()),
         }
     }
 
@@ -457,6 +327,7 @@ impl BlockingClient {
             download_dir: self.download_dir.take(),
             form: self.form.take(),
             req_type: self.req_type,
+            registry: Handlebars::new(),
         }
     }
 }
@@ -496,6 +367,7 @@ impl AsyncClient {
             download_dir: None,
             form: None,
             req_type: Default::default(),
+            registry: Handlebars::new(),
         }
     }
 
@@ -533,27 +405,22 @@ impl AsyncClient {
         self.headers.clear();
         self.headers
             .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
+        let builder = self
+            .client
+            .request(self.method.clone(), self.url.as_str())
+            .headers(headers)
+            .bearer_auth(self.token.as_str());
+
         match self.req_type {
             GraphRequestType::Basic | GraphRequestType::Redirect => {
                 if self.body.is_some() {
-                    self.client
-                        .request(self.method.clone(), self.url.as_str())
-                        .headers(headers)
-                        .bearer_auth(self.token.as_str())
-                        .body(self.body.take().unwrap())
+                    builder.body(self.body.take().unwrap())
                 } else {
-                    self.client
-                        .request(self.method.clone(), self.url.as_str())
-                        .headers(headers)
-                        .bearer_auth(self.token.as_str())
+                    builder
                 }
             },
-            GraphRequestType::Multipart => self
-                .client
-                .request(self.method.clone(), self.url.as_str())
-                .headers(self.headers.clone())
-                .bearer_auth(self.token.as_str())
-                .multipart(self.form.take().unwrap()),
+            GraphRequestType::Multipart => builder.multipart(self.form.take().unwrap()),
         }
     }
 
@@ -591,6 +458,7 @@ impl AsyncClient {
             download_dir: self.download_dir.take(),
             form: self.form.take(),
             req_type: self.req_type,
+            registry: Handlebars::new(),
         }
     }
 }
@@ -621,17 +489,26 @@ pub trait RequestClient {
     fn method(&self) -> Method;
     fn set_method(&self, method: Method);
     fn set_body<T: Into<Self::Body>>(&self, body: T);
-    fn set_body_with_file<P: AsRef<Path> + Send + Sync>(&self, path: P) -> GraphResult<()>;
+    fn set_body_with_file(&self, path: PathBuf) -> GraphResult<()>;
     fn header<T: IntoHeaderName + Send + Sync>(&self, name: T, value: HeaderValue);
     fn set_header_map(&self, header_map: HeaderMap);
     fn clear_headers(&self);
-    fn set_download_dir<P: AsRef<Path> + Send + Sync>(&self, dir: P);
-    fn set_upload_session<P: AsRef<Path> + Send + Sync>(&self, file: P);
+    fn set_download_dir(&self, dir: PathBuf);
+    fn set_upload_session(&self, file: PathBuf);
     fn set_form(&self, form: Self::Form);
     fn set_request_type(&self, req_type: GraphRequestType);
     fn request_type(&self) -> GraphRequestType;
-    fn url_ref<F>(&self, f: F) where F: Fn(&GraphUrl) + Send + Sync;
-    fn url_mut<F>(&self, f: F) where F: Fn(&mut GraphUrl) + Send + Sync;
+    fn url_ref<F>(&self, f: F)
+    where
+        F: Fn(&GraphUrl) + Sync;
+    fn url_mut<F>(&self, f: F)
+    where
+        F: Fn(&mut GraphUrl) + Sync;
+    fn registry<F>(&self, f: F)
+    where
+        F: Fn(&mut Handlebars) + Sync;
+    fn render_template(&self, template: &str, json: &serde_json::Value) -> String;
+    fn extend_path(&self, path: &[&str]);
 }
 
 pub struct HttpClient<Client, Registry> {
@@ -671,10 +548,17 @@ impl HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>> {
     }
 
     pub fn execute<T>(&self) -> GraphResult<GraphResponse<T>>
-        where
-                for<'de> T: serde::Deserialize<'de>,
+    where
+        for<'de> T: serde::Deserialize<'de>,
     {
         self.client.borrow_mut().execute()
+    }
+
+    pub(crate) fn inner_url_ref<F>(&self, f: F)
+    where
+        F: Fn(&GraphUrl),
+    {
+        f(&self.client.borrow().url)
     }
 }
 
@@ -722,8 +606,8 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>> 
         self.client.borrow_mut().body = Some(body.into());
     }
 
-    fn set_body_with_file<P: AsRef<Path> + Send + Sync>(&self, path: P) -> GraphResult<()> {
-        let mut file = File::open(path.as_ref())?;
+    fn set_body_with_file(&self, path: PathBuf) -> GraphResult<()> {
+        let mut file = File::open(path)?;
         let mut buffer = String::new();
         file.read_to_string(&mut buffer)?;
         self.set_body(buffer);
@@ -742,12 +626,12 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>> 
         self.client.borrow_mut().headers.clear();
     }
 
-    fn set_download_dir<P: AsRef<Path> + Send + Sync>(&self, dir: P) {
-        self.client.borrow_mut().download_dir = Some(dir.as_ref().to_path_buf());
+    fn set_download_dir(&self, dir: PathBuf) {
+        self.client.borrow_mut().download_dir = Some(dir);
     }
 
-    fn set_upload_session<P: AsRef<Path> + Send + Sync>(&self, file: P) {
-        self.client.borrow_mut().upload_session_file = Some(file.as_ref().to_path_buf());
+    fn set_upload_session(&self, file: PathBuf) {
+        self.client.borrow_mut().upload_session_file = Some(file);
     }
 
     fn set_form(&self, form: Self::Form) {
@@ -764,12 +648,37 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>, RefCell<Handlebars>> 
         self.client.borrow().req_type
     }
 
-    fn url_ref<F>(&self, f: F) where F: Fn(&GraphUrl) + Send + Sync {
+    fn url_ref<F>(&self, f: F)
+    where
+        F: Fn(&GraphUrl) + Sync,
+    {
         f(&self.client.borrow().url)
     }
 
-    fn url_mut<F>(&self, f: F) where F: Fn(&mut GraphUrl) + Send + Sync {
+    fn url_mut<F>(&self, f: F)
+    where
+        F: Fn(&mut GraphUrl) + Sync,
+    {
         f(&mut self.client.borrow_mut().url)
+    }
+
+    fn registry<F>(&self, f: F)
+    where
+        F: Fn(&mut Handlebars) + Sync,
+    {
+        f(&mut self.client.borrow_mut().registry)
+    }
+
+    fn render_template(&self, template: &str, json: &serde_json::Value) -> String {
+        self.client
+            .borrow_mut()
+            .registry
+            .render_template(template, json)
+            .unwrap()
+    }
+
+    fn extend_path(&self, path: &[&str]) {
+        self.client.borrow_mut().url.extend_path(path);
     }
 }
 
@@ -831,7 +740,7 @@ impl
         self.client.lock().await.body = Some(body.into());
     }
 
-    async fn inner_set_body_with_file<P: AsRef<Path> + Send + Sync>(&self, path: P) -> GraphResult<()> {
+    async fn inner_set_body_with_file(&self, path: PathBuf) -> GraphResult<()> {
         let buffer = tokio::fs::read_to_string(path).await?;
         self.inner_set_body(buffer).await;
         Ok(())
@@ -849,12 +758,12 @@ impl
         self.client.lock().await.headers.clear();
     }
 
-    async fn inner_set_download_dir<P: AsRef<Path> + Sync + Send>(&self, dir: P) {
-        self.client.lock().await.download_dir = Some(dir.as_ref().to_path_buf());
+    async fn inner_set_download_dir(&self, dir: PathBuf) {
+        self.client.lock().await.download_dir = Some(dir);
     }
 
-    async fn inner_set_upload_session<P: AsRef<Path> + Sync + Send>(&self, file: P) {
-        self.client.lock().await.upload_session_file = Some(file.as_ref().to_path_buf());
+    async fn inner_set_upload_session(&self, file: PathBuf) {
+        self.client.lock().await.upload_session_file = Some(file);
     }
 
     async fn inner_set_form(&self, form: reqwest::multipart::Form) {
@@ -871,16 +780,42 @@ impl
         self.client.lock().await.req_type
     }
 
-    async fn inner_url_ref<F>(&self, f: F) where F: Fn(&GraphUrl) + Send + Sync {
+    async fn inner_url_ref<F>(&self, f: F)
+    where
+        F: Fn(&GraphUrl) + Sync,
+    {
         f(&self.client.lock().await.url)
     }
 
-    async fn inner_url_mut<F>(&self, f: F) where F: Fn(&mut GraphUrl) + Send + Sync {
+    async fn inner_url_mut<F>(&self, f: F)
+    where
+        F: Fn(&mut GraphUrl) + Sync,
+    {
         f(&mut self.client.lock().await.url)
     }
 
     async fn inner_debug(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         self.client.lock().await.fmt(f)
+    }
+
+    async fn inner_registry<F>(&self, f: F)
+    where
+        F: Fn(&mut Handlebars) + Sync,
+    {
+        f(&mut self.client.lock().await.registry)
+    }
+
+    async fn inner_render_template(&self, template: &str, json: &Value) -> String {
+        self.client
+            .lock()
+            .await
+            .registry
+            .render_template(template, json)
+            .unwrap()
+    }
+
+    async fn inner_extend_path(&self, path: &[&str]) {
+        self.client.lock().await.url.extend_path(path);
     }
 
     pub async fn download(&self) -> AsyncDownload {
@@ -900,20 +835,30 @@ impl
     }
 
     pub async fn execute<T>(&self) -> GraphResult<GraphResponse<T>>
-        where
-                for<'de> T: serde::Deserialize<'de>,
+    where
+        for<'de> T: serde::Deserialize<'de>,
     {
         self.client.lock().await.execute().await
     }
 }
 
-impl Debug for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>, std::sync::Arc<tokio::sync::Mutex<Handlebars>>> {
+impl Debug
+    for HttpClient<
+        std::sync::Arc<tokio::sync::Mutex<AsyncClient>>,
+        std::sync::Arc<tokio::sync::Mutex<Handlebars>>,
+    >
+{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         futures::executor::block_on(self.inner_debug(f))
     }
 }
 
-impl RequestClient for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>, std::sync::Arc<tokio::sync::Mutex<Handlebars>>> {
+impl RequestClient
+    for HttpClient<
+        std::sync::Arc<tokio::sync::Mutex<AsyncClient>>,
+        std::sync::Arc<tokio::sync::Mutex<Handlebars>>,
+    >
+{
     type Body = reqwest::Body;
     type Form = reqwest::multipart::Form;
 
@@ -957,7 +902,7 @@ impl RequestClient for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>
         futures::executor::block_on(self.inner_set_body(body));
     }
 
-    fn set_body_with_file<P: AsRef<Path> + Send + Sync>(&self, path: P) -> GraphResult<()> {
+    fn set_body_with_file(&self, path: PathBuf) -> GraphResult<()> {
         futures::executor::block_on(self.inner_set_body_with_file(path))
     }
 
@@ -973,11 +918,11 @@ impl RequestClient for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>
         futures::executor::block_on(self.inner_clear_headers());
     }
 
-    fn set_download_dir<P: AsRef<Path> + Send + Sync>(&self, dir: P) {
+    fn set_download_dir(&self, dir: PathBuf) {
         futures::executor::block_on(self.inner_set_download_dir(dir));
     }
 
-    fn set_upload_session<P: AsRef<Path> + Send + Sync>(&self, file: P) {
+    fn set_upload_session(&self, file: PathBuf) {
         futures::executor::block_on(self.inner_set_upload_session(file));
     }
 
@@ -993,11 +938,32 @@ impl RequestClient for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>
         futures::executor::block_on(self.inner_request_type())
     }
 
-    fn url_ref<F>(&self, f: F) where F: Fn(&GraphUrl) + Send + Sync {
+    fn url_ref<F>(&self, f: F)
+    where
+        F: Fn(&GraphUrl) + Sync,
+    {
         futures::executor::block_on(self.inner_url_ref(f));
     }
 
-    fn url_mut<F>(&self, f: F) where F: Fn(&mut GraphUrl) + Send + Sync {
+    fn url_mut<F>(&self, f: F)
+    where
+        F: Fn(&mut GraphUrl) + Sync,
+    {
         futures::executor::block_on(self.inner_url_mut(f));
+    }
+
+    fn registry<F>(&self, f: F)
+    where
+        F: Fn(&mut Handlebars) + Sync,
+    {
+        futures::executor::block_on(self.inner_registry(f));
+    }
+
+    fn render_template(&self, template: &str, json: &serde_json::Value) -> String {
+        futures::executor::block_on(self.inner_render_template(template, json))
+    }
+
+    fn extend_path(&self, path: &[&str]) {
+        futures::executor::block_on(self.inner_extend_path(path));
     }
 }

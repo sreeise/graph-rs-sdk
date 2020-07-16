@@ -4,6 +4,7 @@ use graph_rs::prelude::*;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static FOLDER_NAME: &str = "NEW_FOLDER_NAME";
 static PARENT_ID: &str = "PARENT_ID";
 
@@ -14,11 +15,10 @@ fn main() {
 }
 
 fn create_new_folder() {
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let drive = Graph::try_from(&oauth).unwrap();
+    let client = Graph::new(ACCESS_TOKEN);
     let folder: HashMap<String, serde_json::Value> = HashMap::new();
 
-    let drive_item: GraphResponse<serde_json::Value> = drive
+    let drive_item: GraphResponse<serde_json::Value> = client
         .v1()
         .me()
         .drive()

@@ -1,5 +1,8 @@
 use crate::client::*;
-use crate::http::{AsyncClient, BlockingClient, GraphResponse, RequestClient, UploadSessionClient};
+use crate::http::{
+    AsyncClient, AsyncHttpClient, BlockingClient, BlockingHttpClient, GraphResponse, RequestClient,
+    UploadSessionClient,
+};
 use crate::types::delta::{Delta, NextLink};
 use crate::types::{content::Content, delta::DeltaRequest};
 use graph_error::{GraphFailure, GraphResult};
@@ -19,8 +22,8 @@ where
     error: RefCell<Option<GraphFailure>>,
 }
 
-pub type IntoResBlocking<'a, T> = IntoResponse<'a, T, BlockingClient>;
-pub type IntoResAsync<'a, T> = IntoResponse<'a, T, AsyncClient>;
+pub type IntoResBlocking<'a, T> = IntoResponse<'a, T, BlockingHttpClient>;
+pub type IntoResAsync<'a, T> = IntoResponse<'a, T, AsyncHttpClient>;
 
 impl<'a, T, Client> IntoResponse<'a, T, Client>
 where
@@ -46,51 +49,69 @@ where
     }
 
     pub fn query(&self, key: &str, value: &str) -> &Self {
-        self.client.request().as_mut().append_query_pair(key, value);
+        self.client.request().url_mut(|url| {
+            url.append_query_pair(key, value);
+        });
         self
     }
 
     pub fn select(&self, value: &[&str]) -> &Self {
-        self.client.request().as_mut().select(value);
+        self.client.request().url_mut(|url| {
+            url.select(value);
+        });
         self
     }
 
     pub fn expand(&self, value: &[&str]) -> &Self {
-        self.client.request().as_mut().expand(value);
+        self.client.request().url_mut(|url| {
+            url.expand(value);
+        });
         self
     }
 
     pub fn filter(&self, value: &[&str]) -> &Self {
-        self.client.request().as_mut().filter(value);
+        self.client.request().url_mut(|url| {
+            url.filter(value);
+        });
         self
     }
 
     pub fn order_by(&self, value: &[&str]) -> &Self {
-        self.client.request().as_mut().order_by(value);
+        self.client.request().url_mut(|url| {
+            url.order_by(value);
+        });
         self
     }
 
     pub fn search(&self, value: &str) -> &Self {
-        self.client.request().as_mut().search(value);
+        self.client.request().url_mut(|url| {
+            url.search(value);
+        });
         self
     }
 
     pub fn format(&self, value: &str) -> &Self {
-        self.client.request().as_mut().format(value);
+        self.client.request().url_mut(|url| {
+            url.format(value);
+        });
         self
     }
 
     pub fn skip(&self, value: &str) -> &Self {
-        self.client.request().as_mut().skip(value);
+        self.client.request().url_mut(|url| {
+            url.skip(value);
+        });
         self
     }
 
     pub fn top(&self, value: &str) -> &Self {
-        self.client.request().as_mut().top(value);
+        self.client.request().url_mut(|url| {
+            url.top(value);
+        });
         self
     }
 
-    pub fn header(&self, name: impl IntoHeaderName, value: HeaderValue) -> &Self {
+    pub fn header<H: IntoHeaderName + Send + Sync>(&self, name: H, value: HeaderValue) -> &Self {
         self.client.request().header(name, value);
         self
     }
@@ -191,7 +212,18 @@ where
     }
 }
 
+/*
 impl<'a> IntoResBlocking<'a, UploadSessionClient<BlockingClient>> {
+    pub fn send(&self) -> GraphResult<UploadSessionClient<BlockingClient>> {
+        if self.error.borrow().is_some() {
+            return Err(self.error.replace(None).unwrap());
+        }
+        self.client.request().upload_session()
+    }
+}
+
+ */
+impl<'a> IntoResBlocking<'a, UploadSessionClient<BlockingHttpClient>> {
     pub fn send(&self) -> GraphResult<UploadSessionClient<BlockingClient>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
@@ -234,7 +266,7 @@ impl<'a, T> IntoResAsync<'a, T> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        let request = self.client.request().build();
+        let request = self.client.request().build().await;
         let response = request.send().await?;
         response.json().await.map_err(GraphFailure::from)
     }
@@ -248,7 +280,7 @@ where
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        let request = self.client.request().build();
+        let request = self.client.request().build().await;
         let response = request.send().await?;
         GraphResponse::try_from_async(response).await
     }
@@ -259,13 +291,13 @@ impl<'a> IntoResAsync<'a, GraphResponse<Content>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());
         }
-        let request = self.client.request().build();
+        let request = self.client.request().build().await;
         let response = request.send().await?;
         GraphResponse::try_from_async_content(response).await
     }
 }
 
-impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncClient>> {
+impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncHttpClient>> {
     pub async fn send(&self) -> GraphResult<UploadSessionClient<AsyncClient>> {
         if self.error.borrow().is_some() {
             return Err(self.error.replace(None).unwrap());

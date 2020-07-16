@@ -1,7 +1,8 @@
 use crate::client::*;
 use crate::http::{
-    AsyncClient, AsyncDownload, BlockingClient, BlockingDownload, GraphRequestType, GraphResponse,
-    IntoResponse, RequestClient, UploadSessionClient,
+    AsyncClient, AsyncDownload, AsyncHttpClient, BaseRequestClient, BlockingClient,
+    BlockingDownload, BlockingHttpClient, GraphRequestType, GraphResponse, IntoResponse,
+    RequestClient, UploadSessionClient,
 };
 use crate::types::collection::Collection;
 use crate::types::content::Content;
@@ -40,7 +41,10 @@ register_client!(
     drive_root_path => "drive/root", "root", Ident::Drives,
 );
 
-method_impl!(DriveRequest,
+impl<'a, Client> DriveRequest<'a, Client>
+where
+    Client: crate::http::RequestClient,
+{
     get!( drive, serde_json::Value => "{{drive_root}}" );
     get!( root, serde_json::Value => "{{drive_root}}/root" );
     get!( recent, Collection<serde_json::Value> => "{{drive_root}}/recent" );
@@ -60,12 +64,7 @@ method_impl!(DriveRequest,
     get!( special_music, serde_json::Value => "{{drive_root}}/special/music" );
     get!( special_music_children, Collection<serde_json::Value> => "{{drive_root}}/special/music/children" );
     get!( | special_folder, serde_json::Value => "{{drive_root}}/special/{{id}}" );
-);
 
-impl<'a, Client> DriveRequest<'a, Client>
-where
-    Client: crate::http::RequestClient,
-{
     pub fn list_children<S: AsRef<str>>(
         &'a self,
         id: S,
@@ -109,10 +108,9 @@ where
     ) -> IntoResponse<'a, serde_json::Value, Client> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client
-                .request()
-                .set_method(Method::PATCH)
-                .set_body(body);
+            let client = self.client.request();
+            client.set_method(Method::PATCH);
+            client.set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -144,10 +142,9 @@ where
     ) -> IntoResponse<'a, serde_json::Value, Client> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client
-                .request()
-                .set_method(Method::POST)
-                .set_body(body);
+            let client = self.client.request();
+            client.set_method(Method::POST);
+            client.set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -171,10 +168,9 @@ where
     ) -> IntoResponse<'a, GraphResponse<Content>, Client> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client
-                .request()
-                .set_method(Method::POST)
-                .set_body(body);
+            let client = self.client.request();
+            client.set_method(Method::POST);
+            client.set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -242,7 +238,11 @@ where
         id: S,
         file: P,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
-        if let Err(err) = self.client.request().set_body_with_file(file) {
+        if let Err(err) = self
+            .client
+            .request()
+            .set_body_with_file(file.as_ref().to_path_buf())
+        {
             return IntoResponse::new_error(self.client, err);
         }
 
@@ -261,7 +261,11 @@ where
         file: P,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
         if id.as_ref().starts_with(':') {
-            if let Err(err) = self.client.request().set_body_with_file(file) {
+            if let Err(err) = self
+                .client
+                .request()
+                .set_body_with_file(file.as_ref().to_path_buf())
+            {
                 return IntoResponse::new_error(self.client, err);
             }
 
@@ -292,7 +296,11 @@ where
                 })
             );
 
-            if let Err(e) = self.client.request().set_body_with_file(file) {
+            if let Err(e) = self
+                .client
+                .request()
+                .set_body_with_file(file.as_ref().to_path_buf())
+            {
                 return IntoResponse::new_error(self.client, e);
             }
             self.client.request().set_method(Method::PUT);
@@ -317,7 +325,7 @@ where
         IntoResponse::new(self.client)
     }
 
-    pub fn upload_session<S: AsRef<str>, P: AsRef<Path>, B: serde::Serialize>(
+    pub fn upload_session<S: AsRef<str>, P: AsRef<Path> + Send + Sync, B: serde::Serialize>(
         &'a self,
         id: S,
         file: P,
@@ -325,11 +333,10 @@ where
     ) -> IntoResponse<'a, UploadSessionClient<Client>, Client> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client
-                .request()
-                .set_method(Method::POST)
-                .set_upload_session(file)
-                .set_body(body);
+            let client = self.client.request();
+            client.set_method(Method::POST);
+            client.set_upload_session(file.as_ref().to_path_buf());
+            client.set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -349,18 +356,16 @@ where
         if let Some(body) = body {
             let body = serde_json::to_string(body);
             if let Ok(body) = body {
-                self.client
-                    .request()
-                    .set_method(Method::POST)
-                    .set_body(body);
+                let client = self.client.request();
+                client.set_method(Method::POST);
+                client.set_body(body);
             } else if let Err(e) = body {
                 return IntoResponse::new_error(self.client, GraphFailure::from(e));
             }
         } else {
-            self.client
-                .request()
-                .set_method(Method::POST)
-                .header(CONTENT_LENGTH, HeaderValue::from(0));
+            let client = self.client.request();
+            client.set_method(Method::POST);
+            client.header(CONTENT_LENGTH, HeaderValue::from(0));
         }
         render_path!(
             self.client,
@@ -392,10 +397,9 @@ where
             template(id.as_ref(), "checkout").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        self.client
-            .request()
-            .set_method(Method::POST)
-            .header(CONTENT_LENGTH, HeaderValue::from(0));
+        let client = self.client.request();
+        client.set_method(Method::POST);
+        client.header(CONTENT_LENGTH, HeaderValue::from(0));
         IntoResponse::new(self.client)
     }
 
@@ -412,10 +416,9 @@ where
 
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client
-                .request()
-                .set_method(Method::POST)
-                .set_body(body);
+            let client = self.client.request();
+            client.set_method(Method::POST);
+            client.set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -429,10 +432,9 @@ where
     ) -> IntoResponse<'a, serde_json::Value, Client> {
         let body = serde_json::to_string(body);
         if let Ok(body) = body {
-            self.client
-                .request()
-                .set_method(Method::PATCH)
-                .set_body(body);
+            let client = self.client.request();
+            client.set_method(Method::PATCH);
+            client.set_body(body);
         } else if let Err(e) = body {
             return IntoResponse::new_error(self.client, GraphFailure::from(e));
         }
@@ -481,7 +483,7 @@ where
     }
 }
 
-impl<'a> DriveRequest<'a, BlockingClient> {
+impl<'a> DriveRequest<'a, BlockingHttpClient> {
     pub fn download<S: AsRef<str>, P: AsRef<Path>>(
         &'a self,
         id: S,
@@ -492,27 +494,25 @@ impl<'a> DriveRequest<'a, BlockingClient> {
             template(id.as_ref(), "content").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        self.client
-            .request()
-            .set_method(Method::GET)
-            .set_download_dir(directory.as_ref())
-            .set_request_type(GraphRequestType::Redirect);
+        let client = self.client.request();
+        client.set_method(Method::GET);
+        client.set_download_dir(directory.as_ref().to_path_buf());
+        client.set_request_type(GraphRequestType::Redirect);
         self.client.request().download()
     }
 }
 
-impl<'a> DriveRequest<'a, AsyncClient> {
+impl<'a> DriveRequest<'a, AsyncHttpClient> {
     pub fn download<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> AsyncDownload {
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        self.client
-            .request()
-            .set_method(Method::GET)
-            .set_download_dir(directory.as_ref())
-            .set_request_type(GraphRequestType::Redirect);
-        self.client.request().download()
+        let client = self.client.request();
+        client.set_method(Method::GET);
+        client.set_download_dir(directory.as_ref().to_path_buf());
+        client.set_request_type(GraphRequestType::Redirect);
+        futures::executor::block_on(self.client.request().download())
     }
 }

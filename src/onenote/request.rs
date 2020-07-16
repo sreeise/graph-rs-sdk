@@ -1,7 +1,7 @@
 use crate::client::Graph;
 use crate::http::{
-    AsyncClient, AsyncDownload, BlockingClient, BlockingDownload, GraphRequestType, GraphResponse,
-    IntoResponse, RequestClient,
+    AsyncClient, AsyncDownload, AsyncHttpClient, BlockingClient, BlockingDownload,
+    BlockingHttpClient, GraphRequestType, GraphResponse, IntoResponse, RequestClient,
 };
 use crate::types::collection::Collection;
 use crate::types::content::Content;
@@ -66,14 +66,16 @@ where
             );
         }
 
-        if let Err(e) = self.client.request().set_body_with_file(file) {
+        if let Err(e) = self
+            .client
+            .request()
+            .set_body_with_file(file.as_ref().to_path_buf())
+        {
             return IntoResponse::new_error(self.client, e);
         }
-        self.client
-            .request()
-            .header(CONTENT_TYPE, HeaderValue::from_static("text/html"))
-            .set_method(Method::POST);
-
+        let client = self.client.request();
+        client.header(CONTENT_TYPE, HeaderValue::from_static("text/html"));
+        client.set_method(Method::POST);
         IntoResponse::new(self.client)
     }
 }
@@ -146,13 +148,16 @@ where
             );
         }
 
-        if let Err(e) = self.client.request().set_body_with_file(file) {
+        if let Err(e) = self
+            .client
+            .request()
+            .set_body_with_file(file.as_ref().to_path_buf())
+        {
             return IntoResponse::new_error(self.client, e);
         }
-        self.client
-            .request()
-            .header(CONTENT_TYPE, HeaderValue::from_static("text/html"))
-            .set_method(Method::POST);
+        let client = self.client.request();
+        client.header(CONTENT_TYPE, HeaderValue::from_static("text/html"));
+        client.set_method(Method::POST);
         IntoResponse::new(self.client)
     }
 }
@@ -184,10 +189,10 @@ where
     delete!( | delete, GraphResponse<Content> => "{{pages}}/{{id}}" );
 }
 
-impl<'a> OnenotePageRequest<'a, BlockingClient> {
+impl<'a> OnenotePageRequest<'a, BlockingHttpClient> {
     download!( | download, BlockingDownload => "{{pages}}/{{id}}/content" );
 }
 
-impl<'a> OnenotePageRequest<'a, AsyncClient> {
-    download!( | download, AsyncDownload => "{{pages}}/{{id}}/content" );
+impl<'a> OnenotePageRequest<'a, AsyncHttpClient> {
+    async_download!( | download, AsyncDownload => "{{pages}}/{{id}}/content" );
 }
