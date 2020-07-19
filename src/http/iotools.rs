@@ -17,6 +17,13 @@ impl IoTools {
         Ok(())
     }
 
+    pub async fn create_dir_async<P: AsRef<Path>>(directory: P) -> GraphResult<()> {
+        if !directory.as_ref().exists() {
+            tokio::fs::create_dir_all(directory).await?;
+        }
+        Ok(())
+    }
+
     pub fn copy(mut response: (PathBuf, reqwest::blocking::Response)) -> GraphResult<PathBuf> {
         let (sender, receiver) = mpsc::channel();
         let handle = thread::spawn(move || {

@@ -54,6 +54,7 @@
 //! ```
 
 #![feature(type_alias_impl_trait)]
+#![feature(async_closure)]
 
 pub extern crate from_as;
 extern crate graph_error;

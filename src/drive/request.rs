@@ -1,7 +1,7 @@
 use crate::client::*;
 use crate::http::{
     AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, GraphRequestType,
-    GraphResponse, IntoResponse, RequestClient, UploadSessionClient,
+    GraphResponse, IntoResponse, RequestAttribute, RequestClient, UploadSessionClient,
 };
 use crate::types::collection::Collection;
 use crate::types::content::Content;
@@ -493,10 +493,14 @@ impl<'a> DriveRequest<'a, BlockingHttpClient> {
             template(id.as_ref(), "content").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        let client = self.client.request();
-        client.set_method(Method::GET);
-        client.set_download_dir(directory.as_ref().to_path_buf());
-        client.set_request_type(GraphRequestType::Redirect);
+        self.client
+            .request()
+            .set_request(vec![
+                RequestAttribute::Method(Method::GET),
+                RequestAttribute::Download(directory.as_ref().to_path_buf()),
+                RequestAttribute::RequestType(GraphRequestType::Redirect),
+            ])
+            .unwrap();
         self.client.request().download()
     }
 }
@@ -508,10 +512,14 @@ impl<'a> DriveRequest<'a, AsyncHttpClient> {
             template(id.as_ref(), "content").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        let client = self.client.request();
-        client.set_method(Method::GET);
-        client.set_download_dir(directory.as_ref().to_path_buf());
-        client.set_request_type(GraphRequestType::Redirect);
+        self.client
+            .request()
+            .set_request(vec![
+                RequestAttribute::Method(Method::GET),
+                RequestAttribute::Download(directory.as_ref().to_path_buf()),
+                RequestAttribute::RequestType(GraphRequestType::Redirect),
+            ])
+            .unwrap();
         futures::executor::block_on(self.client.request().download())
     }
 }
