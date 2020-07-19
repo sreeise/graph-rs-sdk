@@ -43,25 +43,30 @@ impl<T> GraphResponse<T> {
         None
     }
 
-    pub fn async_job_status(&mut self) -> Option<GraphResult<AsyncJobStatus>> {
+    async fn inner_async_job_status(&mut self) -> Option<GraphResult<AsyncJobStatus>> {
         // The location header contains the URL for monitoring progress.
         let location: &reqwest::header::HeaderValue =
             self.headers.get(reqwest::header::LOCATION)?;
         let location_str = location.to_str().ok()?;
-        let response = reqwest::blocking::Client::new()
+        let response = reqwest::Client::new()
             .get(location_str)
             .send()
+            .await
             .map_err(GraphFailure::from);
         if let Ok(response) = response {
-            if let Some(err) = GraphFailure::from_response(&response) {
+            if let Some(err) = GraphFailure::from_async_response(&response) {
                 return Some(Err(err));
             }
-            Some(response.json().map_err(GraphFailure::from))
+            Some(response.json().await.map_err(GraphFailure::from))
         } else if let Err(e) = response {
             Some(Err(e))
         } else {
             None
         }
+    }
+
+    pub fn async_job_status(&mut self) -> Option<GraphResult<AsyncJobStatus>> {
+        futures::executor::block_on(self.inner_async_job_status())
     }
 
     pub(crate) async fn try_from_async(response: reqwest::Response) -> GraphResult<GraphResponse<T>>

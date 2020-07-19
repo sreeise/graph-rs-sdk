@@ -271,7 +271,6 @@ impl AsyncDownload {
         self.client.set_request_type(GraphRequestType::Redirect);
         self.client.url_mut(|url| {
             url.format(format);
-            println!("{:#?}", url);
         });
     }
 
