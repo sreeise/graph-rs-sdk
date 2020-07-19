@@ -169,7 +169,7 @@ impl BlockingClient {
         DownloadClient::new(request)
     }
 
-    pub fn upload_session(&mut self) -> GraphResult<UploadSessionClient<BlockingClient>> {
+    pub fn upload_session(&mut self) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
         let file = self
             .upload_session_file
             .take()
@@ -294,7 +294,7 @@ impl AsyncClient {
         DownloadClient::new_async(request)
     }
 
-    pub async fn upload_session(&mut self) -> GraphResult<UploadSessionClient<AsyncClient>> {
+    pub async fn upload_session(&mut self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
         let file = self
             .upload_session_file
             .take()
@@ -407,7 +407,7 @@ impl HttpClient<RefCell<BlockingClient>> {
         self.client.borrow_mut().download()
     }
 
-    pub fn upload_session(&self) -> GraphResult<UploadSessionClient<BlockingClient>> {
+    pub fn upload_session(&self) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
         self.client.borrow_mut().upload_session()
     }
 
@@ -755,7 +755,7 @@ impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
         self.client.lock().await.download()
     }
 
-    pub async fn upload_session(&self) -> GraphResult<UploadSessionClient<AsyncClient>> {
+    pub async fn upload_session(&self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
         self.client.lock().await.upload_session().await
     }
 
