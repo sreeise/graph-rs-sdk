@@ -381,17 +381,19 @@ macro_rules! register_method {
 macro_rules! register_download {
     ( | $name:ident, $T:ty => $template:expr ) => {
       pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
-        let client = self.client.request();
-        client.set_method(reqwest::Method::GET);
-        client.set_download_dir(directory.as_ref().to_path_buf());
-        client.set_request_type(GraphRequestType::Redirect);
+        self.client.request()
+            .set_request(vec![
+                crate::http::RequestAttribute::Method(Method::GET),
+                crate::http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
+                crate::http::RequestAttribute::RequestType(GraphRequestType::Redirect),
+            ]).unwrap();
 
         render_path!(
             self.client,
             $template,
             &serde_json::json!({ "id": id.as_ref() })
         );
-        client.download()
+        self.client.request().download()
       }
     };
 }
@@ -400,17 +402,19 @@ macro_rules! register_download {
 macro_rules! register_async_download {
     ( | $name:ident, $T:ty => $template:expr ) => {
       pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
-        let client = self.client.request();
-        client.set_method(reqwest::Method::GET);
-        client.set_download_dir(directory.as_ref().to_path_buf());
-        client.set_request_type(GraphRequestType::Redirect);
+        self.client.request()
+            .set_request(vec![
+                crate::http::RequestAttribute::Method(Method::GET),
+                crate::http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
+                crate::http::RequestAttribute::RequestType(GraphRequestType::Redirect),
+            ]).unwrap();
 
         render_path!(
             self.client,
             $template,
             &serde_json::json!({ "id": id.as_ref() })
         );
-        client.download().await
+        self.client.request().download().await
       }
     };
 }

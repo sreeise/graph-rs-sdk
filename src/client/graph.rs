@@ -21,6 +21,7 @@ use handlebars::*;
 use reqwest::header::{HeaderValue, ACCEPT};
 use reqwest::Method;
 use std::convert::TryFrom;
+use std::fmt::Debug;
 use std::str::FromStr;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
@@ -92,12 +93,15 @@ where
     pub(crate) fn request(&self) -> &Client {
         &self.request
     }
+}
 
-    /*
-    pub fn debug_request(&self) {
-        println!("{:#?}", self.request);
+impl<Client> Debug for Graph<Client>
+where
+    Client: Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.request.fmt(f)
     }
-     */
 }
 
 type GraphBlocking = Graph<BlockingHttpClient>;
