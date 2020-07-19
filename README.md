@@ -44,9 +44,6 @@ To use the async client
 
     let client = Graph::new_async("ACCESS_TOKEN");
     
-The async client mainly uses tokio internally for async utilities suchas working with files so 
-it is recommended to use the tokio runtime.    
-
 #### The send method and Graph types
 The send() method is the main method for sending a request. The return value will be wrapped
 in a response object and the body will be one of:

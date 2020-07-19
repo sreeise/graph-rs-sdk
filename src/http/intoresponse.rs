@@ -1,7 +1,6 @@
 use crate::client::*;
 use crate::http::{
-    AsyncHttpClient, BlockingHttpClient, GraphResponse, RequestClient,
-    UploadSessionClient,
+    AsyncHttpClient, BlockingHttpClient, GraphResponse, RequestClient, UploadSessionClient,
 };
 use crate::types::delta::{Delta, NextLink};
 use crate::types::{content::Content, delta::DeltaRequest};
@@ -246,7 +245,7 @@ where
 impl<'a, T> IntoResAsync<'a, T> {
     pub async fn json<U>(self) -> GraphResult<U>
     where
-        for<'de> U: serde::Deserialize<'de> + Send + Sync,
+        for<'de> U: serde::Deserialize<'de>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -338,7 +337,7 @@ impl<'a, T> IntoResAsync<'a, T> {
 
 impl<'a, T> IntoResAsync<'a, T>
 where
-    for<'de> T: serde::Deserialize<'de> + Send + Sync,
+    for<'de> T: serde::Deserialize<'de>,
 {
     pub async fn send(self) -> GraphResult<GraphResponse<T>> {
         if self.error.is_some() {
