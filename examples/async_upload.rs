@@ -40,7 +40,7 @@ async fn main() -> Result<(), GraphFailure> {
     if let Err(e) = response {
         println!("Error: {:#?}", e);
     } else if let Ok(mut session) = response {
-        let cancel_request = session.cancel();
+        let cancel_request = session.cancel().await;
 
         while let Some(next) = session.next().await {
             match next {

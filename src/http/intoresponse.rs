@@ -1,6 +1,6 @@
 use crate::client::*;
 use crate::http::{
-    AsyncClient, AsyncHttpClient, BlockingClient, BlockingHttpClient, GraphResponse, RequestClient,
+    AsyncHttpClient, BlockingHttpClient, GraphResponse, RequestClient,
     UploadSessionClient,
 };
 use crate::types::delta::{Delta, NextLink};
@@ -214,7 +214,7 @@ where
 }
 
 impl<'a> IntoResBlocking<'a, UploadSessionClient<BlockingHttpClient>> {
-    pub fn send(self) -> GraphResult<UploadSessionClient<BlockingClient>> {
+    pub fn send(self) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
@@ -362,7 +362,7 @@ impl<'a> IntoResAsync<'a, GraphResponse<Content>> {
 }
 
 impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncHttpClient>> {
-    pub async fn send(self) -> GraphResult<UploadSessionClient<AsyncClient>> {
+    pub async fn send(self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }

@@ -70,7 +70,7 @@ async fn async_upload_session() {
                 e
             );
         } else if let Ok(mut session) = response {
-            let cancel_request = session.cancel();
+            let cancel_request = session.cancel().await;
 
             while let Some(next) = session.next().await {
                 match next {

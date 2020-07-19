@@ -1,8 +1,8 @@
-use crate::http::{AsyncClient, AsyncIterator, BlockingClient, GraphResponse, HttpByteRange};
+use crate::http::{AsyncClient, AsyncIterator, BlockingClient, GraphResponse, HttpByteRange, AsyncHttpClient, RequestClient, RequestAttribute, BlockingHttpClient};
 use crate::url::GraphUrl;
 use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult};
-use reqwest::header::{CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
+use reqwest::header::{CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE, HeaderMap, HeaderValue};
 use serde::export::Formatter;
 use std::convert::TryFrom;
 use std::fmt::Debug;
@@ -62,36 +62,30 @@ impl<C> Debug for UploadSessionClient<C> {
     }
 }
 
-impl UploadSessionClient<BlockingClient> {
+impl UploadSessionClient<BlockingHttpClient> {
     pub fn new(
         upload_session: serde_json::Value,
-    ) -> GraphResult<UploadSessionClient<BlockingClient>> {
+    ) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
         let url = upload_session["uploadUrl"].as_str()?;
         Ok(UploadSessionClient {
             upload_session_url: url.to_string(),
             byte_ranges: Default::default(),
-            client: BlockingClient::new_blocking(GraphUrl::parse(url)?),
+            client: BlockingHttpClient::from(BlockingClient::new_blocking(GraphUrl::parse(url)?)),
         })
     }
 
     pub fn cancel(&mut self) -> reqwest::blocking::RequestBuilder {
         self.client
-            .inner_client()
-            .delete(self.upload_session_url.as_str())
-            .header(CONTENT_TYPE, "application/json")
+            .set_method(reqwest::Method::DELETE);
+        self.client.build()
     }
 
     pub fn status(&mut self) -> GraphResult<reqwest::blocking::Response> {
-        self.client
-            .inner_client()
-            .get(self.upload_session_url.as_str())
-            .header(CONTENT_TYPE, "application/json")
-            .send()
-            .map_err(GraphFailure::from)
+        self.client.response()
     }
 }
 
-impl Iterator for UploadSessionClient<BlockingClient> {
+impl Iterator for UploadSessionClient<BlockingHttpClient> {
     type Item = GraphResult<NextSession>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -99,17 +93,18 @@ impl Iterator for UploadSessionClient<BlockingClient> {
 
         // The Authorization header and bearer token should only be sent
         // when issuing the POST during the first step.
-        let response = self
-            .client
-            .inner_client()
-            .put(self.upload_session_url.as_str())
-            .header(CONTENT_TYPE, "application/json")
-            .header(CONTENT_LENGTH, content_length)
-            .header(CONTENT_RANGE, content_range)
-            .body(body)
-            .send()
-            .map_err(GraphFailure::from);
+        let mut header_map = HeaderMap::new();
+        header_map.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        header_map.insert(CONTENT_LENGTH, HeaderValue::from_str(&content_length.to_string()).unwrap());
+        header_map.insert(CONTENT_RANGE, HeaderValue::from_str(&content_range.to_string()).unwrap());
 
+        self.client.set_request(vec![
+            RequestAttribute::Headers(header_map),
+            RequestAttribute::Method(reqwest::Method::PUT),
+            RequestAttribute::Body(body.into()),
+        ]).unwrap();
+
+        let response = self.client.response();
         if let Ok(response) = response {
             if let Some(e) = GraphFailure::from_response(&response) {
                 return Some(Err(e));
@@ -145,16 +140,16 @@ impl Iterator for UploadSessionClient<BlockingClient> {
     }
 }
 
-impl UploadSessionClient<AsyncClient> {
+impl UploadSessionClient<AsyncHttpClient> {
     pub fn new_async(
         upload_session: serde_json::Value,
-    ) -> GraphResult<UploadSessionClient<AsyncClient>> {
+    ) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
         println!("Upload session: {:#?}", upload_session);
         let url = upload_session["uploadUrl"].as_str()?;
         Ok(UploadSessionClient {
             upload_session_url: url.to_string(),
             byte_ranges: Default::default(),
-            client: AsyncClient::new_async(GraphUrl::parse(url)?),
+            client: AsyncHttpClient::from(AsyncClient::new_async(GraphUrl::parse(url)?)),
         })
     }
 
@@ -163,26 +158,19 @@ impl UploadSessionClient<AsyncClient> {
         Ok(())
     }
 
-    pub fn cancel(&mut self) -> reqwest::RequestBuilder {
+    pub async fn cancel(&mut self) -> reqwest::RequestBuilder {
         self.client
-            .inner_client()
-            .delete(self.upload_session_url.as_str())
-            .header(CONTENT_TYPE, "application/json")
+            .set_method(reqwest::Method::DELETE);
+        self.client.build().await
     }
 
     pub async fn status(&mut self) -> GraphResult<reqwest::Response> {
-        self.client
-            .inner_client()
-            .get(self.upload_session_url.as_str())
-            .header(CONTENT_TYPE, "application/json")
-            .send()
-            .await
-            .map_err(GraphFailure::from)
+        self.client.response().await
     }
 }
 
 #[async_trait]
-impl AsyncIterator for UploadSessionClient<AsyncClient> {
+impl AsyncIterator for UploadSessionClient<AsyncHttpClient> {
     type Item = GraphResult<NextSession>;
 
     async fn next(&mut self) -> Option<Self::Item> {
@@ -190,18 +178,18 @@ impl AsyncIterator for UploadSessionClient<AsyncClient> {
 
         // The Authorization header and bearer token should only be sent
         // when issuing the POST during the first step.
-        let response = self
-            .client
-            .inner_client()
-            .put(self.upload_session_url.as_str())
-            .header(CONTENT_TYPE, "application/json")
-            .header(CONTENT_LENGTH, content_length)
-            .header(CONTENT_RANGE, content_range)
-            .body(body)
-            .send()
-            .await
-            .map_err(GraphFailure::from);
+        let mut header_map = HeaderMap::new();
+        header_map.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        header_map.insert(CONTENT_LENGTH, HeaderValue::from_str(&content_length.to_string()).unwrap());
+        header_map.insert(CONTENT_RANGE, HeaderValue::from_str(&content_range.to_string()).unwrap());
 
+        self.client.set_request(vec![
+            RequestAttribute::Headers(header_map),
+            RequestAttribute::Method(reqwest::Method::PUT),
+            RequestAttribute::Body(body.into()),
+        ]).unwrap();
+
+        let response = self.client.response().await;
         if let Err(e) = response {
             println!("Error on initial request: {:#?}", e);
             self.byte_ranges.clear();
