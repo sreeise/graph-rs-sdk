@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::OAuthRequest;
-use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
+use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
 
 #[tokio::test]
 async fn create_delete_folder_async() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
         let client = Graph::new_async(token.bearer_token());
         let folder: HashMap<String, serde_json::Value> = HashMap::new();
@@ -47,7 +47,7 @@ async fn create_delete_folder_async() {
 
 #[tokio::test]
 async fn drive_upload_new_and_replace_and_delete() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
         let client = Graph::new_async(token.bearer_token());
         let upload_res = client
@@ -93,7 +93,7 @@ async fn drive_upload_new_and_replace_and_delete() {
                 );
             }
 
-            thread::sleep(Duration::from_secs(2));
+            tokio::time::delay_for(Duration::from_secs(2)).await;
             let delete_res = client
                 .v1()
                 .drives(id.as_str())

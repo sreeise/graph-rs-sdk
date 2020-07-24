@@ -2,17 +2,17 @@ environment:
   SSL_CERT_FILE: "C:\\OpenSSL\\cacert.pem"
 
   TEST_APP_ID:
-    secure: BxdmP2b27g5X5MtNtrPn//nEU910jKuc35acBP87NutqghfHdcfGs4hzYX+P9kgp
+    secure: G1NBfN2TtOyZaKt6iQBmKrTtQQVOnPIvhb7Upkep2v6M26DDcJfsoWYpgS9yhHsr
   TEST_APP_SECRET:
-    secure: TuKrAyGpAdArLUujhZUrwTYpQCmHv/ZsOL4w+au5b3W16d/UNJbXaZlA4lJVfEYO
+    secure: uo2trRlS26evnJ4/KXeO7OurN4f1YhBzFEu6fhJ96nvy5HRy/r9xWeRVlm05D5Nu
   TEST_APP_USER_NAME:
-    secure: rBiJxlAihHp810szCSz2v/C4khRkXUFUHjcDibYw5TTCfEfRtS1kwsu2T2cqOaXp
+    secure: PkDp7tbdOUaWmHHPWpK5KrK1ZlujKIUAIcrpWRSJLJg=
   TEST_APP_PASSWORD:
-    secure: h0LX6syLa7EtRVjYBOIbnSe7BA+fka3DBYHPJPrANhw=
+    secure: 6wtCpZqgCNV9c/6L2P6URg==
   TEST_APP_TENANT:
-    secure: UyWna7PmLBrBDldEt3nU8MjvVNWPl0DznY7KQxJHCq7FGmIdf1ZzyV9KWS7Is9fj
+    secure: ONNhekhG/Mkl9YR2YJAMPM1r4tquPZJMZDDF3tEIRbdBupx9XTsUqWFmiLMb5QlU
   TEST_APP_USER_ID:
-    secure: a9Ub4PSHMHvqaTopXIFadzDgeueMah1hMVd1mNiG+JjWEiWUTgI6J1jEvm5PaEHE
+    secure: NuS0zkSRo1cWTNLuNaR8K6c6q6F07oOuN+0A4xZFprTGvVoNvZ6Q2XDHDY356VPX
 
   matrix:
     - TARGET: i686-pc-windows-msvc
