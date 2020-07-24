@@ -24,17 +24,17 @@ impl IoTools {
         Ok(())
     }
 
-    pub fn copy(mut response: (PathBuf, reqwest::blocking::Response)) -> GraphResult<PathBuf> {
+    pub fn copy(path: PathBuf, mut response: reqwest::blocking::Response) -> GraphResult<PathBuf> {
         let (sender, receiver) = mpsc::channel();
         let handle = thread::spawn(move || {
             let mut file_writer = OpenOptions::new()
                 .create(true)
                 .write(true)
                 .read(true)
-                .open(&response.0)
+                .open(&path)
                 .expect("Error creating file");
-            copy(&mut response.1, &mut file_writer).expect("Error copying file contents");
-            sender.send(Some(response.0)).unwrap();
+            copy(&mut response, &mut file_writer).expect("Error copying file contents");
+            sender.send(Some(path)).unwrap();
         });
 
         handle.join().expect("Thread could not be joined");
@@ -46,17 +46,17 @@ impl IoTools {
         }
     }
 
-    pub async fn copy_async(response: (PathBuf, reqwest::Response)) -> GraphResult<PathBuf> {
+    pub async fn copy_async(path: PathBuf, response: reqwest::Response) -> GraphResult<PathBuf> {
         let mut file = tokio::fs::OpenOptions::new()
             .create(true)
             .write(true)
             .read(true)
-            .open(&response.0)
+            .open(&path)
             .await?;
-        let mut stream = response.1.bytes_stream();
+        let mut stream = response.bytes_stream();
         while let Some(item) = stream.next().await {
             file.write_all(&item?).await?;
         }
-        Ok(response.0)
+        Ok(path)
     }
 }

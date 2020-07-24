@@ -205,7 +205,7 @@ impl BlockingDownload {
         }
 
         self.check_existing_file(&path)?;
-        IoTools::copy((path, response))
+        IoTools::copy(path, response)
     }
 }
 
@@ -333,6 +333,6 @@ impl AsyncDownload {
         }
 
         self.check_existing_file(&path).await?;
-        IoTools::copy_async((path, response)).await
+        IoTools::copy_async(path, response).await
     }
 }

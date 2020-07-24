@@ -1,29 +1,21 @@
 use graph_error::GraphError;
-use graph_error::GraphFailure;
 use graph_rs::http::AsyncIterator;
 use graph_rs::http::NextSession;
 use graph_rs::prelude::*;
-use std::path::{Path, PathBuf};
-use std::thread;
+use std::path::PathBuf;
 use std::time::Duration;
 use test_tools::oauthrequest::OAuthRequest;
-use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
-use test_tools::support::cleanup::CleanUp;
+use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
+use test_tools::support::cleanup::AsyncCleanUp;
 use test_tools::FileUtils;
 
 #[tokio::test]
-async fn async_download() -> Result<(), GraphFailure> {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+async fn async_download() {
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
 
     if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
-        let file_location = "./test_files/download.txt";
-        let mut clean_up = CleanUp::new(|| {
-            let path = Path::new(file_location);
-            if path.exists() {
-                std::fs::remove_file(path).unwrap();
-            }
-        });
-
+        let file_location = "./test_files/download_async.txt";
+        let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
         clean_up.rm_files(file_location.into());
 
         let bearer = token.bearer_token();
@@ -31,19 +23,19 @@ async fn async_download() -> Result<(), GraphFailure> {
 
         let download = client
             .v1()
-            .drives(id.as_str())
+            .users(id.as_str())
             .drive()
-            .download(":/download.txt:", "./test_files");
+            .download(":/download_async.txt:", "./test_files");
 
-        let path_buf: PathBuf = download.send().await?;
-        FileUtils::verify_contents(path_buf.as_path(), "Download Test Text File".into());
+        let path_buf: PathBuf = download.send().await.unwrap();
+        FileUtils::verify_contents_async(path_buf.as_path(), "ONEDRIVE ASYNC DOWNLOAD TEST".into())
+            .await;
     }
-    Ok(())
 }
 
 #[tokio::test]
 async fn async_upload_session() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
 
     if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
         let client = Graph::new_async(token.bearer_token());
@@ -82,7 +74,7 @@ async fn async_upload_session() {
                         let drive_item = response.body();
                         let drive_item_id =
                             drive_item["id"].as_str().unwrap_or_default().to_string();
-                        thread::sleep(Duration::from_secs(3));
+                        tokio::time::delay_for(Duration::from_secs(3)).await;
 
                         let delete_res = client
                             .v1()

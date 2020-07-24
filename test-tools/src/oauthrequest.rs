@@ -9,6 +9,7 @@ use std::sync::Mutex;
 lazy_static! {
     pub static ref THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
     pub static ref DRIVE_THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
+    pub static ref ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
 }
 
 /*

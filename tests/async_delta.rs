@@ -1,9 +1,10 @@
 use graph_rs::prelude::*;
-use test_tools::oauthrequest::*;
+use test_tools::oauthrequest::OAuthRequest;
+use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 
 #[tokio::test]
 async fn delta_req() {
-    let _lock = THROTTLE_MUTEX.lock().unwrap();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
         let client = Graph::new_async(token.bearer_token());
         let mut delta_recv = client.v1().users(id.as_str()).delta().send().await;
