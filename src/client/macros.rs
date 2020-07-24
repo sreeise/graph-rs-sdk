@@ -649,6 +649,7 @@ macro_rules! async_download {
     };
 }
 
+#[allow(unused_macros)]
 #[macro_use]
 macro_rules! method_impl {
    ( $impl_name:ident,

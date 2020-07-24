@@ -52,14 +52,14 @@ fn update_calendars() {
 #[test]
 fn create_calendars() {
     let client = Graph::new("");
-    client.v1().me().calendar().create(&String::new());
+    client.v1().me().calendar().create(&serde_json::json!({}));
     assert_url_eq(&client, "/me/calendars");
 
     client
         .v1()
         .sites("32p99453")
         .calendar()
-        .create(&String::new());
+        .create(&serde_json::json!({}));
     assert_url_eq(&client, "/sites/32p99453/calendars")
 }
 
@@ -97,4 +97,45 @@ fn calendar_views() {
         &client,
         "/sites/32p99453/calendars/1234/calendarView?startDateTime=0&endDateTime=1",
     )
+}
+
+#[test]
+fn calendar_events() {
+    let client = Graph::new("");
+    client.v1().me().calendar().list_events();
+    assert_url_eq(&client, "/me/calendar/events");
+
+    client
+        .v1()
+        .me()
+        .calendar()
+        .create_event(&serde_json::json!({}));
+    assert_url_eq(&client, "/me/calendar/events");
+
+    client.v1().me().calendar().groups().list_events("0", "1");
+    assert_url_eq(&client, "/me/calendarGroups/0/calendars/1/events");
+
+    client
+        .v1()
+        .me()
+        .calendar()
+        .groups()
+        .list_default_events("0");
+    assert_url_eq(&client, "/me/calendarGroup/calendars/0/events");
+
+    client
+        .v1()
+        .me()
+        .calendar()
+        .groups()
+        .create_default_event("0", &serde_json::json!({}));
+    assert_url_eq(&client, "/me/calendarGroup/calendars/0/events");
+
+    client
+        .v1()
+        .me()
+        .calendar()
+        .groups()
+        .create_event("0", "1", &serde_json::json!({}));
+    assert_url_eq(&client, "/me/calendarGroups/0/calendars/1/events");
 }
