@@ -1,4 +1,3 @@
-use crate::types::asyncjobstatus::AsyncJobStatus;
 use crate::types::content::Content;
 use crate::types::delta::{DeltaLink, MetadataLink, NextLink};
 use from_as::TryFrom;
@@ -43,7 +42,7 @@ impl<T> GraphResponse<T> {
         None
     }
 
-    async fn inner_async_job_status(&mut self) -> Option<GraphResult<AsyncJobStatus>> {
+    async fn inner_async_job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
         // The location header contains the URL for monitoring progress.
         let location: &reqwest::header::HeaderValue =
             self.headers.get(reqwest::header::LOCATION)?;
@@ -65,7 +64,7 @@ impl<T> GraphResponse<T> {
         }
     }
 
-    pub fn async_job_status(&mut self) -> Option<GraphResult<AsyncJobStatus>> {
+    pub fn async_job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
         futures::executor::block_on(self.inner_async_job_status())
     }
 
