@@ -1,6 +1,5 @@
 use graph_rs::prelude::*;
 use std::collections::HashMap;
-use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::OAuthRequest;
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
