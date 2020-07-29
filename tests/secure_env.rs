@@ -5,7 +5,7 @@ use test_tools::oauthrequest::OAuthRequest;
 #[test]
 fn travis_ci_env_variable() {
     if OAuthRequest::is_travis() {
-        OAuthRequest::is_test_env_set()
+        assert!(OAuthRequest::is_test_env_set());
     }
 }
 
