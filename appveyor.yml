@@ -19,7 +19,7 @@ environment:
 install:
   - cd C:\Tools\vcpkg
   - vcpkg integrate install
-  - vcpkg install openssl:x64-windows-static
+  - vcpkg install openssl
 
   # Install Rust
   - curl -sSf -o rustup-init.exe https://win.rustup.rs/
