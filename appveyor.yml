@@ -17,10 +17,6 @@ environment:
       VCPKG_DEFAULT_TRIPLET: x64-windows
       VCPKGRS_DYNAMIC: 1
 install:
-  - cd C:\Tools\vcpkg
-  - vcpkg integrate install
-  - vcpkg install openssl
-
   # Install Rust
   - curl -sSf -o rustup-init.exe https://win.rustup.rs/
   - rustup-init.exe -y --default-host %TARGET%
@@ -28,7 +24,6 @@ install:
   - if defined MSYS2 set PATH=C:\msys64\mingw%BITS%\bin;%PATH%
   - rustc -V
   - cargo -V
-  - cd C:\projects\graph-rs
 build: false
 test_script:
   - cargo build --verbose --all
