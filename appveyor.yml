@@ -28,6 +28,7 @@ install:
   - if defined MSYS2 set PATH=C:\msys64\mingw%BITS%\bin;%PATH%
   - rustc -V
   - cargo -V
+  - cd C:\projects\graph-rs
 build: false
 test_script:
   - cargo build --verbose --all
