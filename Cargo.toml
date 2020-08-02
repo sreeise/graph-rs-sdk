@@ -32,14 +32,12 @@ serde_derive = "^1.0"
 reqwest = { version = "0.10", features = ["json", "blocking", "stream"] }
 strum_macros = "0.14.0"
 strum = "0.14.0"
-openssl-sys = "0.9"
 rayon = "1.0.3"
 getset = "0.0.7"
 log = "0.4"
 base64 = "0.10.1"
 pretty_env_logger = "0.3"
 handlebars = "2.0.2"
-openssl = { version = "^0.10", features = ["vendored"] }
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
 from_as = { git = "https://github.com/sreeise/from_as" }
