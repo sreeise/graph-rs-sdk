@@ -4,6 +4,7 @@ use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
 use from_as::*;
 use graph_error::GraphFailure;
+use ring::rand::SecureRandom;
 use serde::export::PhantomData;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
@@ -11,7 +12,6 @@ use std::convert::TryFrom;
 use std::process::Output;
 use url::form_urlencoded::Serializer;
 use url::Url;
-use ring::rand::SecureRandom;
 
 pub type OAuthReq<T> = Result<T, GraphFailure>;
 
