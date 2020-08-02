@@ -12,6 +12,7 @@ environment:
   TEST_APP_USER_ID:
     secure: NuS0zkSRo1cWTNLuNaR8K6c6q6F07oOuN+0A4xZFprTGvVoNvZ6Q2XDHDY356VPX
 
+  matrix:
     - TARGET: x86_64-pc-windows-msvc
       VCPKG_DEFAULT_TRIPLET: x64-windows
       VCPKGRS_DYNAMIC: 1
