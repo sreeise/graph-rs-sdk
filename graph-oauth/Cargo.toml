@@ -15,10 +15,9 @@ serde_derive = "^1.0"
 base64 = "0.10.1"
 strum_macros = "0.14.0"
 strum = "0.14.0"
-openssl = "^0.10"
-openssl-sys = "0.9"
 webbrowser = "0.4.0"
 chrono-humanize = "0.0.11"
 chrono = { version = "0.4.6", features = ["serde"] }
 graph-error = { path = "../graph-error" }
 from_as = { git = "https://github.com/sreeise/from_as" }
+ring = "0.16.15"
