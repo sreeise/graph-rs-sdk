@@ -560,7 +560,7 @@ impl OAuth {
     ///
     /// # let challenge = oauth.get(OAuthCredential::CodeChallenge).unwrap();
     /// # let mut context = ring::digest::Context::new(&ring::digest::SHA256);
-    /// # context.update(&verifier.as_bytes());
+    /// # context.update(oauth.get(OAuthCredential::CodeVerifier).unwrap().as_bytes());
     /// # let verifier = base64::encode_config(context.finish().as_ref(), base64::URL_SAFE_NO_PAD);
     /// # assert_eq!(challenge, verifier);
     ///```
