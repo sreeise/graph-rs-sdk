@@ -10,49 +10,7 @@ Integrates with several parts of the Graph API including OneDrive, Mail, Calenda
 like to cover more in the future and will continue to work on this as I get the time. Currently, work is
 being done to fully implement async as well as to parse open api configs to make development easier.
  
-### Install - Requires Rust nightly
-
-This project uses openssl and the openssl/openssl-sys crates so you will need to have openssl. 
-There is info on installing openssl for your platform below and if you need more information
-see https://docs.rs/openssl/0.10.30/openssl.
-
-##### Windows
-
-Install the Windows build tools (And related Visual Studio components for Rust to work on Windows).
-
-For windows, I recommend using vcpkg to install openssl since the openssl-sys crate will link to it. 
-This library previously used the vendored feature of the openssl crate but I decided to change this after 
-running into many issues with linking to openssl. If you are using vcpkg make sure you have run 
-the command `vcpkg integrate install`. If you have used this project before this change and you
-are running into issues even after installing vcpkg and openssl then make sure to run `cargo clean`
-and `cargo update`.
-
-Windows vcpkg (assuming you install vcpkg at C:\):
-
-    C:\vcpkg> vcpkg install openssl
-    
-If you build the crate and there is an error saying vcpkg cannot find the required openssl package and
-then it lists the package target then just install that target using vcpkg. Last time I checked the
-openssl crate required the target to be `openssl:x64-windows-static-md` so you would install that.
-
-##### Unix/MacOS:
-
-The openssl-sys crate uses pkg-config on Unix/MacOS to find openssl. 
-
-    # macOS
-    $ brew install openssl@1.1
-    
-    # Arch Linux
-    $ sudo pacman -S pkg-config openssl
-    
-    # Debian and Ubuntu
-    $ sudo apt-get install pkg-config libssl-dev
-    
-    # Fedora
-    $ sudo dnf install pkg-config openssl-devel
-
-
-### Build
+### Install and Build - Requires Rust nightly
 
 Normal Rust build using cargo. The nightly version is set in the rust-toolchain file.
 

@@ -39,6 +39,7 @@ pub enum GraphFailure {
     HyperInvalidUri(hyper::http::uri::InvalidUri),
     FromAsFileError(FromAsError),
     GraphRsError(GraphRsError),
+    CryptoError,
 }
 
 impl GraphFailure {
@@ -129,6 +130,7 @@ impl fmt::Display for GraphFailure {
             GraphFailure::HyperInvalidUri(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
             GraphFailure::FromAsFileError(ref err) => write!(f, "File error:\n{:#?}", err),
             GraphFailure::GraphRsError(ref err) => write!(f, "Internal error:\n{:#?}", err),
+            GraphFailure::CryptoError => write!(f, "Crypto Error (Unknown)"),
         }
     }
 }
@@ -154,6 +156,7 @@ impl error::Error for GraphFailure {
             GraphFailure::HyperInvalidUri(ref err) => Some(err),
             GraphFailure::FromAsFileError(ref err) => Some(err),
             GraphFailure::GraphRsError(ref err) => Some(err),
+            GraphFailure::CryptoError => None,
         }
     }
 }
@@ -263,6 +266,12 @@ impl From<hyper::http::uri::InvalidUri> for GraphFailure {
 impl From<FromAsError> for GraphFailure {
     fn from(err: FromAsError) -> Self {
         GraphFailure::FromAsFileError(err)
+    }
+}
+
+impl From<ring::error::Unspecified> for GraphFailure {
+    fn from(_: ring::error::Unspecified) -> Self {
+        GraphFailure::CryptoError
     }
 }
 

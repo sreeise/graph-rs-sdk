@@ -4,8 +4,6 @@ use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
 use from_as::*;
 use graph_error::GraphFailure;
-use openssl::rand::rand_bytes;
-use openssl::sha;
 use serde::export::PhantomData;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
@@ -13,6 +11,7 @@ use std::convert::TryFrom;
 use std::process::Output;
 use url::form_urlencoded::Serializer;
 use url::Url;
+use ring::rand::SecureRandom;
 
 pub type OAuthReq<T> = Result<T, GraphFailure>;
 
@@ -536,11 +535,11 @@ impl OAuth {
     /// For authorization, the code_challenge_method parameter in the request body
     /// is automatically set to 'S256'.
     ///
-    /// Internally this method uses the Rust implementation of
-    /// openssl and the rand_bytes method to generate a secure random
-    /// 32-octet sequence that is base64 URL encoded (no padding).
-    /// This sequence is hashed using SHA256 and base64 URL encoded
-    /// (no padding) resulting in a 43-octet URL safe string.
+    /// Internally this method uses the Rust ring cyrpto library to
+    /// generate a secure random 32-octet sequence that is base64 URL
+    /// encoded (no padding). This sequence is hashed using SHA256 and
+    /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
+    ///
     ///
     /// For more info on PKCE and entropy see: https://tools.ietf.org/html/rfc7636#section-7.1
     ///
@@ -548,7 +547,6 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
-    /// use openssl::sha::sha256;
     ///
     /// let mut oauth = OAuth::new();
     /// oauth.generate_sha256_challenge_and_verifier();
@@ -556,21 +554,29 @@ impl OAuth {
     /// # assert!(oauth.contains(OAuthCredential::CodeChallenge));
     /// # assert!(oauth.contains(OAuthCredential::CodeVerifier));
     /// # assert!(oauth.contains(OAuthCredential::CodeChallengeMethod));
+    /// println!("Code Challenge: {:#?}", oauth.get(OAuthCredential::CodeChallenge));
+    /// println!("Code Verifier: {:#?}", oauth.get(OAuthCredential::CodeVerifier));
+    /// println!("Code Challenge Method: {:#?}", oauth.get(OAuthCredential::CodeChallengeMethod));
+    ///
     /// # let challenge = oauth.get(OAuthCredential::CodeChallenge).unwrap();
-    /// # let hash = sha256(oauth.get(OAuthCredential::CodeVerifier).unwrap().as_bytes());
-    /// # let verifier = base64::encode_config(&hash, base64::URL_SAFE_NO_PAD);
+    /// # let mut context = ring::digest::Context::new(&ring::digest::SHA256);
+    /// # context.update(&verifier.as_bytes());
+    /// # let verifier = base64::encode_config(context.finish().as_ref(), base64::URL_SAFE_NO_PAD);
     /// # assert_eq!(challenge, verifier);
     ///```
-    pub fn generate_sha256_challenge_and_verifier(&mut self) -> &mut OAuth {
+    pub fn generate_sha256_challenge_and_verifier(&mut self) -> Result<(), GraphFailure> {
         let mut buf = [0; 32];
-        rand_bytes(&mut buf).unwrap();
+        let rng = ring::rand::SystemRandom::new();
+        rng.fill(&mut buf)?;
         let verifier = base64::encode_config(&buf, base64::URL_SAFE_NO_PAD);
+        let mut context = ring::digest::Context::new(&ring::digest::SHA256);
+        context.update(&verifier.as_bytes());
         let code_challenge =
-            base64::encode_config(&sha::sha256(&verifier.as_bytes()), base64::URL_SAFE_NO_PAD);
+            base64::encode_config(context.finish().as_ref(), base64::URL_SAFE_NO_PAD);
         self.code_verifier(&verifier);
         self.code_challenge(&code_challenge);
         self.code_challenge_method("S256");
-        self
+        Ok(())
     }
 
     /// Set the login hint.

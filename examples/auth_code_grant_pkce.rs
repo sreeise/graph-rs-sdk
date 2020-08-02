@@ -50,7 +50,7 @@ impl OAuthClient {
             .response_type("code");
 
         // Generate the code challenge and code verifier.
-        oauth.generate_sha256_challenge_and_verifier();
+        oauth.generate_sha256_challenge_and_verifier().unwrap();
 
         OAuthClient { client: oauth }
     }
