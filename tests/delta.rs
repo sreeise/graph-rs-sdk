@@ -15,7 +15,11 @@ fn delta_req() {
                     Ok(delta) => match delta {
                         Delta::Next(response) => {
                             assert!(!is_done);
-                            assert!(response.error().is_none());
+                            assert!(
+                                response.status() == 200 ||
+                                    response.status() == 201 ||
+                                    response.status() == 204
+                            );
                         },
                         Delta::Done(err) => {
                             if let Some(err) = err {

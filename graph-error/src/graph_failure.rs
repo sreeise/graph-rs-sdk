@@ -67,28 +67,6 @@ impl GraphFailure {
     pub fn from_async_response(r: &reqwest::Response) -> Option<GraphFailure> {
         GraphFailure::try_from(r).ok()
     }
-
-    pub async fn from_async_res_with_err_message(r: reqwest::Response) -> Option<GraphFailure> {
-        GraphError::try_from_async_with_err_message(r)
-            .await
-            .map(GraphFailure::from)
-    }
-
-    pub fn try_set_graph_error_message(&self, message: &str) -> Option<GraphFailure> {
-        let error: Option<GraphError> = {
-            match self {
-                GraphFailure::GraphError(error) => Some(error.clone()),
-                _ => None,
-            }
-        };
-
-        if let Some(mut err) = error {
-            err.try_set_error_message(message);
-            return Some(GraphFailure::from(err));
-        }
-
-        None
-    }
 }
 
 impl AsRes for GraphFailure {

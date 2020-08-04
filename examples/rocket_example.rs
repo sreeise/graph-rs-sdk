@@ -9,7 +9,9 @@ extern crate serde_json;
 use from_as::*;
 use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
+use rocket::http::ContentType;
 use rocket::http::RawStr;
+use rocket::response::Responder;
 use rocket_codegen::routes;
 use std::thread;
 use std::time::Duration;
@@ -77,7 +79,7 @@ fn main() {
     });
 
     rocket::ignite()
-        .mount("/", routes![redirect, recent])
+        .mount("/", routes![redirect, drive])
         .launch();
     handle.join().unwrap();
 }
@@ -117,6 +119,8 @@ fn main() {
         authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?");
         access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token");
         refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token");
+
+   Also change the scope of wl.offline_access to just offline_access
 
 The scopes given below will allow you to access most of the needed items for
 the Graph OneDrive API.
@@ -171,43 +175,32 @@ pub fn set_and_req_access_code(access_code: &str) {
         .as_file("./examples/example_files/web_oauth.json")
         .unwrap();
 }
+
+#[derive(Responder)]
+#[response(status = 200, content_type = "json")]
+struct MyResponder {
+    inner: String,
+}
+
 // Methods for calling the Graph API.
 
-// This method gets gets recent drive items from the API.
-// All OneDrive requests result in the same struct:
-//      Result<DriveItem, GraphFailure>
+// This method gets the root drive for the user.
 //
-// where DriveItem holds all the recent items you requested if the request is successful.
 // If there is an error, then a GraphFailure will be returned. GraphFailure will also store
 // an error from the Graph API if error originated from there. Errors for the Graph API
 // can be found here: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/errors?view=odsp-graph-online
 //
-//
-// This will store a users recent drive items in example_files/drive_recent.json after printing
-// the drive item to the console or the error if the request is unsuccessful.
-//
 // Curl: curl http://localhost:8000/drive/recent
-// This will store the drive item in examples/example_files/drive_recent.json.
-// You can use method from_file() to get and print the stored drive item.
-// CAREFUL: This may contain sensitive information!
-#[get("/drive/recent", format = "application/json")]
-fn recent() {
+#[get("/drive/get", format = "application/json")]
+fn drive() -> rocket::response::content::Json<MyResponder> {
     let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
     let access_token = oauth.get_access_token().unwrap();
     let token = access_token.bearer_token();
     let drive = Graph::new(token);
 
-    let collection = drive.v1().me().drive().recent().send().unwrap();
-
-    collection
-        .as_ref()
-        .as_file("./examples/example_files/drive_recent.json")
-        .unwrap();
-}
-
-#[allow(dead_code)]
-fn recent_from_file() {
-    let item: Collection<serde_json::Value> =
-        Collection::from_file("./examples/example_files/drive_recent.json").unwrap();
-    println!("{:#?}", &item);
+    let response = drive.v1().me().drive().drive().send().unwrap();
+    let drive = response.into_body();
+    rocket::response::content::Json(MyResponder {
+        inner: drive.to_string(),
+    })
 }

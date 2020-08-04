@@ -4,10 +4,11 @@ use crate::http::{
     RequestClient,
 };
 use crate::url::GraphUrl;
-use graph_error::{GraphFailure, GraphResult, GraphRsError};
+use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult, GraphRsError};
 use reqwest::header::HeaderMap;
 use reqwest::Method;
 use std::cell::RefCell;
+use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
@@ -171,8 +172,13 @@ impl BlockingDownload {
         if self.client.request_type().eq(&GraphRequestType::Redirect) {
             let response = self.client.build().send()?;
 
-            if let Some(err) = GraphFailure::from_response(&response) {
-                return Err(err);
+            if let Ok(mut error) = GraphError::try_from(&response) {
+                let error_message: GraphResult<ErrorMessage> =
+                    response.json().map_err(GraphFailure::from);
+                if let Ok(message) = error_message {
+                    error.set_error_message(message);
+                }
+                return Err(GraphFailure::from(error));
             }
 
             self.client.set_request(vec![
@@ -184,8 +190,13 @@ impl BlockingDownload {
         }
 
         let response = self.client.build().send()?;
-        if let Some(err) = GraphFailure::from_response(&response) {
-            return Err(err);
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            return Err(GraphFailure::from(error));
         }
 
         let path = {
@@ -300,9 +311,15 @@ impl AsyncDownload {
 
         if self.client.request_type().eq(&GraphRequestType::Redirect) {
             let response = self.client.build().await.send().await?;
-            if let Some(err) = GraphFailure::from_async_response(&response) {
-                return Err(err);
+            if let Ok(mut error) = GraphError::try_from(&response) {
+                let error_message: GraphResult<ErrorMessage> =
+                    response.json().await.map_err(GraphFailure::from);
+                if let Ok(message) = error_message {
+                    error.set_error_message(message);
+                }
+                return Err(GraphFailure::from(error));
             }
+
             self.client.set_request(vec![
                 RequestAttribute::ClearHeaders,
                 RequestAttribute::Method(Method::GET),
@@ -312,8 +329,13 @@ impl AsyncDownload {
         }
 
         let response = self.client.build().await.send().await?;
-        if let Some(err) = GraphFailure::from_async_response(&response) {
-            return Err(err);
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().await.map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            return Err(GraphFailure::from(error));
         }
 
         let path = {

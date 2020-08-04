@@ -68,7 +68,7 @@ fn list_get_notebooks_and_sections() {
                     .send();
 
                 if let Ok(collection) = sections {
-                    let vec = collection.body_to_owned().into_inner();
+                    let vec = collection.into_body().into_inner();
                     let section_name = vec[0]["displayName"].as_str().unwrap();
                     assert_eq!("TestSection", section_name);
                 } else if let Err(e) = sections {

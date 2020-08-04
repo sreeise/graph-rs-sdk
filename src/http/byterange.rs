@@ -1,6 +1,6 @@
-use from_as::TryFrom;
 use graph_error::{GraphFailure, GraphResult};
 use std::collections::VecDeque;
+use std::convert::TryFrom;
 use std::fs;
 use std::fs::File;
 use std::io::{ErrorKind, Read, Seek, SeekFrom};

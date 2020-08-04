@@ -19,7 +19,7 @@ fn delete_id(item_id: &str) {
     let response: GraphResponse<Content> = client.v1().me().drive().delete(item_id).send().unwrap();
 
     println!("{:#?}", response);
-    println!("\nItem was deleted: {:#?}", response.success());
+    println!("\nItem was deleted. Status: {:#?}", response.status());
 }
 
 // Deleting an item by path.
@@ -30,5 +30,5 @@ pub fn delete_path(path: &str) {
     let response: GraphResponse<Content> = client.v1().me().drive().delete(path).send().unwrap();
 
     println!("{:#?}", response);
-    println!("\nItem was deleted: {:#?}", response.success());
+    println!("\nItem was deleted. Status: {:#?}", response.status());
 }

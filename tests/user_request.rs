@@ -15,7 +15,11 @@ fn user_request_test() {
             let users = client.v1().users(id.as_str()).list().send();
 
             if let Ok(response) = users {
-                assert!(response.error().is_none());
+                assert!(
+                    response.status() == 200 ||
+                        response.status() == 201 ||
+                        response.status() == 204
+                );
             } else if let Err(e) = users {
                 panic!("Request error. Method: users list. Error: {:#?}", e);
             }
@@ -23,7 +27,11 @@ fn user_request_test() {
             let user_res = client.v1().users(id.as_str()).get().send();
 
             if let Ok(response) = user_res {
-                assert!(response.error().is_none());
+                assert!(
+                    response.status() == 200 ||
+                        response.status() == 201 ||
+                        response.status() == 204
+                );
             } else if let Err(e) = user_res {
                 panic!("Request error. Method: users list. Error: {:#?}", e);
             }
