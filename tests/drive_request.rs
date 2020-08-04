@@ -40,8 +40,12 @@ fn create_delete_folder() {
 
                 let req = client.v1().drives(id).drive().delete(item_id).send();
 
-                if let Ok(res) = req {
-                    assert!(res.error().is_none());
+                if let Ok(response) = req {
+                    assert!(
+                        response.status() == 200 ||
+                            response.status() == 201 ||
+                            response.status() == 204
+                    );
                 } else if let Err(e) = req {
                     panic!("Request error. Method: drive delete. Error: {:#?}", e);
                 }
@@ -76,8 +80,12 @@ fn list_versions_get_item() {
                     .list_versions(item_id)
                     .send();
 
-                if let Ok(res) = versions_res {
-                    assert!(res.error().is_none());
+                if let Ok(response) = versions_res {
+                    assert!(
+                        response.status() == 200 ||
+                            response.status() == 201 ||
+                            response.status() == 204
+                    );
                 } else if let Err(e) = versions_res {
                     panic!("Request Error. Method: list versions. Error: {:#?}", e);
                 }
@@ -103,8 +111,12 @@ fn drive_check_in_out() {
                     .check_out(":/test_check_out_document.docx:")
                     .send();
 
-                if let Ok(res) = req {
-                    assert!(res.error().is_none());
+                if let Ok(response) = req {
+                    assert!(
+                        response.status() == 200 ||
+                            response.status() == 201 ||
+                            response.status() == 204
+                    );
                 } else if let Err(e) = req {
                     panic!("Request Error. Method: drive check_out. Error: {:#?}", e);
                 }
@@ -122,8 +134,12 @@ fn drive_check_in_out() {
                     )
                     .send();
 
-                if let Ok(res) = req {
-                    assert!(res.error().is_none());
+                if let Ok(response) = req {
+                    assert!(
+                        response.status() == 200 ||
+                            response.status() == 201 ||
+                            response.status() == 204
+                    );
                 } else if let Err(e) = req {
                     panic!("Request Error. Method: drive check_in. Error: {:#?}", e);
                 }
@@ -307,8 +323,12 @@ fn drive_upload_new_and_replace_and_delete() {
                     .delete(item_id)
                     .send();
 
-                if let Ok(result) = delete_res {
-                    assert!(result.error().is_none());
+                if let Ok(response) = delete_res {
+                    assert!(
+                        response.status() == 200 ||
+                            response.status() == 201 ||
+                            response.status() == 204
+                    );
                 } else if let Err(e) = delete_res {
                     panic!("Request Error. Method: drive delete. Error: {:#?}", e);
                 }
@@ -364,8 +384,12 @@ fn drive_upload_session() {
                                 .delete(drive_item_id.as_str())
                                 .send();
 
-                            if let Ok(res) = delete_res {
-                                assert!(res.error().is_none());
+                            if let Ok(response) = delete_res {
+                                assert!(
+                                    response.status() == 200 ||
+                                        response.status() == 201 ||
+                                        response.status() == 204
+                                );
                             } else if let Err(e) = delete_res {
                                 panic!("Request error. Upload session new. Error: {:#?}", e);
                             }

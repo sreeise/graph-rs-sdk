@@ -1,12 +1,12 @@
 use crate::client::*;
 use crate::http::{
-    AsyncHttpClient, BlockingHttpClient, GraphResponse, RequestClient, UploadSessionClient,
+    AsyncHttpClient, AsyncTryFrom, BlockingHttpClient, GraphResponse, RequestClient,
+    UploadSessionClient,
 };
 use crate::types::delta::{Delta, NextLink};
 use crate::types::{content::Content, delta::DeltaRequest};
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderValue, IntoHeaderName, CONTENT_TYPE};
-use std::convert::TryFrom;
 use std::marker::PhantomData;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
@@ -227,7 +227,7 @@ impl<'a> IntoResBlocking<'a, GraphResponse<Content>> {
             return Err(self.error.unwrap_or_default());
         }
         let response = self.client.request().response()?;
-        Ok(GraphResponse::try_from(response)?)
+        Ok(std::convert::TryFrom::try_from(response)?)
     }
 }
 
@@ -343,9 +343,8 @@ where
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let request = self.client.request().build().await;
-        let response = request.send().await?;
-        GraphResponse::try_from_async(response).await
+        let response = self.client.request().response().await?;
+        AsyncTryFrom::<reqwest::Response>::try_from(response).await
     }
 }
 
@@ -354,9 +353,8 @@ impl<'a> IntoResAsync<'a, GraphResponse<Content>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let request = self.client.request().build().await;
-        let response = request.send().await?;
-        GraphResponse::try_from_async_content(response).await
+        let response = self.client.request().response().await?;
+        AsyncTryFrom::<reqwest::Response>::try_from(response).await
     }
 }
 

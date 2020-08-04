@@ -1,10 +1,10 @@
 use crate::http::{
-    AsyncClient, AsyncHttpClient, AsyncIterator, BlockingClient, BlockingHttpClient, GraphResponse,
-    HttpByteRange, RequestAttribute, RequestClient,
+    AsyncClient, AsyncHttpClient, AsyncIterator, AsyncTryFrom, BlockingClient, BlockingHttpClient,
+    GraphResponse, HttpByteRange, RequestAttribute, RequestClient,
 };
 use crate::url::GraphUrl;
 use async_trait::async_trait;
-use graph_error::{GraphFailure, GraphResult};
+use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
 use serde::export::Formatter;
 use std::convert::TryFrom;
@@ -141,12 +141,17 @@ impl Iterator for UploadSessionClient<BlockingHttpClient> {
         let response = self.client.response();
 
         if let Ok(response) = response {
-            if let Some(e) = GraphFailure::from_response(&response) {
-                return Some(Err(e));
+            if let Ok(mut error) = GraphError::try_from(&response) {
+                let error_message: GraphResult<ErrorMessage> =
+                    response.json().map_err(GraphFailure::from);
+                if let Ok(message) = error_message {
+                    error.set_error_message(message);
+                }
+                return Some(Err(GraphFailure::from(error)));
             }
 
             let status = response.status().as_u16();
-            let result = GraphResponse::try_from(response);
+            let result = std::convert::TryFrom::try_from(response);
             return NextSession::from_response((status, result));
         } else if let Err(e) = response {
             return Some(Err(e));
@@ -194,12 +199,17 @@ impl AsyncIterator for UploadSessionClient<AsyncHttpClient> {
         if let Err(e) = response {
             return Some(Err(e));
         } else if let Ok(response) = response {
-            if let Some(e) = GraphFailure::from_async_response(&response) {
-                return Some(Err(e));
+            if let Ok(mut error) = GraphError::try_from(&response) {
+                let error_message: GraphResult<ErrorMessage> =
+                    response.json().await.map_err(GraphFailure::from);
+                if let Ok(message) = error_message {
+                    error.set_error_message(message);
+                }
+                return Some(Err(GraphFailure::from(error)));
             }
 
             let status = response.status().as_u16();
-            let result = GraphResponse::try_from_async(response).await;
+            let result = AsyncTryFrom::<reqwest::Response>::try_from(response).await;
             return NextSession::from_response((status, result));
         }
         None

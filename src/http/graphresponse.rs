@@ -1,7 +1,10 @@
+use crate::http::AsyncTryFrom;
 use crate::types::content::Content;
 use crate::types::delta::{DeltaLink, MetadataLink, NextLink};
-use from_as::TryFrom;
-use graph_error::{GraphError, GraphFailure, GraphResult};
+use async_trait::async_trait;
+use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
+use reqwest::Response;
+use std::convert::TryFrom;
 
 #[derive(Debug)]
 pub struct GraphResponse<T> {
@@ -23,7 +26,7 @@ impl<T> GraphResponse<T> {
         &self.body
     }
 
-    pub fn body_to_owned(self) -> T {
+    pub fn into_body(self) -> T {
         self.body
     }
 
@@ -31,15 +34,8 @@ impl<T> GraphResponse<T> {
         self.status
     }
 
-    pub fn success(&self) -> bool {
-        self.status == 200 || self.status == 202 || self.status == 204
-    }
-
-    pub fn error(&self) -> Option<GraphError> {
-        if GraphError::is_error(self.status) {
-            return Some(GraphError::try_from(self.status).unwrap_or_default());
-        }
-        None
+    pub fn headers(&self) -> &reqwest::header::HeaderMap {
+        &self.headers
     }
 
     async fn inner_async_job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
@@ -67,48 +63,6 @@ impl<T> GraphResponse<T> {
     pub fn async_job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
         futures::executor::block_on(self.inner_async_job_status())
     }
-
-    pub(crate) async fn try_from_async(response: reqwest::Response) -> GraphResult<GraphResponse<T>>
-    where
-        for<'de> T: serde::Deserialize<'de>,
-    {
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            let possible_error = GraphFailure::from_async_response(&response).unwrap_or_default();
-            return Err(GraphFailure::from_async_res_with_err_message(response)
-                .await
-                .ok_or(possible_error)?);
-        }
-
-        let headers = response.headers().clone();
-        let body: T = response.json().await?;
-        Ok(GraphResponse::new(body, status, headers))
-    }
-}
-
-impl GraphResponse<Content> {
-    pub(crate) async fn try_from_async_content(
-        response: reqwest::Response,
-    ) -> GraphResult<GraphResponse<Content>> {
-        let status = response.status().as_u16();
-        if GraphError::is_error(status) {
-            let possible_error = GraphFailure::from_async_response(&response).unwrap_or_default();
-            return Err(GraphFailure::from_async_res_with_err_message(response)
-                .await
-                .ok_or(possible_error)?);
-        }
-
-        let headers = response.headers().clone();
-        if let Ok(content) = response.text().await {
-            Ok(GraphResponse::new(Content::from(content), status, headers))
-        } else {
-            Ok(GraphResponse::new(
-                Content::from(String::new()),
-                status,
-                headers,
-            ))
-        }
-    }
 }
 
 impl<T> AsRef<T> for GraphResponse<T> {
@@ -130,10 +84,19 @@ where
     type Error = GraphFailure;
 
     fn try_from(response: reqwest::blocking::Response) -> GraphResult<GraphResponse<T>> {
-        let headers = response.headers().clone();
-        let status = response.status().as_u16();
-        let body: T = response.json()?;
-        Ok(GraphResponse::new(body, status, headers))
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            Err(GraphFailure::from(error))
+        } else {
+            let status = response.status().as_u16();
+            let headers = response.headers().to_owned();
+            let body: T = response.json()?;
+            Ok(GraphResponse::new(body, status, headers))
+        }
     }
 }
 
@@ -141,9 +104,70 @@ impl TryFrom<reqwest::blocking::Response> for GraphResponse<Content> {
     type Error = GraphFailure;
 
     fn try_from(response: reqwest::blocking::Response) -> Result<Self, Self::Error> {
-        let headers = response.headers().clone();
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            return Err(GraphFailure::from(error));
+        }
+
+        let headers = response.headers().to_owned();
         let status = response.status().as_u16();
         if let Ok(content) = response.text() {
+            Ok(GraphResponse::new(Content::from(content), status, headers))
+        } else {
+            Ok(GraphResponse::new(
+                Content::from(String::new()),
+                status,
+                headers,
+            ))
+        }
+    }
+}
+
+#[async_trait]
+impl<T> AsyncTryFrom<reqwest::Response> for GraphResponse<T>
+where
+    for<'de> T: serde::Deserialize<'de>,
+{
+    type Error = GraphFailure;
+
+    async fn try_from(response: reqwest::Response) -> Result<Self, Self::Error> {
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().await.map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            Err(GraphFailure::from(error))
+        } else {
+            let status = response.status().as_u16();
+            let headers = response.headers().to_owned();
+            let body: T = response.json().await?;
+            Ok(GraphResponse::new(body, status, headers))
+        }
+    }
+}
+
+#[async_trait]
+impl AsyncTryFrom<reqwest::Response> for GraphResponse<Content> {
+    type Error = GraphFailure;
+
+    async fn try_from(response: Response) -> Result<Self, Self::Error> {
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().await.map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            return Err(GraphFailure::from(error));
+        }
+
+        let status = response.status().as_u16();
+        let headers = response.headers().clone();
+        if let Ok(content) = response.text().await {
             Ok(GraphResponse::new(Content::from(content), status, headers))
         } else {
             Ok(GraphResponse::new(

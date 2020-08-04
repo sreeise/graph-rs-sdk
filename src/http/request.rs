@@ -1,10 +1,11 @@
 use crate::client::Ident;
 use crate::http::{
-    AsyncDownload, BlockingDownload, DownloadClient, GraphResponse, UploadSessionClient,
+    AsyncDownload, AsyncTryFrom, BlockingDownload, DownloadClient, GraphResponse,
+    UploadSessionClient,
 };
 use crate::url::GraphUrl;
 use crate::GRAPH_URL;
-use graph_error::{GraphFailure, GraphResult};
+use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::{redirect::Policy, Method};
@@ -176,8 +177,13 @@ impl BlockingClient {
             .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
 
         let response = self.response()?;
-        if let Some(err) = GraphFailure::from_response(&response) {
-            return Err(err);
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            return Err(GraphFailure::GraphError(error));
         }
 
         let upload_session: serde_json::Value = response.json()?;
@@ -213,9 +219,6 @@ impl BlockingClient {
     pub fn response(&mut self) -> GraphResult<reqwest::blocking::Response> {
         let builder = self.build();
         let response = builder.send()?;
-        if let Some(err) = GraphFailure::from_response(&response) {
-            return Err(err);
-        }
         Ok(response)
     }
 
@@ -223,7 +226,7 @@ impl BlockingClient {
     where
         for<'de> T: serde::Deserialize<'de>,
     {
-        GraphResponse::try_from(self.response()?)
+        std::convert::TryFrom::try_from(self.response()?)
     }
 
     pub fn clone(&mut self) -> Self {
@@ -301,11 +304,13 @@ impl AsyncClient {
             .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
 
         let response = self.response().await?;
-        if let Some(err) = GraphFailure::from_async_response(&response) {
-            if let Ok(text) = response.text().await {
-                err.try_set_graph_error_message(text.as_str());
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().await.map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
             }
-            return Err(err);
+            return Err(GraphFailure::GraphError(error));
         }
 
         let upload_session: serde_json::Value = response.json().await?;
@@ -341,9 +346,6 @@ impl AsyncClient {
     pub async fn response(&mut self) -> GraphResult<reqwest::Response> {
         let builder = self.build();
         let response = builder.send().await?;
-        if let Some(err) = GraphFailure::from_async_response(&response) {
-            return Err(err);
-        }
         Ok(response)
     }
 
@@ -352,7 +354,7 @@ impl AsyncClient {
         for<'de> T: serde::Deserialize<'de>,
     {
         let response = self.response().await?;
-        GraphResponse::try_from_async(response).await
+        AsyncTryFrom::<reqwest::Response>::try_from(response).await
     }
 
     pub fn clone(&mut self) -> Self {

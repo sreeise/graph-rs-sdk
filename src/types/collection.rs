@@ -1,9 +1,8 @@
 use crate::types::delta::{DeltaLink, MetadataLink, NextLink};
-use from_as::*;
 
 /// A Collection stores a collection of items returned from the API such
 /// as a collection of DriveItem's or User's.
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Collection<T> {
     #[serde(rename = "@odata.nextLink")]
     #[serde(skip_serializing_if = "Option::is_none")]

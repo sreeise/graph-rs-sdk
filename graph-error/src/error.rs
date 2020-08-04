@@ -1,4 +1,4 @@
-use crate::GraphHeaders;
+use crate::{GraphFailure, GraphHeaders, GraphResult};
 use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt;
@@ -127,20 +127,6 @@ impl GraphError {
             .as_ref()?
             .code
             .clone()
-    }
-
-    pub async fn try_from_async_with_err_message(value: reqwest::Response) -> Option<GraphError> {
-        let status = value.status().as_u16();
-        let mut graph_error = GraphError::try_from(status).ok()?;
-        graph_error.set_headers(GraphHeaders::from(&value));
-
-        if let Ok(text) = value.text().await {
-            let error_message: ErrorMessage =
-                serde_json::from_str(text.as_str()).unwrap_or_default();
-            graph_error.error_message = error_message;
-        }
-
-        Some(graph_error)
     }
 }
 
@@ -307,9 +293,8 @@ impl TryFrom<reqwest::blocking::Response> for GraphError {
         let mut graph_error = GraphError::try_from(status)?;
         graph_error.set_headers(GraphHeaders::from(&value));
 
-        if let Ok(text) = value.text() {
-            let error_message: ErrorMessage =
-                serde_json::from_str(text.as_str()).unwrap_or_default();
+        let error_message: GraphResult<ErrorMessage> = value.json().map_err(GraphFailure::from);
+        if let Ok(error_message) = error_message {
             graph_error.error_message = error_message;
         }
 
