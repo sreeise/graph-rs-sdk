@@ -9,7 +9,6 @@ extern crate serde_json;
 use from_as::*;
 use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
-use rocket::http::ContentType;
 use rocket::http::RawStr;
 use rocket::response::Responder;
 use rocket_codegen::routes;
