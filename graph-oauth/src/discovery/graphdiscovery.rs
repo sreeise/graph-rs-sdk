@@ -1,6 +1,10 @@
-use crate::oauth::wellknown::{Commons, WellKnown};
+use crate::oauth::wellknown::WellKnown;
 use crate::oauth::{OAuth, OAuthError};
 use from_as::*;
+
+static LOGIN_LIVE_HOST: &str = "https://login.live.com";
+static MICROSOFT_ONLINE_HOST: &str = "https://login.microsoftonline.com";
+static OPEN_ID_PATH: &str = ".well-known/openid-configuration";
 
 #[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
 pub struct MicrosoftSigningKeysV1 {
@@ -54,78 +58,75 @@ pub enum GraphDiscovery {
 }
 
 impl GraphDiscovery {
-    pub fn signing_keys<T>(self) -> Result<T, OAuthError>
-    where
-        T: serde::Serialize,
-        for<'de> T: serde::Deserialize<'de>,
-    {
+    pub fn url(&self) -> String {
         match self {
-            GraphDiscovery::V1 => {
-                let t: T = Commons::signing_keys(
-                    "https://login.live.com/.well-known/openid-configuration",
-                )?;
-                Ok(t)
-            },
-            GraphDiscovery::V2 => {
-                let t: T = Commons::signing_keys(
-                    "https://login.microsoftonline.com/common/.well-known/openid-configuration",
-                )?;
-                Ok(t)
-            },
+            GraphDiscovery::V1 => format!("{}/{}", LOGIN_LIVE_HOST, OPEN_ID_PATH),
+            GraphDiscovery::V2 => format!("{}/common/{}", MICROSOFT_ONLINE_HOST, OPEN_ID_PATH),
             GraphDiscovery::Tenant(tenant) => {
-                let url = vec![
-                    "https://login.microsoftonline.com/",
-                    &tenant,
-                    "/.well-known/openid-configuration",
-                ];
-                let t: T = Commons::signing_keys(url.join("").as_str())?;
-                Ok(t)
+                format!("{}/{}/{}", MICROSOFT_ONLINE_HOST, &tenant, OPEN_ID_PATH)
             },
         }
+    }
+
+    pub fn signing_keys<T>(self) -> Result<T, OAuthError>
+    where
+        for<'de> T: serde::Deserialize<'de>,
+    {
+        let t: T = WellKnown::signing_keys(self.url().as_str())?;
+        Ok(t)
+    }
+
+    pub async fn async_signing_keys<T>(self) -> Result<T, OAuthError>
+    where
+        for<'de> T: serde::Deserialize<'de>,
+    {
+        let t: T = WellKnown::async_signing_keys(self.url().as_str()).await?;
+        Ok(t)
     }
 
     pub fn oauth(self) -> Result<OAuth, OAuthError> {
         let mut oauth = OAuth::new();
         match self {
             GraphDiscovery::V1 => {
-                let k: MicrosoftSigningKeysV1 = Commons::signing_keys(
-                    "https://login.live.com/.well-known/openid-configuration",
-                )?;
-
+                let k: MicrosoftSigningKeysV1 = self.signing_keys()?;
                 oauth
                     .authorize_url(k.authorization_endpoint.as_str())
                     .access_token_url(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
-
                 Ok(oauth)
             },
-            GraphDiscovery::V2 => {
-                let k: MicrosoftSigningKeysV2 = Commons::signing_keys(
-                    "https://login.microsoftonline.com/common/.well-known/openid-configuration",
-                )?;
-
+            GraphDiscovery::V2 | GraphDiscovery::Tenant(_) => {
+                let k: MicrosoftSigningKeysV2 = self.signing_keys()?;
                 oauth
                     .authorize_url(k.authorization_endpoint.as_str())
                     .access_token_url(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
-
                 Ok(oauth)
             },
-            GraphDiscovery::Tenant(tenant) => {
-                let url = vec![
-                    "https://login.microsoftonline.com/",
-                    &tenant,
-                    "/.well-known/openid-configuration",
-                ];
-                let k: MicrosoftSigningKeysV2 = Commons::signing_keys(url.join("").as_str())?;
+        }
+    }
+
+    pub async fn async_oauth(self) -> Result<OAuth, OAuthError> {
+        let mut oauth = OAuth::new();
+        match self {
+            GraphDiscovery::V1 => {
+                let k: MicrosoftSigningKeysV1 = self.async_signing_keys().await?;
                 oauth
                     .authorize_url(k.authorization_endpoint.as_str())
                     .access_token_url(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
-
+                Ok(oauth)
+            },
+            GraphDiscovery::V2 | GraphDiscovery::Tenant(_) => {
+                let k: MicrosoftSigningKeysV2 = self.async_signing_keys().await?;
+                oauth
+                    .authorize_url(k.authorization_endpoint.as_str())
+                    .access_token_url(k.token_endpoint.as_str())
+                    .refresh_token_url(k.token_endpoint.as_str())
+                    .logout_url(k.end_session_endpoint.as_str());
                 Ok(oauth)
             },
         }

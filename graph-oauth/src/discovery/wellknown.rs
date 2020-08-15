@@ -1,19 +1,11 @@
 use graph_error::GraphFailure;
 
-pub trait WellKnown {
-    fn signing_keys<T>(url: &str) -> Result<T, GraphFailure>
-    where
-        T: serde::Serialize,
-        for<'de> T: serde::Deserialize<'de>;
-}
-
 #[derive(Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Commons;
+pub struct WellKnown;
 
-impl WellKnown for Commons {
-    fn signing_keys<T>(url: &str) -> Result<T, GraphFailure>
+impl WellKnown {
+    pub fn signing_keys<T>(url: &str) -> Result<T, GraphFailure>
     where
-        T: serde::Serialize,
         for<'de> T: serde::Deserialize<'de>,
     {
         let client = reqwest::blocking::Client::builder().build()?;
@@ -22,6 +14,22 @@ impl WellKnown for Commons {
         match response {
             Ok(t) => {
                 let keys: T = t.json()?;
+                Ok(keys)
+            },
+            Err(e) => Err(GraphFailure::from(e)),
+        }
+    }
+
+    pub async fn async_signing_keys<T>(url: &str) -> Result<T, GraphFailure>
+    where
+        for<'de> T: serde::Deserialize<'de>,
+    {
+        let client = reqwest::Client::new();
+        let response = client.get(url).send().await;
+
+        match response {
+            Ok(t) => {
+                let keys: T = t.json().await?;
                 Ok(keys)
             },
             Err(e) => Err(GraphFailure::from(e)),
