@@ -73,9 +73,10 @@ impl GraphDiscovery {
         match self {
             GraphDiscovery::V1 => format!("{}/{}", LOGIN_LIVE_HOST, OPEN_ID_PATH),
             GraphDiscovery::V2 => format!("{}/common/v2.0/{}", MICROSOFT_ONLINE_HOST, OPEN_ID_PATH),
-            GraphDiscovery::Tenant(tenant) => {
-                format!("{}/{}/v2.0/{}", MICROSOFT_ONLINE_HOST, &tenant, OPEN_ID_PATH)
-            },
+            GraphDiscovery::Tenant(tenant) => format!(
+                "{}/{}/v2.0/{}",
+                MICROSOFT_ONLINE_HOST, &tenant, OPEN_ID_PATH
+            ),
         }
     }
 
