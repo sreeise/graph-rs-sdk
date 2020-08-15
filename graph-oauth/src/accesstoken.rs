@@ -3,7 +3,7 @@ use crate::jwt::{Claim, JsonWebToken, JwtParser};
 use chrono::{DateTime, Duration, TimeZone, Utc};
 use chrono_humanize::HumanTime;
 use from_as::*;
-use graph_error::{GraphError, GraphFailure, GraphHeaders};
+use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use std::convert::TryFrom;
 use std::fmt;
 
@@ -416,16 +416,18 @@ impl AccessToken {
         builder: reqwest::RequestBuilder,
     ) -> Result<AccessToken, GraphFailure> {
         let value = builder.send().await?;
-        let status = value.status().as_u16();
-        if GraphError::is_error(status) {
-            let mut graph_error = GraphError::try_from(status)?;
-            let graph_headers = GraphHeaders::from(&value);
-            graph_error.set_headers(graph_headers);
-            return Err(GraphFailure::from(graph_error));
+        if let Ok(mut error) = GraphError::try_from(&value) {
+            let error_message: GraphResult<ErrorMessage> =
+                value.json().await.map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            Err(GraphFailure::from(error))
+        } else {
+            let mut access_token: AccessToken = value.json().await?;
+            access_token.parse_jwt();
+            Ok(access_token)
         }
-        let mut access_token: AccessToken = value.json().await?;
-        access_token.parse_jwt();
-        Ok(access_token)
     }
 }
 
@@ -482,28 +484,32 @@ impl TryFrom<reqwest::blocking::Response> for AccessToken {
 
     fn try_from(value: reqwest::blocking::Response) -> Result<Self, Self::Error>
     where
-        Self: serde::Serialize + for<'de> serde::Deserialize<'de>,
+        Self: for<'de> serde::Deserialize<'de>,
     {
-        let status = value.status().as_u16();
-        if GraphError::is_error(status) {
-            let mut graph_error = GraphError::try_from(status)?;
-            let graph_headers = GraphHeaders::from(&value);
-            graph_error.set_headers(graph_headers);
-            return Err(GraphFailure::from(graph_error));
+        if let Ok(mut error) = GraphError::try_from(&value) {
+            let error_message: GraphResult<ErrorMessage> = value.json().map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            Err(GraphFailure::from(error))
+        } else {
+            let mut access_token: AccessToken = value.json()?;
+            access_token.parse_jwt();
+            Ok(access_token)
         }
-        let mut access_token: AccessToken = value.json()?;
-        access_token.parse_jwt();
-        Ok(access_token)
     }
 }
 
 impl fmt::Debug for AccessToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "[bearer token not shown]\ntoken_type: {:#?}\nexpires_in: \
-             {:#?}\nscope: {:#?}\nuser_id: {:#?}\nstate: {:#?}\ntimestamp: {:#?}",
-            self.token_type, self.expires_in, self.scope, self.user_id, self.state, self.timestamp,
-        )
+        f.debug_struct("AccessToken")
+            .field("bearer_token", &"[bearer token not shown]".to_string())
+            .field("token_type", &self.token_type)
+            .field("expires_in", &self.expires_in)
+            .field("scope", &self.scope)
+            .field("user_id", &self.user_id)
+            .field("state", &self.state)
+            .field("timestamp", &self.timestamp)
+            .finish()
     }
 }
