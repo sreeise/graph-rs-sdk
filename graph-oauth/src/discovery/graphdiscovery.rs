@@ -41,8 +41,10 @@ pub struct MicrosoftSigningKeysV2 {
     pub scopes_supported: Vec<String>,
     pub issuer: String,
     pub claims_supported: Vec<String>,
-    pub microsoft_multi_refresh_token: bool,
-    pub check_session_iframe: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub microsoft_multi_refresh_token: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub check_session_iframe: Option<String>,
     pub userinfo_endpoint: String,
     pub tenant_region_scope: Option<String>,
     pub cloud_instance_name: String,
@@ -70,9 +72,9 @@ impl GraphDiscovery {
     pub fn url(&self) -> String {
         match self {
             GraphDiscovery::V1 => format!("{}/{}", LOGIN_LIVE_HOST, OPEN_ID_PATH),
-            GraphDiscovery::V2 => format!("{}/common/{}", MICROSOFT_ONLINE_HOST, OPEN_ID_PATH),
+            GraphDiscovery::V2 => format!("{}/common/v2.0/{}", MICROSOFT_ONLINE_HOST, OPEN_ID_PATH),
             GraphDiscovery::Tenant(tenant) => {
-                format!("{}/{}/{}", MICROSOFT_ONLINE_HOST, &tenant, OPEN_ID_PATH)
+                format!("{}/{}/v2.0/{}", MICROSOFT_ONLINE_HOST, &tenant, OPEN_ID_PATH)
             },
         }
     }

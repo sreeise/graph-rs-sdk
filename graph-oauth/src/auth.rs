@@ -1497,7 +1497,7 @@ impl AccessTokenRequest {
     /// Send the request for an access token. The response body
     /// be will converted to an access token and returned.
     pub fn send(&mut self) -> OAuthReq<AccessToken> {
-        let client = reqwest::blocking::Client::builder().build()?;
+        let client = reqwest::blocking::Client::new();
         let builder = client.post(self.uri.as_str()).form(&self.params);
         AccessToken::try_from(builder)
     }
@@ -1510,7 +1510,7 @@ impl AccessTokenRequest {
     where
         for<'de> T: serde::Deserialize<'de>,
     {
-        let client = reqwest::blocking::Client::builder().build()?;
+        let client = reqwest::blocking::Client::new();
         let builder = client.post(self.uri.as_str()).form(&self.params);
         let response = builder.send()?;
         Ok(response.json()?)

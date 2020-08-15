@@ -89,3 +89,19 @@ async fn async_jwt_keys() {
         assert!(key.kty.is_some());
     }
 }
+
+#[test]
+fn tenant_signing_keys() {
+    if let Ok(tenant) = std::env::var("TEST_APP_TENANT") {
+        let keys: MicrosoftSigningKeysV2 = GraphDiscovery::Tenant(tenant.to_string())
+            .signing_keys()
+            .unwrap();
+        assert_eq!(
+            keys.authorization_endpoint,
+            format!(
+                "https://login.microsoftonline.com/{}/oauth2/v2.0/authorize",
+                tenant
+            )
+        );
+    }
+}
