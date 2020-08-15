@@ -50,6 +50,7 @@ use std::fmt;
 pub struct AccessToken {
     access_token: String,
     token_type: String,
+    #[serde(deserialize_with = "from_str")]
     expires_in: i64,
     scope: Option<String>,
     refresh_token: Option<String>,
@@ -59,6 +60,17 @@ pub struct AccessToken {
     timestamp: Option<DateTime<Utc>>,
     #[serde(skip)]
     jwt: Option<JsonWebToken>,
+}
+
+use std::str::FromStr;
+use serde::de::Deserialize;
+fn from_str<'de, T, D>(deserializer: D) -> Result<T, D::Error>
+    where T: FromStr,
+          T::Err: std::fmt::Display,
+          D: serde::de::Deserializer<'de>
+{
+    let s = String::deserialize(deserializer)?;
+    T::from_str(&s).map_err(serde::de::Error::custom)
 }
 
 impl AccessToken {
