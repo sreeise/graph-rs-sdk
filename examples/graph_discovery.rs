@@ -25,3 +25,23 @@ fn tenant_discovery() {
         .oauth()
         .unwrap();
 }
+
+// Using async
+#[allow(dead_code)]
+async fn async_keys_discovery() {
+    let signing_keys: MicrosoftSigningKeysV1 =
+        GraphDiscovery::V1.async_signing_keys().await.unwrap();
+    println!("{:#?}", signing_keys);
+
+    let signing_keys2: MicrosoftSigningKeysV2 =
+        GraphDiscovery::V2.async_signing_keys().await.unwrap();
+    println!("{:#?}", signing_keys2);
+}
+
+#[allow(dead_code)]
+async fn async_tenant_discovery() {
+    let _oauth: OAuth = GraphDiscovery::Tenant("<YOUR_TENANT_ID>".into())
+        .async_oauth()
+        .await
+        .unwrap();
+}

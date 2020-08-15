@@ -58,6 +58,15 @@ pub enum GraphDiscovery {
 }
 
 impl GraphDiscovery {
+    /// Get the URL for the public keys used by the Microsoft identity platform
+    /// to sign security tokens.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::graphdiscovery::GraphDiscovery;
+    /// let url = GraphDiscovery::V1.url();
+    /// println!("{}", url);
+    /// ```
     pub fn url(&self) -> String {
         match self {
             GraphDiscovery::V1 => format!("{}/{}", LOGIN_LIVE_HOST, OPEN_ID_PATH),
@@ -68,6 +77,15 @@ impl GraphDiscovery {
         }
     }
 
+    /// Get the public keys used by the Microsoft identity platform
+    /// to sign security tokens.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::graphdiscovery::GraphDiscovery;
+    /// let keys: serde_json::Value = GraphDiscovery::V1.signing_keys().unwrap();
+    /// println!("{:#?}", keys);
+    /// ```
     pub fn signing_keys<T>(self) -> Result<T, OAuthError>
     where
         for<'de> T: serde::Deserialize<'de>,
@@ -76,6 +94,15 @@ impl GraphDiscovery {
         Ok(t)
     }
 
+    /// Get the public keys used by the Microsoft identity platform
+    /// to sign security tokens.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// # use graph_oauth::oauth::graphdiscovery::GraphDiscovery;
+    /// let keys: serde_json::Value = GraphDiscovery::V1.async_signing_keys().await.unwrap();
+    /// println!("{:#?}", keys);
+    /// ```
     pub async fn async_signing_keys<T>(self) -> Result<T, OAuthError>
     where
         for<'de> T: serde::Deserialize<'de>,
@@ -84,6 +111,16 @@ impl GraphDiscovery {
         Ok(t)
     }
 
+    /// Automatically convert the public keys used by the Microsoft identity platform
+    /// to sign security tokens into an OAuth object. This will get the common urls
+    /// for authorization and access tokens and insert them into OAuth.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::graphdiscovery::GraphDiscovery;
+    /// let oauth = GraphDiscovery::V1.oauth().unwrap();
+    /// println!("{:#?}", oauth);
+    /// ```
     pub fn oauth(self) -> Result<OAuth, OAuthError> {
         let mut oauth = OAuth::new();
         match self {
@@ -108,6 +145,16 @@ impl GraphDiscovery {
         }
     }
 
+    /// Automatically convert the public keys used by the Microsoft identity platform
+    /// to sign security tokens into an OAuth object. This will get the common urls
+    /// for authorization and access tokens and insert them into OAuth.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// # use graph_oauth::oauth::graphdiscovery::GraphDiscovery;
+    /// let oauth = GraphDiscovery::V1.async_oauth().await.unwrap();
+    /// println!("{:#?}", oauth);
+    /// ```
     pub async fn async_oauth(self) -> Result<OAuth, OAuthError> {
         let mut oauth = OAuth::new();
         match self {
