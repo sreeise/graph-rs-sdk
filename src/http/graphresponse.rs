@@ -127,6 +127,25 @@ impl TryFrom<reqwest::blocking::Response> for GraphResponse<Content> {
     }
 }
 
+impl<T> TryFrom<GraphResult<reqwest::blocking::Response>> for GraphResponse<T>
+where
+    for<'de> T: serde::Deserialize<'de>,
+{
+    type Error = GraphFailure;
+
+    fn try_from(result: GraphResult<reqwest::blocking::Response>) -> Result<Self, Self::Error> {
+        std::convert::TryFrom::try_from(result?)
+    }
+}
+
+impl TryFrom<GraphResult<reqwest::blocking::Response>> for GraphResponse<Content> {
+    type Error = GraphFailure;
+
+    fn try_from(result: GraphResult<reqwest::blocking::Response>) -> Result<Self, Self::Error> {
+        std::convert::TryFrom::try_from(result?)
+    }
+}
+
 #[async_trait]
 impl<T> AsyncTryFrom<reqwest::Response> for GraphResponse<T>
 where
@@ -176,6 +195,27 @@ impl AsyncTryFrom<reqwest::Response> for GraphResponse<Content> {
                 headers,
             ))
         }
+    }
+}
+
+#[async_trait]
+impl<T> AsyncTryFrom<GraphResult<reqwest::Response>> for GraphResponse<T>
+where
+    for<'de> T: serde::Deserialize<'de>,
+{
+    type Error = GraphFailure;
+
+    async fn try_from(result: GraphResult<reqwest::Response>) -> Result<Self, Self::Error> {
+        AsyncTryFrom::<reqwest::Response>::try_from(result?).await
+    }
+}
+
+#[async_trait]
+impl AsyncTryFrom<GraphResult<reqwest::Response>> for GraphResponse<Content> {
+    type Error = GraphFailure;
+
+    async fn try_from(result: GraphResult<reqwest::Response>) -> Result<Self, Self::Error> {
+        AsyncTryFrom::<reqwest::Response>::try_from(result?).await
     }
 }
 

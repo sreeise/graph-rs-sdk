@@ -4,8 +4,7 @@ use crate::http::{
     GraphResponse, IntoResponse, RequestAttribute, RequestClient, UploadSessionClient,
 };
 use crate::types::collection::Collection;
-use crate::types::content::Content;
-use crate::types::delta::DeltaRequest;
+use crate::types::{content::Content, delta::DeltaRequest};
 use graph_error::{GraphFailure, GraphRsError};
 use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};

@@ -1,15 +1,14 @@
 use crate::client::*;
 use crate::http::{
-    AsyncHttpClient, AsyncTryFrom, BlockingHttpClient, GraphResponse, RequestClient,
-    UploadSessionClient,
+    AsyncHttpClient, AsyncTryFrom, BlockingHttpClient, GraphResponse, IntoDeltaRequest,
+    IntoReqAsync, IntoReqBlocking, RequestClient, UploadSessionClient,
 };
 use crate::types::delta::{Delta, NextLink};
 use crate::types::{content::Content, delta::DeltaRequest};
 use graph_error::{GraphFailure, GraphResult};
-use reqwest::header::{HeaderValue, IntoHeaderName, CONTENT_TYPE};
+use reqwest::header::{HeaderValue, IntoHeaderName};
 use std::marker::PhantomData;
-use std::sync::mpsc::{channel, Receiver};
-use std::thread;
+use std::sync::mpsc::Receiver;
 
 pub struct IntoResponse<'a, T, Client>
 where
@@ -126,84 +125,17 @@ impl<'a, T> IntoResBlocking<'a, T> {
         let response = self.client.request().response()?;
         Ok(response.json()?)
     }
-
-    fn delta<U: 'static + Send + NextLink + Clone>(self) -> Receiver<Delta<U>>
-    where
-        for<'de> U: serde::Deserialize<'de>,
-    {
-        let (sender, receiver) = channel();
-        if self.error.is_some() {
-            sender
-                .send(Delta::Done(Some(self.error.unwrap_or_default())))
-                .unwrap();
-            return receiver;
-        }
-
-        let response: GraphResult<GraphResponse<U>> = self.client.request().execute();
-        if let Err(err) = response {
-            sender.send(Delta::Done(Some(err))).unwrap();
-            return receiver;
-        }
-
-        let token = self.client.request().token();
-        let response = response.unwrap();
-        let mut next_link = response.body().next_link();
-        sender.send(Delta::Next(response)).unwrap();
-
-        thread::spawn(move || {
-            let mut is_done = false;
-            let client = reqwest::blocking::Client::new();
-            while let Some(next) = next_link {
-                let res = client
-                    .get(next.as_str())
-                    .header(CONTENT_TYPE, "application/json")
-                    .bearer_auth(token.as_str())
-                    .send()
-                    .map_err(GraphFailure::from);
-
-                if let Err(err) = res {
-                    next_link = None;
-                    sender.send(Delta::Done(Some(err))).unwrap();
-                    is_done = true;
-                } else {
-                    let response = res.unwrap();
-                    if let Some(err) = GraphFailure::from_response(&response) {
-                        next_link = None;
-                        sender.send(Delta::Done(Some(err))).unwrap();
-                        is_done = true;
-                    } else {
-                        let headers = response.headers().clone();
-                        let status = response.status().as_u16();
-                        let value_res: GraphResult<U> = response.json().map_err(GraphFailure::from);
-                        match value_res {
-                            Ok(value) => {
-                                next_link = value.next_link();
-                                sender
-                                    .send(Delta::Next(GraphResponse::new(value, status, headers)))
-                                    .unwrap();
-                            },
-                            Err(err) => {
-                                next_link = None;
-                                sender.send(Delta::Done(Some(err))).unwrap();
-                                is_done = true;
-                            },
-                        }
-                    }
-                }
-            }
-            if !is_done {
-                sender.send(Delta::Done(None)).unwrap();
-            }
-        });
-
-        receiver
-    }
 }
 
 impl<'a, T> IntoResBlocking<'a, T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
+    pub fn build(self) -> IntoReqBlocking<T> {
+        let builder = self.client.request().build();
+        IntoReqBlocking::new(builder, None, self.error)
+    }
+
     pub fn send(self) -> GraphResult<GraphResponse<T>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -213,6 +145,11 @@ where
 }
 
 impl<'a> IntoResBlocking<'a, UploadSessionClient<BlockingHttpClient>> {
+    pub fn build(self) -> IntoReqBlocking<UploadSessionClient<BlockingHttpClient>> {
+        let (file, builder) = self.client.request().build_upload_session();
+        IntoReqBlocking::new(builder, file, self.error)
+    }
+
     pub fn send(self) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -222,6 +159,11 @@ impl<'a> IntoResBlocking<'a, UploadSessionClient<BlockingHttpClient>> {
 }
 
 impl<'a> IntoResBlocking<'a, GraphResponse<Content>> {
+    pub fn build(self) -> IntoReqBlocking<GraphResponse<Content>> {
+        let builder = self.client.request().build();
+        IntoReqBlocking::new(builder, None, self.error)
+    }
+
     pub fn send(self) -> GraphResult<GraphResponse<Content>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -235,8 +177,16 @@ impl<'a, T: 'static + Send + NextLink + Clone> IntoResBlocking<'a, DeltaRequest<
 where
     for<'de> T: serde::Deserialize<'de>,
 {
+    pub fn build(self) -> IntoDeltaRequest<T, reqwest::blocking::RequestBuilder> {
+        let client = self.client.request();
+        let builder = client.build();
+        let token = client.token();
+        IntoDeltaRequest::<T, reqwest::blocking::RequestBuilder>::new(token, builder, self.error)
+    }
+
     pub fn send(self) -> Receiver<Delta<T>> {
-        self.delta::<T>()
+        let request = self.build();
+        request.send()
     }
 }
 
@@ -254,91 +204,17 @@ impl<'a, T> IntoResAsync<'a, T> {
         let response = request.send().await?;
         response.json().await.map_err(GraphFailure::from)
     }
-
-    async fn delta<U: 'static + Send + NextLink + Clone>(
-        self,
-    ) -> tokio::sync::mpsc::Receiver<Delta<U>>
-    where
-        for<'de> U: serde::Deserialize<'de>,
-    {
-        let (mut sender, receiver) = tokio::sync::mpsc::channel(100);
-
-        if self.error.is_some() {
-            sender
-                .send(Delta::Done(Some(self.error.unwrap_or_default())))
-                .await
-                .unwrap();
-            return receiver;
-        }
-
-        let response: GraphResult<GraphResponse<U>> = self.client.request().execute().await;
-        if let Err(err) = response {
-            sender.send(Delta::Done(Some(err))).await.unwrap();
-            return receiver;
-        }
-
-        let token = self.client.request().token();
-        let response = response.unwrap();
-        let mut next_link = response.body().next_link();
-        sender.send(Delta::Next(response)).await.unwrap();
-
-        tokio::spawn(async move {
-            let mut is_done = false;
-            let client = reqwest::Client::new();
-            while let Some(next) = next_link {
-                let res = client
-                    .get(next.as_str())
-                    .header(CONTENT_TYPE, "application/json")
-                    .bearer_auth(token.as_str())
-                    .send()
-                    .await
-                    .map_err(GraphFailure::from);
-
-                if let Err(err) = res {
-                    next_link = None;
-                    sender.send(Delta::Done(Some(err))).await.unwrap();
-                    is_done = true;
-                } else {
-                    let response = res.unwrap();
-                    if let Some(err) = GraphFailure::from_async_response(&response) {
-                        next_link = None;
-                        sender.send(Delta::Done(Some(err))).await.unwrap();
-                        is_done = true;
-                    } else {
-                        let headers = response.headers().clone();
-                        let status = response.status().as_u16();
-                        let value_res: GraphResult<U> =
-                            response.json().await.map_err(GraphFailure::from);
-                        match value_res {
-                            Ok(value) => {
-                                next_link = value.next_link();
-                                sender
-                                    .send(Delta::Next(GraphResponse::new(value, status, headers)))
-                                    .await
-                                    .unwrap();
-                            },
-                            Err(err) => {
-                                next_link = None;
-                                sender.send(Delta::Done(Some(err))).await.unwrap();
-                                is_done = true;
-                            },
-                        }
-                    }
-                }
-            }
-            if !is_done {
-                sender.send(Delta::Done(None)).await.unwrap();
-            }
-        });
-
-        receiver
-    }
 }
 
 impl<'a, T> IntoResAsync<'a, T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
+    pub async fn build(self) -> IntoReqAsync<T> {
+        let builder = self.client.request().build().await;
+        IntoReqAsync::new(builder, None, self.error)
+    }
+
     pub async fn send(self) -> GraphResult<GraphResponse<T>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -349,6 +225,11 @@ where
 }
 
 impl<'a> IntoResAsync<'a, GraphResponse<Content>> {
+    pub async fn build(self) -> IntoReqAsync<GraphResponse<Content>> {
+        let builder = self.client.request().build().await;
+        IntoReqAsync::new(builder, None, self.error)
+    }
+
     pub async fn send(self) -> GraphResult<GraphResponse<Content>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -359,6 +240,11 @@ impl<'a> IntoResAsync<'a, GraphResponse<Content>> {
 }
 
 impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncHttpClient>> {
+    pub async fn build(self) -> IntoReqAsync<UploadSessionClient<AsyncHttpClient>> {
+        let (file, builder) = self.client.request().build_upload_session().await;
+        IntoReqAsync::new(builder, file, self.error)
+    }
+
     pub async fn send(self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -371,7 +257,15 @@ impl<'a, T: 'static + Send + NextLink + Clone> IntoResAsync<'a, DeltaRequest<T>>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
+    pub async fn build(self) -> IntoDeltaRequest<T, reqwest::RequestBuilder> {
+        let client = self.client.request();
+        let builder = client.build().await;
+        let token = client.token();
+        IntoDeltaRequest::<T, reqwest::RequestBuilder>::new(token, builder, self.error)
+    }
+
     pub async fn send(self) -> tokio::sync::mpsc::Receiver<Delta<T>> {
-        self.delta::<T>().await
+        let request = self.build().await;
+        request.send().await
     }
 }
