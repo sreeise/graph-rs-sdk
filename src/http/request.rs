@@ -192,6 +192,12 @@ impl BlockingClient {
         Ok(session)
     }
 
+    pub fn build_upload_session(&mut self) -> (Option<PathBuf>, reqwest::blocking::RequestBuilder) {
+        let file = self.upload_session_file.take();
+        let builder = self.build();
+        (file, builder)
+    }
+
     pub fn build(&mut self) -> reqwest::blocking::RequestBuilder {
         let headers = self.headers.clone();
         self.headers.clear();
@@ -319,6 +325,12 @@ impl AsyncClient {
         Ok(session)
     }
 
+    pub fn build_upload_session(&mut self) -> (Option<PathBuf>, reqwest::RequestBuilder) {
+        let file = self.upload_session_file.take();
+        let builder = self.build();
+        (file, builder)
+    }
+
     pub fn build(&mut self) -> reqwest::RequestBuilder {
         let headers = self.headers.clone();
         self.headers.clear();
@@ -411,6 +423,10 @@ impl HttpClient<RefCell<BlockingClient>> {
 
     pub fn upload_session(&self) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
         self.client.borrow_mut().upload_session()
+    }
+
+    pub fn build_upload_session(&self) -> (Option<PathBuf>, reqwest::blocking::RequestBuilder) {
+        self.client.borrow_mut().build_upload_session()
     }
 
     pub fn build(&self) -> reqwest::blocking::RequestBuilder {
@@ -759,6 +775,10 @@ impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
 
     pub async fn upload_session(&self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
         self.client.lock().await.upload_session().await
+    }
+
+    pub async fn build_upload_session(&self) -> (Option<PathBuf>, reqwest::RequestBuilder) {
+        self.client.lock().await.build_upload_session()
     }
 
     pub async fn build(&self) -> reqwest::RequestBuilder {
