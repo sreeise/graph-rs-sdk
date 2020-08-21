@@ -11,6 +11,7 @@ use crate::http::{
 };
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
+use crate::planner::PlannerRequest;
 use crate::types::{
     boolresponse::BoolResponse, collection::Collection, content::Content, delta::DeltaRequest,
 };
@@ -272,6 +273,11 @@ where
         IdentUsers::new(id.as_ref(), self.client)
     }
 
+    /// Select the planner endpoint.
+    pub fn planner(&self) -> PlannerRequest<'a, Client> {
+        PlannerRequest::new(self.client)
+    }
+
     pub fn batch<B: serde::Serialize>(
         &self,
         batch: &B,
@@ -303,6 +309,7 @@ where
     get!( get, serde_json::Value => "me" );
     get!( list_events, Collection<serde_json::Value> => "me/events" );
     get!( settings, serde_json::Value => "me/settings" );
+    get!(list_planner_tasks, Collection<serde_json::Value> => "me/planner/tasks");
     patch!( [ update_settings, serde_json::Value => "me/settings" ] );
 
     pub fn activities(&'a self) -> ActivitiesRequest<'a, Client> {
@@ -408,6 +415,7 @@ where
     get!( list_owners, Collection<serde_json::Value> => "groups/{{RID}}/owners" );
     get!( list_photos, Collection<serde_json::Value> => "groups/{{RID}}/photos" );
     get!( root_site, Collection<serde_json::Value> => "groups/{{RID}}/sites/root" );
+    get!( list_planner_plans, Collection<serde_json::Value> => "groups/{{RID}}/planner/plans" );
     post!( [ create, serde_json::Value => "groups" ] );
     post!( add_favorite, GraphResponse<Content> => "groups/{{RID}}/addFavorite" );
     post!( [ add_member, GraphResponse<Content> => "groups/{{RID}}/members/$ref" ] );
@@ -449,6 +457,7 @@ where
     get!( list_events, Collection<serde_json::Value> => "users/{{RID}}/events" );
     get!( delta, DeltaRequest<Collection<serde_json::Value>> => "users" );
     get!( | list_joined_group_photos, Collection<serde_json::Value> => "users/{{RID}}/joinedGroups/{{id}}/photos" );
+    get!( list_planner_tasks, Collection<serde_json::Value> => "users/{{RID}}/planner/tasks");
     post!( [ create, serde_json::Value => "users" ] );
     patch!( [ update, GraphResponse<Content> => "users/{{RID}}" ] );
     patch!( [ update_settings, serde_json::Value => "users/{{RID}}/settings" ] );
