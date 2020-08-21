@@ -80,6 +80,8 @@ extern crate handlebars;
 pub mod client;
 // Activities request client.
 pub mod activities;
+// Attachment request client.
+pub mod attachments;
 /// Calendar request client.
 pub mod calendar;
 /// Contacts request client.
@@ -94,8 +96,8 @@ pub mod http;
 pub mod mail;
 /// OneNote request client.
 pub mod onenote;
-// Attachment request client.
-pub mod attachments;
+/// Planner request client.
+pub mod planner;
 /// Types used crate wide.
 pub mod types;
 /// Url type for graph-rs.
