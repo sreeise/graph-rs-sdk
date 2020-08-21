@@ -1,3 +1,4 @@
+use crate::activities::ActivitiesRequest;
 use crate::attachments::AttachmentRequest;
 use crate::calendar::CalendarRequest;
 use crate::contacts::ContactsRequest;
@@ -303,6 +304,11 @@ where
     get!( list_events, Collection<serde_json::Value> => "me/events" );
     get!( settings, serde_json::Value => "me/settings" );
     patch!( [ update_settings, serde_json::Value => "me/settings" ] );
+
+    pub fn activities(&'a self) -> ActivitiesRequest<'a, Client> {
+        self.set_path();
+        ActivitiesRequest::new(self.client)
+    }
 }
 
 impl<'a, Client> IdentDrives<'a, Client>
@@ -447,6 +453,11 @@ where
     patch!( [ update, GraphResponse<Content> => "users/{{RID}}" ] );
     patch!( [ update_settings, serde_json::Value => "users/{{RID}}/settings" ] );
     delete!( delete, GraphResponse<Content> => "users/{{RID}}" );
+
+    pub fn activities(&'a self) -> ActivitiesRequest<'a, Client> {
+        self.set_path();
+        ActivitiesRequest::new(self.client)
+    }
 }
 
 register_ident_client!(

@@ -78,6 +78,8 @@ extern crate handlebars;
 /// Main Graph client.
 #[macro_use]
 pub mod client;
+// Activities request client.
+pub mod activities;
 /// Calendar request client.
 pub mod calendar;
 /// Contacts request client.
