@@ -10,20 +10,15 @@ impl<'a, Client> ActivitiesRequest<'a, Client>
 where
     Client: crate::http::RequestClient,
 {
-    pub fn history_items(&self) -> ActivitiesHistoryItemsRequest<'a, Client> {
-        ActivitiesHistoryItemsRequest::new(&self.client)
-    }
-}
-
-impl<'a, Client> ActivitiesRequest<'a, Client>
-where
-    Client: crate::http::RequestClient,
-{
     get!( list_activities, Collection<serde_json::Value> => "activities" );
     post!( [ create_activities, serde_json::Value => "activities" ] );
     get!( | get_activities, serde_json::Value => "activities/{{id}}" );
     patch!( [| update_activities, serde_json::Value => "activities/{{id}}" ] );
     delete!( | delete_activities, GraphResponse<Content> => "activities/{{id}}" );
+
+    pub fn history_items(&self) -> ActivitiesHistoryItemsRequest<'a, Client> {
+        ActivitiesHistoryItemsRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> ActivitiesHistoryItemsRequest<'a, Client>
