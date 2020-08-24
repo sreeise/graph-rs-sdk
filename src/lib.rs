@@ -88,6 +88,8 @@ pub mod calendar;
 pub mod contacts;
 /// OneDrive request client.
 pub mod drive;
+/// Education request client.
+pub mod education;
 /// Groups request client.
 pub mod groups;
 /// Various internal http helpers.

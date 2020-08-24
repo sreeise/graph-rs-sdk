@@ -3,6 +3,7 @@ use crate::attachments::AttachmentRequest;
 use crate::calendar::CalendarRequest;
 use crate::contacts::ContactsRequest;
 use crate::drive::DriveRequest;
+use crate::education::{EducationMeRequest, EducationRequest, EducationUsersRequest};
 use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
 };
@@ -278,6 +279,10 @@ where
         PlannerRequest::new(self.client)
     }
 
+    pub fn education(&self) -> EducationRequest<'a, Client> {
+        EducationRequest::new(self.client)
+    }
+
     pub fn batch<B: serde::Serialize>(
         &self,
         batch: &B,
@@ -315,6 +320,10 @@ where
     pub fn activities(&'a self) -> ActivitiesRequest<'a, Client> {
         self.set_path();
         ActivitiesRequest::new(self.client)
+    }
+
+    pub fn education(&self) -> EducationMeRequest<'a, Client> {
+        EducationMeRequest::new(&self.client)
     }
 }
 
@@ -466,6 +475,10 @@ where
     pub fn activities(&'a self) -> ActivitiesRequest<'a, Client> {
         self.set_path();
         ActivitiesRequest::new(self.client)
+    }
+
+    pub fn education(&self) -> EducationUsersRequest<'a, Client> {
+        EducationUsersRequest::new(self.client)
     }
 }
 
