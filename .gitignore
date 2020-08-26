@@ -14,3 +14,5 @@ examples/example_files/**
 # Env file for testing
 .env
 env.toml
+env.json
+env.yaml
