@@ -19,4 +19,6 @@ jobs:
     - name: Build
       run: cargo build --verbose
     - name: Run tests
+      env:
+        TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
       run: cargo test --verbose

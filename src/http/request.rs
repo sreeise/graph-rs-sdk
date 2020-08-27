@@ -104,6 +104,7 @@ pub struct GraphRequest<Client, Body, Form> {
 impl<Client, Body, Form> Debug for GraphRequest<Client, Body, Form> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("GraphRequest")
+            .field("token", &"[REDACTED]")
             .field("ident", &self.ident)
             .field("url", &self.url)
             .field("method", &self.method)

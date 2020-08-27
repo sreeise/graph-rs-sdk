@@ -2,6 +2,7 @@ use crate::accesstoken::AccessToken;
 use crate::grants::{GrantRequest, GrantType};
 use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
+use crate::strum::IntoEnumIterator;
 use from_as::*;
 use graph_error::GraphFailure;
 use ring::rand::SecureRandom;
@@ -9,6 +10,7 @@ use serde::export::PhantomData;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
 use std::convert::TryFrom;
+use std::fmt;
 use std::process::Output;
 use url::form_urlencoded::Serializer;
 use url::Url;
@@ -104,6 +106,21 @@ impl OAuthCredential {
             OAuthCredential::Password => "password",
         }
     }
+
+    fn is_debug_redacted(&self) -> bool {
+        match self {
+            OAuthCredential::ClientId |
+            OAuthCredential::ClientSecret |
+            OAuthCredential::AccessToken |
+            OAuthCredential::RefreshToken |
+            OAuthCredential::IdToken |
+            OAuthCredential::CodeVerifier |
+            OAuthCredential::CodeChallenge |
+            OAuthCredential::Password |
+            OAuthCredential::AccessCode => true,
+            _ => false,
+        }
+    }
 }
 
 impl ToString for OAuthCredential {
@@ -134,7 +151,7 @@ impl ToString for OAuthCredential {
 /// use graph_oauth::oauth::OAuth;
 /// let oauth = OAuth::new();
 /// ```
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Default, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
 pub struct OAuth {
     access_token: Option<AccessToken>,
     scopes: BTreeSet<String>,
@@ -1829,5 +1846,26 @@ impl From<AccessTokenGrant> for OAuth {
 impl AsRef<OAuth> for AccessTokenGrant {
     fn as_ref(&self) -> &OAuth {
         &self.oauth
+    }
+}
+
+impl fmt::Debug for OAuth {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut map_debug: BTreeMap<&str, &str> = BTreeMap::new();
+        for (key, value) in self.credentials.iter() {
+            if let Some(oac) = OAuthCredential::iter()
+                .find(|oac| oac.alias().eq(key.as_str()) && oac.is_debug_redacted())
+            {
+                map_debug.insert(oac.alias(), "[REDACTED]");
+            } else {
+                map_debug.insert(key.as_str(), value.as_str());
+            }
+        }
+
+        f.debug_struct("AccessToken")
+            .field("access_token", &"[REDACTED]".to_string())
+            .field("credentials", &map_debug)
+            .field("scopes", &self.scopes)
+            .finish()
     }
 }
