@@ -97,7 +97,7 @@ impl OAuthTestCredentials {
             .client_secret(self.client_secret.as_str())
             .username(self.username.as_str())
             .password(self.password.as_str())
-            .extend_scopes(self.scope)
+            .add_scope("https://graph.microsoft.com/.default")
             .access_token_url(
                 format!(
                     "https://login.microsoftonline.com/{}/oauth2/v2.0/token",
