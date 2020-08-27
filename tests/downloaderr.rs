@@ -1,7 +1,6 @@
 use graph_rs::error::*;
-use graph_rs::http::BlockingHttpClient;
 use graph_rs::prelude::*;
-use test_tools::oauthrequest::OAuthRequest;
+use test_tools::oauthrequest::OAuthTestClient;
 use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
 
 #[test]
@@ -23,38 +22,34 @@ fn download_config_dir_no_exists() {
 #[test]
 fn download_config_file_exists() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock();
-    OAuthRequest::access_token_fn(|t| {
-        if let Some((id, bearer)) = t {
-            let client = Graph::<BlockingHttpClient>::from(bearer);
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+        let download_client = client
+            .v1()
+            .users(id.as_str())
+            .drive()
+            .download(":/downloadtestdoc.txt:", "./test_files");
+        let result = download_client.send();
 
-            let download_client = client
-                .v1()
-                .users(id.as_str())
-                .drive()
-                .download(":/downloadtestdoc.txt:", "./test_files");
-            let result = download_client.send();
-
-            if let Err(err) = result {
-                match err {
-                    GraphFailure::GraphRsError(err) => {
-                        match err {
-                            GraphRsError::DownloadFileExists { name} => {
-                                if cfg!(target_os = "windows") {
-                                    assert_eq!(name, "./test_files\\downloadtestdoc.txt".to_string());
-                                } else {
-                                    assert_eq!(name, "./test_files/downloadtestdoc.txt".to_string());
-                                }
-                            },
-                            _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
-                        }
-                    },
-                    _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
-                }
-            } else if let Ok(path) = result {
-                panic!("Download request should have thrown GraphRsError::DownloadFileExists. Instead got successful PathBuf: {:#?}", path);
+        if let Err(err) = result {
+            match err {
+                GraphFailure::GraphRsError(err) => {
+                    match err {
+                        GraphRsError::DownloadFileExists { name} => {
+                            if cfg!(target_os = "windows") {
+                                assert_eq!(name, "./test_files\\downloadtestdoc.txt".to_string());
+                            } else {
+                                assert_eq!(name, "./test_files/downloadtestdoc.txt".to_string());
+                            }
+                        },
+                        _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
+                    }
+                },
+                _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
             }
+        } else if let Ok(path) = result {
+            panic!("Download request should have thrown GraphRsError::DownloadFileExists. Instead got successful PathBuf: {:#?}", path);
         }
-    });
+    }
 }
 
 #[test]

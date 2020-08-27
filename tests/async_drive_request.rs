@@ -1,12 +1,11 @@
 use graph_error::GraphError;
 use graph_rs::http::AsyncIterator;
 use graph_rs::http::NextSession;
-use graph_rs::prelude::*;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Duration;
-use test_tools::oauthrequest::OAuthRequest;
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
+use test_tools::oauthrequest::{Environment, OAuthTestClient};
 use test_tools::support::cleanup::AsyncCleanUp;
 use test_tools::FileUtils;
 use tokio::fs::OpenOptions;
@@ -14,15 +13,16 @@ use tokio::io::AsyncWriteExt;
 
 #[tokio::test]
 async fn async_download() {
+    if Environment::is_travis() || Environment::is_appveyor() {
+        return;
+    }
+
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
 
-    if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let file_location = "./test_files/download_async.txt";
         let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
         clean_up.rm_files(file_location.into());
-
-        let bearer = token.bearer_token();
-        let client = Graph::new_async(&bearer);
 
         let download = client
             .v1()
@@ -38,11 +38,12 @@ async fn async_download() {
 
 #[tokio::test]
 async fn async_upload_session() {
+    if Environment::is_travis() || Environment::is_appveyor() {
+        return;
+    }
+
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-
-    if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
-        let client = Graph::new_async(token.bearer_token());
-
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let upload = serde_json::json!({
             "@microsoft.graph.conflictBehavior": Some("fail".to_string())
         });
@@ -110,11 +111,12 @@ async fn async_upload_session() {
 
 #[tokio::test]
 async fn async_upload_session_standalone_request() {
+    if Environment::is_travis() || Environment::is_appveyor() {
+        return;
+    }
+
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-
-    if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
-        let client = Graph::new_async(token.bearer_token());
-
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let upload = serde_json::json!({
             "@microsoft.graph.conflictBehavior": Some("fail".to_string())
         });
@@ -184,9 +186,12 @@ async fn async_upload_session_standalone_request() {
 
 #[tokio::test]
 async fn create_delete_folder_async() {
+    if Environment::is_travis() || Environment::is_appveyor() {
+        return;
+    }
+
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
-        let client = Graph::new_async(token.bearer_token());
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let folder: HashMap<String, serde_json::Value> = HashMap::new();
         let create_folder_res = client
             .v1()
@@ -226,9 +231,12 @@ async fn create_delete_folder_async() {
 
 #[tokio::test]
 async fn drive_upload_new_and_replace_and_delete() {
+    if Environment::is_travis() || Environment::is_appveyor() {
+        return;
+    }
+
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
-        let client = Graph::new_async(token.bearer_token());
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let upload_res = client
             .v1()
             .drives(id.as_str())

@@ -2,7 +2,7 @@ use graph_rs::error::*;
 use graph_rs::prelude::*;
 use std::convert::TryFrom;
 use std::path::PathBuf;
-use test_tools::oauthrequest::OAuthRequest;
+use test_tools::oauthrequest::OAuthTestClient;
 use test_tools::oauthrequest::{ASYNC_THROTTLE_MUTEX, DRIVE_THROTTLE_MUTEX};
 
 fn test_graph_error(err: GraphFailure, expect: GraphError) {
@@ -167,34 +167,27 @@ async fn async_upload_session_graph_error() {
 #[test]
 fn drive_download_graph_error() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    OAuthRequest::access_token_fn(|t| {
-        if let Some((id, bearer)) = t {
-            let client = Graph::new(bearer.as_str());
-            let download = client
-                .v1()
-                .drives(id.as_str())
-                .drive()
-                .download(":/non_existent_file.docx:", "./test_files");
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+        let download = client
+            .v1()
+            .drives(id.as_str())
+            .drive()
+            .download(":/non_existent_file.docx:", "./test_files");
 
-            let req: GraphResult<PathBuf> = download.send();
+        let req: GraphResult<PathBuf> = download.send();
 
-            if let Ok(_path_buf) = req {
-                panic!("Got successful request for a downloading a file that should not exist");
-            } else if let Err(e) = req {
-                test_graph_error(e, get_error(404, "itemNotFound", "Item not found"));
-            }
+        if let Ok(_path_buf) = req {
+            panic!("Got successful request for a downloading a file that should not exist");
+        } else if let Err(e) = req {
+            test_graph_error(e, get_error(404, "itemNotFound", "Item not found"));
         }
-    });
+    }
 }
 
 #[tokio::test]
 async fn async_drive_download_graph_error() {
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-
-    if let Some((id, token)) = OAuthRequest::request_access_token_async().await {
-        let bearer = token.bearer_token();
-        let client = Graph::new_async(&bearer);
-
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let download = client
             .v1()
             .users(id.as_str())
