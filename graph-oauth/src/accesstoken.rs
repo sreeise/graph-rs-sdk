@@ -503,11 +503,12 @@ impl TryFrom<reqwest::blocking::Response> for AccessToken {
 impl fmt::Debug for AccessToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("AccessToken")
-            .field("bearer_token", &"[bearer token not shown]".to_string())
+            .field("bearer_token", &"[REDACTED]")
             .field("token_type", &self.token_type)
             .field("expires_in", &self.expires_in)
             .field("scope", &self.scope)
             .field("user_id", &self.user_id)
+            .field("id_token", &"[REDACTED]")
             .field("state", &self.state)
             .field("timestamp", &self.timestamp)
             .finish()
