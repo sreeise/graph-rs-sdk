@@ -1,9 +1,8 @@
-use std::collections::{VecDeque, HashSet, BTreeSet};
-use from_as::*;
 use crate::parser::Operation;
-use regex::Regex;
+use from_as::*;
 use inflector::Inflector;
-use std::iter::Chain;
+use regex::Regex;
+use std::collections::{BTreeSet, HashSet, VecDeque};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
 pub enum HttpMethod {
@@ -29,7 +28,7 @@ impl AsRef<str> for HttpMethod {
             HttpMethod::POST => "post",
             HttpMethod::DELETE => "delete",
             HttpMethod::PATCH => "patch",
-            HttpMethod::TRACE => "trace"
+            HttpMethod::TRACE => "trace",
         }
     }
 }
@@ -64,22 +63,23 @@ impl Request {
     pub fn build(&self, base_url: &str, path: &str) -> reqwest::Request {
         let mut url = reqwest::Url::parse(base_url).unwrap();
         url.set_path(path);
-        let mut request = reqwest::Request::new(self.method.into(), url);
-        request
+        reqwest::Request::new(self.method.into(), url)
     }
 }
 
 impl PartialEq for Request {
     fn eq(&self, other: &Self) -> bool {
-        self.method == other.method && self.param_size == other.param_size
-        && self.has_body == other.has_body && self.operation_id == other.operation_id
+        self.method == other.method &&
+            self.param_size == other.param_size &&
+            self.has_body == other.has_body &&
+            self.operation_id == other.operation_id
     }
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile, Hash)]
 pub struct RequestMap {
     pub path: String,
-    pub requests: VecDeque<Request>
+    pub requests: VecDeque<Request>,
 }
 
 impl PartialEq for RequestMap {
@@ -100,7 +100,7 @@ impl RequestMap {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct RequestSet {
-    pub set: HashSet<RequestMap>
+    pub set: HashSet<RequestMap>,
 }
 
 impl RequestSet {
@@ -124,11 +124,11 @@ impl RequestSet {
     }
 }
 
-pub trait RequestParserBuilder<RHS: ?Sized=Self> {
+pub trait RequestParserBuilder<RHS: ?Sized = Self> {
     fn build(&self) -> Request;
 }
 
-pub trait RequestParser<RHS=Self> {
+pub trait RequestParser<RHS = Self> {
     fn method_name(&self) -> String;
     fn operation_mapping(&self) -> String;
     fn transform_path(&self) -> String;
@@ -161,16 +161,16 @@ impl RequestParser for &str {
             if let Some(last) = ops.last() {
                 let re = Regex::new(r"[0-9]").unwrap();
                 if !re.is_match(last) && ops.len() > 1 {
-                        for op in ops.iter() {
-                            if op.len() > 1 {
-                                let mut chars = op.chars();
-                                if let Some(c) = chars.next() {
-                                    if !c.is_uppercase() {
-                                        set.insert(op);
-                                    }
+                    for op in ops.iter() {
+                        if op.len() > 1 {
+                            let mut chars = op.chars();
+                            if let Some(c) = chars.next() {
+                                if !c.is_uppercase() {
+                                    set.insert(op);
                                 }
                             }
                         }
+                    }
                 }
             }
         }

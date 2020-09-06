@@ -1,14 +1,14 @@
-use from_as::*;
-use crate::Request;
-use serde::{Serialize, Serializer};
-use serde::ser::SerializeMap;
-use serde::de::{self, Visitor, Deserialize, Deserializer, MapAccess};
-use std::collections::{HashMap, VecDeque};
-use std::str::FromStr;
-use std::error::Error;
 use crate::parser::error::ParserError;
-use serde::export::Formatter;
+use crate::parser::Request;
+use from_as::*;
+use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
+
+use serde::ser::SerializeMap;
+use serde::{Serialize, Serializer};
+use std::collections::{HashMap, VecDeque};
+
 use std::marker::PhantomData;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub enum Filter<'a> {
@@ -36,7 +36,7 @@ impl StoredFilter {
     pub fn new(filter: SerializedFilter, value: &str) -> StoredFilter {
         StoredFilter {
             filter,
-            value: value.into()
+            value: value.into(),
         }
     }
 }
@@ -52,7 +52,6 @@ impl From<Filter<'_>> for StoredFilter {
     }
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
 pub enum MatchTarget {
     Tag(String),
@@ -66,12 +65,12 @@ impl MatchTarget {
                 if request.operation_mapping.eq(s.as_str()) {
                     return true;
                 }
-            }
+            },
             MatchTarget::Tag(s) => {
                 if request.tag.eq(s.as_str()) {
                     return true;
                 }
-            }
+            },
         }
         false
     }
@@ -83,7 +82,7 @@ impl MatchTarget {
             },
             MatchTarget::Tag(s) => {
                 request.tag = s.to_string();
-            }
+            },
         }
     }
 }
@@ -92,7 +91,7 @@ impl ToString for MatchTarget {
     fn to_string(&self) -> String {
         match self {
             MatchTarget::Tag(s) => format!("Tag:{}", s),
-            MatchTarget::OperationMap(s) => format!("OperationMap:{}", s)
+            MatchTarget::OperationMap(s) => format!("OperationMap:{}", s),
         }
     }
 }
@@ -108,7 +107,7 @@ impl TryFrom<String> for MatchTarget {
         match key {
             "Tag" => Ok(MatchTarget::Tag(value.to_string())),
             "OperationMap" => Ok(MatchTarget::OperationMap(value.to_string())),
-            _ => Err(ParserError::DeserializeMatchTarget)
+            _ => Err(ParserError::DeserializeMatchTarget),
         }
     }
 }
@@ -129,19 +128,19 @@ pub struct ModifierMap {
 impl ModifierMap {
     pub fn with_capacity(size: usize) -> ModifierMap {
         ModifierMap {
-            map: HashMap::with_capacity(size)
+            map: HashMap::with_capacity(size),
         }
     }
 }
 
 struct ModifierMapVisitor {
-    marker: PhantomData<fn() -> ModifierMap>
+    marker: PhantomData<fn() -> ModifierMap>,
 }
 
 impl ModifierMapVisitor {
     fn new() -> Self {
         ModifierMapVisitor {
-            marker: PhantomData
+            marker: PhantomData,
         }
     }
 }
@@ -150,13 +149,15 @@ impl<'de> Visitor<'de> for ModifierMapVisitor {
     type Value = ModifierMap;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-        formatter.write_str("a HashMap<String, String> where the key is in the \
-        format key:value and key is the MatchTarget name and the value is the enum's value")
+        formatter.write_str(
+            "a HashMap<String, String> where the key is in the \
+        format key:value and key is the MatchTarget name and the value is the enum's value",
+        )
     }
 
     fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
-        where
-            M: MapAccess<'de>,
+    where
+        M: MapAccess<'de>,
     {
         let mut map = ModifierMap::with_capacity(access.size_hint().unwrap_or(0));
 
@@ -170,8 +171,10 @@ impl<'de> Visitor<'de> for ModifierMapVisitor {
 }
 
 impl Serialize for ModifierMap {
-    fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error> where
-        S: Serializer {
+    fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
+    where
+        S: Serializer,
+    {
         let mut map = serializer.serialize_map(Some(self.map.len()))?;
         for (k, v) in &self.map {
             map.serialize_entry(&k.to_string(), &v)?;
@@ -182,8 +185,8 @@ impl Serialize for ModifierMap {
 
 impl<'de> Deserialize<'de> for ModifierMap {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         deserializer.deserialize_map(ModifierMapVisitor::new())
     }
