@@ -1,9 +1,9 @@
+pub mod error;
+pub mod filter;
 mod paths;
 mod request;
 mod resource;
 mod spec;
-pub mod filter;
-pub mod error;
 
 pub use paths::*;
 pub use request::*;

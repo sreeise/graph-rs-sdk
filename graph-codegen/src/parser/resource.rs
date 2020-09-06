@@ -1,6 +1,6 @@
-use std::collections::{BTreeSet, HashMap};
 use from_as::*;
 use inflector::Inflector;
+use std::collections::{BTreeSet, HashMap};
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct ResourceNames {

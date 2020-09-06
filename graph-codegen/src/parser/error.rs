@@ -2,17 +2,17 @@ use serde::export::Formatter;
 
 #[derive(Debug)]
 pub enum ParserError {
-    DeserializeMatchTarget
+    DeserializeMatchTarget,
 }
 
 impl std::fmt::Display for ParserError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            ParserError::DeserializeMatchTarget => write!(f, "Failed to parse MatchTarget. String is in wrong format.")
+            ParserError::DeserializeMatchTarget => {
+                write!(f, "Failed to parse MatchTarget. String is in wrong format.")
+            },
         }
     }
 }
 
-impl std::error::Error for ParserError {
-
-}
+impl std::error::Error for ParserError {}

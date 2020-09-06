@@ -1,11 +1,12 @@
-use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
+use crate::parser::filter::{Filter, MatchTarget, ModifierMap};
+use crate::parser::{
+    HttpMethod, Operation, PathMap, RequestMap, RequestParser, RequestParserBuilder, RequestSet,
+};
 use from_as::*;
-use crate::parser::{PathMap, RequestMap, Path, Request, HttpMethod, RequestParser, RequestParserBuilder, Operation, RequestSet};
+
+use serde::Serialize;
 use std::cell::RefCell;
-use crate::parser::filter::{MatchTarget, Filter, StoredFilter, ModifierMap};
-use serde::{Serialize, Serializer};
-use serde::ser::SerializeMap;
-use std::ops::Deref;
+use std::collections::{HashMap, HashSet, VecDeque};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(default)]
@@ -25,7 +26,7 @@ pub struct ParserSpec {
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(default)]
 pub struct Parser {
-    pub spec: RefCell<ParserSpec>
+    pub spec: RefCell<ParserSpec>,
 }
 
 impl Parser {
@@ -40,7 +41,7 @@ impl Parser {
                 operation_map: Default::default(),
                 imports: Default::default(),
                 modify_target: Default::default(),
-            })
+            }),
         }
     }
 
@@ -56,17 +57,7 @@ impl Parser {
                 operation_map: Default::default(),
                 imports: Default::default(),
                 modify_target: Default::default(),
-            })
-        }
-    }
-
-    fn insert_request_map(&self, map: RequestMap) {
-        let mut spec = self.spec.borrow_mut();
-        if let Some(r) = spec.requests.iter_mut()
-            .find(|r| r.path.eq(map.path.as_str())) {
-            r.requests.extend(map.requests);
-        } else {
-            spec.requests.push_back(map);
+            }),
         }
     }
 
@@ -75,25 +66,38 @@ impl Parser {
     }
 
     pub fn add_operation_mapping(&self, original: &str, replace_with: &str) {
-        self.spec.borrow_mut().operation_map.insert(original.into(), replace_with.into());
+        self.spec
+            .borrow_mut()
+            .operation_map
+            .insert(original.into(), replace_with.into());
     }
 
     pub fn add_tag_mapping(&self, original: &str, replace_with: &str) {
-        self.spec.borrow_mut().tag_map.insert(original.into(), replace_with.into());
+        self.spec
+            .borrow_mut()
+            .tag_map
+            .insert(original.into(), replace_with.into());
     }
 
     pub fn add_imports(&self, imports: &[&str]) {
-        self.spec.borrow_mut().imports.extend(imports.iter().map(|s| s.to_string()));
+        self.spec
+            .borrow_mut()
+            .imports
+            .extend(imports.iter().map(|s| s.to_string()));
     }
 
     pub fn add_match_modifier(&self, matcher: MatchTarget, modifier: Vec<MatchTarget>) {
-        self.spec.borrow_mut().modify_target.map.insert(matcher, modifier);
+        self.spec
+            .borrow_mut()
+            .modify_target
+            .map
+            .insert(matcher, modifier);
     }
 
     pub fn filter(&self, filter: Filter<'_>) -> PathMap {
         let spec = self.spec.borrow();
         PathMap {
-            paths: spec.paths.filter(filter)
+            paths: spec.paths.filter(filter),
         }
     }
 
@@ -121,8 +125,11 @@ impl Parser {
         }
 
         req_map.requests.push_back(request);
-        if let Some(r) = spec.requests.iter_mut()
-            .find(|r| r.path.eq(req_map.path.as_str())) {
+        if let Some(r) = spec
+            .requests
+            .iter_mut()
+            .find(|r| r.path.eq(req_map.path.as_str()))
+        {
             r.requests.extend(req_map.requests);
         } else {
             spec.requests.push_back(req_map);
