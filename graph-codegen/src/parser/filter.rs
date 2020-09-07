@@ -56,6 +56,7 @@ impl From<Filter<'_>> for StoredFilter {
 pub enum MatchTarget {
     Tag(String),
     OperationMap(String),
+    TagAndOperationMap(String),
 }
 
 impl MatchTarget {
@@ -71,6 +72,11 @@ impl MatchTarget {
                     return true;
                 }
             },
+            MatchTarget::TagAndOperationMap(s) => {
+                if request.tag.eq(s.as_str()) || request.operation_mapping.eq(s.as_str()) {
+                    return true;
+                }
+            },
         }
         false
     }
@@ -83,6 +89,10 @@ impl MatchTarget {
             MatchTarget::Tag(s) => {
                 request.tag = s.to_string();
             },
+            MatchTarget::TagAndOperationMap(s) => {
+                request.tag = s.to_string();
+                request.operation_mapping = s.to_string();
+            },
         }
     }
 }
@@ -92,6 +102,7 @@ impl ToString for MatchTarget {
         match self {
             MatchTarget::Tag(s) => format!("Tag:{}", s),
             MatchTarget::OperationMap(s) => format!("OperationMap:{}", s),
+            MatchTarget::TagAndOperationMap(s) => format!("TagAndOperationMap:{}", s),
         }
     }
 }
@@ -107,6 +118,7 @@ impl TryFrom<String> for MatchTarget {
         match key {
             "Tag" => Ok(MatchTarget::Tag(value.to_string())),
             "OperationMap" => Ok(MatchTarget::OperationMap(value.to_string())),
+            "TagAndOperationMap" => Ok(MatchTarget::TagAndOperationMap(value.to_string())),
             _ => Err(ParserError::DeserializeMatchTarget),
         }
     }

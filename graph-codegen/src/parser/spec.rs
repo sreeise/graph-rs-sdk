@@ -1,11 +1,12 @@
 use crate::parser::filter::{Filter, MatchTarget, ModifierMap};
 use crate::parser::{
-    HttpMethod, Operation, PathMap, RequestMap, RequestParser, RequestParserBuilder, RequestSet,
+    HttpMethod, Operation, PathMap, Request, RequestMap, RequestParser, RequestParserBuilder,
+    RequestSet,
 };
 use from_as::*;
 
 use serde::Serialize;
-use std::cell::RefCell;
+use std::cell::{RefCell, RefMut};
 use std::collections::{HashMap, HashSet, VecDeque};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -94,6 +95,27 @@ impl Parser {
             .insert(matcher, modifier);
     }
 
+    pub fn use_default_modifiers(&self, name: String) {
+        let shorthand = &name[..name.len() - 1];
+        let double_name = format!("{}.{}", name, shorthand);
+        let functions = format!("{}.Functions", name);
+        let actions = format!("{}.Actions", name);
+        let mut spec = self.spec.borrow_mut();
+
+        spec.modify_target.map.insert(
+            MatchTarget::Tag(double_name),
+            vec![MatchTarget::TagAndOperationMap(name.clone())],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::Tag(actions),
+            vec![MatchTarget::TagAndOperationMap(name.clone())],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::Tag(functions),
+            vec![MatchTarget::TagAndOperationMap(name.clone())],
+        );
+    }
+
     pub fn filter(&self, filter: Filter<'_>) -> PathMap {
         let spec = self.spec.borrow();
         PathMap {
@@ -101,66 +123,69 @@ impl Parser {
         }
     }
 
-    pub fn build(&self, filter: Filter<'_>) -> RequestSet {
-        let path_map = self.filter(filter);
-        self.build_requests(path_map)
-    }
-
-    fn build_next_request_map(&self, path: &str, operation: &Operation, method: HttpMethod) {
-        let mut req_map = RequestMap::default();
-        req_map.path = path.transform_path();
-        let mut request = operation.build();
-        request.method = method;
-        let mut spec = self.spec.borrow_mut();
-        if let Some(value) = spec.operation_map.get(request.operation_mapping.as_str()) {
-            request.operation_mapping = value.to_string();
-        }
-
-        for (mat, modify_vec) in spec.modify_target.map.iter() {
+    fn modify_target(mut request: Request, map: &ModifierMap) -> Request {
+        for (mat, modify_vec) in map.map.iter() {
             if mat.matches(&mut request) {
                 for modifier in modify_vec.iter() {
                     modifier.modify(&mut request);
                 }
             }
         }
-
-        req_map.requests.push_back(request);
-        if let Some(r) = spec
-            .requests
-            .iter_mut()
-            .find(|r| r.path.eq(req_map.path.as_str()))
-        {
-            r.requests.extend(req_map.requests);
-        } else {
-            spec.requests.push_back(req_map);
-        }
+        request
     }
 
-    pub fn build_requests(&self, path_map: PathMap) -> RequestSet {
+    pub fn build(&self, filter: Filter<'_>) -> RequestSet {
+        let mut spec = self.spec.borrow_mut();
+        let modifier = spec.modify_target.clone();
+        let mut path_map: PathMap = spec.paths.filter(filter).into();
+
         for (path, path_spec) in path_map.paths.iter() {
+            let mut req_map = RequestMap::default();
+            req_map.path = path.transform_path();
+
             if let Some(operation) = path_spec.get.as_ref() {
-                self.build_next_request_map(path.as_str(), operation, HttpMethod::GET);
+                let mut request = Parser::modify_target(operation.build(), &modifier);
+                request.method = HttpMethod::GET;
+                req_map.requests.push_back(request);
             }
 
             if let Some(operation) = path_spec.post.as_ref() {
-                self.build_next_request_map(path.as_str(), operation, HttpMethod::POST);
+                let mut request = Parser::modify_target(operation.build(), &modifier);
+                request.method = HttpMethod::POST;
+                req_map.requests.push_back(request);
             }
 
             if let Some(operation) = path_spec.put.as_ref() {
-                self.build_next_request_map(path.as_str(), operation, HttpMethod::PUT);
+                let mut request = Parser::modify_target(operation.build(), &modifier);
+                request.method = HttpMethod::PUT;
+                req_map.requests.push_back(request);
             }
 
             if let Some(operation) = path_spec.patch.as_ref() {
-                self.build_next_request_map(path.as_str(), operation, HttpMethod::PATCH);
+                let mut request = Parser::modify_target(operation.build(), &modifier);
+                request.method = HttpMethod::PATCH;
+                req_map.requests.push_back(request);
             }
 
             if let Some(operation) = path_spec.delete.as_ref() {
-                self.build_next_request_map(path.as_str(), operation, HttpMethod::DELETE);
+                let mut request = Parser::modify_target(operation.build(), &modifier);
+                request.method = HttpMethod::DELETE;
+                req_map.requests.push_back(request);
+            }
+
+            if let Some(r) = spec
+                .requests
+                .iter_mut()
+                .find(|r| r.path.eq(req_map.path.as_str()))
+            {
+                r.requests.extend(req_map.requests);
+            } else {
+                spec.requests.push_back(req_map);
             }
         }
 
         let mut request_set = RequestSet::default();
-        let mut requests = self.spec.borrow().requests.clone();
+        let mut requests = spec.requests.clone();
         while let Some(req) = requests.pop_front() {
             request_set.join_inner_insert(req);
         }
