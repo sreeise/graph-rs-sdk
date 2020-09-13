@@ -7,23 +7,23 @@ use std::convert::TryFrom;
 use std::marker::PhantomData;
 use std::path::PathBuf;
 
-pub struct IntoRequest<T, Builder> {
-    client: Builder,
+pub struct DispatchRequest<T, Builder> {
+    pub client: Builder,
     ident: PhantomData<T>,
     file: Option<PathBuf>,
     error: Option<GraphFailure>,
 }
 
-pub type IntoReqBlocking<T> = IntoRequest<T, reqwest::blocking::RequestBuilder>;
-pub type IntoReqAsync<T> = IntoRequest<T, reqwest::RequestBuilder>;
+pub type DispatchBlocking<T> = DispatchRequest<T, reqwest::blocking::RequestBuilder>;
+pub type DispatchAsync<T> = DispatchRequest<T, reqwest::RequestBuilder>;
 
-impl<T> IntoReqBlocking<T> {
+impl<T> DispatchBlocking<T> {
     pub fn new(
         req: reqwest::blocking::RequestBuilder,
         file: Option<PathBuf>,
         error: Option<GraphFailure>,
-    ) -> IntoReqBlocking<T> {
-        IntoReqBlocking {
+    ) -> DispatchBlocking<T> {
+        DispatchBlocking {
             client: req,
             ident: Default::default(),
             file,
@@ -32,7 +32,7 @@ impl<T> IntoReqBlocking<T> {
     }
 }
 
-impl<T> IntoReqBlocking<T> {
+impl<T> DispatchBlocking<T> {
     pub fn json<U>(self) -> GraphResult<U>
     where
         for<'de> U: serde::Deserialize<'de>,
@@ -45,7 +45,7 @@ impl<T> IntoReqBlocking<T> {
     }
 }
 
-impl<T> IntoReqBlocking<T>
+impl<T> DispatchBlocking<T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
@@ -58,7 +58,7 @@ where
     }
 }
 
-impl IntoReqBlocking<GraphResponse<Content>> {
+impl DispatchBlocking<GraphResponse<Content>> {
     pub fn send(self) -> GraphResult<GraphResponse<Content>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -68,7 +68,7 @@ impl IntoReqBlocking<GraphResponse<Content>> {
     }
 }
 
-impl IntoReqBlocking<UploadSessionClient<BlockingHttpClient>> {
+impl DispatchBlocking<UploadSessionClient<BlockingHttpClient>> {
     pub fn send(self) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -97,13 +97,13 @@ impl IntoReqBlocking<UploadSessionClient<BlockingHttpClient>> {
 
 // Async Impl
 
-impl<T> IntoReqAsync<T> {
+impl<T> DispatchAsync<T> {
     pub fn new(
         req: reqwest::RequestBuilder,
         file: Option<PathBuf>,
         error: Option<GraphFailure>,
-    ) -> IntoReqAsync<T> {
-        IntoReqAsync {
+    ) -> DispatchAsync<T> {
+        DispatchAsync {
             client: req,
             ident: Default::default(),
             file,
@@ -112,7 +112,7 @@ impl<T> IntoReqAsync<T> {
     }
 }
 
-impl<T> IntoReqAsync<T> {
+impl<T> DispatchAsync<T> {
     pub async fn json<U>(self) -> GraphResult<U>
     where
         for<'de> U: serde::Deserialize<'de>,
@@ -125,7 +125,7 @@ impl<T> IntoReqAsync<T> {
     }
 }
 
-impl<T> IntoReqAsync<T>
+impl<T> DispatchAsync<T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
@@ -138,7 +138,7 @@ where
     }
 }
 
-impl IntoReqAsync<GraphResponse<Content>> {
+impl DispatchAsync<GraphResponse<Content>> {
     pub async fn send(self) -> GraphResult<GraphResponse<Content>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -148,7 +148,7 @@ impl IntoReqAsync<GraphResponse<Content>> {
     }
 }
 
-impl IntoReqAsync<UploadSessionClient<AsyncHttpClient>> {
+impl DispatchAsync<UploadSessionClient<AsyncHttpClient>> {
     pub async fn send(self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());

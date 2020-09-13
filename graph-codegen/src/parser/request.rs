@@ -2,7 +2,7 @@ use crate::parser::Operation;
 use from_as::*;
 use inflector::Inflector;
 use regex::Regex;
-use std::collections::{BTreeSet, HashSet, VecDeque};
+use std::collections::{BTreeSet, HashSet, VecDeque, HashMap};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
 pub enum HttpMethod {
@@ -46,6 +46,19 @@ impl From<HttpMethod> for reqwest::Method {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Hash)]
+pub enum ResponseType {
+    SerdeJson,
+    Collection,
+    NoContent,
+}
+
+impl Default for ResponseType {
+    fn default() -> Self {
+        ResponseType::SerdeJson
+    }
+}
+
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile, Hash)]
 pub struct Request {
     pub method: HttpMethod,
@@ -53,7 +66,7 @@ pub struct Request {
     pub param_size: usize,
     pub has_body: bool,
     pub has_rid: bool,
-    pub response: String,
+    pub response: ResponseType,
     pub tag: String,
     pub operation_id: String,
     pub operation_mapping: String,
@@ -121,6 +134,21 @@ impl RequestSet {
         } else {
             self.set.insert(request_map);
         }
+    }
+
+    pub fn group_by_operation_mapping(&self) -> HashMap<String, Vec<RequestMap>> {
+        let mut map: HashMap<String, Vec<RequestMap>> = HashMap::new();
+        for request_map in self.set.iter() {
+            if let Some(request) = request_map.requests.get(0) {
+                let operation_mapping = request.operation_mapping.to_string();
+                if map.contains_key(&operation_mapping) {
+                    map.get_mut(&operation_mapping).map(|vec| vec.push(request_map.clone()));
+                } else {
+                    map.insert(operation_mapping, vec![request_map.clone()]);
+                }
+            }
+        }
+        map
     }
 }
 
@@ -232,6 +260,7 @@ impl RequestParserBuilder for Operation {
         request.method_name = self.method_name();
         request.param_size = self.param_size();
         request.has_body = self.has_body();
+        request.response = self.response_type();
         if let Some(tag) = self.tags.get(0) {
             request.tag = tag.to_string();
         }

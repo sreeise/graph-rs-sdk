@@ -1,7 +1,7 @@
 use crate::attachments::{MailFolderMessageAttachmentRequest, MailMessageAttachmentRequest};
 use crate::client::Graph;
 use crate::http::{GraphResponse, IntoResponse};
-use crate::types::{collection::Collection, content::Content, delta::DeltaRequest};
+use crate::types::{collection::Collection, content::Content, delta::DeltaPhantom};
 use handlebars::*;
 use reqwest::Method;
 
@@ -74,7 +74,7 @@ where
     get!( list, Collection<serde_json::Value> => "{{mf}}" );
     get!( | list_child_folders, Collection<serde_json::Value> => "{{mf}}/{{id}}/childFolders" );
     get!( | get, serde_json::Value => "{{mf}}/{{id}}" );
-    get!( delta, DeltaRequest<Collection<serde_json::Value>> => "{{mf}}/delta" );
+    get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "{{mf}}/delta" );
     get!( archive, serde_json::Value => "{{mf}}/archive" );
     get!( inbox, serde_json::Value => "{{mf}}/inbox" );
     get!( clutter, serde_json::Value => "{{mf}}/clutter" );

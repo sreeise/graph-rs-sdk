@@ -3,10 +3,11 @@ use crate::http::GraphResponse;
 use crate::types::content::Content;
 use graph_error::GraphResult;
 use reqwest::header::CONTENT_TYPE;
-use serde::export::{Formatter, PhantomData};
+use std::fmt::Formatter;
 use std::convert::TryFrom;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
+use std::marker::PhantomData;
 
 #[allow(clippy::large_enum_variant)]
 pub enum Delta<T> {
@@ -126,7 +127,7 @@ pub trait MetadataLink<RHS = Self> {
 }
 
 #[derive(Default)]
-pub struct DeltaRequest<T> {
+pub struct DeltaPhantom<T> {
     phantom: PhantomData<T>,
 }
 

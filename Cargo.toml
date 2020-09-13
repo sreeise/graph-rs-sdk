@@ -21,6 +21,7 @@ members = [
     "graph-error",
     "test-tools",
     "graph-codegen",
+    "graph-rs-http"
 ]
 
 [dependencies]
@@ -66,6 +67,7 @@ tokio = { version = "0.2", features = ["full"] }
 futures = "0.3.5"
 from_as = { git = "https://github.com/sreeise/from_as" }
 graph-codegen = { path = "./graph-codegen" }
+graph-rs-http = { path = "./graph-rs-http" }
 
 [badges]
 travis-ci = { repository = "https://github.com/sreeise/graph-rs", branch = "master" }
