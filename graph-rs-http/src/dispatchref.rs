@@ -1,20 +1,21 @@
-use crate::client::*;
-use crate::http::{
-    AsyncHttpClient, AsyncTryFrom, BlockingHttpClient, GraphResponse, DispatchDelta,
-    DispatchAsync, DispatchBlocking, RequestClient, UploadSessionClient,
-};
-use crate::types::delta::{Delta, NextLink};
-use crate::types::{content::Content, delta::DeltaPhantom};
-use graph_error::{GraphFailure, GraphResult};
-use reqwest::header::{HeaderValue, IntoHeaderName};
+use crate::uploadsession::UploadSessionClient;
+use crate::async_client::AsyncHttpClient;
+use crate::traits::AsyncTryFrom;
+use crate::{DispatchAsync, GraphResponse, DispatchDelta, DispatchBlocking, RequestClient};
+use crate::types::{Content, DeltaPhantom, Delta};
+use graph_error::{GraphResult, GraphFailure};
+use crate::traits::NextLink;
+use crate::blocking_client::BlockingHttpClient;
+use reqwest::header::{IntoHeaderName, HeaderValue};
 use std::marker::PhantomData;
 use std::sync::mpsc::Receiver;
+use std::convert::TryFrom;
 
 pub struct IntoResponse<'a, T, Client>
-where
-    Client: RequestClient,
+    where
+        Client: RequestClient,
 {
-    client: &'a Graph<Client>,
+    client: &'a Client,
     ident: PhantomData<T>,
     error: Option<GraphFailure>,
 }
@@ -23,10 +24,10 @@ pub type IntoResBlocking<'a, T> = IntoResponse<'a, T, BlockingHttpClient>;
 pub type IntoResAsync<'a, T> = IntoResponse<'a, T, AsyncHttpClient>;
 
 impl<'a, T, Client> IntoResponse<'a, T, Client>
-where
-    Client: RequestClient,
+    where
+        Client: RequestClient,
 {
-    pub fn new(client: &'a Graph<Client>) -> IntoResponse<'a, T, Client> {
+    pub fn new(client: &'a Client) -> IntoResponse<'a, T, Client> {
         IntoResponse {
             client,
             ident: PhantomData,
@@ -35,7 +36,7 @@ where
     }
 
     pub(crate) fn new_error(
-        client: &'a Graph<Client>,
+        client: &'a Client,
         error: GraphFailure,
     ) -> IntoResponse<'a, T, Client> {
         IntoResponse {
@@ -46,93 +47,93 @@ where
     }
 
     pub fn query(&self, key: &str, value: &str) -> &Self {
-        self.client.request().url_mut(|url| {
+        self.client.url_mut(|url| {
             url.append_query_pair(key, value);
         });
         self
     }
 
     pub fn select(&self, value: &[&str]) -> &Self {
-        self.client.request().url_mut(|url| {
+        self.client.url_mut(|url| {
             url.select(value);
         });
         self
     }
 
     pub fn expand(&self, value: &[&str]) -> &Self {
-        self.client.request().url_mut(|url| {
+        self.client.url_mut(|url| {
             url.expand(value);
         });
         self
     }
 
     pub fn filter(&self, value: &[&str]) -> &Self {
-        self.client.request().url_mut(|url| {
+        self.client.url_mut(|url| {
             url.filter(value);
         });
         self
     }
 
     pub fn order_by(&self, value: &[&str]) -> &Self {
-        self.client.request().url_mut(|url| {
+        self.client.url_mut(|url| {
             url.order_by(value);
         });
         self
     }
 
     pub fn search(&self, value: &str) -> &Self {
-        self.client.request().url_mut(|url| {
+        self.client.url_mut(|url| {
             url.search(value);
         });
         self
     }
 
     pub fn format(&self, value: &str) -> &Self {
-        self.client.request().url_mut(|url| {
+        self.client.url_mut(|url| {
             url.format(value);
         });
         self
     }
 
     pub fn skip(&self, value: &str) -> &Self {
-        self.client.request().url_mut(|url| {
+        self.client.url_mut(|url| {
             url.skip(value);
         });
         self
     }
 
     pub fn top(&self, value: &str) -> &Self {
-        self.client.request().url_mut(|url| {
+        self.client.url_mut(|url| {
             url.top(value);
         });
         self
     }
 
     pub fn header<H: IntoHeaderName>(&self, name: H, value: HeaderValue) -> &Self {
-        self.client.request().header(name, value);
+        self.client.header(name, value);
         self
     }
 }
 
 impl<'a, T> IntoResBlocking<'a, T> {
     pub fn json<U>(self) -> GraphResult<U>
-    where
-        for<'de> U: serde::Deserialize<'de>,
+        where
+                for<'de> U: serde::Deserialize<'de>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let response = self.client.request().response()?;
+        let response = self.client.response()?;
         Ok(response.json()?)
     }
 }
 
 impl<'a, T> IntoResBlocking<'a, T>
-where
-    for<'de> T: serde::Deserialize<'de>,
+    where
+            for<'de> T: serde::Deserialize<'de>,
 {
     pub fn build(self) -> DispatchBlocking<T> {
-        let builder = self.client.request().build();
+        let builder = self.client.build();
         DispatchBlocking::new(builder, None, self.error)
     }
 
@@ -140,13 +141,13 @@ where
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        self.client.request().execute()
+        self.client.execute()
     }
 }
 
 impl<'a> IntoResBlocking<'a, UploadSessionClient<BlockingHttpClient>> {
     pub fn build(self) -> DispatchBlocking<UploadSessionClient<BlockingHttpClient>> {
-        let (file, builder) = self.client.request().build_upload_session();
+        let (file, builder) = self.client.build_upload_session();
         DispatchBlocking::new(builder, file, self.error)
     }
 
@@ -154,13 +155,13 @@ impl<'a> IntoResBlocking<'a, UploadSessionClient<BlockingHttpClient>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        self.client.request().upload_session()
+        self.client.upload_session()
     }
 }
 
 impl<'a> IntoResBlocking<'a, GraphResponse<Content>> {
     pub fn build(self) -> DispatchBlocking<GraphResponse<Content>> {
-        let builder = self.client.request().build();
+        let builder = self.client.build();
         DispatchBlocking::new(builder, None, self.error)
     }
 
@@ -168,17 +169,17 @@ impl<'a> IntoResBlocking<'a, GraphResponse<Content>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let response = self.client.request().response()?;
+        let response = self.client.response()?;
         Ok(std::convert::TryFrom::try_from(response)?)
     }
 }
 
 impl<'a, T: 'static + Send + NextLink + Clone> IntoResBlocking<'a, DeltaPhantom<T>>
-where
-    for<'de> T: serde::Deserialize<'de>,
+    where
+            for<'de> T: serde::Deserialize<'de>,
 {
     pub fn build(self) -> DispatchDelta<T, reqwest::blocking::RequestBuilder> {
-        let client = self.client.request();
+        let client = self.client;
         let builder = client.build();
         let token = client.token();
         DispatchDelta::<T, reqwest::blocking::RequestBuilder>::new(token, builder, self.error)
@@ -194,24 +195,24 @@ where
 
 impl<'a, T> IntoResAsync<'a, T> {
     pub async fn json<U>(self) -> GraphResult<U>
-    where
-        for<'de> U: serde::Deserialize<'de>,
+        where
+                for<'de> U: serde::Deserialize<'de>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let request = self.client.request().build().await;
+        let request = self.client.build().await;
         let response = request.send().await?;
         response.json().await.map_err(GraphFailure::from)
     }
 }
 
 impl<'a, T> IntoResAsync<'a, T>
-where
-    for<'de> T: serde::Deserialize<'de>,
+    where
+            for<'de> T: serde::Deserialize<'de>,
 {
     pub async fn build(self) -> DispatchAsync<T> {
-        let builder = self.client.request().build().await;
+        let builder = self.client.build().await;
         DispatchAsync::new(builder, None, self.error)
     }
 
@@ -219,14 +220,14 @@ where
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let response = self.client.request().response().await?;
-        AsyncTryFrom::<reqwest::Response>::try_from(response).await
+        let response = self.client.response().await?;
+        AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
     }
 }
 
 impl<'a> IntoResAsync<'a, GraphResponse<Content>> {
     pub async fn build(self) -> DispatchAsync<GraphResponse<Content>> {
-        let builder = self.client.request().build().await;
+        let builder = self.client.build().await;
         DispatchAsync::new(builder, None, self.error)
     }
 
@@ -234,14 +235,14 @@ impl<'a> IntoResAsync<'a, GraphResponse<Content>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let response = self.client.request().response().await?;
-        AsyncTryFrom::<reqwest::Response>::try_from(response).await
+        let response = self.client.response().await?;
+        AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
     }
 }
 
 impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncHttpClient>> {
     pub async fn build(self) -> DispatchAsync<UploadSessionClient<AsyncHttpClient>> {
-        let (file, builder) = self.client.request().build_upload_session().await;
+        let (file, builder) = self.client.build_upload_session().await;
         DispatchAsync::new(builder, file, self.error)
     }
 
@@ -249,18 +250,17 @@ impl<'a> IntoResAsync<'a, UploadSessionClient<AsyncHttpClient>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        self.client.request().upload_session().await
+        self.client.upload_session().await
     }
 }
 
 impl<'a, T: 'static + Send + NextLink + Clone> IntoResAsync<'a, DeltaPhantom<T>>
-where
-    for<'de> T: serde::Deserialize<'de>,
+    where
+            for<'de> T: serde::Deserialize<'de>,
 {
     pub async fn build(self) -> DispatchDelta<T, reqwest::RequestBuilder> {
-        let client = self.client.request();
-        let builder = client.build().await;
-        let token = client.token();
+        let builder = self.client.build().await;
+        let token = self.client.token();
         DispatchDelta::<T, reqwest::RequestBuilder>::new(token, builder, self.error)
     }
 

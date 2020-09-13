@@ -2,38 +2,11 @@ use crate::parser::filter::*;
 use from_as::*;
 use regex::Regex;
 
-use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
+use crate::parser::ResponseType;
 
 pub trait PathRetain {
     fn path_retain(&mut self);
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile, PartialEq)]
-#[serde(default)]
-pub struct PropertyValue {
-    #[serde(rename = "type")]
-    type_: String,
-    items: HashMap<String, String>,
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile, PartialEq)]
-#[serde(default)]
-pub struct Properties {
-    value: PropertyValue,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Schema {
-    #[serde(rename = "$ref")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ref_: Option<String>,
-    properties: Properties,
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-pub struct Content {
-    #[serde(rename = "application/json")]
-    content_type_map: HashMap<String, Schema>,
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
@@ -44,6 +17,107 @@ pub struct RequestBody {
     pub content: Option<Content>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub required: Option<bool>,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub struct Response {
+    #[serde(rename = "204")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub no_content: Option<ResponseObject>,
+    #[serde(rename = "200")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ok: Option<ResponseObject>,
+    #[serde(rename = "201")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created: Option<ResponseObject>,
+}
+
+impl Response {
+    pub fn get_type(&self) -> ResponseType {
+        if self.no_content.is_some() {
+            return ResponseType::NoContent;
+        }
+
+        if let Some(response_object) = self.ok.as_ref() {
+            if response_object.is_array() {
+                return ResponseType::Collection;
+            }
+        }
+
+        if let Some(response_object) = self.created.as_ref() {
+            if response_object.is_array() {
+                return ResponseType::Collection;
+            }
+        }
+
+        ResponseType::SerdeJson
+    }
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub struct ResponseObject {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub content: Option<Content>,
+}
+
+impl ResponseObject {
+    pub fn is_array(&self) -> bool {
+        if let Some(content) = self.content.as_ref() {
+            content.is_array()
+        } else {
+            false
+        }
+    }
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub struct Content {
+    #[serde(rename = "application/json")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub application_json: Option<ApplicationJson>,
+}
+
+impl Content {
+    pub fn is_array(&self) -> bool {
+        if let Some(application_json) = self.application_json.as_ref() {
+            application_json.is_array()
+        } else {
+            false
+        }
+    }
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub struct ApplicationJson {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub schema: Option<Schema>,
+}
+
+impl ApplicationJson {
+    pub fn is_array(&self) -> bool {
+        if let Some(schema) = self.schema.as_ref() {
+            schema.is_array()
+        } else {
+            false
+        }
+    }
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub struct Schema {
+    #[serde(rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub _type: Option<String>,
+}
+
+impl Schema {
+    pub fn is_array(&self) -> bool {
+        if let Some(_type) = self._type.as_ref() {
+            _type.eq("array")
+        } else {
+            false
+        }
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -62,6 +136,8 @@ pub struct Operation {
     #[serde(rename = "requestBody")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_body: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub responses: Option<Response>,
 }
 
 impl Operation {
@@ -74,6 +150,14 @@ impl Operation {
 
     pub fn has_body(&self) -> bool {
         self.request_body.is_some()
+    }
+
+    pub fn response_type(&self) -> ResponseType {
+        if let Some(response) = self.responses.as_ref() {
+            response.get_type()
+        } else {
+            ResponseType::SerdeJson
+        }
     }
 }
 

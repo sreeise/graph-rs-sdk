@@ -4,7 +4,7 @@ use crate::http::{
     GraphResponse, IntoResponse, RequestAttribute, RequestClient, UploadSessionClient,
 };
 use crate::types::collection::Collection;
-use crate::types::{content::Content, delta::DeltaRequest};
+use crate::types::{content::Content, delta::DeltaPhantom};
 use graph_error::{GraphFailure, GraphRsError};
 use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};
@@ -46,7 +46,7 @@ where
     get!( drive, serde_json::Value => "{{drive_root}}" );
     get!( root, serde_json::Value => "{{drive_root}}/root" );
     get!( recent, Collection<serde_json::Value> => "{{drive_root}}/recent" );
-    get!( delta, DeltaRequest<Collection<serde_json::Value>> => "{{drive_root}}/root/delta" );
+    get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "{{drive_root}}/root/delta" );
     get!( root_children, Collection<serde_json::Value> => "{{drive_root}}/root/children" );
     get!( drive_activity, Collection<serde_json::Value> => "{{drive_root}}/activities" );
     get!( thumbnails, Collection<serde_json::Value> => "{{drive_item}}/thumbnails" );

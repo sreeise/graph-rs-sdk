@@ -1,12 +1,12 @@
 use crate::parser::filter::{Filter, MatchTarget, ModifierMap};
 use crate::parser::{
-    HttpMethod, Operation, PathMap, Request, RequestMap, RequestParser, RequestParserBuilder,
+    HttpMethod, PathMap, Request, RequestMap, RequestParser, RequestParserBuilder,
     RequestSet,
 };
 use from_as::*;
 
 use serde::Serialize;
-use std::cell::{RefCell, RefMut};
+use std::cell::RefCell;
 use std::collections::{HashMap, HashSet, VecDeque};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -95,7 +95,8 @@ impl Parser {
             .insert(matcher, modifier);
     }
 
-    pub fn use_default_modifiers(&self, name: String) {
+    pub fn use_default_modifier(&self, name: &str) {
+        let name = name.to_string();
         let shorthand = &name[..name.len() - 1];
         let double_name = format!("{}.{}", name, shorthand);
         let functions = format!("{}.Functions", name);
@@ -114,6 +115,30 @@ impl Parser {
             MatchTarget::Tag(functions),
             vec![MatchTarget::TagAndOperationMap(name.clone())],
         );
+    }
+
+    pub fn use_default_modifiers(&self, names: &[&str]) {
+        let mut spec = self.spec.borrow_mut();
+
+        for name in names.iter() {
+            let shorthand = &name[..name.len() - 1];
+            let double_name = format!("{}.{}", name, shorthand);
+            let functions = format!("{}.Functions", name);
+            let actions = format!("{}.Actions", name);
+
+            spec.modify_target.map.insert(
+                MatchTarget::Tag(double_name),
+                vec![MatchTarget::TagAndOperationMap(name.to_string())],
+            );
+            spec.modify_target.map.insert(
+                MatchTarget::Tag(actions),
+                vec![MatchTarget::TagAndOperationMap(name.to_string())],
+            );
+            spec.modify_target.map.insert(
+                MatchTarget::Tag(functions),
+                vec![MatchTarget::TagAndOperationMap(name.to_string())],
+            );
+        }
     }
 
     pub fn filter(&self, filter: Filter<'_>) -> PathMap {
@@ -137,7 +162,7 @@ impl Parser {
     pub fn build(&self, filter: Filter<'_>) -> RequestSet {
         let mut spec = self.spec.borrow_mut();
         let modifier = spec.modify_target.clone();
-        let mut path_map: PathMap = spec.paths.filter(filter).into();
+        let path_map: PathMap = spec.paths.filter(filter).into();
 
         for (path, path_spec) in path_map.paths.iter() {
             let mut req_map = RequestMap::default();

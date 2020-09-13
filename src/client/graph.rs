@@ -14,11 +14,11 @@ use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
 use crate::planner::PlannerRequest;
 use crate::types::{
-    boolresponse::BoolResponse, collection::Collection, content::Content, delta::DeltaRequest,
+    boolresponse::BoolResponse, collection::Collection, content::Content, delta::DeltaPhantom,
 };
 use crate::url::GraphUrl;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
-use graph_error::GraphFailure;
+use graph_error::{GraphFailure, GraphRsError};
 use graph_oauth::oauth::{AccessToken, OAuth};
 use handlebars::*;
 use reqwest::header::{HeaderValue, ACCEPT};
@@ -44,6 +44,21 @@ impl AsRef<str> for Ident {
             Ident::Sites => "sites",
             Ident::Groups => "groups",
             Ident::Users => "users",
+        }
+    }
+}
+
+impl FromStr for Ident {
+    type Err = GraphRsError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.as_bytes() {
+            b"me" => Ok(Ident::Me),
+            b"drives" => Ok(Ident::Drives),
+            b"sites" => Ok(Ident::Sites),
+            b"groups" => Ok(Ident::Groups),
+            b"users" => Ok(Ident::Users),
+            _ => Err(GraphRsError::InvalidOrMissing { msg: "Not a valid Ident".into() })
         }
     }
 }
@@ -286,7 +301,7 @@ where
     pub fn batch<B: serde::Serialize>(
         &self,
         batch: &B,
-    ) -> IntoResponse<'a, DeltaRequest<serde_json::Value>, Client> {
+    ) -> IntoResponse<'a, DeltaPhantom<serde_json::Value>, Client> {
         let client = self.client.request();
         client.set_method(Method::POST);
         client.header(ACCEPT, HeaderValue::from_static("application/json"));
@@ -414,7 +429,7 @@ where
 {
     get!( list, Collection<serde_json::Value> => "groups" );
     get!( get, serde_json::Value => "groups/{{RID}}" );
-    get!( delta, DeltaRequest<Collection<serde_json::Value>> => "groups/delta" );
+    get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "groups/delta" );
     get!( list_events, Collection<serde_json::Value> => "groups/{{RID}}/events" );
     get!( list_lifecycle_policies, Collection<serde_json::Value> => "groups/{{RID}}/groupLifecyclePolicies" );
     get!( list_member_of, Collection<serde_json::Value> => "groups/{{RID}}/memberOf" );
@@ -464,7 +479,7 @@ where
     get!( settings, serde_json::Value => "users/{{RID}}/settings" );
     get!( list, Collection<serde_json::Value> => "users" );
     get!( list_events, Collection<serde_json::Value> => "users/{{RID}}/events" );
-    get!( delta, DeltaRequest<Collection<serde_json::Value>> => "users" );
+    get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "users" );
     get!( | list_joined_group_photos, Collection<serde_json::Value> => "users/{{RID}}/joinedGroups/{{id}}/photos" );
     get!( list_planner_tasks, Collection<serde_json::Value> => "users/{{RID}}/planner/tasks");
     post!( [ create, serde_json::Value => "users" ] );

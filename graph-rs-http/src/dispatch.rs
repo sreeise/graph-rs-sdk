@@ -1,10 +1,193 @@
-use crate::http::{AsyncTryFrom, GraphResponse};
-use crate::types::delta::{Delta, NextLink};
-use graph_error::{GraphFailure, GraphResult};
-use reqwest::header::CONTENT_TYPE;
 use std::marker::PhantomData;
+use std::path::PathBuf;
+use graph_error::{GraphError, GraphFailure, GraphResult, ErrorMessage};
+use crate::GraphResponse;
+
+use std::sync::Arc;
+use tokio::sync::{Mutex, MutexGuard};
+use std::cell::RefCell;
+use std::ops::Deref;
+use std::convert::TryFrom;
+use crate::uploadsession::UploadSessionClient;
+use crate::blocking_client::BlockingHttpClient;
+use crate::async_client::AsyncHttpClient;
+use reqwest::header::CONTENT_TYPE;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
+use tokio::prelude::*;
+use crate::types::*;
+use crate::traits::*;
+use std::borrow::BorrowMut;
+
+pub struct DispatchRequest<T, Builder> {
+    request: Builder,
+    ident: PhantomData<T>,
+    file: Option<PathBuf>,
+    error: Option<GraphFailure>,
+}
+
+pub type DispatchBlocking<T> = DispatchRequest<T, reqwest::blocking::RequestBuilder>;
+pub type DispatchAsync<T> = DispatchRequest<T, reqwest::RequestBuilder>;
+
+impl<T> DispatchBlocking<T> {
+    pub fn new(
+        request: reqwest::blocking::RequestBuilder,
+        file: Option<PathBuf>,
+        error: Option<GraphFailure>,
+    ) -> DispatchBlocking<T> {
+        DispatchBlocking {
+            request,
+            ident: Default::default(),
+            file,
+            error,
+        }
+    }
+}
+
+impl<T> DispatchBlocking<T> {
+    pub fn json<U>(self) -> GraphResult<U>
+        where
+                for<'de> U: serde::Deserialize<'de>,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let response = self.request.send()?;
+        Ok(response.json()?)
+    }
+}
+
+impl<T> DispatchBlocking<T>
+    where
+            for<'de> T: serde::Deserialize<'de>,
+{
+    pub fn send(self) -> GraphResult<GraphResponse<T>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let response = self.request.send()?;
+        Ok(std::convert::TryFrom::try_from(response)?)
+    }
+}
+
+impl DispatchBlocking<GraphResponse<Content>> {
+    pub fn send(self) -> GraphResult<GraphResponse<Content>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let response = self.request.send()?;
+        Ok(std::convert::TryFrom::try_from(response)?)
+    }
+}
+
+impl DispatchBlocking<UploadSessionClient<BlockingHttpClient>> {
+    pub fn send(self) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let file = self
+            .file
+            .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
+
+        let response = self.request.send()?;
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            return Err(GraphFailure::GraphError(error));
+        }
+
+        let upload_session: serde_json::Value = response.json()?;
+        let mut session = UploadSessionClient::new(upload_session)?;
+        session.set_file(file)?;
+        Ok(session)
+    }
+}
+
+// Async Impl
+
+impl<T> DispatchAsync<T> {
+    pub fn new(
+        request: reqwest::RequestBuilder,
+        file: Option<PathBuf>,
+        error: Option<GraphFailure>,
+    ) -> DispatchAsync<T> {
+        DispatchAsync {
+            request,
+            ident: Default::default(),
+            file,
+            error,
+        }
+    }
+}
+
+impl<T> DispatchAsync<T> {
+    pub async fn json<U>(self) -> GraphResult<U>
+        where
+                for<'de> U: serde::Deserialize<'de>,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let response = self.request.send().await?;
+        Ok(response.json().await?)
+    }
+}
+
+impl<T> DispatchAsync<T>
+    where
+            for<'de> T: serde::Deserialize<'de>,
+{
+    pub async fn send(self) -> GraphResult<GraphResponse<T>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let response = self.request.send().await?;
+        AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
+    }
+}
+
+impl DispatchAsync<GraphResponse<Content>> {
+    pub async fn send(self) -> GraphResult<GraphResponse<Content>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let response = self.request.send().await?;
+        AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
+    }
+}
+
+impl DispatchAsync<UploadSessionClient<AsyncHttpClient>> {
+    pub async fn send(self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let file = self
+            .file
+            .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
+
+        let response = self.request.send().await?;
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().await.map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            return Err(GraphFailure::GraphError(error));
+        }
+
+        let upload_session: serde_json::Value = response.json().await?;
+        let mut session = UploadSessionClient::new_async(upload_session)?;
+        session.set_file_async(file).await?;
+        Ok(session)
+    }
+}
+
+
 
 pub struct DispatchDelta<T, Builder> {
     token: String,
@@ -29,8 +212,8 @@ impl<T, Builder> DispatchDelta<T, Builder> {
 }
 
 impl<T: 'static + Send + NextLink + Clone> DispatchDelta<T, reqwest::blocking::RequestBuilder>
-where
-    for<'de> T: serde::Deserialize<'de>,
+    where
+            for<'de> T: serde::Deserialize<'de>,
 {
     pub fn send(self) -> Receiver<Delta<T>> {
         let (sender, receiver) = channel();
@@ -105,8 +288,8 @@ where
 }
 
 impl<T: 'static + Send + NextLink + Clone> DispatchDelta<T, reqwest::RequestBuilder>
-where
-    for<'de> T: serde::Deserialize<'de>,
+    where
+            for<'de> T: serde::Deserialize<'de>,
 {
     pub async fn send(self) -> tokio::sync::mpsc::Receiver<Delta<T>> {
         let (mut sender, receiver) = tokio::sync::mpsc::channel(100);
@@ -122,7 +305,7 @@ where
         let initial_res: GraphResult<reqwest::Response> =
             self.request.send().await.map_err(GraphFailure::from);
         let response: GraphResult<GraphResponse<T>> =
-            AsyncTryFrom::<GraphResult<reqwest::Response>>::try_from(initial_res).await;
+            AsyncTryFrom::<GraphResult<reqwest::Response>>::async_try_from(initial_res).await;
         if let Err(err) = response {
             sender.send(Delta::Done(Some(err))).await.unwrap();
             return receiver;
