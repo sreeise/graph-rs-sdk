@@ -1,6 +1,6 @@
 use crate::client::Graph;
-use crate::http::{GraphResponse, IntoResponse};
-use crate::types::{collection::Collection, content::Content};
+use graph_http::types::{Collection, Content};
+use graph_http::{GraphResponse, IntoResponse};
 use reqwest::Method;
 
 register_client!(ActivitiesRequest,);
@@ -8,7 +8,7 @@ register_client!(ActivitiesHistoryItemsRequest,);
 
 impl<'a, Client> ActivitiesRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list_activities, Collection<serde_json::Value> => "activities" );
     post!( [ create_activities, serde_json::Value => "activities" ] );
@@ -23,7 +23,7 @@ where
 
 impl<'a, Client> ActivitiesHistoryItemsRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( || get_activity, serde_json::Value => "activities/{{id}}/historyItems/{{id2}}/activity" );
     get!( | list_history_items, Collection<serde_json::Value> => "activities/{{id}}/historyItems" );

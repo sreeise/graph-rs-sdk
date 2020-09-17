@@ -1,6 +1,6 @@
 use crate::client::Graph;
-use crate::http::{GraphResponse, IntoResponse};
-use crate::types::{collection::Collection, content::Content};
+use graph_http::types::{Collection, Content};
+use graph_http::{GraphResponse, IntoResponse};
 use reqwest::Method;
 
 register_client!(PlannerRequest,);
@@ -10,7 +10,7 @@ register_client!(PlannerBucketsRequest,);
 
 impl<'a, Client> PlannerRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( get_planner, serde_json::Value => "planner" );
     patch!( [ update_planner, serde_json::Value => "planner" ] );
@@ -30,7 +30,7 @@ where
 
 impl<'a, Client> PlannerPlansRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list_plans, Collection<serde_json::Value> => "planner/plans" );
     post!( [ create_plans, serde_json::Value => "planner/plans" ] );
@@ -46,7 +46,7 @@ where
 
 impl<'a, Client> PlannerTasksRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list_tasks, Collection<serde_json::Value> => "planner/tasks" );
     post!( [ create_tasks, serde_json::Value => "planner/tasks" ] );
@@ -65,7 +65,7 @@ where
 
 impl<'a, Client> PlannerBucketsRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list_buckets, Collection<serde_json::Value> => "planner/buckets" );
     post!( [ create_buckets, serde_json::Value => "planner/buckets" ] );

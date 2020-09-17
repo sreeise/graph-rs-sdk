@@ -1,7 +1,7 @@
 use crate::attachments::{MailFolderMessageAttachmentRequest, MailMessageAttachmentRequest};
 use crate::client::Graph;
-use crate::http::{GraphResponse, IntoResponse};
-use crate::types::{collection::Collection, content::Content, delta::DeltaPhantom};
+use graph_http::types::{Collection, Content, DeltaPhantom};
+use graph_http::{GraphResponse, IntoResponse};
 use handlebars::*;
 use reqwest::Method;
 
@@ -16,7 +16,7 @@ register_client!(
 
 impl<'a, Client> MailRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( mail_tips, Collection<serde_json::Value> => "getMailTips" );
 
@@ -41,7 +41,7 @@ register_client!(MessageRequest,);
 
 impl<'a, Client> MessageRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "{{mm}}" );
     get!( | get, serde_json::Value => "{{mm}}/{{id}}" );
@@ -69,7 +69,7 @@ register_client!(MailFolderRequest,);
 
 impl<'a, Client> MailFolderRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "{{mf}}" );
     get!( | list_child_folders, Collection<serde_json::Value> => "{{mf}}/{{id}}/childFolders" );
@@ -116,7 +116,7 @@ register_client!(MailFolderMessageRequest,);
 
 impl<'a, Client> MailFolderMessageRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( | list, Collection<serde_json::Value> => "{{mf}}/{{id}}/messages" );
     get!( || get, Collection<serde_json::Value> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
@@ -178,7 +178,7 @@ register_client!(MailRuleRequest,);
 
 impl<'a, Client> MailRuleRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "{{mfmr}}" );
     get!( | get, serde_json::Value => "{{mfmr}}/{{id}}" );
@@ -191,7 +191,7 @@ register_client!(FocusedInboxRequest,);
 
 impl<'a, Client> FocusedInboxRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list_overrides, Collection<serde_json::Value> => "{{ico}}" );
     patch!( [ create_override, serde_json::Value=> "{{ico}}" ] );
@@ -203,7 +203,7 @@ register_client!(OutlookCategoryRequest,);
 
 impl<'a, Client> OutlookCategoryRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "{{olc}}" );
     get!( | get, serde_json::Value => "{{olc}}/{{id}}" );

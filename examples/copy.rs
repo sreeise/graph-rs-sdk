@@ -1,5 +1,5 @@
 use graph_rs::prelude::*;
-use graph_rs::types::content::Content;
+use graph_http::types::Content;
 use std::thread;
 use std::time::Duration;
 

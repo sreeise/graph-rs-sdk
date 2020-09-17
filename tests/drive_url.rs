@@ -1,4 +1,4 @@
-use graph_rs::http::{BlockingHttpClient, Session};
+use graph_http::{BlockingHttpClient, Session};
 use graph_rs::prelude::*;
 use graph_rs::GRAPH_URL;
 use test_tools::assert_url_eq;

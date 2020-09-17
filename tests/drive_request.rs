@@ -1,5 +1,5 @@
 use graph_error::{GraphError, GraphResult};
-use graph_rs::http::NextSession;
+use graph_http::NextSession;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::ffi::OsString;

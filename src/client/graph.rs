@@ -1,4 +1,5 @@
 use crate::activities::ActivitiesRequest;
+use crate::applications::ApplicationsRequest;
 use crate::attachments::AttachmentRequest;
 use crate::calendar::CalendarRequest;
 use crate::contacts::ContactsRequest;
@@ -7,18 +8,16 @@ use crate::education::{EducationMeRequest, EducationRequest, EducationUsersReque
 use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
 };
-use crate::http::{
-    AsyncHttpClient, BlockingHttpClient, GraphResponse, IntoResponse, RequestClient,
-};
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
 use crate::planner::PlannerRequest;
-use crate::types::{
-    boolresponse::BoolResponse, collection::Collection, content::Content, delta::DeltaPhantom,
-};
-use crate::url::GraphUrl;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::{GraphFailure, GraphRsError};
+use graph_http::url::GraphUrl;
+use graph_http::{
+    types::Collection, types::Content, types::DeltaPhantom, AsyncHttpClient, BlockingHttpClient,
+    GraphResponse, IntoResponse, RequestClient,
+};
 use graph_oauth::oauth::{AccessToken, OAuth};
 use handlebars::*;
 use reqwest::header::{HeaderValue, ACCEPT};
@@ -48,6 +47,18 @@ impl AsRef<str> for Ident {
     }
 }
 
+impl ToString for Ident {
+    fn to_string(&self) -> String {
+        match self {
+            Ident::Me => "me".into(),
+            Ident::Drives => "drives".into(),
+            Ident::Sites => "sites".into(),
+            Ident::Groups => "groups".into(),
+            Ident::Users => "users".into(),
+        }
+    }
+}
+
 impl FromStr for Ident {
     type Err = GraphRsError;
 
@@ -58,7 +69,9 @@ impl FromStr for Ident {
             b"sites" => Ok(Ident::Sites),
             b"groups" => Ok(Ident::Groups),
             b"users" => Ok(Ident::Users),
-            _ => Err(GraphRsError::InvalidOrMissing { msg: "Not a valid Ident".into() })
+            _ => Err(GraphRsError::InvalidOrMissing {
+                msg: "Not a valid Ident".into(),
+            }),
         }
     }
 }
@@ -70,12 +83,12 @@ impl Default for Ident {
 }
 
 pub struct Graph<Client> {
-    request: Client,
+    pub(crate) request: Client,
 }
 
 impl<'a, Client> Graph<Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     pub fn v1(&'a self) -> Identify<'a, Client> {
         self.request.set_url(GraphUrl::from_str(GRAPH_URL).unwrap());
@@ -100,7 +113,7 @@ where
     }
 
     pub fn ident(&self) -> Ident {
-        self.request.ident()
+        Ident::from_str(self.request.ident().as_str()).unwrap()
     }
 
     /// Set the access token used for requests.
@@ -249,29 +262,29 @@ pub struct Identify<'a, Client> {
 
 impl<'a, Client> Identify<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     /// Select the me endpoint.
     pub fn me(&self) -> IdentMe<'a, Client> {
-        self.client.request.set_ident(Ident::Me);
+        self.client.request.set_ident(Ident::Me.to_string());
         IdentMe::new("", self.client)
     }
 
     /// Select the drives endpoint.
     pub fn drives<S: AsRef<str>>(&self, id: S) -> IdentDrives<'a, Client> {
-        self.client.request.set_ident(Ident::Drives);
+        self.client.request.set_ident(Ident::Drives.to_string());
         IdentDrives::new(id.as_ref(), self.client)
     }
 
     /// Select the sites endpoint.
     pub fn sites<S: AsRef<str>>(&self, id: S) -> IdentSites<'a, Client> {
-        self.client.request.set_ident(Ident::Sites);
+        self.client.request.set_ident(Ident::Sites.to_string());
         IdentSites::new(id.as_ref(), self.client)
     }
 
     /// Select the groups endpoint.
     pub fn groups<S: AsRef<str>>(&self, id: S) -> IdentGroups<'a, Client> {
-        self.client.request.set_ident(Ident::Groups);
+        self.client.request.set_ident(Ident::Groups.to_string());
         IdentGroups::new(id.as_ref(), self.client)
     }
 
@@ -285,7 +298,7 @@ where
 
     /// Select the users endpoint.
     pub fn users<S: AsRef<str>>(&self, id: S) -> IdentUsers<'a, Client> {
-        self.client.request.set_ident(Ident::Users);
+        self.client.request.set_ident(Ident::Users.to_string());
         IdentUsers::new(id.as_ref(), self.client)
     }
 
@@ -298,6 +311,10 @@ where
         EducationRequest::new(self.client)
     }
 
+    pub fn applications(&self) -> ApplicationsRequest<'a, Client> {
+        ApplicationsRequest::new(self.client)
+    }
+
     pub fn batch<B: serde::Serialize>(
         &self,
         batch: &B,
@@ -307,12 +324,12 @@ where
         client.header(ACCEPT, HeaderValue::from_static("application/json"));
         let body = serde_json::to_string(batch).map_err(GraphFailure::from);
         if let Err(err) = body {
-            return IntoResponse::new_error(self.client, err);
+            return IntoResponse::new_error(self.client.request(), err);
         } else if let Ok(body) = body {
             client.set_body(body);
         }
         render_path!(self.client, "$batch", &serde_json::json!({}));
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 }
 
@@ -324,7 +341,7 @@ register_ident_client!(IdentUsers,);
 
 impl<'a, Client> IdentMe<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( get, serde_json::Value => "me" );
     get!( list_events, Collection<serde_json::Value> => "me/events" );
@@ -344,14 +361,14 @@ where
 
 impl<'a, Client> IdentDrives<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( get, serde_json::Value => "drive/{{RID}}" );
 }
 
 impl<'a, Client> IdentSites<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( get, serde_json::Value => "sites/{{RID}}" );
     get!( list_subsites, Collection<serde_json::Value> => "sites/{{RID}}/sites" );
@@ -388,7 +405,7 @@ where
                 )
             );
         }
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 }
 
@@ -396,7 +413,7 @@ register_client!(SiteListRequest,);
 
 impl<'a, Client> SiteListRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "sites/{{RID}}/lists" );
     get!( | get, serde_json::Value => "sites/{{RID}}/lists/{{id}}" );
@@ -411,7 +428,7 @@ register_client!(SiteListItemRequest,);
 
 impl<'a, Client> SiteListItemRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( | list, Collection<serde_json::Value> => "sites/{{RID}}/lists/{{id}}/items" );
     get!( || get, serde_json::Value => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" );
@@ -425,7 +442,7 @@ where
 
 impl<'a, Client> IdentGroups<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "groups" );
     get!( get, serde_json::Value => "groups/{{RID}}" );
@@ -473,7 +490,7 @@ where
 
 impl<'a, Client> IdentUsers<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( get, serde_json::Value => "users/{{RID}}" );
     get!( settings, serde_json::Value => "users/{{RID}}/settings" );
@@ -505,13 +522,13 @@ register_ident_client!(
 
 impl<'a, Client> GroupLifecyclePolicyRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "{{glp}}" );
     get!( get, Collection<serde_json::Value> => "{{glp}}/{{RID}}" );
     post!( [ create, serde_json::Value => "{{glp}}" ] );
-    post!( [ add_group, BoolResponse => "{{glp}}/{{RID}}/addGroup" ] );
-    post!( [ remove_group, BoolResponse =>  "{{glp}}/{{RID}}/removeGroup" ] );
+    post!( [ add_group, serde_json::Value => "{{glp}}/{{RID}}/addGroup" ] );
+    post!( [ remove_group, serde_json::Value =>  "{{glp}}/{{RID}}/removeGroup" ] );
     patch!( [ update, serde_json::Value => "{{glp}}/{{RID}}" ] );
     patch!( delete, GraphResponse<Content> => "{{glp}}/{{RID}}" );
 }

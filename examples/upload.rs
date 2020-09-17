@@ -1,4 +1,4 @@
-use graph_rs::http::GraphResponse;
+use graph_http::GraphResponse;
 use graph_rs::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";

@@ -1,11 +1,10 @@
 use crate::client::*;
-use crate::http::{
-    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, GraphRequestType,
-    GraphResponse, IntoResponse, RequestAttribute, RequestClient, UploadSessionClient,
-};
-use crate::types::collection::Collection;
-use crate::types::{content::Content, delta::DeltaPhantom};
 use graph_error::{GraphFailure, GraphRsError};
+use graph_http::types::{Collection, Content, DeltaPhantom};
+use graph_http::{
+    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, GraphResponse,
+    IntoResponse, RequestAttribute, RequestClient, RequestType, UploadSessionClient,
+};
 use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use reqwest::Method;
@@ -41,7 +40,7 @@ register_client!(
 
 impl<'a, Client> DriveRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( drive, serde_json::Value => "{{drive_root}}" );
     get!( root, serde_json::Value => "{{drive_root}}/root" );
@@ -73,7 +72,7 @@ where
             &template(id.as_ref(), "children"),
             &json!({ "id": encode(id.as_ref()) })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn item_activity<S: AsRef<str>>(
@@ -86,7 +85,7 @@ where
             &template(id.as_ref(), "activities"),
             &json!({ "id": encode(id.as_ref()) })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn get_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, serde_json::Value, Client> {
@@ -96,7 +95,7 @@ where
             template(id.as_ref(), "").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn update<S: AsRef<str>, B: serde::Serialize>(
@@ -110,14 +109,14 @@ where
             client.set_method(Method::PATCH);
             client.set_body(body);
         } else if let Err(e) = body {
-            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+            return IntoResponse::new_error(self.client.request(), GraphFailure::from(e));
         }
         render_path!(
             self.client,
             template(id.as_ref(), "").as_str(),
             &json!({"id": encode(id.as_ref()) })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn delete<S: AsRef<str>>(
@@ -130,7 +129,7 @@ where
             template(id.as_ref(), "").as_str(),
             &json!({"id": encode(id.as_ref()) })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn create_folder<S: AsRef<str>, B: serde::Serialize>(
@@ -144,7 +143,7 @@ where
             client.set_method(Method::POST);
             client.set_body(body);
         } else if let Err(e) = body {
-            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+            return IntoResponse::new_error(self.client.request(), GraphFailure::from(e));
         }
 
         if id.as_ref().is_empty() {
@@ -156,7 +155,7 @@ where
                 &json!({ "id": encode(id.as_ref()) })
             );
         }
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn copy<S: AsRef<str>, B: serde::Serialize>(
@@ -170,14 +169,14 @@ where
             client.set_method(Method::POST);
             client.set_body(body);
         } else if let Err(e) = body {
-            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+            return IntoResponse::new_error(self.client.request(), GraphFailure::from(e));
         }
         render_path!(
             self.client,
             template(id.as_ref(), "copy").as_str(),
             &json!({"id": encode(id.as_ref()) })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn list_versions<S: AsRef<str>>(
@@ -190,7 +189,7 @@ where
             template(id.as_ref(), "versions").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn single_thumbnail<S: AsRef<str>>(
@@ -209,7 +208,7 @@ where
                "size": size
             })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn thumbnail_binary<S: AsRef<str>>(
@@ -228,7 +227,7 @@ where
                "size": size
             })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn upload_replace<S: AsRef<str>, P: AsRef<Path>>(
@@ -241,7 +240,7 @@ where
             .request()
             .set_body_with_file(file.as_ref().to_path_buf())
         {
-            return IntoResponse::new_error(self.client, err);
+            return IntoResponse::new_error(self.client.request(), err);
         }
 
         self.client.request().set_method(Method::PUT);
@@ -250,7 +249,7 @@ where
             template(id.as_ref(), "content").as_str(),
             &json!({"id": encode(id.as_ref()) })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn upload_new<S: AsRef<str>, P: AsRef<Path>>(
@@ -264,7 +263,7 @@ where
                 .request()
                 .set_body_with_file(file.as_ref().to_path_buf())
             {
-                return IntoResponse::new_error(self.client, err);
+                return IntoResponse::new_error(self.client.request(), err);
             }
 
             self.client.request().set_method(Method::PUT);
@@ -276,12 +275,15 @@ where
         } else {
             let name = file.as_ref().file_name();
             if name.is_none() {
-                return IntoResponse::new_error(self.client, GraphFailure::invalid("file_name"));
+                return IntoResponse::new_error(
+                    self.client.request(),
+                    GraphFailure::invalid("file_name"),
+                );
             }
             let name = name.unwrap().to_str();
             if name.is_none() {
                 return IntoResponse::new_error(
-                    self.client,
+                    self.client.request(),
                     GraphFailure::internal(GraphRsError::FileNameInvalidUTF8),
                 );
             }
@@ -299,11 +301,11 @@ where
                 .request()
                 .set_body_with_file(file.as_ref().to_path_buf())
             {
-                return IntoResponse::new_error(self.client, e);
+                return IntoResponse::new_error(self.client.request(), e);
             }
             self.client.request().set_method(Method::PUT);
         }
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn restore_version<S: AsRef<str>>(
@@ -320,7 +322,7 @@ where
                 "version_id": version_id.as_ref(),
             })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn upload_session<S: AsRef<str>, P: AsRef<Path> + Send + Sync, B: serde::Serialize>(
@@ -336,14 +338,14 @@ where
             client.set_upload_session(file.as_ref().to_path_buf());
             client.set_body(body);
         } else if let Err(e) = body {
-            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+            return IntoResponse::new_error(self.client.request(), GraphFailure::from(e));
         }
         render_path!(
             self.client,
             template(id.as_ref(), "createUploadSession").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn preview<S: AsRef<str>, B: serde::Serialize>(
@@ -358,7 +360,7 @@ where
                 client.set_method(Method::POST);
                 client.set_body(body);
             } else if let Err(e) = body {
-                return IntoResponse::new_error(self.client, GraphFailure::from(e));
+                return IntoResponse::new_error(self.client.request(), GraphFailure::from(e));
             }
         } else {
             let client = self.client.request();
@@ -370,7 +372,7 @@ where
             template(id.as_ref(), "preview").as_str(),
             &json!({ "id": encode(id.as_ref()) })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn content<S: AsRef<str>>(
@@ -383,7 +385,7 @@ where
             &json!({ "id": encode(id.as_ref()) })
         );
         self.client.request().set_method(Method::GET);
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn check_out<S: AsRef<str>>(
@@ -398,7 +400,7 @@ where
         let client = self.client.request();
         client.set_method(Method::POST);
         client.header(CONTENT_LENGTH, HeaderValue::from(0));
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn check_in<S: AsRef<str>, B: serde::Serialize>(
@@ -418,9 +420,9 @@ where
             client.set_method(Method::POST);
             client.set_body(body);
         } else if let Err(e) = body {
-            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+            return IntoResponse::new_error(self.client.request(), GraphFailure::from(e));
         }
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn move_item<S: AsRef<str>, B: serde::Serialize>(
@@ -434,14 +436,14 @@ where
             client.set_method(Method::PATCH);
             client.set_body(body);
         } else if let Err(e) = body {
-            return IntoResponse::new_error(self.client, GraphFailure::from(e));
+            return IntoResponse::new_error(self.client.request(), GraphFailure::from(e));
         }
         render_path!(
             self.client,
             template(id.as_ref(), "").as_str(),
             &json!({ "id": id.as_ref() })
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn activities_by_interval<S: AsRef<str>>(
@@ -477,7 +479,7 @@ where
                 })
             );
         }
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 }
 
@@ -497,7 +499,7 @@ impl<'a> DriveRequest<'a, BlockingHttpClient> {
             .set_request(vec![
                 RequestAttribute::Method(Method::GET),
                 RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                RequestAttribute::RequestType(GraphRequestType::Redirect),
+                RequestAttribute::RequestType(RequestType::Redirect),
             ])
             .unwrap();
         self.client.request().download()
@@ -516,7 +518,7 @@ impl<'a> DriveRequest<'a, AsyncHttpClient> {
             .set_request(vec![
                 RequestAttribute::Method(Method::GET),
                 RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                RequestAttribute::RequestType(GraphRequestType::Redirect),
+                RequestAttribute::RequestType(RequestType::Redirect),
             ])
             .unwrap();
         futures::executor::block_on(self.client.request().download())
