@@ -1,6 +1,6 @@
 use graph_error::GraphFailure;
-use graph_rs::http::AsyncIterator;
-use graph_rs::http::NextSession;
+use graph_http::traits::AsyncIterator;
+use graph_http::NextSession;
 use graph_rs::prelude::*;
 
 // This example shows creating an upload session for a new file

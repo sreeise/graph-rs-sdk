@@ -1,4 +1,4 @@
-use graph_rs::http::{NextSession, Session};
+use graph_http::{NextSession, Session};
 use graph_rs::prelude::*;
 
 // This example shows creating an upload session for a new file

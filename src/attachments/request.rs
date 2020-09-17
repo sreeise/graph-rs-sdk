@@ -1,14 +1,13 @@
 use crate::client::Graph;
-use crate::http::{GraphResponse, IntoResponse};
-use crate::types::collection::Collection;
-use crate::types::content::Content;
+use graph_http::types::{Collection, Content};
+use graph_http::{GraphResponse, IntoResponse};
 use reqwest::Method;
 
 register_client!(AttachmentRequest,);
 
 impl<'a, Client> AttachmentRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( | get, serde_json::Value => "attachments/{{id}}" );
     get!( | content, GraphResponse<Content> => "attachments/{{id}}/$value" );
@@ -43,7 +42,7 @@ register_client!(CalendarAttachmentRequest,);
 
 impl<'a, Client> CalendarAttachmentRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( || get_default, serde_json::Value => "events/{{id}}/attachments/{{id}}" );
     get!( || default_content, GraphResponse<Content> => "events/{{id}}/attachments/{{id}}/$value" );
@@ -57,7 +56,7 @@ register_client!(CalendarGroupAttachmentRequest,);
 
 impl<'a, Client> CalendarGroupAttachmentRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( ||| get_default, serde_json::Value => "calendargroup/calendars/{{id}}/events/{{id2}}/attachments/{{id3}}" );
     get!( ||| default_content, GraphResponse<Content> => "calendargroup/calendars/{{id}}/events/{{id2}}/attachments/{{id3}}/$value" );
@@ -71,7 +70,7 @@ register_client!(MailMessageAttachmentRequest,);
 
 impl<'a, Client> MailMessageAttachmentRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( || get, serde_json::Value => "messages/{{id}}/attachments/{{id2}}" );
     post!( [ | add, serde_json::Value => "messages/{{id}}/attachments" ] );
@@ -87,7 +86,7 @@ register_client!(MailFolderMessageAttachmentRequest,);
 
 impl<'a, Client> MailFolderMessageAttachmentRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( ||| get, serde_json::Value => "mailFolders/{{id}}/messages/{{id2}}/attachments/{{id3}}" );
     get!( ||| content, GraphResponse<Content> => "mailFolders/{{id}}/messages/{{id2}}/attachments/{{id3}}/$value" );
@@ -147,7 +146,7 @@ where
             attachment_id,
             false,
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn child_folder_content<S: AsRef<str>>(
@@ -165,7 +164,7 @@ where
             attachment_id,
             true,
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn delete_child_folder<S: AsRef<str>>(
@@ -183,7 +182,7 @@ where
             attachment_id,
             false,
         );
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 }
 
@@ -191,7 +190,7 @@ register_client!(ThreadPostAttachmentRequest,);
 
 impl<'a, Client> ThreadPostAttachmentRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( || list, Collection<serde_json::Value> => "threads/{{id}}/posts/{{id2}}/attachments" );
     get!( ||| get, serde_json::Value => "threads/{{id}}/posts/{{id2}}/attachments/{{id3}}" );
@@ -203,7 +202,7 @@ register_client!(ThreadConvoPostAttachmentRequest,);
 
 impl<'a, Client> ThreadConvoPostAttachmentRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( ||| list, Collection<serde_json::Value> => "conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/attachments" );
     get!( |||| get, serde_json::Value => "conversations/{{id}}/threads/{{id2}}/posts/{{id3}}/attachments/{{id4}}" );

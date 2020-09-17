@@ -1,6 +1,7 @@
 use crate::client::Graph;
-use crate::http::{GraphResponse, IntoResponse};
-use crate::types::{collection::Collection, content::Content, delta::DeltaPhantom};
+use graph_http::types::{Collection, Content, DeltaPhantom};
+use graph_http::{GraphResponse, IntoResponse};
+
 use handlebars::*;
 use reqwest::Method;
 
@@ -12,7 +13,7 @@ register_client!(
 
 impl<'a, Client> ContactsRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "{{ct}}/delta" );
     get!( list, Collection<serde_json::Value> => "{{ct}}" );
@@ -30,7 +31,7 @@ register_client!(ContactsFolderRequest,);
 
 impl<'a, Client> ContactsFolderRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "{{cf}}/delta" );
     get!( | get, serde_json::Value => "{{cf}}/{{id}}" );
@@ -48,7 +49,7 @@ register_client!(ContactsFolderContactsRequest,);
 
 impl<'a, Client> ContactsFolderContactsRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( | delta, DeltaPhantom<Collection<serde_json::Value>> => "{{cf}}/{{id}}/{{ct}}/delta" );
     get!( | list, Collection<serde_json::Value> => "{{cf}}/{{id}}/{{ct}}" );

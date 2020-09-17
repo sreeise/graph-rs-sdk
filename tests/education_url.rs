@@ -1,4 +1,4 @@
-use graph_rs::http::BlockingHttpClient;
+use graph_http::BlockingHttpClient;
 use graph_rs::prelude::Graph;
 
 static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";

@@ -1,7 +1,7 @@
 use crate::attachments::{ThreadConvoPostAttachmentRequest, ThreadPostAttachmentRequest};
 use crate::client::Graph;
-use crate::http::{GraphResponse, IntoResponse};
-use crate::types::{collection::Collection, content::Content};
+use graph_http::types::{Collection, Content};
+use graph_http::{GraphResponse, IntoResponse};
 use handlebars::*;
 use reqwest::Method;
 
@@ -12,7 +12,7 @@ register_client!(
 
 impl<'a, Client> GroupConversationRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "groups/{{RID}}/{{co}}" );
     get!( | list_threads, Collection<serde_json::Value> => "groups/{{RID}}/{{co}}/{{id}}/threads" );
@@ -36,7 +36,7 @@ register_client!(GroupConversationPostRequest,);
 
 impl<'a, Client> GroupConversationPostRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( || list, Collection<serde_json::Value> => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts" );
     get!( ||| get, serde_json::Value => "groups/{{RID}}/conversations/{{id}}/threads/{{id2}}/posts/{{id3}}" );
@@ -53,7 +53,7 @@ register_client!(GroupThreadPostRequest,);
 
 impl<'a, Client> GroupThreadPostRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( | list, Collection<serde_json::Value> => "groups/{{RID}}/threads/{{id}}/posts" );
     get!( || get, serde_json::Value => "groups/{{RID}}/threads/{{id}}/posts/{{id2}}" );

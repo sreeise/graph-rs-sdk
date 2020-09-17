@@ -1,11 +1,10 @@
 use crate::client::Graph;
-use crate::http::{
-    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, GraphRequestType,
-    GraphResponse, IntoResponse, RequestClient,
-};
-use crate::types::collection::Collection;
-use crate::types::content::Content;
 use graph_error::{AsRes, GraphRsError};
+use graph_http::types::{Collection, Content};
+use graph_http::{
+    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, GraphResponse,
+    IntoResponse, RequestClient,
+};
 use handlebars::*;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
 use reqwest::Method;
@@ -22,7 +21,7 @@ register_client!(
 
 impl<'a, Client> OnenoteRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list_sections, Collection<serde_json::Value> => "{{section}}" );
     get!( list_section_groups, Collection<serde_json::Value> => "{{section_group}}" );
@@ -52,7 +51,7 @@ where
 
         if !file.as_ref().extension().eq(&Some(OsStr::new("html"))) {
             return IntoResponse::new_error(
-                self.client,
+                self.client.request(),
                 GraphRsError::InvalidFileExtension {
                     requires: "html".to_string(),
                     found: file
@@ -71,12 +70,12 @@ where
             .request()
             .set_body_with_file(file.as_ref().to_path_buf())
         {
-            return IntoResponse::new_error(self.client, e);
+            return IntoResponse::new_error(self.client.request(), e);
         }
         let client = self.client.request();
         client.header(CONTENT_TYPE, HeaderValue::from_static("text/html"));
         client.set_method(Method::POST);
-        IntoResponse::new(self.client)
+        IntoResponse::new(self.client.request())
     }
 }
 
@@ -84,7 +83,7 @@ register_client!(OnenoteNotebookRequest,);
 
 impl<'a, Client> OnenoteNotebookRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "{{notebook}}" );
     get!( | list_sections, Collection<serde_json::Value> => "{{notebook}}/{{id}}/sections" );
@@ -105,7 +104,7 @@ where
             ).as_str()
         );
         self.client.request().set_method(Method::GET);
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 }
 
@@ -113,7 +112,7 @@ register_client!(OnenoteSectionRequest,);
 
 impl<'a, Client> OnenoteSectionRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "{{section}}" );
     get!( | list_pages, Collection<serde_json::Value> => "{{section}}/{{id}}/pages" );
@@ -134,7 +133,7 @@ where
 
         if !file.as_ref().extension().eq(&Some(OsStr::new("html"))) {
             return IntoResponse::new_error(
-                self.client,
+                self.client.request(),
                 GraphRsError::InvalidFileExtension {
                     requires: "html".to_string(),
                     found: file
@@ -153,12 +152,12 @@ where
             .request()
             .set_body_with_file(file.as_ref().to_path_buf())
         {
-            return IntoResponse::new_error(self.client, e);
+            return IntoResponse::new_error(self.client.request(), e);
         }
         let client = self.client.request();
         client.header(CONTENT_TYPE, HeaderValue::from_static("text/html"));
         client.set_method(Method::POST);
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 }
 
@@ -166,7 +165,7 @@ register_client!(OnenoteSectionGroupRequest,);
 
 impl<'a, Client> OnenoteSectionGroupRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "{{section_group}}" );
     get!( | list_sections, Collection<serde_json::Value> => "{{section_group}}/{{id}}/sections" );
@@ -179,7 +178,7 @@ register_client!(OnenotePageRequest,);
 
 impl<'a, Client> OnenotePageRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "{{pages}}" );
     get!( | get, serde_json::Value => "{{pages}}/{{id}}" );

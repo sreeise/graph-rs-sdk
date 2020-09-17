@@ -69,8 +69,6 @@ extern crate strum;
 extern crate strum_macros;
 #[macro_use]
 extern crate url_serde;
-#[macro_use]
-extern crate getset;
 extern crate handlebars;
 
 // mod client needs to stay on type
@@ -80,6 +78,8 @@ extern crate handlebars;
 pub mod client;
 // Activities request client.
 pub mod activities;
+// Applications request client.
+pub mod applications;
 // Attachment request client.
 pub mod attachments;
 /// Calendar request client.
@@ -92,16 +92,12 @@ pub mod drive;
 pub mod education;
 /// Groups request client.
 pub mod groups;
-/// Various internal http helpers.
-pub mod http;
 /// Mail request client.
 pub mod mail;
 /// OneNote request client.
 pub mod onenote;
 /// Planner request client.
 pub mod planner;
-/// Types used crate wide.
-pub mod types;
 /// Url type for graph-rs.
 pub mod url;
 
@@ -111,8 +107,8 @@ pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 /// Common structs and traits.
 pub mod prelude {
     pub use crate::client::*;
-    pub use crate::http::GraphResponse;
-    pub use crate::types::{collection::Collection, delta::*};
+    pub use graph_http::types::{Collection, Delta};
+    pub use graph_http::GraphResponse;
 }
 
 /// Reexport of graph-oauth crate.

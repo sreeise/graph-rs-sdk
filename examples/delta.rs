@@ -1,5 +1,6 @@
 use graph_rs::prelude::*;
 use std::sync::mpsc::Receiver;
+use graph_http::traits::*;
 
 /*
 This example shows how to call delta links and delta requests.

@@ -1,14 +1,14 @@
 use crate::attachments::{CalendarAttachmentRequest, CalendarGroupAttachmentRequest};
 use crate::client::Graph;
-use crate::http::{GraphResponse, IntoResponse};
-use crate::types::{collection::Collection, content::Content};
+use graph_http::types::{Collection, Content};
+use graph_http::{GraphResponse, IntoResponse};
 use reqwest::Method;
 
 register_client!(CalendarRequest,);
 
 impl<'a, Client> CalendarRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "calendars" );
     get!( get_default, serde_json::Value => "calendar" );
@@ -37,7 +37,7 @@ register_client!(CalendarViewRequest,);
 
 impl<'a, Client> CalendarViewRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     pub fn list_default_view(
         &self,
@@ -51,7 +51,7 @@ where
             url.append_query_pair("startDateTime", start_date_time);
             url.append_query_pair("endDateTime", end_date_time);
         });
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn list_view(
@@ -67,7 +67,7 @@ where
             url.append_query_pair("startDateTime", start_date_time);
             url.append_query_pair("endDateTime", end_date_time);
         });
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn list_default_group_view(
@@ -83,7 +83,7 @@ where
             url.append_query_pair("startDateTime", start_date_time);
             url.append_query_pair("endDateTime", end_date_time);
         });
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 
     pub fn list_group_view(
@@ -106,7 +106,7 @@ where
             url.append_query_pair("startDateTime", start_date_time);
             url.append_query_pair("endDateTime", end_date_time);
         });
-        IntoResponse::new(self.client)
+        IntoResponse::new(&self.client.request)
     }
 }
 
@@ -114,7 +114,7 @@ register_client!(CalendarGroupRequest,);
 
 impl<'a, Client> CalendarGroupRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list, Collection<serde_json::Value> => "calendarGroups" );
     get!( list_default_calendars, Collection<serde_json::Value> => "calendarGroup/calendars" );

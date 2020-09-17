@@ -1,6 +1,6 @@
 use crate::client::Graph;
-use crate::http::{GraphResponse, IntoResponse};
-use crate::types::{collection::Collection, content::Content};
+use graph_http::types::{Collection, Content};
+use graph_http::{GraphResponse, IntoResponse};
 use handlebars::*;
 use reqwest::Method;
 
@@ -16,7 +16,7 @@ register_client!(EducationSchoolsRequest,
 
 impl<'a, Client> EducationRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( get_education_root, serde_json::Value => "/education");
     patch!( [ update_education_root, serde_json::Value => "/education" ] );
@@ -35,7 +35,7 @@ where
 
 impl<'a, Client> EducationClassesRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list_classes, Collection<serde_json::Value> => "{{edc}}");
     post!( [ create_class, serde_json::Value => "{{edc}}" ] );
@@ -57,7 +57,7 @@ where
 
 impl<'a, Client> EducationSchoolsRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( | list_classes, Collection<serde_json::Value> => "{{eds}}/{{id}}/classes" );
     get!( || get_class, serde_json::Value => "{{eds}}/{{id}}/classes/{{id2}}" );
@@ -74,7 +74,7 @@ where
 
 impl<'a, Client> EducationUsersRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( list_classes, Collection<serde_json::Value> => "education/users/{{RID}}/classes" );
     get!( | get_class, serde_json::Value => "education/users/{{RID}}/classes/{{id2}}" );
@@ -89,7 +89,7 @@ where
 
 impl<'a, Client> EducationMeRequest<'a, Client>
 where
-    Client: crate::http::RequestClient,
+    Client: graph_http::RequestClient,
 {
     get!( get_me, serde_json::Value => "education/me" );
     patch!( [ update_me, serde_json::Value => "education/me" ] );
