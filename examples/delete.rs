@@ -1,5 +1,5 @@
-use graph_rs::prelude::*;
 use graph_http::types::Content;
+use graph_rs::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
