@@ -11,11 +11,19 @@ use std::marker::PhantomData;
 use std::str::FromStr;
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub enum FilterIgnore<'a> {
+    PathContains(&'a str),
+    PathStartsWith(&'a str),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub enum Filter<'a> {
     None,
     PathStartsWith(&'a str),
     PathEquals(&'a str),
     Regex(&'a str),
+    IgnoreIf(FilterIgnore<'a>),
+    MultiFilter(Vec<Filter<'a>>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -24,6 +32,8 @@ pub enum SerializedFilter {
     PathStartsWith,
     PathEquals,
     Regex,
+    Ignore,
+    Multi,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -48,6 +58,11 @@ impl From<Filter<'_>> for StoredFilter {
             Filter::PathStartsWith(s) => StoredFilter::new(SerializedFilter::PathStartsWith, s),
             Filter::PathEquals(s) => StoredFilter::new(SerializedFilter::PathEquals, s),
             Filter::Regex(s) => StoredFilter::new(SerializedFilter::Regex, s),
+            Filter::IgnoreIf(filter_ignore) => match filter_ignore {
+                FilterIgnore::PathStartsWith(s) => StoredFilter::new(SerializedFilter::Ignore, s),
+                FilterIgnore::PathContains(s) => StoredFilter::new(SerializedFilter::Ignore, s),
+            },
+            Filter::MultiFilter(_) => StoredFilter::new(SerializedFilter::None, ""),
         }
     }
 }

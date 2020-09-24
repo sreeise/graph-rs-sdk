@@ -1,11 +1,11 @@
+use crate::parser::RequestSet;
 use from_as::*;
 use inflector::Inflector;
 use std::collections::{BTreeSet, HashMap, VecDeque};
-use crate::parser::RequestSet;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct ResourceNames {
-    names: BTreeSet<String>,
+    pub names: BTreeSet<String>,
 }
 
 impl ResourceNames {
@@ -51,10 +51,9 @@ impl From<&RequestSet> for ResourceNames {
     }
 }
 
-
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct ResourceNameMapping {
-    map: HashMap<String, BTreeSet<String>>,
+    pub map: HashMap<String, BTreeSet<String>>,
 }
 
 impl ResourceNameMapping {
