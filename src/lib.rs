@@ -76,8 +76,12 @@ extern crate handlebars;
 /// Main Graph client.
 #[macro_use]
 pub mod client;
-// Activities request client.
+/// Activities request client.
 pub mod activities;
+/// App catalogs request client.
+pub mod app_catalogs;
+/// Audit logs request client.
+pub mod audit_logs;
 // Applications request client.
 pub mod applications;
 // Attachment request client.

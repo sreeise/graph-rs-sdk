@@ -11,6 +11,18 @@ use reqwest::Method;
 use serde_json::json;
 use std::path::Path;
 
+register_client!(DriveRequest,);
+register_client!(DriveContentTypesRequest,);
+register_client!(DriveListRequest,);
+register_client!(DriveListItemsRequest,);
+register_client!(DriveVersionsRequest,);
+register_client!(
+    DrivesRequest,
+    drive_item => "drive/items", "items", Ident::Drives,
+    drive_root => "drive", "", Ident::Drives,
+    drive_root_path => "drive/root", "root", Ident::Drives,
+);
+
 fn template(s: &str, last: &str) -> String {
     if s.starts_with(':') {
         vec!["{{drive_root_path}}{{id}}/", last].join("")
@@ -31,14 +43,9 @@ fn encode(s: &str) -> String {
     }
 }
 
-register_client!(
-    DriveRequest,
-    drive_item => "drive/items", "items", Ident::Drives,
-    drive_root => "drive", "", Ident::Drives,
-    drive_root_path => "drive/root", "root", Ident::Drives,
-);
+// Requests for the /drives/{{drive-id}} path
 
-impl<'a, Client> DriveRequest<'a, Client>
+impl<'a, Client> DrivesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
@@ -483,7 +490,7 @@ where
     }
 }
 
-impl<'a> DriveRequest<'a, BlockingHttpClient> {
+impl<'a> DrivesRequest<'a, BlockingHttpClient> {
     pub fn download<S: AsRef<str>, P: AsRef<Path>>(
         &'a self,
         id: S,
@@ -506,7 +513,7 @@ impl<'a> DriveRequest<'a, BlockingHttpClient> {
     }
 }
 
-impl<'a> DriveRequest<'a, AsyncHttpClient> {
+impl<'a> DrivesRequest<'a, AsyncHttpClient> {
     pub fn download<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> AsyncDownload {
         render_path!(
             self.client,
@@ -523,4 +530,652 @@ impl<'a> DriveRequest<'a, AsyncHttpClient> {
             .unwrap();
         futures::executor::block_on(self.client.request().download())
     }
+}
+
+// Requests for the /drive path.
+
+impl<'a, Client> DriveRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    pub fn list(&self) -> DriveListRequest<'a, Client> {
+        DriveListRequest::new(&self.client)
+    }
+
+    get!({
+        doc: "# Get following from drive",
+        name: get_following,
+        response: serde_json::Value,
+        path: "/drive/following/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property following in drive",
+        name: update_following,
+        response: GraphResponse<Content>,
+        path: "/drive/following/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property following for drive",
+        name: delete_following,
+        response: GraphResponse<Content>,
+        path: "/drive/following/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action restoreVersion",
+        name: restore_version,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/versions/{{id2}}/microsoft.graph.restoreVersion",
+        params: 2,
+        has_body: false
+    });
+    get!({
+        doc: "# Get items from drive",
+        name: get_items,
+        response: serde_json::Value,
+        path: "/drive/items/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property items in drive",
+        name: update_items,
+        response: GraphResponse<Content>,
+        path: "/drive/items/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property items for drive",
+        name: delete_items,
+        response: GraphResponse<Content>,
+        path: "/drive/items/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get list from drive",
+        name: get_list,
+        response: serde_json::Value,
+        path: "/drive/list",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property list in drive",
+        name: update_list,
+        response: GraphResponse<Content>,
+        path: "/drive/list",
+        params: 0,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property list for drive",
+        name: delete_list,
+        response: GraphResponse<Content>,
+        path: "/drive/list",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get entities from drives",
+        name: list_drive,
+        response: Collection<serde_json::Value>,
+        path: "/drives",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Add new entity to drives",
+        name: create_drive,
+        response: serde_json::Value,
+        path: "/drives",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get items from drive",
+        name: list_items,
+        response: Collection<serde_json::Value>,
+        path: "/drive/items",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to items for drive",
+        name: create_items,
+        response: serde_json::Value,
+        path: "/drive/items",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get special from drive",
+        name: list_special,
+        response: Collection<serde_json::Value>,
+        path: "/drive/special",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to special for drive",
+        name: create_special,
+        response: serde_json::Value,
+        path: "/drive/special",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Invoke function getActivitiesByInterval",
+        name: items,
+        response: Collection<serde_json::Value>,
+        path: "/drive/list/items/{{id}}/microsoft.graph.getActivitiesByInterval()",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get special from drive",
+        name: get_special,
+        response: serde_json::Value,
+        path: "/drive/special/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property special in drive",
+        name: update_special,
+        response: GraphResponse<Content>,
+        path: "/drive/special/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property special for drive",
+        name: delete_special,
+        response: GraphResponse<Content>,
+        path: "/drive/special/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get drive",
+        name: get_drive,
+        response: serde_json::Value,
+        path: "/drive",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update drive",
+        name: update_drive,
+        response: GraphResponse<Content>,
+        path: "/drive",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get following from drive",
+        name: list_following,
+        response: Collection<serde_json::Value>,
+        path: "/drive/following",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to following for drive",
+        name: create_following,
+        response: serde_json::Value,
+        path: "/drive/following",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Invoke function recent",
+        name: recent,
+        response: Collection<serde_json::Value>,
+        path: "/drive/microsoft.graph.recent()",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Invoke function sharedWithMe",
+        name: shared_with_me,
+        response: Collection<serde_json::Value>,
+        path: "/drive/microsoft.graph.sharedWithMe()",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get root from drive",
+        name: get_root,
+        response: serde_json::Value,
+        path: "/drive/root",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property root in drive",
+        name: update_root,
+        response: GraphResponse<Content>,
+        path: "/drive/root",
+        params: 0,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property root for drive",
+        name: delete_root,
+        response: GraphResponse<Content>,
+        path: "/drive/root",
+        params: 0,
+        has_body: false
+    });
+}
+
+impl<'a, Client> DriveVersionsRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    get!({
+        doc: "# Get fields from drive",
+        name: get_fields,
+        response: serde_json::Value,
+        path: "/drive/list/items/{{id}}/versions/{{id2}}/fields",
+        params: 2,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property fields in drive",
+        name: update_fields,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/versions/{{id2}}/fields",
+        params: 2,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property fields for drive",
+        name: delete_fields,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/versions/{{id2}}/fields",
+        params: 2,
+        has_body: false
+    });
+}
+
+impl<'a, Client> DriveContentTypesRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    get!({
+        doc: "# Get columnLinks from drive",
+        name: list_column_links,
+        response: Collection<serde_json::Value>,
+        path: "/drive/list/contentTypes/{{id}}/columnLinks",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to columnLinks for drive",
+        name: create_column_links,
+        response: serde_json::Value,
+        path: "/drive/list/contentTypes/{{id}}/columnLinks",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get columnLinks from drive",
+        name: get_column_links,
+        response: serde_json::Value,
+        path: "/drive/list/contentTypes/{{id}}/columnLinks/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property columnLinks in drive",
+        name: update_column_links,
+        response: GraphResponse<Content>,
+        path: "/drive/list/contentTypes/{{id}}/columnLinks/{{id2}}",
+        params: 2,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property columnLinks for drive",
+        name: delete_column_links,
+        response: GraphResponse<Content>,
+        path: "/drive/list/contentTypes/{{id}}/columnLinks/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+}
+
+impl<'a, Client> DriveListRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    pub fn content_types(&self) -> DriveContentTypesRequest<'a, Client> {
+        DriveContentTypesRequest::new(&self.client)
+    }
+
+    pub fn items(&self) -> DriveListItemsRequest<'a, Client> {
+        DriveListItemsRequest::new(&self.client)
+    }
+
+    get!({
+        doc: "# Get contentTypes from drive",
+        name: list_content_types,
+        response: Collection<serde_json::Value>,
+        path: "/drive/list/contentTypes",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to contentTypes for drive",
+        name: create_content_types,
+        response: serde_json::Value,
+        path: "/drive/list/contentTypes",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get drive from drive",
+        name: get_drive,
+        response: serde_json::Value,
+        path: "/drive/list/drive",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property drive in drive",
+        name: update_drive,
+        response: GraphResponse<Content>,
+        path: "/drive/list/drive",
+        params: 0,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property drive for drive",
+        name: delete_drive,
+        response: GraphResponse<Content>,
+        path: "/drive/list/drive",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get items from drive",
+        name: get_items,
+        response: serde_json::Value,
+        path: "/drive/list/items/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property items in drive",
+        name: update_items,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property items for drive",
+        name: delete_items,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get columns from drive",
+        name: get_columns,
+        response: serde_json::Value,
+        path: "/drive/list/columns/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property columns in drive",
+        name: update_columns,
+        response: GraphResponse<Content>,
+        path: "/drive/list/columns/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property columns for drive",
+        name: delete_columns,
+        response: GraphResponse<Content>,
+        path: "/drive/list/columns/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get items from drive",
+        name: list_items,
+        response: Collection<serde_json::Value>,
+        path: "/drive/list/items",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to items for drive",
+        name: create_items,
+        response: serde_json::Value,
+        path: "/drive/list/items",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get contentTypes from drive",
+        name: get_content_types,
+        response: serde_json::Value,
+        path: "/drive/list/contentTypes/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property contentTypes in drive",
+        name: update_content_types,
+        response: GraphResponse<Content>,
+        path: "/drive/list/contentTypes/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property contentTypes for drive",
+        name: delete_content_types,
+        response: GraphResponse<Content>,
+        path: "/drive/list/contentTypes/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get columns from drive",
+        name: list_columns,
+        response: Collection<serde_json::Value>,
+        path: "/drive/list/columns",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to columns for drive",
+        name: create_columns,
+        response: serde_json::Value,
+        path: "/drive/list/columns",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get subscriptions from drive",
+        name: list_subscriptions,
+        response: Collection<serde_json::Value>,
+        path: "/drive/list/subscriptions",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to subscriptions for drive",
+        name: create_subscriptions,
+        response: serde_json::Value,
+        path: "/drive/list/subscriptions",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get subscriptions from drive",
+        name: get_subscriptions,
+        response: serde_json::Value,
+        path: "/drive/list/subscriptions/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property subscriptions in drive",
+        name: update_subscriptions,
+        response: GraphResponse<Content>,
+        path: "/drive/list/subscriptions/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property subscriptions for drive",
+        name: delete_subscriptions,
+        response: GraphResponse<Content>,
+        path: "/drive/list/subscriptions/{{id}}",
+        params: 1,
+        has_body: false
+    });
+}
+
+impl<'a, Client> DriveListItemsRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    pub fn versions(&self) -> DriveVersionsRequest<'a, Client> {
+        DriveVersionsRequest::new(&self.client)
+    }
+
+    get!({
+        doc: "# Get analytics from drive",
+        name: get_analytics,
+        response: serde_json::Value,
+        path: "/drive/list/items/{{id}}/analytics",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get driveItem from drive",
+        name: get_drive_item,
+        response: serde_json::Value,
+        path: "/drive/list/items/{{id}}/driveItem",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property driveItem in drive",
+        name: update_drive_item,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/driveItem",
+        params: 1,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property driveItem for drive",
+        name: delete_drive_item,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/driveItem",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get versions from drive",
+        name: get_versions,
+        response: serde_json::Value,
+        path: "/drive/list/items/{{id}}/versions/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property versions in drive",
+        name: update_versions,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/versions/{{id2}}",
+        params: 2,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property versions for drive",
+        name: delete_versions,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/versions/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    get!({
+        doc: "# Get fields from drive",
+        name: get_fields,
+        response: serde_json::Value,
+        path: "/drive/list/items/{{id}}/fields",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property fields in drive",
+        name: update_fields,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/fields",
+        params: 1,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property fields for drive",
+        name: delete_fields,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/fields",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get versions from drive",
+        name: list_versions,
+        response: Collection<serde_json::Value>,
+        path: "/drive/list/items/{{id}}/versions",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to versions for drive",
+        name: create_versions,
+        response: serde_json::Value,
+        path: "/drive/list/items/{{id}}/versions",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get ref of analytics from drive",
+        name: get_ref_analytics,
+        response: serde_json::Value,
+        path: "/drive/list/items/{{id}}/analytics/$ref",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the ref of navigation property analytics in drive",
+        name: update_ref_analytics,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/analytics/$ref",
+        params: 1,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete ref of navigation property analytics for drive",
+        name: delete_ref_analytics,
+        response: GraphResponse<Content>,
+        path: "/drive/list/items/{{id}}/analytics/$ref",
+        params: 1,
+        has_body: false
+    });
 }
