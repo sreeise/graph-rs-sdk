@@ -380,3 +380,27 @@ fn drive_upload_session() {
         }
     }
 }
+
+// Requests with /drive path (not selecting a specific drive with an id).
+
+#[test]
+pub fn get_drive_base() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph() {
+        let result = client
+            .v1()
+            .drive()
+            .get_drive()
+            .send();
+
+        if let Ok(response) = result {
+            let odata_context = response.body()["@odata.context"].to_string();
+            assert_eq!(
+                "https://graph.microsoft.com/v1.0/$metadata#drives/$entity",
+                odata_context
+            );
+        } else if let Err(e) = result {
+            panic!("Request error. DriveRequest GetDrive. Error: {:#?}", e);
+        }
+    }
+}

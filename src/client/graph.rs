@@ -1,9 +1,11 @@
 use crate::activities::ActivitiesRequest;
+use crate::app_catalogs::AppCatalogsRequest;
 use crate::applications::ApplicationsRequest;
 use crate::attachments::AttachmentRequest;
+use crate::audit_logs::AuditLogsRequest;
 use crate::calendar::CalendarRequest;
 use crate::contacts::ContactsRequest;
-use crate::drive::DriveRequest;
+use crate::drive::{DriveRequest, DrivesRequest};
 use crate::education::{EducationMeRequest, EducationRequest, EducationUsersRequest};
 use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
@@ -276,6 +278,10 @@ where
         IdentDrives::new(id.as_ref(), self.client)
     }
 
+    pub fn drive(&self) -> DriveRequest<'a, Client> {
+        DriveRequest::new(self.client)
+    }
+
     /// Select the sites endpoint.
     pub fn sites<S: AsRef<str>>(&self, id: S) -> IdentSites<'a, Client> {
         self.client.request.set_ident(Ident::Sites.to_string());
@@ -302,6 +308,10 @@ where
         IdentUsers::new(id.as_ref(), self.client)
     }
 
+    pub fn user(&self) -> UserRequest<'a, Client> {
+        UserRequest::new(self.client)
+    }
+
     /// Select the planner endpoint.
     pub fn planner(&self) -> PlannerRequest<'a, Client> {
         PlannerRequest::new(self.client)
@@ -313,6 +323,14 @@ where
 
     pub fn applications(&self) -> ApplicationsRequest<'a, Client> {
         ApplicationsRequest::new(self.client)
+    }
+
+    pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
+        AppCatalogsRequest::new(self.client)
+    }
+
+    pub fn audit_logs(&self) -> AuditLogsRequest<'a, Client> {
+        AuditLogsRequest::new(self.client)
     }
 
     pub fn batch<B: serde::Serialize>(
@@ -512,6 +530,17 @@ where
     pub fn education(&self) -> EducationUsersRequest<'a, Client> {
         EducationUsersRequest::new(self.client)
     }
+}
+
+register_client!(UserRequest,);
+
+impl<'a, Client> UserRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    get!( list, Collection<serde_json::Value> => "users" );
+    get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "users" );
+    post!( [ create, serde_json::Value => "users" ] );
 }
 
 register_ident_client!(
