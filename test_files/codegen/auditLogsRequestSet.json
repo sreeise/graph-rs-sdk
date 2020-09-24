@@ -1,0 +1,280 @@
+{
+  "set": [
+    {
+      "path": "/auditLogs/signIns/{{id}}",
+      "requests": [
+        {
+          "method": "GET",
+          "method_name": "get_sign_ins",
+          "param_size": 1,
+          "has_body": false,
+          "has_rid": false,
+          "response": "SerdeJson",
+          "tag": "auditLogs.signIn",
+          "operation_id": "auditLogs.GetSignIns",
+          "operation_mapping": "auditLogs"
+        },
+        {
+          "method": "PATCH",
+          "method_name": "update_sign_ins",
+          "param_size": 1,
+          "has_body": true,
+          "has_rid": false,
+          "response": "NoContent",
+          "tag": "auditLogs.signIn",
+          "operation_id": "auditLogs.UpdateSignIns",
+          "operation_mapping": "auditLogs"
+        },
+        {
+          "method": "DELETE",
+          "method_name": "delete_sign_ins",
+          "param_size": 1,
+          "has_body": false,
+          "has_rid": false,
+          "response": "NoContent",
+          "tag": "auditLogs.signIn",
+          "operation_id": "auditLogs.DeleteSignIns",
+          "operation_mapping": "auditLogs"
+        }
+      ]
+    },
+    {
+      "path": "/auditLogs",
+      "requests": [
+        {
+          "method": "GET",
+          "method_name": "get_audit_log_root",
+          "param_size": 0,
+          "has_body": false,
+          "has_rid": false,
+          "response": "SerdeJson",
+          "tag": "auditLogs.auditLogRoot",
+          "operation_id": "auditLogs.auditLogRoot.GetAuditLogRoot",
+          "operation_mapping": "auditLogs.auditLogRoot"
+        },
+        {
+          "method": "PATCH",
+          "method_name": "update_audit_log_root",
+          "param_size": 0,
+          "has_body": true,
+          "has_rid": false,
+          "response": "NoContent",
+          "tag": "auditLogs.auditLogRoot",
+          "operation_id": "auditLogs.auditLogRoot.UpdateAuditLogRoot",
+          "operation_mapping": "auditLogs.auditLogRoot"
+        }
+      ]
+    },
+    {
+      "path": "/auditLogs/fakeLogs",
+      "requests": [
+        {
+          "method": "GET",
+          "method_name": "get_fake_log",
+          "param_size": 0,
+          "has_body": false,
+          "has_rid": false,
+          "response": "SerdeJson",
+          "tag": "auditLogs.fakeLog",
+          "operation_id": "auditLogs.fakeLog.GetFakeLog",
+          "operation_mapping": "auditLogs.fakeLog"
+        },
+        {
+          "method": "PATCH",
+          "method_name": "update_fake_log",
+          "param_size": 0,
+          "has_body": true,
+          "has_rid": false,
+          "response": "NoContent",
+          "tag": "auditLogs.fakeLog",
+          "operation_id": "auditLogs.fakeLog.UpdateFakeLog",
+          "operation_mapping": "auditLogs.fakeLog"
+        }
+      ]
+    },
+    {
+      "path": "/auditLogs/inner/fakeLogs",
+      "requests": [
+        {
+          "method": "GET",
+          "method_name": "get_inner_fake_log",
+          "param_size": 0,
+          "has_body": false,
+          "has_rid": false,
+          "response": "SerdeJson",
+          "tag": "auditLogs.fakeLog.innerFakeLog",
+          "operation_id": "auditLogs.fakeLog.innerFakeLog.GetInnerFakeLog",
+          "operation_mapping": "auditLogs.fakeLog.innerFakeLog"
+        },
+        {
+          "method": "PATCH",
+          "method_name": "update_inner_fake_log",
+          "param_size": 0,
+          "has_body": true,
+          "has_rid": false,
+          "response": "NoContent",
+          "tag": "auditLogs.fakeLog.innerFakeLog",
+          "operation_id": "auditLogs.fakeLog.innerFakeLog.UpdateInnerFakeLog",
+          "operation_mapping": "auditLogs.fakeLog.innerFakeLog"
+        }
+      ]
+    },
+    {
+      "path": "/auditLogs/directoryAudits/{{id}}",
+      "requests": [
+        {
+          "method": "GET",
+          "method_name": "get_directory_audits",
+          "param_size": 1,
+          "has_body": false,
+          "has_rid": false,
+          "response": "SerdeJson",
+          "tag": "auditLogs.directoryAudit",
+          "operation_id": "auditLogs.GetDirectoryAudits",
+          "operation_mapping": "auditLogs"
+        },
+        {
+          "method": "PATCH",
+          "method_name": "update_directory_audits",
+          "param_size": 1,
+          "has_body": true,
+          "has_rid": false,
+          "response": "NoContent",
+          "tag": "auditLogs.directoryAudit",
+          "operation_id": "auditLogs.UpdateDirectoryAudits",
+          "operation_mapping": "auditLogs"
+        },
+        {
+          "method": "DELETE",
+          "method_name": "delete_directory_audits",
+          "param_size": 1,
+          "has_body": false,
+          "has_rid": false,
+          "response": "NoContent",
+          "tag": "auditLogs.directoryAudit",
+          "operation_id": "auditLogs.DeleteDirectoryAudits",
+          "operation_mapping": "auditLogs"
+        }
+      ]
+    },
+    {
+      "path": "/auditLogs/directoryAudits",
+      "requests": [
+        {
+          "method": "GET",
+          "method_name": "list_directory_audits",
+          "param_size": 0,
+          "has_body": false,
+          "has_rid": false,
+          "response": "Collection",
+          "tag": "auditLogs.directoryAudit",
+          "operation_id": "auditLogs.ListDirectoryAudits",
+          "operation_mapping": "auditLogs"
+        },
+        {
+          "method": "POST",
+          "method_name": "create_directory_audits",
+          "param_size": 0,
+          "has_body": true,
+          "has_rid": false,
+          "response": "SerdeJson",
+          "tag": "auditLogs.directoryAudit",
+          "operation_id": "auditLogs.CreateDirectoryAudits",
+          "operation_mapping": "auditLogs"
+        }
+      ]
+    },
+    {
+      "path": "/auditLogs/signIns",
+      "requests": [
+        {
+          "method": "GET",
+          "method_name": "list_sign_ins",
+          "param_size": 0,
+          "has_body": false,
+          "has_rid": false,
+          "response": "Collection",
+          "tag": "auditLogs.signIn",
+          "operation_id": "auditLogs.ListSignIns",
+          "operation_mapping": "auditLogs"
+        },
+        {
+          "method": "POST",
+          "method_name": "create_sign_ins",
+          "param_size": 0,
+          "has_body": true,
+          "has_rid": false,
+          "response": "SerdeJson",
+          "tag": "auditLogs.signIn",
+          "operation_id": "auditLogs.CreateSignIns",
+          "operation_mapping": "auditLogs"
+        }
+      ]
+    },
+    {
+      "path": "/auditLogs/restrictedSignIns",
+      "requests": [
+        {
+          "method": "GET",
+          "method_name": "list_restricted_sign_ins",
+          "param_size": 0,
+          "has_body": false,
+          "has_rid": false,
+          "response": "Collection",
+          "tag": "auditLogs.restrictedSignIn",
+          "operation_id": "auditLogs.ListRestrictedSignIns",
+          "operation_mapping": "auditLogs"
+        },
+        {
+          "method": "POST",
+          "method_name": "create_restricted_sign_ins",
+          "param_size": 0,
+          "has_body": true,
+          "has_rid": false,
+          "response": "SerdeJson",
+          "tag": "auditLogs.restrictedSignIn",
+          "operation_id": "auditLogs.CreateRestrictedSignIns",
+          "operation_mapping": "auditLogs"
+        }
+      ]
+    },
+    {
+      "path": "/auditLogs/restrictedSignIns/{{id}}",
+      "requests": [
+        {
+          "method": "GET",
+          "method_name": "get_restricted_sign_ins",
+          "param_size": 1,
+          "has_body": false,
+          "has_rid": false,
+          "response": "SerdeJson",
+          "tag": "auditLogs.restrictedSignIn",
+          "operation_id": "auditLogs.GetRestrictedSignIns",
+          "operation_mapping": "auditLogs"
+        },
+        {
+          "method": "PATCH",
+          "method_name": "update_restricted_sign_ins",
+          "param_size": 1,
+          "has_body": true,
+          "has_rid": false,
+          "response": "NoContent",
+          "tag": "auditLogs.restrictedSignIn",
+          "operation_id": "auditLogs.UpdateRestrictedSignIns",
+          "operation_mapping": "auditLogs"
+        },
+        {
+          "method": "DELETE",
+          "method_name": "delete_restricted_sign_ins",
+          "param_size": 1,
+          "has_body": false,
+          "has_rid": false,
+          "response": "NoContent",
+          "tag": "auditLogs.restrictedSignIn",
+          "operation_id": "auditLogs.DeleteRestrictedSignIns",
+          "operation_mapping": "auditLogs"
+        }
+      ]
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 use crate::parser::filter::*;
+use crate::parser::{HttpMethod, Request, ResponseType};
+use crate::traits::{RequestParser, RequestParserBuilder};
 use from_as::*;
 use regex::Regex;
-
 use std::collections::{BTreeMap, VecDeque};
-use crate::parser::ResponseType;
 
 pub trait PathRetain {
     fn path_retain(&mut self);
@@ -169,6 +169,42 @@ impl PathRetain for Option<Operation> {
     }
 }
 
+impl RequestParser for Operation {
+    fn method_name(&self) -> String {
+        self.operation_id.method_name()
+    }
+
+    fn operation_mapping(&self) -> String {
+        self.operation_id.operation_mapping()
+    }
+
+    fn transform_path(&self) -> String {
+        Default::default()
+    }
+}
+
+impl RequestParserBuilder for Operation {
+    fn build(&self) -> Request {
+        let mut request = Request::default();
+        request.operation_id = self.operation_id.to_string();
+        request.operation_mapping = self.operation_mapping();
+        request.method_name = self.method_name();
+        request.param_size = self.param_size();
+        request.has_body = self.has_body();
+        request.response = self.response_type();
+        request.doc = self.summary.clone().map(|s| format!("# {}", s));
+        if request.method.eq(&HttpMethod::DELETE) {
+            request.response = ResponseType::NoContent;
+        } else if request.method_name.starts_with("list") {
+            request.response = ResponseType::Collection;
+        }
+        if let Some(tag) = self.tags.get(0) {
+            request.tag = tag.to_string();
+        }
+        request
+    }
+}
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Path {
     #[serde(rename = "$ref")]
@@ -288,6 +324,33 @@ impl PathMap {
                     .into_iter()
                     .filter(|(path, _path_spec)| regex.is_match(path.as_ref()))
                     .collect()
+            },
+            Filter::IgnoreIf(filter_ignore) => match filter_ignore {
+                FilterIgnore::PathContains(s) => self
+                    .paths
+                    .clone()
+                    .into_iter()
+                    .filter(|(path, _path_spec)| !path.contains(s))
+                    .collect(),
+                FilterIgnore::PathStartsWith(s) => self
+                    .paths
+                    .clone()
+                    .into_iter()
+                    .filter(|(path, _path_spec)| !path.starts_with(s))
+                    .collect(),
+            },
+            Filter::MultiFilter(vec) => {
+                let mut map: BTreeMap<String, Path> = BTreeMap::new();
+                let mut count = 0;
+                for filter in vec.iter() {
+                    if count == 0 {
+                        map = self.filter(filter.clone());
+                        count += 1;
+                    } else {
+                        map = PathMap { paths: map }.filter(filter.clone())
+                    }
+                }
+                map
             },
         }
     }
