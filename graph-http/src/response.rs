@@ -1,5 +1,6 @@
 use crate::traits::*;
 use crate::types::*;
+use crate::url::GraphUrl;
 use async_trait::async_trait;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use reqwest::Response;
@@ -7,18 +8,29 @@ use std::convert::TryFrom;
 
 #[derive(Debug)]
 pub struct GraphResponse<T> {
+    url: GraphUrl,
     body: T,
     status: u16,
     headers: reqwest::header::HeaderMap,
 }
 
 impl<T> GraphResponse<T> {
-    pub fn new(body: T, status: u16, headers: reqwest::header::HeaderMap) -> GraphResponse<T> {
+    pub fn new(
+        url: GraphUrl,
+        body: T,
+        status: u16,
+        headers: reqwest::header::HeaderMap,
+    ) -> GraphResponse<T> {
         GraphResponse {
+            url,
             body,
             status,
             headers,
         }
+    }
+
+    pub fn url(&self) -> &GraphUrl {
+        &self.url
     }
 
     pub fn body(&self) -> &T {
@@ -91,10 +103,11 @@ where
             }
             Err(GraphFailure::from(error))
         } else {
+            let url = GraphUrl::from(response.url());
             let status = response.status().as_u16();
             let headers = response.headers().to_owned();
             let body: T = response.json()?;
-            Ok(GraphResponse::new(body, status, headers))
+            Ok(GraphResponse::new(url, body, status, headers))
         }
     }
 }
@@ -112,12 +125,19 @@ impl TryFrom<reqwest::blocking::Response> for GraphResponse<Content> {
             return Err(GraphFailure::from(error));
         }
 
+        let url = GraphUrl::from(response.url());
         let headers = response.headers().to_owned();
         let status = response.status().as_u16();
         if let Ok(content) = response.text() {
-            Ok(GraphResponse::new(Content::from(content), status, headers))
+            Ok(GraphResponse::new(
+                url,
+                Content::from(content),
+                status,
+                headers,
+            ))
         } else {
             Ok(GraphResponse::new(
+                url,
                 Content::from(String::new()),
                 status,
                 headers,
@@ -161,10 +181,11 @@ where
             }
             Err(GraphFailure::from(error))
         } else {
+            let url = GraphUrl::from(response.url());
             let status = response.status().as_u16();
             let headers = response.headers().to_owned();
             let body: T = response.json().await?;
-            Ok(GraphResponse::new(body, status, headers))
+            Ok(GraphResponse::new(url, body, status, headers))
         }
     }
 }
@@ -183,12 +204,19 @@ impl AsyncTryFrom<reqwest::Response> for GraphResponse<Content> {
             return Err(GraphFailure::from(error));
         }
 
+        let url = GraphUrl::from(response.url());
         let status = response.status().as_u16();
         let headers = response.headers().clone();
         if let Ok(content) = response.text().await {
-            Ok(GraphResponse::new(Content::from(content), status, headers))
+            Ok(GraphResponse::new(
+                url,
+                Content::from(content),
+                status,
+                headers,
+            ))
         } else {
             Ok(GraphResponse::new(
+                url,
                 Content::from(String::new()),
                 status,
                 headers,

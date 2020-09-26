@@ -8,6 +8,7 @@ use crate::blocking_client::BlockingHttpClient;
 use crate::traits::*;
 use crate::types::*;
 use crate::uploadsession::UploadSessionClient;
+use crate::url::GraphUrl;
 use reqwest::header::CONTENT_TYPE;
 use std::convert::TryFrom;
 use std::sync::mpsc::{channel, Receiver};
@@ -251,6 +252,7 @@ where
                         sender.send(Delta::Done(Some(err))).unwrap();
                         is_done = true;
                     } else {
+                        let url = GraphUrl::from(response.url());
                         let headers = response.headers().clone();
                         let status = response.status().as_u16();
                         let value_res: GraphResult<T> = response.json().map_err(GraphFailure::from);
@@ -258,7 +260,9 @@ where
                             Ok(value) => {
                                 next_link = value.next_link();
                                 sender
-                                    .send(Delta::Next(GraphResponse::new(value, status, headers)))
+                                    .send(Delta::Next(GraphResponse::new(
+                                        url, value, status, headers,
+                                    )))
                                     .unwrap();
                             },
                             Err(err) => {
@@ -331,6 +335,7 @@ where
                         sender.send(Delta::Done(Some(err))).await.unwrap();
                         is_done = true;
                     } else {
+                        let url = GraphUrl::from(response.url());
                         let headers = response.headers().clone();
                         let status = response.status().as_u16();
                         let value_res: GraphResult<T> =
@@ -339,7 +344,9 @@ where
                             Ok(value) => {
                                 next_link = value.next_link();
                                 sender
-                                    .send(Delta::Next(GraphResponse::new(value, status, headers)))
+                                    .send(Delta::Next(GraphResponse::new(
+                                        url, value, status, headers,
+                                    )))
                                     .await
                                     .unwrap();
                             },
