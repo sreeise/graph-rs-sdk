@@ -1,6 +1,6 @@
+use graph_http::url::GraphUrl;
 use graph_http::BlockingHttpClient;
 use graph_rs::client::{Graph, Ident};
-use graph_rs::url::GraphUrl;
 use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
 use url::Url;
 

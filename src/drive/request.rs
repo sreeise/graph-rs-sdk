@@ -25,21 +25,9 @@ register_client!(
 
 fn template(s: &str, last: &str) -> String {
     if s.starts_with(':') {
-        vec!["{{drive_root_path}}{{id}}/", last].join("")
+        format!("{{{{drive_root_path}}}}{{{{id}}}}/{}", last)
     } else {
-        vec!["{{drive_item}}/{{id}}/", last].join("")
-    }
-}
-
-fn encode(s: &str) -> String {
-    if s.starts_with(':') {
-        url::percent_encoding::percent_encode(
-            s.as_bytes(),
-            url::percent_encoding::DEFAULT_ENCODE_SET,
-        )
-        .collect::<String>()
-    } else {
-        s.to_string()
+        format!("{{{{drive_item}}}}/{{{{id}}}}/{}", last)
     }
 }
 
@@ -77,7 +65,7 @@ where
         render_path!(
             self.client,
             &template(id.as_ref(), "children"),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
         IntoResponse::new(&self.client.request)
     }
@@ -90,7 +78,7 @@ where
         render_path!(
             self.client,
             &template(id.as_ref(), "activities"),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
         IntoResponse::new(&self.client.request)
     }
@@ -100,7 +88,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "").as_str(),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
         IntoResponse::new(&self.client.request)
     }
@@ -121,7 +109,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "").as_str(),
-            &json!({"id": encode(id.as_ref()) })
+            &json!({"id": id.as_ref() })
         );
         IntoResponse::new(&self.client.request)
     }
@@ -134,7 +122,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "").as_str(),
-            &json!({"id": encode(id.as_ref()) })
+            &json!({"id": id.as_ref() })
         );
         IntoResponse::new(&self.client.request)
     }
@@ -159,7 +147,7 @@ where
             render_path!(
                 self.client,
                 template(id.as_ref(), "children").as_str(),
-                &json!({ "id": encode(id.as_ref()) })
+                &json!({ "id": id.as_ref() })
             );
         }
         IntoResponse::new(&self.client.request)
@@ -181,7 +169,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "copy").as_str(),
-            &json!({"id": encode(id.as_ref()) })
+            &json!({"id": id.as_ref() })
         );
         IntoResponse::new(&self.client.request)
     }
@@ -194,7 +182,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "versions").as_str(),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
         IntoResponse::new(&self.client.request)
     }
@@ -210,7 +198,7 @@ where
             self.client,
             template(id.as_ref(), "thumbnails/{{thumb_id}}/{{size}}").as_str(),
             &json!({
-               "id": encode(id.as_ref()),
+               "id": id.as_ref(),
                "thumb_id": thumb_id,
                "size": size
             })
@@ -229,7 +217,7 @@ where
             self.client,
             template(id.as_ref(), "thumbnails/{{thumb_id}}/{{size}}/content").as_str(),
             &json!({
-               "id": encode(id.as_ref()),
+               "id": id.as_ref(),
                "thumb_id": thumb_id,
                "size": size
             })
@@ -254,7 +242,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
-            &json!({"id": encode(id.as_ref()) })
+            &json!({"id": id.as_ref() })
         );
         IntoResponse::new(&self.client.request)
     }
@@ -277,7 +265,7 @@ where
             render_path!(
                 self.client,
                 template(id.as_ref(), "content").as_str(),
-                &json!({"id": encode(id.as_ref()) })
+                &json!({"id": id.as_ref() })
             );
         } else {
             let name = file.as_ref().file_name();
@@ -325,7 +313,7 @@ where
             self.client,
             template(id.as_ref(), "versions/{{version_id}}/restoreVersion").as_str(),
             &json!({
-                "id": encode(id.as_ref()),
+                "id": id.as_ref(),
                 "version_id": version_id.as_ref(),
             })
         );
@@ -350,7 +338,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "createUploadSession").as_str(),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
         IntoResponse::new(&self.client.request)
     }
@@ -377,7 +365,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "preview").as_str(),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
         IntoResponse::new(&self.client.request)
     }
@@ -389,7 +377,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
         self.client.request().set_method(Method::GET);
         IntoResponse::new(&self.client.request)
@@ -402,7 +390,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "checkout").as_str(),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
         let client = self.client.request();
         client.set_method(Method::POST);
@@ -418,7 +406,7 @@ where
         render_path!(
             self.client,
             template(id.as_ref(), "checkin").as_str(),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
 
         let body = serde_json::to_string(body);
@@ -499,7 +487,7 @@ impl<'a> DrivesRequest<'a, BlockingHttpClient> {
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
         self.client
             .request()
@@ -518,7 +506,7 @@ impl<'a> DrivesRequest<'a, AsyncHttpClient> {
         render_path!(
             self.client,
             template(id.as_ref(), "content").as_str(),
-            &json!({ "id": encode(id.as_ref()) })
+            &json!({ "id": id.as_ref() })
         );
         self.client
             .request()

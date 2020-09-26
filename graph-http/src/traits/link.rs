@@ -1,10 +1,15 @@
 use crate::types::{Content, Delta};
+use crate::url::GraphUrl;
 use crate::GraphResponse;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::CONTENT_TYPE;
 use std::convert::TryFrom;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
+
+pub trait DownloadLink<RHS = Self> {
+    fn download_link(&self) -> Option<String>;
+}
 
 pub trait MetadataLink<RHS = Self> {
     fn metadata_link(&self) -> Option<String>;
@@ -56,6 +61,7 @@ pub trait DeltaLink<RHS = Self> {
             return Some(receiver);
         }
 
+        let url = GraphUrl::from(res.url());
         let headers = res.headers().clone();
         let status = res.status().as_u16();
         let next: GraphResult<T> = res.json().map_err(GraphFailure::from);
@@ -67,7 +73,7 @@ pub trait DeltaLink<RHS = Self> {
         let value: T = next.unwrap();
         let mut next_link = value.next_link();
         sender
-            .send(Delta::Next(GraphResponse::new(value, status, headers)))
+            .send(Delta::Next(GraphResponse::new(url, value, status, headers)))
             .unwrap();
 
         thread::spawn(move || {
@@ -84,6 +90,7 @@ pub trait DeltaLink<RHS = Self> {
                     sender.send(Delta::Done(Some(err))).unwrap();
                 } else {
                     let response = res.unwrap();
+                    let url = GraphUrl::from(response.url());
                     let headers = response.headers().clone();
                     let status = response.status().as_u16();
                     if let Some(err) = GraphFailure::from_response(&response) {
@@ -99,7 +106,7 @@ pub trait DeltaLink<RHS = Self> {
                         let value = value_res.unwrap();
                         next_link = value.next_link();
                         sender
-                            .send(Delta::Next(GraphResponse::new(value, status, headers)))
+                            .send(Delta::Next(GraphResponse::new(url, value, status, headers)))
                             .unwrap();
                     }
                 }
@@ -108,6 +115,14 @@ pub trait DeltaLink<RHS = Self> {
         });
 
         Some(receiver)
+    }
+}
+
+impl DownloadLink for serde_json::Value {
+    fn download_link(&self) -> Option<String> {
+        self["@microsoft.graph.downloadUrl"]
+            .as_str()
+            .map(|s| s.to_string())
     }
 }
 

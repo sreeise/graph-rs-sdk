@@ -8,48 +8,58 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::Duration;
+use test_tools::common::TestTools;
 use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 use test_tools::support::cleanup::CleanUp;
 
-#[test]
-fn create_delete_folder() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+fn test_folder_create_delete(path_or_id: &str, folder_name: &str) {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let folder: HashMap<String, serde_json::Value> = HashMap::new();
-        let create_folder_res = client
+        let result = client
             .v1()
-            .drives(id.as_str())
+            .drives(&id)
             .drive()
             .create_folder(
-                "",
+                path_or_id,
                 &serde_json::json!({
-                    "name": "ci_docs",
+                    "name": folder_name,
                     "folder": folder,
-                    "@microsoft.graph.conflictBehavior": "rename"
+                    "@microsoft.graph.conflictBehavior": "fail"
                 }),
             )
             .send();
 
-        if let Ok(response) = create_folder_res {
+        if let Ok(response) = result {
+            assert!(
+                response.status() == 200 || response.status() == 201 || response.status() == 204
+            );
             let item_id = response.body()["id"].as_str().unwrap();
             thread::sleep(Duration::from_secs(2));
 
-            let req = client.v1().drives(id).drive().delete(item_id).send();
+            let result = client.v1().drives(&id).drive().delete(item_id).send();
 
-            if let Ok(response) = req {
-                assert!(
-                    response.status() == 200 ||
-                        response.status() == 201 ||
-                        response.status() == 204
-                );
-            } else if let Err(e) = req {
-                panic!("Request error. Method: drive delete. Error: {:#?}", e);
-            }
-        } else if let Err(e) = create_folder_res {
-            panic!("Request error. Method: create folder. Error: {:#?}", e);
+            TestTools::assert_success(&result, "delete folder (conflict behavior: fail)");
+        } else if let Err(e) = result {
+            panic!("Request error. Method: create folder with encoding. Path: {:#?}\nFolder Name: {:#?}\nError: {:#?}",
+                   path_or_id,
+                   folder_name,
+                   e
+            );
         }
     }
+}
+
+#[test]
+fn create_delete_folder() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+    test_folder_create_delete("", "ci_docs");
+}
+
+#[test]
+fn create_delete_folder_path_encode() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+    test_folder_create_delete("", "special folder");
 }
 
 #[test]
@@ -74,15 +84,7 @@ fn list_versions_get_item() {
                 .list_versions(item_id)
                 .send();
 
-            if let Ok(response) = versions_res {
-                assert!(
-                    response.status() == 200 ||
-                        response.status() == 201 ||
-                        response.status() == 204
-                );
-            } else if let Err(e) = versions_res {
-                panic!("Request Error. Method: list versions. Error: {:#?}", e);
-            }
+            TestTools::assert_success(&versions_res, "list version");
         } else if let Err(e) = get_item_res {
             panic!("Request Error. Method: drive get_item. Error: {:#?}", e);
         }
@@ -94,25 +96,17 @@ fn drive_check_in_out() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     if Environment::is_local() {
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-            let req = client
+            let result = client
                 .v1()
                 .drives(id.as_str())
                 .drive()
                 .check_out(":/test_check_out_document.docx:")
                 .send();
 
-            if let Ok(response) = req {
-                assert!(
-                    response.status() == 200 ||
-                        response.status() == 201 ||
-                        response.status() == 204
-                );
-            } else if let Err(e) = req {
-                panic!("Request Error. Method: drive check_out. Error: {:#?}", e);
-            }
+            TestTools::assert_success(&result, "check_out");
 
             thread::sleep(Duration::from_secs(2));
-            let req = client
+            let result = client
                 .v1()
                 .drives(id.as_str())
                 .drive()
@@ -124,15 +118,7 @@ fn drive_check_in_out() {
                 )
                 .send();
 
-            if let Ok(response) = req {
-                assert!(
-                    response.status() == 200 ||
-                        response.status() == 201 ||
-                        response.status() == 204
-                );
-            } else if let Err(e) = req {
-                panic!("Request Error. Method: drive check_in. Error: {:#?}", e);
-            }
+            TestTools::assert_success(&result, "check_in");
         }
     }
 }
@@ -381,20 +367,34 @@ fn drive_upload_session() {
     }
 }
 
+#[test]
+pub fn get_file_from_encoded_folder_name() {
+    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+        let result = client
+            .v1()
+            .drives(&id)
+            .drive()
+            .get_item(":/encoding_test_files/spaced folder/test.txt")
+            .send();
+
+        TestTools::assert_success(&result, "get_item (from percent encoded folder)");
+    }
+}
+
 // Requests with /drive path (not selecting a specific drive with an id).
 
 #[test]
 pub fn get_drive_base() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let result = client
-            .v1()
-            .drive()
-            .get_drive()
-            .send();
+        let result = client.v1().drive().get_drive().send();
 
         if let Ok(response) = result {
-            let odata_context = response.body()["@odata.context"].to_string();
+            assert!(
+                response.status() == 200 || response.status() == 201 || response.status() == 204
+            );
+            let odata_context = response.body()["@odata.context"].as_str().clone().unwrap();
             assert_eq!(
                 "https://graph.microsoft.com/v1.0/$metadata#drives/$entity",
                 odata_context

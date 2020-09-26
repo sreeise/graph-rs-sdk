@@ -62,14 +62,13 @@ extern crate log;
 extern crate pretty_env_logger;
 extern crate reqwest;
 pub extern crate serde;
+#[macro_use]
 pub extern crate serde_derive;
+extern crate handlebars;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 extern crate strum;
 extern crate strum_macros;
-#[macro_use]
-extern crate url_serde;
-extern crate handlebars;
 
 // mod client needs to stay on type
 // for macro use.
@@ -102,8 +101,6 @@ pub mod mail;
 pub mod onenote;
 /// Planner request client.
 pub mod planner;
-/// Url type for graph-rs.
-pub mod url;
 
 pub static GRAPH_URL: &str = "https://graph.microsoft.com/v1.0";
 pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";

@@ -6,7 +6,7 @@ use std::str::FromStr;
 use url::form_urlencoded::Serializer;
 use url::{PathSegmentsMut, Position, Url, UrlQuery};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GraphUrl {
     url: Url,
 }
@@ -141,9 +141,9 @@ impl From<Url> for GraphUrl {
     }
 }
 
-impl From<reqwest::Url> for GraphUrl {
-    fn from(url: reqwest::Url) -> Self {
-        GraphUrl::parse(url.as_str()).unwrap()
+impl From<&Url> for GraphUrl {
+    fn from(url: &Url) -> Self {
+        GraphUrl { url: url.clone() }
     }
 }
 
@@ -216,24 +216,5 @@ impl Deref for GraphUrl {
 
     fn deref(&self) -> &Self::Target {
         self.url.as_str()
-    }
-}
-
-impl serde::Serialize for GraphUrl {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        url_serde::serialize(&self.url, serializer)
-    }
-}
-
-#[allow(clippy::redundant_closure)]
-impl<'de> serde::Deserialize<'de> for GraphUrl {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        url_serde::deserialize(deserializer).map(|url: Url| GraphUrl::from(url))
     }
 }
