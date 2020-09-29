@@ -499,7 +499,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -514,7 +516,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -530,7 +534,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -545,7 +551,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -561,7 +569,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -578,7 +588,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -594,7 +606,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -610,7 +624,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -627,7 +643,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -643,7 +661,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -659,7 +679,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
@@ -676,7 +698,9 @@ macro_rules! register_method {
       {
         let client = self.client.request();
         client.set_method($m);
-        client.set_body(serde_json::to_string_pretty(body).unwrap());
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
 
         render_path!(
             self.client,
