@@ -72,6 +72,7 @@ pub enum MatchTarget {
     Tag(String),
     OperationMap(String),
     TagAndOperationMap(String),
+    TagOrOperationMap(String),
 }
 
 impl MatchTarget {
@@ -88,6 +89,11 @@ impl MatchTarget {
                 }
             },
             MatchTarget::TagAndOperationMap(s) => {
+                if request.tag.eq(s.as_str()) && request.operation_mapping.eq(s.as_str()) {
+                    return true;
+                }
+            },
+            MatchTarget::TagOrOperationMap(s) => {
                 if request.tag.eq(s.as_str()) || request.operation_mapping.eq(s.as_str()) {
                     return true;
                 }
@@ -108,6 +114,10 @@ impl MatchTarget {
                 request.tag = s.to_string();
                 request.operation_mapping = s.to_string();
             },
+            MatchTarget::TagOrOperationMap(s) => {
+                request.tag = s.to_string();
+                request.operation_mapping = s.to_string();
+            },
         }
     }
 }
@@ -118,6 +128,7 @@ impl ToString for MatchTarget {
             MatchTarget::Tag(s) => format!("Tag:{}", s),
             MatchTarget::OperationMap(s) => format!("OperationMap:{}", s),
             MatchTarget::TagAndOperationMap(s) => format!("TagAndOperationMap:{}", s),
+            MatchTarget::TagOrOperationMap(s) => format!("TagAndOperationMap:{}", s),
         }
     }
 }
@@ -128,13 +139,27 @@ impl TryFrom<String> for MatchTarget {
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let mut vec: VecDeque<&str> = value.split(':').collect();
         vec.retain(|s| !s.is_empty());
-        let key = vec.pop_front().unwrap();
-        let value = vec.pop_front().unwrap();
-        match key {
-            "Tag" => Ok(MatchTarget::Tag(value.to_string())),
-            "OperationMap" => Ok(MatchTarget::OperationMap(value.to_string())),
-            "TagAndOperationMap" => Ok(MatchTarget::TagAndOperationMap(value.to_string())),
-            _ => Err(ParserError::DeserializeMatchTarget),
+        if vec.len() == 2 {
+            let key = vec.pop_front().unwrap();
+            let value = vec.pop_front().unwrap();
+            match key {
+                "Tag" => Ok(MatchTarget::Tag(value.to_string())),
+                "OperationMap" => Ok(MatchTarget::OperationMap(value.to_string())),
+                "TagAndOperationMap" => Ok(MatchTarget::TagAndOperationMap(value.to_string())),
+                "TagOrOperationMap" => Ok(MatchTarget::TagOrOperationMap(value.to_string())),
+                _ => Err(ParserError::DeserializeMatchTarget),
+            }
+        } else if vec.len() == 1 {
+            let key = vec.pop_front().unwrap();
+            match key {
+                "Tag" => Ok(MatchTarget::Tag(String::new())),
+                "OperationMap" => Ok(MatchTarget::OperationMap(String::new())),
+                "TagAndOperationMap" => Ok(MatchTarget::TagAndOperationMap(String::new())),
+                "TagOrOperationMap" => Ok(MatchTarget::TagOrOperationMap(String::new())),
+                _ => Err(ParserError::DeserializeMatchTarget),
+            }
+        } else {
+            Ok(MatchTarget::Tag(String::new()))
         }
     }
 }

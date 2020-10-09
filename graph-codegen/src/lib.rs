@@ -7,7 +7,7 @@ extern crate serde_derive;
 extern crate from_as;
 extern crate serde_json;
 
-mod traits;
+pub mod traits;
 
 pub mod builder;
 pub mod macros;

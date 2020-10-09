@@ -1,6 +1,6 @@
 use crate::request::{RequestAttribute, RequestType};
 use crate::url::GraphUrl;
-use graph_error::GraphResult;
+use graph_error::{GraphFailure, GraphResult};
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName};
 use reqwest::Method;
@@ -45,6 +45,16 @@ pub trait RequestClient {
         &self,
         req_attr: Vec<RequestAttribute<Self::Body, Self::Form>>,
     ) -> GraphResult<()>;
+
+    fn set_body_with_serialize<B: serde::Serialize>(&self, body: &B) -> GraphResult<()> {
+        let body_result = serde_json::to_string(body).map_err(GraphFailure::from);
+        if let Ok(body) = body_result {
+            self.set_body(body);
+        } else if let Err(err) = body_result {
+            return Err(err);
+        }
+        Ok(())
+    }
 }
 
 pub struct HttpClient<Client> {

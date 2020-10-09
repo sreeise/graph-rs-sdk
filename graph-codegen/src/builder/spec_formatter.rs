@@ -2,7 +2,7 @@ use crate::parser::RequestMap;
 use bytes::{BufMut, BytesMut};
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct SpecClientImpl {
@@ -13,15 +13,20 @@ pub struct SpecClientImpl {
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct SpecClient {
-    name: String,
-    client_names: HashSet<String>,
-    struct_links: HashMap<String, Vec<String>>,
-    methods: HashMap<String, Vec<RequestMap>>,
+    pub name: String,
+    pub imports: HashSet<String>,
+    pub client_names: HashSet<String>,
+    pub struct_links: HashMap<String, Vec<String>>,
+    pub methods: HashMap<String, Vec<RequestMap>>,
 }
 
 impl SpecClient {
     pub fn set_name(&mut self, name: &str) {
         self.name = name.to_string();
+    }
+
+    pub fn set_imports(&mut self, imports: HashSet<String>) {
+        self.imports = imports;
     }
 
     pub fn set_client_names(&mut self, client_names: HashSet<String>) {
@@ -41,19 +46,21 @@ impl SpecClient {
     }
 
     fn gen_client_registrations(&self) -> BytesMut {
-        let mut buf = BytesMut::new();
-        let pascal_casing = SpecFormatter::base_struct_name(self.name.as_str());
-        let parent_register = SpecFormatter::register_client(pascal_casing.as_str());
+        let imports_vec: Vec<u8> = self
+            .imports
+            .iter()
+            .map(|s| format!("use {};\n", s).into_bytes())
+            .flatten()
+            .collect();
 
-        buf.put(parent_register.as_bytes());
-        buf.put_slice(b"\n");
+        let mut buf = BytesMut::new();
+        buf.extend(imports_vec);
+        buf.put_u8(b'\n');
+        buf.put(SpecFormatter::register_client(self.name.as_str()).as_bytes());
 
         for name in self.client_names.iter() {
-            let name_str = name.as_str();
-            if self.name.ne(name_str) {
-                let client_pascal_casing = SpecFormatter::struct_name(self.name.as_str(), name_str);
-                buf.put(SpecFormatter::register_client(client_pascal_casing.as_str()).as_bytes());
-                buf.put_slice(b"\n");
+            if self.name.ne(name.as_str()) {
+                buf.put(SpecFormatter::register_client(name.as_str()).as_bytes());
             }
         }
         buf
@@ -63,24 +70,34 @@ impl SpecClient {
         let mut buf = self.gen_client_registrations();
 
         for (name, request_map) in self.methods.iter() {
-            let links = {
-                if let Some(l) = self.struct_links.get(name.as_str()) {
-                    l.clone()
-                } else {
-                    vec![]
-                }
-            };
+            if name.contains('.') {
+                let mut vec_queue: VecDeque<&str> = name.split('.').collect();
 
-            let spec_client_impl = SpecClientImpl {
-                name: name.to_string(),
-                links,
-                requests: request_map.clone(),
-            };
+                let links = self
+                    .struct_links
+                    .get(vec_queue.pop_back().unwrap())
+                    .cloned()
+                    .unwrap_or(Default::default());
 
-            buf.extend(SpecFormatter::gen_api_impl(
-                self.name.as_str(),
-                spec_client_impl,
-            ));
+                let spec_client_impl = SpecClientImpl {
+                    name: name.to_string(),
+                    links: links.clone(),
+                    requests: request_map.clone(),
+                };
+                buf.extend(SpecFormatter::gen_api_impl(spec_client_impl));
+            } else {
+                let links = self
+                    .struct_links
+                    .get(name.as_str())
+                    .cloned()
+                    .unwrap_or(Default::default());
+                let spec_client_impl = SpecClientImpl {
+                    name: name.to_string(),
+                    links,
+                    requests: request_map.clone(),
+                };
+                buf.extend(SpecFormatter::gen_api_impl(spec_client_impl));
+            }
         }
         buf
     }
@@ -90,22 +107,14 @@ pub struct SpecFormatter;
 
 impl SpecFormatter {
     pub fn register_client(client_name: &str) -> String {
-        format!("register_client!({},);\n", client_name.to_pascal_case())
-    }
-
-    pub fn register_client_single(parent: &str, client_name: &str) -> String {
-        format!(
-            "register_client!({},);\n",
-            SpecFormatter::struct_name(parent, client_name)
-        )
-    }
-
-    pub fn register_clients(set: HashSet<String>) -> Vec<String> {
-        let mut client_registers = Vec::new();
-        for name in set.iter() {
-            client_registers.push(SpecFormatter::register_client(name.as_str()));
+        if client_name.ends_with("Request") {
+            format!("register_client!({},);\n", client_name.to_pascal_case())
+        } else {
+            format!(
+                "register_client!({}Request,);\n",
+                client_name.to_pascal_case()
+            )
         }
-        client_registers
     }
 
     pub fn struct_method_link(method_link: &str, struct_name: &str) -> String {
@@ -123,42 +132,21 @@ impl SpecFormatter {
         format!("{}Request", name.to_pascal_case())
     }
 
-    pub fn struct_name(parent: &str, name: &str) -> String {
-        if (parent.eq(name)) ||
-            (parent.ends_with('s') &&
-                name.to_pascal_case()
-                    .starts_with(&parent[..parent.len() - 1]))
-        {
-            format!("{}Request", name.to_pascal_case())
-        } else if !parent.ends_with('s') &&
-            !name
-                .to_pascal_case()
-                .starts_with(parent.to_pascal_case().as_str())
-        {
-            format!(
-                "{}{}Request",
-                parent.to_pascal_case(),
-                name.to_pascal_case()
-            )
-        } else {
-            format!("{}Request", name.to_pascal_case())
-        }
-    }
-
-    pub fn gen_api_impl(parent: &str, spec_client: SpecClientImpl) -> BytesMut {
+    pub fn gen_api_impl(spec_client: SpecClientImpl) -> BytesMut {
         let mut buf = BytesMut::with_capacity(1024);
-        let pascal_casing = SpecFormatter::struct_name(parent, spec_client.name.as_str());
+        let mut names: VecDeque<&str> = spec_client.name.split('.').collect();
+        let impl_struct_name = SpecFormatter::base_struct_name(names.pop_back().unwrap());
 
         let impl_start = format!(
-            "\nimpl<'a, Client> {}<'a, Client> where Client: graph_http::RequestClient {{\n",
-            &pascal_casing
+            "\n#[allow(dead_code)]\nimpl<'a, Client> {}<'a, Client> where Client: graph_http::RequestClient {{",
+            &impl_struct_name
         );
         buf.put(impl_start.as_bytes());
 
         for link in spec_client.links.iter() {
             let method_link = SpecFormatter::struct_method_link(
                 link,
-                &SpecFormatter::struct_name(parent, link.as_str()),
+                &SpecFormatter::base_struct_name(link.as_str()),
             );
             buf.put(method_link.as_bytes());
         }

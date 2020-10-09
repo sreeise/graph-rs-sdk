@@ -25,7 +25,7 @@ fn query_mutate() {
         .v1()
         .drives(RID)
         .drive()
-        .drive()
+        .get_drive()
         .select(&["name"])
         .top("3");
     client.url_ref(|url| {
@@ -71,10 +71,10 @@ pub fn drive_upload_session() {
 #[test]
 pub fn drive_main() {
     let client = get_drive();
-    let _ = client.v1().me().drive().drive();
+    let _ = client.v1().me().drive().get_drive();
     assert_url_eq(&client, "/me/drive");
 
-    let _ = client.v1().drives(RID).drive().drive();
+    let _ = client.v1().drives(RID).drive().get_drive();
     assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x");
 }
 
