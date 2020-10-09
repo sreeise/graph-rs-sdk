@@ -1,6 +1,6 @@
 use crate::builder::spec_formatter::SpecClient;
 use crate::parser::{Parser, RequestSet};
-use bytes::{BufMut, BytesMut};
+use bytes::BytesMut;
 use from_as::*;
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
@@ -99,24 +99,15 @@ impl Builder {
         let mut buf = BytesMut::with_capacity(1024);
         let mut request_set_imports = request_set.get_imports();
         request_set_imports.extend(imports);
-        let imports_vec: Vec<u8> = request_set_imports
-            .iter()
-            .map(|s| format!("use {};\n", s).into_bytes())
-            .flatten()
-            .collect();
-
-        buf.extend(imports_vec);
-        buf.put_slice(b"\n\n");
-
         let (links, map) = request_set.method_links();
-        let operations_mapping = request_set.group_by_operation_mapping_name();
+        let operations_mapping = request_set.group_by_operation_mapping();
 
         let mut spec_client = SpecClient::default();
         spec_client.set_name(parent.as_str());
+        spec_client.set_imports(request_set_imports);
         spec_client.set_client_names(links);
         spec_client.set_struct_links(map);
         spec_client.set_methods(operations_mapping);
-        println!("{:#?}", spec_client);
 
         let client_impl = spec_client.gen_api_impl();
         buf.extend(client_impl);
@@ -136,7 +127,7 @@ impl Builder {
         let mut spec_client = SpecClient::default();
 
         let (links, map) = request_set.method_links();
-        let operations_mapping = request_set.group_by_operation_mapping_name();
+        let operations_mapping = request_set.group_by_operation_mapping();
 
         spec_client.set_name(parent.as_str());
         spec_client.set_client_names(links);
@@ -151,10 +142,9 @@ impl Builder {
         let mut spec_clients: Vec<SpecClient> = Vec::new();
 
         for (name, request_set) in request_set_map.iter() {
-            spec_clients.push(Builder::gen_spec_client(
-                name.to_string(),
-                request_set.clone(),
-            ));
+            let spec_client = Builder::gen_spec_client(name.to_string(), request_set.clone());
+            spec_client.gen_api_impl();
+            spec_clients.push(spec_client);
         }
 
         spec_clients
@@ -163,14 +153,13 @@ impl Builder {
     pub fn gen_request_set<P: AsRef<Path>>(path: P, parent: &str, request_set: RequestSet) {
         let mut buf = BytesMut::with_capacity(1024);
         let (links, map) = request_set.method_links();
-        let operations_mapping = request_set.group_by_operation_mapping_name();
+        let operations_mapping = request_set.group_by_operation_mapping();
 
         let mut spec_client = SpecClient::default();
         spec_client.set_name(parent);
         spec_client.set_client_names(links);
         spec_client.set_struct_links(map);
         spec_client.set_methods(operations_mapping);
-        println!("{:#?}", spec_client);
 
         let client_impl = spec_client.gen_api_impl();
         buf.extend(client_impl);

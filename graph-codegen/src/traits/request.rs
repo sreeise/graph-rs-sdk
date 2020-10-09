@@ -1,15 +1,20 @@
+use crate::parser::filter::ModifierMap;
 use crate::parser::Request;
 use inflector::Inflector;
 use regex::Regex;
+use std::collections::HashSet;
 
 pub trait RequestParserBuilder<RHS: ?Sized = Self> {
-    fn build(&self) -> Request;
+    fn build(&self, modifier: &ModifierMap) -> Request;
 }
 
 pub trait RequestParser<RHS = Self> {
     fn method_name(&self) -> String;
     fn operation_mapping(&self) -> String;
     fn transform_path(&self) -> String;
+    fn links(&self) -> HashSet<String> {
+        Default::default()
+    }
 }
 
 impl RequestParser for &str {
@@ -28,7 +33,12 @@ impl RequestParser for &str {
         } else {
             method_name.push_str(&self);
         }
-        method_name.to_snake_case()
+
+        if method_name.is_empty() {
+            self.to_snake_case()
+        } else {
+            method_name.to_snake_case()
+        }
     }
 
     fn operation_mapping(&self) -> String {
@@ -40,8 +50,12 @@ impl RequestParser for &str {
 
             if let Some(last) = ops.pop() {
                 let re = Regex::new(r"[0-9]").unwrap();
-                if !re.is_match(last) && ops.len() > 1 {
-                    op_mapping = ops.join(".");
+                if !re.is_match(last) {
+                    if ops.len() > 1 {
+                        op_mapping = ops.join(".");
+                    } else {
+                        op_mapping = ops.join("");
+                    }
                 }
             }
         } else {
@@ -52,6 +66,27 @@ impl RequestParser for &str {
             op_mapping.truncate(op_mapping.len() - 1);
         }
         op_mapping
+    }
+
+    fn links(&self) -> HashSet<String> {
+        let mut links: HashSet<String> = HashSet::new();
+
+        if self.contains('.') {
+            let mut vec: Vec<&str> = self.split('.').collect();
+            vec.retain(|s| !s.is_empty());
+
+            let mut iter = vec.iter().peekable();
+
+            while let Some(current) = iter.next() {
+                if let Some(next) = iter.peek() {
+                    links.insert(format!("{}.{}", current, next));
+                }
+            }
+        } else {
+            links.insert(self.to_string());
+        }
+
+        links
     }
 
     fn transform_path(&self) -> String {
@@ -75,5 +110,9 @@ impl RequestParser for String {
 
     fn transform_path(&self) -> String {
         self.as_str().transform_path()
+    }
+
+    fn links(&self) -> HashSet<String> {
+        self.as_str().links()
     }
 }

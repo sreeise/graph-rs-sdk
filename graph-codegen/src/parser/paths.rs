@@ -3,7 +3,7 @@ use crate::parser::{HttpMethod, Request, ResponseType};
 use crate::traits::{RequestParser, RequestParserBuilder};
 use from_as::*;
 use regex::Regex;
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{BTreeMap, HashSet, VecDeque};
 
 pub trait PathRetain {
     fn path_retain(&mut self);
@@ -181,13 +181,17 @@ impl RequestParser for Operation {
     fn transform_path(&self) -> String {
         Default::default()
     }
+
+    fn links(&self) -> HashSet<String> {
+        self.operation_mapping().links()
+    }
 }
 
 impl RequestParserBuilder for Operation {
-    fn build(&self) -> Request {
+    fn build(&self, modifiers: &ModifierMap) -> Request {
         let mut request = Request::default();
         request.operation_id = self.operation_id.to_string();
-        request.operation_mapping = self.operation_mapping();
+        request.operation_mapping = self.operation_id.operation_mapping();
         request.method_name = self.method_name();
         request.param_size = self.param_size();
         request.has_body = self.has_body();
@@ -201,6 +205,7 @@ impl RequestParserBuilder for Operation {
         if let Some(tag) = self.tags.get(0) {
             request.tag = tag.to_string();
         }
+        request.modify(modifiers);
         request
     }
 }

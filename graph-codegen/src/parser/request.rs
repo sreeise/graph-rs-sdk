@@ -1,8 +1,8 @@
+use crate::parser::filter::ModifierMap;
 use crate::parser::{ResourceNameMapping, ResourceNames};
-use crate::traits::HashMapExt;
+use crate::traits::{HashMapExt, RequestParser};
 use from_as::*;
 use inflector::Inflector;
-use std::collections::vec_deque::Iter;
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use std::hash::{Hash, Hasher};
 
@@ -111,6 +111,18 @@ pub struct Request {
     pub doc: Option<String>,
 }
 
+impl Request {
+    pub fn modify(&mut self, map: &ModifierMap) {
+        for (mat, modify_vec) in map.map.iter() {
+            if mat.matches(self) {
+                for modifier in modify_vec.iter() {
+                    modifier.modify(self);
+                }
+            }
+        }
+    }
+}
+
 impl PartialEq for Request {
     fn eq(&self, other: &Self) -> bool {
         self.method == other.method &&
@@ -135,10 +147,6 @@ impl Hash for Request {
 }
 
 /// RequestMap holds a list of requests that correspond to a URL path
-///
-/// The RequestMap implements PartialEq and Hash in order to prevent
-/// generating the same impl for a given path and requests. The path
-/// for a url is what PartialEq checks against for two RequestMap objects.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct RequestMap {
     pub path: String,
@@ -170,10 +178,6 @@ impl IntoIterator for RequestMap {
 }
 
 impl RequestMap {
-    pub fn request_iter(&self) -> Iter<'_, Request> {
-        self.requests.iter()
-    }
-
     pub fn get_imports(&self) -> HashSet<String> {
         let mut imports: HashSet<String> = HashSet::new();
         for request in self.requests.iter() {
@@ -193,7 +197,7 @@ impl RequestSet {
     pub fn join_inner_insert(&mut self, request_map: RequestMap) {
         if self.set.contains(&request_map) {
             let mut req_map = self.set.get(&request_map).cloned().unwrap();
-            for request in request_map.request_iter() {
+            for request in request_map.requests.iter() {
                 if req_map.requests.iter().find(|r| r.eq(&request)).is_none() {
                     req_map.requests.push_back(request.clone());
                 }
@@ -283,57 +287,36 @@ impl RequestSet {
     /// and creates the list of individual links between structs:
     /// users.planner, planner.plans
     pub fn method_links(&self) -> (HashSet<String>, HashMap<String, Vec<String>>) {
-        let mut set = HashSet::new();
         let operation_grouping = self.group_by_operation_mapping();
-
-        let mut operation_names: HashSet<String> = HashSet::new();
+        let mut secondary_set = HashSet::new();
 
         for (name, _request_map) in operation_grouping.iter() {
-            operation_names.insert(name.to_string());
+            secondary_set.extend(name.links());
         }
 
-        for name in operation_names.iter() {
-            let mut vec: VecDeque<&str> = name.split('.').collect();
-            vec.retain(|s| !s.is_empty());
-            let mut vec_matches = Vec::new();
-
-            if vec.len() > 2 {
-                let mut temp = vec.pop_front().unwrap();
-
-                while let Some(next) = vec.pop_front() {
-                    vec_matches.push(format!("{}.{}", temp, next));
-                    temp = next;
-                }
-            } else if vec.len() == 2 {
-                let first = vec.pop_front().unwrap();
-                let last = vec.pop_front().unwrap();
-                vec_matches.push(format!("{}.{}", first, last));
-            } else if vec.len() == 1 {
-                vec_matches.push(vec.pop_front().unwrap().to_string());
-            }
-            println!("VEC_MATCHES: {:#?}", vec_matches);
-            set.extend(vec_matches);
-        }
-
-        let map = RequestSet::gen_struct_links(set.clone());
-
-        let mut set2: HashSet<String> = HashSet::new();
-        for name in set.iter() {
-            if name.contains('.') {
-                let mut names: Vec<&str> = name.split('.').collect();
-                names.retain(|s| !s.is_empty());
-                for n in names.iter() {
-                    set2.insert(n.to_string());
-                }
-            } else {
-                set2.insert(name.to_string());
-            }
-        }
-
-        (set2, map)
+        (
+            RequestSet::struct_names(&secondary_set),
+            RequestSet::struct_links(&secondary_set),
+        )
     }
 
-    fn gen_struct_links(links: HashSet<String>) -> HashMap<String, Vec<String>> {
+    pub fn struct_names(links: &HashSet<String>) -> HashSet<String> {
+        let mut set: HashSet<String> = HashSet::new();
+        for link in links.iter() {
+            if link.contains('.') {
+                let mut names: Vec<&str> = link.split('.').collect();
+                names.retain(|s| !s.is_empty());
+                for name in names.iter() {
+                    set.insert(name.to_string());
+                }
+            } else {
+                set.insert(link.to_string());
+            }
+        }
+        set
+    }
+
+    fn struct_links(links: &HashSet<String>) -> HashMap<String, Vec<String>> {
         let mut map: HashMap<String, Vec<String>> = HashMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
         vec.sort();
