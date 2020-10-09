@@ -89,12 +89,22 @@ pub mod attachments;
 pub mod calendar;
 /// Contacts request client.
 pub mod contacts;
+/// Contracts request client.
+pub mod contracts;
+/// Data policy operations request client.
+pub mod data_policy_operations;
+/// Device app management request client.
+pub mod device_app_management;
+/// Device management request client.
+pub mod device_management;
 /// OneDrive request client.
 pub mod drive;
 /// Education request client.
 pub mod education;
 /// Groups request client.
 pub mod groups;
+/// Identity request client.
+pub mod identity;
 /// Mail request client.
 pub mod mail;
 /// OneNote request client.

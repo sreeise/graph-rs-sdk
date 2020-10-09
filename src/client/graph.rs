@@ -5,11 +5,14 @@ use crate::attachments::AttachmentRequest;
 use crate::audit_logs::AuditLogsRequest;
 use crate::calendar::CalendarRequest;
 use crate::contacts::ContactsRequest;
+use crate::contracts::ContractsRequest;
+use crate::device_management::DeviceManagementRequest;
 use crate::drive::{DriveRequest, DrivesRequest};
 use crate::education::{EducationMeRequest, EducationRequest, EducationUsersRequest};
 use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
 };
+use crate::identity::IdentityRequest;
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
 use crate::planner::PlannerRequest;
@@ -27,6 +30,8 @@ use reqwest::Method;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::str::FromStr;
+use crate::device_app_management::DeviceAppManagementRequest;
+use crate::data_policy_operations::DataPolicyOperationsRequest;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Ident {
@@ -317,22 +322,48 @@ where
         PlannerRequest::new(self.client)
     }
 
+    /// Select the education endpoint.
     pub fn education(&self) -> EducationRequest<'a, Client> {
         EducationRequest::new(self.client)
     }
 
+    /// Select the applications endpoint.
     pub fn applications(&self) -> ApplicationsRequest<'a, Client> {
         ApplicationsRequest::new(self.client)
     }
 
+    /// Select the app catalogs endpoint.
     pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
         AppCatalogsRequest::new(self.client)
     }
 
+    /// Select the audit logs endpoint.
     pub fn audit_logs(&self) -> AuditLogsRequest<'a, Client> {
         AuditLogsRequest::new(self.client)
     }
 
+    pub fn device_management(&self) -> DeviceManagementRequest<'a, Client> {
+        DeviceManagementRequest::new(self.client)
+    }
+
+    pub fn device_app_management(&self) -> DeviceAppManagementRequest<'a, Client> {
+        DeviceAppManagementRequest::new(self.client)
+    }
+
+    pub fn contracts(&self) -> ContractsRequest<'a, Client> {
+        ContractsRequest::new(self.client)
+    }
+
+    pub fn identity(&self) -> IdentityRequest<'a, Client> {
+        IdentityRequest::new(self.client)
+    }
+
+    pub fn data_policy_operations(&self) -> DataPolicyOperationsRequest<'a, Client> {
+        DataPolicyOperationsRequest::new(self.client)
+    }
+
+    /// Perform a batch requests which can store multiple requests
+    /// in the request body.
     pub fn batch<B: serde::Serialize>(
         &self,
         batch: &B,
@@ -375,13 +406,6 @@ where
     pub fn education(&self) -> EducationMeRequest<'a, Client> {
         EducationMeRequest::new(&self.client)
     }
-}
-
-impl<'a, Client> IdentDrives<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( get, serde_json::Value => "drive/{{RID}}" );
 }
 
 impl<'a, Client> IdentSites<'a, Client>
