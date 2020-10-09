@@ -197,7 +197,7 @@ fn drive() -> rocket::response::content::Json<MyResponder> {
     let token = access_token.bearer_token();
     let drive = Graph::new(token);
 
-    let response = drive.v1().me().drive().drive().send().unwrap();
+    let response = drive.v1().me().drive().get_drive().send().unwrap();
     let drive = response.into_body();
     rocket::response::content::Json(MyResponder {
         inner: drive.to_string(),

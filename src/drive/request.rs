@@ -37,7 +37,7 @@ impl<'a, Client> DrivesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!( drive, serde_json::Value => "{{drive_root}}" );
+    get!( get_drive, serde_json::Value => "{{drive_root}}" );
     get!( root, serde_json::Value => "{{drive_root}}/root" );
     get!( recent, Collection<serde_json::Value> => "{{drive_root}}/recent" );
     get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "{{drive_root}}/root/delta" );
