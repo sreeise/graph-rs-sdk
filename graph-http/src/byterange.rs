@@ -1,3 +1,4 @@
+use crate::traits::{AsyncByteRangeRead, AsyncTryFrom, ByteRangeMultiple, ByteRangeRead};
 use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult};
 use std::collections::VecDeque;
@@ -14,58 +15,50 @@ static RANGE_MULTIPLES: [usize; 32] = [
     4096, 5120, 8192, 10240, 16384, 20480, 32768, 40960, 65536, 81920, 163_840,
 ];
 
-#[async_trait]
-pub trait AsyncByteRange {
-    async fn file_size(&self) -> std::io::Result<u64>;
-    async fn read_to_vec_range(
-        mut self,
-        start: u64,
-        end: u64,
-    ) -> std::io::Result<VecDeque<(u64, u64, Vec<u8>)>>;
+pub struct ByteRanges<F> {
+    file: F,
+    file_size: u64,
 }
 
-#[async_trait]
-impl AsyncByteRange for tokio::fs::File {
-    async fn file_size(&self) -> std::io::Result<u64> {
-        Ok(self.metadata().await?.len())
+impl<F> ByteRangeMultiple for ByteRanges<F> {
+    fn file_size(&self) -> u64 {
+        self.file_size
     }
+}
 
-    async fn read_to_vec_range(
-        mut self,
-        start: u64,
-        end: u64,
-    ) -> std::io::Result<VecDeque<(u64, u64, Vec<u8>)>> {
-        let size = self.file_size().await?;
-        if start > size || end > size {
-            return Err(std::io::Error::new(
-                ErrorKind::InvalidData,
-                "start or end range is greater than file size",
-            ));
-        } else if end <= start {
-            return Err(std::io::Error::new(
-                ErrorKind::InvalidData,
-                "start range cannot be greater than or equal to end range",
-            ));
-        }
+impl ByteRanges<std::fs::File> {
+    pub fn new<P: AsRef<Path>>(path: P) -> GraphResult<ByteRanges<std::fs::File>> {
+        let file = std::fs::File::open(path)?;
+        let file_size = file.metadata()?.len();
+        Ok(ByteRanges { file, file_size })
+    }
+}
 
-        let mut byte_ranges: VecDeque<(u64, u64, Vec<u8>)> = VecDeque::new();
-        let byte_range = end - start;
-        let mut end = end;
-        let mut counter = start;
+impl ByteRangeRead for ByteRanges<std::fs::File> {
+    fn read_to_vec(mut self) -> std::io::Result<VecDeque<(u64, u64, Vec<u8>)>> {
+        let byte_range = self.byte_range_multiples();
+        let size = self.file_size();
+        let mut byte_range_queue: VecDeque<(u64, u64, Vec<u8>)> = VecDeque::new();
 
+        let mut end = 0;
+        let mut counter = 0;
         while counter < size {
             let from_pos = counter;
-            let mut v: Vec<u8>;
-            self.seek(SeekFrom::Start(from_pos)).await?;
 
+            let mut v: Vec<u8> = Vec::new();
+            self.file.seek(SeekFrom::Start(from_pos))?;
             if size - counter < byte_range {
                 counter += size - counter;
-                v = vec![0u8; counter as usize];
-                self.read_exact(&mut v).await?;
+                {
+                    let reference = self.file.by_ref();
+                    reference.take(counter).read_to_end(&mut v)?;
+                }
             } else {
                 counter += byte_range;
-                v = vec![0u8; byte_range as usize];
-                self.read_exact(&mut v).await?;
+                {
+                    let reference = self.file.by_ref();
+                    reference.take(byte_range).read_to_end(&mut v)?;
+                }
             }
 
             let range = end + v.len() as u64;
@@ -79,9 +72,164 @@ impl AsyncByteRange for tokio::fs::File {
             } else {
                 end += (v.len() as u64) - 1;
             }
-            byte_ranges.push_back((start, end, v));
+            byte_range_queue.push_back((start, end, v));
         }
-        Ok(byte_ranges)
+        Ok(byte_range_queue)
+    }
+
+    fn read_to_vec_range(
+        mut self,
+        start: u64,
+        end: u64,
+    ) -> std::io::Result<VecDeque<(u64, u64, Vec<u8>)>> {
+        let size = self.file_size();
+        if start > size || end > size {
+            return Err(std::io::Error::new(
+                ErrorKind::InvalidData,
+                "start or end range is greater than file size",
+            ));
+        } else if end <= start {
+            return Err(std::io::Error::new(
+                ErrorKind::InvalidData,
+                "start range cannot be greater than or equal to end range",
+            ));
+        }
+
+        let mut byte_range_queue: VecDeque<(u64, u64, Vec<u8>)> = VecDeque::new();
+        let byte_range = end - start;
+        let mut end = end;
+        let mut counter = start;
+
+        while counter < size {
+            let from_pos = counter;
+            let mut v: Vec<u8> = Vec::new();
+            self.file.seek(SeekFrom::Start(from_pos))?;
+
+            if size - counter < byte_range {
+                counter += size - counter;
+                self.file.by_ref().take(counter).read_to_end(&mut v)?;
+            } else {
+                counter += byte_range;
+                self.file.by_ref().take(byte_range).read_to_end(&mut v)?;
+            }
+
+            let range = end + v.len() as u64;
+            if end != 0 && range < size {
+                end += 1;
+            }
+
+            let start = end;
+            if range > size {
+                end += size - end;
+            } else {
+                end += (v.len() as u64) - 1;
+            }
+            byte_range_queue.push_back((start, end, v));
+        }
+        Ok(byte_range_queue)
+    }
+}
+
+impl ByteRanges<tokio::fs::File> {
+    pub async fn new<P: AsRef<Path>>(path: P) -> GraphResult<ByteRanges<tokio::fs::File>> {
+        let file = tokio::fs::File::open(path).await?;
+        let file_size = file.metadata().await?.len();
+        Ok(ByteRanges { file, file_size })
+    }
+}
+
+#[async_trait]
+impl AsyncByteRangeRead for ByteRanges<tokio::fs::File> {
+    async fn read_to_vec(mut self) -> std::io::Result<VecDeque<(u64, u64, Vec<u8>)>> {
+        let range_multiple = self.byte_range_multiples();
+        let size = self.file_size();
+        let mut byte_range_queue: VecDeque<(u64, u64, Vec<u8>)> = VecDeque::new();
+
+        let mut end = 0;
+        let mut counter = 0;
+        while counter < size {
+            let from_pos = counter;
+
+            let mut v: Vec<u8>;
+            self.file.seek(SeekFrom::Start(from_pos)).await?;
+            if size - counter < range_multiple {
+                counter += size - counter;
+                v = vec![0u8; counter as usize];
+                self.file.read_exact(&mut v).await?;
+            } else {
+                counter += range_multiple;
+                v = vec![0u8; range_multiple as usize];
+                self.file.read_exact(&mut v).await?;
+            }
+
+            let range = end + v.len() as u64;
+            if end != 0 && range < size {
+                end += 1;
+            }
+
+            let start = end;
+            if range > size {
+                end += size - end;
+            } else {
+                end += (v.len() as u64) - 1;
+            }
+            byte_range_queue.push_back((start, end, v));
+        }
+        Ok(byte_range_queue)
+    }
+
+    async fn read_to_vec_range(
+        mut self,
+        start: u64,
+        end: u64,
+    ) -> std::io::Result<VecDeque<(u64, u64, Vec<u8>)>> {
+        let size = self.file_size;
+        if start > size || end > size {
+            return Err(std::io::Error::new(
+                ErrorKind::InvalidData,
+                "start or end range is greater than file size",
+            ));
+        } else if end <= start {
+            return Err(std::io::Error::new(
+                ErrorKind::InvalidData,
+                "start range cannot be greater than or equal to end range",
+            ));
+        }
+
+        let mut byte_range_queue: VecDeque<(u64, u64, Vec<u8>)> = VecDeque::new();
+        let byte_range = end - start;
+        let mut end = end;
+        let mut counter = start;
+
+        while counter < size {
+            let from_pos = counter;
+            let mut v: Vec<u8>;
+            self.file.seek(SeekFrom::Start(from_pos)).await?;
+
+            if size - counter < byte_range {
+                counter += size - counter;
+                v = vec![0u8; counter as usize];
+                self.file.read_exact(&mut v).await?;
+            } else {
+                counter += byte_range;
+                v = vec![0u8; byte_range as usize];
+                self.file.read_exact(&mut v).await?;
+            }
+
+            let range = end + v.len() as u64;
+            if end != 0 && range < size {
+                end += 1;
+            }
+
+            let start = end;
+            if range > size {
+                end += size - end;
+            } else {
+                end += (v.len() as u64) - 1;
+            }
+            byte_range_queue.push_back((start, end, v));
+        }
+        Ok(byte_range_queue)
     }
 }
 
@@ -236,9 +384,8 @@ impl HttpByteRange {
     }
 
     pub fn from_range<P: AsRef<Path>>(start: u64, end: u64, file: P) -> GraphResult<HttpByteRange> {
-        let path: &Path = file.as_ref();
-        let byte_range = ByteRange::new(path.to_path_buf());
-        let file_size = byte_range.file_size()?;
+        let byte_range: ByteRanges<std::fs::File> = ByteRanges::<std::fs::File>::new(file)?;
+        let file_size = byte_range.file_size();
         Ok(HttpByteRange::new(
             file_size,
             byte_range.read_to_vec_range(start, end)?,
@@ -249,20 +396,21 @@ impl HttpByteRange {
         start: u64,
         end: u64,
         file: P,
-    ) -> std::io::Result<HttpByteRange> {
-        let path: &Path = file.as_ref();
-        let byte_range = ByteRange::new(path.to_path_buf());
-        let file_size = byte_range.file_size()?;
+    ) -> GraphResult<HttpByteRange> {
+        let byte_range: ByteRanges<tokio::fs::File> =
+            ByteRanges::<tokio::fs::File>::new(file).await?;
+        let file_size = byte_range.file_size();
         Ok(HttpByteRange::new(
             file_size,
-            byte_range.read_to_vec_range(start, end)?,
+            byte_range.read_to_vec_range(start, end).await?,
         ))
     }
 
-    pub async fn try_from_async(value: PathBuf) -> Result<HttpByteRange, GraphFailure> {
-        let byte_range = ByteRange::new(value);
-        let file_size = byte_range.file_size()?;
-        let bytes = byte_range.read_to_vec()?;
+    pub async fn try_from_async(value: PathBuf) -> GraphResult<HttpByteRange> {
+        let byte_range: ByteRanges<tokio::fs::File> =
+            ByteRanges::<tokio::fs::File>::new(value).await?;
+        let file_size = byte_range.file_size();
+        let bytes = byte_range.read_to_vec().await?;
         Ok(HttpByteRange::new(file_size, bytes))
     }
 
@@ -310,9 +458,21 @@ impl TryFrom<PathBuf> for HttpByteRange {
     type Error = GraphFailure;
 
     fn try_from(value: PathBuf) -> Result<Self, Self::Error> {
-        let byte_range = ByteRange::new(value);
-        let file_size = byte_range.file_size()?;
+        let byte_range = ByteRanges::<std::fs::File>::new(value)?;
+        let file_size = byte_range.file_size();
         let bytes = byte_range.read_to_vec()?;
+        Ok(HttpByteRange::new(file_size, bytes))
+    }
+}
+
+#[async_trait]
+impl AsyncTryFrom<PathBuf> for HttpByteRange {
+    type Error = GraphFailure;
+
+    async fn async_try_from(value: PathBuf) -> Result<Self, Self::Error> {
+        let byte_range = ByteRanges::<tokio::fs::File>::new(value).await?;
+        let file_size = byte_range.file_size();
+        let bytes = byte_range.read_to_vec().await?;
         Ok(HttpByteRange::new(file_size, bytes))
     }
 }
