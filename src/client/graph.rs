@@ -6,6 +6,8 @@ use crate::audit_logs::AuditLogsRequest;
 use crate::calendar::CalendarRequest;
 use crate::contacts::ContactsRequest;
 use crate::contracts::ContractsRequest;
+use crate::data_policy_operations::DataPolicyOperationsRequest;
+use crate::device_app_management::DeviceAppManagementRequest;
 use crate::device_management::DeviceManagementRequest;
 use crate::drive::{DriveRequest, DrivesRequest};
 use crate::education::{EducationMeRequest, EducationRequest, EducationUsersRequest};
@@ -30,8 +32,6 @@ use reqwest::Method;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::str::FromStr;
-use crate::device_app_management::DeviceAppManagementRequest;
-use crate::data_policy_operations::DataPolicyOperationsRequest;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Ident {

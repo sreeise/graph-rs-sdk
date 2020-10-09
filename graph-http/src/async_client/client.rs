@@ -71,7 +71,7 @@ impl AsyncClient {
 
         let upload_session: serde_json::Value = response.json().await?;
         let mut session = UploadSessionClient::new_async(upload_session)?;
-        session.set_file_async(file).await?;
+        session.set_file(file).await?;
         Ok(session)
     }
 

@@ -10,7 +10,7 @@ use reqwest::header::{HeaderMap, HeaderValue, CONTENT_LENGTH, CONTENT_RANGE, CON
 use serde::export::Formatter;
 use std::convert::TryFrom;
 use std::fmt::Debug;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Session {
@@ -67,11 +67,6 @@ impl<C> UploadSessionClient<C> {
     pub fn has_next(&self) -> bool {
         !self.byte_ranges.is_empty()
     }
-
-    pub fn set_file(&mut self, file: PathBuf) -> GraphResult<()> {
-        self.byte_ranges = HttpByteRange::try_from(file)?;
-        Ok(())
-    }
 }
 
 impl<C> UploadSessionClient<C>
@@ -121,6 +116,11 @@ impl UploadSessionClient<BlockingHttpClient> {
             byte_ranges: Default::default(),
             client: BlockingHttpClient::from(BlockingClient::new_blocking(GraphUrl::parse(url)?)),
         })
+    }
+
+    pub fn set_file<P: AsRef<Path>>(&mut self, file: P) -> GraphResult<()> {
+        self.byte_ranges = HttpByteRange::try_from(file.as_ref().to_path_buf())?;
+        Ok(())
     }
 
     pub fn cancel(&mut self) -> reqwest::blocking::RequestBuilder {
@@ -173,8 +173,8 @@ impl UploadSessionClient<AsyncHttpClient> {
         })
     }
 
-    pub async fn set_file_async(&mut self, file: PathBuf) -> GraphResult<()> {
-        self.byte_ranges = HttpByteRange::try_from_async(file).await?;
+    pub async fn set_file<P: AsRef<Path>>(&mut self, file: P) -> GraphResult<()> {
+        self.byte_ranges = HttpByteRange::async_try_from(file.as_ref().to_path_buf()).await?;
         Ok(())
     }
 
