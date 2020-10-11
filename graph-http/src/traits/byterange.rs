@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use std::collections::VecDeque;
 
+// The size of each byte range must be a multiple of 320 KiB (327,680 bytes).
 static RANGE_MULTIPLES: [usize; 32] = [
     2, 4, 5, 8, 10, 16, 20, 32, 40, 64, 80, 128, 160, 256, 320, 512, 640, 1024, 1280, 2048, 2560,
     4096, 5120, 8192, 10240, 16384, 20480, 32768, 40960, 65536, 81920, 163_840,

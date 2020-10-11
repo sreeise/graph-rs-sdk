@@ -1,6 +1,6 @@
 use crate::async_client::{AsyncClient, AsyncHttpClient};
 use crate::blocking_client::{BlockingClient, BlockingHttpClient};
-use crate::byterange::HttpByteRange;
+use crate::byterange::ByteRangeIterator;
 use crate::traits::*;
 use crate::url::GraphUrl;
 use crate::{GraphResponse, RequestAttribute, RequestClient};
@@ -54,13 +54,13 @@ impl NextSession {
 
 pub struct UploadSessionClient<C> {
     upload_session_url: String,
-    byte_ranges: HttpByteRange,
+    byte_ranges: ByteRangeIterator,
     client: C,
 }
 
 impl<C> UploadSessionClient<C> {
     pub fn from_range<P: AsRef<Path>>(&mut self, start: u64, end: u64, file: P) -> GraphResult<()> {
-        self.byte_ranges = HttpByteRange::from_range(start, end, file)?;
+        self.byte_ranges = ByteRangeIterator::from_range(start, end, file)?;
         Ok(())
     }
 
@@ -119,7 +119,7 @@ impl UploadSessionClient<BlockingHttpClient> {
     }
 
     pub fn set_file<P: AsRef<Path>>(&mut self, file: P) -> GraphResult<()> {
-        self.byte_ranges = HttpByteRange::try_from(file.as_ref().to_path_buf())?;
+        self.byte_ranges = ByteRangeIterator::try_from(file.as_ref().to_path_buf())?;
         Ok(())
     }
 
@@ -174,7 +174,7 @@ impl UploadSessionClient<AsyncHttpClient> {
     }
 
     pub async fn set_file<P: AsRef<Path>>(&mut self, file: P) -> GraphResult<()> {
-        self.byte_ranges = HttpByteRange::async_try_from(file.as_ref().to_path_buf()).await?;
+        self.byte_ranges = ByteRangeIterator::async_try_from(file.as_ref().to_path_buf()).await?;
         Ok(())
     }
 
