@@ -1,6 +1,5 @@
 use crate::parser::RequestMap;
 use bytes::{BufMut, BytesMut};
-use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::collections::{HashMap, HashSet, VecDeque};
 
@@ -41,10 +40,6 @@ impl SpecClient {
         self.methods = methods;
     }
 
-    pub fn create_dir(&self) {
-        IoTools::create_dir(format!("./src/{}", self.name.to_snake_case())).unwrap();
-    }
-
     fn gen_client_registrations(&self) -> BytesMut {
         let imports_vec: Vec<u8> = self
             .imports
@@ -77,7 +72,7 @@ impl SpecClient {
                     .struct_links
                     .get(vec_queue.pop_back().unwrap())
                     .cloned()
-                    .unwrap_or(Default::default());
+                    .unwrap_or_default();
 
                 let spec_client_impl = SpecClientImpl {
                     name: name.to_string(),
@@ -90,7 +85,7 @@ impl SpecClient {
                     .struct_links
                     .get(name.as_str())
                     .cloned()
-                    .unwrap_or(Default::default());
+                    .unwrap_or_default();
                 let spec_client_impl = SpecClientImpl {
                     name: name.to_string(),
                     links,
