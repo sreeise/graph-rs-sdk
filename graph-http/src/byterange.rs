@@ -4,8 +4,6 @@ use graph_error::{GraphFailure, GraphResult};
 use std::collections::VecDeque;
 use std::convert::TryFrom;
 use std::fmt::{Debug, Formatter};
-use std::fs;
-use std::fs::File;
 use std::io::{ErrorKind, Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
 use tokio::io::AsyncReadExt;
