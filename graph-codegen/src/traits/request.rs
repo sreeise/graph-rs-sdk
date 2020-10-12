@@ -2,7 +2,7 @@ use crate::parser::filter::ModifierMap;
 use crate::parser::Request;
 use inflector::Inflector;
 use regex::Regex;
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 
 pub trait RequestParserBuilder<RHS: ?Sized = Self> {
     fn build(&self, modifier: &ModifierMap) -> Request;
@@ -65,6 +65,18 @@ impl RequestParser for &str {
         if op_mapping.ends_with('.') {
             op_mapping.truncate(op_mapping.len() - 1);
         }
+
+        if op_mapping.matches('.').count() == 1 {
+            let mut queue: VecDeque<&str> = op_mapping.split('.').collect();
+            let first = queue.pop_front().unwrap();
+            let last = queue.pop_front().unwrap();
+            if first[..first.len() - 1].eq(last) {
+                op_mapping = first.to_string();
+            } else if last[..last.len() - 1].eq(first) {
+                op_mapping = last.to_string();
+            }
+        }
+
         op_mapping
     }
 

@@ -4,20 +4,33 @@ use crate::applications::ApplicationsRequest;
 use crate::attachments::AttachmentRequest;
 use crate::audit_logs::AuditLogsRequest;
 use crate::calendar::CalendarRequest;
+use crate::certificate_based_auth_configuration::CertificateBasedAuthConfigurationRequest;
+use crate::communications::CommunicationsRequest;
 use crate::contacts::ContactsRequest;
 use crate::contracts::ContractsRequest;
 use crate::data_policy_operations::DataPolicyOperationsRequest;
 use crate::device_app_management::DeviceAppManagementRequest;
 use crate::device_management::DeviceManagementRequest;
+use crate::directory::DirectoryRequest;
+use crate::domain_dns_records::DomainDnsRecordsRequest;
+use crate::domains::DomainsRequest;
 use crate::drive::{DriveRequest, DrivesRequest};
 use crate::education::{EducationMeRequest, EducationRequest, EducationUsersRequest};
 use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
 };
 use crate::identity::IdentityRequest;
+use crate::invitations::InvitationsRequest;
 use crate::mail::MailRequest;
 use crate::onenote::OnenoteRequest;
+use crate::places::PlacesRequest;
 use crate::planner::PlannerRequest;
+use crate::policies::PoliciesRequest;
+use crate::schema_extensions::SchemaExtensionsRequest;
+use crate::service_principals::ServicePrincipalsRequest;
+use crate::subscribed_skus::SubscribedSkusRequest;
+use crate::subscriptions::SubscriptionsRequest;
+use crate::teamwork::TeamworkRequest;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::{GraphFailure, GraphRsError};
 use graph_http::url::GraphUrl;
@@ -271,10 +284,62 @@ impl<'a, Client> Identify<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    /// Select the me endpoint.
-    pub fn me(&self) -> IdentMe<'a, Client> {
-        self.client.request.set_ident(Ident::Me.to_string());
-        IdentMe::new("", self.client)
+    pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
+        ActivitiesRequest::new(self.client)
+    }
+
+    /// Select the app catalogs endpoint.
+    pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
+        AppCatalogsRequest::new(self.client)
+    }
+
+    /// Select the applications endpoint.
+    pub fn applications(&self) -> ApplicationsRequest<'a, Client> {
+        ApplicationsRequest::new(self.client)
+    }
+
+    /// Select the audit logs endpoint.
+    pub fn audit_logs(&self) -> AuditLogsRequest<'a, Client> {
+        AuditLogsRequest::new(self.client)
+    }
+
+    /// Select the certificate based auth configuration endpoint.
+    pub fn certificate_based_auth_configuration(
+        &self,
+    ) -> CertificateBasedAuthConfigurationRequest<'a, Client> {
+        CertificateBasedAuthConfigurationRequest::new(self.client)
+    }
+
+    pub fn communications(&self) -> CommunicationsRequest<'a, Client> {
+        CommunicationsRequest::new(self.client)
+    }
+
+    pub fn contracts(&self) -> ContractsRequest<'a, Client> {
+        ContractsRequest::new(self.client)
+    }
+
+    pub fn data_policy_operations(&self) -> DataPolicyOperationsRequest<'a, Client> {
+        DataPolicyOperationsRequest::new(self.client)
+    }
+
+    pub fn device_app_management(&self) -> DeviceAppManagementRequest<'a, Client> {
+        DeviceAppManagementRequest::new(self.client)
+    }
+
+    pub fn device_management(&self) -> DeviceManagementRequest<'a, Client> {
+        DeviceManagementRequest::new(self.client)
+    }
+
+    pub fn directory(&self) -> DirectoryRequest<'a, Client> {
+        DirectoryRequest::new(self.client)
+    }
+
+    pub fn domain_dns_records(&self) -> DomainDnsRecordsRequest<'a, Client> {
+        DomainDnsRecordsRequest::new(self.client)
+    }
+
+    pub fn domains(&self) -> DomainsRequest<'a, Client> {
+        DomainsRequest::new(self.client)
     }
 
     /// Select the drives endpoint.
@@ -287,10 +352,9 @@ where
         DriveRequest::new(self.client)
     }
 
-    /// Select the sites endpoint.
-    pub fn sites<S: AsRef<str>>(&self, id: S) -> IdentSites<'a, Client> {
-        self.client.request.set_ident(Ident::Sites.to_string());
-        IdentSites::new(id.as_ref(), self.client)
+    /// Select the education endpoint.
+    pub fn education(&self) -> EducationRequest<'a, Client> {
+        EducationRequest::new(self.client)
     }
 
     /// Select the groups endpoint.
@@ -307,6 +371,59 @@ where
         GroupLifecyclePolicyRequest::new(id.as_ref(), self.client)
     }
 
+    pub fn identity(&self) -> IdentityRequest<'a, Client> {
+        IdentityRequest::new(self.client)
+    }
+
+    pub fn invitations(&self) -> InvitationsRequest<'a, Client> {
+        InvitationsRequest::new(self.client)
+    }
+
+    pub fn places(&self) -> PlacesRequest<'a, Client> {
+        PlacesRequest::new(self.client)
+    }
+
+    /// Select the planner endpoint.
+    pub fn planner(&self) -> PlannerRequest<'a, Client> {
+        PlannerRequest::new(self.client)
+    }
+
+    pub fn policies(&self) -> PoliciesRequest<'a, Client> {
+        PoliciesRequest::new(self.client)
+    }
+
+    pub fn schema_extensions(&self) -> SchemaExtensionsRequest<'a, Client> {
+        SchemaExtensionsRequest::new(self.client)
+    }
+
+    pub fn service_principals(&self) -> ServicePrincipalsRequest<'a, Client> {
+        ServicePrincipalsRequest::new(self.client)
+    }
+
+    pub fn subscribed_skus(&self) -> SubscribedSkusRequest<'a, Client> {
+        SubscribedSkusRequest::new(self.client)
+    }
+
+    pub fn subscriptions(&self) -> SubscriptionsRequest<'a, Client> {
+        SubscriptionsRequest::new(self.client)
+    }
+
+    pub fn teamwork(&self) -> TeamworkRequest<'a, Client> {
+        TeamworkRequest::new(self.client)
+    }
+
+    /// Select the me endpoint.
+    pub fn me(&self) -> IdentMe<'a, Client> {
+        self.client.request.set_ident(Ident::Me.to_string());
+        IdentMe::new("", self.client)
+    }
+
+    /// Select the sites endpoint.
+    pub fn sites<S: AsRef<str>>(&self, id: S) -> IdentSites<'a, Client> {
+        self.client.request.set_ident(Ident::Sites.to_string());
+        IdentSites::new(id.as_ref(), self.client)
+    }
+
     /// Select the users endpoint.
     pub fn users<S: AsRef<str>>(&self, id: S) -> IdentUsers<'a, Client> {
         self.client.request.set_ident(Ident::Users.to_string());
@@ -315,51 +432,6 @@ where
 
     pub fn user(&self) -> UserRequest<'a, Client> {
         UserRequest::new(self.client)
-    }
-
-    /// Select the planner endpoint.
-    pub fn planner(&self) -> PlannerRequest<'a, Client> {
-        PlannerRequest::new(self.client)
-    }
-
-    /// Select the education endpoint.
-    pub fn education(&self) -> EducationRequest<'a, Client> {
-        EducationRequest::new(self.client)
-    }
-
-    /// Select the applications endpoint.
-    pub fn applications(&self) -> ApplicationsRequest<'a, Client> {
-        ApplicationsRequest::new(self.client)
-    }
-
-    /// Select the app catalogs endpoint.
-    pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
-        AppCatalogsRequest::new(self.client)
-    }
-
-    /// Select the audit logs endpoint.
-    pub fn audit_logs(&self) -> AuditLogsRequest<'a, Client> {
-        AuditLogsRequest::new(self.client)
-    }
-
-    pub fn device_management(&self) -> DeviceManagementRequest<'a, Client> {
-        DeviceManagementRequest::new(self.client)
-    }
-
-    pub fn device_app_management(&self) -> DeviceAppManagementRequest<'a, Client> {
-        DeviceAppManagementRequest::new(self.client)
-    }
-
-    pub fn contracts(&self) -> ContractsRequest<'a, Client> {
-        ContractsRequest::new(self.client)
-    }
-
-    pub fn identity(&self) -> IdentityRequest<'a, Client> {
-        IdentityRequest::new(self.client)
-    }
-
-    pub fn data_policy_operations(&self) -> DataPolicyOperationsRequest<'a, Client> {
-        DataPolicyOperationsRequest::new(self.client)
     }
 
     /// Perform a batch requests which can store multiple requests
