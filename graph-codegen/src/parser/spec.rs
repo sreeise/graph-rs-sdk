@@ -144,12 +144,6 @@ impl Parser {
             )],
         );
         spec.modify_target.map.insert(
-            MatchTarget::TagOrOperationMap("identityProviders.identityProvider".to_string()),
-            vec![MatchTarget::OperationMap(
-                "identity.identityProvider".to_string(),
-            )],
-        );
-        spec.modify_target.map.insert(
             MatchTarget::OperationMap(
                 "directoryObjects.microsoft.graph.administrativeUnit".to_string(),
             ),
