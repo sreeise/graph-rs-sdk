@@ -133,24 +133,30 @@ impl Parser {
                 vec![MatchTarget::TagAndOperationMap(name.to_string())],
             );
 
-            // Modifiers that need to be explicitly declared.
-            spec.modify_target.map.insert(
-                MatchTarget::OperationMap(
-                    "deviceManagement.detectedApps.managedDevices".to_string(),
-                ),
-                vec![MatchTarget::OperationMap(
-                    "deviceManagement.detectedApps.appManagedDevices".to_string(),
-                )],
-            );
-            spec.modify_target.map.insert(
-                MatchTarget::TagOrOperationMap("identityProviders.identityProvider".to_string()),
-                vec![MatchTarget::OperationMap(
-                    "identity.identityProvider".to_string(),
-                )],
-            );
-
             spec.modifiers.insert(name.to_string());
         }
+
+        // Modifiers that need to be explicitly declared.
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("deviceManagement.detectedApps.managedDevices".to_string()),
+            vec![MatchTarget::OperationMap(
+                "deviceManagement.detectedApps.appManagedDevices".to_string(),
+            )],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::TagOrOperationMap("identityProviders.identityProvider".to_string()),
+            vec![MatchTarget::OperationMap(
+                "identity.identityProvider".to_string(),
+            )],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap(
+                "directoryObjects.microsoft.graph.administrativeUnit".to_string(),
+            ),
+            vec![MatchTarget::OperationMap(
+                "directoryObjects.administrativeUnit".to_string(),
+            )],
+        );
     }
 
     pub fn filter(&self, filter: Filter<'_>) -> PathMap {

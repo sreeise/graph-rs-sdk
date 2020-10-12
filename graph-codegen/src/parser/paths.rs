@@ -201,6 +201,8 @@ impl RequestParserBuilder for Operation {
             request.response = ResponseType::NoContent;
         } else if request.method_name.starts_with("list") {
             request.response = ResponseType::Collection;
+        } else if request.method_name.eq("delta") {
+            request.response = ResponseType::Delta;
         }
         if let Some(tag) = self.tags.get(0) {
             request.tag = tag.to_string();

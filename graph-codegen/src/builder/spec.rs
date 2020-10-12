@@ -5,7 +5,7 @@ use from_as::*;
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::cell::RefCell;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs::OpenOptions;
 use std::path::Path;
 
@@ -14,6 +14,7 @@ pub struct SpecBuilder {
     parser: Parser,
     #[serde(skip_serializing_if = "HashSet::is_empty")]
     imports: HashSet<String>,
+    links: HashMap<String, Vec<String>>,
 }
 
 impl SpecBuilder {
@@ -41,6 +42,7 @@ impl Builder {
             spec: RefCell::new(SpecBuilder {
                 parser,
                 imports: Default::default(),
+                links: Default::default(),
             }),
         }
     }
@@ -57,10 +59,30 @@ impl Builder {
         ]);
     }
 
+    pub fn add_links(&self, spec_client_name: &str, links: &[&str]) {
+        // DirectoryRequest
+        self.spec.borrow_mut().links.insert(
+            spec_client_name.to_string(),
+            links.iter().map(|s| s.to_string()).collect(),
+        );
+    }
+
+    pub fn use_default_links(&self) {
+        self.add_links(
+            "directory",
+            &[
+                "directoryRoles",
+                "directoryObjects",
+                "directoryRoleTemplates",
+            ],
+        );
+    }
+
     pub fn build(&self) {
         let spec = self.spec.borrow();
         let map = spec.parser.build_with_modifier_filter();
         let imports = spec.imports.clone();
+        let links = spec.links.clone();
 
         for (name, request_set) in map.iter() {
             if !name.trim().is_empty() {
@@ -84,6 +106,7 @@ impl Builder {
                     request_file,
                     name.to_string(),
                     imports.clone(),
+                    &links,
                     request_set.clone(),
                 );
             }
@@ -94,13 +117,20 @@ impl Builder {
         file: P,
         parent: String,
         imports: HashSet<String>,
+        links_override: &HashMap<String, Vec<String>>,
         request_set: RequestSet,
     ) {
         let mut buf = BytesMut::with_capacity(1024);
         let mut request_set_imports = request_set.get_imports();
         request_set_imports.extend(imports);
-        let (links, map) = request_set.method_links();
+        let (links, mut map) = request_set.method_links();
         let operations_mapping = request_set.group_by_operation_mapping();
+
+        for (key, value) in map.iter_mut() {
+            if links_override.contains_key(key) {
+                value.extend(links_override.get(key).cloned().unwrap());
+            }
+        }
 
         let mut spec_client = SpecClient::default();
         spec_client.set_name(parent.as_str());
@@ -123,11 +153,23 @@ impl Builder {
         file.sync_all().unwrap();
     }
 
-    fn gen_spec_client(parent: String, request_set: RequestSet) -> SpecClient {
+    fn gen_spec_client(
+        parent: String,
+        request_set: RequestSet,
+        links_override: HashMap<String, Vec<String>>,
+    ) -> SpecClient {
         let mut spec_client = SpecClient::default();
 
-        let (links, map) = request_set.method_links();
+        let (links, mut map) = request_set.method_links();
         let operations_mapping = request_set.group_by_operation_mapping();
+
+        for (key, value) in map.iter_mut() {
+            println!("Current Key: {:#?}", key);
+
+            if links_override.contains_key(key) {
+                value.extend(links_override.get(key).cloned().unwrap());
+            }
+        }
 
         spec_client.set_name(parent.as_str());
         spec_client.set_client_names(links);
@@ -139,10 +181,15 @@ impl Builder {
     pub fn get_clients(&self) -> Vec<SpecClient> {
         let spec = self.spec.borrow();
         let request_set_map = spec.parser.build_with_modifier_filter();
+        let links_override = spec.links.clone();
         let mut spec_clients: Vec<SpecClient> = Vec::new();
 
         for (name, request_set) in request_set_map.iter() {
-            let spec_client = Builder::gen_spec_client(name.to_string(), request_set.clone());
+            let spec_client = Builder::gen_spec_client(
+                name.to_string(),
+                request_set.clone(),
+                links_override.clone(),
+            );
             spec_client.gen_api_impl();
             spec_clients.push(spec_client);
         }

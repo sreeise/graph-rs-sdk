@@ -87,6 +87,10 @@ pub mod applications;
 pub mod attachments;
 /// Calendar request client.
 pub mod calendar;
+/// Certificate based auth configuration client.
+mod certificate_based_auth_configuration;
+/// Communications client.
+mod communications;
 /// Contacts request client.
 pub mod contacts;
 /// Contracts request client.
@@ -97,6 +101,12 @@ pub mod data_policy_operations;
 pub mod device_app_management;
 /// Device management request client.
 pub mod device_management;
+/// Directory request client.
+pub mod directory;
+/// Domain dns records request client.
+pub mod domain_dns_records;
+/// Domains request client.
+pub mod domains;
 /// OneDrive request client.
 pub mod drive;
 /// Education request client.
@@ -105,12 +115,28 @@ pub mod education;
 pub mod groups;
 /// Identity request client.
 pub mod identity;
+/// Invitations request client.
+pub mod invitations;
 /// Mail request client.
 pub mod mail;
 /// OneNote request client.
 pub mod onenote;
+/// Places request client.
+pub mod places;
 /// Planner request client.
 pub mod planner;
+/// Policies request client.
+pub mod policies;
+/// Schema extensions request client.
+pub mod schema_extensions;
+/// Service principles request client.
+pub mod service_principals;
+/// Subscribed skus request client.
+pub mod subscribed_skus;
+/// Subscriptions request client.
+pub mod subscriptions;
+/// Teamwork request client.
+pub mod teamwork;
 
 pub static GRAPH_URL: &str = "https://graph.microsoft.com/v1.0";
 pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
