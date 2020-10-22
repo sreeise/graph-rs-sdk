@@ -1,8 +1,9 @@
 use crate::parser::filter::ModifierMap;
 use crate::parser::{ResourceNameMapping, ResourceNames};
-use crate::traits::{HashMapExt, RequestParser};
+use crate::traits::HashMapExt;
 use from_as::*;
 use inflector::Inflector;
+use std::collections::hash_set::Iter;
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use std::hash::{Hash, Hasher};
 
@@ -121,6 +122,17 @@ impl Request {
             }
         }
     }
+
+    pub fn struct_mapping(&self) -> String {
+        if self.operation_mapping.contains('.') {
+            let mut vec: Vec<&str> = self.operation_mapping.split('.').collect();
+            vec.retain(|s| !s.is_empty());
+            if let Some(last) = vec.last() {
+                return last.to_string();
+            }
+        }
+        self.operation_mapping.to_string()
+    }
 }
 
 impl PartialEq for Request {
@@ -184,6 +196,26 @@ impl RequestMap {
             imports.extend(request.response.as_imports());
         }
         imports
+    }
+
+    pub fn iter(&self) -> std::collections::vec_deque::Iter<'_, Request> {
+        self.requests.iter()
+    }
+
+    pub fn struct_names(&self) -> HashSet<String> {
+        let mut set: HashSet<String> = HashSet::new();
+
+        for request in self.iter() {
+            set.insert(request.struct_mapping());
+        }
+
+        set
+    }
+
+    pub fn extend_struct_names(&self, set: &mut HashSet<String>) {
+        for request in self.iter() {
+            set.insert(request.struct_mapping());
+        }
     }
 }
 
@@ -287,17 +319,14 @@ impl RequestSet {
     /// and creates the list of individual links between structs:
     /// users.planner, planner.plans
     pub fn method_links(&self) -> (HashSet<String>, HashMap<String, Vec<String>>) {
-        let operation_grouping = self.group_by_operation_mapping();
         let mut secondary_set = HashSet::new();
 
-        for (name, _request_map) in operation_grouping.iter() {
-            secondary_set.extend(name.links());
+        for request_map in self.iter() {
+            request_map.extend_struct_names(&mut secondary_set);
         }
 
-        (
-            RequestSet::struct_names(&secondary_set),
-            RequestSet::struct_links(&secondary_set),
-        )
+        let struct_links = RequestSet::struct_links(&secondary_set);
+        (secondary_set, struct_links)
     }
 
     pub fn struct_names(links: &HashSet<String>) -> HashSet<String> {
@@ -341,5 +370,29 @@ impl RequestSet {
             imports_vec.extend(request_map.get_imports());
         }
         imports_vec
+    }
+
+    pub fn iter(&self) -> Iter<'_, RequestMap> {
+        self.set.iter()
+    }
+}
+
+impl IntoIterator for RequestSet {
+    type Item = RequestMap;
+    type IntoIter = std::collections::hash_set::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.set.into_iter()
+    }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub struct ApiImpl {
+    pub requests: HashMap<String, RequestSet>,
+}
+
+impl From<HashMap<String, RequestSet>> for ApiImpl {
+    fn from(requests: HashMap<String, RequestSet>) -> Self {
+        ApiImpl { requests }
     }
 }

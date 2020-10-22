@@ -11,7 +11,7 @@ use std::path::Path;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct SpecBuilder {
-    parser: Parser,
+    pub(crate) parser: Parser,
     #[serde(skip_serializing_if = "HashSet::is_empty")]
     imports: HashSet<String>,
     links: HashMap<String, Vec<String>>,
@@ -33,7 +33,7 @@ impl SpecBuilder {
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Builder {
-    spec: RefCell<SpecBuilder>,
+    pub(crate) spec: RefCell<SpecBuilder>,
 }
 
 impl Builder {
@@ -60,7 +60,6 @@ impl Builder {
     }
 
     pub fn add_links(&self, spec_client_name: &str, links: &[&str]) {
-        // DirectoryRequest
         self.spec.borrow_mut().links.insert(
             spec_client_name.to_string(),
             links.iter().map(|s| s.to_string()).collect(),
@@ -153,6 +152,10 @@ impl Builder {
         file.sync_all().unwrap();
     }
 
+    pub fn build_with_modifier_filter(&self) -> HashMap<String, RequestSet> {
+        self.spec.borrow_mut().parser.build_with_modifier_filter()
+    }
+
     fn gen_spec_client(
         parent: String,
         request_set: RequestSet,
@@ -164,8 +167,6 @@ impl Builder {
         let operations_mapping = request_set.group_by_operation_mapping();
 
         for (key, value) in map.iter_mut() {
-            println!("Current Key: {:#?}", key);
-
             if links_override.contains_key(key) {
                 value.extend(links_override.get(key).cloned().unwrap());
             }
