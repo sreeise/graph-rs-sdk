@@ -1,6 +1,6 @@
 use crate::parser::filter::ModifierMap;
 use crate::parser::{ResourceNameMapping, ResourceNames};
-use crate::traits::HashMapExt;
+use crate::traits::{HashMapExt, RequestParser};
 use from_as::*;
 use inflector::Inflector;
 use std::collections::hash_set::Iter;
@@ -122,16 +122,23 @@ impl Request {
             }
         }
     }
+}
 
-    pub fn struct_mapping(&self) -> String {
-        if self.operation_mapping.contains('.') {
-            let mut vec: Vec<&str> = self.operation_mapping.split('.').collect();
-            vec.retain(|s| !s.is_empty());
-            if let Some(last) = vec.last() {
-                return last.to_string();
-            }
-        }
+impl RequestParser for Request {
+    fn method_name(&self) -> String {
+        self.method_name.to_string()
+    }
+
+    fn operation_mapping(&self) -> String {
         self.operation_mapping.to_string()
+    }
+
+    fn transform_path(&self) -> String {
+        unimplemented!()
+    }
+
+    fn links(&self) -> HashSet<String> {
+        self.operation_mapping.links()
     }
 }
 
@@ -202,19 +209,9 @@ impl RequestMap {
         self.requests.iter()
     }
 
-    pub fn struct_names(&self) -> HashSet<String> {
-        let mut set: HashSet<String> = HashSet::new();
-
+    pub fn extend_struct_links(&self, set: &mut HashSet<String>) {
         for request in self.iter() {
-            set.insert(request.struct_mapping());
-        }
-
-        set
-    }
-
-    pub fn extend_struct_names(&self, set: &mut HashSet<String>) {
-        for request in self.iter() {
-            set.insert(request.struct_mapping());
+            set.extend(request.links());
         }
     }
 }
@@ -322,14 +319,16 @@ impl RequestSet {
         let mut secondary_set = HashSet::new();
 
         for request_map in self.iter() {
-            request_map.extend_struct_names(&mut secondary_set);
+            request_map.extend_struct_links(&mut secondary_set);
         }
 
-        let struct_links = RequestSet::struct_links(&secondary_set);
-        (secondary_set, struct_links)
+        (
+            RequestSet::struct_names(&secondary_set),
+            RequestSet::struct_links(&secondary_set),
+        )
     }
 
-    pub fn struct_names(links: &HashSet<String>) -> HashSet<String> {
+    fn struct_names(links: &HashSet<String>) -> HashSet<String> {
         let mut set: HashSet<String> = HashSet::new();
         for link in links.iter() {
             if link.contains('.') {
