@@ -1,10 +1,11 @@
-use crate::parser::filter::{Filter, MatchTarget, ModifierMap};
+use crate::parser::filter::{Filter, FilterIgnore, MatchTarget, ModifierMap, UrlMatchTarget};
 use crate::parser::{HttpMethod, PathMap, Request, RequestMap, RequestSet};
 use crate::traits::{RequestParser, RequestParserBuilder};
 use from_as::*;
 use serde::Serialize;
 use std::cell::{RefCell, RefMut};
-use std::collections::{BTreeSet, HashMap, VecDeque};
+use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
+use std::path::Path;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(default)]
@@ -17,6 +18,7 @@ pub struct ParserSpec {
     #[serde(skip_serializing_if = "HashMap::is_empty")]
     operation_map: HashMap<String, String>,
     modify_target: ModifierMap,
+    url_modify_target: HashSet<UrlMatchTarget>,
     modifiers: BTreeSet<String>,
 }
 
@@ -29,11 +31,11 @@ impl ParserSpec {
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(default)]
 pub struct Parser {
-    spec: RefCell<ParserSpec>,
+    pub(crate) spec: RefCell<ParserSpec>,
 }
 
 impl Parser {
-    pub fn parse<P: AsRef<str>>(file: P) -> Parser {
+    pub fn parse<P: AsRef<Path>>(file: P) -> Parser {
         let mut path_map: PathMap = PathMap::from_file(file.as_ref()).unwrap();
         path_map.clean();
         Parser {
@@ -43,6 +45,7 @@ impl Parser {
                 tag_map: Default::default(),
                 operation_map: Default::default(),
                 modify_target: Default::default(),
+                url_modify_target: Default::default(),
                 modifiers: Default::default(),
             }),
         }
@@ -59,6 +62,7 @@ impl Parser {
                 tag_map: Default::default(),
                 operation_map: Default::default(),
                 modify_target: Default::default(),
+                url_modify_target: Default::default(),
                 modifiers: Default::default(),
             }),
         }
@@ -92,6 +96,10 @@ impl Parser {
             .modify_target
             .map
             .insert(matcher, modifier);
+    }
+
+    pub fn add_url_modifier(&self, modifier: UrlMatchTarget) {
+        self.spec.borrow_mut().url_modify_target.insert(modifier);
     }
 
     pub fn modifier_map(&self) -> RefMut<ParserSpec> {
@@ -137,6 +145,9 @@ impl Parser {
         }
 
         // Modifiers that need to be explicitly declared.
+        // The struct names for clients are generated based on the operation id
+        // which is also modified when the clients are generated. This can result
+        // in naming conflicts that is fixed by these modifiers.
         spec.modify_target.map.insert(
             MatchTarget::OperationMap("deviceManagement.detectedApps.managedDevices".to_string()),
             vec![MatchTarget::OperationMap(
@@ -150,6 +161,30 @@ impl Parser {
             vec![MatchTarget::OperationMap(
                 "directoryObjects.administrativeUnit".to_string(),
             )],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("sites.contentTypes".to_string()),
+            vec![MatchTarget::OperationMap("sites".to_string())],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("sites.lists.contentTypes".to_string()),
+            vec![MatchTarget::OperationMap("sites.lists".to_string())],
+        );
+
+        // Modify that paths that have a resource id. See UrlMatchTarget
+        // for more info.
+        spec.url_modify_target.extend(vec![
+            UrlMatchTarget::resource_id("sites"),
+            UrlMatchTarget::resource_id("groups"),
+            UrlMatchTarget::resource_id("drives"),
+        ]);
+
+        self.use_filters_internal(
+            spec,
+            vec![
+                Filter::IgnoreIf(FilterIgnore::PathContains("onenote")),
+                Filter::IgnoreIf(FilterIgnore::PathContains("getActivitiesByInterval")),
+            ],
         );
     }
 
@@ -165,12 +200,27 @@ impl Parser {
         let mut path_map = spec.paths.clone();
 
         for filter in filters.iter() {
+            path_map = path_map.filter(filter.clone()).into();
+        }
+
+        path_map
+    }
+
+    fn use_filters_internal(&self, mut spec: RefMut<ParserSpec>, filters: Vec<Filter<'_>>) {
+        let mut path_map = spec.paths.clone();
+
+        for filter in filters.iter() {
             path_map = PathMap {
                 paths: path_map.filter(filter.clone()),
             }
         }
 
-        path_map
+        spec.paths = path_map;
+    }
+
+    pub fn use_filters(&self, filters: Vec<Filter<'_>>) {
+        let spec = self.spec.borrow_mut();
+        self.use_filters_internal(spec, filters);
     }
 
     pub fn build(&self, filter: Filter<'_>) -> RequestSet {
@@ -235,6 +285,7 @@ impl Parser {
         let mut spec = self.spec.borrow_mut();
         let modifier = spec.modify_target.clone();
         let modifier_filters = spec.modifiers.clone();
+        let url_modifiers = spec.url_modify_target.clone();
         let mut req_set_map = HashMap::new();
 
         let operation_mapping_fn = |request: &mut Request, modifier_filter: &str| {
@@ -286,6 +337,10 @@ impl Parser {
                     request.method = HttpMethod::DELETE;
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
+                }
+
+                for modifier in url_modifiers.iter() {
+                    modifier.modify(&mut req_map, true);
                 }
 
                 if let Some(r) = spec

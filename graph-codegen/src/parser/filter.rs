@@ -1,12 +1,10 @@
 use crate::parser::error::ParserError;
-use crate::parser::Request;
+use crate::parser::{Request, RequestMap};
 use from_as::*;
 use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
-
 use serde::ser::SerializeMap;
 use serde::{Serialize, Serializer};
 use std::collections::{HashMap, VecDeque};
-
 use std::marker::PhantomData;
 use std::str::FromStr;
 
@@ -34,6 +32,7 @@ pub enum SerializedFilter {
     Regex,
     Ignore,
     Multi,
+    Modify,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -63,6 +62,67 @@ impl From<Filter<'_>> for StoredFilter {
                 FilterIgnore::PathContains(s) => StoredFilter::new(SerializedFilter::Ignore, s),
             },
             Filter::MultiFilter(_) => StoredFilter::new(SerializedFilter::None, ""),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
+pub enum UrlMatchTarget {
+    // Modifies the paths that start with a resource and id by replacing
+    // that part of the path for the client sdk generation. An example
+    // would be where we have the path /drives/{{id}}/items. Passing the
+    // value of 'drives' to this modifier would change the path to
+    // /drives/{{{RID}}/items
+    ResourceId(String),
+}
+
+impl UrlMatchTarget {
+    pub fn resource_id(name: &str) -> UrlMatchTarget {
+        UrlMatchTarget::ResourceId(format!("/{}/{{{{id}}}}", name))
+    }
+
+    pub fn matches(&self, request_map: &RequestMap) -> bool {
+        match self {
+            UrlMatchTarget::ResourceId(s) => {
+                if request_map.path.starts_with(s.as_str()) {
+                    return true;
+                }
+            },
+        }
+        false
+    }
+
+    pub fn modify(&self, request_map: &mut RequestMap, with_check: bool) {
+        match self {
+            UrlMatchTarget::ResourceId(s) => {
+                if with_check {
+                    if request_map.path.starts_with(s.as_str()) {
+                        request_map.path = request_map
+                            .path
+                            .replace("{{id}}", "{{RID}}")
+                            .replace("{{id2}}", "{{id}}")
+                            .replace("{{id3}}", "{{id2}}")
+                            .replace("{{id4}}", "{{id3}}");
+                        for request in request_map.requests.iter_mut() {
+                            if request.param_size > 0 {
+                                request.param_size = request.param_size - 1;
+                            }
+                        }
+                    }
+                } else {
+                    request_map.path = request_map
+                        .path
+                        .replace("{{id}}", "{{RID}}")
+                        .replace("{{id2}}", "{{id}}")
+                        .replace("{{id3}}", "{{id2}}")
+                        .replace("{{id4}}", "{{id3}}");
+                    for request in request_map.requests.iter_mut() {
+                        if request.param_size > 0 {
+                            request.param_size = request.param_size - 1;
+                        }
+                    }
+                }
+            },
         }
     }
 }

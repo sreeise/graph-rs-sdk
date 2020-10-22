@@ -10,5 +10,6 @@ extern crate serde_json;
 pub mod traits;
 
 pub mod builder;
+pub mod generator;
 pub mod macros;
 pub mod parser;
