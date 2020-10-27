@@ -1,6 +1,8 @@
 use crate::parser::error::ParserError;
-use crate::parser::{Request, RequestMap};
+use crate::parser::{PathMap, Request, RequestMap, RequestSet};
+use crate::traits::Modify;
 use from_as::*;
+use inflector::Inflector;
 use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Serialize, Serializer};
@@ -73,17 +75,20 @@ pub enum UrlMatchTarget {
     // would be where we have the path /drives/{{id}}/items. Passing the
     // value of 'drives' to this modifier would change the path to
     // /drives/{{{RID}}/items
-    ResourceId(String),
+    ResourceId(String, String),
 }
 
 impl UrlMatchTarget {
-    pub fn resource_id(name: &str) -> UrlMatchTarget {
-        UrlMatchTarget::ResourceId(format!("/{}/{{{{id}}}}", name))
+    pub fn resource_id(name: &str, replacement: &str) -> UrlMatchTarget {
+        UrlMatchTarget::ResourceId(
+            format!("/{}/{{{{id}}}}", name),
+            replacement.to_string(),
+        )
     }
 
     pub fn matches(&self, request_map: &RequestMap) -> bool {
         match self {
-            UrlMatchTarget::ResourceId(s) => {
+            UrlMatchTarget::ResourceId(s, _replacement) => {
                 if request_map.path.starts_with(s.as_str()) {
                     return true;
                 }
@@ -92,37 +97,85 @@ impl UrlMatchTarget {
         false
     }
 
+    pub fn matches_resource_id(&self, request_map: &RequestMap) -> bool {
+        match self {
+            UrlMatchTarget::ResourceId(s, _replacement) => {
+                if request_map.path.starts_with(&s.replace("id", "RID")) {
+                    return true;
+                }
+            },
+        }
+        false
+    }
+
+    /*
     pub fn modify(&self, request_map: &mut RequestMap, with_check: bool) {
         match self {
             UrlMatchTarget::ResourceId(s) => {
                 if with_check {
                     if request_map.path.starts_with(s.as_str()) {
-                        request_map.path = request_map
-                            .path
-                            .replace("{{id}}", "{{RID}}")
-                            .replace("{{id2}}", "{{id}}")
-                            .replace("{{id3}}", "{{id2}}")
-                            .replace("{{id4}}", "{{id3}}");
+                        self.modify_request_map(request_map);
+                    }
+                } else {
+                    self.modify_request_map(request_map);
+                }
+            },
+        }
+    }
+     */
+}
+
+impl Modify<RequestMap> for UrlMatchTarget {
+    fn modify(&self, value: &mut RequestMap) {
+        let path = value
+            .path
+            .replace("{{id}}", "{{RID}}")
+            .replace("{{id2}}", "{{id}}")
+            .replace("{{id3}}", "{{id2}}")
+            .replace("{{id4}}", "{{id3}}");
+        value.path = path.clone();
+        for request in value.requests.iter_mut() {
+            request.path = path.clone();
+            request.has_rid = true;
+            if request.param_size > 0 {
+                request.param_size = request.param_size - 1;
+            }
+        }
+    }
+}
+
+impl Modify<RequestSet> for UrlMatchTarget {
+    fn modify(&self, value: &mut RequestSet) {
+        let mut matches = false;
+        for request_map in value.set.iter() {
+            if self.matches_resource_id(request_map) {
+                matches = true;
+                break;
+            }
+        }
+
+        if matches {
+            let (mut rid_request_set, non_rid_request_set) = value.split_on_resource_id();
+            match self {
+                UrlMatchTarget::ResourceId(_s, replacement) => {
+                    let mut request_map_vec: Vec<RequestMap> =
+                        non_rid_request_set.set.into_iter().collect();
+                    for request_map in request_map_vec.iter_mut() {
                         for request in request_map.requests.iter_mut() {
-                            if request.param_size > 0 {
-                                request.param_size = request.param_size - 1;
+                            if let Some(index) = request.operation_mapping.find('.') {
+                                request
+                                    .operation_mapping
+                                    .replace_range(0..index, replacement);
+                            } else {
+                                request.operation_mapping = replacement.to_string();
                             }
                         }
                     }
-                } else {
-                    request_map.path = request_map
-                        .path
-                        .replace("{{id}}", "{{RID}}")
-                        .replace("{{id2}}", "{{id}}")
-                        .replace("{{id3}}", "{{id2}}")
-                        .replace("{{id4}}", "{{id3}}");
-                    for request in request_map.requests.iter_mut() {
-                        if request.param_size > 0 {
-                            request.param_size = request.param_size - 1;
-                        }
-                    }
-                }
-            },
+
+                    rid_request_set.set.extend(request_map_vec);
+                    value.set = rid_request_set.set;
+                },
+            }
         }
     }
 }

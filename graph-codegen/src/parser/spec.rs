@@ -1,6 +1,6 @@
 use crate::parser::filter::{Filter, FilterIgnore, MatchTarget, ModifierMap, UrlMatchTarget};
 use crate::parser::{HttpMethod, PathMap, Request, RequestMap, RequestSet};
-use crate::traits::{RequestParser, RequestParserBuilder};
+use crate::traits::{Modify, RequestParser, RequestParserBuilder};
 use from_as::*;
 use serde::Serialize;
 use std::cell::{RefCell, RefMut};
@@ -20,6 +20,7 @@ pub struct ParserSpec {
     modify_target: ModifierMap,
     url_modify_target: HashSet<UrlMatchTarget>,
     modifiers: BTreeSet<String>,
+    links_override: HashMap<String, Vec<String>>,
 }
 
 impl ParserSpec {
@@ -47,6 +48,7 @@ impl Parser {
                 modify_target: Default::default(),
                 url_modify_target: Default::default(),
                 modifiers: Default::default(),
+                links_override: Default::default(),
             }),
         }
     }
@@ -64,8 +66,13 @@ impl Parser {
                 modify_target: Default::default(),
                 url_modify_target: Default::default(),
                 modifiers: Default::default(),
+                links_override: Default::default(),
             }),
         }
+    }
+
+    pub fn path_map(&self) -> PathMap {
+        self.spec.borrow().paths.clone()
     }
 
     pub fn set_path_map(&self, path_map: PathMap) {
@@ -170,13 +177,26 @@ impl Parser {
             MatchTarget::OperationMap("sites.lists.contentTypes".to_string()),
             vec![MatchTarget::OperationMap("sites.lists".to_string())],
         );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("groupLifecyclePolicies.groupLifecyclePolicy".to_string()),
+            vec![MatchTarget::OperationMap(
+                "groupLifecyclePolicy".to_string(),
+            )],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("groupLifecyclePolicies".to_string()),
+            vec![MatchTarget::OperationMap(
+                "groupLifecyclePolicy".to_string(),
+            )],
+        );
 
         // Modify that paths that have a resource id. See UrlMatchTarget
         // for more info.
         spec.url_modify_target.extend(vec![
-            UrlMatchTarget::resource_id("sites"),
-            UrlMatchTarget::resource_id("groups"),
-            UrlMatchTarget::resource_id("drives"),
+            UrlMatchTarget::resource_id("sites", "site"),
+            UrlMatchTarget::resource_id("groups", "group"),
+            UrlMatchTarget::resource_id("drives", "drive"),
+            UrlMatchTarget::resource_id("workbooks", "workbook"),
         ]);
 
         self.use_filters_internal(
@@ -223,6 +243,28 @@ impl Parser {
         self.use_filters_internal(spec, filters);
     }
 
+    pub fn add_links_override(&self, spec_client_name: &str, links: &[&str]) {
+        self.spec.borrow_mut().links_override.insert(
+            spec_client_name.to_string(),
+            links.iter().map(|s| s.to_string()).collect(),
+        );
+    }
+
+    pub fn use_default_links_override(&self) {
+        self.add_links_override(
+            "directory",
+            &[
+                "directoryRoles",
+                "directoryObjects",
+                "directoryRoleTemplates",
+            ],
+        );
+    }
+
+    pub fn get_links_override(&self) -> HashMap<String, Vec<String>> {
+        self.spec.borrow().links_override.clone()
+    }
+
     pub fn build(&self, filter: Filter<'_>) -> RequestSet {
         let mut spec = self.spec.borrow_mut();
         let modifier = spec.modify_target.clone();
@@ -230,35 +272,41 @@ impl Parser {
 
         for (path, path_spec) in path_map.paths.iter() {
             let mut req_map = RequestMap::default();
-            req_map.path = path.transform_path();
+            let path = path.transform_path();
+            req_map.path = path.clone();
 
             if let Some(operation) = path_spec.get.as_ref() {
                 let mut request = operation.build(&modifier);
                 request.method = HttpMethod::GET;
+                request.path = path.clone();
                 req_map.requests.push_back(request);
             }
 
             if let Some(operation) = path_spec.post.as_ref() {
                 let mut request = operation.build(&modifier);
                 request.method = HttpMethod::POST;
+                request.path = path.clone();
                 req_map.requests.push_back(request);
             }
 
             if let Some(operation) = path_spec.put.as_ref() {
                 let mut request = operation.build(&modifier);
                 request.method = HttpMethod::PUT;
+                request.path = path.clone();
                 req_map.requests.push_back(request);
             }
 
             if let Some(operation) = path_spec.patch.as_ref() {
                 let mut request = operation.build(&modifier);
                 request.method = HttpMethod::PATCH;
+                request.path = path.clone();
                 req_map.requests.push_back(request);
             }
 
             if let Some(operation) = path_spec.delete.as_ref() {
                 let mut request = operation.build(&modifier);
                 request.method = HttpMethod::DELETE;
+                request.path = path.clone();
                 req_map.requests.push_back(request);
             }
 
@@ -302,11 +350,13 @@ impl Parser {
 
             for (path, path_spec) in path_map.paths.iter() {
                 let mut req_map = RequestMap::default();
-                req_map.path = path.transform_path();
+                let path = path.transform_path();
+                req_map.path = path.clone();
 
                 if let Some(operation) = path_spec.get.as_ref() {
                     let mut request = operation.build(&modifier);
                     request.method = HttpMethod::GET;
+                    request.path = path.clone();
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
                 }
@@ -314,6 +364,7 @@ impl Parser {
                 if let Some(operation) = path_spec.post.as_ref() {
                     let mut request = operation.build(&modifier);
                     request.method = HttpMethod::POST;
+                    request.path = path.clone();
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
                 }
@@ -321,6 +372,7 @@ impl Parser {
                 if let Some(operation) = path_spec.put.as_ref() {
                     let mut request = operation.build(&modifier);
                     request.method = HttpMethod::PUT;
+                    request.path = path.clone();
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
                 }
@@ -328,6 +380,7 @@ impl Parser {
                 if let Some(operation) = path_spec.patch.as_ref() {
                     let mut request = operation.build(&modifier);
                     request.method = HttpMethod::PATCH;
+                    request.path = path.clone();
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
                 }
@@ -335,12 +388,15 @@ impl Parser {
                 if let Some(operation) = path_spec.delete.as_ref() {
                     let mut request = operation.build(&modifier);
                     request.method = HttpMethod::DELETE;
+                    request.path = path.clone();
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
                 }
 
                 for modifier in url_modifiers.iter() {
-                    modifier.modify(&mut req_map, true);
+                    if modifier.matches(&req_map) {
+                        modifier.modify(&mut req_map);
+                    }
                 }
 
                 if let Some(r) = spec
@@ -359,6 +415,11 @@ impl Parser {
             while let Some(req) = requests.pop_front() {
                 request_set.join_inner_insert(req);
             }
+
+            for modifier in url_modifiers.iter() {
+                modifier.modify(&mut request_set);
+            }
+
             req_set_map.insert(modifier_filter.clone(), request_set);
             spec.requests.clear();
         }

@@ -6,6 +6,8 @@ pub extern crate serde;
 extern crate serde_derive;
 extern crate from_as;
 extern crate serde_json;
+#[macro_use]
+extern crate lazy_static;
 
 pub mod traits;
 
