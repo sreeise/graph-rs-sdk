@@ -133,6 +133,8 @@ pub mod policies;
 pub mod schema_extensions;
 /// Service principles request client.
 pub mod service_principals;
+/// Sites request client.
+pub mod sites;
 /// Subscribed skus request client.
 pub mod subscribed_skus;
 /// Subscriptions request client.

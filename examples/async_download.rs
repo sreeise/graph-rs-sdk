@@ -19,7 +19,6 @@ async fn download() -> Result<(), GraphFailure> {
     let download_client = client
         .v1()
         .drives(USER_ID)
-        .drive()
         .download(":/download.txt:", "./examples");
 
     let path_buf: PathBuf = download_client.send().await?;
@@ -33,7 +32,6 @@ async fn download_with_format() -> Result<(), GraphFailure> {
     let download_client = client
         .v1()
         .drives(USER_ID)
-        .drive()
         .download(":/download.docx:", "./examples");
 
     download_client.format("pdf").await;

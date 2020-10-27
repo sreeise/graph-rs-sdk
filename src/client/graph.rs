@@ -16,6 +16,7 @@ use crate::domain_dns_records::DomainDnsRecordsRequest;
 use crate::domains::DomainsRequest;
 use crate::drive::{DriveRequest, DrivesRequest};
 use crate::education::{EducationMeRequest, EducationRequest, EducationUsersRequest};
+use crate::group_lifecycle_policies::GroupLifecyclePolicyRequest;
 use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
 };
@@ -45,7 +46,7 @@ use reqwest::Method;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::str::FromStr;
-use crate::group_lifecycle_policies::GroupLifecyclePolicyRequest;
+use crate::sites::SiteRequest;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Ident {
@@ -424,6 +425,10 @@ where
     pub fn me(&self) -> IdentMe<'a, Client> {
         self.client.request.set_ident(Ident::Me.to_string());
         IdentMe::new("", self.client)
+    }
+
+    pub fn site(&self) -> SiteRequest<'a, Client> {
+        SiteRequest::new(self.client)
     }
 
     /// Select the sites endpoint.
