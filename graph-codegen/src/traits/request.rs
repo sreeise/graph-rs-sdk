@@ -4,6 +4,10 @@ use inflector::Inflector;
 use regex::Regex;
 use std::collections::{HashSet, VecDeque};
 
+lazy_static! {
+    static ref NUM_REG: Regex = Regex::new(r"[0-9]").unwrap();
+}
+
 pub trait RequestParserBuilder<RHS: ?Sized = Self> {
     fn build(&self, modifier: &ModifierMap) -> Request;
 }
@@ -17,13 +21,16 @@ pub trait RequestParser<RHS = Self> {
     }
 }
 
+pub trait Modify<T> {
+    fn modify(&self, value: &mut T);
+}
+
 impl RequestParser for &str {
     fn method_name(&self) -> String {
         let mut method_name = String::new();
         if let Some(index) = self.rfind('.') {
             let last: &str = self[index + 1..].as_ref();
-            let re = Regex::new(r"[0-9]").unwrap();
-            if re.is_match(last) {
+            if NUM_REG.is_match(last) {
                 if let Some(idx) = self[..index].rfind('.') {
                     method_name.push_str(self[idx + 1..index].as_ref());
                 }
@@ -49,8 +56,7 @@ impl RequestParser for &str {
             ops.retain(|s| !s.is_empty());
 
             if let Some(last) = ops.pop() {
-                let re = Regex::new(r"[0-9]").unwrap();
-                if !re.is_match(last) {
+                if !NUM_REG.is_match(last) {
                     if ops.len() > 1 {
                         op_mapping = ops.join(".");
                     } else {
@@ -80,6 +86,15 @@ impl RequestParser for &str {
         op_mapping
     }
 
+    fn transform_path(&self) -> String {
+        self.replace("({id})", "/{{id}}")
+            .replace("({id1})", "/{{id2}}")
+            .replace("({id2})", "/{{id3}}")
+            .replace("({id3})", "/{{id4}}")
+            .replace("({id4})", "/{{id5}}")
+            .replace("({id5})", "/{{id6}}")
+    }
+
     fn links(&self) -> HashSet<String> {
         let mut links: HashSet<String> = HashSet::new();
 
@@ -99,15 +114,6 @@ impl RequestParser for &str {
         }
 
         links
-    }
-
-    fn transform_path(&self) -> String {
-        self.replace("({id})", "/{{id}}")
-            .replace("({id1})", "/{{id2}}")
-            .replace("({id2})", "/{{id3}}")
-            .replace("({id3})", "/{{id4}}")
-            .replace("({id4})", "/{{id5}}")
-            .replace("({id5})", "/{{id6}}")
     }
 }
 

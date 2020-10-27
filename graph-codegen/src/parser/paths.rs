@@ -188,6 +188,8 @@ impl RequestParser for Operation {
 }
 
 impl RequestParserBuilder for Operation {
+    /// The build method is where each individual request
+    /// is parsed.
     fn build(&self, modifiers: &ModifierMap) -> Request {
         let mut request = Request::default();
         request.operation_id = self.operation_id.to_string();

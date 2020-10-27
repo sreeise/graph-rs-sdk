@@ -100,6 +100,7 @@ impl Default for ResponseType {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Request {
+    pub path: String,
     pub method: HttpMethod,
     pub method_name: String,
     pub param_size: usize,
@@ -145,8 +146,10 @@ impl RequestParser for Request {
 impl PartialEq for Request {
     fn eq(&self, other: &Self) -> bool {
         self.method == other.method &&
+            self.method_name == other.method_name &&
             self.param_size == other.param_size &&
             self.has_body == other.has_body &&
+            self.has_rid == other.has_rid &&
             self.operation_id == other.operation_id
     }
 }
@@ -223,6 +226,10 @@ pub struct RequestSet {
 }
 
 impl RequestSet {
+    pub fn new(set: HashSet<RequestMap>) -> RequestSet {
+        RequestSet { set }
+    }
+
     pub fn join_inner_insert(&mut self, request_map: RequestMap) {
         if self.set.contains(&request_map) {
             let mut req_map = self.set.get(&request_map).cloned().unwrap();
@@ -238,6 +245,10 @@ impl RequestSet {
         }
     }
 
+    pub fn from_ref_resource_names(&self) -> ResourceNames {
+        ResourceNames::from(self)
+    }
+
     pub fn resource_names(&self) -> ResourceNames {
         let mut resource = ResourceNames::new(BTreeSet::new());
         let mut names: Vec<String> = Vec::new();
@@ -247,7 +258,7 @@ impl RequestSet {
             vec.retain(|s| !s.is_empty());
             if let Some(name) = vec.pop_front() {
                 if !name.is_empty() {
-                    names.push(name.to_pascal_case());
+                    names.push(name.to_camel_case());
                 }
             }
         }
@@ -374,6 +385,26 @@ impl RequestSet {
     pub fn iter(&self) -> Iter<'_, RequestMap> {
         self.set.iter()
     }
+
+    pub fn split_on_resource_id(&self) -> (RequestSet, RequestSet) {
+        let mut request_set1 = RequestSet::default();
+        let mut request_set2 = RequestSet::default();
+
+        for request_map in self.set.iter() {
+            if request_map
+                .requests
+                .iter()
+                .find(|req| req.has_rid)
+                .is_some()
+            {
+                request_set1.set.insert(request_map.clone());
+            } else {
+                request_set2.set.insert(request_map.clone());
+            }
+        }
+
+        (request_set1, request_set2)
+    }
 }
 
 impl IntoIterator for RequestSet {
@@ -385,6 +416,8 @@ impl IntoIterator for RequestSet {
     }
 }
 
+// This is mainly used to output a serializable struct with
+// the request sets grouped by operation mapping.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct ApiImpl {
     pub requests: HashMap<String, RequestSet>,

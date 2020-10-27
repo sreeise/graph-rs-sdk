@@ -1,5 +1,6 @@
 use crate::builder::spec_formatter::SpecClient;
-use crate::parser::{Parser, RequestSet};
+use crate::parser::filter::Filter;
+use crate::parser::{Parser, RequestSet, ResourceNames};
 use bytes::BytesMut;
 use from_as::*;
 use graph_http::iotools::IoTools;
@@ -14,18 +15,10 @@ pub struct SpecBuilder {
     pub(crate) parser: Parser,
     #[serde(skip_serializing_if = "HashSet::is_empty")]
     imports: HashSet<String>,
-    links: HashMap<String, Vec<String>>,
+    build_with_modifier_filter: bool,
 }
 
 impl SpecBuilder {
-    pub fn imports_as_bytes(&self) -> Vec<u8> {
-        self.imports
-            .iter()
-            .map(|s| format!("use {};", s).into_bytes())
-            .flatten()
-            .collect()
-    }
-
     fn add_imports(&mut self, imports: &[&str]) {
         self.imports.extend(imports.iter().map(|s| s.to_string()));
     }
@@ -42,9 +35,23 @@ impl Builder {
             spec: RefCell::new(SpecBuilder {
                 parser,
                 imports: Default::default(),
-                links: Default::default(),
+                build_with_modifier_filter: false,
             }),
         }
+    }
+
+    pub fn new_use_mod_filter(parser: Parser) -> Builder {
+        Builder {
+            spec: RefCell::new(SpecBuilder {
+                parser,
+                imports: Default::default(),
+                build_with_modifier_filter: true,
+            }),
+        }
+    }
+
+    pub(crate) fn set_build_with_modifier_filter(&self, build_with_modifier_filter: bool) {
+        self.spec.borrow_mut().build_with_modifier_filter = build_with_modifier_filter;
     }
 
     pub fn add_imports(&self, imports: &[&str]) {
@@ -59,29 +66,25 @@ impl Builder {
         ]);
     }
 
-    pub fn add_links(&self, spec_client_name: &str, links: &[&str]) {
-        self.spec.borrow_mut().links.insert(
-            spec_client_name.to_string(),
-            links.iter().map(|s| s.to_string()).collect(),
-        );
-    }
-
-    pub fn use_default_links(&self) {
-        self.add_links(
-            "directory",
-            &[
-                "directoryRoles",
-                "directoryObjects",
-                "directoryRoleTemplates",
-            ],
-        );
-    }
-
     pub fn build(&self) {
         let spec = self.spec.borrow();
-        let map = spec.parser.build_with_modifier_filter();
+        // let map = spec.parser.build_with_modifier_filter();
+
+        let map = {
+            if spec.build_with_modifier_filter {
+                spec.parser.build_with_modifier_filter()
+            } else {
+                let path_map = spec.parser.path_map();
+                let resource_names = ResourceNames::from(path_map);
+                let vec = resource_names.to_vec();
+                let vec_str: Vec<&str> = vec.iter().map(|s| s.as_str()).collect();
+                spec.parser.use_default_modifiers(&vec_str);
+                spec.parser.build_with_modifier_filter()
+            }
+        };
+
         let imports = spec.imports.clone();
-        let links = spec.links.clone();
+        let links_override = spec.parser.get_links_override();
 
         for (name, request_set) in map.iter() {
             if !name.trim().is_empty() {
@@ -104,8 +107,8 @@ impl Builder {
                 Builder::write_internal(
                     request_file,
                     name.to_string(),
-                    imports.clone(),
-                    &links,
+                    &imports,
+                    &links_override,
                     request_set.clone(),
                 );
             }
@@ -115,13 +118,13 @@ impl Builder {
     fn write_internal<P: AsRef<Path>>(
         file: P,
         parent: String,
-        imports: HashSet<String>,
+        imports: &HashSet<String>,
         links_override: &HashMap<String, Vec<String>>,
         request_set: RequestSet,
     ) {
         let mut buf = BytesMut::with_capacity(1024);
         let mut request_set_imports = request_set.get_imports();
-        request_set_imports.extend(imports);
+        request_set_imports.extend(imports.iter().map(|s| s.to_string()));
         let (links, mut map) = request_set.method_links();
         let operations_mapping = request_set.group_by_operation_mapping();
 
@@ -182,7 +185,7 @@ impl Builder {
     pub fn get_clients(&self) -> Vec<SpecClient> {
         let spec = self.spec.borrow();
         let request_set_map = spec.parser.build_with_modifier_filter();
-        let links_override = spec.links.clone();
+        let links_override = spec.parser.get_links_override();
         let mut spec_clients: Vec<SpecClient> = Vec::new();
 
         for (name, request_set) in request_set_map.iter() {
