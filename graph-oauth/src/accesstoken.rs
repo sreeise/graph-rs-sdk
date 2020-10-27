@@ -6,6 +6,7 @@ use from_as::*;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use std::convert::TryFrom;
 use std::fmt;
+use serde_aux::prelude::*;
 
 /// OAuth 2.0 Access Token
 ///
@@ -50,6 +51,7 @@ use std::fmt;
 pub struct AccessToken {
     access_token: String,
     token_type: String,
+    #[serde(deserialize_with = "deserialize_number_from_string")]
     expires_in: i64,
     scope: Option<String>,
     refresh_token: Option<String>,
@@ -512,5 +514,55 @@ impl fmt::Debug for AccessToken {
             .field("state", &self.state)
             .field("timestamp", &self.timestamp)
             .finish()
+    }
+}
+
+#[allow(unused_imports, dead_code)]
+#[cfg(test)]
+mod access_token_tests {
+
+    use super::*;
+    pub const ACCESS_TOKEN_INT  : &'static str = r#"{
+        "access_token": "fasdfasdfasfdasdfasfsdf",
+        "token_type": "Bearer",
+        "expires_in": 65874,
+        "scope": null,
+        "refresh_token": null,
+        "user_id": "santa@north.pole.com",
+        "id_token": "789aasdf-asdf",
+        "state": null,
+        "timestamp": "2020-10-27T16:31:38.788098400Z"
+}"#;
+pub const ACCESS_TOKEN_STRING  : &'static str = r#"{
+    "access_token": "fasdfasdfasfdasdfasfsdf",
+    "token_type": "Bearer",
+    "expires_in": "65874",
+    "scope": null,
+    "refresh_token": null,
+    "user_id": "helpers@north.pole.com",
+    "id_token": "789aasdf-asdf",
+    "state": null,
+    "timestamp": "2020-10-27T16:31:38.788098400Z"
+}"#;
+
+
+    #[test]
+    pub fn test_deserialize() {
+        let _token: AccessToken = serde_json::from_str(ACCESS_TOKEN_INT).unwrap();
+        let _token: AccessToken = serde_json::from_str(ACCESS_TOKEN_STRING).unwrap();
+    }
+
+    #[test]
+    pub fn test_serialize_token() {
+        let token = AccessToken {
+            access_token: String::from("fasdfasdfasfdasdfasfsdf"),
+            token_type: String::from("Bearer"),
+            expires_in: 65874,
+            user_id: Some(String::from("santa@north.pole.com")),
+            id_token: Some(String::from("789aasdf-asdf")),
+            ..Default::default()
+        };
+        let _tmp = serde_json::to_string_pretty(&token).unwrap();
+        //println!("{}", tmp);
     }
 }
