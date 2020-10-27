@@ -171,7 +171,6 @@ fn drive_download_graph_error() {
         let download = client
             .v1()
             .drives(id.as_str())
-            .drive()
             .download(":/non_existent_file.docx:", "./test_files");
 
         let req: GraphResult<PathBuf> = download.send();

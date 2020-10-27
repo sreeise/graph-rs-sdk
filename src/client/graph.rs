@@ -45,6 +45,7 @@ use reqwest::Method;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::str::FromStr;
+use crate::group_lifecycle_policies::GroupLifecyclePolicyRequest;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Ident {
@@ -284,6 +285,15 @@ impl<'a, Client> Identify<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    fn set_path(&self, id: &str) {
+        let ident = self.client.ident();
+        if self.client.ident().eq(&Ident::Me) {
+            self.client.request().extend_path(&[ident.as_ref()]);
+        } else {
+            self.client.request().extend_path(&[ident.as_ref(), id]);
+        }
+    }
+
     pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
         ActivitiesRequest::new(self.client)
     }
@@ -343,9 +353,10 @@ where
     }
 
     /// Select the drives endpoint.
-    pub fn drives<S: AsRef<str>>(&self, id: S) -> IdentDrives<'a, Client> {
+    pub fn drives<S: AsRef<str>>(&self, id: S) -> DrivesRequest<'a, Client> {
         self.client.request.set_ident(Ident::Drives.to_string());
-        IdentDrives::new(id.as_ref(), self.client)
+        self.set_path(id.as_ref());
+        DrivesRequest::new(self.client)
     }
 
     pub fn drive(&self) -> DriveRequest<'a, Client> {
@@ -364,11 +375,8 @@ where
     }
 
     /// Select the group lifecycle policies endpoint.
-    pub fn group_lifecycle_policies<S: AsRef<str>>(
-        &self,
-        id: S,
-    ) -> GroupLifecyclePolicyRequest<'a, Client> {
-        GroupLifecyclePolicyRequest::new(id.as_ref(), self.client)
+    pub fn group_lifecycle_policies(&self) -> GroupLifecyclePolicyRequest<'a, Client> {
+        GroupLifecyclePolicyRequest::new(self.client)
     }
 
     pub fn identity(&self) -> IdentityRequest<'a, Client> {
@@ -637,23 +645,4 @@ where
     get!( list, Collection<serde_json::Value> => "users" );
     get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "users" );
     post!( [ create, serde_json::Value => "users" ] );
-}
-
-register_ident_client!(
-    GroupLifecyclePolicyRequest,
-    glp => "groupLifecyclePolicies",
-    ()
-);
-
-impl<'a, Client> GroupLifecyclePolicyRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( list, Collection<serde_json::Value> => "{{glp}}" );
-    get!( get, Collection<serde_json::Value> => "{{glp}}/{{RID}}" );
-    post!( [ create, serde_json::Value => "{{glp}}" ] );
-    post!( [ add_group, serde_json::Value => "{{glp}}/{{RID}}/addGroup" ] );
-    post!( [ remove_group, serde_json::Value =>  "{{glp}}/{{RID}}/removeGroup" ] );
-    patch!( [ update, serde_json::Value => "{{glp}}/{{RID}}" ] );
-    patch!( delete, GraphResponse<Content> => "{{glp}}/{{RID}}" );
 }

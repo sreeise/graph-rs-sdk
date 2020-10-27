@@ -7,9 +7,6 @@ pub fn list_messages() {
     let _ = client.v1().me().mail().messages().list();
     assert_url_eq(&client, "/me/messages");
 
-    let _ = client.v1().drives("32p99453").mail().messages().list();
-    assert_url_eq(&client, "/drives/32p99453/messages");
-
     let _ = client.v1().sites("32p99453").mail().messages().list();
     assert_url_eq(&client, "/sites/32p99453/messages");
 }
@@ -25,15 +22,6 @@ pub fn list_mail_folder_messages() {
         .messages()
         .list("32p99453");
     assert_url_eq(&client, "/me/mailFolders/32p99453/messages");
-
-    let _ = client
-        .v1()
-        .drives("32p99453")
-        .mail()
-        .mail_folder()
-        .messages()
-        .list("1234");
-    assert_url_eq(&client, "/drives/32p99453/mailFolders/1234/messages");
 
     let _ = client
         .v1()
@@ -66,15 +54,6 @@ pub fn get_mail_folder_messages() {
         .messages()
         .get("99453", "1234");
     assert_url_eq(&client, "/me/mailFolders/99453/messages/1234");
-
-    let _ = client
-        .v1()
-        .drives("32p99453")
-        .mail()
-        .mail_folder()
-        .messages()
-        .get("99453", "1234");
-    assert_url_eq(&client, "/drives/32p99453/mailFolders/99453/messages/1234");
 
     let _ = client
         .v1()

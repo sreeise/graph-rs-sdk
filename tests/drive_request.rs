@@ -19,7 +19,6 @@ fn test_folder_create_delete(path_or_id: &str, folder_name: &str) {
         let result = client
             .v1()
             .drives(&id)
-            .drive()
             .create_folder(
                 path_or_id,
                 &serde_json::json!({
@@ -37,7 +36,7 @@ fn test_folder_create_delete(path_or_id: &str, folder_name: &str) {
             let item_id = response.body()["id"].as_str().unwrap();
             thread::sleep(Duration::from_secs(2));
 
-            let result = client.v1().drives(&id).drive().delete(item_id).send();
+            let result = client.v1().drives(&id).delete(item_id).send();
 
             TestTools::assert_success(&result, "delete folder (conflict behavior: fail)");
         } else if let Err(e) = result {
@@ -99,7 +98,6 @@ fn drive_check_in_out() {
             let result = client
                 .v1()
                 .drives(id.as_str())
-                .drive()
                 .check_out(":/test_check_out_document.docx:")
                 .send();
 
@@ -109,7 +107,6 @@ fn drive_check_in_out() {
             let result = client
                 .v1()
                 .drives(id.as_str())
-                .drive()
                 .check_in(
                     ":/test_check_out_document.docx:",
                     &serde_json::json!({
@@ -140,7 +137,6 @@ fn drive_download() {
         let download = client
             .v1()
             .drives(id.as_str())
-            .drive()
             .download(":/test_document.docx:", "./test_files");
 
         let req: GraphResult<PathBuf> = download.send();
@@ -171,7 +167,6 @@ fn drive_download_format() {
             let download = client
                 .v1()
                 .drives(id.as_str())
-                .drive()
                 .download(":/test_document.docx:", "./test_files");
 
             download.format("pdf");
@@ -196,7 +191,6 @@ fn drive_update() {
         let req = client
             .v1()
             .drives(id.as_str())
-            .drive()
             .update(
                 ":/update_test_document.docx:",
                 &serde_json::json!({
@@ -212,7 +206,6 @@ fn drive_update() {
             let req = client
                 .v1()
                 .drives(id.as_str())
-                .drive()
                 .update(
                     ":/update_test.docx:",
                     &serde_json::json!({
@@ -242,7 +235,6 @@ fn drive_upload_new_and_replace_and_delete() {
         let upload_res = client
             .v1()
             .drives(id.as_str())
-            .drive()
             .upload_new(
                 ":/test_upload_file.txt:",
                 "./test_files/test_upload_file.txt",
@@ -265,7 +257,6 @@ fn drive_upload_new_and_replace_and_delete() {
             let upload_replace = client
                 .v1()
                 .drives(id.as_str())
-                .drive()
                 .upload_replace(item_id, "./test_files/test_upload_file.txt")
                 .send();
 
@@ -280,12 +271,7 @@ fn drive_upload_new_and_replace_and_delete() {
             }
 
             thread::sleep(Duration::from_secs(2));
-            let delete_res = client
-                .v1()
-                .drives(id.as_str())
-                .drive()
-                .delete(item_id)
-                .send();
+            let delete_res = client.v1().drives(id.as_str()).delete(item_id).send();
 
             if let Ok(response) = delete_res {
                 assert!(
@@ -374,7 +360,6 @@ pub fn get_file_from_encoded_folder_name() {
         let result = client
             .v1()
             .drives(&id)
-            .drive()
             .get_item(":/encoding_test_files/spaced folder/test.txt")
             .send();
 
