@@ -24,7 +24,6 @@ fn query_mutate() {
     let _ = client
         .v1()
         .drives(RID)
-        .drive()
         .get_drive()
         .select(&["name"])
         .top("3");
@@ -35,7 +34,7 @@ fn query_mutate() {
         );
     });
 
-    let _ = client.v1().drives(RID).drive().root().expand(&["children"]);
+    let _ = client.v1().drives(RID).root().expand(&["children"]);
     client.url_ref(|url| {
         assert_eq!(
             "https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root?expand=children",
@@ -57,7 +56,7 @@ pub fn drive_upload_session() {
         "/me/drive/root:/Documents/complete_drive_item.json:/createUploadSession",
     );
 
-    let _ = client.v1().drives(RID).drive().upload_session(
+    let _ = client.v1().drives(RID).upload_session(
         ":/Documents/complete_drive_item.json:",
         "./test_files/item_test/complete_drive_item.json",
         &Session::default(),
@@ -74,7 +73,7 @@ pub fn drive_main() {
     let _ = client.v1().me().drive().get_drive();
     assert_url_eq(&client, "/me/drive");
 
-    let _ = client.v1().drives(RID).drive().get_drive();
+    let _ = client.v1().drives(RID).get_drive();
     assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x");
 }
 
@@ -84,7 +83,7 @@ pub fn drive_root() {
     let _ = client.v1().me().drive().root();
     assert_url_eq(&client, "/me/drive/root");
 
-    let _ = client.v1().drives(RID).drive().root();
+    let _ = client.v1().drives(RID).root();
     assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root");
 
     let _ = client.v1().sites(RID).drive().root();
@@ -100,7 +99,7 @@ pub fn drive_recent() {
     let _ = client.v1().me().drive().recent();
     assert_url_eq(&client, "/me/drive/recent");
 
-    let _ = client.v1().drives(RID).drive().recent();
+    let _ = client.v1().drives(RID).recent();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/recent",
@@ -119,7 +118,7 @@ pub fn drive_delta() {
     let _ = client.v1().me().drive().delta();
     assert_url_eq(&client, "/me/drive/root/delta");
 
-    let _ = client.v1().drives(RID).drive().delta();
+    let _ = client.v1().drives(RID).delta();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root/delta",
@@ -138,7 +137,7 @@ pub fn drive_root_children() {
     let _ = client.v1().me().drive().root_children();
     assert_url_eq(&client, "/me/drive/root/children");
 
-    let _ = client.v1().drives(RID).drive().root_children();
+    let _ = client.v1().drives(RID).root_children();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root/children",
@@ -157,7 +156,7 @@ pub fn drive_shared_with_me() {
     let _ = client.v1().me().drive().shared_with_me();
     assert_url_eq(&client, "/me/drive/sharedWithMe");
 
-    let _ = client.v1().drives(RID).drive().shared_with_me();
+    let _ = client.v1().drives(RID).shared_with_me();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/sharedWithMe",
@@ -176,7 +175,7 @@ pub fn special_documents() {
     let _ = client.v1().me().drive().special_documents();
     assert_url_eq(&client, "/me/drive/special/documents");
 
-    let _ = client.v1().drives(RID).drive().special_documents();
+    let _ = client.v1().drives(RID).special_documents();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/special/documents",
@@ -195,7 +194,7 @@ pub fn special_documents_children() {
     let _ = client.v1().me().drive().special_documents_children();
     assert_url_eq(&client, "/me/drive/special/documents/children");
 
-    let _ = client.v1().drives(RID).drive().special_documents_children();
+    let _ = client.v1().drives(RID).special_documents_children();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/special/documents/children",
@@ -214,7 +213,7 @@ pub fn special_photos() {
     let _ = client.v1().me().drive().special_photos();
     assert_url_eq(&client, "/me/drive/special/photos");
 
-    let _ = client.v1().drives(RID).drive().special_photos();
+    let _ = client.v1().drives(RID).special_photos();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/special/photos",
@@ -233,7 +232,7 @@ pub fn special_photos_children() {
     let _ = client.v1().me().drive().special_photos_children();
     assert_url_eq(&client, "/me/drive/special/photos/children");
 
-    let _ = client.v1().drives(RID).drive().special_photos_children();
+    let _ = client.v1().drives(RID).special_photos_children();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/special/photos/children",
@@ -252,7 +251,7 @@ pub fn special_camera_roll() {
     let _ = client.v1().me().drive().special_camera_roll();
     assert_url_eq(&client, "/me/drive/special/cameraroll");
 
-    let _ = client.v1().drives(RID).drive().special_camera_roll();
+    let _ = client.v1().drives(RID).special_camera_roll();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/special/cameraroll",
@@ -271,11 +270,7 @@ pub fn special_camera_roll_children() {
     let _ = client.v1().me().drive().special_camera_roll_children();
     assert_url_eq(&client, "/me/drive/special/cameraroll/children");
 
-    let _ = client
-        .v1()
-        .drives(RID)
-        .drive()
-        .special_camera_roll_children();
+    let _ = client.v1().drives(RID).special_camera_roll_children();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/special/cameraroll/children",
@@ -298,7 +293,7 @@ pub fn special_app_root() {
     let _ = client.v1().me().drive().special_app_root();
     assert_url_eq(&client, "/me/drive/special/approot");
 
-    let _ = client.v1().drives(RID).drive().special_app_root();
+    let _ = client.v1().drives(RID).special_app_root();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/special/approot",
@@ -317,7 +312,7 @@ pub fn special_app_root_children() {
     let _ = client.v1().me().drive().special_app_root_children();
     assert_url_eq(&client, "/me/drive/special/approot/children");
 
-    let _ = client.v1().drives(RID).drive().special_app_root_children();
+    let _ = client.v1().drives(RID).special_app_root_children();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/special/approot/children",
@@ -336,7 +331,7 @@ pub fn special_music() {
     let _ = client.v1().me().drive().special_music();
     assert_url_eq(&client, "/me/drive/special/music");
 
-    let _ = client.v1().drives(RID).drive().special_music();
+    let _ = client.v1().drives(RID).special_music();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/special/music",
@@ -355,7 +350,7 @@ pub fn special_music_children() {
     let _ = client.v1().me().drive().special_music_children();
     assert_url_eq(&client, "/me/drive/special/music/children");
 
-    let _ = client.v1().drives(RID).drive().special_music_children();
+    let _ = client.v1().drives(RID).special_music_children();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/special/music/children",
@@ -381,7 +376,6 @@ pub fn drive_preview_path() {
     let _ = client
         .v1()
         .drives(RID)
-        .drive()
         .preview::<&str, ()>(":/Documents/preview.txt:", None);
     assert_url_eq(
         &client,
@@ -432,7 +426,6 @@ fn drive_create_folder() {
     let _ = client
         .v1()
         .drives(RID)
-        .drive()
         .create_folder(ID, &serde_json::json!({}));
     assert_url_eq(&client, id_path("drives", "items", Some("children")));
 
@@ -457,7 +450,6 @@ fn drive_create_folder_path() {
     let _ = client
         .v1()
         .drives(RID)
-        .drive()
         .create_folder(":/Documents:", &serde_json::json!({}));
     assert_url_eq(
         &client,
@@ -504,7 +496,7 @@ fn drive_delete() {
         "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
     );
 
-    let _ = client.v1().drives(RID).drive().delete(ID);
+    let _ = client.v1().drives(RID).delete(ID);
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
@@ -523,7 +515,6 @@ fn drive_delete_path() {
     let _ = client
         .v1()
         .drives("32p99453")
-        .drive()
         .delete(":/Documents/item.txt:");
     assert_url_eq(&client, "/drives/32p99453/root:/Documents/item.txt:");
 }
@@ -537,7 +528,7 @@ fn drive_get_item() {
         "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
     );
 
-    let _ = client.v1().drives(RID).drive().get_item(ID);
+    let _ = client.v1().drives(RID).get_item(ID);
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
@@ -554,11 +545,7 @@ fn drive_get_item_path() {
     let _ = client.v1().me().drive().get_item(":/Documents/item.txt:");
     assert_url_eq(&client, "/me/drive/root:/Documents/item.txt:");
 
-    let _ = client
-        .v1()
-        .drives(RID)
-        .drive()
-        .get_item(":/Documents/item.txt:");
+    let _ = client.v1().drives(RID).get_item(":/Documents/item.txt:");
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/item.txt:",
@@ -581,7 +568,7 @@ fn drive_thumbnails() {
     let _ = client.v1().me().drive().thumbnails();
     assert_url_eq(&client, "/me/drive/items/thumbnails");
 
-    let _ = client.v1().drives(RID).drive().thumbnails();
+    let _ = client.v1().drives(RID).thumbnails();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/thumbnails",
@@ -600,11 +587,7 @@ fn drive_single_thumbnail() {
     let _ = client.v1().me().drive().single_thumbnail(ID, "4", "100");
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100");
 
-    let _ = client
-        .v1()
-        .drives(RID)
-        .drive()
-        .single_thumbnail(ID, "4", "100");
+    let _ = client.v1().drives(RID).single_thumbnail(ID, "4", "100");
     assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100");
 
     let _ = client
@@ -623,11 +606,7 @@ fn drive_thumbnail_binary() {
     let client = get_drive();
     let _ = client.v1().me().drive().thumbnail_binary(ID, "4", "100");
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100/content");
-    let _ = client
-        .v1()
-        .drives(RID)
-        .drive()
-        .thumbnail_binary(ID, "4", "100");
+    let _ = client.v1().drives(RID).thumbnail_binary(ID, "4", "100");
     assert_url_eq(
         &client,
         id_path("drives", "items", Some("thumbnails/4/100/content")),
@@ -657,7 +636,6 @@ pub fn drive_upload_new() {
     let _ = client
         .v1()
         .drives(RID)
-        .drive()
         .upload_new(ID, "./test_files/item_test/drive_info.json");
     assert_url_eq(
         &client,
@@ -691,7 +669,6 @@ pub fn drive_upload_replace() {
     let _ = client
         .v1()
         .drives(RID)
-        .drive()
         .upload_replace(ID, "./test_files/item_test/drive_info.json");
     assert_url_eq(&client, id_path("drives", "items", Some("content")));
 
@@ -709,7 +686,7 @@ pub fn drive_list_versions() {
     let _ = client.v1().me().drive().list_versions(ID);
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions");
 
-    let _ = client.v1().drives(RID).drive().list_versions(ID);
+    let _ = client.v1().drives(RID).list_versions(ID);
     assert_url_eq(&client, id_path("drives", "items", Some("versions")));
 
     let _ = client.v1().sites(RID).drive().list_versions(ID);
@@ -729,7 +706,6 @@ pub fn drive_list_versions_path() {
     let _ = client
         .v1()
         .drives(RID)
-        .drive()
         .list_versions(":/Documents/item.txt:");
     assert_url_eq(
         &client,
@@ -753,7 +729,7 @@ pub fn drive_list_children() {
     let _ = client.v1().me().drive().list_children(ID);
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
 
-    let _ = client.v1().drives(RID).drive().list_children(ID);
+    let _ = client.v1().drives(RID).list_children(ID);
     assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
 
     let _ = client.v1().sites(RID).drive().list_children(ID);
@@ -769,7 +745,6 @@ pub fn drive_list_children() {
     let _ = client
         .v1()
         .drives(RID)
-        .drive()
         .list_children(":/Documents/item.docx:");
     assert_url_eq(
         &client,
@@ -797,11 +772,7 @@ pub fn drive_restore_version() {
         "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion",
     );
 
-    let _ = client
-        .v1()
-        .drives(RID)
-        .drive()
-        .restore_version(ID, "34492566a");
+    let _ = client.v1().drives(RID).restore_version(ID, "34492566a");
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion",
@@ -834,7 +805,6 @@ pub fn drive_restore_version_path() {
     let _ = client
         .v1()
         .drives(RID)
-        .drive()
         .restore_version(":/Documents/item.txt:", "34492566a");
     assert_url_eq(
         &client,
@@ -858,7 +828,7 @@ pub fn drive_download() {
     let download_client = client.v1().me().drive().download(ID, "./test_files");
     assert_eq!(download_client.url().to_string(), format!("{}/{}", GRAPH_URL, "me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content"));
 
-    let download_client = client.v1().drives(RID).drive().download(ID, "./test_files");
+    let download_client = client.v1().drives(RID).download(ID, "./test_files");
     assert_eq!(
         download_client.url().to_string(),
         format!("{}/{}", GRAPH_URL, "drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content")
@@ -887,7 +857,6 @@ pub fn drive_download_path() {
     let download_client = client
         .v1()
         .drives(RID)
-        .drive()
         .download(":/file.docx:", "./test_files");
     assert_eq!(
         download_client.url().to_string(),
@@ -917,7 +886,7 @@ pub fn drive_check_out() {
     let _ = client.v1().me().drive().check_out(ID);
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout");
 
-    let _ = client.v1().drives(RID).drive().check_out(ID);
+    let _ = client.v1().drives(RID).check_out(ID);
     assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout");
 
     let _ = client.v1().sites(RID).drive().check_out(ID);
@@ -934,11 +903,7 @@ pub fn drive_check_in() {
         .check_in(ID, &serde_json::json!({}));
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
 
-    let _ = client
-        .v1()
-        .drives(RID)
-        .drive()
-        .check_in(ID, &serde_json::json!({}));
+    let _ = client.v1().drives(RID).check_in(ID, &serde_json::json!({}));
     assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
 
     let _ = client
@@ -955,7 +920,7 @@ pub fn drive_activities() {
     let _ = client.v1().me().drive().drive_activity();
     assert_url_eq(&client, "/me/drive/activities");
 
-    let _ = client.v1().drives(RID).drive().drive_activity();
+    let _ = client.v1().drives(RID).drive_activity();
     assert_url_eq(
         &client,
         "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/activities",
@@ -974,7 +939,7 @@ pub fn drive_item_activities() {
     let _ = client.v1().me().drive().item_activity(ID);
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities");
 
-    let _ = client.v1().drives(RID).drive().item_activity(ID);
+    let _ = client.v1().drives(RID).item_activity(ID);
     assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities");
 
     let _ = client.v1().sites(RID).drive().item_activity(ID);
@@ -983,7 +948,6 @@ pub fn drive_item_activities() {
     let _ = client
         .v1()
         .drives(RID)
-        .drive()
         .item_activity(":/Documents/item.txt:");
     assert_url_eq(
         &client,

@@ -111,6 +111,8 @@ pub mod domains;
 pub mod drive;
 /// Education request client.
 pub mod education;
+/// Group lifecycle policies request client.
+pub mod group_lifecycle_policies;
 /// Groups request client.
 pub mod groups;
 /// Identity request client.
