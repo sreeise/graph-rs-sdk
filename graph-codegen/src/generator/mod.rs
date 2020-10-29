@@ -45,9 +45,6 @@ impl Generator {
 
     pub fn get(&self) -> HashMap<String, RequestSet> {
         self.builder
-            .spec
-            .borrow_mut()
-            .parser
             .build_with_modifier_filter()
     }
 
