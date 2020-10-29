@@ -156,7 +156,19 @@ impl Builder {
     }
 
     pub fn build_with_modifier_filter(&self) -> HashMap<String, RequestSet> {
-        self.spec.borrow_mut().parser.build_with_modifier_filter()
+        let spec = self.spec.borrow();
+        // let map = spec.parser.build_with_modifier_filter();
+            if spec.build_with_modifier_filter {
+                spec.parser.build_with_modifier_filter()
+            } else {
+                let path_map = spec.parser.path_map();
+                let resource_names = ResourceNames::from(path_map);
+                let vec = resource_names.to_vec();
+                let vec_str: Vec<&str> = vec.iter().map(|s| s.as_str()).collect();
+                spec.parser.use_default_modifiers(&vec_str);
+                spec.parser.build_with_modifier_filter()
+            }
+
     }
 
     fn gen_spec_client(

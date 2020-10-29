@@ -204,6 +204,10 @@ impl Parser {
             vec![
                 Filter::IgnoreIf(FilterIgnore::PathContains("onenote")),
                 Filter::IgnoreIf(FilterIgnore::PathContains("getActivitiesByInterval")),
+                // These are basically like OData queries and look like getByPath(path={path})
+                // but we dont currently handle these so they are ignored by checking for ( or ).
+                Filter::IgnoreIf(FilterIgnore::PathContains("(")),
+                Filter::IgnoreIf(FilterIgnore::PathContains(")")),
             ],
         );
     }

@@ -6,6 +6,7 @@ use std::collections::{HashSet, VecDeque};
 
 lazy_static! {
     static ref NUM_REG: Regex = Regex::new(r"[0-9]").unwrap();
+    static ref PATH_ID_REG: Regex = Regex::new(r"[{a-bA-B_}]").unwrap();
 }
 
 pub trait RequestParserBuilder<RHS: ?Sized = Self> {
