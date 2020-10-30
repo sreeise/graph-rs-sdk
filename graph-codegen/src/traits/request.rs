@@ -5,8 +5,19 @@ use regex::Regex;
 use std::collections::{HashSet, VecDeque};
 
 lazy_static! {
+    /// Matches any number. Some of the graph request data has
+    /// numbers in the name of the operation id such as
+    /// groups.users.get.23a. This becomes an issue when parsing
+    /// the resource id. For instance, the method name for an
+    /// individual request is taken from the last part of the resource id
+    /// and method names really should not be named 23a.
     static ref NUM_REG: Regex = Regex::new(r"[0-9]").unwrap();
-    static ref PATH_ID_REG: Regex = Regex::new(r"[{a-bA-B_}]").unwrap();
+
+    /// matches ids attached to the resource name such as groups({id}).
+    static ref PATH_ID_REG: Regex = Regex::new(r"(\(\{)(\w+)(}\))").unwrap();
+
+    /// Matches named ids such as {group-id}.
+    static ref PATH_ID_NAMED_REG: Regex = Regex::new(r"(\{)(\w+-\w+)(})").unwrap();
 }
 
 pub trait RequestParserBuilder<RHS: ?Sized = Self> {
@@ -88,12 +99,33 @@ impl RequestParser for &str {
     }
 
     fn transform_path(&self) -> String {
-        self.replace("({id})", "/{{id}}")
-            .replace("({id1})", "/{{id2}}")
-            .replace("({id2})", "/{{id3}}")
-            .replace("({id3})", "/{{id4}}")
-            .replace("({id4})", "/{{id5}}")
-            .replace("({id5})", "/{{id6}}")
+        let mut path = self.to_string();
+        let path_clone = path.clone();
+
+        let mut count = 1;
+        // Replaces ids in paths attached to the resource name such as groups({id})
+        for cap in PATH_ID_REG.captures_iter(path_clone.as_str()) {
+            let s = cap[0].to_string();
+            if count == 1 {
+                path = path.replace(s.as_str(), "/{{id}}");
+            } else {
+                path = path.replace(s.as_str(), &format!("/{{{{id{}}}}}", count));
+            }
+            count += 1;
+        }
+
+        let mut count = 1;
+        // Replaces named ids such as {group-id}.
+        for cap in PATH_ID_NAMED_REG.captures_iter(path_clone.as_str()) {
+            let s = cap[0].to_string();
+            if count == 1 {
+                path = path.replace(s.as_str(), "{{id}}");
+            } else {
+                path = path.replace(s.as_str(), &format!("{{{{id{}}}}}", count));
+            }
+            count += 1;
+        }
+        path
     }
 
     fn links(&self) -> HashSet<String> {

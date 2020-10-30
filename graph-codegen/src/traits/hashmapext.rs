@@ -1,4 +1,4 @@
-use crate::parser::RequestMap;
+use crate::parser::{Request, RequestMap};
 use std::collections::{BTreeSet, HashMap};
 
 pub trait HashMapExt<T, RHS = Self> {
@@ -12,6 +12,16 @@ impl HashMapExt<RequestMap> for HashMap<String, Vec<RequestMap>> {
                 vec.push(request_map.clone());
             })
             .or_insert_with(|| vec![request_map.clone()]);
+    }
+}
+
+impl HashMapExt<&Request> for HashMap<String, Vec<Request>> {
+    fn entry_modify_insert(&mut self, s: String, request: &Request) {
+        self.entry(s)
+            .and_modify(|vec| {
+                vec.push(request.clone());
+            })
+            .or_insert_with(|| vec![request.clone()]);
     }
 }
 

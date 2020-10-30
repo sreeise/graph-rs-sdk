@@ -125,21 +125,11 @@ impl Builder {
         let mut buf = BytesMut::with_capacity(1024);
         let mut request_set_imports = request_set.get_imports();
         request_set_imports.extend(imports.iter().map(|s| s.to_string()));
-        let (links, mut map) = request_set.method_links();
-        let operations_mapping = request_set.group_by_operation_mapping();
 
-        for (key, value) in map.iter_mut() {
-            if links_override.contains_key(key) {
-                value.extend(links_override.get(key).cloned().unwrap());
-            }
-        }
-
-        let mut spec_client = SpecClient::default();
+        let mut spec_client = SpecClient::from(&request_set);
         spec_client.set_name(parent.as_str());
         spec_client.set_imports(request_set_imports);
-        spec_client.set_client_names(links);
-        spec_client.set_struct_links(map);
-        spec_client.set_methods(operations_mapping);
+        spec_client.extend_links(links_override);
 
         let client_impl = spec_client.gen_api_impl();
         buf.extend(client_impl);
@@ -158,39 +148,32 @@ impl Builder {
     pub fn build_with_modifier_filter(&self) -> HashMap<String, RequestSet> {
         let spec = self.spec.borrow();
         // let map = spec.parser.build_with_modifier_filter();
-            if spec.build_with_modifier_filter {
-                spec.parser.build_with_modifier_filter()
-            } else {
-                let path_map = spec.parser.path_map();
-                let resource_names = ResourceNames::from(path_map);
-                let vec = resource_names.to_vec();
-                let vec_str: Vec<&str> = vec.iter().map(|s| s.as_str()).collect();
-                spec.parser.use_default_modifiers(&vec_str);
-                spec.parser.build_with_modifier_filter()
-            }
+        if spec.build_with_modifier_filter {
+            spec.parser.build_with_modifier_filter()
+        } else {
+            let path_map = spec.parser.path_map();
+            let resource_names = ResourceNames::from(path_map);
+            let vec = resource_names.to_vec();
+            let vec_str: Vec<&str> = vec.iter().map(|s| s.as_str()).collect();
+            spec.parser.use_default_modifiers(&vec_str);
+            spec.parser.build_with_modifier_filter()
+        }
+    }
 
+    pub fn generate_resource_names(&self) -> ResourceNames {
+        ResourceNames::from(self.spec.borrow().parser.path_map())
     }
 
     fn gen_spec_client(
-        parent: String,
-        request_set: RequestSet,
-        links_override: HashMap<String, Vec<String>>,
+        parent: &str,
+        request_set: &RequestSet,
+        links_override: &HashMap<String, Vec<String>>,
     ) -> SpecClient {
-        let mut spec_client = SpecClient::default();
-
-        let (links, mut map) = request_set.method_links();
-        let operations_mapping = request_set.group_by_operation_mapping();
-
-        for (key, value) in map.iter_mut() {
-            if links_override.contains_key(key) {
-                value.extend(links_override.get(key).cloned().unwrap());
-            }
-        }
-
-        spec_client.set_name(parent.as_str());
-        spec_client.set_client_names(links);
-        spec_client.set_struct_links(map);
-        spec_client.set_methods(operations_mapping);
+        let request_set_imports = request_set.get_imports();
+        let mut spec_client = SpecClient::from(request_set);
+        spec_client.set_name(parent);
+        spec_client.set_imports(request_set_imports);
+        spec_client.extend_links(links_override);
         spec_client
     }
 
@@ -201,11 +184,7 @@ impl Builder {
         let mut spec_clients: Vec<SpecClient> = Vec::new();
 
         for (name, request_set) in request_set_map.iter() {
-            let spec_client = Builder::gen_spec_client(
-                name.to_string(),
-                request_set.clone(),
-                links_override.clone(),
-            );
+            let spec_client = Builder::gen_spec_client(name, &request_set, &links_override);
             spec_client.gen_api_impl();
             spec_clients.push(spec_client);
         }
@@ -213,16 +192,9 @@ impl Builder {
         spec_clients
     }
 
-    pub fn gen_request_set<P: AsRef<Path>>(path: P, parent: &str, request_set: RequestSet) {
+    pub fn gen_request_set<P: AsRef<Path>>(path: P, parent: &str, request_set: &RequestSet) {
         let mut buf = BytesMut::with_capacity(1024);
-        let (links, map) = request_set.method_links();
-        let operations_mapping = request_set.group_by_operation_mapping();
-
-        let mut spec_client = SpecClient::default();
-        spec_client.set_name(parent);
-        spec_client.set_client_names(links);
-        spec_client.set_struct_links(map);
-        spec_client.set_methods(operations_mapping);
+        let spec_client = Builder::gen_spec_client(parent, request_set, &HashMap::new());
 
         let client_impl = spec_client.gen_api_impl();
         buf.extend(client_impl);

@@ -3,6 +3,7 @@ use crate::parser::{ApiImpl, Parser, RequestSet, ResourceNames};
 use from_as::*;
 use inflector::Inflector;
 use std::collections::HashMap;
+use std::error::Error;
 use std::path::Path;
 
 pub struct Generator {
@@ -44,13 +45,34 @@ impl Generator {
     }
 
     pub fn get(&self) -> HashMap<String, RequestSet> {
-        self.builder
-            .build_with_modifier_filter()
+        self.builder.build_with_modifier_filter()
+    }
+
+    pub fn get_resource_names(&self) -> ResourceNames {
+        self.builder.generate_resource_names()
     }
 
     pub fn write_api_impl<P: AsRef<Path>>(&self, path: P) {
         let map: ApiImpl = self.builder.build_with_modifier_filter().into();
         map.as_file_pretty(path).unwrap();
+    }
+
+    pub fn write_request_data<P: AsRef<Path>>(&self, path: P) -> Result<(), Box<dyn Error>> {
+        let map = self.get();
+        let p = path.as_ref().to_path_buf();
+        for (name, request_set) in map.iter() {
+            if !request_set.is_empty() {
+                let new_path = p.join(&format!("{}.yaml", name.to_snake_case()));
+                println!("{:#?}", new_path);
+                request_set.as_file_pretty(new_path.as_path().as_os_str().to_str().unwrap())?;
+            } else {
+                println!(
+                    "Client with name: {} has 0 requests in the RequestSet (0 RequestMap's)",
+                    name
+                )
+            }
+        }
+        Ok(())
     }
 }
 
