@@ -80,10 +80,7 @@ pub enum UrlMatchTarget {
 
 impl UrlMatchTarget {
     pub fn resource_id(name: &str, replacement: &str) -> UrlMatchTarget {
-        UrlMatchTarget::ResourceId(
-            format!("/{}/{{{{id}}}}", name),
-            replacement.to_string(),
-        )
+        UrlMatchTarget::ResourceId(format!("/{}/{{{{id}}}}", name), replacement.to_string())
     }
 
     pub fn matches(&self, request_map: &RequestMap) -> bool {
@@ -107,22 +104,6 @@ impl UrlMatchTarget {
         }
         false
     }
-
-    /*
-    pub fn modify(&self, request_map: &mut RequestMap, with_check: bool) {
-        match self {
-            UrlMatchTarget::ResourceId(s) => {
-                if with_check {
-                    if request_map.path.starts_with(s.as_str()) {
-                        self.modify_request_map(request_map);
-                    }
-                } else {
-                    self.modify_request_map(request_map);
-                }
-            },
-        }
-    }
-     */
 }
 
 impl Modify<RequestMap> for UrlMatchTarget {

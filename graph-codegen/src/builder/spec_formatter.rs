@@ -1,4 +1,4 @@
-use crate::parser::RequestMap;
+use crate::parser::{RequestMap, RequestSet};
 use bytes::{BufMut, BytesMut};
 use inflector::Inflector;
 use std::collections::{HashMap, HashSet, VecDeque};
@@ -38,6 +38,14 @@ impl SpecClient {
 
     pub fn set_methods(&mut self, methods: HashMap<String, Vec<RequestMap>>) {
         self.methods = methods;
+    }
+
+    pub fn extend_links(&mut self, links_override: &HashMap<String, Vec<String>>) {
+        for (key, value) in self.struct_links.iter_mut() {
+            if links_override.contains_key(key) {
+                value.extend(links_override.get(key).cloned().unwrap());
+            }
+        }
     }
 
     fn gen_client_registrations(&self) -> BytesMut {
@@ -95,6 +103,19 @@ impl SpecClient {
             }
         }
         buf
+    }
+}
+
+impl From<&RequestSet> for SpecClient {
+    fn from(request_set: &RequestSet) -> Self {
+        let (links, map) = request_set.method_links();
+        let operations_mapping = request_set.group_by_operation_mapping();
+
+        let mut spec_client = SpecClient::default();
+        spec_client.set_client_names(links);
+        spec_client.set_struct_links(map);
+        spec_client.set_methods(operations_mapping);
+        spec_client
     }
 }
 

@@ -193,6 +193,7 @@ impl Parser {
         // Modify that paths that have a resource id. See UrlMatchTarget
         // for more info.
         spec.url_modify_target.extend(vec![
+            UrlMatchTarget::resource_id("users", "user"),
             UrlMatchTarget::resource_id("sites", "site"),
             UrlMatchTarget::resource_id("groups", "group"),
             UrlMatchTarget::resource_id("drives", "drive"),
@@ -205,9 +206,8 @@ impl Parser {
                 Filter::IgnoreIf(FilterIgnore::PathContains("onenote")),
                 Filter::IgnoreIf(FilterIgnore::PathContains("getActivitiesByInterval")),
                 // These are basically like OData queries and look like getByPath(path={path})
-                // but we dont currently handle these so they are ignored by checking for ( or ).
-                Filter::IgnoreIf(FilterIgnore::PathContains("(")),
-                Filter::IgnoreIf(FilterIgnore::PathContains(")")),
+                // but we dont currently handle these so they are ignored.
+                Filter::IgnoreIf(FilterIgnore::PathContains("={")),
             ],
         );
     }

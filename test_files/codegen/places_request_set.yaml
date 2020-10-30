@@ -1,0 +1,72 @@
+---
+set:
+  - path: "/places/{place-id}"
+    requests:
+      - path: "/places/{place-id}"
+        method: GET
+        method_name: get_place
+        param_size: 1
+        has_body: false
+        has_rid: false
+        response: SerdeJson
+        tag: places.place
+        operation_id: places.place.GetPlace
+        operation_mapping: places
+        doc: "# Get entity from places by key"
+      - path: "/places/{place-id}"
+        method: PATCH
+        method_name: update_place
+        param_size: 1
+        has_body: true
+        has_rid: false
+        response: NoContent
+        tag: places.place
+        operation_id: places.place.UpdatePlace
+        operation_mapping: places
+        doc: "# Update entity in places"
+      - path: "/places/{place-id}"
+        method: DELETE
+        method_name: delete_place
+        param_size: 1
+        has_body: false
+        has_rid: false
+        response: NoContent
+        tag: places.place
+        operation_id: places.place.DeletePlace
+        operation_mapping: places
+        doc: "# Delete entity from places"
+      - path: "/places/{place-id}"
+        method: PUT
+        method_name: put_place
+        param_size: 1
+        has_body: false
+        has_rid: false
+        response: NoContent
+        tag: places.place
+        operation_id: places.place.PutPlace
+        operation_mapping: places
+        doc: "# Update entity from places"
+  - path: /places
+    requests:
+      - path: /places
+        method: GET
+        method_name: list_place
+        param_size: 0
+        has_body: false
+        has_rid: false
+        response: Collection
+        tag: places.place
+        operation_id: places.place.ListPlace
+        operation_mapping: places
+        doc: "# Get entities from places"
+      - path: /places
+        method: POST
+        method_name: create_place
+        param_size: 0
+        has_body: true
+        has_rid: false
+        response: SerdeJson
+        tag: places.place
+        operation_id: places.place.CreatePlace
+        operation_mapping: places
+        doc: "# Add new entity to places"

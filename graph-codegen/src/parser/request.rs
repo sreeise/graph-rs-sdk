@@ -3,9 +3,10 @@ use crate::parser::{ResourceNameMapping, ResourceNames};
 use crate::traits::{HashMapExt, RequestParser};
 use from_as::*;
 use inflector::Inflector;
-use std::collections::hash_set::Iter;
+use std::collections::hash_map::RandomState;
+use std::collections::hash_set::{Difference, Iter};
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
-use std::hash::{Hash, Hasher};
+use std::hash::{BuildHasher, Hash, Hasher};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
 pub enum HttpMethod {
@@ -49,7 +50,7 @@ impl From<HttpMethod> for reqwest::Method {
     }
 }
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, FromFile, AsFile, Hash)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Eq, PartialEq, FromFile, AsFile, Hash)]
 pub enum ResponseType {
     SerdeJson,
     Collection,
@@ -98,7 +99,7 @@ impl Default for ResponseType {
     }
 }
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[derive(Eq, PartialEq, Hash, Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Request {
     pub path: String,
     pub method: HttpMethod,
@@ -143,28 +144,16 @@ impl RequestParser for Request {
     }
 }
 
-impl PartialEq for Request {
-    fn eq(&self, other: &Self) -> bool {
-        self.method == other.method &&
-            self.method_name == other.method_name &&
-            self.param_size == other.param_size &&
-            self.has_body == other.has_body &&
-            self.has_rid == other.has_rid &&
-            self.operation_id == other.operation_id
-    }
+pub struct ReqSet {
+    set: HashSet<Request>,
 }
 
-impl Hash for Request {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.method.hash(state);
-        self.method_name.hash(state);
-        self.param_size.hash(state);
-        self.has_body.hash(state);
-        self.response.hash(state);
-        self.tag.hash(state);
-        self.operation_id.hash(state);
-        self.operation_mapping.hash(state);
-        self.doc.hash(state);
+impl ReqSet {
+    pub fn difference<'a>(
+        &'a self,
+        request_set: &'a HashSet<Request>,
+    ) -> Difference<'a, Request, std::collections::hash_map::RandomState> {
+        self.set.difference(&request_set).clone()
     }
 }
 
@@ -181,14 +170,14 @@ impl PartialEq for RequestMap {
     }
 }
 
+impl Eq for RequestMap {}
+
 impl Hash for RequestMap {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.path.hash(state);
         self.requests.hash(state);
     }
 }
-
-impl Eq for RequestMap {}
 
 impl IntoIterator for RequestMap {
     type Item = Request;
@@ -217,6 +206,12 @@ impl RequestMap {
             set.extend(request.links());
         }
     }
+
+    pub fn difference(&self, request_map: RequestMap) -> Vec<Request> {
+        let set1: HashSet<Request> = self.requests.clone().into_iter().collect();
+        let set2: HashSet<Request> = request_map.requests.clone().into_iter().collect();
+        set1.difference(&set2).into_iter().cloned().collect()
+    }
 }
 
 /// RequestSet holds a set of unique RequestMap objects.
@@ -228,6 +223,14 @@ pub struct RequestSet {
 impl RequestSet {
     pub fn new(set: HashSet<RequestMap>) -> RequestSet {
         RequestSet { set }
+    }
+
+    pub fn get(&self, path: &str) -> Option<RequestMap> {
+        self.set.iter().find(|rm| rm.path.eq(path)).cloned()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.set.is_empty()
     }
 
     pub fn join_inner_insert(&mut self, request_map: RequestMap) {
@@ -243,10 +246,6 @@ impl RequestSet {
         } else {
             self.set.insert(request_map);
         }
-    }
-
-    pub fn from_ref_resource_names(&self) -> ResourceNames {
-        ResourceNames::from(self)
     }
 
     pub fn resource_names(&self) -> ResourceNames {
@@ -298,6 +297,20 @@ impl RequestSet {
             if let Some(request) = request_map.requests.get(0) {
                 let operation_mapping = request.operation_mapping.to_string();
                 map.entry_modify_insert(operation_mapping, request_map.clone());
+            }
+        }
+        map
+    }
+
+    pub fn group_by_operation_id(&self) -> HashMap<String, Vec<Request>> {
+        let mut map: HashMap<String, Vec<Request>> = HashMap::new();
+        for request_map in self.set.iter() {
+            for request in request_map.iter() {
+                if let Some(index) = request.operation_id.rfind('.') {
+                    map.entry_modify_insert(request.operation_id[..index].to_string(), request);
+                } else {
+                    map.entry_modify_insert(request.operation_id.to_string(), request);
+                }
             }
         }
         map
@@ -404,6 +417,13 @@ impl RequestSet {
         }
 
         (request_set1, request_set2)
+    }
+
+    pub fn difference<'a>(
+        &'a self,
+        request_set: &'a RequestSet,
+    ) -> Difference<'a, RequestMap, std::collections::hash_map::RandomState> {
+        self.set.difference(&request_set.set).clone()
     }
 }
 

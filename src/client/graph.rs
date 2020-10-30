@@ -29,6 +29,7 @@ use crate::planner::PlannerRequest;
 use crate::policies::PoliciesRequest;
 use crate::schema_extensions::SchemaExtensionsRequest;
 use crate::service_principals::ServicePrincipalsRequest;
+use crate::sites::SiteRequest;
 use crate::subscribed_skus::SubscribedSkusRequest;
 use crate::subscriptions::SubscriptionsRequest;
 use crate::teamwork::TeamworkRequest;
@@ -46,7 +47,6 @@ use reqwest::Method;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::str::FromStr;
-use crate::sites::SiteRequest;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Ident {
