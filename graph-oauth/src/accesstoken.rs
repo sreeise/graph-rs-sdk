@@ -4,9 +4,9 @@ use chrono::{DateTime, Duration, TimeZone, Utc};
 use chrono_humanize::HumanTime;
 use from_as::*;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
+use serde_aux::prelude::*;
 use std::convert::TryFrom;
 use std::fmt;
-use serde_aux::prelude::*;
 
 /// OAuth 2.0 Access Token
 ///
