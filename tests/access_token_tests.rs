@@ -111,6 +111,7 @@ pub const ACCESS_TOKEN_INT  : &'static str = r#"{
     "state": null,
     "timestamp": "2020-10-27T16:31:38.788098400Z"
 }"#;
+
 pub const ACCESS_TOKEN_STRING  : &'static str = r#"{
     "access_token": "fasdfasdfasfdasdfasfsdf",
     "token_type": "Bearer",
@@ -122,7 +123,6 @@ pub const ACCESS_TOKEN_STRING  : &'static str = r#"{
     "state": null,
     "timestamp": "2020-10-27T16:31:38.788098400Z"
 }"#;
-
 
 #[test]
 pub fn test_deserialize() {
