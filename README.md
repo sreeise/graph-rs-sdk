@@ -5,10 +5,26 @@
 
 ### Graph API Client in Rust
 
-Disclaimer:
-Integrates with several parts of the Graph API including OneDrive, Mail, Calendars, and OneNote. I would
-like to cover more in the future and will continue to work on this as I get the time. Currently, work is
-being done to fully implement async as well as to parse open api configs to make development easier.
+There are several parts to this project:
+
+graph-oauth: OAuth client for getting access/refresh tokens from the Graph api.
+
+graph-error: Errors that come back from the Graph api.
+
+graph-rs(src directory): The Graph client for interacting with the Graph api. The oauth client is also reexported from here.
+
+There are many api's already implemented including activities, attachments, calendar, contacts, drive, education, groups, mail, onenote, planner, and users.
+See upcoming changes below for what will be added in the future.
+
+Installation and basic usage can be found below and there are extensive examples in the examples directory.
+
+### Upcoming Changes
+
+This repository is still in development and will change considerably. There are several implementations of Graph api's that need to be added. I am also getting the project ready for a release on crates.io but I don't want to release something that is 1. Not maintainable long term and 2. Not fully implemented. 
+
+I am attempting to maintain backwards compatibility for those who already use this repository as well. I will post an update if that ends up not being possible. To be clear, the way in which the Graph client and the already implemented api's are used will not change. The major changes coming up are adding functionality not changing it.
+
+To make development easier and to provide a maintainable library, work is currently being done for parsing open api configs for the Graph Api. After this work is completed any new api's added or removed will be based on these configurations. Also after the work is done, I will look into adding a first version to crates.io.
  
 ### Install and Build - Requires Rust nightly
 
