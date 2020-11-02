@@ -1,7 +1,6 @@
 use crate::parser::{PathMap, RequestSet};
 use from_as::*;
 use inflector::Inflector;
-use std::collections::hash_map::RandomState;
 use std::collections::{BTreeSet, HashMap, VecDeque};
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]

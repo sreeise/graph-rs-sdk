@@ -1,8 +1,7 @@
 use crate::parser::error::ParserError;
-use crate::parser::{PathMap, Request, RequestMap, RequestSet};
+use crate::parser::{Request, RequestMap, RequestSet};
 use crate::traits::Modify;
 use from_as::*;
-use inflector::Inflector;
 use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Serialize, Serializer};
@@ -164,6 +163,7 @@ impl Modify<RequestSet> for UrlMatchTarget {
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
 pub enum MatchTarget {
     Tag(String),
+    OperationId(String),
     OperationMap(String),
     TagAndOperationMap(String),
     TagOrOperationMap(String),
@@ -192,6 +192,11 @@ impl MatchTarget {
                     return true;
                 }
             },
+            MatchTarget::OperationId(s) => {
+                if request.operation_id.eq(s.as_str()) {
+                    return true;
+                }
+            },
         }
         false
     }
@@ -212,6 +217,9 @@ impl MatchTarget {
                 request.tag = s.to_string();
                 request.operation_mapping = s.to_string();
             },
+            MatchTarget::OperationId(s) => {
+                request.operation_id = s.to_string();
+            },
         }
     }
 }
@@ -223,6 +231,7 @@ impl ToString for MatchTarget {
             MatchTarget::OperationMap(s) => format!("OperationMap:{}", s),
             MatchTarget::TagAndOperationMap(s) => format!("TagAndOperationMap:{}", s),
             MatchTarget::TagOrOperationMap(s) => format!("TagAndOperationMap:{}", s),
+            MatchTarget::OperationId(s) => format!("OperationId:{}", s),
         }
     }
 }
@@ -241,6 +250,7 @@ impl TryFrom<String> for MatchTarget {
                 "OperationMap" => Ok(MatchTarget::OperationMap(value.to_string())),
                 "TagAndOperationMap" => Ok(MatchTarget::TagAndOperationMap(value.to_string())),
                 "TagOrOperationMap" => Ok(MatchTarget::TagOrOperationMap(value.to_string())),
+                "OperationId" => Ok(MatchTarget::OperationId(value.to_string())),
                 _ => Err(ParserError::DeserializeMatchTarget),
             }
         } else if vec.len() == 1 {
@@ -250,6 +260,7 @@ impl TryFrom<String> for MatchTarget {
                 "OperationMap" => Ok(MatchTarget::OperationMap(String::new())),
                 "TagAndOperationMap" => Ok(MatchTarget::TagAndOperationMap(String::new())),
                 "TagOrOperationMap" => Ok(MatchTarget::TagOrOperationMap(String::new())),
+                "OperationId" => Ok(MatchTarget::OperationId(String::new())),
                 _ => Err(ParserError::DeserializeMatchTarget),
             }
         } else {

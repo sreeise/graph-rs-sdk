@@ -1,7 +1,7 @@
 use crate::parser::{RequestMap, RequestSet};
 use bytes::{BufMut, BytesMut};
 use inflector::Inflector;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct SpecClientImpl {
@@ -13,10 +13,10 @@ pub struct SpecClientImpl {
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct SpecClient {
     pub name: String,
-    pub imports: HashSet<String>,
-    pub client_names: HashSet<String>,
-    pub struct_links: HashMap<String, Vec<String>>,
-    pub methods: HashMap<String, Vec<RequestMap>>,
+    pub imports: BTreeSet<String>,
+    pub client_names: BTreeSet<String>,
+    pub struct_links: BTreeMap<String, Vec<String>>,
+    pub methods: BTreeMap<String, Vec<RequestMap>>,
 }
 
 impl SpecClient {
@@ -24,19 +24,19 @@ impl SpecClient {
         self.name = name.to_string();
     }
 
-    pub fn set_imports(&mut self, imports: HashSet<String>) {
+    pub fn set_imports(&mut self, imports: BTreeSet<String>) {
         self.imports = imports;
     }
 
-    pub fn set_client_names(&mut self, client_names: HashSet<String>) {
+    pub fn set_client_names(&mut self, client_names: BTreeSet<String>) {
         self.client_names = client_names;
     }
 
-    pub fn set_struct_links(&mut self, struct_links: HashMap<String, Vec<String>>) {
+    pub fn set_struct_links(&mut self, struct_links: BTreeMap<String, Vec<String>>) {
         self.struct_links = struct_links;
     }
 
-    pub fn set_methods(&mut self, methods: HashMap<String, Vec<RequestMap>>) {
+    pub fn set_methods(&mut self, methods: BTreeMap<String, Vec<RequestMap>>) {
         self.methods = methods;
     }
 
@@ -110,11 +110,14 @@ impl From<&RequestSet> for SpecClient {
     fn from(request_set: &RequestSet) -> Self {
         let (links, map) = request_set.method_links();
         let operations_mapping = request_set.group_by_operation_mapping();
+        let links: BTreeSet<String> = links.into_iter().collect();
+        let struct_links: BTreeMap<String, Vec<String>> = map.into_iter().collect();
+        let methods: BTreeMap<String, Vec<RequestMap>> = operations_mapping.into_iter().collect();
 
         let mut spec_client = SpecClient::default();
         spec_client.set_client_names(links);
-        spec_client.set_struct_links(map);
-        spec_client.set_methods(operations_mapping);
+        spec_client.set_struct_links(struct_links);
+        spec_client.set_methods(methods);
         spec_client
     }
 }
@@ -153,8 +156,9 @@ impl SpecFormatter {
         let mut names: VecDeque<&str> = spec_client.name.split('.').collect();
         let impl_struct_name = SpecFormatter::base_struct_name(names.pop_back().unwrap());
 
+        // #[allow(dead_code)]\n
         let impl_start = format!(
-            "\n#[allow(dead_code)]\nimpl<'a, Client> {}<'a, Client> where Client: graph_http::RequestClient {{",
+            "\nimpl<'a, Client> {}<'a, Client> where Client: graph_http::RequestClient {{",
             &impl_struct_name
         );
         buf.put(impl_start.as_bytes());

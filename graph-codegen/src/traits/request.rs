@@ -125,7 +125,11 @@ impl RequestParser for &str {
             }
             count += 1;
         }
-        path
+        if path.contains("microsoft.graph.") {
+            path.replace("microsoft.graph.", "")
+        } else {
+            path
+        }
     }
 
     fn links(&self) -> HashSet<String> {
