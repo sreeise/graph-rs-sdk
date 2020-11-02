@@ -158,7 +158,7 @@ impl ReqSet {
         &'a self,
         request_set: &'a HashSet<Request>,
     ) -> Difference<'a, Request, std::collections::hash_map::RandomState> {
-        self.set.difference(&request_set).clone()
+        self.set.difference(&request_set)
     }
 }
 
@@ -214,8 +214,8 @@ impl RequestMap {
 
     pub fn difference(&self, request_map: RequestMap) -> Vec<Request> {
         let set1: HashSet<Request> = self.requests.clone().into_iter().collect();
-        let set2: HashSet<Request> = request_map.requests.clone().into_iter().collect();
-        set1.difference(&set2).into_iter().cloned().collect()
+        let set2: HashSet<Request> = request_map.requests.into_iter().collect();
+        set1.difference(&set2).cloned().collect()
     }
 }
 
@@ -412,8 +412,7 @@ impl RequestSet {
             if request_map
                 .requests
                 .iter()
-                .find(|req| req.has_rid)
-                .is_some()
+                .any(|req| req.has_rid)
             {
                 request_set1.set.insert(request_map.clone());
             } else {
@@ -428,7 +427,7 @@ impl RequestSet {
         &'a self,
         request_set: &'a RequestSet,
     ) -> Difference<'a, RequestMap, std::collections::hash_map::RandomState> {
-        self.set.difference(&request_set.set).clone()
+        self.set.difference(&request_set.set)
     }
 }
 
