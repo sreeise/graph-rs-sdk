@@ -14,6 +14,7 @@ pub struct SpecBuilder {
     pub(crate) parser: Parser,
     #[serde(skip_serializing_if = "HashSet::is_empty")]
     imports: HashSet<String>,
+    ident_clients: HashSet<String>,
     build_with_modifier_filter: bool,
 }
 
@@ -34,6 +35,7 @@ impl Builder {
             spec: RefCell::new(SpecBuilder {
                 parser,
                 imports: Default::default(),
+                ident_clients: Default::default(),
                 build_with_modifier_filter: false,
             }),
         }
@@ -44,6 +46,7 @@ impl Builder {
             spec: RefCell::new(SpecBuilder {
                 parser,
                 imports: Default::default(),
+                ident_clients: Default::default(),
                 build_with_modifier_filter: true,
             }),
         }
@@ -63,6 +66,20 @@ impl Builder {
             "graph_http::IntoResponse",
             "reqwest::Method",
         ]);
+    }
+
+    pub fn use_default_ident_clients(&self) {
+        self.spec.borrow_mut().ident_clients.insert("teams".into());
+    }
+
+    pub fn use_defaults(&self) {
+        let mut spec = self.spec.borrow_mut();
+        spec.add_imports(&[
+            "crate::client::Graph",
+            "graph_http::IntoResponse",
+            "reqwest::Method",
+        ]);
+        spec.ident_clients.insert("teams".into());
     }
 
     pub fn build(&self) {
@@ -87,6 +104,8 @@ impl Builder {
 
         for (name, request_set) in map.iter() {
             if !name.trim().is_empty() {
+                let is_ident_client = spec.ident_clients.contains(name);
+
                 IoTools::create_dir(format!("./src/{}", name.to_snake_case())).unwrap();
 
                 let mod_file = format!("./src/{}/mod.rs", name.to_snake_case());
@@ -109,6 +128,7 @@ impl Builder {
                     &imports,
                     &links_override,
                     request_set.clone(),
+                    is_ident_client,
                 );
             }
         }
@@ -120,16 +140,21 @@ impl Builder {
         imports: &HashSet<String>,
         links_override: &HashMap<String, Vec<String>>,
         request_set: RequestSet,
+        is_ident_client: bool,
     ) {
         let mut buf = BytesMut::with_capacity(1024);
         let mut request_set_imports = request_set.get_imports();
         request_set_imports.extend(imports.iter().map(|s| s.to_string()));
+        if is_ident_client {
+            request_set_imports.insert("handlebars::*".into());
+        }
         let imports: BTreeSet<String> = request_set_imports.into_iter().collect();
 
         let mut spec_client = SpecClient::from(&request_set);
         spec_client.set_name(parent.as_str());
         spec_client.set_imports(imports);
         spec_client.extend_links(links_override);
+        spec_client.set_ident_client(is_ident_client);
 
         let client_impl = spec_client.gen_api_impl();
         buf.extend(client_impl);

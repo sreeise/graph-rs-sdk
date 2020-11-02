@@ -131,6 +131,8 @@ pub mod sites;
 pub mod subscribed_skus;
 /// Subscriptions request client.
 pub mod subscriptions;
+/// Teams request client.
+pub mod teams;
 /// Teamwork request client.
 pub mod teamwork;
 
