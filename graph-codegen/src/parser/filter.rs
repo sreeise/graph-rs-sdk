@@ -118,7 +118,7 @@ impl Modify<RequestMap> for UrlMatchTarget {
             request.path = path.clone();
             request.has_rid = true;
             if request.param_size > 0 {
-                request.param_size = request.param_size - 1;
+                request.param_size -= 1;
             }
         }
     }
