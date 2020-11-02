@@ -101,25 +101,34 @@ fn list_methods() {
 fn group_lifecycle_policies() {
     let client = Graph::new("");
 
-    let _ = client.v1().group_lifecycle_policies(RID).list();
+    let _ = client
+        .v1()
+        .group_lifecycle_policies()
+        .list_group_lifecycle_policy();
     assert_url_eq(&client, "/groupLifecyclePolicies");
 
-    let _ = client.v1().group_lifecycle_policies(RID).get();
+    let _ = client
+        .v1()
+        .group_lifecycle_policies()
+        .get_group_lifecycle_policy(RID);
     assert_url_eq(&client, format!("/groupLifecyclePolicies/{}", RID));
 
     let _ = client
         .v1()
-        .group_lifecycle_policies(RID)
-        .update(&serde_json::json!({}));
-    assert_url_eq(&client, format!("/groupLifecyclePolicies/{}", RID));
-
-    let _ = client.v1().group_lifecycle_policies(RID).delete();
+        .group_lifecycle_policies()
+        .update_group_lifecycle_policy(RID, &serde_json::json!({}));
     assert_url_eq(&client, format!("/groupLifecyclePolicies/{}", RID));
 
     let _ = client
         .v1()
-        .group_lifecycle_policies(RID)
-        .remove_group(&serde_json::json!({}));
+        .group_lifecycle_policies()
+        .delete_group_lifecycle_policy(RID);
+    assert_url_eq(&client, format!("/groupLifecyclePolicies/{}", RID));
+
+    let _ = client
+        .v1()
+        .group_lifecycle_policies()
+        .remove_group(RID, &serde_json::json!({}));
     assert_url_eq(
         &client,
         format!("/groupLifecyclePolicies/{}/removeGroup", RID),
@@ -127,8 +136,8 @@ fn group_lifecycle_policies() {
 
     let _ = client
         .v1()
-        .group_lifecycle_policies(RID)
-        .add_group(&serde_json::json!({}));
+        .group_lifecycle_policies()
+        .add_group(RID, &serde_json::json!({}));
     assert_url_eq(&client, format!("/groupLifecyclePolicies/{}/addGroup", RID));
 }
 

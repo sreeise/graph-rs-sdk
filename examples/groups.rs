@@ -181,24 +181,24 @@ fn lifecycle_policies() -> GraphResult<()> {
 
     let response = client
         .v1()
-        .group_lifecycle_policies("") // Won't be used.
-        .list()
+        .group_lifecycle_policies() // Won't be used.
+        .list_group_lifecycle_policy()
         .send()?;
 
     println!("{:#?}", response);
 
     let response = client
         .v1()
-        .group_lifecycle_policies(GROUP_LIFECYCLE_POLICY_ID)
-        .get()
+        .group_lifecycle_policies()
+        .get_group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
         .send()?;
 
     println!("{:#?}", response);
 
     let response = client
         .v1()
-        .group_lifecycle_policies("") // Won't be used.
-        .create(&serde_json::json!({
+        .group_lifecycle_policies() // Won't be used.
+        .create_group_lifecycle_policy(&serde_json::json!({
             "groupLifetimeInDays": 100,
             "managedGroupTypes": "Selected",
             "alternateNotificationEmails": "admin@contoso.com"
@@ -209,32 +209,41 @@ fn lifecycle_policies() -> GraphResult<()> {
 
     let response = client
         .v1()
-        .group_lifecycle_policies(GROUP_LIFECYCLE_POLICY_ID)
-        .update(&serde_json::json!({
-            "groupLifetimeInDays": 100,
-            "managedGroupTypes": "Selected",
-            "alternateNotificationEmails": "admin@contoso.com"
-        }))
+        .group_lifecycle_policies()
+        .update_group_lifecycle_policy(
+            GROUP_LIFECYCLE_POLICY_ID,
+            &serde_json::json!({
+                "groupLifetimeInDays": 100,
+                "managedGroupTypes": "Selected",
+                "alternateNotificationEmails": "admin@contoso.com"
+            }),
+        )
         .send()?;
 
     println!("{:#?}", response);
 
     let response = client
         .v1()
-        .group_lifecycle_policies(GROUP_LIFECYCLE_POLICY_ID)
-        .add_group(&serde_json::json!({
-            "groupId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
-        }))
+        .group_lifecycle_policies()
+        .add_group(
+            GROUP_LIFECYCLE_POLICY_ID,
+            &serde_json::json!({
+                "groupId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+            }),
+        )
         .send()?;
 
     println!("{:#?}", response);
 
     let response = client
         .v1()
-        .group_lifecycle_policies(GROUP_LIFECYCLE_POLICY_ID)
-        .remove_group(&serde_json::json!({
-            "groupId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
-        }))
+        .group_lifecycle_policies()
+        .remove_group(
+            GROUP_LIFECYCLE_POLICY_ID,
+            &serde_json::json!({
+                "groupId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+            }),
+        )
         .send()?;
 
     println!("{:#?}", response);
