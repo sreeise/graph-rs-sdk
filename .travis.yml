@@ -1,7 +1,7 @@
 os: linux
 arch: arm64-graviton2
 dist: focal
-virt: vm
+virt: lxd
 group: edge
 language: rust
 before_script:

@@ -17,10 +17,7 @@ use url::Url;
 
 pub type OAuthReq<T> = Result<T, GraphFailure>;
 
-/// OAuthCredential list fields representing common OAuth credentials needed
-/// to perform authentication in various formats such as token flow and
-/// client credentials flow.
-
+/// Fields that represent common OAuth credentials.
 #[derive(
     Debug,
     Copy,
@@ -130,17 +127,21 @@ impl ToString for OAuthCredential {
 }
 
 /// # OAuth
-/// An authorization and access token API implementing the OAuth 2.0 authorization
-/// framework. This version is specifically meant for the OneDrive API V1.0
-/// and the Graph beta API.
 ///
-/// Requires knowing the OAuth grant that is being used
-/// to request authorization and access tokens. This is to ensure that
-/// the credentials used in requests include only information that is
-/// required or optional for that specific grant and not any other. Even
-/// if you accidently pass a value, such as a nonce, for a grant type
-/// that does not use it, any request that is made will not include the
-/// nonce regardless.
+/// OAuth client implementing the OAuth 2.0 and OpenID Connect protocols
+/// on Microsoft identity platform. This version is specifically meant for
+/// the Graph V1.0 and Beta API.
+///
+/// The client supports almost all OAuth 2.0 flows that Microsoft
+/// implements as well as the token and code flow specific to the
+/// OneDrive api.
+///
+/// The OAuth client is strict on what can be used for a specific OAuth
+/// flow. This is to ensure that the credentials used in requests include
+/// only information that is required or optional for that specific grant
+/// and not any other. Even if you accidently pass a value, such as a nonce,
+/// for a grant type that does not use it, any request that is made will not
+/// include the nonce regardless.
 ///
 /// # Disclaimer
 /// Using this API for other resource owners besides Microsoft may work but

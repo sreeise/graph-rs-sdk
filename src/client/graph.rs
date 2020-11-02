@@ -104,6 +104,22 @@ impl Default for Ident {
     }
 }
 
+/// The graph client.
+///
+/// The graph client supports blocking and asynchronous requests but
+/// you must declare which type of client you want to use beforehand.
+///
+/// # Blocking - Most simple and easy to use
+/// ```
+/// # use graph_rs::client::Graph;
+/// let _client = Graph::new("ACCESS_TOKEN");
+/// ```
+///
+/// # Async
+/// ```
+/// # use graph_rs::client::Graph;
+/// let _client = Graph::new_async("ACCESS_TOKEN");
+/// ```
 pub struct Graph<Client> {
     pub(crate) request: Client,
 }
@@ -112,12 +128,13 @@ impl<'a, Client> Graph<Client>
 where
     Client: graph_http::RequestClient,
 {
+    /// Use the V1.0 api.
     pub fn v1(&'a self) -> Identify<'a, Client> {
         self.request.set_url(GraphUrl::from_str(GRAPH_URL).unwrap());
         Identify { client: &self }
     }
 
-    /// Use the Graph beta API
+    /// Use the beta API.
     pub fn beta(&'a self) -> Identify<'a, Client> {
         self.request
             .set_url(GraphUrl::from_str(GRAPH_URL_BETA).unwrap());
@@ -134,13 +151,13 @@ where
         self.request.url().as_str().starts_with(GRAPH_URL_BETA)
     }
 
-    pub fn ident(&self) -> Ident {
-        Ident::from_str(self.request.ident().as_str()).unwrap()
-    }
-
     /// Set the access token used for requests.
     pub fn set_token(&self, token: &str) {
         self.request.set_token(token);
+    }
+
+    pub(crate) fn ident(&self) -> Ident {
+        Ident::from_str(self.request.ident().as_str()).unwrap()
     }
 
     pub(crate) fn request(&self) -> &Client {
@@ -184,7 +201,7 @@ impl<'a> GraphBlocking {
     /// println!("{:#?}", response.body());
     ///
     /// // Use a custom data structure. The json method
-    /// will convert anything that implements serde deserialize.
+    /// // will convert anything that implements serde deserialize.
     /// let drive_items: serde_json::Value = client
     ///     .v1()
     ///     .me()
@@ -252,17 +269,19 @@ impl<'a> GraphAsync {
     ///     .me()
     ///     .drive()
     ///     .root_children()
+    ///     .await
     ///     .send()?;
     ///
     /// println!("{:#?}", response.body());
     ///
     /// // Use a custom data structure. The json method
-    /// will convert anything that implements serde deserialize.
+    /// // will convert anything that implements serde deserialize.
     /// let drive_items: serde_json::Value = client
     ///     .v1()
     ///     .me()
     ///     .drive()
     ///     .root_children()
+    ///     .await
     ///     .json()?;
     /// ```
     pub fn new_async(token: &str) -> GraphAsync {
