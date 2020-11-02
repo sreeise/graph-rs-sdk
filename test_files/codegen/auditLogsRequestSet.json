@@ -4,6 +4,7 @@
       "path": "/auditLogs/signIns/{{id}}",
       "requests": [
         {
+          "path": "/auditLogs/signIns/{{id}}",
           "method": "GET",
           "method_name": "get_sign_ins",
           "param_size": 1,
@@ -15,6 +16,7 @@
           "operation_mapping": "auditLogs"
         },
         {
+          "path": "/auditLogs/signIns/{{id}}",
           "method": "PATCH",
           "method_name": "update_sign_ins",
           "param_size": 1,
@@ -26,6 +28,7 @@
           "operation_mapping": "auditLogs"
         },
         {
+          "path": "/auditLogs/signIns/{{id}}",
           "method": "DELETE",
           "method_name": "delete_sign_ins",
           "param_size": 1,
@@ -42,6 +45,7 @@
       "path": "/auditLogs",
       "requests": [
         {
+          "path": "/auditLogs",
           "method": "GET",
           "method_name": "get_audit_log_root",
           "param_size": 0,
@@ -53,6 +57,7 @@
           "operation_mapping": "auditLogs.auditLogRoot"
         },
         {
+          "path": "/auditLogs",
           "method": "PATCH",
           "method_name": "update_audit_log_root",
           "param_size": 0,
@@ -69,6 +74,7 @@
       "path": "/auditLogs/fakeLogs",
       "requests": [
         {
+          "path": "/auditLogs/fakeLogs",
           "method": "GET",
           "method_name": "get_fake_log",
           "param_size": 0,
@@ -80,6 +86,7 @@
           "operation_mapping": "auditLogs.fakeLog"
         },
         {
+          "path": "/auditLogs/fakeLogs",
           "method": "PATCH",
           "method_name": "update_fake_log",
           "param_size": 0,
@@ -96,6 +103,7 @@
       "path": "/auditLogs/inner/fakeLogs",
       "requests": [
         {
+          "path": "/auditLogs/inner/fakeLogs",
           "method": "GET",
           "method_name": "get_inner_fake_log",
           "param_size": 0,
@@ -107,6 +115,7 @@
           "operation_mapping": "auditLogs.fakeLog.innerFakeLog"
         },
         {
+          "path": "/auditLogs/inner/fakeLogs",
           "method": "PATCH",
           "method_name": "update_inner_fake_log",
           "param_size": 0,
@@ -123,6 +132,7 @@
       "path": "/auditLogs/directoryAudits/{{id}}",
       "requests": [
         {
+          "path": "/auditLogs/directoryAudits/{{id}}",
           "method": "GET",
           "method_name": "get_directory_audits",
           "param_size": 1,
@@ -134,6 +144,7 @@
           "operation_mapping": "auditLogs"
         },
         {
+          "path": "/auditLogs/directoryAudits/{{id}}",
           "method": "PATCH",
           "method_name": "update_directory_audits",
           "param_size": 1,
@@ -145,6 +156,7 @@
           "operation_mapping": "auditLogs"
         },
         {
+          "path": "/auditLogs/directoryAudits/{{id}}",
           "method": "DELETE",
           "method_name": "delete_directory_audits",
           "param_size": 1,
@@ -161,6 +173,7 @@
       "path": "/auditLogs/directoryAudits",
       "requests": [
         {
+          "path": "/auditLogs/directoryAudits",
           "method": "GET",
           "method_name": "list_directory_audits",
           "param_size": 0,
@@ -172,6 +185,7 @@
           "operation_mapping": "auditLogs"
         },
         {
+          "path": "/auditLogs/directoryAudits",
           "method": "POST",
           "method_name": "create_directory_audits",
           "param_size": 0,
@@ -188,6 +202,7 @@
       "path": "/auditLogs/signIns",
       "requests": [
         {
+          "path": "/auditLogs/signIns",
           "method": "GET",
           "method_name": "list_sign_ins",
           "param_size": 0,
@@ -199,6 +214,7 @@
           "operation_mapping": "auditLogs"
         },
         {
+          "path": "/auditLogs/signIns",
           "method": "POST",
           "method_name": "create_sign_ins",
           "param_size": 0,
@@ -215,6 +231,7 @@
       "path": "/auditLogs/restrictedSignIns",
       "requests": [
         {
+          "path": "/auditLogs/restrictedSignIns",
           "method": "GET",
           "method_name": "list_restricted_sign_ins",
           "param_size": 0,
@@ -226,6 +243,7 @@
           "operation_mapping": "auditLogs"
         },
         {
+          "path": "/auditLogs/restrictedSignIns",
           "method": "POST",
           "method_name": "create_restricted_sign_ins",
           "param_size": 0,
@@ -242,6 +260,7 @@
       "path": "/auditLogs/restrictedSignIns/{{id}}",
       "requests": [
         {
+          "path": "/auditLogs/restrictedSignIns/{{id}}",
           "method": "GET",
           "method_name": "get_restricted_sign_ins",
           "param_size": 1,
@@ -253,6 +272,7 @@
           "operation_mapping": "auditLogs"
         },
         {
+          "path": "/auditLogs/restrictedSignIns/{{id}}",
           "method": "PATCH",
           "method_name": "update_restricted_sign_ins",
           "param_size": 1,
@@ -264,6 +284,7 @@
           "operation_mapping": "auditLogs"
         },
         {
+          "path": "/auditLogs/restrictedSignIns/{{id}}",
           "method": "DELETE",
           "method_name": "delete_restricted_sign_ins",
           "param_size": 1,
