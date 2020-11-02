@@ -1,12 +1,11 @@
 use crate::builder::spec_formatter::SpecClient;
-use crate::parser::filter::Filter;
 use crate::parser::{Parser, RequestSet, ResourceNames};
 use bytes::BytesMut;
 use from_as::*;
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs::OpenOptions;
 use std::path::Path;
 
@@ -61,7 +60,7 @@ impl Builder {
     pub fn use_default_imports(&self) {
         self.add_imports(&[
             "crate::client::Graph",
-            "graph_http::{GraphResponse, IntoResponse}",
+            "graph_http::IntoResponse",
             "reqwest::Method",
         ]);
     }
@@ -125,10 +124,11 @@ impl Builder {
         let mut buf = BytesMut::with_capacity(1024);
         let mut request_set_imports = request_set.get_imports();
         request_set_imports.extend(imports.iter().map(|s| s.to_string()));
+        let imports: BTreeSet<String> = request_set_imports.into_iter().collect();
 
         let mut spec_client = SpecClient::from(&request_set);
         spec_client.set_name(parent.as_str());
-        spec_client.set_imports(request_set_imports);
+        spec_client.set_imports(imports);
         spec_client.extend_links(links_override);
 
         let client_impl = spec_client.gen_api_impl();
@@ -170,9 +170,10 @@ impl Builder {
         links_override: &HashMap<String, Vec<String>>,
     ) -> SpecClient {
         let request_set_imports = request_set.get_imports();
+        let imports: BTreeSet<String> = request_set_imports.into_iter().collect();
         let mut spec_client = SpecClient::from(request_set);
         spec_client.set_name(parent);
-        spec_client.set_imports(request_set_imports);
+        spec_client.set_imports(imports);
         spec_client.extend_links(links_override);
         spec_client
     }

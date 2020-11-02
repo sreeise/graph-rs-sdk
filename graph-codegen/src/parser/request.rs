@@ -3,10 +3,9 @@ use crate::parser::{ResourceNameMapping, ResourceNames};
 use crate::traits::{HashMapExt, RequestParser};
 use from_as::*;
 use inflector::Inflector;
-use std::collections::hash_map::RandomState;
 use std::collections::hash_set::{Difference, Iter};
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
-use std::hash::{BuildHasher, Hash, Hasher};
+use std::hash::{Hash, Hasher};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
 pub enum HttpMethod {
@@ -56,6 +55,7 @@ pub enum ResponseType {
     Collection,
     NoContent,
     Delta,
+    UploadSession,
 }
 
 impl ResponseType {
@@ -65,6 +65,7 @@ impl ResponseType {
             ResponseType::Delta => "DeltaPhantom<Collection<serde_json::Value>>",
             ResponseType::NoContent => "GraphResponse<Content>",
             ResponseType::SerdeJson => "serde_json::Value",
+            ResponseType::UploadSession => "UploadSessionClient",
         }
     }
 
@@ -80,6 +81,10 @@ impl ResponseType {
             },
             ResponseType::NoContent => {
                 set.insert("graph_http::types::Content".into());
+                set.insert("graph_http::GraphResponse".into());
+            },
+            ResponseType::UploadSession => {
+                set.insert("graph_http::UploadSessionClient".into());
             },
             _ => {},
         }

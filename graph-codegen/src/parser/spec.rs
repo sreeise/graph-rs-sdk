@@ -166,8 +166,26 @@ impl Parser {
                 "directoryObjects.microsoft.graph.administrativeUnit".to_string(),
             ),
             vec![MatchTarget::OperationMap(
-                "directoryObjects.administrativeUnit".to_string(),
+                "directoryObjects.administrativeUnits".to_string(),
             )],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationId("directory.administrativeUnits.delta.fa14".to_string()),
+            vec![
+                MatchTarget::OperationId("directoryObjects.administrativeUnits.delta".to_string()),
+                MatchTarget::OperationMap("directoryObjects.administrativeUnits".to_string()),
+            ],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationId("directoryRoles.delta.fa14".to_string()),
+            vec![
+                MatchTarget::OperationId("directoryRoles.delta".to_string()),
+                MatchTarget::OperationMap("directoryRoles".to_string()),
+            ],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("policies.policyRoot".to_string()),
+            vec![MatchTarget::OperationMap("policies".to_string())],
         );
         spec.modify_target.map.insert(
             MatchTarget::OperationMap("sites.contentTypes".to_string()),
@@ -180,14 +198,16 @@ impl Parser {
         spec.modify_target.map.insert(
             MatchTarget::OperationMap("groupLifecyclePolicies.groupLifecyclePolicy".to_string()),
             vec![MatchTarget::OperationMap(
-                "groupLifecyclePolicy".to_string(),
+                "groupLifecyclePolicies".to_string(),
             )],
         );
         spec.modify_target.map.insert(
-            MatchTarget::OperationMap("groupLifecyclePolicies".to_string()),
-            vec![MatchTarget::OperationMap(
-                "groupLifecyclePolicy".to_string(),
-            )],
+            MatchTarget::OperationMap("auditLogs.auditLogRoot".to_string()),
+            vec![MatchTarget::OperationMap("auditLogs".to_string())],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("policies.policyRoot".to_string()),
+            vec![MatchTarget::OperationMap("policies".to_string())],
         );
 
         // Modify that paths that have a resource id. See UrlMatchTarget
@@ -204,6 +224,8 @@ impl Parser {
             spec,
             vec![
                 Filter::IgnoreIf(FilterIgnore::PathContains("onenote")),
+                Filter::IgnoreIf(FilterIgnore::PathContains("calendar")),
+                Filter::IgnoreIf(FilterIgnore::PathContains("calendarView")),
                 Filter::IgnoreIf(FilterIgnore::PathContains("getActivitiesByInterval")),
                 // These are basically like OData queries and look like getByPath(path={path})
                 // but we dont currently handle these so they are ignored.

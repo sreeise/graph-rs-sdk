@@ -199,16 +199,21 @@ impl RequestParserBuilder for Operation {
         request.has_body = self.has_body();
         request.response = self.response_type();
         request.doc = self.summary.clone().map(|s| format!("# {}", s));
+
         if request.method.eq(&HttpMethod::DELETE) {
             request.response = ResponseType::NoContent;
         } else if request.method_name.starts_with("list") {
             request.response = ResponseType::Collection;
         } else if request.method_name.eq("delta") {
             request.response = ResponseType::Delta;
+        } else if request.method_name.eq("create_upload_session") {
+            request.response = ResponseType::UploadSession;
         }
+
         if let Some(tag) = self.tags.get(0) {
             request.tag = tag.to_string();
         }
+
         request.modify(modifiers);
         request
     }
