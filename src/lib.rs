@@ -1,57 +1,49 @@
-//! Graph-rs is an API client for Microsoft Graph V1.0 and Graph Beta.
+//! graph-rs is an API client for Microsoft Graph V1.0 and Graph Beta.
 //!
-//! If you run into issues related to graph-rs specifically please
-//! file an issue on github: https://github.com/sreeise/graph-rs
+//! - For more information and examples please see the repository on
+//! [GitHub](https://github.com/sreeise/graph-rs)
+//! - If you run into issues related to graph-rs specifically please
+//! file an issue on [GitHub](https://github.com/sreeise/graph-rs)
 //!
-//! # Example
+//! # Basic Use:
 //! ```rust,ignore
 //! use graph_rs::prelude::*;
 //!
 //! let client = Graph::new("ACCESS_TOKEN");
 //!
 //! // Use the V1.0 endpoint:
-//! let collection = client.v1()
+//! let response = client.v1()
 //!     .me()
 //!     .drive()
 //!     .root_children()
 //!     .send()?;
-//! pirntln!("{:#?}", collection.value());
+//! println!("{:#?}", response.body());
 //!
 //! // Use the Graph beta endpoint.
-//! let collection = client.beta()
+//! let response = client.beta()
 //!     .me()
 //!     .drive()
-//!     .root_children()
+//!     .get_drive()
 //!     .send()?;
-//! pirntln!("{:#?}", collection.value());
+//! println!("{:#?}", response.body());
 //! ```
 //!
-//! Choose between me, drives, users, groups, and sites.
-//! # Example
+//! # Using the Async Client
 //! ```rust,ignore
 //! use graph_rs::prelude::*;
 //!
-//! let client = Graph::new("TOKEN");
+//! let client =  Graph::new_async("ACCESS_TOKEN");
 //!
-//! // Users
-//! let response = client.v1()
-//!     .users("ID")
-//!     .mail()
-//!     .messages()
-//!     .list()
-//!     .send()?;
-//! // Collection of messages.
-//! println!("{:#?}", response.value());
+//! // Returns GraphResponse<Collection<serde_json::Value>>
+//! let response = client
+//!     .v1()
+//!     .drives("{drive-id}")
+//!     .root()?;
 //!
-//! // Groups
-//! let response = client.v1()
-//!     .groups("ID")
-//!     .list_members()
-//!     .send()?;
-//! // Group members.
-//! println!("{:#?}", response.value());
+// println!("{:#?}", response.body());
 //!
 //! ```
+//!
 
 #![feature(type_alias_impl_trait)]
 #![feature(async_closure)]
