@@ -7,12 +7,43 @@ use graph_http::IntoResponse;
 use reqwest::Method;
 
 register_client!(ApplicationsRequest,);
-register_client!(CommunicationsRequest,);
 
 impl<'a, Client> ApplicationsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    post!({
+        doc: "# Invoke action addPassword",
+        name: add_password,
+        response: serde_json::Value,
+        path: "/applications/{{id}}/addPassword",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get tokenIssuancePolicies from applications",
+        name: get_token_issuance_policies,
+        response: serde_json::Value,
+        path: "/applications/{{id}}/tokenIssuancePolicies/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    get!({
+        doc: "# Invoke function delta",
+        name: delta,
+        response: DeltaPhantom<Collection<serde_json::Value>>,
+        path: "/applications/delta()",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action removePassword",
+        name: remove_password,
+        response: GraphResponse<Content>,
+        path: "/applications/{{id}}/removePassword",
+        params: 1,
+        has_body: true
+    });
     get!({
         doc: "# Get entity from applications by key",
         name: get_application,
@@ -38,14 +69,6 @@ where
         has_body: false
     });
     get!({
-        doc: "# Get tokenIssuancePolicies from applications",
-        name: get_token_issuance_policies,
-        response: serde_json::Value,
-        path: "/applications/{{id}}/tokenIssuancePolicies/{{id2}}",
-        params: 2,
-        has_body: false
-    });
-    get!({
         doc: "# Get extensionProperties from applications",
         name: get_extension_properties,
         response: serde_json::Value,
@@ -60,14 +83,6 @@ where
         path: "/applications/{{id}}/extensionProperties/{{id2}}",
         params: 2,
         has_body: true
-    });
-    get!({
-        doc: "# Get homeRealmDiscoveryPolicies from applications",
-        name: get_home_realm_discovery_policies,
-        response: serde_json::Value,
-        path: "/applications/{{id}}/homeRealmDiscoveryPolicies/{{id2}}",
-        params: 2,
-        has_body: false
     });
     get!({
         doc: "# Get owners from applications",
@@ -94,43 +109,19 @@ where
         has_body: false
     });
     post!({
-        doc: "# Invoke action removePassword",
-        name: remove_password,
+        doc: "# Invoke action removeKey",
+        name: remove_key,
         response: GraphResponse<Content>,
-        path: "/applications/{{id}}/removePassword",
+        path: "/applications/{{id}}/removeKey",
         params: 1,
         has_body: true
     });
     get!({
-        doc: "# Get entities from applications",
-        name: list_application,
+        doc: "# Get owners from applications",
+        name: list_owners,
         response: Collection<serde_json::Value>,
-        path: "/applications",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Add new entity to applications",
-        name: create_application,
-        response: serde_json::Value,
-        path: "/applications",
-        params: 0,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action addPassword",
-        name: add_password,
-        response: serde_json::Value,
-        path: "/applications/{{id}}/addPassword",
+        path: "/applications/{{id}}/owners",
         params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get tokenLifetimePolicies from applications",
-        name: get_token_lifetime_policies,
-        response: serde_json::Value,
-        path: "/applications/{{id}}/tokenLifetimePolicies/{{id2}}",
-        params: 2,
         has_body: false
     });
     get!({
@@ -157,6 +148,30 @@ where
         params: 1,
         has_body: true
     });
+    get!({
+        doc: "# Get homeRealmDiscoveryPolicies from applications",
+        name: get_home_realm_discovery_policies,
+        response: serde_json::Value,
+        path: "/applications/{{id}}/homeRealmDiscoveryPolicies/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    get!({
+        doc: "# Get entities from applications",
+        name: list_application,
+        response: Collection<serde_json::Value>,
+        path: "/applications",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Add new entity to applications",
+        name: create_application,
+        response: serde_json::Value,
+        path: "/applications",
+        params: 0,
+        has_body: true
+    });
     post!({
         doc: "# Invoke action addKey",
         name: add_key,
@@ -174,33 +189,11 @@ where
         has_body: false
     });
     get!({
-        doc: "# Get owners from applications",
-        name: list_owners,
-        response: Collection<serde_json::Value>,
-        path: "/applications/{{id}}/owners",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action removeKey",
-        name: remove_key,
-        response: GraphResponse<Content>,
-        path: "/applications/{{id}}/removeKey",
-        params: 1,
-        has_body: true
-    });
-}
-
-impl<'a, Client> CommunicationsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Invoke function delta",
-        name: delta,
-        response: DeltaPhantom<Collection<serde_json::Value>>,
-        path: "/applications/delta()",
-        params: 0,
+        doc: "# Get tokenLifetimePolicies from applications",
+        name: get_token_lifetime_policies,
+        response: serde_json::Value,
+        path: "/applications/{{id}}/tokenLifetimePolicies/{{id2}}",
+        params: 2,
         has_body: false
     });
 }
