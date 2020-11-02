@@ -156,7 +156,7 @@ where
         self.request.set_token(token);
     }
 
-    pub(crate) fn ident(&self) -> Ident {
+    pub fn ident(&self) -> Ident {
         Ident::from_str(self.request.ident().as_str()).unwrap()
     }
 
