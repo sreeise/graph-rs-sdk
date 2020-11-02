@@ -16,7 +16,7 @@ use crate::domain_dns_records::DomainDnsRecordsRequest;
 use crate::domains::DomainsRequest;
 use crate::drive::{DriveRequest, DrivesRequest};
 use crate::education::{EducationMeRequest, EducationRequest, EducationUsersRequest};
-use crate::group_lifecycle_policies::GroupLifecyclePolicyRequest;
+use crate::group_lifecycle_policies::GroupLifecyclePoliciesRequest;
 use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
 };
@@ -171,6 +171,20 @@ impl<'a> GraphBlocking {
     /// ```
     /// ```rust,ignore
     /// // Use the v1.0 API
+    ///
+    /// // Returns a response object with the body
+    /// // converted to serde_json::Value.
+    /// let response = client
+    ///     .v1()
+    ///     .me()
+    ///     .drive()
+    ///     .root_children()
+    ///     .send()?;
+    ///
+    /// println!("{:#?}", response.body());
+    ///
+    /// // Use a custom data structure. The json method
+    /// will convert anything that implements serde deserialize.
     /// let drive_items: serde_json::Value = client
     ///     .v1()
     ///     .me()
@@ -230,6 +244,20 @@ impl<'a> GraphAsync {
     /// ```
     /// ```rust,ignore
     /// // Use the v1.0 API
+    ///
+    /// // Returns a response object with the body
+    /// // converted to serde_json::Value.
+    /// let response = client
+    ///     .v1()
+    ///     .me()
+    ///     .drive()
+    ///     .root_children()
+    ///     .send()?;
+    ///
+    /// println!("{:#?}", response.body());
+    ///
+    /// // Use a custom data structure. The json method
+    /// will convert anything that implements serde deserialize.
     /// let drive_items: serde_json::Value = client
     ///     .v1()
     ///     .me()
@@ -299,22 +327,18 @@ where
         ActivitiesRequest::new(self.client)
     }
 
-    /// Select the app catalogs endpoint.
     pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
         AppCatalogsRequest::new(self.client)
     }
 
-    /// Select the applications endpoint.
     pub fn applications(&self) -> ApplicationsRequest<'a, Client> {
         ApplicationsRequest::new(self.client)
     }
 
-    /// Select the audit logs endpoint.
     pub fn audit_logs(&self) -> AuditLogsRequest<'a, Client> {
         AuditLogsRequest::new(self.client)
     }
 
-    /// Select the certificate based auth configuration endpoint.
     pub fn certificate_based_auth_configuration(
         &self,
     ) -> CertificateBasedAuthConfigurationRequest<'a, Client> {
@@ -353,7 +377,6 @@ where
         DomainsRequest::new(self.client)
     }
 
-    /// Select the drives endpoint.
     pub fn drives<S: AsRef<str>>(&self, id: S) -> DrivesRequest<'a, Client> {
         self.client.request.set_ident(Ident::Drives.to_string());
         self.set_path(id.as_ref());
@@ -364,20 +387,17 @@ where
         DriveRequest::new(self.client)
     }
 
-    /// Select the education endpoint.
     pub fn education(&self) -> EducationRequest<'a, Client> {
         EducationRequest::new(self.client)
     }
 
-    /// Select the groups endpoint.
     pub fn groups<S: AsRef<str>>(&self, id: S) -> IdentGroups<'a, Client> {
         self.client.request.set_ident(Ident::Groups.to_string());
         IdentGroups::new(id.as_ref(), self.client)
     }
 
-    /// Select the group lifecycle policies endpoint.
-    pub fn group_lifecycle_policies(&self) -> GroupLifecyclePolicyRequest<'a, Client> {
-        GroupLifecyclePolicyRequest::new(self.client)
+    pub fn group_lifecycle_policies(&self) -> GroupLifecyclePoliciesRequest<'a, Client> {
+        GroupLifecyclePoliciesRequest::new(self.client)
     }
 
     pub fn identity(&self) -> IdentityRequest<'a, Client> {
@@ -392,7 +412,6 @@ where
         PlacesRequest::new(self.client)
     }
 
-    /// Select the planner endpoint.
     pub fn planner(&self) -> PlannerRequest<'a, Client> {
         PlannerRequest::new(self.client)
     }
@@ -421,7 +440,6 @@ where
         TeamworkRequest::new(self.client)
     }
 
-    /// Select the me endpoint.
     pub fn me(&self) -> IdentMe<'a, Client> {
         self.client.request.set_ident(Ident::Me.to_string());
         IdentMe::new("", self.client)
@@ -431,13 +449,11 @@ where
         SiteRequest::new(self.client)
     }
 
-    /// Select the sites endpoint.
     pub fn sites<S: AsRef<str>>(&self, id: S) -> IdentSites<'a, Client> {
         self.client.request.set_ident(Ident::Sites.to_string());
         IdentSites::new(id.as_ref(), self.client)
     }
 
-    /// Select the users endpoint.
     pub fn users<S: AsRef<str>>(&self, id: S) -> IdentUsers<'a, Client> {
         self.client.request.set_ident(Ident::Users.to_string());
         IdentUsers::new(id.as_ref(), self.client)

@@ -1,12 +1,12 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
 use graph_http::types::Content;
-use graph_http::{GraphResponse, IntoResponse};
+use graph_http::GraphResponse;
+use graph_http::IntoResponse;
 use reqwest::Method;
 
 register_client!(SubscribedSkusRequest,);
 
-#[allow(dead_code)]
 impl<'a, Client> SubscribedSkusRequest<'a, Client>
 where
     Client: graph_http::RequestClient,

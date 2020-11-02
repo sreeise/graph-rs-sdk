@@ -1,12 +1,12 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
 use graph_http::types::Content;
-use graph_http::{GraphResponse, IntoResponse};
+use graph_http::GraphResponse;
+use graph_http::IntoResponse;
 use reqwest::Method;
 
 register_client!(TeamworkRequest,);
 
-#[allow(dead_code)]
 impl<'a, Client> TeamworkRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
@@ -26,14 +26,6 @@ where
         path: "/teamwork/workforceIntegrations/{{id}}",
         params: 1,
         has_body: true
-    });
-    delete!({
-        doc: "# Delete navigation property workforceIntegrations for teamwork",
-        name: delete_workforce_integrations,
-        response: GraphResponse<Content>,
-        path: "/teamwork/workforceIntegrations/{{id}}",
-        params: 1,
-        has_body: false
     });
     get!({
         doc: "# Get workforceIntegrations from teamwork",
