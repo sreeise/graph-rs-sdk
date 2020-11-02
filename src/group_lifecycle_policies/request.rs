@@ -1,13 +1,13 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
 use graph_http::types::Content;
-use graph_http::{GraphResponse, IntoResponse};
+use graph_http::GraphResponse;
+use graph_http::IntoResponse;
 use reqwest::Method;
 
-register_client!(GroupLifecyclePolicyRequest,);
+register_client!(GroupLifecyclePoliciesRequest,);
 
-#[allow(dead_code)]
-impl<'a, Client> GroupLifecyclePolicyRequest<'a, Client>
+impl<'a, Client> GroupLifecyclePoliciesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
@@ -35,6 +35,22 @@ where
         params: 1,
         has_body: false
     });
+    post!({
+        doc: "# Invoke action removeGroup",
+        name: remove_group,
+        response: serde_json::Value,
+        path: "/groupLifecyclePolicies/{{id}}/removeGroup",
+        params: 1,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action addGroup",
+        name: add_group,
+        response: serde_json::Value,
+        path: "/groupLifecyclePolicies/{{id}}/addGroup",
+        params: 1,
+        has_body: true
+    });
     get!({
         doc: "# Get entities from groupLifecyclePolicies",
         name: list_group_lifecycle_policy,
@@ -49,22 +65,6 @@ where
         response: serde_json::Value,
         path: "/groupLifecyclePolicies",
         params: 0,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action addGroup",
-        name: add_group,
-        response: serde_json::Value,
-        path: "/groupLifecyclePolicies/{{id}}/addGroup",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action removeGroup",
-        name: remove_group,
-        response: serde_json::Value,
-        path: "/groupLifecyclePolicies/{{id}}/removeGroup",
-        params: 1,
         has_body: true
     });
 }

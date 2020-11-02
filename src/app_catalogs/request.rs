@@ -1,6 +1,8 @@
 use crate::client::Graph;
-use graph_http::types::{Collection, Content};
-use graph_http::{GraphResponse, IntoResponse};
+use graph_http::types::Collection;
+use graph_http::types::Content;
+use graph_http::GraphResponse;
+use graph_http::IntoResponse;
 use reqwest::Method;
 
 register_client!(AppCatalogsRequest,);
@@ -13,7 +15,6 @@ where
     pub fn teams_apps(&self) -> TeamsAppsRequest<'a, Client> {
         TeamsAppsRequest::new(&self.client)
     }
-
     get!({
         doc: "# Get appCatalogs",
         name: get_app_catalogs,
@@ -30,12 +31,6 @@ where
         params: 0,
         has_body: true
     });
-}
-
-impl<'a, Client> TeamsAppsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
     get!({
         doc: "# Get teamsApps from appCatalogs",
         name: list_teams_apps,
@@ -68,14 +63,12 @@ where
         params: 1,
         has_body: true
     });
-    delete!({
-        doc: "# Delete navigation property teamsApps for appCatalogs",
-        name: delete_teams_apps,
-        response: GraphResponse<Content>,
-        path: "/appCatalogs/teamsApps/{{id}}",
-        params: 1,
-        has_body: false
-    });
+}
+
+impl<'a, Client> TeamsAppsRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
     get!({
         doc: "# Get appDefinitions from appCatalogs",
         name: list_app_definitions,
@@ -107,13 +100,5 @@ where
         path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}",
         params: 2,
         has_body: true
-    });
-    delete!({
-        doc: "# Delete navigation property appDefinitions for appCatalogs",
-        name: delete_app_definitions,
-        response: GraphResponse<Content>,
-        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}",
-        params: 2,
-        has_body: false
     });
 }

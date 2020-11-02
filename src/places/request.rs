@@ -1,32 +1,16 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
 use graph_http::types::Content;
-use graph_http::{GraphResponse, IntoResponse};
+use graph_http::GraphResponse;
+use graph_http::IntoResponse;
 use reqwest::Method;
 
 register_client!(PlacesRequest,);
 
-#[allow(dead_code)]
 impl<'a, Client> PlacesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!({
-        doc: "# Get entities from places",
-        name: list_place,
-        response: Collection<serde_json::Value>,
-        path: "/places",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Add new entity to places",
-        name: create_place,
-        response: serde_json::Value,
-        path: "/places",
-        params: 0,
-        has_body: true
-    });
     get!({
         doc: "# Get entity from places by key",
         name: get_place,
@@ -50,5 +34,21 @@ where
         path: "/places/{{id}}",
         params: 1,
         has_body: false
+    });
+    get!({
+        doc: "# Get entities from places",
+        name: list_place,
+        response: Collection<serde_json::Value>,
+        path: "/places",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Add new entity to places",
+        name: create_place,
+        response: serde_json::Value,
+        path: "/places",
+        params: 0,
+        has_body: true
     });
 }
