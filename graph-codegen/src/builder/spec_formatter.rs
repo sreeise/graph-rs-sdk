@@ -3,6 +3,11 @@ use bytes::{BufMut, BytesMut};
 use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
 
+pub enum RegisterClient {
+    BaseClient,
+    IdentClient,
+}
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct SpecClientImpl {
     name: String,
@@ -13,6 +18,7 @@ pub struct SpecClientImpl {
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct SpecClient {
     pub name: String,
+    pub is_ident_client: bool,
     pub imports: BTreeSet<String>,
     pub client_names: BTreeSet<String>,
     pub struct_links: BTreeMap<String, Vec<String>>,
@@ -40,6 +46,10 @@ impl SpecClient {
         self.methods = methods;
     }
 
+    pub fn set_ident_client(&mut self, is_ident_client: bool) {
+        self.is_ident_client = is_ident_client;
+    }
+
     pub fn extend_links(&mut self, links_override: &HashMap<String, Vec<String>>) {
         for (key, value) in self.struct_links.iter_mut() {
             if links_override.contains_key(key) {
@@ -59,11 +69,24 @@ impl SpecClient {
         let mut buf = BytesMut::new();
         buf.extend(imports_vec);
         buf.put_u8(b'\n');
-        buf.put(SpecFormatter::register_client(self.name.as_str()).as_bytes());
+        if self.is_ident_client {
+            buf.put(
+                SpecFormatter::register_client(self.name.as_str(), RegisterClient::IdentClient)
+                    .as_bytes(),
+            );
+        } else {
+            buf.put(
+                SpecFormatter::register_client(self.name.as_str(), RegisterClient::BaseClient)
+                    .as_bytes(),
+            );
+        }
 
         for name in self.client_names.iter() {
             if self.name.ne(name.as_str()) {
-                buf.put(SpecFormatter::register_client(name.as_str()).as_bytes());
+                buf.put(
+                    SpecFormatter::register_client(name.as_str(), RegisterClient::BaseClient)
+                        .as_bytes(),
+                );
             }
         }
         buf
@@ -125,14 +148,24 @@ impl From<&RequestSet> for SpecClient {
 pub struct SpecFormatter;
 
 impl SpecFormatter {
-    pub fn register_client(client_name: &str) -> String {
-        if client_name.ends_with("Request") {
-            format!("register_client!({},);\n", client_name.to_pascal_case())
-        } else {
-            format!(
-                "register_client!({}Request,);\n",
-                client_name.to_pascal_case()
-            )
+    pub fn register_client(client_name: &str, register_type: RegisterClient) -> String {
+        let ends_with = client_name.ends_with("Request");
+        let client_pascal_casing = client_name.to_pascal_case();
+        match register_type {
+            RegisterClient::BaseClient => {
+                if ends_with {
+                    format!("register_client!({},);\n", client_pascal_casing)
+                } else {
+                    format!("register_client!({}Request,);\n", client_pascal_casing)
+                }
+            },
+            RegisterClient::IdentClient => {
+                if ends_with {
+                    format!("register_client!({}, ());\n", client_pascal_casing)
+                } else {
+                    format!("register_client!({}Request, ());\n", client_pascal_casing)
+                }
+            },
         }
     }
 

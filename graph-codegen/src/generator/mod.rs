@@ -21,7 +21,7 @@ impl Generator {
         parser.use_default_links_override();
         let builder = Builder::new(parser);
         builder.set_build_with_modifier_filter(modifier_filter_build);
-        builder.use_default_imports();
+        builder.use_defaults();
 
         Generator { builder }
     }

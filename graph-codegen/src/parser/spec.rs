@@ -45,7 +45,7 @@ impl Parser {
                 requests: Default::default(),
                 tag_map: Default::default(),
                 operation_map: Default::default(),
-                modify_target: Default::default(),
+                modify_target: ModifierMap::with_capacity(20),
                 url_modify_target: Default::default(),
                 modifiers: Default::default(),
                 links_override: Default::default(),
@@ -63,7 +63,7 @@ impl Parser {
                 requests: Default::default(),
                 tag_map: Default::default(),
                 operation_map: Default::default(),
-                modify_target: Default::default(),
+                modify_target: ModifierMap::with_capacity(20),
                 url_modify_target: Default::default(),
                 modifiers: Default::default(),
                 links_override: Default::default(),
@@ -209,6 +209,18 @@ impl Parser {
             MatchTarget::OperationMap("policies.policyRoot".to_string()),
             vec![MatchTarget::OperationMap("policies".to_string())],
         );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("teams.primaryChannel.messages".to_string()),
+            vec![MatchTarget::OperationMap(
+                "teams.primaryChannel.primaryChannelMessages".to_string(),
+            )],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("teams.primaryChannel.tabs".to_string()),
+            vec![MatchTarget::OperationMap(
+                "teams.primaryChannel.primaryChannelTabs".to_string(),
+            )],
+        );
 
         // Modify that paths that have a resource id. See UrlMatchTarget
         // for more info.
@@ -217,6 +229,7 @@ impl Parser {
             UrlMatchTarget::resource_id("sites", "site"),
             UrlMatchTarget::resource_id("groups", "group"),
             UrlMatchTarget::resource_id("drives", "drive"),
+            UrlMatchTarget::resource_id("teams", "team"),
             UrlMatchTarget::resource_id("workbooks", "workbook"),
         ]);
 
@@ -277,16 +290,25 @@ impl Parser {
     }
 
     pub fn use_default_links_override(&self) {
-        self.add_links_override(
-            "directory",
-            &[
+        let mut spec = self.spec.borrow_mut();
+        spec.links_override.insert(
+            "directory".to_string(),
+            [
                 "directoryRoles",
                 "directoryObjects",
                 "directoryRoleTemplates",
-            ],
+            ]
+            .iter()
+            .map(|s| s.to_string())
+            .collect(),
         );
     }
-
+    /*
+    spec.links_override.insert(
+                "team".to_string(),
+                ["teamsTemplates"].iter().map(|s| s.to_string()).collect(),
+            );
+     */
     pub fn get_links_override(&self) -> HashMap<String, Vec<String>> {
         self.spec.borrow().links_override.clone()
     }

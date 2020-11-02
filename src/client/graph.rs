@@ -32,6 +32,7 @@ use crate::service_principals::ServicePrincipalsRequest;
 use crate::sites::SiteRequest;
 use crate::subscribed_skus::SubscribedSkusRequest;
 use crate::subscriptions::SubscriptionsRequest;
+use crate::teams::{TeamRequest, TeamsRequest};
 use crate::teamwork::TeamworkRequest;
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::{GraphFailure, GraphRsError};
@@ -55,6 +56,7 @@ pub enum Ident {
     Sites,
     Groups,
     Users,
+    Teams,
 }
 
 impl AsRef<str> for Ident {
@@ -65,6 +67,7 @@ impl AsRef<str> for Ident {
             Ident::Sites => "sites",
             Ident::Groups => "groups",
             Ident::Users => "users",
+            Ident::Teams => "teams",
         }
     }
 }
@@ -77,6 +80,7 @@ impl ToString for Ident {
             Ident::Sites => "sites".into(),
             Ident::Groups => "groups".into(),
             Ident::Users => "users".into(),
+            Ident::Teams => "teams".into(),
         }
     }
 }
@@ -91,6 +95,7 @@ impl FromStr for Ident {
             b"sites" => Ok(Ident::Sites),
             b"groups" => Ok(Ident::Groups),
             b"users" => Ok(Ident::Users),
+            b"teams" => Ok(Ident::Teams),
             _ => Err(GraphRsError::InvalidOrMissing {
                 msg: "Not a valid Ident".into(),
             }),
@@ -459,6 +464,15 @@ where
         TeamworkRequest::new(self.client)
     }
 
+    pub fn team(&self) -> TeamRequest<'a, Client> {
+        TeamRequest::new(self.client)
+    }
+
+    pub fn teams<S: AsRef<str>>(&self, id: S) -> TeamsRequest<'a, Client> {
+        self.client.request.set_ident(Ident::Teams.to_string());
+        TeamsRequest::new(id.as_ref(), self.client)
+    }
+
     pub fn me(&self) -> IdentMe<'a, Client> {
         self.client.request.set_ident(Ident::Me.to_string());
         IdentMe::new("", self.client)
@@ -473,13 +487,13 @@ where
         IdentSites::new(id.as_ref(), self.client)
     }
 
+    pub fn user(&self) -> UserRequest<'a, Client> {
+        UserRequest::new(self.client)
+    }
+
     pub fn users<S: AsRef<str>>(&self, id: S) -> IdentUsers<'a, Client> {
         self.client.request.set_ident(Ident::Users.to_string());
         IdentUsers::new(id.as_ref(), self.client)
-    }
-
-    pub fn user(&self) -> UserRequest<'a, Client> {
-        UserRequest::new(self.client)
     }
 
     /// Perform a batch requests which can store multiple requests
@@ -515,7 +529,7 @@ where
     get!( get, serde_json::Value => "me" );
     get!( list_events, Collection<serde_json::Value> => "me/events" );
     get!( settings, serde_json::Value => "me/settings" );
-    get!(list_planner_tasks, Collection<serde_json::Value> => "me/planner/tasks");
+    get!( list_planner_tasks, Collection<serde_json::Value> => "me/planner/tasks");
     patch!( [ update_settings, serde_json::Value => "me/settings" ] );
 
     pub fn activities(&'a self) -> ActivitiesRequest<'a, Client> {
