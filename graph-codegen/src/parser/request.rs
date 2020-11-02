@@ -409,11 +409,7 @@ impl RequestSet {
         let mut request_set2 = RequestSet::default();
 
         for request_map in self.set.iter() {
-            if request_map
-                .requests
-                .iter()
-                .any(|req| req.has_rid)
-            {
+            if request_map.requests.iter().any(|req| req.has_rid) {
                 request_set1.set.insert(request_map.clone());
             } else {
                 request_set2.set.insert(request_map.clone());
