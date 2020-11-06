@@ -526,6 +526,18 @@ impl<'a, Client> DriveRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> DrivesRequest<'a, Client> {
+        let ident = self.client.ident();
+        if self.client.ident().eq(&Ident::Me) {
+            self.client.request().extend_path(&[ident.as_ref()]);
+        } else {
+            self.client
+                .request()
+                .extend_path(&[ident.as_ref(), id.as_ref()]);
+        }
+        DrivesRequest::new(self.client)
+    }
+
     pub fn list(&self) -> DriveListRequest<'a, Client> {
         DriveListRequest::new(&self.client)
     }

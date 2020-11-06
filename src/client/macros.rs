@@ -28,10 +28,12 @@ macro_rules! register_client {
 
         pub struct $name<'a, Client> {
             client: &'a Graph<Client>,
+            id: String,
         }
 
         impl<'a, Client> $name<'a, Client,> where Client: graph_http::RequestClient  {
             pub fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
+                let id_stored = id.to_string();
                 $(
                     client.request().registry(|r| {
                         r.register_helper(stringify!($helper), Box::new($helper));
@@ -55,7 +57,12 @@ macro_rules! register_client {
 
                 $name {
                     client,
+                    id: id_stored
                 }
+            }
+
+            pub fn get_id(&self) -> &String {
+                &self.id
             }
         }
     };
