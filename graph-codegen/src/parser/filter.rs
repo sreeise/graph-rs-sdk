@@ -19,6 +19,7 @@ pub enum FilterIgnore<'a> {
 pub enum Filter<'a> {
     None,
     PathStartsWith(&'a str),
+    PathStartsWithMulti(Vec<&'a str>),
     PathEquals(&'a str),
     Regex(&'a str),
     IgnoreIf(FilterIgnore<'a>),
@@ -62,7 +63,7 @@ impl From<Filter<'_>> for StoredFilter {
                 FilterIgnore::PathStartsWith(s) => StoredFilter::new(SerializedFilter::Ignore, s),
                 FilterIgnore::PathContains(s) => StoredFilter::new(SerializedFilter::Ignore, s),
             },
-            Filter::MultiFilter(_) => StoredFilter::new(SerializedFilter::None, ""),
+            _ => StoredFilter::new(SerializedFilter::None, ""),
         }
     }
 }
@@ -287,6 +288,30 @@ impl ModifierMap {
         ModifierMap {
             map: HashMap::with_capacity(size),
         }
+    }
+
+    pub fn insert(&mut self, from: MatchTarget, to: Vec<MatchTarget>) {
+        let to_clone = to.clone();
+        self.map
+            .entry(from)
+            .and_modify(|vec| {
+                vec.extend(to_clone);
+            })
+            .or_insert(to);
+    }
+
+    pub fn operation_map(&mut self, from: &str, to: &str) {
+        self.insert(
+            MatchTarget::OperationMap(from.to_string()),
+            vec![MatchTarget::OperationMap(to.to_string())],
+        );
+    }
+
+    pub fn operation_id(&mut self, from: &str, to: &str) {
+        self.insert(
+            MatchTarget::OperationId(from.to_string()),
+            vec![MatchTarget::OperationId(to.to_string())],
+        );
     }
 }
 

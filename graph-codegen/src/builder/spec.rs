@@ -1,11 +1,12 @@
 use crate::builder::spec_formatter::SpecClient;
-use crate::parser::{Parser, RequestSet, ResourceNames};
+use crate::parser::filter::{Filter, UrlMatchTarget};
+use crate::parser::{Parser, PathMap, RequestSet, ResourceNames};
 use bytes::BytesMut;
 use from_as::*;
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::cell::RefCell;
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fs::OpenOptions;
 use std::path::Path;
 
@@ -15,12 +16,26 @@ pub struct SpecBuilder {
     #[serde(skip_serializing_if = "HashSet::is_empty")]
     imports: HashSet<String>,
     ident_clients: HashSet<String>,
+    ident_client_id_links: BTreeMap<String, String>,
     build_with_modifier_filter: bool,
 }
 
 impl SpecBuilder {
     fn add_imports(&mut self, imports: &[&str]) {
         self.imports.extend(imports.iter().map(|s| s.to_string()));
+    }
+
+    fn add_ident_clients(&mut self, ident_clients: &[&str]) {
+        self.ident_clients
+            .extend(ident_clients.iter().map(|s| s.to_string()));
+    }
+
+    fn set_ident_clients(&mut self, ident_clients: HashSet<String>) {
+        self.ident_clients = ident_clients;
+    }
+
+    fn set_ident_client_id_links(&mut self, ident_client_id_links: BTreeMap<String, String>) {
+        self.ident_client_id_links = ident_client_id_links;
     }
 }
 
@@ -36,6 +51,7 @@ impl Builder {
                 parser,
                 imports: Default::default(),
                 ident_clients: Default::default(),
+                ident_client_id_links: Default::default(),
                 build_with_modifier_filter: false,
             }),
         }
@@ -47,6 +63,7 @@ impl Builder {
                 parser,
                 imports: Default::default(),
                 ident_clients: Default::default(),
+                ident_client_id_links: Default::default(),
                 build_with_modifier_filter: true,
             }),
         }
@@ -56,8 +73,16 @@ impl Builder {
         self.spec.borrow_mut().build_with_modifier_filter = build_with_modifier_filter;
     }
 
+    pub fn filter(&self, filter: Filter<'_>) -> PathMap {
+        self.spec.borrow().parser.filter(filter)
+    }
+
     pub fn add_imports(&self, imports: &[&str]) {
         self.spec.borrow_mut().add_imports(imports);
+    }
+
+    pub fn add_ident_clients(&self, ident_clients: &[&str]) {
+        self.spec.borrow_mut().add_ident_clients(ident_clients);
     }
 
     pub fn use_default_imports(&self) {
@@ -79,7 +104,25 @@ impl Builder {
             "graph_http::IntoResponse",
             "reqwest::Method",
         ]);
-        spec.ident_clients.insert("teams".into());
+
+        let mut ident_clients: HashSet<String> = HashSet::new();
+        let mut ident_client_id_links: BTreeMap<String, String> = BTreeMap::new();
+        let modifiers = spec.parser.resource_modifier_set();
+
+        for resource_target in modifiers.iter() {
+            match resource_target {
+                UrlMatchTarget::ResourceId(name, replacement) => {
+                    let mut name = name.clone();
+                    name.truncate(name.len() - 7);
+                    name.remove(0);
+                    ident_clients.insert(name.clone());
+                    ident_client_id_links.insert(replacement.to_string(), name.to_string());
+                },
+            }
+        }
+
+        spec.set_ident_clients(ident_clients);
+        spec.set_ident_client_id_links(ident_client_id_links);
     }
 
     pub fn build(&self) {
@@ -104,6 +147,7 @@ impl Builder {
 
         for (name, request_set) in map.iter() {
             if !name.trim().is_empty() {
+                let id_links = spec.ident_client_id_links.clone();
                 let is_ident_client = spec.ident_clients.contains(name);
 
                 IoTools::create_dir(format!("./src/{}", name.to_snake_case())).unwrap();
@@ -127,6 +171,7 @@ impl Builder {
                     name.to_string(),
                     &imports,
                     &links_override,
+                    id_links,
                     request_set.clone(),
                     is_ident_client,
                 );
@@ -139,6 +184,7 @@ impl Builder {
         parent: String,
         imports: &HashSet<String>,
         links_override: &HashMap<String, Vec<String>>,
+        id_links: BTreeMap<String, String>,
         request_set: RequestSet,
         is_ident_client: bool,
     ) {
@@ -155,6 +201,7 @@ impl Builder {
         spec_client.set_imports(imports);
         spec_client.extend_links(links_override);
         spec_client.set_ident_client(is_ident_client);
+        spec_client.set_id_links(id_links);
 
         let client_impl = spec_client.gen_api_impl();
         buf.extend(client_impl);
@@ -187,52 +234,5 @@ impl Builder {
 
     pub fn generate_resource_names(&self) -> ResourceNames {
         ResourceNames::from(self.spec.borrow().parser.path_map())
-    }
-
-    fn gen_spec_client(
-        parent: &str,
-        request_set: &RequestSet,
-        links_override: &HashMap<String, Vec<String>>,
-    ) -> SpecClient {
-        let request_set_imports = request_set.get_imports();
-        let imports: BTreeSet<String> = request_set_imports.into_iter().collect();
-        let mut spec_client = SpecClient::from(request_set);
-        spec_client.set_name(parent);
-        spec_client.set_imports(imports);
-        spec_client.extend_links(links_override);
-        spec_client
-    }
-
-    pub fn get_clients(&self) -> Vec<SpecClient> {
-        let spec = self.spec.borrow();
-        let request_set_map = spec.parser.build_with_modifier_filter();
-        let links_override = spec.parser.get_links_override();
-        let mut spec_clients: Vec<SpecClient> = Vec::new();
-
-        for (name, request_set) in request_set_map.iter() {
-            let spec_client = Builder::gen_spec_client(name, &request_set, &links_override);
-            spec_client.gen_api_impl();
-            spec_clients.push(spec_client);
-        }
-
-        spec_clients
-    }
-
-    pub fn gen_request_set<P: AsRef<Path>>(path: P, parent: &str, request_set: &RequestSet) {
-        let mut buf = BytesMut::with_capacity(1024);
-        let spec_client = Builder::gen_spec_client(parent, request_set, &HashMap::new());
-
-        let client_impl = spec_client.gen_api_impl();
-        buf.extend(client_impl);
-
-        let mut file = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .truncate(true)
-            .create(true)
-            .open(path)
-            .unwrap();
-        file.write_all(buf.as_mut()).unwrap();
-        file.sync_all().unwrap();
     }
 }

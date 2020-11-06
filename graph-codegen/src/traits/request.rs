@@ -38,6 +38,7 @@ pub trait Modify<T> {
 }
 
 impl RequestParser for &str {
+    /// Parse the method name of a request.
     fn method_name(&self) -> String {
         let mut method_name = String::new();
         if let Some(index) = self.rfind('.') {
@@ -60,6 +61,9 @@ impl RequestParser for &str {
         }
     }
 
+    /// Create the operation mapping that will be used to create
+    /// client structs, links between these structs, and the mapping
+    /// for where to place request methods.
     fn operation_mapping(&self) -> String {
         let mut op_mapping = String::new();
 
@@ -68,12 +72,14 @@ impl RequestParser for &str {
             ops.retain(|s| !s.is_empty());
 
             if let Some(last) = ops.pop() {
-                if !NUM_REG.is_match(last) {
-                    if ops.len() > 1 {
-                        op_mapping = ops.join(".");
-                    } else {
-                        op_mapping = ops.join("");
-                    }
+                if NUM_REG.is_match(last) && ops.len() > 1 {
+                    ops.pop();
+                }
+
+                if ops.len() > 1 {
+                    op_mapping = ops.join(".");
+                } else {
+                    op_mapping = ops.join("");
                 }
             }
         } else {
@@ -102,8 +108,8 @@ impl RequestParser for &str {
         let mut path = self.to_string();
         let path_clone = path.clone();
 
-        let mut count = 1;
         // Replaces ids in paths attached to the resource name such as groups({id})
+        let mut count = 1;
         for cap in PATH_ID_REG.captures_iter(path_clone.as_str()) {
             let s = cap[0].to_string();
             if count == 1 {
@@ -114,8 +120,8 @@ impl RequestParser for &str {
             count += 1;
         }
 
-        let mut count = 1;
         // Replaces named ids such as {group-id}.
+        let mut count = 1;
         for cap in PATH_ID_NAMED_REG.captures_iter(path_clone.as_str()) {
             let s = cap[0].to_string();
             if count == 1 {
@@ -125,6 +131,10 @@ impl RequestParser for &str {
             }
             count += 1;
         }
+
+        // Some of the paths end with a name that starts with microsoft.graph
+        // such as microsoft.graph.delta. We remove that part of the path in
+        // case of issues when performing the actual request.
         if path.contains("microsoft.graph.") {
             path.replace("microsoft.graph.", "")
         } else {

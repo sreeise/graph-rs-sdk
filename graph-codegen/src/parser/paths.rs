@@ -324,6 +324,12 @@ impl PathMap {
                 .into_iter()
                 .filter(|(path, _path_spec)| path.starts_with(filter))
                 .collect(),
+            Filter::PathStartsWithMulti(vec) => self
+                .paths
+                .clone()
+                .into_iter()
+                .filter(|(path, _path_spec)| vec.iter().any(|s| path.starts_with(s)))
+                .collect(),
             Filter::None => self.paths.clone(),
             Filter::PathEquals(filter) => self
                 .paths

@@ -62,10 +62,10 @@ impl ResponseType {
     pub fn as_str(&self) -> &'static str {
         match self {
             ResponseType::Collection => "Collection<serde_json::Value>",
-            ResponseType::Delta => "DeltaPhantom<Collection<serde_json::Value>>",
+            ResponseType::Delta => "DeltaPhantom<serde_json::Value>",
             ResponseType::NoContent => "GraphResponse<Content>",
             ResponseType::SerdeJson => "serde_json::Value",
-            ResponseType::UploadSession => "UploadSessionClient",
+            ResponseType::UploadSession => "UploadSessionClient<Client>",
         }
     }
 
@@ -76,7 +76,6 @@ impl ResponseType {
                 set.insert("graph_http::types::Collection".into());
             },
             ResponseType::Delta => {
-                set.insert("graph_http::types::Collection".into());
                 set.insert("graph_http::types::DeltaPhantom".into());
             },
             ResponseType::NoContent => {
@@ -357,6 +356,9 @@ impl RequestSet {
         )
     }
 
+    /// Splits the operation id for each request in the RequestMap
+    /// and returns a unique set of struct names that are used
+    /// to create the different client structs.
     fn struct_names(links: &HashSet<String>) -> HashSet<String> {
         let mut set: HashSet<String> = HashSet::new();
         for link in links.iter() {
@@ -373,6 +375,26 @@ impl RequestSet {
         set
     }
 
+    /// Creates a hash map of each struct and the client structs
+    /// it links too.
+    ///
+    /// # Example
+    ///
+    /// Say we have the following operation id's or operation mappings:
+    ///     groups.calendar.calendarView
+    ///     groups.calendarView
+    ///     groups.drive
+    ///
+    /// {
+    ///     "groups": [
+    ///         "calendar",
+    ///         "calendarView",
+    ///         "drive"
+    ///     ],
+    ///     "calendar": [
+    ///         "calendarView"
+    ///     ]
+    /// }
     fn struct_links(links: &HashSet<String>) -> HashMap<String, Vec<String>> {
         let mut map: HashMap<String, Vec<String>> = HashMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
@@ -404,6 +426,10 @@ impl RequestSet {
         self.set.iter()
     }
 
+    /// Split the requests into two RequestSet groupings where the
+    /// first group is all requests that require a resource id in the
+    /// path such as /groups/{group-id} and the second RequestSet
+    /// is all requests that do not require a resource id in the path.
     pub fn split_on_resource_id(&self) -> (RequestSet, RequestSet) {
         let mut request_set1 = RequestSet::default();
         let mut request_set2 = RequestSet::default();
