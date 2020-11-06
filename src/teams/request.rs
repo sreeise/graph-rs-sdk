@@ -21,38 +21,9 @@ impl<'a, Client> TeamRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!({
-        doc: "# Get entities from teams",
-        name: list_team,
-        response: Collection<serde_json::Value>,
-        path: "/teams",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Add new entity to teams",
-        name: create_team,
-        response: serde_json::Value,
-        path: "/teams",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get entities from teamsTemplates",
-        name: list_teams_template,
-        response: Collection<serde_json::Value>,
-        path: "/teamsTemplates",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Add new entity to teamsTemplates",
-        name: create_teams_template,
-        response: serde_json::Value,
-        path: "/teamsTemplates",
-        params: 0,
-        has_body: true
-    });
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> TeamsRequest<'a, Client> {
+        TeamsRequest::new(id.as_ref(), self.client)
+    }
     get!({
         doc: "# Get entity from teamsTemplates by key",
         name: get_teams_template,
@@ -76,6 +47,38 @@ where
         path: "/teamsTemplates/{{id}}",
         params: 1,
         has_body: false
+    });
+    get!({
+        doc: "# Get entities from teamsTemplates",
+        name: list_teams_template,
+        response: Collection<serde_json::Value>,
+        path: "/teamsTemplates",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Add new entity to teamsTemplates",
+        name: create_teams_template,
+        response: serde_json::Value,
+        path: "/teamsTemplates",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get entities from teams",
+        name: list_team,
+        response: Collection<serde_json::Value>,
+        path: "/teams",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Add new entity to teams",
+        name: create_team,
+        response: serde_json::Value,
+        path: "/teams",
+        params: 0,
+        has_body: true
     });
     get!({
         doc: "# Invoke function getAllMessages",
@@ -104,59 +107,19 @@ where
         ScheduleRequest::new(&self.client)
     }
     get!({
-        doc: "# Get operations from teams",
-        name: get_operations,
+        doc: "# Get members from teams",
+        name: get_members,
         response: serde_json::Value,
-        path: "/teams/{{RID}}/operations/{{id}}",
+        path: "/teams/{{RID}}/members/{{id}}",
         params: 1,
         has_body: false
     });
     patch!({
-        doc: "# Update the navigation property operations in teams",
-        name: update_operations,
+        doc: "# Update the navigation property members in teams",
+        name: update_members,
         response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/operations/{{id}}",
+        path: "/teams/{{RID}}/members/{{id}}",
         params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get installedApps from teams",
-        name: get_installed_apps,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/installedApps/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property installedApps in teams",
-        name: update_installed_apps,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/installedApps/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get template from teams",
-        name: get_template,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/template",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get group from teams",
-        name: get_group,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/group",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action archive",
-        name: archive,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/archive",
-        params: 0,
         has_body: true
     });
     get!({
@@ -176,6 +139,78 @@ where
         has_body: true
     });
     get!({
+        doc: "# Get group from teams",
+        name: get_group,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/group",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action archive",
+        name: archive,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/archive",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get schedule from teams",
+        name: get_schedule,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property schedule in teams",
+        name: update_schedule,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/schedule",
+        params: 0,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action unarchive",
+        name: unarchive,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/unarchive",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get channels from teams",
+        name: get_channels,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/channels/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property channels in teams",
+        name: update_channels,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/channels/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get operations from teams",
+        name: list_operations,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/operations",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to operations for teams",
+        name: create_operations,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/operations",
+        params: 0,
+        has_body: true
+    });
+    get!({
         doc: "# Get members from teams",
         name: list_members,
         response: Collection<serde_json::Value>,
@@ -191,36 +226,20 @@ where
         params: 0,
         has_body: true
     });
-    post!({
-        doc: "# Invoke action unarchive",
-        name: unarchive,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/unarchive",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action clone",
-        name: clone,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/clone",
-        params: 0,
-        has_body: true
-    });
     get!({
-        doc: "# Get channels from teams",
-        name: list_channels,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/channels",
-        params: 0,
+        doc: "# Get installedApps from teams",
+        name: get_installed_apps,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/installedApps/{{id}}",
+        params: 1,
         has_body: false
     });
-    post!({
-        doc: "# Create new navigation property to channels for teams",
-        name: create_channels,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/channels",
-        params: 0,
+    patch!({
+        doc: "# Update the navigation property installedApps in teams",
+        name: update_installed_apps,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/installedApps/{{id}}",
+        params: 1,
         has_body: true
     });
     get!({
@@ -248,6 +267,46 @@ where
         has_body: false
     });
     get!({
+        doc: "# Get channels from teams",
+        name: list_channels,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/channels",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to channels for teams",
+        name: create_channels,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/channels",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get operations from teams",
+        name: get_operations,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/operations/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property operations in teams",
+        name: update_operations,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/operations/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get template from teams",
+        name: get_template,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/template",
+        params: 0,
+        has_body: false
+    });
+    get!({
         doc: "# Get installedApps from teams",
         name: list_installed_apps,
         response: Collection<serde_json::Value>,
@@ -263,67 +322,11 @@ where
         params: 0,
         has_body: true
     });
-    get!({
-        doc: "# Get operations from teams",
-        name: list_operations,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/operations",
-        params: 0,
-        has_body: false
-    });
     post!({
-        doc: "# Create new navigation property to operations for teams",
-        name: create_operations,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/operations",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get channels from teams",
-        name: get_channels,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/channels/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property channels in teams",
-        name: update_channels,
+        doc: "# Invoke action clone",
+        name: clone,
         response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/channels/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get members from teams",
-        name: get_members,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/members/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property members in teams",
-        name: update_members,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/members/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get schedule from teams",
-        name: get_schedule,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule",
-        params: 0,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property schedule in teams",
-        name: update_schedule,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/schedule",
+        path: "/teams/{{RID}}/clone",
         params: 0,
         has_body: true
     });
@@ -339,22 +342,6 @@ where
     pub fn tabs(&self) -> TabsRequest<'a, Client> {
         TabsRequest::new(&self.client)
     }
-    get!({
-        doc: "# Get messages from teams",
-        name: list_messages,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/channels/{{id}}/messages",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to messages for teams",
-        name: create_messages,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/channels/{{id}}/messages",
-        params: 1,
-        has_body: true
-    });
     get!({
         doc: "# Get members from teams",
         name: list_members,
@@ -372,6 +359,22 @@ where
         has_body: true
     });
     get!({
+        doc: "# Get members from teams",
+        name: get_members,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/channels/{{id}}/members/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property members in teams",
+        name: update_members,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/channels/{{id}}/members/{{id2}}",
+        params: 2,
+        has_body: true
+    });
+    get!({
         doc: "# Get messages from teams",
         name: get_messages,
         response: serde_json::Value,
@@ -385,6 +388,22 @@ where
         response: GraphResponse<Content>,
         path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}",
         params: 2,
+        has_body: true
+    });
+    get!({
+        doc: "# Get messages from teams",
+        name: list_messages,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/channels/{{id}}/messages",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to messages for teams",
+        name: create_messages,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/channels/{{id}}/messages",
+        params: 1,
         has_body: true
     });
     get!({
@@ -405,38 +424,6 @@ where
     });
     get!({
         doc: "# Get tabs from teams",
-        name: list_tabs,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/channels/{{id}}/tabs",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to tabs for teams",
-        name: create_tabs,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/channels/{{id}}/tabs",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get members from teams",
-        name: get_members,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/channels/{{id}}/members/{{id2}}",
-        params: 2,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property members in teams",
-        name: update_members,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/channels/{{id}}/members/{{id2}}",
-        params: 2,
-        has_body: true
-    });
-    get!({
-        doc: "# Get tabs from teams",
         name: get_tabs,
         response: serde_json::Value,
         path: "/teams/{{RID}}/channels/{{id}}/tabs/{{id2}}",
@@ -451,28 +438,28 @@ where
         params: 2,
         has_body: true
     });
+    get!({
+        doc: "# Get tabs from teams",
+        name: list_tabs,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/channels/{{id}}/tabs",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to tabs for teams",
+        name: create_tabs,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/channels/{{id}}/tabs",
+        params: 1,
+        has_body: true
+    });
 }
 
 impl<'a, Client> MessagesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!({
-        doc: "# Get hostedContents from teams",
-        name: get_hosted_contents,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}/hostedContents/{{id3}}",
-        params: 3,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property hostedContents in teams",
-        name: update_hosted_contents,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}/hostedContents/{{id3}}",
-        params: 3,
-        has_body: true
-    });
     get!({
         doc: "# Get hostedContents from teams",
         name: list_hosted_contents,
@@ -519,6 +506,22 @@ where
         response: serde_json::Value,
         path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}/replies",
         params: 2,
+        has_body: true
+    });
+    get!({
+        doc: "# Get hostedContents from teams",
+        name: get_hosted_contents,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}/hostedContents/{{id3}}",
+        params: 3,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property hostedContents in teams",
+        name: update_hosted_contents,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}/hostedContents/{{id3}}",
+        params: 3,
         has_body: true
     });
 }
@@ -578,22 +581,6 @@ where
         PrimaryChannelTabsRequest::new(&self.client)
     }
     get!({
-        doc: "# Get messages from teams",
-        name: list_messages,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/primaryChannel/messages",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to messages for teams",
-        name: create_messages,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/primaryChannel/messages",
-        params: 0,
-        has_body: true
-    });
-    get!({
         doc: "# Get members from teams",
         name: get_members,
         response: serde_json::Value,
@@ -610,18 +597,18 @@ where
         has_body: true
     });
     get!({
-        doc: "# Get members from teams",
-        name: list_members,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/primaryChannel/members",
+        doc: "# Get filesFolder from teams",
+        name: get_files_folder,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/primaryChannel/filesFolder",
         params: 0,
         has_body: false
     });
-    post!({
-        doc: "# Create new navigation property to members for teams",
-        name: create_members,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/primaryChannel/members",
+    patch!({
+        doc: "# Update the navigation property filesFolder in teams",
+        name: update_files_folder,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/primaryChannel/filesFolder",
         params: 0,
         has_body: true
     });
@@ -658,6 +645,38 @@ where
         has_body: true
     });
     get!({
+        doc: "# Get members from teams",
+        name: list_members,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/primaryChannel/members",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to members for teams",
+        name: create_members,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/primaryChannel/members",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get messages from teams",
+        name: list_messages,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/primaryChannel/messages",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to messages for teams",
+        name: create_messages,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/primaryChannel/messages",
+        params: 0,
+        has_body: true
+    });
+    get!({
         doc: "# Get tabs from teams",
         name: list_tabs,
         response: Collection<serde_json::Value>,
@@ -673,22 +692,6 @@ where
         params: 0,
         has_body: true
     });
-    get!({
-        doc: "# Get filesFolder from teams",
-        name: get_files_folder,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/primaryChannel/filesFolder",
-        params: 0,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property filesFolder in teams",
-        name: update_files_folder,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/primaryChannel/filesFolder",
-        params: 0,
-        has_body: true
-    });
 }
 
 impl<'a, Client> PrimaryChannelMessagesRequest<'a, Client>
@@ -696,18 +699,18 @@ where
     Client: graph_http::RequestClient,
 {
     get!({
-        doc: "# Get replies from teams",
-        name: get_replies,
+        doc: "# Get hostedContents from teams",
+        name: get_hosted_contents,
         response: serde_json::Value,
-        path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/replies/{{id}}",
+        path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/hostedContents/{{id2}}",
         params: 2,
         has_body: false
     });
     patch!({
-        doc: "# Update the navigation property replies in teams",
-        name: update_replies,
+        doc: "# Update the navigation property hostedContents in teams",
+        name: update_hosted_contents,
         response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/replies/{{id}}",
+        path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/hostedContents/{{id2}}",
         params: 2,
         has_body: true
     });
@@ -729,6 +732,22 @@ where
     });
     get!({
         doc: "# Get replies from teams",
+        name: get_replies,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/replies/{{id}}",
+        params: 2,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property replies in teams",
+        name: update_replies,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/replies/{{id}}",
+        params: 2,
+        has_body: true
+    });
+    get!({
+        doc: "# Get replies from teams",
         name: list_replies,
         response: Collection<serde_json::Value>,
         path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/replies",
@@ -741,22 +760,6 @@ where
         response: serde_json::Value,
         path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/replies",
         params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get hostedContents from teams",
-        name: get_hosted_contents,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/hostedContents/{{id2}}",
-        params: 2,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property hostedContents in teams",
-        name: update_hosted_contents,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/hostedContents/{{id2}}",
-        params: 2,
         has_body: true
     });
 }
@@ -780,22 +783,6 @@ where
     Client: graph_http::RequestClient,
 {
     get!({
-        doc: "# Get schedulingGroups from teams",
-        name: get_scheduling_groups,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/schedulingGroups/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property schedulingGroups in teams",
-        name: update_scheduling_groups,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/schedule/schedulingGroups/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
         doc: "# Get swapShiftsChangeRequests from teams",
         name: get_swap_shifts_change_requests,
         response: serde_json::Value,
@@ -809,70 +796,6 @@ where
         response: GraphResponse<Content>,
         path: "/teams/{{RID}}/schedule/swapShiftsChangeRequests/{{id}}",
         params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get openShiftChangeRequests from teams",
-        name: get_open_shift_change_requests,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/openShiftChangeRequests/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property openShiftChangeRequests in teams",
-        name: update_open_shift_change_requests,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/schedule/openShiftChangeRequests/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get openShifts from teams",
-        name: get_open_shifts,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/openShifts/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property openShifts in teams",
-        name: update_open_shifts,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/schedule/openShifts/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get timesOff from teams",
-        name: list_times_off,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/schedule/timesOff",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to timesOff for teams",
-        name: create_times_off,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/timesOff",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get timeOffRequests from teams",
-        name: list_time_off_requests,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/schedule/timeOffRequests",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to timeOffRequests for teams",
-        name: create_time_off_requests,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/timeOffRequests",
-        params: 0,
         has_body: true
     });
     get!({
@@ -892,138 +815,18 @@ where
         has_body: true
     });
     get!({
-        doc: "# Get swapShiftsChangeRequests from teams",
-        name: list_swap_shifts_change_requests,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/schedule/swapShiftsChangeRequests",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to swapShiftsChangeRequests for teams",
-        name: create_swap_shifts_change_requests,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/swapShiftsChangeRequests",
-        params: 0,
-        has_body: true
-    });
-    get!({
         doc: "# Get shifts from teams",
-        name: get_shifts,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/shifts/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property shifts in teams",
-        name: update_shifts,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/schedule/shifts/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get timeOffReasons from teams",
-        name: get_time_off_reasons,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/timeOffReasons/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property timeOffReasons in teams",
-        name: update_time_off_reasons,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/schedule/timeOffReasons/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get schedulingGroups from teams",
-        name: list_scheduling_groups,
+        name: list_shifts,
         response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/schedule/schedulingGroups",
+        path: "/teams/{{RID}}/schedule/shifts",
         params: 0,
         has_body: false
     });
     post!({
-        doc: "# Create new navigation property to schedulingGroups for teams",
-        name: create_scheduling_groups,
+        doc: "# Create new navigation property to shifts for teams",
+        name: create_shifts,
         response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/schedulingGroups",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get offerShiftRequests from teams",
-        name: get_offer_shift_requests,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/offerShiftRequests/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property offerShiftRequests in teams",
-        name: update_offer_shift_requests,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/schedule/offerShiftRequests/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get offerShiftRequests from teams",
-        name: list_offer_shift_requests,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/schedule/offerShiftRequests",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to offerShiftRequests for teams",
-        name: create_offer_shift_requests,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/offerShiftRequests",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get openShiftChangeRequests from teams",
-        name: list_open_shift_change_requests,
-        response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/schedule/openShiftChangeRequests",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to openShiftChangeRequests for teams",
-        name: create_open_shift_change_requests,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/openShiftChangeRequests",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get timeOffRequests from teams",
-        name: get_time_off_requests,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/timeOffRequests/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property timeOffRequests in teams",
-        name: update_time_off_requests,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/schedule/timeOffRequests/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action share",
-        name: share,
-        response: GraphResponse<Content>,
-        path: "/teams/{{RID}}/schedule/share",
+        path: "/teams/{{RID}}/schedule/shifts",
         params: 0,
         has_body: true
     });
@@ -1044,6 +847,150 @@ where
         has_body: true
     });
     get!({
+        doc: "# Get timeOffRequests from teams",
+        name: get_time_off_requests,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/timeOffRequests/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property timeOffRequests in teams",
+        name: update_time_off_requests,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/schedule/timeOffRequests/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get shifts from teams",
+        name: get_shifts,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/shifts/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property shifts in teams",
+        name: update_shifts,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/schedule/shifts/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get offerShiftRequests from teams",
+        name: get_offer_shift_requests,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/offerShiftRequests/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property offerShiftRequests in teams",
+        name: update_offer_shift_requests,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/schedule/offerShiftRequests/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get timeOffRequests from teams",
+        name: list_time_off_requests,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/schedule/timeOffRequests",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to timeOffRequests for teams",
+        name: create_time_off_requests,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/timeOffRequests",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get schedulingGroups from teams",
+        name: get_scheduling_groups,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/schedulingGroups/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property schedulingGroups in teams",
+        name: update_scheduling_groups,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/schedule/schedulingGroups/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get schedulingGroups from teams",
+        name: list_scheduling_groups,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/schedule/schedulingGroups",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to schedulingGroups for teams",
+        name: create_scheduling_groups,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/schedulingGroups",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get swapShiftsChangeRequests from teams",
+        name: list_swap_shifts_change_requests,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/schedule/swapShiftsChangeRequests",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to swapShiftsChangeRequests for teams",
+        name: create_swap_shifts_change_requests,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/swapShiftsChangeRequests",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get openShifts from teams",
+        name: get_open_shifts,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/openShifts/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property openShifts in teams",
+        name: update_open_shifts,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/schedule/openShifts/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get timeOffReasons from teams",
+        name: get_time_off_reasons,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/timeOffReasons/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property timeOffReasons in teams",
+        name: update_time_off_reasons,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/schedule/timeOffReasons/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
         doc: "# Get timesOff from teams",
         name: get_times_off,
         response: serde_json::Value,
@@ -1060,18 +1007,74 @@ where
         has_body: true
     });
     get!({
-        doc: "# Get shifts from teams",
-        name: list_shifts,
+        doc: "# Get openShiftChangeRequests from teams",
+        name: get_open_shift_change_requests,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/openShiftChangeRequests/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property openShiftChangeRequests in teams",
+        name: update_open_shift_change_requests,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/schedule/openShiftChangeRequests/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get openShiftChangeRequests from teams",
+        name: list_open_shift_change_requests,
         response: Collection<serde_json::Value>,
-        path: "/teams/{{RID}}/schedule/shifts",
+        path: "/teams/{{RID}}/schedule/openShiftChangeRequests",
         params: 0,
         has_body: false
     });
     post!({
-        doc: "# Create new navigation property to shifts for teams",
-        name: create_shifts,
+        doc: "# Create new navigation property to openShiftChangeRequests for teams",
+        name: create_open_shift_change_requests,
         response: serde_json::Value,
-        path: "/teams/{{RID}}/schedule/shifts",
+        path: "/teams/{{RID}}/schedule/openShiftChangeRequests",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get offerShiftRequests from teams",
+        name: list_offer_shift_requests,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/schedule/offerShiftRequests",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to offerShiftRequests for teams",
+        name: create_offer_shift_requests,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/offerShiftRequests",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get timesOff from teams",
+        name: list_times_off,
+        response: Collection<serde_json::Value>,
+        path: "/teams/{{RID}}/schedule/timesOff",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to timesOff for teams",
+        name: create_times_off,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/schedule/timesOff",
+        params: 0,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action share",
+        name: share,
+        response: GraphResponse<Content>,
+        path: "/teams/{{RID}}/schedule/share",
         params: 0,
         has_body: true
     });

@@ -62,8 +62,8 @@ pub extern crate serde_yaml;
 extern crate strum;
 extern crate strum_macros;
 
-// mod client needs to stay on type
-// for macro use.
+// mod client needs to stay on top of all other
+// client mod declarations for macro use.
 /// Main Graph client.
 #[macro_use]
 pub mod client;
@@ -135,9 +135,11 @@ pub mod subscriptions;
 pub mod teams;
 /// Teamwork request client.
 pub mod teamwork;
+/// Users request client.
+pub mod users;
 
-pub static GRAPH_URL: &'static str = "https://graph.microsoft.com/v1.0";
-pub static GRAPH_URL_BETA: &'static str = "https://graph.microsoft.com/beta";
+pub static GRAPH_URL: &str = "https://graph.microsoft.com/v1.0";
+pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 
 /// Common structs and traits.
 pub mod prelude {

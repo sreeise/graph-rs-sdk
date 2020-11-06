@@ -1,6 +1,6 @@
 use crate::activities::ActivitiesRequest;
 use crate::app_catalogs::AppCatalogsRequest;
-use crate::applications::ApplicationsRequest;
+use crate::applications::{ApplicationRequest, ApplicationsRequest};
 use crate::attachments::AttachmentRequest;
 use crate::audit_logs::AuditLogsRequest;
 use crate::calendar::CalendarRequest;
@@ -15,7 +15,7 @@ use crate::directory::DirectoryRequest;
 use crate::domain_dns_records::DomainDnsRecordsRequest;
 use crate::domains::DomainsRequest;
 use crate::drive::{DriveRequest, DrivesRequest};
-use crate::education::{EducationMeRequest, EducationRequest, EducationUsersRequest};
+use crate::education::{EducationMeRequest, EducationRequest};
 use crate::group_lifecycle_policies::GroupLifecyclePoliciesRequest;
 use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
@@ -29,11 +29,12 @@ use crate::planner::PlannerRequest;
 use crate::policies::PoliciesRequest;
 use crate::schema_extensions::SchemaExtensionsRequest;
 use crate::service_principals::ServicePrincipalsRequest;
-use crate::sites::SiteRequest;
+use crate::sites::{SiteRequest, SitesRequest};
 use crate::subscribed_skus::SubscribedSkusRequest;
 use crate::subscriptions::SubscriptionsRequest;
 use crate::teams::{TeamRequest, TeamsRequest};
 use crate::teamwork::TeamworkRequest;
+use crate::users::{UserRequest, UsersRequest};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::{GraphFailure, GraphRsError};
 use graph_http::url::GraphUrl;
@@ -51,6 +52,7 @@ use std::str::FromStr;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Ident {
+    Applications,
     Me,
     Drives,
     Sites,
@@ -62,6 +64,7 @@ pub enum Ident {
 impl AsRef<str> for Ident {
     fn as_ref(&self) -> &str {
         match self {
+            Ident::Applications => "applications",
             Ident::Me => "me",
             Ident::Drives => "drives",
             Ident::Sites => "sites",
@@ -75,6 +78,7 @@ impl AsRef<str> for Ident {
 impl ToString for Ident {
     fn to_string(&self) -> String {
         match self {
+            Ident::Applications => "applications".into(),
             Ident::Me => "me".into(),
             Ident::Drives => "drives".into(),
             Ident::Sites => "sites".into(),
@@ -90,6 +94,7 @@ impl FromStr for Ident {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.as_bytes() {
+            b"applications" => Ok(Ident::Applications),
             b"me" => Ok(Ident::Me),
             b"drives" => Ok(Ident::Drives),
             b"sites" => Ok(Ident::Sites),
@@ -163,6 +168,10 @@ where
 
     pub fn ident(&self) -> Ident {
         Ident::from_str(self.request.ident().as_str()).unwrap()
+    }
+
+    pub(crate) fn set_ident(&self, ident: Ident) {
+        self.request.set_ident(ident.to_string());
     }
 
     pub(crate) fn request(&self) -> &Client {
@@ -355,8 +364,13 @@ where
         AppCatalogsRequest::new(self.client)
     }
 
-    pub fn applications(&self) -> ApplicationsRequest<'a, Client> {
-        ApplicationsRequest::new(self.client)
+    pub fn application<S: AsRef<str>>(&self, id: S) -> ApplicationsRequest<'a, Client> {
+        self.client.set_ident(Ident::Applications);
+        ApplicationsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn applications(&self) -> ApplicationRequest<'a, Client> {
+        ApplicationRequest::new(self.client)
     }
 
     pub fn audit_logs(&self) -> AuditLogsRequest<'a, Client> {
@@ -401,14 +415,15 @@ where
         DomainsRequest::new(self.client)
     }
 
-    pub fn drives<S: AsRef<str>>(&self, id: S) -> DrivesRequest<'a, Client> {
-        self.client.request.set_ident(Ident::Drives.to_string());
-        self.set_path(id.as_ref());
-        DrivesRequest::new(self.client)
+    pub fn drive(&self) -> DriveRequest<'a, Client> {
+        self.client.set_ident(Ident::Drives);
+        DriveRequest::new(self.client)
     }
 
-    pub fn drive(&self) -> DriveRequest<'a, Client> {
-        DriveRequest::new(self.client)
+    pub fn drives<S: AsRef<str>>(&self, id: S) -> DrivesRequest<'a, Client> {
+        self.client.set_ident(Ident::Drives);
+        self.set_path(id.as_ref());
+        DrivesRequest::new(self.client)
     }
 
     pub fn education(&self) -> EducationRequest<'a, Client> {
@@ -416,7 +431,7 @@ where
     }
 
     pub fn groups<S: AsRef<str>>(&self, id: S) -> IdentGroups<'a, Client> {
-        self.client.request.set_ident(Ident::Groups.to_string());
+        self.client.set_ident(Ident::Groups);
         IdentGroups::new(id.as_ref(), self.client)
     }
 
@@ -464,36 +479,39 @@ where
         TeamworkRequest::new(self.client)
     }
 
-    pub fn team(&self) -> TeamRequest<'a, Client> {
-        TeamRequest::new(self.client)
-    }
-
-    pub fn teams<S: AsRef<str>>(&self, id: S) -> TeamsRequest<'a, Client> {
-        self.client.request.set_ident(Ident::Teams.to_string());
+    pub fn team<S: AsRef<str>>(&self, id: S) -> TeamsRequest<'a, Client> {
+        self.client.set_ident(Ident::Teams);
         TeamsRequest::new(id.as_ref(), self.client)
     }
 
+    pub fn teams(&self) -> TeamRequest<'a, Client> {
+        self.client.set_ident(Ident::Teams);
+        TeamRequest::new(self.client)
+    }
+
     pub fn me(&self) -> IdentMe<'a, Client> {
-        self.client.request.set_ident(Ident::Me.to_string());
+        self.client.set_ident(Ident::Me);
         IdentMe::new("", self.client)
     }
 
-    pub fn site(&self) -> SiteRequest<'a, Client> {
+    pub fn site<S: AsRef<str>>(&self, id: S) -> SitesRequest<'a, Client> {
+        self.client.set_ident(Ident::Sites);
+        SitesRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn sites(&self) -> SiteRequest<'a, Client> {
+        self.client.set_ident(Ident::Sites);
         SiteRequest::new(self.client)
     }
 
-    pub fn sites<S: AsRef<str>>(&self, id: S) -> IdentSites<'a, Client> {
-        self.client.request.set_ident(Ident::Sites.to_string());
-        IdentSites::new(id.as_ref(), self.client)
+    pub fn user<S: AsRef<str>>(&self, id: S) -> UsersRequest<'a, Client> {
+        self.client.set_ident(Ident::Users);
+        UsersRequest::new(id.as_ref(), self.client)
     }
 
-    pub fn user(&self) -> UserRequest<'a, Client> {
+    pub fn users(&self) -> UserRequest<'a, Client> {
+        self.client.set_ident(Ident::Users);
         UserRequest::new(self.client)
-    }
-
-    pub fn users<S: AsRef<str>>(&self, id: S) -> IdentUsers<'a, Client> {
-        self.client.request.set_ident(Ident::Users.to_string());
-        IdentUsers::new(id.as_ref(), self.client)
     }
 
     /// Perform a batch requests which can store multiple requests
@@ -518,9 +536,7 @@ where
 
 register_ident_client!(IdentMe,);
 register_ident_client!(IdentDrives,);
-register_ident_client!(IdentSites,);
 register_ident_client!(IdentGroups,);
-register_ident_client!(IdentUsers,);
 
 impl<'a, Client> IdentMe<'a, Client>
 where
@@ -540,80 +556,6 @@ where
     pub fn education(&self) -> EducationMeRequest<'a, Client> {
         EducationMeRequest::new(&self.client)
     }
-}
-
-impl<'a, Client> IdentSites<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( get, serde_json::Value => "sites/{{RID}}" );
-    get!( list_subsites, Collection<serde_json::Value> => "sites/{{RID}}/sites" );
-    get!( root, serde_json::Value => "sites/root" );
-    get!( | root_tenant, serde_json::Value => "sites/{{id}}" );
-    get!( analytics, serde_json::Value => "sites/{{RID}}/analytics" );
-    get!( | item_analytics, serde_json::Value => "sites/{{RID}}/items/{{id}}/analytics" );
-    get!( | list_item_versions, serde_json::Value => "sites/{{RID}}/items/{{id}}/versions" );
-
-    pub fn lists(&'a self) -> SiteListRequest<'a, Client> {
-        SiteListRequest::new(self.client)
-    }
-
-    pub fn activities_by_interval(
-        &'a self,
-        start: &str,
-        end: Option<&str>,
-        interval: &str,
-    ) -> IntoResponse<'a, serde_json::Value, Client> {
-        self.client.request().set_method(Method::GET);
-        if let Some(end) = end {
-            render_path!(self.client, &format!(
-                "sites/{{{{RID}}}}/getActivitiesByInterval(startDateTime='{}',endDateTime='{}',interval='{}')",
-                start,
-                end,
-                interval
-            ));
-        } else {
-            render_path!(
-                self.client,
-                &format!(
-                    "sites/{{{{RID}}}}/getActivitiesByInterval(startDateTime='{}',interval='{}')",
-                    start, interval
-                )
-            );
-        }
-        IntoResponse::new(&self.client.request)
-    }
-}
-
-register_client!(SiteListRequest,);
-
-impl<'a, Client> SiteListRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( list, Collection<serde_json::Value> => "sites/{{RID}}/lists" );
-    get!( | get, serde_json::Value => "sites/{{RID}}/lists/{{id}}" );
-    post!( [ create, serde_json::Value => "sites/{{RID}}/lists" ] );
-
-    pub fn items(&'a self) -> SiteListItemRequest<'a, Client> {
-        SiteListItemRequest::new(self.client)
-    }
-}
-
-register_client!(SiteListItemRequest,);
-
-impl<'a, Client> SiteListItemRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( | list, Collection<serde_json::Value> => "sites/{{RID}}/lists/{{id}}/items" );
-    get!( || get, serde_json::Value => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" );
-    get!( || analytics, serde_json::Value => "sites/{{RID}}/lists/{{id}}/items/{{id2}}/analytics" );
-    get!( || list_versions, serde_json::Value => "sites/{{RID}}/lists/{{id}}/items/{{id2}}/versions" );
-    post!( [ | create, serde_json::Value => "sites/{{RID}}/lists/{{id}}/items" ] );
-    patch!( [ || update, serde_json::Value => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" ] );
-    patch!( [ || update_columns, serde_json::Value => "sites/{{RID}}/lists/{{id}}/items/{{id2}}/fields" ] );
-    delete!( || delete, GraphResponse<Content> => "sites/{{RID}}/lists/{{id}}/items/{{id2}}" );
 }
 
 impl<'a, Client> IdentGroups<'a, Client>
@@ -662,41 +604,4 @@ where
     pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a, Client> {
         GroupThreadPostRequest::new(self.client)
     }
-}
-
-impl<'a, Client> IdentUsers<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( get, serde_json::Value => "users/{{RID}}" );
-    get!( settings, serde_json::Value => "users/{{RID}}/settings" );
-    get!( list, Collection<serde_json::Value> => "users" );
-    get!( list_events, Collection<serde_json::Value> => "users/{{RID}}/events" );
-    get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "users" );
-    get!( | list_joined_group_photos, Collection<serde_json::Value> => "users/{{RID}}/joinedGroups/{{id}}/photos" );
-    get!( list_planner_tasks, Collection<serde_json::Value> => "users/{{RID}}/planner/tasks");
-    post!( [ create, serde_json::Value => "users" ] );
-    patch!( [ update, GraphResponse<Content> => "users/{{RID}}" ] );
-    patch!( [ update_settings, serde_json::Value => "users/{{RID}}/settings" ] );
-    delete!( delete, GraphResponse<Content> => "users/{{RID}}" );
-
-    pub fn activities(&'a self) -> ActivitiesRequest<'a, Client> {
-        self.set_path();
-        ActivitiesRequest::new(self.client)
-    }
-
-    pub fn education(&self) -> EducationUsersRequest<'a, Client> {
-        EducationUsersRequest::new(self.client)
-    }
-}
-
-register_client!(UserRequest,);
-
-impl<'a, Client> UserRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( list, Collection<serde_json::Value> => "users" );
-    get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "users" );
-    post!( [ create, serde_json::Value => "users" ] );
 }
