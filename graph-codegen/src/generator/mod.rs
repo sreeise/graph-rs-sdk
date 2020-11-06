@@ -1,11 +1,13 @@
 use crate::builder::Builder;
-use crate::parser::{ApiImpl, Parser, RequestSet, ResourceNames};
+use crate::parser::filter::Filter;
+use crate::parser::{ApiImpl, Parser, PathMap, RequestSet, ResourceNames};
 use from_as::*;
 use inflector::Inflector;
 use std::collections::HashMap;
 use std::error::Error;
 use std::path::Path;
 
+#[derive(Default, Debug)]
 pub struct Generator {
     builder: Builder,
 }
@@ -50,6 +52,10 @@ impl Generator {
 
     pub fn get_resource_names(&self) -> ResourceNames {
         self.builder.generate_resource_names()
+    }
+
+    pub fn filter(&self, filter: Filter<'_>) -> PathMap {
+        self.builder.filter(filter)
     }
 
     pub fn write_api_impl<P: AsRef<Path>>(&self, path: P) {

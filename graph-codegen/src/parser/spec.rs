@@ -5,9 +5,10 @@ use from_as::*;
 use serde::Serialize;
 use std::cell::{RefCell, RefMut};
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
+use std::fmt::Debug;
 use std::path::Path;
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[derive(Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(default)]
 pub struct ParserSpec {
     paths: PathMap,
@@ -23,9 +24,26 @@ pub struct ParserSpec {
     links_override: HashMap<String, Vec<String>>,
 }
 
+impl Debug for ParserSpec {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ParserSpec")
+            .field("tag_map", &self.tag_map)
+            .field("operation_map", &self.operation_map)
+            .field("modify_target", &self.modify_target)
+            .field("url_modify_target", &self.url_modify_target)
+            .field("modifiers", &self.modifiers)
+            .field("links_override", &self.links_override)
+            .finish()
+    }
+}
+
 impl ParserSpec {
     pub fn modifier_map(&mut self) -> &mut ModifierMap {
         &mut self.modify_target
+    }
+
+    pub fn resource_modifier_set(&mut self) -> HashSet<UrlMatchTarget> {
+        self.url_modify_target.clone()
     }
 }
 
@@ -45,8 +63,8 @@ impl Parser {
                 requests: Default::default(),
                 tag_map: Default::default(),
                 operation_map: Default::default(),
-                modify_target: ModifierMap::with_capacity(20),
-                url_modify_target: Default::default(),
+                modify_target: ModifierMap::with_capacity(30),
+                url_modify_target: HashSet::with_capacity(15),
                 modifiers: Default::default(),
                 links_override: Default::default(),
             }),
@@ -63,8 +81,8 @@ impl Parser {
                 requests: Default::default(),
                 tag_map: Default::default(),
                 operation_map: Default::default(),
-                modify_target: ModifierMap::with_capacity(20),
-                url_modify_target: Default::default(),
+                modify_target: ModifierMap::with_capacity(30),
+                url_modify_target: HashSet::with_capacity(15),
                 modifiers: Default::default(),
                 links_override: Default::default(),
             }),
@@ -77,6 +95,10 @@ impl Parser {
 
     pub fn set_path_map(&self, path_map: PathMap) {
         self.spec.borrow_mut().paths = path_map;
+    }
+
+    pub fn resource_modifier_set(&self) -> HashSet<UrlMatchTarget> {
+        self.spec.borrow().url_modify_target.clone()
     }
 
     pub fn set_operation_map(&self, operation_map: HashMap<String, String>) {
@@ -151,23 +173,18 @@ impl Parser {
             spec.modifiers.insert(name.to_string());
         }
 
+        // TODO: Change the inserts here to use the ModifierMap methods to cut down on code.
         // Modifiers that need to be explicitly declared.
         // The struct names for clients are generated based on the operation id
         // which is also modified when the clients are generated. This can result
         // in naming conflicts that is fixed by these modifiers.
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("deviceManagement.detectedApps.managedDevices".to_string()),
-            vec![MatchTarget::OperationMap(
-                "deviceManagement.detectedApps.appManagedDevices".to_string(),
-            )],
+        spec.modify_target.operation_map(
+            "deviceManagement.detectedApps.managedDevices",
+            "deviceManagement.detectedApps.appManagedDevices",
         );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap(
-                "directoryObjects.microsoft.graph.administrativeUnit".to_string(),
-            ),
-            vec![MatchTarget::OperationMap(
-                "directoryObjects.administrativeUnits".to_string(),
-            )],
+        spec.modify_target.operation_map(
+            "directoryObjects.microsoft.graph.administrativeUnit",
+            "directoryObjects.administrativeUnits",
         );
         spec.modify_target.map.insert(
             MatchTarget::OperationId("directory.administrativeUnits.delta.fa14".to_string()),
@@ -221,10 +238,27 @@ impl Parser {
                 "teams.primaryChannel.primaryChannelTabs".to_string(),
             )],
         );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("users.planner.plans.tasks".to_string()),
+            vec![MatchTarget::OperationMap(
+                "users.planner.plans.plannerTasks".to_string(),
+            )],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationMap("users.planner.plans.buckets.tasks".to_string()),
+            vec![MatchTarget::OperationMap(
+                "users.planner.plans.buckets.bucketTasks".to_string(),
+            )],
+        );
+        spec.modify_target.operation_map(
+            "users.contactFolders.contacts",
+            "users.contactFolders.contactFolderContact",
+        );
 
         // Modify that paths that have a resource id. See UrlMatchTarget
         // for more info.
         spec.url_modify_target.extend(vec![
+            UrlMatchTarget::resource_id("applications", "application"),
             UrlMatchTarget::resource_id("users", "user"),
             UrlMatchTarget::resource_id("sites", "site"),
             UrlMatchTarget::resource_id("groups", "group"),
@@ -236,13 +270,22 @@ impl Parser {
         self.use_filters_internal(
             spec,
             vec![
+                // Filters for requests that are used by multiple top level
+                // clients. These are added to the crate in a different way.
                 Filter::IgnoreIf(FilterIgnore::PathContains("onenote")),
                 Filter::IgnoreIf(FilterIgnore::PathContains("calendar")),
                 Filter::IgnoreIf(FilterIgnore::PathContains("calendarView")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("getActivitiesByInterval")),
+                Filter::IgnoreIf(FilterIgnore::PathContains("mailFolders")),
+                Filter::IgnoreIf(FilterIgnore::PathContains("messages")),
+                Filter::IgnoreIf(FilterIgnore::PathContains("attachments")),
+                Filter::IgnoreIf(FilterIgnore::PathContains("singleValueExtendedProperties")),
+                Filter::IgnoreIf(FilterIgnore::PathContains("multiValueExtendedProperties")),
+                Filter::IgnoreIf(FilterIgnore::PathContains("planner")),
                 // These are basically like OData queries and look like getByPath(path={path})
-                // but we dont currently handle these so they are ignored.
+                // but we dont currently handle these so they are ignored. The get activities
+                // by interval is used the most in these situations.
                 Filter::IgnoreIf(FilterIgnore::PathContains("={")),
+                Filter::IgnoreIf(FilterIgnore::PathContains("getActivitiesByInterval")),
             ],
         );
     }
@@ -303,12 +346,7 @@ impl Parser {
             .collect(),
         );
     }
-    /*
-    spec.links_override.insert(
-                "team".to_string(),
-                ["teamsTemplates"].iter().map(|s| s.to_string()).collect(),
-            );
-     */
+
     pub fn get_links_override(&self) -> HashMap<String, Vec<String>> {
         self.spec.borrow().links_override.clone()
     }

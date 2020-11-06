@@ -1,26 +1,40 @@
 use crate::parser::{RequestMap, RequestSet};
-use bytes::{BufMut, BytesMut};
+use bytes::{BufMut, Bytes, BytesMut};
 use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
 
+#[derive(Debug, Clone, Copy)]
 pub enum RegisterClient {
     BaseClient,
     IdentClient,
+}
+
+impl RegisterClient {
+    pub fn format(self, name: &str) -> Bytes {
+        Bytes::copy_from_slice(SpecFormatter::register_client(name.as_ref(), self).as_bytes())
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct SpecClientImpl {
     name: String,
     links: Vec<String>,
+    id_links: BTreeMap<String, String>,
     requests: Vec<RequestMap>,
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct SpecClient {
+    // The main client. This will mainly be resource clients
+    // such as users, groups, teams, etc.
     pub name: String,
     pub is_ident_client: bool,
     pub imports: BTreeSet<String>,
+    // All client names that have requests for the current
+    // parent client.
     pub client_names: BTreeSet<String>,
+    // Clients that need an id method.
+    pub client_name_id_links: BTreeMap<String, String>,
     pub struct_links: BTreeMap<String, Vec<String>>,
     pub methods: BTreeMap<String, Vec<RequestMap>>,
 }
@@ -50,6 +64,10 @@ impl SpecClient {
         self.is_ident_client = is_ident_client;
     }
 
+    pub fn set_id_links(&mut self, links: BTreeMap<String, String>) {
+        self.client_name_id_links = links;
+    }
+
     pub fn extend_links(&mut self, links_override: &HashMap<String, Vec<String>>) {
         for (key, value) in self.struct_links.iter_mut() {
             if links_override.contains_key(key) {
@@ -70,23 +88,14 @@ impl SpecClient {
         buf.extend(imports_vec);
         buf.put_u8(b'\n');
         if self.is_ident_client {
-            buf.put(
-                SpecFormatter::register_client(self.name.as_str(), RegisterClient::IdentClient)
-                    .as_bytes(),
-            );
+            buf.put(RegisterClient::IdentClient.format(self.name.as_str()));
         } else {
-            buf.put(
-                SpecFormatter::register_client(self.name.as_str(), RegisterClient::BaseClient)
-                    .as_bytes(),
-            );
+            buf.put(RegisterClient::BaseClient.format(self.name.as_str()));
         }
 
         for name in self.client_names.iter() {
             if self.name.ne(name.as_str()) {
-                buf.put(
-                    SpecFormatter::register_client(name.as_str(), RegisterClient::BaseClient)
-                        .as_bytes(),
-                );
+                buf.put(RegisterClient::BaseClient.format(name.as_str()));
             }
         }
         buf
@@ -105,9 +114,12 @@ impl SpecClient {
                     .cloned()
                     .unwrap_or_default();
 
+                let id_links = self.client_name_id_links.clone();
+
                 let spec_client_impl = SpecClientImpl {
                     name: name.to_string(),
                     links: links.clone(),
+                    id_links,
                     requests: request_map.clone(),
                 };
                 buf.extend(SpecFormatter::gen_api_impl(spec_client_impl));
@@ -117,9 +129,13 @@ impl SpecClient {
                     .get(name.as_str())
                     .cloned()
                     .unwrap_or_default();
+
+                let id_links = self.client_name_id_links.clone();
+
                 let spec_client_impl = SpecClientImpl {
                     name: name.to_string(),
                     links,
+                    id_links,
                     requests: request_map.clone(),
                 };
                 buf.extend(SpecFormatter::gen_api_impl(spec_client_impl));
@@ -169,6 +185,16 @@ impl SpecFormatter {
         }
     }
 
+    pub fn id_method_link(struct_name: &str) -> String {
+        let pascal_casing = struct_name.to_pascal_case();
+        format!(
+            "\n\tpub fn id<ID: AsRef<str>>(&self, id: ID) -> {}<'a, Client> {{
+            \t{}::new(id.as_ref(), self.client)
+            }}",
+            pascal_casing, pascal_casing,
+        )
+    }
+
     pub fn struct_method_link(method_link: &str, struct_name: &str) -> String {
         format!(
             "\n\tpub fn {}(&self) -> {}<'a, Client> {{
@@ -187,7 +213,8 @@ impl SpecFormatter {
     pub fn gen_api_impl(spec_client: SpecClientImpl) -> BytesMut {
         let mut buf = BytesMut::with_capacity(1024);
         let mut names: VecDeque<&str> = spec_client.name.split('.').collect();
-        let impl_struct_name = SpecFormatter::base_struct_name(names.pop_back().unwrap());
+        let current_client_name = names.pop_back().unwrap();
+        let impl_struct_name = SpecFormatter::base_struct_name(current_client_name);
 
         // #[allow(dead_code)]\n
         let impl_start = format!(
@@ -195,6 +222,12 @@ impl SpecFormatter {
             &impl_struct_name
         );
         buf.put(impl_start.as_bytes());
+
+        if let Some(id_link_name) = spec_client.id_links.get(current_client_name) {
+            let id_method_link =
+                SpecFormatter::id_method_link(&SpecFormatter::base_struct_name(id_link_name));
+            buf.put(id_method_link.as_bytes());
+        }
 
         for link in spec_client.links.iter() {
             let method_link = SpecFormatter::struct_method_link(
