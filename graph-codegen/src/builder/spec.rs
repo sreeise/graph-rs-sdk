@@ -5,7 +5,7 @@ use bytes::BytesMut;
 use from_as::*;
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fs::OpenOptions;
 use std::path::Path;
@@ -94,7 +94,8 @@ impl Builder {
     }
 
     pub fn use_default_ident_clients(&self) {
-        self.spec.borrow_mut().ident_clients.insert("teams".into());
+        let mut spec = self.spec.borrow_mut();
+        spec.ident_clients.insert("teams".into());
     }
 
     pub fn use_defaults(&self) {
@@ -127,21 +128,8 @@ impl Builder {
 
     pub fn build(&self) {
         let spec = self.spec.borrow();
-        // let map = spec.parser.build_with_modifier_filter();
 
-        let map = {
-            if spec.build_with_modifier_filter {
-                spec.parser.build_with_modifier_filter()
-            } else {
-                let path_map = spec.parser.path_map();
-                let resource_names = ResourceNames::from(path_map);
-                let vec = resource_names.to_vec();
-                let vec_str: Vec<&str> = vec.iter().map(|s| s.as_str()).collect();
-                spec.parser.use_default_modifiers(&vec_str);
-                spec.parser.build_with_modifier_filter()
-            }
-        };
-
+        let map = Builder::parser_build(&spec);
         let imports = spec.imports.clone();
         let links_override = spec.parser.get_links_override();
 
@@ -219,16 +207,19 @@ impl Builder {
 
     pub fn build_with_modifier_filter(&self) -> HashMap<String, RequestSet> {
         let spec = self.spec.borrow();
-        // let map = spec.parser.build_with_modifier_filter();
+        Builder::parser_build(&spec)
+    }
+
+    fn parser_build(spec: &Ref<SpecBuilder>) -> HashMap<String, RequestSet> {
         if spec.build_with_modifier_filter {
-            spec.parser.build_with_modifier_filter()
+            spec.parser.build()
         } else {
             let path_map = spec.parser.path_map();
             let resource_names = ResourceNames::from(path_map);
             let vec = resource_names.to_vec();
             let vec_str: Vec<&str> = vec.iter().map(|s| s.as_str()).collect();
             spec.parser.use_default_modifiers(&vec_str);
-            spec.parser.build_with_modifier_filter()
+            spec.parser.build()
         }
     }
 

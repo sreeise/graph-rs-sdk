@@ -28,6 +28,25 @@ impl Generator {
         Generator { builder }
     }
 
+    pub fn parse_secondary<P: AsRef<Path>>(
+        path: P,
+        start_filter: Filter,
+        secondary_name: &str,
+        modifiers: Option<&[&str]>,
+    ) -> Generator {
+        let parser = Parser::parse_secondary(path, start_filter, secondary_name);
+        let mut modifier_filter_build = false;
+        if let Some(modifiers) = modifiers {
+            parser.use_default_modifiers(modifiers);
+            modifier_filter_build = true;
+        }
+        parser.use_default_links_override();
+        let builder = Builder::new(parser);
+        builder.set_build_with_modifier_filter(modifier_filter_build);
+        builder.use_defaults();
+        Generator { builder }
+    }
+
     pub fn parse_resource_names<P: AsRef<Path>>(
         path: P,
         resource_names: ResourceNames,
