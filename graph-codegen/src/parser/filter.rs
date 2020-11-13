@@ -21,6 +21,7 @@ pub enum Filter<'a> {
     PathStartsWith(&'a str),
     PathStartsWithMulti(Vec<&'a str>),
     PathEquals(&'a str),
+    PathContains(&'a str),
     Regex(&'a str),
     IgnoreIf(FilterIgnore<'a>),
     MultiFilter(Vec<Filter<'a>>),

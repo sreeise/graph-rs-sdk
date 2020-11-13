@@ -3,6 +3,7 @@ use crate::parser::{ResourceNameMapping, ResourceNames};
 use crate::traits::{HashMapExt, RequestParser};
 use from_as::*;
 use inflector::Inflector;
+use rayon::prelude::*;
 use std::collections::hash_set::{Difference, Iter};
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use std::hash::{Hash, Hasher};

@@ -2,6 +2,7 @@ use crate::parser::filter::*;
 use crate::parser::{HttpMethod, Request, ResponseType};
 use crate::traits::{RequestParser, RequestParserBuilder};
 use from_as::*;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use regex::Regex;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 
@@ -294,6 +295,17 @@ impl PathMap {
     pub fn clean(&mut self) {
         self.path_retain();
     }
+
+    pub fn clean_secondary(&mut self, secondary_name: &str) -> PathMap {
+        let mut map2: BTreeMap<String, Path> = BTreeMap::new();
+        for (path, path_struct) in self.paths.iter() {
+            if let Some(index) = path.find(secondary_name) {
+                let new_path = path[index - 1..].to_string();
+                map2.insert(new_path, path_struct.clone());
+            }
+        }
+        map2.into()
+    }
 }
 
 impl PathRetain for PathMap {
@@ -321,21 +333,27 @@ impl PathMap {
             Filter::PathStartsWith(filter) => self
                 .paths
                 .clone()
-                .into_iter()
+                .into_par_iter()
                 .filter(|(path, _path_spec)| path.starts_with(filter))
                 .collect(),
             Filter::PathStartsWithMulti(vec) => self
                 .paths
                 .clone()
-                .into_iter()
+                .into_par_iter()
                 .filter(|(path, _path_spec)| vec.iter().any(|s| path.starts_with(s)))
                 .collect(),
             Filter::None => self.paths.clone(),
             Filter::PathEquals(filter) => self
                 .paths
                 .clone()
-                .into_iter()
+                .into_par_iter()
                 .filter(|(path, _path_spec)| path.eq(filter))
+                .collect(),
+            Filter::PathContains(filter) => self
+                .paths
+                .clone()
+                .into_par_iter()
+                .filter(|(path, _path_spec)| path.contains(filter))
                 .collect(),
             Filter::Regex(s) => {
                 let regex = Regex::new(s).unwrap();
@@ -349,13 +367,13 @@ impl PathMap {
                 FilterIgnore::PathContains(s) => self
                     .paths
                     .clone()
-                    .into_iter()
+                    .into_par_iter()
                     .filter(|(path, _path_spec)| !path.contains(s))
                     .collect(),
                 FilterIgnore::PathStartsWith(s) => self
                     .paths
                     .clone()
-                    .into_iter()
+                    .into_par_iter()
                     .filter(|(path, _path_spec)| !path.starts_with(s))
                     .collect(),
             },
