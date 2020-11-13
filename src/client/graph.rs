@@ -52,6 +52,7 @@ use std::str::FromStr;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Ident {
+    AppCatalogs,
     Applications,
     Calendars,
     Drives,
@@ -65,6 +66,7 @@ pub enum Ident {
 impl AsRef<str> for Ident {
     fn as_ref(&self) -> &str {
         match self {
+            Ident::AppCatalogs => "appCatalogs",
             Ident::Applications => "applications",
             Ident::Calendars => "calendars",
             Ident::Drives => "drives",
@@ -80,6 +82,7 @@ impl AsRef<str> for Ident {
 impl ToString for Ident {
     fn to_string(&self) -> String {
         match self {
+            Ident::AppCatalogs => "appCatalogs".into(),
             Ident::Applications => "applications".into(),
             Ident::Calendars => "calendars".into(),
             Ident::Drives => "drives".into(),
@@ -97,6 +100,7 @@ impl FromStr for Ident {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.as_bytes() {
+            b"appCatalogs" => Ok(Ident::AppCatalogs),
             b"applications" => Ok(Ident::Applications),
             b"calendars" => Ok(Ident::Calendars),
             b"drives" => Ok(Ident::Drives),

@@ -19,7 +19,7 @@ fn get_sites_drive_item(item_id: &str, sites_id: &str) {
     let graph = Graph::new("ACCESS_TOKEN");
     let drive_item: GraphResponse<serde_json::Value> = graph
         .v1()
-        .sites(sites_id)
+        .site(sites_id)
         .drive()
         .get_item(item_id)
         .send()

@@ -24,14 +24,20 @@ fn main() {
 fn list_users() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let collection = client.v1().users(USER_ID).list().send().unwrap();
+    let collection = client.v1().users().list_user().send().unwrap();
     println!("{:#?}", collection.body());
 }
 
 fn get_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let user = client.v1().users(USER_ID).get().send().unwrap();
+    let user = client.v1().users().id(USER_ID).get_user().send().unwrap();
+
+    println!("{:#?}", user.body());
+
+    // Or
+
+    let user = client.v1().user(USER_ID).get_user().send().unwrap();
 
     println!("{:#?}", user.body());
 }
@@ -56,7 +62,7 @@ fn create_user() {
         "user_principal_name": "user@domain.com"
     });
 
-    let user: serde_json::Value = client.v1().users("").create(&user).json().unwrap();
+    let user: serde_json::Value = client.v1().users().create_user(&user).json().unwrap();
 
     println!("{:#?}", user);
 }
@@ -71,7 +77,7 @@ fn update_user() {
         "business_phones": ["888-888-8888"]
     });
 
-    let response = client.v1().users(USER_ID).update(&user).send().unwrap();
+    let response = client.v1().user(USER_ID).update_user(&user).send().unwrap();
 
     println!("{:#?}", response);
 }
@@ -79,7 +85,7 @@ fn update_user() {
 fn delete_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let response = client.v1().users(USER_ID).delete().send().unwrap();
+    let response = client.v1().user(USER_ID).delete_user().send().unwrap();
 
     println!("{:#?}", response);
 }
