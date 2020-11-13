@@ -7,7 +7,7 @@ static USER_ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5
 fn list_users() {
     let client = Graph::new("");
 
-    client.v1().users("").list();
+    client.v1().users().list_user();
     assert_url_eq(&client, "/users");
 }
 
@@ -18,7 +18,7 @@ fn get_users() {
     client.v1().me().get();
     assert_url_eq(&client, "/me");
 
-    client.v1().users(USER_ID).get();
+    client.v1().user(USER_ID).get_user();
     assert_url_eq(&client, format!("/users/{}", USER_ID));
 }
 
@@ -26,14 +26,14 @@ fn get_users() {
 fn create_users() {
     let client = Graph::new("");
 
-    client.v1().users(USER_ID).create(&String::new());
+    client.v1().users().create_user(&String::new());
     assert_url_eq(&client, "/users");
 }
 
 #[test]
 fn delete_users() {
     let client = Graph::new("");
-    client.v1().users(USER_ID).delete();
+    client.v1().user(USER_ID).delete_user();
     assert_url_eq(&client, format!("/users/{}", USER_ID));
 }
 
@@ -41,9 +41,9 @@ fn delete_users() {
 fn update_users() {
     let client = Graph::new("");
 
-    client.beta().users(USER_ID).update(&String::new());
+    client.beta().user(USER_ID).update_user(&String::new());
     assert_url_beta_eq(&client, format!("/users/{}", USER_ID));
 
-    client.beta().users(USER_ID).update(&String::new());
+    client.beta().user(USER_ID).update_user(&String::new());
     assert_url_beta_eq(&client, format!("/users/{}", USER_ID));
 }

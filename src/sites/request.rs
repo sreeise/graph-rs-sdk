@@ -1,8 +1,4 @@
-use crate::attachments::AttachmentRequest;
 use crate::client::Graph;
-use crate::drive::DrivesRequest;
-use crate::mail::MailRequest;
-use crate::onenote::OnenoteRequest;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::GraphResponse;

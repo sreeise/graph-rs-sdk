@@ -9,17 +9,22 @@ fn user_request_test() {
 
     let _lock = THROTTLE_MUTEX.lock().unwrap();
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let users = client.v1().users(id.as_str()).list().send();
+        let users = client.v1().users().list_user().send();
 
         if let Ok(response) = users {
             assert!(
                 response.status() == 200 || response.status() == 201 || response.status() == 204
             );
+            let value = response.body().odata_context().cloned().unwrap();
+            assert_eq!(
+                "https://graph.microsoft.com/v1.0/$metadata#users",
+                value.as_str()
+            );
         } else if let Err(e) = users {
             panic!("Request error. Method: users list. Error: {:#?}", e);
         }
 
-        let user_res = client.v1().users(id.as_str()).get().send();
+        let user_res = client.v1().users().id(id).get_user().send();
 
         if let Ok(response) = user_res {
             assert!(

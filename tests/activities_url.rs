@@ -20,7 +20,7 @@ fn activities_url() {
         );
     });
 
-    client.v1().users(RID).activities().list_activities();
+    client.v1().user(RID).activities().list_activities();
 
     client.url_ref(|url| {
         assert_eq!(
@@ -38,7 +38,7 @@ fn activities_url() {
         );
     });
 
-    client.v1().users(RID).activities().get_activities(ID);
+    client.v1().user(RID).activities().get_activities(ID);
 
     client.url_ref(|url| {
         assert_eq!(

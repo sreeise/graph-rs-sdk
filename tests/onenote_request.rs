@@ -15,7 +15,7 @@ fn list_get_notebooks_and_sections() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let notebooks = client
             .v1()
-            .users(id.as_str())
+            .user(id.as_str())
             .onenote()
             .notebooks()
             .list()
@@ -38,7 +38,7 @@ fn list_get_notebooks_and_sections() {
             assert!(found_test_notebook);
             let get_notebook = client
                 .v1()
-                .users(id.as_str())
+                .user(id.as_str())
                 .onenote()
                 .notebooks()
                 .get(notebook_id.as_str())
@@ -58,7 +58,7 @@ fn list_get_notebooks_and_sections() {
 
             let sections = client
                 .v1()
-                .users(id.as_str())
+                .user(id.as_str())
                 .onenote()
                 .notebooks()
                 .list_sections(notebook_id.as_str())
@@ -93,7 +93,7 @@ fn create_delete_page() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let res = client
             .v1()
-            .users(&id)
+            .user(&id)
             .onenote()
             .create_page("./test_files/onenotepage.html")
             .send();
@@ -104,7 +104,7 @@ fn create_delete_page() {
             thread::sleep(Duration::from_secs(5));
             let delete_res = client
                 .v1()
-                .users(&id)
+                .user(&id)
                 .onenote()
                 .pages()
                 .delete(page_id)

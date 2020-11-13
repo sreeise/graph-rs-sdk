@@ -13,7 +13,7 @@ fn list_and_get_messages() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         if let Ok(res) = client
             .v1()
-            .users(id.as_str())
+            .user(id.as_str())
             .mail()
             .messages()
             .list()
@@ -25,7 +25,7 @@ fn list_and_get_messages() {
 
             let get_req = client
                 .v1()
-                .users(id.as_str())
+                .user(id.as_str())
                 .mail()
                 .messages()
                 .get(message_id)
@@ -55,7 +55,7 @@ fn mail_create_and_delete_message() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let result = client
             .v1()
-            .users(id.as_str())
+            .user(id.as_str())
             .mail()
             .messages()
             .create(&serde_json::json!({
@@ -81,7 +81,7 @@ fn mail_create_and_delete_message() {
             thread::sleep(Duration::from_secs(2));
             let delete_res = client
                 .v1()
-                .users(id.as_str())
+                .user(id.as_str())
                 .mail()
                 .messages()
                 .delete(message_id)

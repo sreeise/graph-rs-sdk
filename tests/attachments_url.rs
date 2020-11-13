@@ -18,7 +18,7 @@ fn default_calendar() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendars()
         .get_default(ID, ID);
@@ -29,7 +29,7 @@ fn default_calendar() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendars()
         .delete_default(ID, ID);
@@ -40,7 +40,7 @@ fn default_calendar() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendars()
         .default_content(ID, ID);
@@ -62,7 +62,7 @@ fn calendar() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendars()
         .get(ID, ID, ID);
@@ -76,7 +76,7 @@ fn calendar() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendars()
         .delete(ID, ID, ID);
@@ -90,7 +90,7 @@ fn calendar() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendars()
         .content(ID, ID, ID);
@@ -123,7 +123,7 @@ fn default_calendar_groups() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendar_groups()
         .get_default(ID, ID, ID);
@@ -137,7 +137,7 @@ fn default_calendar_groups() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendar_groups()
         .delete_default(ID, ID, ID);
@@ -151,7 +151,7 @@ fn default_calendar_groups() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendar_groups()
         .default_content(ID, ID, ID);
@@ -184,7 +184,7 @@ fn calendar_groups() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendar_groups()
         .get(ID, ID, ID, ID);
@@ -198,7 +198,7 @@ fn calendar_groups() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendar_groups()
         .delete(ID, ID, ID, ID);
@@ -212,7 +212,7 @@ fn calendar_groups() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .calendar_groups()
         .content(ID, ID, ID, ID);
@@ -235,7 +235,7 @@ fn messages() {
     client.v1().me().mail().messages().attachments().get(ID, ID);
     assert_url_eq(&client, format!("/me/messages/{}/attachments/{}", ID, ID));
 
-    client.v1().users(RID).attachments().messages().get(ID, ID);
+    client.v1().user(RID).attachments().messages().get(ID, ID);
     assert_url_eq(
         &client,
         format!("/users/{}/messages/{}/attachments/{}", RID, ID, ID),
@@ -243,7 +243,7 @@ fn messages() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .messages()
         .delete(ID, ID);
@@ -254,7 +254,7 @@ fn messages() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .messages()
         .content(ID, ID);
@@ -288,7 +288,7 @@ fn mail_folder() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .mail_folder()
         .get(ID, ID, ID);
@@ -302,7 +302,7 @@ fn mail_folder() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .mail_folder()
         .delete(ID, ID, ID);
@@ -316,7 +316,7 @@ fn mail_folder() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .mail_folder()
         .content(ID, ID, ID);
@@ -330,7 +330,7 @@ fn mail_folder() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .mail_folder()
         .child_folder(ID, &vec![ID, ID], ID, ID);
@@ -344,7 +344,7 @@ fn mail_folder() {
 
     client
         .v1()
-        .users(RID)
+        .user(RID)
         .attachments()
         .mail_folder()
         .child_folder_content(ID, &vec![ID, ID, ID], ID, ID);
