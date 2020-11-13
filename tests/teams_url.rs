@@ -10,10 +10,18 @@ fn get_graph() -> Graph<BlockingHttpClient> {
 }
 
 #[test]
+fn team_to_teams() {
+    let client = get_graph();
+
+    let _ = client.v1().teams().id(RID).get_channels(ID);
+    assert_url_eq(&client, &format!("/teams/{}/channels/{}", RID, ID));
+}
+
+#[test]
 fn team_request() {
     let client = get_graph();
 
-    let _ = client.v1().team().list_team();
+    let _ = client.v1().teams().list_team();
     assert_url_eq(&client, "/teams");
 }
 
@@ -21,9 +29,9 @@ fn team_request() {
 fn teams_channel_request() {
     let client = get_graph();
 
-    let _ = client.v1().teams(RID).list_channels();
+    let _ = client.v1().team(RID).list_channels();
     assert_url_eq(&client, &format!("/teams/{}/channels", RID));
 
-    let _ = client.v1().teams(RID).get_channels(ID);
+    let _ = client.v1().team(RID).get_channels(ID);
     assert_url_eq(&client, &format!("/teams/{}/channels/{}", RID, ID));
 }

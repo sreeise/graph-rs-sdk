@@ -1,6 +1,4 @@
-use crate::attachments::AttachmentRequest;
 use crate::client::Graph;
-use crate::onenote::OnenoteRequest;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
@@ -101,14 +99,6 @@ where
         SettingsRequest::new(&self.client)
     }
     get!({
-        doc: "# Get transitiveMemberOf from users",
-        name: get_transitive_member_of,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/transitiveMemberOf/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    get!({
         doc: "# Get activities from users",
         name: get_activities,
         response: serde_json::Value,
@@ -125,10 +115,218 @@ where
         has_body: true
     });
     get!({
-        doc: "# Invoke function getManagedAppPolicies",
-        name: get_managed_app_policies,
+        doc: "# Get createdObjects from users",
+        name: get_created_objects,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/createdObjects/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get contacts from users",
+        name: list_contacts,
         response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/getManagedAppPolicies()",
+        path: "/users/{{RID}}/contacts",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to contacts for users",
+        name: create_contacts,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/contacts",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get ownedDevices from users",
+        name: get_owned_devices,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/ownedDevices/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action reprocessLicenseAssignment",
+        name: reprocess_license_assignment,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/reprocessLicenseAssignment",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get directReports from users",
+        name: get_direct_reports,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/directReports/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get contactFolders from users",
+        name: get_contact_folders,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/contactFolders/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property contactFolders in users",
+        name: update_contact_folders,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/contactFolders/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get people from users",
+        name: list_people,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/people",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to people for users",
+        name: create_people,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/people",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get registeredDevices from users",
+        name: get_registered_devices,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/registeredDevices/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get outlook from users",
+        name: get_outlook,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/outlook",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property outlook in users",
+        name: update_outlook,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/outlook",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get inferenceClassification from users",
+        name: get_inference_classification,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/inferenceClassification",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property inferenceClassification in users",
+        name: update_inference_classification,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/inferenceClassification",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get memberOf from users",
+        name: get_member_of,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/memberOf/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get manager from users",
+        name: get_manager,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/manager",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action wipeManagedAppRegistrationsByDeviceTag",
+        name: wipe_managed_app_registrations_by_device_tag,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/wipeManagedAppRegistrationsByDeviceTag",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get joinedTeams from users",
+        name: list_joined_teams,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/joinedTeams",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to joinedTeams for users",
+        name: create_joined_teams,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/joinedTeams",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get events from users",
+        name: get_events,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/events/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property events in users",
+        name: update_events,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/events/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get ownedObjects from users",
+        name: list_owned_objects,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/ownedObjects",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get followedSites from users",
+        name: list_followed_sites,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/followedSites",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action getMailTips",
+        name: get_mail_tips,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/getMailTips",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get managedAppRegistrations from users",
+        name: list_managed_app_registrations,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/managedAppRegistrations",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get memberOf from users",
+        name: list_member_of,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/memberOf",
         params: 0,
         has_body: false
     });
@@ -149,252 +347,60 @@ where
         has_body: true
     });
     post!({
-        doc: "# Invoke action wipeManagedAppRegistrationsByDeviceTag",
-        name: wipe_managed_app_registrations_by_device_tag,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/wipeManagedAppRegistrationsByDeviceTag",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get managedDevices from users",
-        name: get_managed_devices,
+        doc: "# Invoke action revokeSignInSessions",
+        name: revoke_sign_in_sessions,
         response: serde_json::Value,
-        path: "/users/{{RID}}/managedDevices/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property managedDevices in users",
-        name: update_managed_devices,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get registeredDevices from users",
-        name: list_registered_devices,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/registeredDevices",
+        path: "/users/{{RID}}/revokeSignInSessions",
         params: 0,
         has_body: false
-    });
-    get!({
-        doc: "# Get contactFolders from users",
-        name: list_contact_folders,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/contactFolders",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to contactFolders for users",
-        name: create_contact_folders,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/contactFolders",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get onlineMeetings from users",
-        name: get_online_meetings,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/onlineMeetings/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property onlineMeetings in users",
-        name: update_online_meetings,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/onlineMeetings/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get createdObjects from users",
-        name: list_created_objects,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/createdObjects",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get onlineMeetings from users",
-        name: list_online_meetings,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/onlineMeetings",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to onlineMeetings for users",
-        name: create_online_meetings,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/onlineMeetings",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get joinedTeams from users",
-        name: list_joined_teams,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/joinedTeams",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to joinedTeams for users",
-        name: create_joined_teams,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/joinedTeams",
-        params: 0,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action exportPersonalData",
-        name: export_personal_data,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/exportPersonalData",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get deviceManagementTroubleshootingEvents from users",
-        name: get_device_management_troubleshooting_events,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/deviceManagementTroubleshootingEvents/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property deviceManagementTroubleshootingEvents in users",
-        name: update_device_management_troubleshooting_events,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/deviceManagementTroubleshootingEvents/{{id}}",
-        params: 1,
-        has_body: true
     });
     get!({
         doc: "# Get events from users",
-        name: get_events,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/events/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property events in users",
-        name: update_events,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/events/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get oauth2PermissionGrants from users",
-        name: users_list_oauth_2_permission_grants,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/oauth2PermissionGrants",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get ownedDevices from users",
-        name: list_owned_devices,
+        name: list_events,
         response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/ownedDevices",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get outlook from users",
-        name: get_outlook,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/outlook",
-        params: 0,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property outlook in users",
-        name: update_outlook,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/outlook",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get memberOf from users",
-        name: list_member_of,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/memberOf",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get drive from users",
-        name: get_drive,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/drive",
-        params: 0,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property drive in users",
-        name: update_drive,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/drive",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get memberOf from users",
-        name: get_member_of,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/memberOf/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    get!({
-        doc: "# Get transitiveMemberOf from users",
-        name: list_transitive_member_of,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/transitiveMemberOf",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get drives from users",
-        name: get_drives,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/drives/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property drives in users",
-        name: update_drives,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/drives/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get people from users",
-        name: list_people,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/people",
+        path: "/users/{{RID}}/events",
         params: 0,
         has_body: false
     });
     post!({
-        doc: "# Create new navigation property to people for users",
-        name: create_people,
+        doc: "# Create new navigation property to events for users",
+        name: create_events,
         response: serde_json::Value,
-        path: "/users/{{RID}}/people",
+        path: "/users/{{RID}}/events",
         params: 0,
         has_body: true
+    });
+    get!({
+        doc: "# Invoke function getManagedAppPolicies",
+        name: get_managed_app_policies,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/getManagedAppPolicies()",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get extensions from users",
+        name: list_extensions,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/extensions",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to extensions for users",
+        name: create_extensions,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/extensions",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get managedAppRegistrations from users",
+        name: get_managed_app_registrations,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/managedAppRegistrations/{{id}}",
+        params: 1,
+        has_body: false
     });
     post!({
         doc: "# Invoke action translateExchangeIds",
@@ -405,36 +411,68 @@ where
         has_body: true
     });
     get!({
-        doc: "# Get manager from users",
-        name: get_manager,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/manager",
+        doc: "# Get managedDevices from users",
+        name: list_managed_devices,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/managedDevices",
         params: 0,
         has_body: false
     });
-    get!({
-        doc: "# Get extensions from users",
-        name: get_extensions,
+    post!({
+        doc: "# Create new navigation property to managedDevices for users",
+        name: create_managed_devices,
         response: serde_json::Value,
-        path: "/users/{{RID}}/extensions/{{id}}",
+        path: "/users/{{RID}}/managedDevices",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get drives from users",
+        name: list_drives,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/drives",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to drives for users",
+        name: create_drives,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/drives",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get createdObjects from users",
+        name: list_created_objects,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/createdObjects",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action findMeetingTimes",
+        name: find_meeting_times,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/findMeetingTimes",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get scopedRoleMemberOf from users",
+        name: get_scoped_role_member_of,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/scopedRoleMemberOf/{{id}}",
         params: 1,
         has_body: false
     });
     patch!({
-        doc: "# Update the navigation property extensions in users",
-        name: update_extensions,
+        doc: "# Update the navigation property scopedRoleMemberOf in users",
+        name: update_scoped_role_member_of,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/extensions/{{id}}",
+        path: "/users/{{RID}}/scopedRoleMemberOf/{{id}}",
         params: 1,
         has_body: true
-    });
-    get!({
-        doc: "# Get registeredDevices from users",
-        name: get_registered_devices,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/registeredDevices/{{id}}",
-        params: 1,
-        has_body: false
     });
     get!({
         doc: "# Get entity from users by key",
@@ -461,66 +499,18 @@ where
         has_body: false
     });
     get!({
-        doc: "# Get inferenceClassification from users",
-        name: get_inference_classification,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/inferenceClassification",
-        params: 0,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property inferenceClassification in users",
-        name: update_inference_classification,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/inferenceClassification",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get joinedTeams from users",
-        name: get_joined_teams,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/joinedTeams/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property joinedTeams in users",
-        name: update_joined_teams,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/joinedTeams/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
         doc: "# Get extensions from users",
-        name: list_extensions,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/extensions",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to extensions for users",
-        name: create_extensions,
+        name: get_extensions,
         response: serde_json::Value,
-        path: "/users/{{RID}}/extensions",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get photos from users",
-        name: get_photos,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/photos/{{id}}",
+        path: "/users/{{RID}}/extensions/{{id}}",
         params: 1,
         has_body: false
     });
     patch!({
-        doc: "# Update the navigation property photos in users",
-        name: update_photos,
+        doc: "# Update the navigation property extensions in users",
+        name: update_extensions,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/photos/{{id}}",
+        path: "/users/{{RID}}/extensions/{{id}}",
         params: 1,
         has_body: true
     });
@@ -540,6 +530,22 @@ where
         params: 1,
         has_body: true
     });
+    post!({
+        doc: "# Invoke action exportPersonalData",
+        name: export_personal_data,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/exportPersonalData",
+        params: 0,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action removeAllDevicesFromManagement",
+        name: remove_all_devices_from_management,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/removeAllDevicesFromManagement",
+        params: 0,
+        has_body: false
+    });
     get!({
         doc: "# Get directReports from users",
         name: list_direct_reports,
@@ -549,234 +555,50 @@ where
         has_body: false
     });
     get!({
-        doc: "# Get scopedRoleMemberOf from users",
-        name: list_scoped_role_member_of,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/scopedRoleMemberOf",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to scopedRoleMemberOf for users",
-        name: create_scoped_role_member_of,
+        doc: "# Get managedDevices from users",
+        name: get_managed_devices,
         response: serde_json::Value,
-        path: "/users/{{RID}}/scopedRoleMemberOf",
-        params: 0,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action sendMail",
-        name: send_mail,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/sendMail",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get managedAppRegistrations from users",
-        name: get_managed_app_registrations,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/managedAppRegistrations/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    get!({
-        doc: "# Get followedSites from users",
-        name: list_followed_sites,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/followedSites",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get licenseDetails from users",
-        name: get_license_details,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/licenseDetails/{{id}}",
+        path: "/users/{{RID}}/managedDevices/{{id}}",
         params: 1,
         has_body: false
     });
     patch!({
-        doc: "# Update the navigation property licenseDetails in users",
-        name: update_license_details,
+        doc: "# Update the navigation property managedDevices in users",
+        name: update_managed_devices,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/licenseDetails/{{id}}",
+        path: "/users/{{RID}}/managedDevices/{{id}}",
         params: 1,
         has_body: true
     });
     get!({
-        doc: "# Get photos from users",
-        name: list_photos,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/photos",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to photos for users",
-        name: create_photos,
+        doc: "# Get onlineMeetings from users",
+        name: get_online_meetings,
         response: serde_json::Value,
-        path: "/users/{{RID}}/photos",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get licenseDetails from users",
-        name: list_license_details,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/licenseDetails",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to licenseDetails for users",
-        name: create_license_details,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/licenseDetails",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get contacts from users",
-        name: get_contacts,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/contacts/{{id}}",
+        path: "/users/{{RID}}/onlineMeetings/{{id}}",
         params: 1,
         has_body: false
     });
     patch!({
-        doc: "# Update the navigation property contacts in users",
-        name: update_contacts,
+        doc: "# Update the navigation property onlineMeetings in users",
+        name: update_online_meetings,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/contacts/{{id}}",
+        path: "/users/{{RID}}/onlineMeetings/{{id}}",
         params: 1,
         has_body: true
-    });
-    get!({
-        doc: "# Invoke function getManagedAppDiagnosticStatuses",
-        name: get_managed_app_diagnostic_statuses,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/getManagedAppDiagnosticStatuses()",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get directReports from users",
-        name: get_direct_reports,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/directReports/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    get!({
-        doc: "# Get insights from users",
-        name: get_insights,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/insights",
-        params: 0,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property insights in users",
-        name: update_insights,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/insights",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get ownedObjects from users",
-        name: list_owned_objects,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/ownedObjects",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get managedAppRegistrations from users",
-        name: list_managed_app_registrations,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/managedAppRegistrations",
-        params: 0,
-        has_body: false
     });
     get!({
         doc: "# Get contactFolders from users",
-        name: get_contact_folders,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/contactFolders/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property contactFolders in users",
-        name: update_contact_folders,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/contactFolders/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get oauth2PermissionGrants from users",
-        name: users_get_oauth_2_permission_grants,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/oauth2PermissionGrants/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    get!({
-        doc: "# Get followedSites from users",
-        name: get_followed_sites,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/followedSites/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action reprocessLicenseAssignment",
-        name: reprocess_license_assignment,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/reprocessLicenseAssignment",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get managedDevices from users",
-        name: list_managed_devices,
+        name: list_contact_folders,
         response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/managedDevices",
+        path: "/users/{{RID}}/contactFolders",
         params: 0,
         has_body: false
     });
     post!({
-        doc: "# Create new navigation property to managedDevices for users",
-        name: create_managed_devices,
+        doc: "# Create new navigation property to contactFolders for users",
+        name: create_contact_folders,
         response: serde_json::Value,
-        path: "/users/{{RID}}/managedDevices",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get createdObjects from users",
-        name: get_created_objects,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/createdObjects/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    get!({
-        doc: "# Get events from users",
-        name: list_events,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/events",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to events for users",
-        name: create_events,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/events",
+        path: "/users/{{RID}}/contactFolders",
         params: 0,
         has_body: true
     });
@@ -797,35 +619,115 @@ where
         has_body: true
     });
     get!({
-        doc: "# Get contacts from users",
-        name: list_contacts,
+        doc: "# Get transitiveMemberOf from users",
+        name: list_transitive_member_of,
         response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/contacts",
+        path: "/users/{{RID}}/transitiveMemberOf",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get ownedDevices from users",
+        name: list_owned_devices,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/ownedDevices",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get transitiveMemberOf from users",
+        name: get_transitive_member_of,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/transitiveMemberOf/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get registeredDevices from users",
+        name: list_registered_devices,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/registeredDevices",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Invoke function getManagedAppDiagnosticStatuses",
+        name: get_managed_app_diagnostic_statuses,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/getManagedAppDiagnosticStatuses()",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get oauth2PermissionGrants from users",
+        name: users_list_oauth_2_permission_grants,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/oauth2PermissionGrants",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get licenseDetails from users",
+        name: list_license_details,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/licenseDetails",
         params: 0,
         has_body: false
     });
     post!({
-        doc: "# Create new navigation property to contacts for users",
-        name: create_contacts,
+        doc: "# Create new navigation property to licenseDetails for users",
+        name: create_license_details,
         response: serde_json::Value,
-        path: "/users/{{RID}}/contacts",
+        path: "/users/{{RID}}/licenseDetails",
+        params: 0,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action changePassword",
+        name: change_password,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/changePassword",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get licenseDetails from users",
+        name: get_license_details,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/licenseDetails/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property licenseDetails in users",
+        name: update_license_details,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/licenseDetails/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action sendMail",
+        name: send_mail,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/sendMail",
         params: 0,
         has_body: true
     });
     get!({
         doc: "# Get drives from users",
-        name: list_drives,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/drives",
-        params: 0,
+        name: get_drives,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/drives/{{id}}",
+        params: 1,
         has_body: false
     });
-    post!({
-        doc: "# Create new navigation property to drives for users",
-        name: create_drives,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/drives",
-        params: 0,
+    patch!({
+        doc: "# Update the navigation property drives in users",
+        name: update_drives,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/drives/{{id}}",
+        params: 1,
         has_body: true
     });
     get!({
@@ -837,26 +739,98 @@ where
         has_body: false
     });
     get!({
-        doc: "# Get settings from users",
-        name: get_settings,
+        doc: "# Get oauth2PermissionGrants from users",
+        name: users_get_oauth_2_permission_grants,
         response: serde_json::Value,
-        path: "/users/{{RID}}/settings",
+        path: "/users/{{RID}}/oauth2PermissionGrants/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get scopedRoleMemberOf from users",
+        name: list_scoped_role_member_of,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/scopedRoleMemberOf",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to scopedRoleMemberOf for users",
+        name: create_scoped_role_member_of,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/scopedRoleMemberOf",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get joinedTeams from users",
+        name: get_joined_teams,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/joinedTeams/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property joinedTeams in users",
+        name: update_joined_teams,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/joinedTeams/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get drive from users",
+        name: get_drive,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/drive",
         params: 0,
         has_body: false
     });
     patch!({
-        doc: "# Update the navigation property settings in users",
-        name: update_settings,
+        doc: "# Update the navigation property drive in users",
+        name: update_drive,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/settings",
+        path: "/users/{{RID}}/drive",
         params: 0,
         has_body: true
     });
-    post!({
-        doc: "# Invoke action getMailTips",
-        name: get_mail_tips,
+    get!({
+        doc: "# Get photos from users",
+        name: list_photos,
         response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/getMailTips",
+        path: "/users/{{RID}}/photos",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to photos for users",
+        name: create_photos,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/photos",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get contacts from users",
+        name: get_contacts,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/contacts/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property contacts in users",
+        name: update_contacts,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/contacts/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action assignLicense",
+        name: assign_license,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/assignLicense",
         params: 0,
         has_body: true
     });
@@ -876,38 +850,6 @@ where
         params: 0,
         has_body: true
     });
-    post!({
-        doc: "# Invoke action changePassword",
-        name: change_password,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/changePassword",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get scopedRoleMemberOf from users",
-        name: get_scoped_role_member_of,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/scopedRoleMemberOf/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property scopedRoleMemberOf in users",
-        name: update_scoped_role_member_of,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/scopedRoleMemberOf/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action revokeSignInSessions",
-        name: revoke_sign_in_sessions,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/revokeSignInSessions",
-        params: 0,
-        has_body: false
-    });
     get!({
         doc: "# Get deviceManagementTroubleshootingEvents from users",
         name: list_device_management_troubleshooting_events,
@@ -924,27 +866,59 @@ where
         params: 0,
         has_body: true
     });
-    post!({
-        doc: "# Invoke action removeAllDevicesFromManagement",
-        name: remove_all_devices_from_management,
+    get!({
+        doc: "# Get deviceManagementTroubleshootingEvents from users",
+        name: get_device_management_troubleshooting_events,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/deviceManagementTroubleshootingEvents/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property deviceManagementTroubleshootingEvents in users",
+        name: update_device_management_troubleshooting_events,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/removeAllDevicesFromManagement",
+        path: "/users/{{RID}}/deviceManagementTroubleshootingEvents/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get onlineMeetings from users",
+        name: list_online_meetings,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/onlineMeetings",
         params: 0,
         has_body: false
     });
     post!({
-        doc: "# Invoke action assignLicense",
-        name: assign_license,
+        doc: "# Create new navigation property to onlineMeetings for users",
+        name: create_online_meetings,
         response: serde_json::Value,
-        path: "/users/{{RID}}/assignLicense",
+        path: "/users/{{RID}}/onlineMeetings",
         params: 0,
         has_body: true
     });
     get!({
-        doc: "# Get ownedDevices from users",
-        name: get_owned_devices,
+        doc: "# Get photos from users",
+        name: get_photos,
         response: serde_json::Value,
-        path: "/users/{{RID}}/ownedDevices/{{id}}",
+        path: "/users/{{RID}}/photos/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property photos in users",
+        name: update_photos,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/photos/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get followedSites from users",
+        name: get_followed_sites,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/followedSites/{{id}}",
         params: 1,
         has_body: false
     });
@@ -964,11 +938,35 @@ where
         params: 1,
         has_body: true
     });
-    post!({
-        doc: "# Invoke action findMeetingTimes",
-        name: find_meeting_times,
+    get!({
+        doc: "# Get insights from users",
+        name: get_insights,
         response: serde_json::Value,
-        path: "/users/{{RID}}/findMeetingTimes",
+        path: "/users/{{RID}}/insights",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property insights in users",
+        name: update_insights,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/insights",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get settings from users",
+        name: get_settings,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/settings",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property settings in users",
+        name: update_settings,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/settings",
         params: 0,
         has_body: true
     });
@@ -981,14 +979,6 @@ where
     pub fn history_items(&self) -> HistoryItemsRequest<'a, Client> {
         HistoryItemsRequest::new(&self.client)
     }
-    get!({
-        doc: "# Invoke function recent",
-        name: recent,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/activities/recent()",
-        params: 0,
-        has_body: false
-    });
     get!({
         doc: "# Get historyItems from users",
         name: list_history_items,
@@ -1004,6 +994,14 @@ where
         path: "/users/{{RID}}/activities/{{id}}/historyItems",
         params: 1,
         has_body: true
+    });
+    get!({
+        doc: "# Invoke function recent",
+        name: recent,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/activities/recent()",
+        params: 0,
+        has_body: false
     });
     get!({
         doc: "# Get historyItems from users",
@@ -1048,44 +1046,12 @@ where
         ContactFolderContactRequest::new(&self.client)
     }
     get!({
-        doc: "# Get childFolders from users",
-        name: get_child_folders,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/contactFolders/{{id}}/childFolders/{{id}}",
-        params: 2,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property childFolders in users",
-        name: update_child_folders,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/contactFolders/{{id}}/childFolders/{{id}}",
-        params: 2,
-        has_body: true
-    });
-    get!({
         doc: "# Invoke function delta",
         name: delta,
         response: DeltaPhantom<serde_json::Value>,
         path: "/users/{{RID}}/contactFolders/delta()",
         params: 0,
         has_body: false
-    });
-    get!({
-        doc: "# Get contacts from users",
-        name: list_contacts,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/contactFolders/{{id}}/contacts",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to contacts for users",
-        name: create_contacts,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/contactFolders/{{id}}/contacts",
-        params: 1,
-        has_body: true
     });
     get!({
         doc: "# Get childFolders from users",
@@ -1119,6 +1085,38 @@ where
         params: 2,
         has_body: true
     });
+    get!({
+        doc: "# Get childFolders from users",
+        name: get_child_folders,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/contactFolders/{{id}}/childFolders/{{id}}",
+        params: 2,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property childFolders in users",
+        name: update_child_folders,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/contactFolders/{{id}}/childFolders/{{id}}",
+        params: 2,
+        has_body: true
+    });
+    get!({
+        doc: "# Get contacts from users",
+        name: list_contacts,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/contactFolders/{{id}}/contacts",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to contacts for users",
+        name: create_contacts,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/contactFolders/{{id}}/contacts",
+        params: 1,
+        has_body: true
+    });
 }
 
 impl<'a, Client> ChildFoldersRequest<'a, Client>
@@ -1140,20 +1138,12 @@ where
     Client: graph_http::RequestClient,
 {
     get!({
-        doc: "# Get extensions from users",
-        name: get_extensions,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/contactFolders/{{id}}/contacts/{{id2}}/extensions/{{id3}}",
-        params: 3,
+        doc: "# Invoke function delta",
+        name: delta,
+        response: DeltaPhantom<serde_json::Value>,
+        path: "/users/{{RID}}/contactFolders/{{id}}/contacts/delta()",
+        params: 1,
         has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property extensions in users",
-        name: update_extensions,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/contactFolders/{{id}}/contacts/{{id2}}/extensions/{{id3}}",
-        params: 3,
-        has_body: true
     });
     get!({
         doc: "# Get photo from users",
@@ -1170,14 +1160,6 @@ where
         path: "/users/{{RID}}/contactFolders/{{id}}/contacts/{{id2}}/photo",
         params: 2,
         has_body: true
-    });
-    get!({
-        doc: "# Invoke function delta",
-        name: delta,
-        response: DeltaPhantom<serde_json::Value>,
-        path: "/users/{{RID}}/contactFolders/{{id}}/contacts/delta()",
-        params: 1,
-        has_body: false
     });
     get!({
         doc: "# Get extensions from users",
@@ -1195,28 +1177,28 @@ where
         params: 2,
         has_body: true
     });
+    get!({
+        doc: "# Get extensions from users",
+        name: get_extensions,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/contactFolders/{{id}}/contacts/{{id2}}/extensions/{{id3}}",
+        params: 3,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property extensions in users",
+        name: update_extensions,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/contactFolders/{{id}}/contacts/{{id2}}/extensions/{{id3}}",
+        params: 3,
+        has_body: true
+    });
 }
 
 impl<'a, Client> ContactsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!({
-        doc: "# Get photo from users",
-        name: get_photo,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/contacts/{{id}}/photo",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property photo in users",
-        name: update_photo,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/contacts/{{id}}/photo",
-        params: 1,
-        has_body: true
-    });
     get!({
         doc: "# Invoke function delta",
         name: delta,
@@ -1227,6 +1209,22 @@ where
     });
     get!({
         doc: "# Get extensions from users",
+        name: get_extensions,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/contacts/{{id}}/extensions/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property extensions in users",
+        name: update_extensions,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/contacts/{{id}}/extensions/{{id2}}",
+        params: 2,
+        has_body: true
+    });
+    get!({
+        doc: "# Get extensions from users",
         name: list_extensions,
         response: Collection<serde_json::Value>,
         path: "/users/{{RID}}/contacts/{{id}}/extensions",
@@ -1242,19 +1240,19 @@ where
         has_body: true
     });
     get!({
-        doc: "# Get extensions from users",
-        name: get_extensions,
+        doc: "# Get photo from users",
+        name: get_photo,
         response: serde_json::Value,
-        path: "/users/{{RID}}/contacts/{{id}}/extensions/{{id2}}",
-        params: 2,
+        path: "/users/{{RID}}/contacts/{{id}}/photo",
+        params: 1,
         has_body: false
     });
     patch!({
-        doc: "# Update the navigation property extensions in users",
-        name: update_extensions,
+        doc: "# Update the navigation property photo in users",
+        name: update_photo,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/contacts/{{id}}/extensions/{{id2}}",
-        params: 2,
+        path: "/users/{{RID}}/contacts/{{id}}/photo",
+        params: 1,
         has_body: true
     });
 }
@@ -1290,21 +1288,21 @@ where
         params: 1,
         has_body: true
     });
-    get!({
-        doc: "# Get extensions from users",
-        name: list_extensions,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/events/{{id}}/extensions",
-        params: 1,
-        has_body: false
-    });
     post!({
-        doc: "# Create new navigation property to extensions for users",
-        name: create_extensions,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/events/{{id}}/extensions",
+        doc: "# Invoke action snoozeReminder",
+        name: snooze_reminder,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/events/{{id}}/snoozeReminder",
         params: 1,
         has_body: true
+    });
+    post!({
+        doc: "# Invoke action dismissReminder",
+        name: dismiss_reminder,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/events/{{id}}/dismissReminder",
+        params: 1,
+        has_body: false
     });
     get!({
         doc: "# Get instances from users",
@@ -1322,21 +1320,13 @@ where
         params: 2,
         has_body: true
     });
-    post!({
-        doc: "# Invoke action tentativelyAccept",
-        name: tentatively_accept,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/events/{{id}}/tentativelyAccept",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action snoozeReminder",
-        name: snooze_reminder,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/events/{{id}}/snoozeReminder",
-        params: 1,
-        has_body: true
+    get!({
+        doc: "# Invoke function delta",
+        name: delta,
+        response: DeltaPhantom<serde_json::Value>,
+        path: "/users/{{RID}}/events/delta()",
+        params: 0,
+        has_body: false
     });
     post!({
         doc: "# Invoke action accept",
@@ -1363,20 +1353,28 @@ where
         has_body: true
     });
     post!({
-        doc: "# Invoke action dismissReminder",
-        name: dismiss_reminder,
+        doc: "# Invoke action tentativelyAccept",
+        name: tentatively_accept,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/events/{{id}}/dismissReminder",
+        path: "/users/{{RID}}/events/{{id}}/tentativelyAccept",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get extensions from users",
+        name: list_extensions,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/events/{{id}}/extensions",
         params: 1,
         has_body: false
     });
-    get!({
-        doc: "# Invoke function delta",
-        name: delta,
-        response: DeltaPhantom<serde_json::Value>,
-        path: "/users/{{RID}}/events/delta()",
-        params: 0,
-        has_body: false
+    post!({
+        doc: "# Create new navigation property to extensions for users",
+        name: create_extensions,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/events/{{id}}/extensions",
+        params: 1,
+        has_body: true
     });
 }
 
@@ -1385,10 +1383,10 @@ where
     Client: graph_http::RequestClient,
 {
     post!({
-        doc: "# Invoke action snoozeReminder",
-        name: snooze_reminder,
+        doc: "# Invoke action accept",
+        name: accept,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/events/{{id}}/instances/{{id}}/snoozeReminder",
+        path: "/users/{{RID}}/events/{{id}}/instances/{{id}}/accept",
         params: 2,
         has_body: true
     });
@@ -1397,6 +1395,14 @@ where
         name: decline,
         response: GraphResponse<Content>,
         path: "/users/{{RID}}/events/{{id}}/instances/{{id}}/decline",
+        params: 2,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action snoozeReminder",
+        name: snooze_reminder,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/events/{{id}}/instances/{{id}}/snoozeReminder",
         params: 2,
         has_body: true
     });
@@ -1417,14 +1423,6 @@ where
         has_body: false
     });
     post!({
-        doc: "# Invoke action accept",
-        name: accept,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/events/{{id}}/instances/{{id}}/accept",
-        params: 2,
-        has_body: true
-    });
-    post!({
         doc: "# Invoke action tentativelyAccept",
         name: tentatively_accept,
         response: GraphResponse<Content>,
@@ -1440,22 +1438,6 @@ where
 {
     get!({
         doc: "# Get overrides from users",
-        name: get_overrides,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/inferenceClassification/overrides/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property overrides in users",
-        name: update_overrides,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/inferenceClassification/overrides/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get overrides from users",
         name: list_overrides,
         response: Collection<serde_json::Value>,
         path: "/users/{{RID}}/inferenceClassification/overrides",
@@ -1468,6 +1450,22 @@ where
         response: serde_json::Value,
         path: "/users/{{RID}}/inferenceClassification/overrides",
         params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get overrides from users",
+        name: get_overrides,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/inferenceClassification/overrides/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property overrides in users",
+        name: update_overrides,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/inferenceClassification/overrides/{{id}}",
+        params: 1,
         has_body: true
     });
 }
@@ -1502,22 +1500,6 @@ where
         has_body: true
     });
     get!({
-        doc: "# Get used from users",
-        name: list_used,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/insights/used",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to used for users",
-        name: create_used,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/insights/used",
-        params: 0,
-        has_body: true
-    });
-    get!({
         doc: "# Get trending from users",
         name: list_trending,
         response: Collection<serde_json::Value>,
@@ -1530,22 +1512,6 @@ where
         name: create_trending,
         response: serde_json::Value,
         path: "/users/{{RID}}/insights/trending",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get shared from users",
-        name: list_shared,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/insights/shared",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to shared for users",
-        name: create_shared,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/insights/shared",
         params: 0,
         has_body: true
     });
@@ -1581,6 +1547,38 @@ where
         params: 1,
         has_body: true
     });
+    get!({
+        doc: "# Get shared from users",
+        name: list_shared,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/insights/shared",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to shared for users",
+        name: create_shared,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/insights/shared",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get used from users",
+        name: list_used,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/insights/used",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to used for users",
+        name: create_used,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/insights/used",
+        params: 0,
+        has_body: true
+    });
 }
 
 impl<'a, Client> SharedRequest<'a, Client>
@@ -1588,18 +1586,18 @@ where
     Client: graph_http::RequestClient,
 {
     get!({
-        doc: "# Get lastSharedMethod from users",
-        name: get_last_shared_method,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/insights/shared/{{id}}/lastSharedMethod",
-        params: 1,
-        has_body: false
-    });
-    get!({
         doc: "# Get resource from users",
         name: get_resource,
         response: serde_json::Value,
         path: "/users/{{RID}}/insights/shared/{{id}}/resource",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get lastSharedMethod from users",
+        name: get_last_shared_method,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/insights/shared/{{id}}/lastSharedMethod",
         params: 1,
         has_body: false
     });
@@ -1651,117 +1649,21 @@ impl<'a, Client> ManagedDevicesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!({
-        doc: "# Get deviceCompliancePolicyStates from users",
-        name: list_device_compliance_policy_states,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/deviceCompliancePolicyStates",
+    post!({
+        doc: "# Invoke action disableLostMode",
+        name: disable_lost_mode,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/disableLostMode",
         params: 1,
         has_body: false
     });
     post!({
-        doc: "# Create new navigation property to deviceCompliancePolicyStates for users",
-        name: create_device_compliance_policy_states,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/managedDevices/{{id}}/deviceCompliancePolicyStates",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action logoutSharedAppleDeviceActiveUser",
-        name: logout_shared_apple_device_active_user,
+        doc: "# Invoke action syncDevice",
+        name: sync_device,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/logoutSharedAppleDeviceActiveUser",
+        path: "/users/{{RID}}/managedDevices/{{id}}/syncDevice",
         params: 1,
         has_body: false
-    });
-    post!({
-        doc: "# Invoke action rebootNow",
-        name: reboot_now,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/rebootNow",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action windowsDefenderScan",
-        name: windows_defender_scan,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/windowsDefenderScan",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action cleanWindowsDevice",
-        name: clean_windows_device,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/cleanWindowsDevice",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action remoteLock",
-        name: remote_lock,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/remoteLock",
-        params: 1,
-        has_body: false
-    });
-    get!({
-        doc: "# Get deviceCategory from users",
-        name: get_device_category,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/managedDevices/{{id}}/deviceCategory",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property deviceCategory in users",
-        name: update_device_category,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/deviceCategory",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action wipe",
-        name: wipe,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/wipe",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action windowsDefenderUpdateSignatures",
-        name: windows_defender_update_signatures,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/windowsDefenderUpdateSignatures",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action recoverPasscode",
-        name: recover_passcode,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/recoverPasscode",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action locateDevice",
-        name: locate_device,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/locateDevice",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action deleteUserFromSharedAppleDevice",
-        name: delete_user_from_shared_apple_device,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/deleteUserFromSharedAppleDevice",
-        params: 1,
-        has_body: true
     });
     get!({
         doc: "# Get deviceConfigurationStates from users",
@@ -1780,10 +1682,50 @@ where
         has_body: true
     });
     post!({
-        doc: "# Invoke action bypassActivationLock",
-        name: bypass_activation_lock,
+        doc: "# Invoke action rebootNow",
+        name: reboot_now,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/bypassActivationLock",
+        path: "/users/{{RID}}/managedDevices/{{id}}/rebootNow",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action wipe",
+        name: wipe,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/wipe",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get deviceConfigurationStates from users",
+        name: list_device_configuration_states,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/deviceConfigurationStates",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to deviceConfigurationStates for users",
+        name: create_device_configuration_states,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/managedDevices/{{id}}/deviceConfigurationStates",
+        params: 1,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action deleteUserFromSharedAppleDevice",
+        name: delete_user_from_shared_apple_device,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/deleteUserFromSharedAppleDevice",
+        params: 1,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action retire",
+        name: retire,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/retire",
         params: 1,
         has_body: false
     });
@@ -1804,12 +1746,28 @@ where
         has_body: true
     });
     post!({
-        doc: "# Invoke action shutDown",
-        name: shut_down,
+        doc: "# Invoke action bypassActivationLock",
+        name: bypass_activation_lock,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/shutDown",
+        path: "/users/{{RID}}/managedDevices/{{id}}/bypassActivationLock",
         params: 1,
         has_body: false
+    });
+    post!({
+        doc: "# Invoke action recoverPasscode",
+        name: recover_passcode,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/recoverPasscode",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action windowsDefenderScan",
+        name: windows_defender_scan,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/windowsDefenderScan",
+        params: 1,
+        has_body: true
     });
     post!({
         doc: "# Invoke action resetPasscode",
@@ -1820,18 +1778,90 @@ where
         has_body: false
     });
     post!({
-        doc: "# Invoke action syncDevice",
-        name: sync_device,
+        doc: "# Invoke action remoteLock",
+        name: remote_lock,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/syncDevice",
+        path: "/users/{{RID}}/managedDevices/{{id}}/remoteLock",
         params: 1,
         has_body: false
     });
     post!({
-        doc: "# Invoke action disableLostMode",
-        name: disable_lost_mode,
+        doc: "# Invoke action shutDown",
+        name: shut_down,
         response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/disableLostMode",
+        path: "/users/{{RID}}/managedDevices/{{id}}/shutDown",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action logoutSharedAppleDeviceActiveUser",
+        name: logout_shared_apple_device_active_user,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/logoutSharedAppleDeviceActiveUser",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get deviceCategory from users",
+        name: get_device_category,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/managedDevices/{{id}}/deviceCategory",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property deviceCategory in users",
+        name: update_device_category,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/deviceCategory",
+        params: 1,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action windowsDefenderUpdateSignatures",
+        name: windows_defender_update_signatures,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/windowsDefenderUpdateSignatures",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action cleanWindowsDevice",
+        name: clean_windows_device,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/cleanWindowsDevice",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get deviceCompliancePolicyStates from users",
+        name: list_device_compliance_policy_states,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/deviceCompliancePolicyStates",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to deviceCompliancePolicyStates for users",
+        name: create_device_compliance_policy_states,
+        response: serde_json::Value,
+        path: "/users/{{RID}}/managedDevices/{{id}}/deviceCompliancePolicyStates",
+        params: 1,
+        has_body: true
+    });
+    post!({
+        doc: "# Invoke action locateDevice",
+        name: locate_device,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/locateDevice",
+        params: 1,
+        has_body: false
+    });
+    post!({
+        doc: "# Invoke action requestRemoteAssistance",
+        name: request_remote_assistance,
+        response: GraphResponse<Content>,
+        path: "/users/{{RID}}/managedDevices/{{id}}/requestRemoteAssistance",
         params: 1,
         has_body: false
     });
@@ -1842,38 +1872,6 @@ where
         path: "/users/{{RID}}/managedDevices/{{id}}/updateWindowsDeviceAccount",
         params: 1,
         has_body: true
-    });
-    post!({
-        doc: "# Invoke action retire",
-        name: retire,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/retire",
-        params: 1,
-        has_body: false
-    });
-    get!({
-        doc: "# Get deviceConfigurationStates from users",
-        name: list_device_configuration_states,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/deviceConfigurationStates",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to deviceConfigurationStates for users",
-        name: create_device_configuration_states,
-        response: serde_json::Value,
-        path: "/users/{{RID}}/managedDevices/{{id}}/deviceConfigurationStates",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action requestRemoteAssistance",
-        name: request_remote_assistance,
-        response: GraphResponse<Content>,
-        path: "/users/{{RID}}/managedDevices/{{id}}/requestRemoteAssistance",
-        params: 1,
-        has_body: false
     });
 }
 
@@ -1912,6 +1910,22 @@ where
         has_body: true
     });
     get!({
+        doc: "# Invoke function supportedLanguages",
+        name: supported_languages,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/outlook/supportedLanguages()",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Invoke function supportedTimeZones",
+        name: supported_time_zones,
+        response: Collection<serde_json::Value>,
+        path: "/users/{{RID}}/outlook/supportedTimeZones()",
+        params: 0,
+        has_body: false
+    });
+    get!({
         doc: "# Get masterCategories from users",
         name: list_master_categories,
         response: Collection<serde_json::Value>,
@@ -1926,22 +1940,6 @@ where
         path: "/users/{{RID}}/outlook/masterCategories",
         params: 0,
         has_body: true
-    });
-    get!({
-        doc: "# Invoke function supportedTimeZones",
-        name: supported_time_zones,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/outlook/supportedTimeZones()",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Invoke function supportedLanguages",
-        name: supported_languages,
-        response: Collection<serde_json::Value>,
-        path: "/users/{{RID}}/outlook/supportedLanguages()",
-        params: 0,
-        has_body: false
     });
 }
 

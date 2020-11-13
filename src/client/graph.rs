@@ -53,24 +53,26 @@ use std::str::FromStr;
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Ident {
     Applications,
-    Me,
+    Calendars,
     Drives,
-    Sites,
     Groups,
-    Users,
+    Me,
+    Sites,
     Teams,
+    Users,
 }
 
 impl AsRef<str> for Ident {
     fn as_ref(&self) -> &str {
         match self {
             Ident::Applications => "applications",
-            Ident::Me => "me",
+            Ident::Calendars => "calendars",
             Ident::Drives => "drives",
-            Ident::Sites => "sites",
             Ident::Groups => "groups",
-            Ident::Users => "users",
+            Ident::Me => "me",
+            Ident::Sites => "sites",
             Ident::Teams => "teams",
+            Ident::Users => "users",
         }
     }
 }
@@ -79,12 +81,13 @@ impl ToString for Ident {
     fn to_string(&self) -> String {
         match self {
             Ident::Applications => "applications".into(),
-            Ident::Me => "me".into(),
+            Ident::Calendars => "calendars".into(),
             Ident::Drives => "drives".into(),
-            Ident::Sites => "sites".into(),
             Ident::Groups => "groups".into(),
-            Ident::Users => "users".into(),
+            Ident::Me => "me".into(),
+            Ident::Sites => "sites".into(),
             Ident::Teams => "teams".into(),
+            Ident::Users => "users".into(),
         }
     }
 }
@@ -95,12 +98,13 @@ impl FromStr for Ident {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.as_bytes() {
             b"applications" => Ok(Ident::Applications),
-            b"me" => Ok(Ident::Me),
+            b"calendars" => Ok(Ident::Calendars),
             b"drives" => Ok(Ident::Drives),
-            b"sites" => Ok(Ident::Sites),
             b"groups" => Ok(Ident::Groups),
-            b"users" => Ok(Ident::Users),
+            b"me" => Ok(Ident::Me),
+            b"sites" => Ok(Ident::Sites),
             b"teams" => Ok(Ident::Teams),
+            b"users" => Ok(Ident::Users),
             _ => Err(GraphRsError::InvalidOrMissing {
                 msg: "Not a valid Ident".into(),
             }),
@@ -370,6 +374,7 @@ where
     }
 
     pub fn applications(&self) -> ApplicationRequest<'a, Client> {
+        self.client.set_ident(Ident::Applications);
         ApplicationRequest::new(self.client)
     }
 
@@ -447,6 +452,11 @@ where
         InvitationsRequest::new(self.client)
     }
 
+    pub fn me(&self) -> IdentMe<'a, Client> {
+        self.client.set_ident(Ident::Me);
+        IdentMe::new("", self.client)
+    }
+
     pub fn places(&self) -> PlacesRequest<'a, Client> {
         PlacesRequest::new(self.client)
     }
@@ -475,6 +485,16 @@ where
         SubscriptionsRequest::new(self.client)
     }
 
+    pub fn site<S: AsRef<str>>(&self, id: S) -> SitesRequest<'a, Client> {
+        self.client.set_ident(Ident::Sites);
+        SitesRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn sites(&self) -> SiteRequest<'a, Client> {
+        self.client.set_ident(Ident::Sites);
+        SiteRequest::new(self.client)
+    }
+
     pub fn teamwork(&self) -> TeamworkRequest<'a, Client> {
         TeamworkRequest::new(self.client)
     }
@@ -487,21 +507,6 @@ where
     pub fn teams(&self) -> TeamRequest<'a, Client> {
         self.client.set_ident(Ident::Teams);
         TeamRequest::new(self.client)
-    }
-
-    pub fn me(&self) -> IdentMe<'a, Client> {
-        self.client.set_ident(Ident::Me);
-        IdentMe::new("", self.client)
-    }
-
-    pub fn site<S: AsRef<str>>(&self, id: S) -> SitesRequest<'a, Client> {
-        self.client.set_ident(Ident::Sites);
-        SitesRequest::new(id.as_ref(), self.client)
-    }
-
-    pub fn sites(&self) -> SiteRequest<'a, Client> {
-        self.client.set_ident(Ident::Sites);
-        SiteRequest::new(self.client)
     }
 
     pub fn user<S: AsRef<str>>(&self, id: S) -> UsersRequest<'a, Client> {

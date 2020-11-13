@@ -13,7 +13,7 @@ fn list_notebooks() {
     client.v1().groups(RID).onenote().notebooks().list();
     assert_url_eq(&client, format!("/groups/{}/onenote/notebooks", RID));
 
-    client.v1().sites(RID).onenote().notebooks().list();
+    client.v1().site(RID).onenote().notebooks().list();
     assert_url_eq(&client, format!("/sites/{}/onenote/notebooks", RID));
 }
 
@@ -25,7 +25,7 @@ fn notebooks_list_sections() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .notebooks()
         .list_sections(ID);
@@ -41,7 +41,7 @@ fn get_notebook() {
     client.v1().me().onenote().notebooks().get(ID);
     assert_url_eq(&client, format!("/me/onenote/notebooks/{}", ID));
 
-    client.v1().sites(RID).onenote().notebooks().get(ID);
+    client.v1().site(RID).onenote().notebooks().get(ID);
     assert_url_eq(&client, format!("/sites/{}/onenote/notebooks/{}", RID, ID));
 }
 
@@ -66,7 +66,7 @@ fn create_notebook() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .notebooks()
         .create(&String::new());
@@ -82,7 +82,7 @@ fn get_recent_notebooks() {
         "/me/onenote/notebooks/getRecentNotebooks(includePersonalNotebooks=true)",
     );
 
-    client.v1().sites(RID).onenote().notebooks().recent(false);
+    client.v1().site(RID).onenote().notebooks().recent(false);
     assert_url_eq(
         &client,
         format!(
@@ -105,7 +105,7 @@ fn notebook_create_section() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .notebooks()
         .create_section(ID, &String::new());
@@ -131,7 +131,7 @@ fn copy_notebook() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .notebooks()
         .copy(ID, &String::new());
@@ -147,7 +147,7 @@ fn list_sections() {
     client.v1().me().onenote().sections().list();
     assert_url_eq(&client, "/me/onenote/sections");
 
-    client.v1().sites(RID).onenote().sections().list();
+    client.v1().site(RID).onenote().sections().list();
     assert_url_eq(&client, format!("/sites/{}/onenote/sections", RID));
 }
 
@@ -157,7 +157,7 @@ fn list_section_pages() {
     client.v1().me().onenote().sections().list_pages(ID);
     assert_url_eq(&client, format!("/me/onenote/sections/{}/pages", ID));
 
-    client.v1().sites(RID).onenote().sections().list_pages(ID);
+    client.v1().site(RID).onenote().sections().list_pages(ID);
     assert_url_eq(
         &client,
         format!("/sites/{}/onenote/sections/{}/pages", RID, ID),
@@ -170,7 +170,7 @@ fn get_section() {
     client.v1().me().onenote().sections().get(ID);
     assert_url_eq(&client, format!("/me/onenote/sections/{}", ID));
 
-    client.v1().sites(RID).onenote().sections().get(ID);
+    client.v1().site(RID).onenote().sections().get(ID);
     assert_url_eq(&client, format!("/sites/{}/onenote/sections/{}", RID, ID));
 }
 
@@ -190,7 +190,7 @@ fn sections_copy_to_note_book() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .sections()
         .copy_to_notebook(ID, &String::new());
@@ -216,7 +216,7 @@ fn sections_copy_to_section_group() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .sections()
         .copy_to_section_group(ID, &String::new());
@@ -232,7 +232,7 @@ fn list_section_group() {
     client.v1().me().onenote().section_group().list();
     assert_url_eq(&client, "/me/onenote/sectionGroups");
 
-    client.v1().sites(RID).onenote().section_group().list();
+    client.v1().site(RID).onenote().section_group().list();
     assert_url_eq(&client, format!("/sites/{}/onenote/sectionGroups", RID));
 }
 
@@ -247,7 +247,7 @@ fn section_group_list_sections() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .section_group()
         .list_sections(ID);
@@ -263,7 +263,7 @@ fn get_section_group() {
     client.v1().me().onenote().section_group().get(ID);
     assert_url_eq(&client, format!("/me/onenote/sectionGroups/{}", ID));
 
-    client.v1().sites(RID).onenote().section_group().get(ID);
+    client.v1().site(RID).onenote().section_group().get(ID);
     assert_url_eq(
         &client,
         format!("/sites/{}/onenote/sectionGroups/{}", RID, ID),
@@ -286,7 +286,7 @@ fn create_section_group() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .section_group()
         .create(ID, &String::new());
@@ -312,7 +312,7 @@ fn section_group_create_section() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .section_group()
         .create_section(ID, &String::new());
@@ -328,7 +328,7 @@ fn list_pages() {
     client.v1().me().onenote().pages().list();
     assert_url_eq(&client, "/me/onenote/pages");
 
-    client.v1().sites(RID).onenote().pages().list();
+    client.v1().site(RID).onenote().pages().list();
     assert_url_eq(&client, format!("/sites/{}/onenote/pages", RID));
 }
 
@@ -338,7 +338,7 @@ fn get_page() {
     client.v1().me().onenote().pages().get(ID);
     assert_url_eq(&client, format!("/me/onenote/pages/{}", ID));
 
-    client.v1().sites(RID).onenote().pages().get(ID);
+    client.v1().site(RID).onenote().pages().get(ID);
     assert_url_eq(&client, format!("/sites/{}/onenote/pages/{}", RID, ID));
 }
 
@@ -355,7 +355,7 @@ fn update_page() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .pages()
         .update(ID, &String::new());
@@ -371,7 +371,7 @@ fn delete_page() {
     client.v1().me().onenote().pages().delete(ID);
     assert_url_eq(&client, format!("/me/onenote/pages/{}", ID));
 
-    client.v1().sites(RID).onenote().pages().delete(ID);
+    client.v1().site(RID).onenote().pages().delete(ID);
     assert_url_eq(&client, format!("/sites/{}/onenote/pages/{}", RID, ID));
 }
 
@@ -388,7 +388,7 @@ fn pages_copy_to_section() {
 
     client
         .v1()
-        .sites(RID)
+        .site(RID)
         .onenote()
         .pages()
         .copy_to_section(ID, &String::new());

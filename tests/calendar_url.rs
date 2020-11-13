@@ -7,7 +7,7 @@ fn list_calendars() {
     client.v1().me().calendar().list();
     assert_url_eq(&client, "/me/calendars");
 
-    client.v1().sites("32p99453").calendar().list();
+    client.v1().site("32p99453").calendar().list();
     assert_url_eq(&client, "/sites/32p99453/calendars")
 }
 
@@ -57,7 +57,7 @@ fn create_calendars() {
 
     client
         .v1()
-        .sites("32p99453")
+        .site("32p99453")
         .calendar()
         .create(&serde_json::json!({}));
     assert_url_eq(&client, "/sites/32p99453/calendars")
@@ -69,7 +69,7 @@ fn delete_calendars() {
     client.v1().me().calendar().delete("1234");
     assert_url_eq(&client, "/me/calendars/1234");
 
-    client.v1().sites("32p99453").calendar().delete("1234");
+    client.v1().site("32p99453").calendar().delete("1234");
     assert_url_eq(&client, "/sites/32p99453/calendars/1234")
 }
 
@@ -89,7 +89,7 @@ fn calendar_views() {
 
     client
         .v1()
-        .sites("32p99453")
+        .site("32p99453")
         .calendar()
         .views()
         .list_view("1234", "0", "1");
