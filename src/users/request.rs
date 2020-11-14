@@ -1,3 +1,4 @@
+use crate::calendar_groups::CalendarGroupsRequest;
 use crate::client::Graph;
 use graph_http::types::Collection;
 use graph_http::types::Content;
@@ -67,6 +68,9 @@ where
 {
     pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
         ActivitiesRequest::new(&self.client)
+    }
+    pub fn calendar_groups(&self) -> CalendarGroupsRequest<'a, Client> {
+        CalendarGroupsRequest::new(&self.client)
     }
     pub fn contact_folders(&self) -> ContactFoldersRequest<'a, Client> {
         ContactFoldersRequest::new(&self.client)
