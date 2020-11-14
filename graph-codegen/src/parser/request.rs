@@ -1,4 +1,4 @@
-use crate::parser::filter::ModifierMap;
+use crate::parser::filter::{ModifierMap, SecondaryModifierMap};
 use crate::parser::{ResourceNameMapping, ResourceNames};
 use crate::traits::{HashMapExt, RequestParser};
 use from_as::*;
@@ -120,7 +120,7 @@ pub struct Request {
 }
 
 impl Request {
-    pub fn modify(&mut self, map: &ModifierMap) {
+    pub fn modify(&mut self, map: &ModifierMap, secondary_map: &SecondaryModifierMap) {
         for (mat, modify_vec) in map.map.iter() {
             if mat.matches(self) {
                 for modifier in modify_vec.iter() {
@@ -128,6 +128,8 @@ impl Request {
                 }
             }
         }
+
+        secondary_map.modify(self);
     }
 }
 
@@ -199,7 +201,12 @@ impl RequestMap {
         for request in self.requests.iter() {
             imports.extend(request.response.as_imports());
         }
-        imports
+
+        if self.path.starts_with("/users") {
+            imports.insert("crate::calendar_groups::CalendarGroupsRequest".to_string());
+        }
+
+         imports
     }
 
     pub fn iter(&self) -> std::collections::vec_deque::Iter<'_, Request> {
@@ -412,6 +419,8 @@ impl RequestSet {
                 map.insert(link.to_string(), vec![]);
             }
         }
+
+        map.entry_modify_insert("users".to_string(), "calendarGroups".to_string());
         map
     }
 

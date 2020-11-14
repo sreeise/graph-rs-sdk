@@ -1,4 +1,4 @@
-use crate::parser::filter::ModifierMap;
+use crate::parser::filter::{ModifierMap, SecondaryModifierMap};
 use crate::parser::Request;
 use inflector::Inflector;
 use regex::Regex;
@@ -18,10 +18,17 @@ lazy_static! {
 
     /// Matches named ids such as {group-id}.
     static ref PATH_ID_NAMED_REG: Regex = Regex::new(r"(\{)(\w+-\w+)(})").unwrap();
+
+    pub static ref INTERNAL_PATH_ID: Regex = Regex::new(r"(\{\{)(\w+)(}})").unwrap();
 }
 
 pub trait RequestParserBuilder<RHS: ?Sized = Self> {
-    fn build(&self, modifier: &ModifierMap) -> Request;
+    fn build(
+        &self,
+        path: String,
+        modifiers: &ModifierMap,
+        secondary_modifiers: &SecondaryModifierMap,
+    ) -> Request;
 }
 
 pub trait RequestParser<RHS = Self> {
@@ -113,9 +120,9 @@ impl RequestParser for &str {
         for cap in PATH_ID_REG.captures_iter(path_clone.as_str()) {
             let s = cap[0].to_string();
             if count == 1 {
-                path = path.replace(s.as_str(), "/{{id}}");
+                path = path.replacen(s.as_str(), "/{{id}}", 1);
             } else {
-                path = path.replace(s.as_str(), &format!("/{{{{id{}}}}}", count));
+                path = path.replacen(s.as_str(), &format!("/{{{{id{}}}}}", count), 1);
             }
             count += 1;
         }
@@ -125,9 +132,9 @@ impl RequestParser for &str {
         for cap in PATH_ID_NAMED_REG.captures_iter(path_clone.as_str()) {
             let s = cap[0].to_string();
             if count == 1 {
-                path = path.replace(s.as_str(), "{{id}}");
+                path = path.replacen(s.as_str(), "{{id}}", 1);
             } else {
-                path = path.replace(s.as_str(), &format!("{{{{id{}}}}}", count));
+                path = path.replacen(s.as_str(), &format!("{{{{id{}}}}}", count), 1);
             }
             count += 1;
         }
