@@ -93,8 +93,24 @@ impl SpecClient {
             buf.put(RegisterClient::BaseClient.format(self.name.as_str()));
         }
 
+        let mut non_empty_mappings = Vec::new();
+        for (name, vec_request_map) in self.methods.iter() {
+            dbg!(name);
+            dbg!(vec_request_map.is_empty());
+
+            if !vec_request_map.is_empty() {
+                if name.contains('.') {
+                    let mut vec_queue: VecDeque<&str> = name.split('.').collect();
+                    let client_name = vec_queue.pop_back().unwrap();
+                    non_empty_mappings.push(client_name.to_string());
+                } else {
+                    non_empty_mappings.push(name.to_string());
+                }
+            }
+        }
+
         for name in self.client_names.iter() {
-            if self.name.ne(name.as_str()) {
+            if self.name.ne(name.as_str()) && non_empty_mappings.contains(name) {
                 buf.put(RegisterClient::BaseClient.format(name.as_str()));
             }
         }
