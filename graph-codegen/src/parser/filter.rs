@@ -1,6 +1,6 @@
 use crate::parser::error::ParserError;
 use crate::parser::{Request, RequestMap, RequestSet};
-use crate::traits::Modify;
+use crate::traits::{Modify, INTERNAL_PATH_ID};
 use from_as::*;
 use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
 use serde::ser::SerializeMap;
@@ -162,6 +162,55 @@ impl Modify<RequestSet> for UrlMatchTarget {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub struct SecondaryTarget {
+    match_target: MatchTarget,
+    pat: String,
+}
+
+impl SecondaryTarget {
+    pub fn new(pat: &str, match_target: MatchTarget) -> SecondaryTarget {
+        SecondaryTarget {
+            match_target,
+            pat: pat.to_string(),
+        }
+    }
+
+    pub fn modify(&self, request: &mut Request) {
+        self.match_target.modify_contains(&self.pat, request);
+    }
+}
+
+impl From<MatchTarget> for SecondaryTarget {
+    fn from(match_target: MatchTarget) -> Self {
+        SecondaryTarget::new("", match_target)
+    }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub struct SecondaryModifierMap {
+    pub secondary_targets: VecDeque<SecondaryTarget>,
+}
+
+impl SecondaryModifierMap {
+    pub fn with_capacity(capacity: usize) -> SecondaryModifierMap {
+        SecondaryModifierMap {
+            secondary_targets: VecDeque::with_capacity(capacity),
+        }
+    }
+
+    pub fn insert(&mut self, pat: &str, match_target: MatchTarget) {
+        self.secondary_targets
+            .push_back(SecondaryTarget::new(pat, match_target));
+    }
+
+    pub fn modify(&self, request: &mut Request) {
+        for target in self.secondary_targets.iter() {
+            target.modify(request);
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
 pub enum MatchTarget {
     Tag(String),
@@ -221,6 +270,43 @@ impl MatchTarget {
             },
             MatchTarget::OperationId(s) => {
                 request.operation_id = s.to_string();
+            },
+        }
+    }
+
+    fn modify_contains(&self, pat: &str, request: &mut Request) {
+        match self {
+            MatchTarget::OperationMap(s) => {
+                if request.operation_mapping.contains(pat) {
+                    request.operation_mapping = request.operation_mapping.replace(pat, s);
+                    request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
+                }
+            },
+            MatchTarget::Tag(s) => {
+                if request.tag.contains(pat) {
+                    request.tag = request.tag.replace(pat, s);
+                    request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
+                }
+            },
+            MatchTarget::TagAndOperationMap(s) => {
+                if request.tag.contains(pat) && request.operation_mapping.contains(&pat) {
+                    request.tag = request.tag.replace(pat, s);
+                    request.operation_mapping = request.operation_mapping.replace(pat, s);
+                    request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
+                }
+            },
+            MatchTarget::TagOrOperationMap(s) => {
+                if request.tag.contains(&pat) || request.operation_mapping.contains(&pat) {
+                    request.tag = request.tag.replace(pat, s);
+                    request.operation_mapping = request.operation_mapping.replace(pat, s);
+                    request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
+                }
+            },
+            MatchTarget::OperationId(s) => {
+                if request.operation_id.contains(&pat) {
+                    request.operation_id = request.operation_id.replace(pat, s);
+                    request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
+                }
             },
         }
     }
