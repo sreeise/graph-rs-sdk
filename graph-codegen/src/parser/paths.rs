@@ -191,8 +191,14 @@ impl RequestParser for Operation {
 impl RequestParserBuilder for Operation {
     /// The build method is where each individual request
     /// is parsed.
-    fn build(&self, modifiers: &ModifierMap) -> Request {
+    fn build(
+        &self,
+        path: String,
+        modifiers: &ModifierMap,
+        secondary_modifiers: &SecondaryModifierMap,
+    ) -> Request {
         let mut request = Request::default();
+        request.path = path;
         request.operation_id = self.operation_id.to_string();
         request.operation_mapping = self.operation_id.operation_mapping();
         request.method_name = self.method_name();
@@ -215,7 +221,7 @@ impl RequestParserBuilder for Operation {
             request.tag = tag.to_string();
         }
 
-        request.modify(modifiers);
+        request.modify(modifiers, secondary_modifiers);
         request
     }
 }

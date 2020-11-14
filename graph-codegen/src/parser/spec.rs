@@ -1,8 +1,11 @@
-use crate::parser::filter::{Filter, FilterIgnore, MatchTarget, ModifierMap, UrlMatchTarget};
+use crate::parser::filter::{
+    Filter, FilterIgnore, MatchTarget, ModifierMap, SecondaryModifierMap, UrlMatchTarget,
+};
 use crate::parser::{HttpMethod, PathMap, Request, RequestMap, RequestSet};
 use crate::traits::{Modify, RequestParser, RequestParserBuilder};
 use from_as::*;
 use rayon::prelude::*;
+use reqwest::Url;
 use serde::Serialize;
 use std::cell::{RefCell, RefMut};
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
@@ -20,26 +23,36 @@ pub struct ParserSpec {
     #[serde(skip_serializing_if = "HashMap::is_empty")]
     operation_map: HashMap<String, String>,
     modify_target: ModifierMap,
+    secondary_modify_target: SecondaryModifierMap,
     url_modify_target: HashSet<UrlMatchTarget>,
     modifiers: BTreeSet<String>,
     links_override: HashMap<String, Vec<String>>,
 }
 
 impl ParserSpec {
-    pub fn parse<P: AsRef<Path>>(file: P) -> ParserSpec {
-        let mut path_map: PathMap = PathMap::from_file(file.as_ref()).unwrap();
-        path_map.clean();
-
+    fn parser_spec(path_map: PathMap) -> ParserSpec {
         ParserSpec {
             paths: path_map,
             requests: Default::default(),
             tag_map: Default::default(),
             operation_map: Default::default(),
             modify_target: ModifierMap::with_capacity(30),
+            secondary_modify_target: SecondaryModifierMap::with_capacity(15),
             url_modify_target: HashSet::with_capacity(15),
             modifiers: Default::default(),
             links_override: Default::default(),
         }
+    }
+
+    pub fn new(mut path_map: PathMap) -> ParserSpec {
+        path_map.clean();
+        ParserSpec::parser_spec(path_map)
+    }
+
+    pub fn parse<P: AsRef<Path>>(file: P) -> ParserSpec {
+        let mut path_map: PathMap = PathMap::from_file(file.as_ref()).unwrap();
+        path_map.clean();
+        ParserSpec::parser_spec(path_map)
     }
 
     pub fn parse_secondary<P: AsRef<Path>>(
@@ -51,17 +64,7 @@ impl ParserSpec {
         let mut path_map: PathMap = path_map.filter(start_filter).into();
         let mut path_map = path_map.clean_secondary(secondary_name);
         path_map.clean();
-
-        ParserSpec {
-            paths: path_map,
-            requests: Default::default(),
-            tag_map: Default::default(),
-            operation_map: Default::default(),
-            modify_target: ModifierMap::with_capacity(30),
-            url_modify_target: HashSet::with_capacity(15),
-            modifiers: Default::default(),
-            links_override: Default::default(),
-        }
+        ParserSpec::parser_spec(path_map)
     }
 }
 
@@ -112,6 +115,7 @@ impl Parser {
                 tag_map: Default::default(),
                 operation_map: Default::default(),
                 modify_target: ModifierMap::with_capacity(30),
+                secondary_modify_target: SecondaryModifierMap::with_capacity(15),
                 url_modify_target: HashSet::with_capacity(15),
                 modifiers: Default::default(),
                 links_override: Default::default(),
@@ -327,16 +331,54 @@ impl Parser {
                 MatchTarget::OperationMap("calendars".to_string()),
             ],
         );
-        spec.modify_target.operation_map(
-            "users.calendarGroups.calendars",
-            "users.calendarGroups.calendarGroupCalendars",
+        spec.modify_target.map.insert(
+            MatchTarget::OperationId("users.calendars.events.calendar.getSchedule".to_string()),
+            vec![
+                MatchTarget::OperationId("users.calendars.events.getSchedule".to_string()),
+                MatchTarget::OperationMap("users.calendars.events".to_string()),
+            ],
         );
-        spec.modify_target.operation_map(
-            "users.calendar.calendarView.instances",
-            "users.calendar.calendarView.calendarViewInstances",
+        spec.modify_target.map.insert(
+            MatchTarget::OperationId("users.GetCalendarGroups".to_string()),
+            vec![
+                MatchTarget::OperationId("calendarGroups.GetCalendarGroups".to_string()),
+                MatchTarget::OperationMap("calendarGroups".to_string()),
+            ],
         );
-
-        // users.calendar.calendarView.instances
+        spec.modify_target.map.insert(
+            MatchTarget::OperationId("users.UpdateCalendarGroups".to_string()),
+            vec![
+                MatchTarget::OperationId("calendarGroups.UpdateCalendarGroups".to_string()),
+                MatchTarget::OperationMap("calendarGroups".to_string()),
+            ],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationId("users.ListCalendarGroups".to_string()),
+            vec![
+                MatchTarget::OperationId("calendarGroups.ListCalendarGroups".to_string()),
+                MatchTarget::OperationMap("calendarGroups".to_string()),
+            ],
+        );
+        spec.modify_target.map.insert(
+            MatchTarget::OperationId(
+                "users.calendarGroups.calendars.events.calendar.getSchedule".to_string(),
+            ),
+            vec![
+                MatchTarget::OperationId(
+                    "users.calendarGroups.calendars.events.getSchedule".to_string(),
+                ),
+                MatchTarget::OperationMap("users.calendarGroups.calendars.events".to_string()),
+            ],
+        );
+        // users.calendarGroups.calendars.events.calendar.getSchedule
+        spec.secondary_modify_target.insert(
+            "users.calendarGroups",
+            MatchTarget::OperationMap("calendarGroups".to_string()),
+        );
+        spec.secondary_modify_target.insert(
+            "users.calendarGroups",
+            MatchTarget::OperationId("calendarGroups".to_string()),
+        );
 
         // Modify that paths that have a resource id. See UrlMatchTarget
         // for more info.
@@ -438,6 +480,7 @@ impl Parser {
     pub fn build(&self) -> HashMap<String, RequestSet> {
         let mut spec = self.spec.borrow_mut();
         let modifier = spec.modify_target.clone();
+        let secondary_modifier = spec.secondary_modify_target.clone();
         let modifier_filters = spec.modifiers.clone();
         let url_modifiers = spec.url_modify_target.clone();
         let mut req_set_map = HashMap::new();
@@ -460,41 +503,36 @@ impl Parser {
                 req_map.path = path.clone();
 
                 if let Some(operation) = path_spec.get.as_ref() {
-                    let mut request = operation.build(&modifier);
+                    let mut request = operation.build(path.clone(), &modifier, &secondary_modifier);
                     request.method = HttpMethod::GET;
-                    request.path = path.clone();
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
                 }
 
                 if let Some(operation) = path_spec.post.as_ref() {
-                    let mut request = operation.build(&modifier);
+                    let mut request = operation.build(path.clone(), &modifier, &secondary_modifier);
                     request.method = HttpMethod::POST;
-                    request.path = path.clone();
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
                 }
 
                 if let Some(operation) = path_spec.put.as_ref() {
-                    let mut request = operation.build(&modifier);
+                    let mut request = operation.build(path.clone(), &modifier, &secondary_modifier);
                     request.method = HttpMethod::PUT;
-                    request.path = path.clone();
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
                 }
 
                 if let Some(operation) = path_spec.patch.as_ref() {
-                    let mut request = operation.build(&modifier);
+                    let mut request = operation.build(path.clone(), &modifier, &secondary_modifier);
                     request.method = HttpMethod::PATCH;
-                    request.path = path.clone();
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
                 }
 
                 if let Some(operation) = path_spec.delete.as_ref() {
-                    let mut request = operation.build(&modifier);
+                    let mut request = operation.build(path.clone(), &modifier, &secondary_modifier);
                     request.method = HttpMethod::DELETE;
-                    request.path = path.clone();
                     operation_mapping_fn(&mut request, modifier_filter.as_ref());
                     req_map.requests.push_back(request);
                 }
@@ -530,5 +568,19 @@ impl Parser {
             spec.requests.clear();
         }
         req_set_map
+    }
+}
+
+impl TryFrom<reqwest::Url> for Parser {
+    type Error = reqwest::Error;
+
+    fn try_from(value: Url) -> Result<Self, Self::Error> {
+        let response = reqwest::blocking::get(value)?;
+        let s = response.text().unwrap();
+        dbg!(&s);
+        let path_map: PathMap = serde_yaml::from_str(s.as_str()).unwrap();
+        Ok(Parser {
+            spec: RefCell::new(ParserSpec::new(path_map)),
+        })
     }
 }

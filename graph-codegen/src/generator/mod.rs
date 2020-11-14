@@ -7,6 +7,8 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::path::Path;
 
+static MSGRAPH_METADATA_V1_0: &str = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml";
+
 #[derive(Default, Debug)]
 pub struct Generator {
     builder: Builder,
@@ -59,6 +61,24 @@ impl Generator {
         let vec2: Vec<&str> = vec1.iter().map(|s| s.as_ref()).collect();
 
         Generator::parse(path, Some(&vec2))
+    }
+
+    pub fn from_url(url: &str, modifiers: Option<&[&str]>) -> Generator {
+        let parser = Parser::try_from(reqwest::Url::parse(url).unwrap()).unwrap();
+        let mut modifier_filter_build = false;
+        if let Some(modifiers) = modifiers {
+            parser.use_default_modifiers(modifiers);
+            modifier_filter_build = true;
+        }
+        parser.use_default_links_override();
+        let builder = Builder::new(parser);
+        builder.set_build_with_modifier_filter(modifier_filter_build);
+        builder.use_defaults();
+        Generator { builder }
+    }
+
+    pub fn default_v1(modifiers: Option<&[&str]>) -> Generator {
+        Generator::from_url(MSGRAPH_METADATA_V1_0, modifiers)
     }
 
     pub fn build(&self) {
