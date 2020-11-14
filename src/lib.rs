@@ -79,6 +79,8 @@ pub mod applications;
 pub mod attachments;
 /// Calendar request client.
 pub mod calendar;
+/// Calendar groups client.
+pub mod calendar_groups;
 /// Certificate based auth configuration client.
 mod certificate_based_auth_configuration;
 /// Communications client.
