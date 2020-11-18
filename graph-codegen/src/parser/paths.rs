@@ -6,8 +6,8 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use regex::Regex;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 
-pub trait PathRetain {
-    fn path_retain(&mut self);
+pub trait IsInPath {
+    fn retain_is_in_path(&mut self);
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
@@ -162,10 +162,10 @@ impl Operation {
     }
 }
 
-impl PathRetain for Option<Operation> {
-    fn path_retain(&mut self) {
+impl IsInPath for Option<Operation> {
+    fn retain_is_in_path(&mut self) {
         if let Some(operation) = self.as_mut() {
-            operation.parameters.path_retain();
+            operation.parameters.retain_is_in_path();
         }
     }
 }
@@ -277,16 +277,16 @@ impl Parameter {
     }
 }
 
-impl PathRetain for VecDeque<Parameter> {
-    fn path_retain(&mut self) {
+impl IsInPath for VecDeque<Parameter> {
+    fn retain_is_in_path(&mut self) {
         self.retain(|p| p.is_in_path());
     }
 }
 
-impl PathRetain for Option<VecDeque<Parameter>> {
-    fn path_retain(&mut self) {
+impl IsInPath for Option<VecDeque<Parameter>> {
+    fn retain_is_in_path(&mut self) {
         if let Some(vec) = self.as_mut() {
-            vec.path_retain();
+            vec.retain_is_in_path();
         }
     }
 }
@@ -299,7 +299,7 @@ pub struct PathMap {
 
 impl PathMap {
     pub fn clean(&mut self) {
-        self.path_retain();
+        self.retain_is_in_path();
     }
 
     pub fn clean_secondary(&mut self, secondary_name: &str) -> PathMap {
@@ -310,19 +310,20 @@ impl PathMap {
                 map2.insert(new_path, path_struct.clone());
             }
         }
+        self.clean();
         map2.into()
     }
 }
 
-impl PathRetain for PathMap {
-    fn path_retain(&mut self) {
+impl IsInPath for PathMap {
+    fn retain_is_in_path(&mut self) {
         for (_s, path) in self.paths.iter_mut() {
             path.parameters.retain(|param| param.is_in_path());
-            path.get.path_retain();
-            path.put.path_retain();
-            path.patch.path_retain();
-            path.post.path_retain();
-            path.delete.path_retain();
+            path.get.retain_is_in_path();
+            path.put.retain_is_in_path();
+            path.patch.retain_is_in_path();
+            path.post.retain_is_in_path();
+            path.delete.retain_is_in_path();
         }
     }
 }
@@ -382,6 +383,16 @@ impl PathMap {
                     .into_par_iter()
                     .filter(|(path, _path_spec)| !path.starts_with(s))
                     .collect(),
+                FilterIgnore::PathContainsMulti(vec) => {
+                    let mut paths = self.paths.clone();
+                    for s in vec.iter() {
+                        paths = paths
+                            .into_par_iter()
+                            .filter(|(path, _path_spec)| !path.contains(s))
+                            .collect();
+                    }
+                    paths
+                },
             },
             Filter::MultiFilter(vec) => {
                 let mut map: BTreeMap<String, Path> = BTreeMap::new();

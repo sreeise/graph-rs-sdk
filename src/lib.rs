@@ -53,9 +53,8 @@ extern crate graph_oauth;
 extern crate log;
 extern crate pretty_env_logger;
 extern crate reqwest;
-pub extern crate serde;
 #[macro_use]
-pub extern crate serde_derive;
+pub extern crate serde;
 extern crate handlebars;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
@@ -81,6 +80,8 @@ pub mod attachments;
 pub mod calendar;
 /// Calendar groups client.
 pub mod calendar_groups;
+/// Calendars request client.
+pub mod calendars;
 /// Certificate based auth configuration client.
 mod certificate_based_auth_configuration;
 /// Communications client.
@@ -105,6 +106,8 @@ pub mod domains;
 pub mod drive;
 /// Education request client.
 pub mod education;
+/// Events request client (Calendars).
+pub mod events;
 /// Group lifecycle policies request client.
 pub mod group_lifecycle_policies;
 /// Groups request client.
@@ -164,4 +167,8 @@ pub mod error {
 /// Reexport of reqwest headers for use with API requests.
 pub mod header {
     pub use reqwest::header::*;
+}
+
+pub mod core {
+    pub use graph_core::resource::*;
 }

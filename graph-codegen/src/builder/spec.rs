@@ -1,14 +1,17 @@
 use crate::builder::spec_formatter::SpecClient;
+use crate::builder::{Client, ClientBuilder, ClientLinkSettings};
 use crate::parser::filter::{Filter, UrlMatchTarget};
-use crate::parser::{Parser, PathMap, RequestSet, ResourceNames};
+use crate::parser::{Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames};
 use bytes::BytesMut;
 use from_as::*;
+use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::cell::{Ref, RefCell};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::fs::OpenOptions;
 use std::path::Path;
+use std::str::FromStr;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct SpecBuilder {
@@ -17,6 +20,8 @@ pub struct SpecBuilder {
     imports: HashSet<String>,
     ident_clients: HashSet<String>,
     ident_client_id_links: BTreeMap<String, String>,
+    secondary_links: BTreeMap<String, Vec<String>>,
+    client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
     build_with_modifier_filter: bool,
 }
 
@@ -37,6 +42,25 @@ impl SpecBuilder {
     fn set_ident_client_id_links(&mut self, ident_client_id_links: BTreeMap<String, String>) {
         self.ident_client_id_links = ident_client_id_links;
     }
+
+    fn set_secondary_links(&mut self, secondary_links: BTreeMap<String, Vec<String>>) {
+        self.secondary_links = secondary_links;
+    }
+
+    fn add_client_link(&mut self, name: &str, client_link: ClientLinkSettings) {
+        let mut set = BTreeSet::new();
+        set.insert(client_link);
+        self.client_links.insert(name.to_string(), set);
+    }
+
+    fn extend_client_links(&mut self, name: &str, client_links: BTreeSet<ClientLinkSettings>) {
+        self.client_links
+            .entry(name.to_string())
+            .and_modify(|set| {
+                set.extend(client_links.clone());
+            })
+            .or_insert(client_links.clone());
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -52,6 +76,8 @@ impl Builder {
                 imports: Default::default(),
                 ident_clients: Default::default(),
                 ident_client_id_links: Default::default(),
+                secondary_links: Default::default(),
+                client_links: Default::default(),
                 build_with_modifier_filter: false,
             }),
         }
@@ -64,6 +90,8 @@ impl Builder {
                 imports: Default::default(),
                 ident_clients: Default::default(),
                 ident_client_id_links: Default::default(),
+                secondary_links: Default::default(),
+                client_links: Default::default(),
                 build_with_modifier_filter: true,
             }),
         }
@@ -93,11 +121,6 @@ impl Builder {
         ]);
     }
 
-    pub fn use_default_ident_clients(&self) {
-        let mut spec = self.spec.borrow_mut();
-        spec.ident_clients.insert("teams".into());
-    }
-
     pub fn use_defaults(&self) {
         let mut spec = self.spec.borrow_mut();
         spec.add_imports(&[
@@ -107,23 +130,126 @@ impl Builder {
         ]);
 
         let mut ident_clients: HashSet<String> = HashSet::new();
-        let mut ident_client_id_links: BTreeMap<String, String> = BTreeMap::new();
         let modifiers = spec.parser.resource_modifier_set();
+        let client_links_override = spec.parser.client_links();
 
         for resource_target in modifiers.iter() {
             match resource_target {
-                UrlMatchTarget::ResourceId(name, replacement) => {
-                    let mut name = name.clone();
-                    name.truncate(name.len() - 7);
-                    name.remove(0);
-                    ident_clients.insert(name.clone());
-                    ident_client_id_links.insert(replacement.to_string(), name.to_string());
+                UrlMatchTarget::ResourceId(_s, replacement, name) => {
+                    ident_clients.insert(name.to_string());
+                    let mut client_link = ClientLinkSettings::new(name.as_str());
+                    client_link.as_id_method_link();
+                    spec.add_client_link(replacement.as_str(), client_link);
                 },
             }
         }
 
+        spec.client_links.extend(client_links_override);
         spec.set_ident_clients(ident_clients);
-        spec.set_ident_client_id_links(ident_client_id_links);
+    }
+
+    pub fn build_clients(&self) {
+        let spec = self.spec.borrow();
+        let map = Builder::parser_build(&spec);
+        let imports = spec.imports.clone();
+
+        for (name, request_set) in map.iter() {
+            if !name.trim().is_empty() {
+                let mut request_set_imports = request_set.get_imports();
+                request_set_imports.extend(imports.iter().map(|s| s.to_string()));
+
+                if let Ok(resource_identity) = ResourceIdentity::from_str(name.as_str()) {
+                    request_set_imports.extend(
+                        ParserSettings::imports(resource_identity)
+                            .iter()
+                            .map(|s| s.to_string()),
+                    );
+                }
+
+                let is_ident_client = spec.ident_clients.contains(name);
+                if is_ident_client {
+                    request_set_imports.insert("handlebars::*".into());
+                }
+                let imports: BTreeSet<String> = request_set_imports.into_iter().collect();
+
+                let struct_links = request_set.client_links();
+                let methods: BTreeMap<String, Vec<RequestMap>> = request_set.methods();
+
+                let mut clients: BTreeMap<String, Client> = BTreeMap::new();
+                for (name, methods) in methods.iter() {
+                    let client_methods: BTreeSet<RequestMap> =
+                        methods.into_iter().cloned().collect();
+
+                    let mut client = Client::new(name.as_str(), client_methods);
+
+                    if let Some(client_link) = spec.client_links.get(name) {
+                        client.extend_client_links(client_link.clone());
+                    }
+
+                    if spec.ident_clients.contains(name) {
+                        client.set_ident_client(true);
+                    }
+
+                    clients.insert(name.to_string(), client);
+                }
+
+                for (name, links) in struct_links.iter() {
+                    clients.entry(name.to_string()).and_modify(|client| {
+                        for link in links.iter() {
+                            if !client.get_client_link_setting(link).is_some() &&
+                                name.ne(link.as_str())
+                            {
+                                let link_settings = ClientLinkSettings::new(link.as_str());
+                                client.insert_client_link(link_settings);
+                            }
+                        }
+                    });
+                }
+
+                for (client_name, client) in clients.iter() {
+                    dbg!(client_name);
+                    let client_link_settings = client.client_link_settings();
+                    for link in client_link_settings.iter() {
+                        dbg!(link.name());
+                    }
+                }
+
+                let snake_casing = name.to_snake_case();
+                let dir = format!("./src/{}", snake_casing);
+                let mod_file = format!("./src/{}/mod.rs", snake_casing);
+                let file = format!("./src/{}/request.rs", snake_casing);
+                let mut client_builder = ClientBuilder::new(imports, clients);
+                Builder::write(client_builder, dir, mod_file, file);
+            }
+        }
+    }
+
+    fn write(client_builder: ClientBuilder, dir: String, mod_file: String, request_file: String) {
+        IoTools::create_dir(dir).unwrap();
+
+        let mut file1 = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(&mod_file)
+            .unwrap();
+        file1
+            .write_all("mod request;\n\npub use request::*;".as_bytes())
+            .unwrap();
+        file1.sync_all().unwrap();
+
+        let mut buf = client_builder.build();
+
+        let mut file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(&request_file)
+            .unwrap();
+        file.write_all(buf.as_mut()).unwrap();
+        file.sync_all().unwrap();
     }
 
     pub fn build(&self) {
@@ -137,6 +263,7 @@ impl Builder {
             if !name.trim().is_empty() {
                 let id_links = spec.ident_client_id_links.clone();
                 let is_ident_client = spec.ident_clients.contains(name);
+                let secondary_links = spec.secondary_links.clone();
 
                 IoTools::create_dir(format!("./src/{}", name.to_snake_case())).unwrap();
 
@@ -160,6 +287,7 @@ impl Builder {
                     &imports,
                     &links_override,
                     id_links,
+                    secondary_links,
                     request_set.clone(),
                     is_ident_client,
                 );
@@ -173,6 +301,7 @@ impl Builder {
         imports: &HashSet<String>,
         links_override: &HashMap<String, Vec<String>>,
         id_links: BTreeMap<String, String>,
+        secondary_links: BTreeMap<String, Vec<String>>,
         request_set: RequestSet,
         is_ident_client: bool,
     ) {
@@ -190,6 +319,7 @@ impl Builder {
         spec_client.extend_links(links_override);
         spec_client.set_ident_client(is_ident_client);
         spec_client.set_id_links(id_links);
+        spec_client.set_secondary_links(secondary_links);
 
         let client_impl = spec_client.gen_api_impl();
         buf.extend(client_impl);

@@ -1,3 +1,4 @@
+use crate::builder::ClientLinkSettings;
 use crate::parser::filter::{ModifierMap, SecondaryModifierMap};
 use crate::parser::{ResourceNameMapping, ResourceNames};
 use crate::traits::{HashMapExt, RequestParser};
@@ -5,10 +6,23 @@ use from_as::*;
 use inflector::Inflector;
 use rayon::prelude::*;
 use std::collections::hash_set::{Difference, Iter};
-use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::hash::{Hash, Hasher};
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    Serialize,
+    Deserialize,
+    Ord,
+    PartialOrd,
+    FromFile,
+    AsFile,
+    Eq,
+    PartialEq,
+    Hash,
+)]
 pub enum HttpMethod {
     GET,
     PUT,
@@ -50,7 +64,20 @@ impl From<HttpMethod> for reqwest::Method {
     }
 }
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, Eq, PartialEq, FromFile, AsFile, Hash)]
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    Serialize,
+    Deserialize,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    FromFile,
+    AsFile,
+    Hash,
+)]
 pub enum ResponseType {
     SerdeJson,
     Collection,
@@ -104,7 +131,20 @@ impl Default for ResponseType {
     }
 }
 
-#[derive(Eq, PartialEq, Hash, Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[derive(
+    Eq,
+    PartialEq,
+    Hash,
+    Debug,
+    Default,
+    Clone,
+    Serialize,
+    Deserialize,
+    Ord,
+    PartialOrd,
+    FromFile,
+    AsFile,
+)]
 pub struct Request {
     pub path: String,
     pub method: HttpMethod,
@@ -128,7 +168,6 @@ impl Request {
                 }
             }
         }
-
         secondary_map.modify(self);
     }
 }
@@ -165,7 +204,7 @@ impl ReqSet {
 }
 
 /// RequestMap holds a list of requests that correspond to a URL path
-#[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Ord, PartialOrd, FromFile, AsFile)]
 pub struct RequestMap {
     pub path: String,
     pub requests: VecDeque<Request>,
@@ -202,11 +241,7 @@ impl RequestMap {
             imports.extend(request.response.as_imports());
         }
 
-        if self.path.starts_with("/users") {
-            imports.insert("crate::calendar_groups::CalendarGroupsRequest".to_string());
-        }
-
-         imports
+        imports
     }
 
     pub fn iter(&self) -> std::collections::vec_deque::Iter<'_, Request> {
@@ -328,24 +363,20 @@ impl RequestSet {
         map
     }
 
-    pub fn group_by_operation_mapping_name(&self) -> HashMap<String, Vec<RequestMap>> {
-        let mut map: HashMap<String, Vec<RequestMap>> = HashMap::new();
-
-        for request_map in self.set.iter() {
-            if let Some(request) = request_map.requests.get(0) {
-                if request.operation_mapping.contains('.') {
-                    let mut vec_operation_mapping: VecDeque<&str> =
-                        request.operation_mapping.split('.').collect();
-                    vec_operation_mapping.retain(|s| !s.is_empty());
-                    let last = vec_operation_mapping.pop_back().unwrap();
-                    map.entry_modify_insert(last.to_string(), request_map.clone());
+    pub fn methods(&self) -> BTreeMap<String, Vec<RequestMap>> {
+        let operation_mapping = self.group_by_operation_mapping();
+        operation_mapping
+            .into_iter()
+            .map(|(name, vec)| {
+                if name.contains('.') {
+                    let mut queue: VecDeque<&str> = name.split('.').collect();
+                    let current_name = queue.pop_back().unwrap_or_default();
+                    (current_name.to_string(), vec)
                 } else {
-                    let operation_mapping = request.operation_mapping.to_string();
-                    map.entry_modify_insert(operation_mapping, request_map.clone());
+                    (name, vec)
                 }
-            }
-        }
-        map
+            })
+            .collect()
     }
 
     /// Takes the operation mapping such as users.planner.plans
@@ -362,6 +393,41 @@ impl RequestSet {
             RequestSet::struct_names(&secondary_set),
             RequestSet::struct_links(&secondary_set),
         )
+    }
+
+    pub fn client_links(&self) -> BTreeMap<String, Vec<String>> {
+        let mut links = HashSet::new();
+
+        for request_map in self.iter() {
+            request_map.extend_struct_links(&mut links);
+        }
+
+        let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
+        let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
+        vec.sort();
+
+        for link in vec.iter() {
+            if link.contains('.') {
+                let mut vec: VecDeque<&str> = link.split('.').collect();
+                vec.retain(|l| !l.is_empty());
+                let first = vec.pop_front().unwrap();
+                let last = vec.pop_front().unwrap();
+
+                map.entry(first.to_string())
+                    .and_modify(|vec| {
+                        vec.push(last.to_string());
+                        vec.retain(|s| !s.is_empty());
+                    })
+                    .or_insert_with(|| {
+                        let mut vec: Vec<String> = vec![last.to_string()];
+                        vec.retain(|s| !s.is_empty());
+                        vec
+                    });
+            } else {
+                map.insert(link.to_string(), vec![]);
+            }
+        }
+        map
     }
 
     /// Splits the operation id for each request in the RequestMap
@@ -420,7 +486,6 @@ impl RequestSet {
             }
         }
 
-        map.entry_modify_insert("users".to_string(), "calendarGroups".to_string());
         map
     }
 

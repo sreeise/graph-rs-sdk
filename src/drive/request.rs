@@ -1,4 +1,5 @@
 use crate::client::*;
+use crate::core::ResourceIdentity;
 use graph_error::{GraphFailure, GraphRsError};
 use graph_http::types::{Collection, Content, DeltaPhantom};
 use graph_http::{
@@ -18,9 +19,9 @@ register_client!(DriveListItemsRequest,);
 register_client!(DriveVersionsRequest,);
 register_client!(
     DrivesRequest,
-    drive_item => "drive/items", "items", Ident::Drives,
-    drive_root => "drive", "", Ident::Drives,
-    drive_root_path => "drive/root", "root", Ident::Drives,
+    drive_item => "drive/items", "items", ResourceIdentity::Drives,
+    drive_root => "drive", "", ResourceIdentity::Drives,
+    drive_root_path => "drive/root", "root", ResourceIdentity::Drives,
 );
 
 fn template(s: &str, last: &str) -> String {
@@ -528,7 +529,7 @@ where
 {
     pub fn id<ID: AsRef<str>>(&self, id: ID) -> DrivesRequest<'a, Client> {
         let ident = self.client.ident();
-        if self.client.ident().eq(&Ident::Me) {
+        if self.client.ident().eq(&ResourceIdentity::Me) {
             self.client.request().extend_path(&[ident.as_ref()]);
         } else {
             self.client

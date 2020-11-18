@@ -36,7 +36,8 @@ use crate::teams::{TeamRequest, TeamsRequest};
 use crate::teamwork::TeamworkRequest;
 use crate::users::{UserRequest, UsersRequest};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
-use graph_error::{GraphFailure, GraphRsError};
+use graph_core::resource::ResourceIdentity;
+use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
 use graph_http::{
     types::Collection, types::Content, types::DeltaPhantom, AsyncHttpClient, BlockingHttpClient,
@@ -49,78 +50,6 @@ use reqwest::Method;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::str::FromStr;
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub enum Ident {
-    AppCatalogs,
-    Applications,
-    Calendars,
-    Drives,
-    Groups,
-    Me,
-    Sites,
-    Teams,
-    Users,
-}
-
-impl AsRef<str> for Ident {
-    fn as_ref(&self) -> &str {
-        match self {
-            Ident::AppCatalogs => "appCatalogs",
-            Ident::Applications => "applications",
-            Ident::Calendars => "calendars",
-            Ident::Drives => "drives",
-            Ident::Groups => "groups",
-            Ident::Me => "me",
-            Ident::Sites => "sites",
-            Ident::Teams => "teams",
-            Ident::Users => "users",
-        }
-    }
-}
-
-impl ToString for Ident {
-    fn to_string(&self) -> String {
-        match self {
-            Ident::AppCatalogs => "appCatalogs".into(),
-            Ident::Applications => "applications".into(),
-            Ident::Calendars => "calendars".into(),
-            Ident::Drives => "drives".into(),
-            Ident::Groups => "groups".into(),
-            Ident::Me => "me".into(),
-            Ident::Sites => "sites".into(),
-            Ident::Teams => "teams".into(),
-            Ident::Users => "users".into(),
-        }
-    }
-}
-
-impl FromStr for Ident {
-    type Err = GraphRsError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.as_bytes() {
-            b"appCatalogs" => Ok(Ident::AppCatalogs),
-            b"applications" => Ok(Ident::Applications),
-            b"calendars" => Ok(Ident::Calendars),
-            b"drives" => Ok(Ident::Drives),
-            b"groups" => Ok(Ident::Groups),
-            b"me" => Ok(Ident::Me),
-            b"sites" => Ok(Ident::Sites),
-            b"teams" => Ok(Ident::Teams),
-            b"users" => Ok(Ident::Users),
-            _ => Err(GraphRsError::InvalidOrMissing {
-                msg: "Not a valid Ident".into(),
-            }),
-        }
-    }
-}
-
-impl Default for Ident {
-    fn default() -> Self {
-        Ident::Me
-    }
-}
 
 /// The graph client.
 ///
@@ -174,12 +103,12 @@ where
         self.request.set_token(token);
     }
 
-    pub fn ident(&self) -> Ident {
-        Ident::from_str(self.request.ident().as_str()).unwrap()
+    pub fn ident(&self) -> ResourceIdentity {
+        self.request.ident()
     }
 
-    pub(crate) fn set_ident(&self, ident: Ident) {
-        self.request.set_ident(ident.to_string());
+    pub(crate) fn set_ident(&self, ident: ResourceIdentity) {
+        self.request.set_ident(ident);
     }
 
     pub(crate) fn request(&self) -> &Client {
@@ -357,7 +286,7 @@ where
 {
     fn set_path(&self, id: &str) {
         let ident = self.client.ident();
-        if self.client.ident().eq(&Ident::Me) {
+        if self.client.ident().eq(&ResourceIdentity::Me) {
             self.client.request().extend_path(&[ident.as_ref()]);
         } else {
             self.client.request().extend_path(&[ident.as_ref(), id]);
@@ -365,161 +294,188 @@ where
     }
 
     pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Activities);
         ActivitiesRequest::new(self.client)
     }
 
     pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::AppCatalogs);
         AppCatalogsRequest::new(self.client)
     }
 
     pub fn application<S: AsRef<str>>(&self, id: S) -> ApplicationsRequest<'a, Client> {
-        self.client.set_ident(Ident::Applications);
+        self.client.set_ident(ResourceIdentity::Applications);
         ApplicationsRequest::new(id.as_ref(), self.client)
     }
 
     pub fn applications(&self) -> ApplicationRequest<'a, Client> {
-        self.client.set_ident(Ident::Applications);
+        self.client.set_ident(ResourceIdentity::Applications);
         ApplicationRequest::new(self.client)
     }
 
     pub fn audit_logs(&self) -> AuditLogsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::AuditLogs);
         AuditLogsRequest::new(self.client)
     }
 
     pub fn certificate_based_auth_configuration(
         &self,
     ) -> CertificateBasedAuthConfigurationRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::CertificateBasedAuthConfiguration);
         CertificateBasedAuthConfigurationRequest::new(self.client)
     }
 
     pub fn communications(&self) -> CommunicationsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Communications);
         CommunicationsRequest::new(self.client)
     }
 
     pub fn contracts(&self) -> ContractsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Contracts);
         ContractsRequest::new(self.client)
     }
 
     pub fn data_policy_operations(&self) -> DataPolicyOperationsRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::DataPolicyOperations);
         DataPolicyOperationsRequest::new(self.client)
     }
 
     pub fn device_app_management(&self) -> DeviceAppManagementRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::DeviceAppManagement);
         DeviceAppManagementRequest::new(self.client)
     }
 
     pub fn device_management(&self) -> DeviceManagementRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::DeviceManagement);
         DeviceManagementRequest::new(self.client)
     }
 
     pub fn directory(&self) -> DirectoryRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Directory);
         DirectoryRequest::new(self.client)
     }
 
     pub fn domain_dns_records(&self) -> DomainDnsRecordsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::DomainDnsRecords);
         DomainDnsRecordsRequest::new(self.client)
     }
 
     pub fn domains(&self) -> DomainsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Domains);
         DomainsRequest::new(self.client)
     }
 
     pub fn drive(&self) -> DriveRequest<'a, Client> {
-        self.client.set_ident(Ident::Drives);
+        self.client.set_ident(ResourceIdentity::Drives);
         DriveRequest::new(self.client)
     }
 
     pub fn drives<S: AsRef<str>>(&self, id: S) -> DrivesRequest<'a, Client> {
-        self.client.set_ident(Ident::Drives);
+        self.client.set_ident(ResourceIdentity::Drives);
         self.set_path(id.as_ref());
         DrivesRequest::new(self.client)
     }
 
     pub fn education(&self) -> EducationRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Education);
         EducationRequest::new(self.client)
     }
 
     pub fn groups<S: AsRef<str>>(&self, id: S) -> IdentGroups<'a, Client> {
-        self.client.set_ident(Ident::Groups);
+        self.client.set_ident(ResourceIdentity::Groups);
         IdentGroups::new(id.as_ref(), self.client)
     }
 
     pub fn group_lifecycle_policies(&self) -> GroupLifecyclePoliciesRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::GroupLifecyclePolicies);
         GroupLifecyclePoliciesRequest::new(self.client)
     }
 
     pub fn identity(&self) -> IdentityRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Identity);
         IdentityRequest::new(self.client)
     }
 
     pub fn invitations(&self) -> InvitationsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Invitations);
         InvitationsRequest::new(self.client)
     }
 
     pub fn me(&self) -> IdentMe<'a, Client> {
-        self.client.set_ident(Ident::Me);
+        self.client.set_ident(ResourceIdentity::Me);
         IdentMe::new("", self.client)
     }
 
     pub fn places(&self) -> PlacesRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Places);
         PlacesRequest::new(self.client)
     }
 
     pub fn planner(&self) -> PlannerRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Planner);
         PlannerRequest::new(self.client)
     }
 
     pub fn policies(&self) -> PoliciesRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Policies);
         PoliciesRequest::new(self.client)
     }
 
     pub fn schema_extensions(&self) -> SchemaExtensionsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::SchemaExtensions);
         SchemaExtensionsRequest::new(self.client)
     }
 
     pub fn service_principals(&self) -> ServicePrincipalsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::ServicePrincipals);
         ServicePrincipalsRequest::new(self.client)
     }
 
     pub fn subscribed_skus(&self) -> SubscribedSkusRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::SubscribedSkus);
         SubscribedSkusRequest::new(self.client)
     }
 
     pub fn subscriptions(&self) -> SubscriptionsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Subscriptions);
         SubscriptionsRequest::new(self.client)
     }
 
     pub fn site<S: AsRef<str>>(&self, id: S) -> SitesRequest<'a, Client> {
-        self.client.set_ident(Ident::Sites);
+        self.client.set_ident(ResourceIdentity::Sites);
         SitesRequest::new(id.as_ref(), self.client)
     }
 
     pub fn sites(&self) -> SiteRequest<'a, Client> {
-        self.client.set_ident(Ident::Sites);
+        self.client.set_ident(ResourceIdentity::Sites);
         SiteRequest::new(self.client)
     }
 
     pub fn teamwork(&self) -> TeamworkRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Teamwork);
         TeamworkRequest::new(self.client)
     }
 
     pub fn team<S: AsRef<str>>(&self, id: S) -> TeamsRequest<'a, Client> {
-        self.client.set_ident(Ident::Teams);
+        self.client.set_ident(ResourceIdentity::Teams);
         TeamsRequest::new(id.as_ref(), self.client)
     }
 
     pub fn teams(&self) -> TeamRequest<'a, Client> {
-        self.client.set_ident(Ident::Teams);
+        self.client.set_ident(ResourceIdentity::Teams);
         TeamRequest::new(self.client)
     }
 
     pub fn user<S: AsRef<str>>(&self, id: S) -> UsersRequest<'a, Client> {
-        self.client.set_ident(Ident::Users);
+        self.client.set_ident(ResourceIdentity::Users);
         UsersRequest::new(id.as_ref(), self.client)
     }
 
     pub fn users(&self) -> UserRequest<'a, Client> {
-        self.client.set_ident(Ident::Users);
+        self.client.set_ident(ResourceIdentity::Users);
         UserRequest::new(self.client)
     }
 

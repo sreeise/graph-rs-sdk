@@ -1,5 +1,6 @@
 use crate::request::{RequestAttribute, RequestType};
 use crate::url::GraphUrl;
+use graph_core::resource::ResourceIdentity;
 use graph_error::{GraphFailure, GraphResult};
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName};
@@ -13,8 +14,8 @@ pub trait RequestClient {
 
     fn token(&self) -> String;
     fn set_token(&self, token: &str);
-    fn ident(&self) -> String;
-    fn set_ident(&self, ident: String);
+    fn ident(&self) -> ResourceIdentity;
+    fn set_ident(&self, ident: ResourceIdentity);
     fn url(&self) -> GraphUrl;
     fn to_url(&self) -> Url;
     fn set_url(&self, url: GraphUrl);

@@ -1,3 +1,4 @@
+use crate::builder::ClientLinkSettings;
 use crate::parser::{RequestMap, RequestSet};
 use bytes::{BufMut, Bytes, BytesMut};
 use inflector::Inflector;
@@ -20,6 +21,7 @@ pub struct SpecClientImpl {
     name: String,
     links: Vec<String>,
     id_links: BTreeMap<String, String>,
+    secondary_links: Vec<String>,
     requests: Vec<RequestMap>,
 }
 
@@ -36,6 +38,7 @@ pub struct SpecClient {
     // Clients that need an id method.
     pub client_name_id_links: BTreeMap<String, String>,
     pub struct_links: BTreeMap<String, Vec<String>>,
+    pub secondary_struct_links: BTreeMap<String, Vec<String>>,
     pub methods: BTreeMap<String, Vec<RequestMap>>,
 }
 
@@ -66,6 +69,10 @@ impl SpecClient {
 
     pub fn set_id_links(&mut self, links: BTreeMap<String, String>) {
         self.client_name_id_links = links;
+    }
+
+    pub fn set_secondary_links(&mut self, links: BTreeMap<String, Vec<String>>) {
+        self.secondary_struct_links = links;
     }
 
     pub fn extend_links(&mut self, links_override: &HashMap<String, Vec<String>>) {
@@ -121,12 +128,20 @@ impl SpecClient {
         let mut buf = self.gen_client_registrations();
 
         for (name, request_map) in self.methods.iter() {
+            dbg!(&name);
             if name.contains('.') {
                 let mut vec_queue: VecDeque<&str> = name.split('.').collect();
+                let current_link_name = vec_queue.pop_back().unwrap();
 
                 let links = self
                     .struct_links
-                    .get(vec_queue.pop_back().unwrap())
+                    .get(current_link_name)
+                    .cloned()
+                    .unwrap_or_default();
+
+                let secondary_links = self
+                    .secondary_struct_links
+                    .get(current_link_name)
                     .cloned()
                     .unwrap_or_default();
 
@@ -136,6 +151,7 @@ impl SpecClient {
                     name: name.to_string(),
                     links: links.clone(),
                     id_links,
+                    secondary_links,
                     requests: request_map.clone(),
                 };
                 buf.extend(SpecFormatter::gen_api_impl(spec_client_impl));
@@ -146,12 +162,19 @@ impl SpecClient {
                     .cloned()
                     .unwrap_or_default();
 
+                let secondary_links = self
+                    .secondary_struct_links
+                    .get(name.as_str())
+                    .cloned()
+                    .unwrap_or_default();
+
                 let id_links = self.client_name_id_links.clone();
 
                 let spec_client_impl = SpecClientImpl {
                     name: name.to_string(),
                     links,
                     id_links,
+                    secondary_links,
                     requests: request_map.clone(),
                 };
                 buf.extend(SpecFormatter::gen_api_impl(spec_client_impl));
@@ -201,6 +224,18 @@ impl SpecFormatter {
         }
     }
 
+    pub fn secondary_method_link(method_link: &str, struct_name: &str) -> String {
+        let pascal_casing = struct_name.to_pascal_case();
+        let snake_casing = method_link.to_snake_case();
+        format!(
+            "\n\tpub fn {}(&self) -> {}<'a, Client> {{
+            \tself.client.request.extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+            \t{}::new(self.client)
+            }}",
+            snake_casing, pascal_casing, pascal_casing,
+        )
+    }
+
     pub fn id_method_link(struct_name: &str) -> String {
         let pascal_casing = struct_name.to_pascal_case();
         format!(
@@ -245,12 +280,22 @@ impl SpecFormatter {
             buf.put(id_method_link.as_bytes());
         }
 
-        for link in spec_client.links.iter() {
-            let method_link = SpecFormatter::struct_method_link(
+        for link in spec_client.secondary_links.iter() {
+            let method_link = SpecFormatter::secondary_method_link(
                 link,
                 &SpecFormatter::base_struct_name(link.as_str()),
             );
             buf.put(method_link.as_bytes());
+        }
+
+        for link in spec_client.links.iter() {
+            if !spec_client.secondary_links.contains(link) {
+                let method_link = SpecFormatter::struct_method_link(
+                    link,
+                    &SpecFormatter::base_struct_name(link.as_str()),
+                );
+                buf.put(method_link.as_bytes());
+            }
         }
 
         for request_map in spec_client.requests.iter() {

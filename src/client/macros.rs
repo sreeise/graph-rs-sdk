@@ -182,7 +182,7 @@ macro_rules! register_ident_client {
 
             fn set_path(&self) {
                 let ident = self.client.ident();
-                if self.client.ident().eq(&Ident::Me) {
+                if self.client.ident().eq(&ResourceIdentity::Me) {
                     self.client
                         .request()
                         .extend_path(&[ident.as_ref()]);

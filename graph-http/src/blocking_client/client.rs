@@ -4,6 +4,7 @@ use crate::url::GraphUrl;
 use crate::{
     GraphRequest, GraphResponse, HttpClient, RequestAttribute, RequestClient, RequestType,
 };
+use graph_core::resource::ResourceIdentity;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
@@ -125,7 +126,7 @@ impl BlockingClient {
     pub fn clone(&mut self) -> Self {
         GraphRequest {
             token: self.token.to_string(),
-            ident: self.ident.to_string(),
+            ident: self.ident,
             client: reqwest::blocking::Client::builder()
                 .redirect(Policy::limited(2))
                 .build()
@@ -212,11 +213,11 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>> {
         self.client.borrow_mut().token = token.to_string();
     }
 
-    fn ident(&self) -> String {
-        self.client.borrow().ident.to_string()
+    fn ident(&self) -> ResourceIdentity {
+        self.client.borrow().ident
     }
 
-    fn set_ident(&self, ident: String) {
+    fn set_ident(&self, ident: ResourceIdentity) {
         self.client.borrow_mut().ident = ident;
     }
 
