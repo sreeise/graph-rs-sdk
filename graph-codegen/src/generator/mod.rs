@@ -85,6 +85,10 @@ impl Generator {
         self.builder.build();
     }
 
+    pub fn build_clients(&self) {
+        self.builder.build_clients();
+    }
+
     pub fn get(&self) -> HashMap<String, RequestSet> {
         self.builder.build_with_modifier_filter()
     }

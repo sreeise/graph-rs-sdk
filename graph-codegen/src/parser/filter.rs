@@ -12,6 +12,7 @@ use std::str::FromStr;
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub enum FilterIgnore<'a> {
     PathContains(&'a str),
+    PathContainsMulti(Vec<&'a str>),
     PathStartsWith(&'a str),
 }
 
@@ -63,6 +64,7 @@ impl From<Filter<'_>> for StoredFilter {
             Filter::IgnoreIf(filter_ignore) => match filter_ignore {
                 FilterIgnore::PathStartsWith(s) => StoredFilter::new(SerializedFilter::Ignore, s),
                 FilterIgnore::PathContains(s) => StoredFilter::new(SerializedFilter::Ignore, s),
+                _ => StoredFilter::new(SerializedFilter::None, ""),
             },
             _ => StoredFilter::new(SerializedFilter::None, ""),
         }
@@ -76,17 +78,21 @@ pub enum UrlMatchTarget {
     // would be where we have the path /drives/{{id}}/items. Passing the
     // value of 'drives' to this modifier would change the path to
     // /drives/{{{RID}}/items
-    ResourceId(String, String),
+    ResourceId(String, String, String),
 }
 
 impl UrlMatchTarget {
     pub fn resource_id(name: &str, replacement: &str) -> UrlMatchTarget {
-        UrlMatchTarget::ResourceId(format!("/{}/{{{{id}}}}", name), replacement.to_string())
+        UrlMatchTarget::ResourceId(
+            format!("/{}/{{{{id}}}}", name),
+            replacement.to_string(),
+            name.to_string(),
+        )
     }
 
     pub fn matches(&self, request_map: &RequestMap) -> bool {
         match self {
-            UrlMatchTarget::ResourceId(s, _replacement) => {
+            UrlMatchTarget::ResourceId(s, _replacement, _name) => {
                 if request_map.path.starts_with(s.as_str()) {
                     return true;
                 }
@@ -97,7 +103,7 @@ impl UrlMatchTarget {
 
     pub fn matches_resource_id(&self, request_map: &RequestMap) -> bool {
         match self {
-            UrlMatchTarget::ResourceId(s, _replacement) => {
+            UrlMatchTarget::ResourceId(s, _replacement, _name) => {
                 if request_map.path.starts_with(&s.replace("id", "RID")) {
                     return true;
                 }
@@ -139,10 +145,11 @@ impl Modify<RequestSet> for UrlMatchTarget {
         if matches {
             let (mut rid_request_set, non_rid_request_set) = value.split_on_resource_id();
             match self {
-                UrlMatchTarget::ResourceId(_s, replacement) => {
+                UrlMatchTarget::ResourceId(_s, replacement, _name) => {
                     let mut request_map_vec: Vec<RequestMap> =
                         non_rid_request_set.set.into_iter().collect();
                     for request_map in request_map_vec.iter_mut() {
+                        let param_size = INTERNAL_PATH_ID.captures_iter(&request_map.path).count();
                         for request in request_map.requests.iter_mut() {
                             if let Some(index) = request.operation_mapping.find('.') {
                                 request
@@ -150,6 +157,11 @@ impl Modify<RequestSet> for UrlMatchTarget {
                                     .replace_range(0..index, replacement);
                             } else {
                                 request.operation_mapping = replacement.to_string();
+                            }
+
+                            request.param_size = param_size;
+                            if request.path.contains("RID") && request.param_size > 0 {
+                                request.param_size -= 1;
                             }
                         }
                     }
@@ -177,7 +189,9 @@ impl SecondaryTarget {
     }
 
     pub fn modify(&self, request: &mut Request) {
-        self.match_target.modify_contains(&self.pat, request);
+        if self.match_target.contains(request) {
+            self.match_target.modify_contains(&self.pat, request);
+        }
     }
 }
 
@@ -221,7 +235,7 @@ pub enum MatchTarget {
 }
 
 impl MatchTarget {
-    pub fn matches(&self, request: &mut Request) -> bool {
+    pub fn matches(&self, request: &Request) -> bool {
         match self {
             MatchTarget::OperationMap(s) => {
                 if request.operation_mapping.eq(s.as_str()) {
@@ -274,40 +288,43 @@ impl MatchTarget {
         }
     }
 
+    pub fn contains(&self, request: &Request) -> bool {
+        match self {
+            MatchTarget::Tag(s) => request.tag.contains(s.as_str()),
+            MatchTarget::OperationId(s) => request.operation_id.contains(s.as_str()),
+            MatchTarget::OperationMap(s) => request.operation_mapping.contains(s.as_str()),
+            MatchTarget::TagAndOperationMap(s) => {
+                request.tag.contains(s.as_str()) && request.operation_mapping.contains(s.as_str())
+            },
+            MatchTarget::TagOrOperationMap(s) => {
+                request.tag.contains(s.as_str()) || request.operation_mapping.contains(s.as_str())
+            },
+        }
+    }
+
     fn modify_contains(&self, pat: &str, request: &mut Request) {
         match self {
             MatchTarget::OperationMap(s) => {
-                if request.operation_mapping.contains(pat) {
-                    request.operation_mapping = request.operation_mapping.replace(pat, s);
-                    request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
-                }
+                request.operation_mapping = request.operation_mapping.replace(pat, s);
             },
             MatchTarget::Tag(s) => {
-                if request.tag.contains(pat) {
-                    request.tag = request.tag.replace(pat, s);
-                    request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
-                }
+                request.tag = request.tag.replace(pat, s);
             },
             MatchTarget::TagAndOperationMap(s) => {
-                if request.tag.contains(pat) && request.operation_mapping.contains(&pat) {
-                    request.tag = request.tag.replace(pat, s);
-                    request.operation_mapping = request.operation_mapping.replace(pat, s);
-                    request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
-                }
+                request.tag = request.tag.replace(pat, s);
+                request.operation_mapping = request.operation_mapping.replace(pat, s);
             },
             MatchTarget::TagOrOperationMap(s) => {
-                if request.tag.contains(&pat) || request.operation_mapping.contains(&pat) {
-                    request.tag = request.tag.replace(pat, s);
-                    request.operation_mapping = request.operation_mapping.replace(pat, s);
-                    request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
-                }
+                request.tag = request.tag.replace(pat, s);
+                request.operation_mapping = request.operation_mapping.replace(pat, s);
             },
             MatchTarget::OperationId(s) => {
-                if request.operation_id.contains(&pat) {
-                    request.operation_id = request.operation_id.replace(pat, s);
-                    request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
-                }
+                request.operation_id = request.operation_id.replace(pat, s);
             },
+        }
+        request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
+        if request.path.contains("RID") && request.param_size > 0 {
+            request.param_size -= 1;
         }
     }
 }

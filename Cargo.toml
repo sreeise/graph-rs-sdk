@@ -21,7 +21,8 @@ members = [
     "graph-error",
     "test-tools",
     "graph-codegen",
-    "graph-http"
+    "graph-http",
+    "graph-core",
 ]
 
 [dependencies]
@@ -29,7 +30,6 @@ url = "2.1.1"
 serde = { version = "1.0.110", features = ["derive"] }
 serde_json = "1.0.53"
 serde_yaml = "0.8.9"
-serde_derive = "^1.0"
 reqwest = { version = "0.10", features = ["json", "blocking", "stream"] }
 strum_macros = "0.14.0"
 strum = "0.14.0"
@@ -41,6 +41,7 @@ handlebars = "2.0.2"
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
 graph-http = { path = "./graph-http" }
+graph-core = { path = "./graph-core" }
 tokio = { version = "0.2.21", features = ["full"] }
 async-std = "1.6.0"
 async-trait = "0.1.35"
@@ -54,12 +55,12 @@ features = ["json"]
 [dev-dependencies]
 rocket = "0.4.2"
 rocket_codegen = "0.4.2"
-serde = "1.0.110"
+serde = { version = "1.0.110", features = ["derive"] }
 serde_json = "1.0.53"
-serde_derive = "^1.0"
 lazy_static = "1.4.0"
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
+graph-core = { path = "./graph-core" }
 test-tools = { path = "./test-tools" }
 tokio = { version = "0.2", features = ["full"] }
 futures = "0.3.5"

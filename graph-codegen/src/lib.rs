@@ -8,6 +8,8 @@ extern crate from_as;
 extern crate serde_json;
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate strum;
 
 pub mod traits;
 

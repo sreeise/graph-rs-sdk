@@ -1,16 +1,20 @@
+use crate::builder::ClientLinkSettings;
+use crate::parser::filter::UrlMatchTarget::ResourceId;
 use crate::parser::filter::{
     Filter, FilterIgnore, MatchTarget, ModifierMap, SecondaryModifierMap, UrlMatchTarget,
 };
-use crate::parser::{HttpMethod, PathMap, Request, RequestMap, RequestSet};
+use crate::parser::{HttpMethod, ParserSettings, PathMap, Request, RequestMap, RequestSet};
 use crate::traits::{Modify, RequestParser, RequestParserBuilder};
 use from_as::*;
+use graph_core::resource::ResourceIdentity;
 use rayon::prelude::*;
 use reqwest::Url;
 use serde::Serialize;
 use std::cell::{RefCell, RefMut};
-use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::fmt::Debug;
 use std::path::Path;
+use std::str::FromStr;
 
 #[derive(Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(default)]
@@ -27,6 +31,8 @@ pub struct ParserSpec {
     url_modify_target: HashSet<UrlMatchTarget>,
     modifiers: BTreeSet<String>,
     links_override: HashMap<String, Vec<String>>,
+    secondary_links: HashMap<String, Vec<String>>,
+    client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
 }
 
 impl ParserSpec {
@@ -41,6 +47,8 @@ impl ParserSpec {
             url_modify_target: HashSet::with_capacity(15),
             modifiers: Default::default(),
             links_override: Default::default(),
+            secondary_links: HashMap::with_capacity(10),
+            client_links: Default::default(),
         }
     }
 
@@ -63,7 +71,6 @@ impl ParserSpec {
         let mut path_map: PathMap = PathMap::from_file(file.as_ref()).unwrap();
         let mut path_map: PathMap = path_map.filter(start_filter).into();
         let mut path_map = path_map.clean_secondary(secondary_name);
-        path_map.clean();
         ParserSpec::parser_spec(path_map)
     }
 }
@@ -88,6 +95,19 @@ impl ParserSpec {
 
     pub fn resource_modifier_set(&mut self) -> HashSet<UrlMatchTarget> {
         self.url_modify_target.clone()
+    }
+
+    pub fn add_client_link_settings(&mut self, name: &str, settings: ClientLinkSettings) {
+        self.client_links
+            .entry(name.to_string())
+            .and_modify(|set| {
+                set.insert(settings.clone());
+            })
+            .or_insert_with(|| {
+                let mut set = BTreeSet::new();
+                set.insert(settings.clone());
+                set
+            });
     }
 }
 
@@ -119,6 +139,8 @@ impl Parser {
                 url_modify_target: HashSet::with_capacity(15),
                 modifiers: Default::default(),
                 links_override: Default::default(),
+                secondary_links: HashMap::with_capacity(10),
+                client_links: Default::default(),
             }),
         }
     }
@@ -128,13 +150,22 @@ impl Parser {
         start_filter: Filter,
         secondary_name: &str,
     ) -> Parser {
-        Parser {
+        let parser = Parser {
             spec: RefCell::new(ParserSpec::parse_secondary(
                 file,
                 start_filter,
                 secondary_name,
             )),
+        };
+
+        if let Ok(resource_identity) = ResourceIdentity::from_str(secondary_name) {
+            let mut spec = parser.spec.borrow_mut();
+            for filter in ParserSettings::path_filters(resource_identity).iter() {
+                spec.paths = spec.paths.filter(filter.clone()).into();
+            }
         }
+
+        parser
     }
 
     pub fn path_map(&self) -> PathMap {
@@ -147,6 +178,14 @@ impl Parser {
 
     pub fn resource_modifier_set(&self) -> HashSet<UrlMatchTarget> {
         self.spec.borrow().url_modify_target.clone()
+    }
+
+    pub fn secondary_links(&self) -> HashMap<String, Vec<String>> {
+        self.spec.borrow().secondary_links.clone()
+    }
+
+    pub fn client_links(&self) -> BTreeMap<String, BTreeSet<ClientLinkSettings>> {
+        self.spec.borrow().client_links.clone()
     }
 
     pub fn set_operation_map(&self, operation_map: HashMap<String, String>) {
@@ -191,6 +230,7 @@ impl Parser {
         let mut spec = self.spec.borrow_mut();
 
         for name in names.iter() {
+            dbg!(name);
             let shorthand = &name[..name.len() - 1];
             let shorthand_name = format!("{}.{}", name, shorthand);
             let double_name = format!("{}.{}", name, name);
@@ -219,6 +259,28 @@ impl Parser {
             );
 
             spec.modifiers.insert(name.to_string());
+            let resource_identity = ResourceIdentity::from_str(name).unwrap();
+
+            let filters = ParserSettings::path_filters(resource_identity);
+            for filter in filters {
+                spec.paths = spec.paths.filter(filter).into();
+            }
+
+            let settings = ParserSettings::client_link_settings(resource_identity);
+            spec.client_links.extend(settings);
+
+            let target_modifiers = ParserSettings::target_modifiers(resource_identity);
+            spec.modify_target.map.extend(target_modifiers.map);
+
+            let url_modifiers = ParserSettings::url_target_modifiers(resource_identity);
+            spec.url_modify_target.extend(url_modifiers);
+
+            let secondary_modifiers = ParserSettings::secondary_modifier_map(resource_identity);
+            spec.secondary_modify_target
+                .secondary_targets
+                .extend(secondary_modifiers.secondary_targets);
+
+            dbg!(&spec.modify_target);
         }
 
         // TODO: Change the inserts here to use the ModifierMap methods to cut down on code.
@@ -286,134 +348,52 @@ impl Parser {
                 "teams.primaryChannel.primaryChannelTabs".to_string(),
             )],
         );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("users.planner.plans.tasks".to_string()),
-            vec![MatchTarget::OperationMap(
-                "users.planner.plans.plannerTasks".to_string(),
-            )],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("users.planner.plans.buckets.tasks".to_string()),
-            vec![MatchTarget::OperationMap(
-                "users.planner.plans.buckets.bucketTasks".to_string(),
-            )],
-        );
-        spec.modify_target.operation_map(
-            "users.contactFolders.contacts",
-            "users.contactFolders.contactFolderContact",
-        );
 
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId("users.UpdateCalendars".to_string()),
-            vec![
-                MatchTarget::OperationId("calendars.UpdateCalendar".to_string()),
-                MatchTarget::OperationMap("calendars".to_string()),
-            ],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId("users.GetCalendars".to_string()),
-            vec![
-                MatchTarget::OperationId("calendars.GetCalendar".to_string()),
-                MatchTarget::OperationMap("calendars".to_string()),
-            ],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId("users.ListCalendars".to_string()),
-            vec![
-                MatchTarget::OperationId("calendars.ListCalendars".to_string()),
-                MatchTarget::OperationMap("calendars".to_string()),
-            ],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId("users.CreateCalendars".to_string()),
-            vec![
-                MatchTarget::OperationId("calendars.CreateCalendar".to_string()),
-                MatchTarget::OperationMap("calendars".to_string()),
-            ],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId("users.calendars.events.calendar.getSchedule".to_string()),
-            vec![
-                MatchTarget::OperationId("users.calendars.events.getSchedule".to_string()),
-                MatchTarget::OperationMap("users.calendars.events".to_string()),
-            ],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId("users.GetCalendarGroups".to_string()),
-            vec![
-                MatchTarget::OperationId("calendarGroups.GetCalendarGroups".to_string()),
-                MatchTarget::OperationMap("calendarGroups".to_string()),
-            ],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId("users.UpdateCalendarGroups".to_string()),
-            vec![
-                MatchTarget::OperationId("calendarGroups.UpdateCalendarGroups".to_string()),
-                MatchTarget::OperationMap("calendarGroups".to_string()),
-            ],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId("users.ListCalendarGroups".to_string()),
-            vec![
-                MatchTarget::OperationId("calendarGroups.ListCalendarGroups".to_string()),
-                MatchTarget::OperationMap("calendarGroups".to_string()),
-            ],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId(
-                "users.calendarGroups.calendars.events.calendar.getSchedule".to_string(),
-            ),
-            vec![
-                MatchTarget::OperationId(
-                    "users.calendarGroups.calendars.events.getSchedule".to_string(),
-                ),
-                MatchTarget::OperationMap("users.calendarGroups.calendars.events".to_string()),
-            ],
-        );
-        // users.calendarGroups.calendars.events.calendar.getSchedule
-        spec.secondary_modify_target.insert(
-            "users.calendarGroups",
-            MatchTarget::OperationMap("calendarGroups".to_string()),
-        );
-        spec.secondary_modify_target.insert(
-            "users.calendarGroups",
-            MatchTarget::OperationId("calendarGroups".to_string()),
-        );
+        /*
+               // Secondary links and modifiers. These are api's that are used multiple times
+               // such as calendars and calendar groups where we might have two resources
+               // such as groups and users with the same ending path:
+               // groups/{group-id}/calendars/{calendar-id}
+               // users/{user-id}/calendars/{calendar-id}
+               // We do not want each api implementation to have its own calendar struct
+               // and methods to prevent repeated code. So we separate these out here
+               // and add a link between them.
+               spec.secondary_modify_target.insert(
+                   "users.calendarGroups",
+                   MatchTarget::OperationMap("calendarGroups".to_string()),
+               );
+               spec.secondary_modify_target.insert(
+                   "users.calendarGroups",
+                   MatchTarget::OperationId("calendarGroups".to_string()),
+               );
 
+               spec.secondary_modify_target.insert(
+                   "users.calendars",
+                   MatchTarget::OperationMap("calendars".to_string()),
+               );
+               spec.secondary_modify_target.insert(
+                   "users.calendars",
+                   MatchTarget::OperationId("calendars".to_string()),
+               );
+
+               spec.secondary_modify_target.insert(
+                   "users.calendar",
+                   MatchTarget::OperationMap("calendar".to_string()),
+               );
+               spec.secondary_modify_target.insert(
+                   "users.calendar",
+                   MatchTarget::OperationId("calendar".to_string()),
+               );
+               spec.secondary_modify_target.insert(
+                   "users.events",
+                   MatchTarget::OperationId("events".to_string()),
+               );
+
+        */
         // Modify that paths that have a resource id. See UrlMatchTarget
         // for more info.
-        spec.url_modify_target.extend(vec![
-            UrlMatchTarget::resource_id("applications", "application"),
-            UrlMatchTarget::resource_id("users", "user"),
-            UrlMatchTarget::resource_id("sites", "site"),
-            UrlMatchTarget::resource_id("groups", "group"),
-            UrlMatchTarget::resource_id("drives", "drive"),
-            UrlMatchTarget::resource_id("teams", "team"),
-            UrlMatchTarget::resource_id("workbooks", "workbook"),
-        ]);
 
-        self.use_filters_internal(
-            spec,
-            vec![
-                // Filters for requests that are used by multiple top level
-                // clients. These are added to the crate in a different way.
-                Filter::IgnoreIf(FilterIgnore::PathContains("onenote")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("calendar")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("calendarView")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("calendarGroup")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("mailFolders")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("messages")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("attachments")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("singleValueExtendedProperties")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("multiValueExtendedProperties")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("planner")),
-                // These are basically like OData queries and look like getByPath(path={path})
-                // but we dont currently handle these so they are ignored. The get activities
-                // by interval is used the most in these situations.
-                Filter::IgnoreIf(FilterIgnore::PathContains("={")),
-                Filter::IgnoreIf(FilterIgnore::PathContains("getActivitiesByInterval")),
-            ],
-        );
+        self.use_filters_internal(spec, ParserSettings::default_path_filters());
     }
 
     pub fn filter(&self, filter: Filter<'_>) -> PathMap {
@@ -432,6 +412,10 @@ impl Parser {
         }
 
         path_map
+    }
+
+    fn use_filter_internal(&self, mut spec: RefMut<ParserSpec>, filter: Filter<'_>) {
+        spec.paths = spec.paths.filter(filter).into();
     }
 
     fn use_filters_internal(&self, mut spec: RefMut<ParserSpec>, filters: Vec<Filter<'_>>) {

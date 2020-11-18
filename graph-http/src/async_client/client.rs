@@ -6,6 +6,7 @@ use crate::url::GraphUrl;
 use crate::{
     GraphRequest, GraphResponse, HttpClient, RequestAttribute, RequestClient, RequestType,
 };
+use graph_core::resource::ResourceIdentity;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
@@ -122,7 +123,7 @@ impl AsyncClient {
     pub fn clone(&mut self) -> Self {
         GraphRequest {
             token: self.token.to_string(),
-            ident: self.ident.to_string(),
+            ident: self.ident,
             client: reqwest::Client::builder()
                 .redirect(Policy::limited(2))
                 .build()
@@ -170,11 +171,11 @@ impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
         self.client.lock().await.token = token.to_string();
     }
 
-    async fn inner_ident(&self) -> String {
-        self.client.lock().await.ident.to_string()
+    async fn inner_ident(&self) -> ResourceIdentity {
+        self.client.lock().await.ident
     }
 
-    async fn inner_set_ident(&self, ident: String) {
+    async fn inner_set_ident(&self, ident: ResourceIdentity) {
         self.client.lock().await.ident = ident;
     }
 
@@ -348,11 +349,11 @@ impl RequestClient for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>
         futures::executor::block_on(self.inner_set_token(token));
     }
 
-    fn ident(&self) -> String {
+    fn ident(&self) -> ResourceIdentity {
         futures::executor::block_on(self.inner_ident())
     }
 
-    fn set_ident(&self, ident: String) {
+    fn set_ident(&self, ident: ResourceIdentity) {
         futures::executor::block_on(self.inner_set_ident(ident))
     }
 

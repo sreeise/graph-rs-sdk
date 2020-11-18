@@ -1,4 +1,5 @@
 use crate::url::GraphUrl;
+use graph_core::resource::ResourceIdentity;
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::Method;
@@ -20,7 +21,7 @@ impl Default for RequestType {
 
 pub enum RequestAttribute<Body, Form> {
     Token(String),
-    Ident(String),
+    Ident(ResourceIdentity),
     Url(GraphUrl),
     Method(reqwest::Method),
     Body(Body),
@@ -35,7 +36,7 @@ pub enum RequestAttribute<Body, Form> {
 
 pub struct GraphRequest<Client, Body, Form> {
     pub(crate) token: String,
-    pub(crate) ident: String,
+    pub(crate) ident: ResourceIdentity,
     pub(crate) client: Client,
     pub(crate) registry: Handlebars,
     pub url: GraphUrl,

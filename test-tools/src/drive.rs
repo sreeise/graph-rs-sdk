@@ -1,6 +1,7 @@
 use graph_http::url::GraphUrl;
 use graph_http::BlockingHttpClient;
-use graph_rs::client::{Graph, Ident};
+use graph_rs::client::Graph;
+use graph_rs::core::ResourceIdentity;
 use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
 use url::Url;
 
@@ -70,7 +71,7 @@ impl SpecialFolder {
         format!("{}/{}", host, self.as_str())
     }
 
-    pub fn with_ident(self, host: &str, ident: Ident) -> String {
+    pub fn with_ident(self, host: &str, ident: ResourceIdentity) -> String {
         format!("{}/{}/{}", host, ident.as_ref(), self.as_str())
     }
 }
@@ -102,12 +103,12 @@ impl ToString for SpecialFolder {
 
 pub fn assert_url_special(client: &Graph<BlockingHttpClient>, endpoint: SpecialFolder) {
     client.url_ref(|url| {
-        if client.ident().eq(&Ident::Me) {
+        if client.ident().eq(&ResourceIdentity::Me) {
             assert_eq!(
                 format!("{}/me/drive/{}", GRAPH_URL, endpoint.as_str()),
                 url.to_string(),
             )
-        } else if client.ident().eq(&Ident::Drives) {
+        } else if client.ident().eq(&ResourceIdentity::Drives) {
             assert_eq!(
                 format!("{}/{}", GRAPH_URL, endpoint.as_str()),
                 url.to_string()
@@ -127,12 +128,12 @@ pub fn assert_url_id_equals(
     endpoint: SpecialFolder,
 ) {
     client.url_ref(|url| {
-        if client.ident().eq(&Ident::Me) {
+        if client.ident().eq(&ResourceIdentity::Me) {
             assert_eq!(
                 format!("{}/me/drive/{}", GRAPH_URL, endpoint.as_str()),
                 url.to_string(),
             )
-        } else if client.ident().eq(&Ident::Drives) {
+        } else if client.ident().eq(&ResourceIdentity::Drives) {
             assert_eq!(
                 format!(
                     "{}/{}/{}/{}",
@@ -160,7 +161,7 @@ pub fn assert_url_id_equals(
 
 pub fn assert_url_special_beta(client: &Graph<BlockingHttpClient>, endpoint: SpecialFolder) {
     client.url_ref(|url| {
-        if client.ident().eq(&Ident::Me) {
+        if client.ident().eq(&ResourceIdentity::Me) {
             if endpoint.eq(&SpecialFolder::Drive) {
                 assert_eq!(
                     format!("{}/me/{}", GRAPH_URL_BETA, endpoint.as_str()),
@@ -192,12 +193,12 @@ pub fn assert_url_id_equals_beta(
     endpoint: SpecialFolder,
 ) {
     client.url_ref(|url| {
-        if client.ident().eq(&Ident::Me) {
+        if client.ident().eq(&ResourceIdentity::Me) {
             assert_eq!(
                 format!("{}/me/drive/{}", GRAPH_URL_BETA, endpoint.as_str()),
                 url.to_string(),
             )
-        } else if client.ident().eq(&Ident::Drives) {
+        } else if client.ident().eq(&ResourceIdentity::Drives) {
             assert_eq!(
                 format!(
                     "{}/{}/{}/{}",
