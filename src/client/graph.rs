@@ -50,6 +50,7 @@ use reqwest::Method;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::str::FromStr;
+use crate::me::MeRequest;
 
 /// The graph client.
 ///
@@ -404,9 +405,9 @@ where
         InvitationsRequest::new(self.client)
     }
 
-    pub fn me(&self) -> IdentMe<'a, Client> {
+    pub fn me(&self) -> MeRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Me);
-        IdentMe::new("", self.client)
+        MeRequest::new(self.client)
     }
 
     pub fn places(&self) -> PlacesRequest<'a, Client> {
