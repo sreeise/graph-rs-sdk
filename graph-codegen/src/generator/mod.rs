@@ -1,3 +1,5 @@
+pub mod builders;
+
 use crate::builder::Builder;
 use crate::parser::filter::Filter;
 use crate::parser::{ApiImpl, Parser, PathMap, RequestSet, ResourceNames};
@@ -6,6 +8,8 @@ use inflector::Inflector;
 use std::collections::HashMap;
 use std::error::Error;
 use std::path::Path;
+use graph_core::resource::ResourceIdentity;
+use crate::generator::builders::GeneratorBuilders;
 
 static MSGRAPH_METADATA_V1_0: &str = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml";
 
@@ -99,6 +103,10 @@ impl Generator {
 
     pub fn filter(&self, filter: Filter<'_>) -> PathMap {
         self.builder.filter(filter)
+    }
+
+    pub fn builder(resource_identity: ResourceIdentity) -> Option<Generator> {
+        GeneratorBuilders::get_generator(resource_identity)
     }
 
     pub fn write_api_impl<P: AsRef<Path>>(&self, path: P) {

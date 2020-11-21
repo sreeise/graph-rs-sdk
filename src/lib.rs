@@ -50,12 +50,11 @@
 
 extern crate graph_error;
 extern crate graph_oauth;
+extern crate handlebars;
 extern crate log;
 extern crate pretty_env_logger;
 extern crate reqwest;
-#[macro_use]
 pub extern crate serde;
-extern crate handlebars;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 extern crate strum;
@@ -80,8 +79,6 @@ pub mod attachments;
 pub mod calendar;
 /// Calendar groups client.
 pub mod calendar_groups;
-/// Calendars request client.
-pub mod calendars;
 /// Certificate based auth configuration client.
 mod certificate_based_auth_configuration;
 /// Communications client.
@@ -118,6 +115,8 @@ pub mod identity;
 pub mod invitations;
 /// Mail request client.
 pub mod mail;
+/// Me request client.
+pub mod me;
 /// OneNote request client.
 pub mod onenote;
 /// Places request client.

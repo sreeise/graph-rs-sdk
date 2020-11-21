@@ -349,50 +349,6 @@ impl Parser {
             )],
         );
 
-        /*
-               // Secondary links and modifiers. These are api's that are used multiple times
-               // such as calendars and calendar groups where we might have two resources
-               // such as groups and users with the same ending path:
-               // groups/{group-id}/calendars/{calendar-id}
-               // users/{user-id}/calendars/{calendar-id}
-               // We do not want each api implementation to have its own calendar struct
-               // and methods to prevent repeated code. So we separate these out here
-               // and add a link between them.
-               spec.secondary_modify_target.insert(
-                   "users.calendarGroups",
-                   MatchTarget::OperationMap("calendarGroups".to_string()),
-               );
-               spec.secondary_modify_target.insert(
-                   "users.calendarGroups",
-                   MatchTarget::OperationId("calendarGroups".to_string()),
-               );
-
-               spec.secondary_modify_target.insert(
-                   "users.calendars",
-                   MatchTarget::OperationMap("calendars".to_string()),
-               );
-               spec.secondary_modify_target.insert(
-                   "users.calendars",
-                   MatchTarget::OperationId("calendars".to_string()),
-               );
-
-               spec.secondary_modify_target.insert(
-                   "users.calendar",
-                   MatchTarget::OperationMap("calendar".to_string()),
-               );
-               spec.secondary_modify_target.insert(
-                   "users.calendar",
-                   MatchTarget::OperationId("calendar".to_string()),
-               );
-               spec.secondary_modify_target.insert(
-                   "users.events",
-                   MatchTarget::OperationId("events".to_string()),
-               );
-
-        */
-        // Modify that paths that have a resource id. See UrlMatchTarget
-        // for more info.
-
         self.use_filters_internal(spec, ParserSettings::default_path_filters());
     }
 
