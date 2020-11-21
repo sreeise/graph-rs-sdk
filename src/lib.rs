@@ -85,6 +85,8 @@ mod certificate_based_auth_configuration;
 mod communications;
 /// Contacts request client.
 pub mod contacts;
+/// Content types request client.
+pub mod content_types;
 /// Contracts request client.
 pub mod contracts;
 /// Data policy operations request client.
@@ -113,6 +115,10 @@ pub mod groups;
 pub mod identity;
 /// Invitations request client.
 pub mod invitations;
+/// Items request client.
+pub mod items;
+/// Lists request client.
+pub mod lists;
 /// Mail request client.
 pub mod mail;
 /// Me request client.
