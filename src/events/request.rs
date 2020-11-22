@@ -1,5 +1,4 @@
-use crate::calendar::{CalendarRequest, CalendarsRequest};
-use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
+use crate::calendar::CalendarRequest;
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::instances::{InstanceRequest, InstancesRequest};
@@ -35,6 +34,7 @@ where
     Client: graph_http::RequestClient,
 {
     pub fn id<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Events);
         EventsRequest::new(id.as_ref(), self.client)
     }
     get!({
