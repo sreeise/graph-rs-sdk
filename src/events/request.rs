@@ -1,4 +1,8 @@
+use crate::calendar::{CalendarRequest, CalendarsRequest};
+use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
 use crate::client::Graph;
+use crate::core::ResourceIdentity;
+use crate::instances::{InstanceRequest, InstancesRequest};
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
@@ -9,11 +13,8 @@ use handlebars::*;
 use reqwest::Method;
 
 register_client!(AttachmentsRequest,);
-register_client!(CalendarRequest,);
-register_client!(CalendarViewRequest,);
 register_client!(EventRequest,);
 register_client!(EventsRequest, ());
-register_client!(InstancesRequest,);
 
 impl<'a, Client> AttachmentsRequest<'a, Client>
 where
@@ -25,221 +26,6 @@ where
         response: UploadSessionClient<Client>,
         path: "/events/{{RID}}/attachments/createUploadSession",
         params: 0,
-        has_body: true
-    });
-}
-
-impl<'a, Client> CalendarRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    pub fn calendar_view(&self) -> CalendarViewRequest<'a, Client> {
-        CalendarViewRequest::new(self.client)
-    }
-    get!({
-        doc: "# Get calendarPermissions from users",
-        name: list_calendar_permissions,
-        response: Collection<serde_json::Value>,
-        path: "/events/{{RID}}/calendar/calendarPermissions",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to calendarPermissions for users",
-        name: create_calendar_permissions,
-        response: serde_json::Value,
-        path: "/events/{{RID}}/calendar/calendarPermissions",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get calendarPermissions from users",
-        name: get_calendar_permissions,
-        response: serde_json::Value,
-        path: "/events/{{RID}}/calendar/calendarPermissions/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property calendarPermissions in users",
-        name: update_calendar_permissions,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/calendarPermissions/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get calendarView from users",
-        name: list_calendar_view,
-        response: Collection<serde_json::Value>,
-        path: "/events/{{RID}}/calendar/calendarView",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to calendarView for users",
-        name: create_calendar_view,
-        response: serde_json::Value,
-        path: "/events/{{RID}}/calendar/calendarView",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get calendarView from users",
-        name: get_calendar_view,
-        response: serde_json::Value,
-        path: "/events/{{RID}}/calendar/calendarView/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property calendarView in users",
-        name: update_calendar_view,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/calendarView/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get events from users",
-        name: list_events,
-        response: Collection<serde_json::Value>,
-        path: "/events/{{RID}}/calendar/events",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to events for users",
-        name: create_events,
-        response: serde_json::Value,
-        path: "/events/{{RID}}/calendar/events",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Invoke function delta",
-        name: delta,
-        response: DeltaPhantom<serde_json::Value>,
-        path: "/events/{{RID}}/calendar/events/delta()",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get events from users",
-        name: get_events,
-        response: serde_json::Value,
-        path: "/events/{{RID}}/calendar/events/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property events in users",
-        name: update_events,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/events/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action accept",
-        name: accept,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/events/{{id}}/accept",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action decline",
-        name: decline,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/events/{{id}}/decline",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action dismissReminder",
-        name: dismiss_reminder,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/events/{{id}}/dismissReminder",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action snoozeReminder",
-        name: snooze_reminder,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/events/{{id}}/snoozeReminder",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action tentativelyAccept",
-        name: tentatively_accept,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/events/{{id}}/tentativelyAccept",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action getSchedule",
-        name: get_schedule,
-        response: Collection<serde_json::Value>,
-        path: "/events/{{RID}}/calendar/getSchedule",
-        params: 0,
-        has_body: true
-    });
-}
-
-impl<'a, Client> CalendarViewRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Invoke function delta",
-        name: delta,
-        response: DeltaPhantom<serde_json::Value>,
-        path: "/events/{{RID}}/calendar/calendarView/delta()",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action accept",
-        name: accept,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/calendarView/{{id}}/accept",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action decline",
-        name: decline,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/calendarView/{{id}}/decline",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action dismissReminder",
-        name: dismiss_reminder,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/calendarView/{{id}}/dismissReminder",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action snoozeReminder",
-        name: snooze_reminder,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/calendarView/{{id}}/snoozeReminder",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action tentativelyAccept",
-        name: tentatively_accept,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/calendar/calendarView/{{id}}/tentativelyAccept",
-        params: 1,
         has_body: true
     });
 }
@@ -285,10 +71,24 @@ where
         AttachmentsRequest::new(self.client)
     }
     pub fn calendar(&self) -> CalendarRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Calendar);
         CalendarRequest::new(self.client)
     }
-    pub fn instances(&self) -> InstancesRequest<'a, Client> {
-        InstancesRequest::new(self.client)
+    pub fn instances(&self) -> InstanceRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        InstanceRequest::new(self.client)
+    }
+    pub fn instance<ID: AsRef<str>>(&self, id: ID) -> InstancesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Instances);
+        InstancesRequest::new(id.as_ref(), self.client)
     }
     get!({
         doc: "# Get events from users",
@@ -410,38 +210,6 @@ where
         params: 1,
         has_body: true
     });
-    get!({
-        doc: "# Get instances from users",
-        name: list_instances,
-        response: Collection<serde_json::Value>,
-        path: "/events/{{RID}}/instances",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to instances for users",
-        name: create_instances,
-        response: serde_json::Value,
-        path: "/events/{{RID}}/instances",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get instances from users",
-        name: get_instances,
-        response: serde_json::Value,
-        path: "/events/{{RID}}/instances/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property instances in users",
-        name: update_instances,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/instances/{{id}}",
-        params: 1,
-        has_body: true
-    });
     post!({
         doc: "# Invoke action snoozeReminder",
         name: snooze_reminder,
@@ -456,60 +224,6 @@ where
         response: GraphResponse<Content>,
         path: "/events/{{RID}}/tentativelyAccept",
         params: 0,
-        has_body: true
-    });
-}
-
-impl<'a, Client> InstancesRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Invoke function delta",
-        name: delta,
-        response: DeltaPhantom<serde_json::Value>,
-        path: "/events/{{RID}}/instances/delta()",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action accept",
-        name: accept,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/instances/{{id}}/accept",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action decline",
-        name: decline,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/instances/{{id}}/decline",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action dismissReminder",
-        name: dismiss_reminder,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/instances/{{id}}/dismissReminder",
-        params: 1,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action snoozeReminder",
-        name: snooze_reminder,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/instances/{{id}}/snoozeReminder",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action tentativelyAccept",
-        name: tentatively_accept,
-        response: GraphResponse<Content>,
-        path: "/events/{{RID}}/instances/{{id}}/tentativelyAccept",
-        params: 1,
         has_body: true
     });
 }
