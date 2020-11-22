@@ -15,7 +15,7 @@ use crate::directory::DirectoryRequest;
 use crate::domain_dns_records::DomainDnsRecordsRequest;
 use crate::domains::DomainsRequest;
 use crate::drive::{DriveRequest, DrivesRequest};
-use crate::education::{EducationMeRequest, EducationRequest};
+use crate::education::EducationRequest;
 use crate::group_lifecycle_policies::GroupLifecyclePoliciesRequest;
 use crate::groups::{
     GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
@@ -23,6 +23,7 @@ use crate::groups::{
 use crate::identity::IdentityRequest;
 use crate::invitations::InvitationsRequest;
 use crate::mail::MailRequest;
+use crate::me::MeRequest;
 use crate::onenote::OnenoteRequest;
 use crate::places::PlacesRequest;
 use crate::planner::PlannerRequest;
@@ -50,7 +51,6 @@ use reqwest::Method;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::str::FromStr;
-use crate::me::MeRequest;
 
 /// The graph client.
 ///
@@ -500,29 +500,7 @@ where
     }
 }
 
-register_ident_client!(IdentMe,);
-register_ident_client!(IdentDrives,);
 register_ident_client!(IdentGroups,);
-
-impl<'a, Client> IdentMe<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( get, serde_json::Value => "me" );
-    get!( list_events, Collection<serde_json::Value> => "me/events" );
-    get!( settings, serde_json::Value => "me/settings" );
-    get!( list_planner_tasks, Collection<serde_json::Value> => "me/planner/tasks");
-    patch!( [ update_settings, serde_json::Value => "me/settings" ] );
-
-    pub fn activities(&'a self) -> ActivitiesRequest<'a, Client> {
-        self.set_path();
-        ActivitiesRequest::new(self.client)
-    }
-
-    pub fn education(&self) -> EducationMeRequest<'a, Client> {
-        EducationMeRequest::new(&self.client)
-    }
-}
 
 impl<'a, Client> IdentGroups<'a, Client>
 where
