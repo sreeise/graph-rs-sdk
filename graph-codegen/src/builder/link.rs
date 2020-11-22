@@ -123,7 +123,19 @@ impl ClientLinkSettings {
     fn client_new_string(&self) -> String {
         let pascal_casing = self.base_struct_name();
         if self.has_id_param || self.is_id_method_link {
-            format!("{}::new(id.as_ref(), self.client)\n}}", pascal_casing)
+            if self.is_id_method_link {
+                let camel_casing = self.name.to_camel_case();
+                if let Ok(resource_identity) = ResourceIdentity::from_str(camel_casing.as_str()) {
+                    return format!(
+                        "self.client.set_ident({});
+                        {}::new(id.as_ref(), self.client)\n}}",
+                        resource_identity.enum_string(),
+                        pascal_casing
+                    );
+                }
+            }
+
+            return format!("{}::new(id.as_ref(), self.client)\n}}", pascal_casing);
         } else {
             format!("{}::new(self.client)\n}}", pascal_casing)
         }
