@@ -79,6 +79,8 @@ pub mod attachments;
 pub mod calendar;
 /// Calendar groups client.
 pub mod calendar_groups;
+/// Calendar view client.
+pub mod calendar_view;
 /// Certificate based auth configuration client.
 mod certificate_based_auth_configuration;
 /// Communications client.
@@ -113,6 +115,8 @@ pub mod group_lifecycle_policies;
 pub mod groups;
 /// Identity request client.
 pub mod identity;
+/// Instances request client (events and calendarView).
+pub mod instances;
 /// Invitations request client.
 pub mod invitations;
 /// Items request client.
