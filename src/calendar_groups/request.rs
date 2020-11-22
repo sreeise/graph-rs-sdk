@@ -16,6 +16,7 @@ where
     Client: graph_http::RequestClient,
 {
     pub fn id<ID: AsRef<str>>(&self, id: ID) -> CalendarGroupsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::CalendarGroups);
         CalendarGroupsRequest::new(id.as_ref(), self.client)
     }
     get!({
