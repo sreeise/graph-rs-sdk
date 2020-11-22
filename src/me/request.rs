@@ -1,10 +1,9 @@
-use crate::calendar::CalendarRequest;
-use crate::calendar::CalendarsRequest;
-use crate::calendar_groups::CalendarGroupsRequest;
+use crate::calendar::{CalendarRequest, CalendarsRequest};
+use crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest};
+use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
-use crate::events::EventRequest;
-use crate::events::EventsRequest;
+use crate::events::{EventRequest, EventsRequest};
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
@@ -184,56 +183,56 @@ where
         doc: "# Invoke function delta",
         name: delta,
         response: DeltaPhantom<serde_json::Value>,
-        path: "/me/contactFolders/{{id}}/contacts/delta()",
-        params: 1,
+        path: "/me/contacts/delta()",
+        params: 0,
         has_body: false
     });
     get!({
         doc: "# Get extensions from me",
         name: list_extensions,
         response: Collection<serde_json::Value>,
-        path: "/me/contactFolders/{{id}}/contacts/{{id2}}/extensions",
-        params: 2,
+        path: "/me/contacts/{{id}}/extensions",
+        params: 1,
         has_body: false
     });
     post!({
         doc: "# Create new navigation property to extensions for me",
         name: create_extensions,
         response: serde_json::Value,
-        path: "/me/contactFolders/{{id}}/contacts/{{id2}}/extensions",
-        params: 2,
+        path: "/me/contacts/{{id}}/extensions",
+        params: 1,
         has_body: true
     });
     get!({
         doc: "# Get extensions from me",
         name: get_extensions,
         response: serde_json::Value,
-        path: "/me/contactFolders/{{id}}/contacts/{{id2}}/extensions/{{id3}}",
-        params: 3,
+        path: "/me/contacts/{{id}}/extensions/{{id2}}",
+        params: 2,
         has_body: false
     });
     patch!({
         doc: "# Update the navigation property extensions in me",
         name: update_extensions,
         response: GraphResponse<Content>,
-        path: "/me/contactFolders/{{id}}/contacts/{{id2}}/extensions/{{id3}}",
-        params: 3,
+        path: "/me/contacts/{{id}}/extensions/{{id2}}",
+        params: 2,
         has_body: true
     });
     get!({
         doc: "# Get photo from me",
         name: get_photo,
         response: serde_json::Value,
-        path: "/me/contactFolders/{{id}}/contacts/{{id2}}/photo",
-        params: 2,
+        path: "/me/contacts/{{id}}/photo",
+        params: 1,
         has_body: false
     });
     patch!({
         doc: "# Update the navigation property photo in me",
         name: update_photo,
         response: GraphResponse<Content>,
-        path: "/me/contactFolders/{{id}}/contacts/{{id2}}/photo",
-        params: 2,
+        path: "/me/contacts/{{id}}/photo",
+        params: 1,
         has_body: true
     });
 }
@@ -659,11 +658,32 @@ where
         self.client.set_ident(ResourceIdentity::Calendar);
         CalendarRequest::new(self.client)
     }
-    pub fn calendar_groups(&self) -> CalendarGroupsRequest<'a, Client> {
+    pub fn calendar_groups(&self) -> CalendarGroupRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref()]);
-        CalendarGroupsRequest::new(self.client)
+        CalendarGroupRequest::new(self.client)
+    }
+    pub fn calendar_group<ID: AsRef<str>>(&self, id: ID) -> CalendarGroupsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::CalendarGroups);
+        CalendarGroupsRequest::new(id.as_ref(), self.client)
+    }
+    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::CalendarView);
+        CalendarViewRequest::new(id.as_ref(), self.client)
+    }
+    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::CalendarViews);
+        CalendarViewsRequest::new(self.client)
     }
     pub fn calendar<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
         self.client
@@ -688,6 +708,7 @@ where
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Events);
         EventsRequest::new(id.as_ref(), self.client)
     }
     pub fn inference_classification(&self) -> InferenceClassificationRequest<'a, Client> {

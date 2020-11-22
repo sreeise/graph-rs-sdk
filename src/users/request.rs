@@ -1,10 +1,9 @@
-use crate::calendar::CalendarRequest;
-use crate::calendar::CalendarsRequest;
-use crate::calendar_groups::CalendarGroupsRequest;
+use crate::calendar::{CalendarRequest, CalendarsRequest};
+use crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest};
+use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
-use crate::events::EventRequest;
-use crate::events::EventsRequest;
+use crate::events::{EventRequest, EventsRequest};
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
@@ -855,6 +854,7 @@ where
     Client: graph_http::RequestClient,
 {
     pub fn id<ID: AsRef<str>>(&self, id: ID) -> UsersRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Users);
         UsersRequest::new(id.as_ref(), self.client)
     }
     get!({
@@ -897,11 +897,32 @@ where
         self.client.set_ident(ResourceIdentity::Calendar);
         CalendarRequest::new(self.client)
     }
-    pub fn calendar_groups(&self) -> CalendarGroupsRequest<'a, Client> {
+    pub fn calendar_groups(&self) -> CalendarGroupRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        CalendarGroupsRequest::new(self.client)
+        CalendarGroupRequest::new(self.client)
+    }
+    pub fn calendar_group<ID: AsRef<str>>(&self, id: ID) -> CalendarGroupsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::CalendarGroups);
+        CalendarGroupsRequest::new(id.as_ref(), self.client)
+    }
+    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::CalendarView);
+        CalendarViewRequest::new(id.as_ref(), self.client)
+    }
+    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::CalendarViews);
+        CalendarViewsRequest::new(self.client)
     }
     pub fn calendar<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
         self.client
@@ -926,6 +947,7 @@ where
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Events);
         EventsRequest::new(id.as_ref(), self.client)
     }
     pub fn inference_classification(&self) -> InferenceClassificationRequest<'a, Client> {
