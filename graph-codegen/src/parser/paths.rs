@@ -4,6 +4,7 @@ use crate::traits::{RequestParser, RequestParserBuilder};
 use from_as::*;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use regex::Regex;
+use reqwest::Url;
 use std::collections::{BTreeMap, HashSet, VecDeque};
 
 pub trait IsInPath {
@@ -312,6 +313,17 @@ impl PathMap {
         }
         self.clean();
         map2.into()
+    }
+}
+
+impl TryFrom<reqwest::Url> for PathMap {
+    type Error = reqwest::Error;
+
+    fn try_from(url: Url) -> Result<Self, Self::Error> {
+        let response = reqwest::blocking::get(url)?;
+        let s = response.text().unwrap();
+        let path_map: PathMap = serde_yaml::from_str(s.as_str()).unwrap();
+        Ok(path_map)
     }
 }
 

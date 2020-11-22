@@ -1,4 +1,3 @@
-use crate::builder::ClientLinkSettings;
 use crate::parser::filter::{ModifierMap, SecondaryModifierMap};
 use crate::parser::{ResourceNameMapping, ResourceNames};
 use crate::traits::{HashMapExt, RequestParser};

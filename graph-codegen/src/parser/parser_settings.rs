@@ -4,39 +4,56 @@ use crate::parser::filter::{
 };
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet};
-use std::str::FromStr;
 
 pub struct ParserSettings;
 
 impl ParserSettings {
-    /// Imports that won't be added from parsing and need to be manually
-    /// returned here.
+    /// Imports that won't be added from parsing and need to be manually added.
     pub fn imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         match resource_identity {
-            ResourceIdentity::Calendar => vec![
-                //"crate::calendars::CalendarsRequest",
-                "crate::events::EventsRequest",
+            ResourceIdentity::Calendar | ResourceIdentity::Calendars => vec![
+                "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
+                "crate::events::{EventsRequest, EventRequest}",
+                "crate::core::ResourceIdentity",
+                // TODO: Handlebars should be imported by the builder. Figure out why this is not happening.
+                "handlebars::*",
+            ],
+            ResourceIdentity::CalendarGroups => vec![
+                "crate::calendar::{CalendarRequest, CalendarsRequest}",
                 "crate::core::ResourceIdentity",
             ],
-            ResourceIdentity::Calendars => vec![
-                "crate::events::EventsRequest",
+            ResourceIdentity::CalendarView => vec![
+                "crate::instances::{InstanceRequest, InstancesRequest}",
+                "crate::calendar::CalendarRequest",
+                "crate::core::ResourceIdentity",
+            ],
+            ResourceIdentity::Lists => vec![
+                "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
+                "crate::items::{ItemRequest, ItemsRequest}",
+            ],
+            ResourceIdentity::Events => vec![
+                "crate::calendar::CalendarRequest",
+                "crate::instances::{InstanceRequest, InstancesRequest}",
+                "crate::core::ResourceIdentity",
+            ],
+            ResourceIdentity::Sites => vec![
+                "crate::core::ResourceIdentity",
+                "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
+                "crate::lists::{ListRequest, ListsRequest}",
+            ],
+            ResourceIdentity::Me => vec![
+                "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
+                "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
+                "crate::calendar::{CalendarRequest, CalendarsRequest}",
+                "crate::events::{EventsRequest, EventRequest}",
                 "crate::core::ResourceIdentity",
             ],
             ResourceIdentity::Users => vec![
-                "crate::calendar_groups::CalendarGroupsRequest",
-                "crate::calendar::CalendarsRequest",
-                "crate::calendar::CalendarRequest",
+                "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
+                "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
+                "crate::calendar::{CalendarRequest, CalendarsRequest}",
+                "crate::events::{EventsRequest, EventRequest}",
                 "crate::core::ResourceIdentity",
-                "crate::events::EventsRequest",
-                "crate::events::EventRequest",
-            ],
-            ResourceIdentity::Me => vec![
-                "crate::calendar_groups::CalendarGroupsRequest",
-                "crate::calendar::CalendarsRequest",
-                "crate::calendar::CalendarRequest",
-                "crate::core::ResourceIdentity",
-                "crate::events::EventsRequest",
-                "crate::events::EventRequest",
             ],
             _ => vec![],
         }
@@ -55,43 +72,50 @@ impl ParserSettings {
         ]))]
     }
 
-    // normal calendar only ignore:
-    /*
-                       "calendarGroup",
-                   "calendars/{calendar-id}",
-                   "calendars/{{RID}}",
-                   "users/{user-id}/calendarView",
-                   "users/{{RID}}/calendarView",
-                   "{{RID}}/calendarView",
-                   "{user-id}/calendarView",
-                   "users/{user-id}/calendars",
-                   "users/{{RID}}/calendars",
-                   "events",
-                   "instances",
-    */
-
     pub fn path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'static>> {
         match resource_identity {
-            ResourceIdentity::Calendar => {
+            ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
                 vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                     "calendarGroup",
+                    "instances",
                     "calendarView",
                     "events",
-                    "instances",
-                ]))]
-            },
-            ResourceIdentity::Calendars => {
-                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
-                    "calendarGroup",
-                    "users/{user-id}/calendarView",
-                    "users/{{RID}}/calendarView",
-                    "instances",
-                    "events",
+                    "attachments",
                 ]))]
             },
             ResourceIdentity::CalendarGroups => {
                 vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                     "/calendar/",
+                    "events",
+                    "attachments",
+                    "instances",
+                    "calendarView",
+                    "calendarPermissions",
+                    "getSchedule",
+                ]))]
+            },
+            ResourceIdentity::CalendarView => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/calendar/calendarView",
+                    "events",
+                    "/calendar/calendarPermissions",
+                    "/calendar/getSchedule",
+                    "instances",
+                ]))]
+            },
+            ResourceIdentity::Events => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/calendar/calendarView",
+                    "instances",
+                    "calendar/events",
+                    "/calendar/getSchedule",
+                    "calendarPermissions",
+                ]))]
+            },
+            ResourceIdentity::Lists => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "contentTypes",
+                    "items",
                 ]))]
             },
             ResourceIdentity::Me => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
@@ -105,6 +129,13 @@ impl ParserSettings {
                 "messages",
                 "onenote",
             ]))],
+            ResourceIdentity::Sites => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "onenote",
+                    "contentTypes",
+                    "lists",
+                ]))]
+            },
             ResourceIdentity::Users => {
                 vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                     "calendarGroup",
@@ -152,24 +183,6 @@ impl ParserSettings {
                     MatchTarget::OperationId("calendars".to_string()),
                 );
             },
-            ResourceIdentity::Calendars => {
-                map.insert(
-                    "users.calendar",
-                    MatchTarget::OperationMap("calendar".to_string()),
-                );
-                map.insert(
-                    "users.calendar",
-                    MatchTarget::OperationId("calendar".to_string()),
-                );
-                map.insert(
-                    "users.calendars",
-                    MatchTarget::OperationMap("calendars".to_string()),
-                );
-                map.insert(
-                    "users.calendars",
-                    MatchTarget::OperationId("calendars".to_string()),
-                );
-            },
             ResourceIdentity::CalendarGroups => {
                 map.insert(
                     "users.calendarGroups",
@@ -180,10 +193,40 @@ impl ParserSettings {
                     MatchTarget::OperationId("calendarGroups".to_string()),
                 );
             },
+            ResourceIdentity::CalendarView => {
+                map.insert(
+                    "me.calendarView",
+                    MatchTarget::OperationId("calendarViews".to_string()),
+                );
+            },
+            ResourceIdentity::ContentTypes => {
+                map.insert(
+                    "sites.contentTypes",
+                    MatchTarget::OperationMap("contentTypes".to_string()),
+                );
+            },
             ResourceIdentity::Events => {
                 map.insert(
                     "users.events",
                     MatchTarget::OperationId("events".to_string()),
+                );
+            },
+            ResourceIdentity::Instances => {
+                map.insert(
+                    "me.calendarView.instances",
+                    MatchTarget::OperationMap("instances".to_string()),
+                );
+            },
+            ResourceIdentity::Items => {
+                map.insert(
+                    "sites.lists.items",
+                    MatchTarget::OperationMap("items".to_string()),
+                );
+            },
+            ResourceIdentity::Lists => {
+                map.insert(
+                    "sites.lists",
+                    MatchTarget::OperationMap("lists".to_string()),
                 );
             },
             ResourceIdentity::Me => {
@@ -202,21 +245,33 @@ impl ParserSettings {
             ResourceIdentity::Applications => {
                 vec![UrlMatchTarget::resource_id("applications", "application")]
             },
-            ResourceIdentity::Users => vec![UrlMatchTarget::resource_id("users", "user")],
-            ResourceIdentity::Sites => vec![UrlMatchTarget::resource_id("sites", "site")],
-            ResourceIdentity::Groups => vec![UrlMatchTarget::resource_id("groups", "group")],
-            ResourceIdentity::Drives => vec![UrlMatchTarget::resource_id("drives", "drive")],
-            ResourceIdentity::Teams => vec![UrlMatchTarget::resource_id("teams", "team")],
-            ResourceIdentity::Workbooks => {
-                vec![UrlMatchTarget::resource_id("workbooks", "workbook")]
-            },
             ResourceIdentity::Calendar => {
                 vec![UrlMatchTarget::resource_id("calendars", "calendar")]
             },
-            ResourceIdentity::Calendars => {
-                vec![UrlMatchTarget::resource_id("calendars", "calendar")]
+            ResourceIdentity::CalendarGroups => vec![UrlMatchTarget::resource_id(
+                "calendarGroups",
+                "calendarGroup",
+            )],
+            ResourceIdentity::CalendarView => {
+                vec![UrlMatchTarget::resource_id("calendarView", "calendarViews")]
             },
+            ResourceIdentity::ContentTypes => {
+                vec![UrlMatchTarget::resource_id("contentTypes", "contentType")]
+            },
+            ResourceIdentity::Drives => vec![UrlMatchTarget::resource_id("drives", "drive")],
             ResourceIdentity::Events => vec![UrlMatchTarget::resource_id("events", "event")],
+            ResourceIdentity::Groups => vec![UrlMatchTarget::resource_id("groups", "group")],
+            ResourceIdentity::Instances => {
+                vec![UrlMatchTarget::resource_id("instances", "instance")]
+            },
+            ResourceIdentity::Items => vec![UrlMatchTarget::resource_id("items", "item")],
+            ResourceIdentity::Lists => vec![UrlMatchTarget::resource_id("lists", "list")],
+            ResourceIdentity::Sites => vec![UrlMatchTarget::resource_id("sites", "site")],
+            ResourceIdentity::Teams => vec![UrlMatchTarget::resource_id("teams", "team")],
+            ResourceIdentity::Users => vec![UrlMatchTarget::resource_id("users", "user")],
+            ResourceIdentity::Workbooks => {
+                vec![UrlMatchTarget::resource_id("workbooks", "workbook")]
+            },
             _ => vec![],
         }
     }
@@ -233,93 +288,294 @@ impl ParserSettings {
                     .with_extend_path_ident()
                     .with_set_resource_identity()
                     .with_id_param();
-                let mut settings2 = ClientLinkSettings::new("calendars");
-                settings2.as_id_method_link();
+
+                let mut settings2 = ClientLinkSettings::new("event");
+                settings2
+                    .use_method_name("events")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings3 = ClientLinkSettings::new("calendars");
+                settings3.as_id_method_link();
 
                 let mut set = BTreeSet::new();
-                set.insert(settings);
-                set.insert(settings2);
+                set.extend(vec![settings, settings2, settings3]);
                 map.insert("calendar".to_string(), set);
+
+                let mut settings4 = ClientLinkSettings::new("calendarView");
+                settings4
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings5 = ClientLinkSettings::new("calendarViews");
+                settings5
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut set2 = BTreeSet::new();
+                set2.extend(vec![settings4, settings5]);
+                map.insert("calendars".to_string(), set2);
             },
-            ResourceIdentity::Calendars => {
-                let mut settings = ClientLinkSettings::new("events");
+            ResourceIdentity::CalendarGroups => {
+                let mut settings = ClientLinkSettings::new("calendars");
                 settings
-                    .use_method_name("event")
+                    .use_method_name("calendar")
+                    .with_id_param()
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("calendar");
+                settings2
+                    .use_method_name("calendars")
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2]);
+                map.insert("calendarGroups".to_string(), set);
+            },
+            ResourceIdentity::CalendarView => {
+                let mut settings = ClientLinkSettings::new("instances");
+                settings
+                    .use_method_name("instance")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity()
+                    .with_id_param();
+
+                let mut settings2 = ClientLinkSettings::new("instance");
+                settings2
+                    .use_method_name("instances")
+                    .with_extend_path_ident()
+                    .with_extend_path_id();
+
+                let mut settings3 = ClientLinkSettings::new("calendar");
+                settings3
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2, settings3]);
+                map.insert("calendarView".to_string(), set);
+            },
+            ResourceIdentity::Events => {
+                let mut settings = ClientLinkSettings::new("calendar");
+                settings
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("instances");
+                settings2
+                    .use_method_name("instance")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity()
+                    .with_id_param();
+
+                let mut settings3 = ClientLinkSettings::new("instance");
+                settings3
+                    .use_method_name("instances")
+                    .with_extend_path_ident()
+                    .with_extend_path_id();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2, settings3]);
+                map.insert("events".to_string(), set);
+            },
+            ResourceIdentity::Lists => {
+                let mut settings = ClientLinkSettings::new("items");
+                settings
+                    .use_method_name("item")
                     .with_id_param()
                     .with_extend_path_id()
                     .with_extend_path_ident();
+
+                let mut settings2 = ClientLinkSettings::new("item");
+                settings2
+                    .use_method_name("items")
+                    .with_extend_path_id()
+                    .with_extend_path_ident();
+
+                let mut settings3 = ClientLinkSettings::new("contentTypes");
+                settings3
+                    .use_method_name("contentType")
+                    .with_id_param()
+                    .with_extend_path_id()
+                    .with_extend_path_ident();
+
+                let mut settings4 = ClientLinkSettings::new("contentType");
+                settings4
+                    .use_method_name("contentTypes")
+                    .with_extend_path_id()
+                    .with_extend_path_ident();
+
                 let mut set = BTreeSet::new();
-                set.insert(settings);
-                map.insert("calendars".to_string(), set);
+                set.extend(vec![settings, settings2, settings3, settings4]);
+                map.insert("lists".to_string(), set);
             },
             ResourceIdentity::Me => {
                 let mut settings = ClientLinkSettings::new("calendarGroups");
-                settings.with_extend_path_ident();
+                settings
+                    .use_method_name("calendarGroup")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
 
-                let mut settings2 = ClientLinkSettings::new("calendars");
+                let mut settings2 = ClientLinkSettings::new("calendarGroup");
                 settings2
+                    .use_method_name("calendarGroups")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings3 = ClientLinkSettings::new("calendars");
+                settings3
                     .use_method_name("calendar")
                     .with_id_param()
                     .with_set_resource_identity()
                     .with_extend_path_ident();
 
-                let mut settings3 = ClientLinkSettings::new("calendar");
-                settings3
+                let mut settings4 = ClientLinkSettings::new("calendar");
+                settings4
                     .use_method_name("calendars")
                     .with_set_resource_identity()
                     .with_extend_path_ident();
 
-                let mut settings4 = ClientLinkSettings::new("event");
-                settings4
+                let mut settings5 = ClientLinkSettings::new("event");
+                settings5
                     .use_method_name("events")
                     .with_set_resource_identity()
                     .with_extend_path_ident();
 
-                let mut settings5 = ClientLinkSettings::new("events");
-                settings5
+                let mut settings6 = ClientLinkSettings::new("events");
+                settings6
                     .use_method_name("event")
                     .with_id_param()
+                    .with_set_resource_identity()
                     .with_extend_path_ident();
 
+                let mut settings7 = ClientLinkSettings::new("calendarView");
+                settings7
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings8 = ClientLinkSettings::new("calendarViews");
+                settings8
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
-                set.extend(vec![settings, settings2, settings3, settings4, settings5]);
+                set.extend(vec![
+                    settings, settings2, settings3, settings4, settings5, settings6, settings7,
+                    settings8,
+                ]);
                 map.insert("me".to_string(), set);
+            },
+            ResourceIdentity::Sites => {
+                let mut settings = ClientLinkSettings::new("contentTypes");
+                settings
+                    .use_method_name("contentType")
+                    .with_id_param()
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("contentType");
+                settings2
+                    .use_method_name("contentTypes")
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings3 = ClientLinkSettings::new("list");
+                settings3
+                    .use_method_name("lists")
+                    .with_extend_path_id()
+                    .with_extend_path_ident();
+
+                let mut settings4 = ClientLinkSettings::new("lists");
+                settings4
+                    .use_method_name("list")
+                    .with_id_param()
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2, settings3, settings4]);
+                map.insert("sites".to_string(), set);
             },
             ResourceIdentity::Users => {
                 let mut settings = ClientLinkSettings::new("calendarGroups");
-                settings.with_extend_path_id().with_extend_path_ident();
+                settings
+                    .use_method_name("calendarGroup")
+                    .with_id_param()
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
 
-                let mut settings2 = ClientLinkSettings::new("calendars");
+                let mut settings2 = ClientLinkSettings::new("calendarGroup");
                 settings2
+                    .use_method_name("calendarGroups")
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings3 = ClientLinkSettings::new("calendars");
+                settings3
                     .use_method_name("calendar")
                     .with_id_param()
                     .with_set_resource_identity()
                     .with_extend_path_id()
                     .with_extend_path_ident();
 
-                let mut settings3 = ClientLinkSettings::new("calendar");
-                settings3
+                let mut settings4 = ClientLinkSettings::new("calendar");
+                settings4
                     .use_method_name("calendars")
                     .with_set_resource_identity()
                     .with_extend_path_id()
                     .with_extend_path_ident();
 
-                let mut settings4 = ClientLinkSettings::new("event");
-                settings4
+                let mut settings5 = ClientLinkSettings::new("event");
+                settings5
                     .use_method_name("events")
                     .with_set_resource_identity()
                     .with_extend_path_id()
                     .with_extend_path_ident();
 
-                let mut settings5 = ClientLinkSettings::new("events");
-                settings5
+                let mut settings6 = ClientLinkSettings::new("events");
+                settings6
                     .use_method_name("event")
                     .with_id_param()
+                    .with_set_resource_identity()
                     .with_extend_path_id()
                     .with_extend_path_ident();
 
+                let mut settings7 = ClientLinkSettings::new("calendarView");
+                settings7
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings8 = ClientLinkSettings::new("calendarViews");
+                settings8
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
-                set.extend(vec![settings, settings2, settings3, settings4, settings5]);
+                set.extend(vec![
+                    settings, settings2, settings3, settings4, settings5, settings6, settings7,
+                    settings8,
+                ]);
                 map.insert("users".to_string(), set);
             },
             _ => {},
@@ -328,6 +584,10 @@ impl ParserSettings {
         map
     }
 
+    // Modifiers that need to be explicitly declared.
+    // The struct names for clients are generated based on the operation id
+    // which is also modified when the clients are generated. This can result
+    // in naming conflicts that is fixed by these modifiers.
     pub fn target_modifiers(resource_identity: ResourceIdentity) -> ModifierMap {
         let mut modify_target = ModifierMap::default();
         match resource_identity {
@@ -395,53 +655,6 @@ impl ParserSettings {
                     ],
                 );
             },
-            ResourceIdentity::Calendars => {
-                modify_target.map.insert(
-                    MatchTarget::OperationId("users.UpdateCalendars".to_string()),
-                    vec![
-                        MatchTarget::OperationId("users.calendars.UpdateCalendars".to_string()),
-                        MatchTarget::OperationMap("users.calendars".to_string()),
-                    ],
-                );
-                modify_target.map.insert(
-                    MatchTarget::OperationId("users.GetCalendars".to_string()),
-                    vec![
-                        MatchTarget::OperationId("users.calendars.GetCalendars".to_string()),
-                        MatchTarget::OperationMap("users.calendars".to_string()),
-                    ],
-                );
-                modify_target.map.insert(
-                    MatchTarget::OperationId(
-                        "users.calendars.events.calendar.getSchedule".to_string(),
-                    ),
-                    vec![
-                        MatchTarget::OperationId("users.calendars.events.getSchedule".to_string()),
-                        MatchTarget::OperationMap("users.calendars.events".to_string()),
-                    ],
-                );
-                modify_target.map.insert(
-                    MatchTarget::OperationId(
-                        "users.calendars.calendarView.calendar.getSchedule".to_string(),
-                    ),
-                    vec![
-                        MatchTarget::OperationId(
-                            "users.calendars.calendarView.getSchedule".to_string(),
-                        ),
-                        MatchTarget::OperationMap("users.calendars.calendarView".to_string()),
-                    ],
-                );
-                modify_target.map.insert(
-                    MatchTarget::OperationId(
-                        "users.calendars.calendarView.calendar.getSchedule".to_string(),
-                    ),
-                    vec![
-                        MatchTarget::OperationId(
-                            "users.calendars.calendarView.getSchedule".to_string(),
-                        ),
-                        MatchTarget::OperationMap("users.calendars.calendarView".to_string()),
-                    ],
-                );
-            },
             ResourceIdentity::CalendarGroups => {
                 modify_target.map.insert(
                     MatchTarget::OperationId("users.GetCalendarGroups".to_string()),
@@ -480,6 +693,77 @@ impl ParserSettings {
                         ),
                         MatchTarget::OperationMap(
                             "users.calendarGroups.calendars.events".to_string(),
+                        ),
+                    ],
+                );
+            },
+            ResourceIdentity::CalendarView => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.ListCalendarView".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("calendarViews".to_string()),
+                        MatchTarget::OperationId("calendarViews.ListCalendarView".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetCalendarView".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("calendarView".to_string()),
+                        MatchTarget::OperationId("calendarView.GetCalendarView".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateCalendarView".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("calendarView".to_string()),
+                        MatchTarget::OperationId("calendarView.UpdateCalendarView".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.CreateCalendarView".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("calendarViews".to_string()),
+                        MatchTarget::OperationId("calendarViews.CreateCalendarView".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.calendarView.delta.fa14".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("calendarViews".to_string()),
+                        MatchTarget::OperationId("calendarViews.delta".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::ContentTypes => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("sites.ListContentTypes".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sites.contentTypes".to_string()),
+                        MatchTarget::OperationId("sites.contentTypes.ListContentTypes".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("sites.GetContentTypes".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sites.contentTypes".to_string()),
+                        MatchTarget::OperationId("sites.contentTypes.GetContentTypes".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("sites.UpdateContentTypes".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sites.contentTypes".to_string()),
+                        MatchTarget::OperationId(
+                            "sites.contentTypes.UpdateContentTypes".to_string(),
+                        ),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("sites.CreateContentTypes".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sites.contentTypes".to_string()),
+                        MatchTarget::OperationId(
+                            "sites.contentTypes.CreateContentTypes".to_string(),
                         ),
                     ],
                 );
@@ -558,6 +842,82 @@ impl ParserSettings {
                     vec![MatchTarget::OperationMap(
                         "users.events.calendar".to_string(),
                     )],
+                );
+            },
+            ResourceIdentity::Instances => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.calendarView.ListInstances".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("instances".to_string()),
+                        MatchTarget::OperationId("instances.ListInstances".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.calendarView.CreateInstances".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("instances".to_string()),
+                        MatchTarget::OperationId("instances.CreateInstances".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.calendarView.GetInstances".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("instances".to_string()),
+                        MatchTarget::OperationId("instances.GetInstances".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.calendarView.UpdateInstances".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("instances".to_string()),
+                        MatchTarget::OperationId("instances.UpdateInstances".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::Items => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("sites.lists.ListItems".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("items".to_string()),
+                        MatchTarget::OperationId("items.ListItems ".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("sites.lists.CreateItems".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("items".to_string()),
+                        MatchTarget::OperationId("items.CreateItems".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("sites.lists.GetItems".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("items".to_string()),
+                        MatchTarget::OperationId("items.GetItems".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("sites.lists.UpdateItems".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("items".to_string()),
+                        MatchTarget::OperationId("items.UpdateItems".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::Lists => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("sites.GetLists".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("lists".to_string()),
+                        MatchTarget::OperationId("lists.GetLists".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("sites.UpdateLists".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("lists".to_string()),
+                        MatchTarget::OperationId("lists.UpdateLists".to_string()),
+                    ],
                 );
             },
             ResourceIdentity::Me => {

@@ -1,5 +1,4 @@
-use crate::builder::spec_formatter::RegisterClient;
-use crate::builder::ClientLinkSettings;
+use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::parser::{Request, RequestMap};
 use bytes::{BufMut, BytesMut};
 use inflector::Inflector;

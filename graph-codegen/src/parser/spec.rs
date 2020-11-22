@@ -1,7 +1,6 @@
 use crate::builder::ClientLinkSettings;
-use crate::parser::filter::UrlMatchTarget::ResourceId;
 use crate::parser::filter::{
-    Filter, FilterIgnore, MatchTarget, ModifierMap, SecondaryModifierMap, UrlMatchTarget,
+    Filter, MatchTarget, ModifierMap, SecondaryModifierMap, UrlMatchTarget,
 };
 use crate::parser::{HttpMethod, ParserSettings, PathMap, Request, RequestMap, RequestSet};
 use crate::traits::{Modify, RequestParser, RequestParserBuilder};
@@ -68,9 +67,9 @@ impl ParserSpec {
         start_filter: Filter,
         secondary_name: &str,
     ) -> ParserSpec {
-        let mut path_map: PathMap = PathMap::from_file(file.as_ref()).unwrap();
+        let path_map: PathMap = PathMap::from_file(file.as_ref()).unwrap();
         let mut path_map: PathMap = path_map.filter(start_filter).into();
-        let mut path_map = path_map.clean_secondary(secondary_name);
+        let path_map = path_map.clean_secondary(secondary_name);
         ParserSpec::parser_spec(path_map)
     }
 }
@@ -283,11 +282,7 @@ impl Parser {
             dbg!(&spec.modify_target);
         }
 
-        // TODO: Change the inserts here to use the ModifierMap methods to cut down on code.
-        // Modifiers that need to be explicitly declared.
-        // The struct names for clients are generated based on the operation id
-        // which is also modified when the clients are generated. This can result
-        // in naming conflicts that is fixed by these modifiers.
+        // TODO: Move these to ParserSettings.
         spec.modify_target.operation_map(
             "deviceManagement.detectedApps.managedDevices",
             "deviceManagement.detectedApps.appManagedDevices",
@@ -313,14 +308,6 @@ impl Parser {
         spec.modify_target.map.insert(
             MatchTarget::OperationMap("policies.policyRoot".to_string()),
             vec![MatchTarget::OperationMap("policies".to_string())],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("sites.contentTypes".to_string()),
-            vec![MatchTarget::OperationMap("sites".to_string())],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("sites.lists.contentTypes".to_string()),
-            vec![MatchTarget::OperationMap("sites.lists".to_string())],
         );
         spec.modify_target.map.insert(
             MatchTarget::OperationMap("groupLifecyclePolicies.groupLifecyclePolicy".to_string()),
@@ -517,10 +504,71 @@ impl TryFrom<reqwest::Url> for Parser {
     fn try_from(value: Url) -> Result<Self, Self::Error> {
         let response = reqwest::blocking::get(value)?;
         let s = response.text().unwrap();
-        dbg!(&s);
         let path_map: PathMap = serde_yaml::from_str(s.as_str()).unwrap();
         Ok(Parser {
             spec: RefCell::new(ParserSpec::new(path_map)),
         })
+    }
+}
+
+pub enum ParseFrom {
+    Url(reqwest::Url),
+    Path(String),
+}
+
+pub struct ParserBuilder {
+    parse_from: ParseFrom,
+}
+
+impl ParserBuilder {
+    pub fn parse(parse_from: ParseFrom) -> Parser {
+        match parse_from {
+            ParseFrom::Url(url) => Parser::try_from(url).unwrap(),
+            ParseFrom::Path(path) => Parser::parse(path),
+        }
+    }
+
+    pub fn parse_secondary(
+        parse_from: ParseFrom,
+        start_filter: Filter,
+        secondary_name: &str,
+    ) -> Parser {
+        match parse_from {
+            ParseFrom::Url(url) => {
+                let path_map = PathMap::try_from(url).unwrap();
+                let mut path_map: PathMap = path_map.filter(start_filter).into();
+                let path_map = path_map.clean_secondary(secondary_name);
+                let parser_spec = ParserSpec::parser_spec(path_map);
+
+                let parser = Parser {
+                    spec: RefCell::new(parser_spec),
+                };
+
+                if let Ok(resource_identity) = ResourceIdentity::from_str(secondary_name) {
+                    let mut spec = parser.spec.borrow_mut();
+                    for filter in ParserSettings::path_filters(resource_identity).iter() {
+                        spec.paths = spec.paths.filter(filter.clone()).into();
+                    }
+                }
+                parser
+            },
+            ParseFrom::Path(path) => {
+                let parser = Parser {
+                    spec: RefCell::new(ParserSpec::parse_secondary(
+                        path,
+                        start_filter,
+                        secondary_name,
+                    )),
+                };
+
+                if let Ok(resource_identity) = ResourceIdentity::from_str(secondary_name) {
+                    let mut spec = parser.spec.borrow_mut();
+                    for filter in ParserSettings::path_filters(resource_identity).iter() {
+                        spec.paths = spec.paths.filter(filter.clone()).into();
+                    }
+                }
+                parser
+            },
+        }
     }
 }

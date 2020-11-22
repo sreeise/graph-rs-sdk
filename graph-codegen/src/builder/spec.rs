@@ -1,16 +1,13 @@
-use crate::builder::spec_formatter::SpecClient;
 use crate::builder::{Client, ClientBuilder, ClientLinkSettings};
 use crate::parser::filter::{Filter, UrlMatchTarget};
 use crate::parser::{Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames};
-use bytes::BytesMut;
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::cell::{Ref, RefCell};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fs::OpenOptions;
-use std::path::Path;
 use std::str::FromStr;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -207,10 +204,11 @@ impl Builder {
                 }
 
                 for (client_name, client) in clients.iter() {
-                    dbg!(client_name);
+                    println!("Client: {:#?}", client_name);
                     let client_link_settings = client.client_link_settings();
+                    println!("\tClient Links:");
                     for link in client_link_settings.iter() {
-                        dbg!(link.name());
+                        println!("\t\t{:#?}", link);
                     }
                 }
 
@@ -218,7 +216,7 @@ impl Builder {
                 let dir = format!("./src/{}", snake_casing);
                 let mod_file = format!("./src/{}/mod.rs", snake_casing);
                 let file = format!("./src/{}/request.rs", snake_casing);
-                let mut client_builder = ClientBuilder::new(imports, clients);
+                let client_builder = ClientBuilder::new(imports, clients);
                 Builder::write(client_builder, dir, mod_file, file);
             }
         }
@@ -247,89 +245,6 @@ impl Builder {
             .truncate(true)
             .create(true)
             .open(&request_file)
-            .unwrap();
-        file.write_all(buf.as_mut()).unwrap();
-        file.sync_all().unwrap();
-    }
-
-    pub fn build(&self) {
-        let spec = self.spec.borrow();
-
-        let map = Builder::parser_build(&spec);
-        let imports = spec.imports.clone();
-        let links_override = spec.parser.get_links_override();
-
-        for (name, request_set) in map.iter() {
-            if !name.trim().is_empty() {
-                let id_links = spec.ident_client_id_links.clone();
-                let is_ident_client = spec.ident_clients.contains(name);
-                let secondary_links = spec.secondary_links.clone();
-
-                IoTools::create_dir(format!("./src/{}", name.to_snake_case())).unwrap();
-
-                let mod_file = format!("./src/{}/mod.rs", name.to_snake_case());
-                let mut file1 = OpenOptions::new()
-                    .read(true)
-                    .write(true)
-                    .truncate(true)
-                    .create(true)
-                    .open(&mod_file)
-                    .unwrap();
-                file1
-                    .write_all("mod request;\n\npub use request::*;".as_bytes())
-                    .unwrap();
-                file1.sync_all().unwrap();
-
-                let request_file = format!("./src/{}/request.rs", name.to_snake_case());
-                Builder::write_internal(
-                    request_file,
-                    name.to_string(),
-                    &imports,
-                    &links_override,
-                    id_links,
-                    secondary_links,
-                    request_set.clone(),
-                    is_ident_client,
-                );
-            }
-        }
-    }
-
-    fn write_internal<P: AsRef<Path>>(
-        file: P,
-        parent: String,
-        imports: &HashSet<String>,
-        links_override: &HashMap<String, Vec<String>>,
-        id_links: BTreeMap<String, String>,
-        secondary_links: BTreeMap<String, Vec<String>>,
-        request_set: RequestSet,
-        is_ident_client: bool,
-    ) {
-        let mut buf = BytesMut::with_capacity(1024);
-        let mut request_set_imports = request_set.get_imports();
-        request_set_imports.extend(imports.iter().map(|s| s.to_string()));
-        if is_ident_client {
-            request_set_imports.insert("handlebars::*".into());
-        }
-        let imports: BTreeSet<String> = request_set_imports.into_iter().collect();
-
-        let mut spec_client = SpecClient::from(&request_set);
-        spec_client.set_name(parent.as_str());
-        spec_client.set_imports(imports);
-        spec_client.extend_links(links_override);
-        spec_client.set_ident_client(is_ident_client);
-        spec_client.set_id_links(id_links);
-        spec_client.set_secondary_links(secondary_links);
-
-        let client_impl = spec_client.gen_api_impl();
-        buf.extend(client_impl);
-
-        let mut file = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .truncate(true)
-            .create(true)
-            .open(file)
             .unwrap();
         file.write_all(buf.as_mut()).unwrap();
         file.sync_all().unwrap();

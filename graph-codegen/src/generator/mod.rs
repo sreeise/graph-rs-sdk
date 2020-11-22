@@ -1,15 +1,17 @@
 pub mod builders;
 
 use crate::builder::Builder;
+use crate::generator::builders::GeneratorBuilders;
 use crate::parser::filter::Filter;
-use crate::parser::{ApiImpl, Parser, PathMap, RequestSet, ResourceNames};
+use crate::parser::{
+    ApiImpl, ParseFrom, Parser, ParserBuilder, PathMap, RequestSet, ResourceNames,
+};
 use from_as::*;
+use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
 use std::collections::HashMap;
 use std::error::Error;
 use std::path::Path;
-use graph_core::resource::ResourceIdentity;
-use crate::generator::builders::GeneratorBuilders;
 
 static MSGRAPH_METADATA_V1_0: &str = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml";
 
@@ -81,15 +83,34 @@ impl Generator {
         Generator { builder }
     }
 
+    pub fn from_url_secondary(
+        url: &str,
+        start_filter: Filter,
+        secondary_name: &str,
+        modifiers: Option<&[&str]>,
+    ) -> Generator {
+        let parser = ParserBuilder::parse_secondary(
+            ParseFrom::Url(reqwest::Url::parse(url).unwrap()),
+            start_filter,
+            secondary_name,
+        );
+        let mut modifier_filter_build = false;
+        if let Some(modifiers) = modifiers {
+            parser.use_default_modifiers(modifiers);
+            modifier_filter_build = true;
+        }
+        parser.use_default_links_override();
+        let builder = Builder::new(parser);
+        builder.set_build_with_modifier_filter(modifier_filter_build);
+        builder.use_defaults();
+        Generator { builder }
+    }
+
     pub fn default_v1(modifiers: Option<&[&str]>) -> Generator {
         Generator::from_url(MSGRAPH_METADATA_V1_0, modifiers)
     }
 
-    pub fn build(&self) {
-        self.builder.build();
-    }
-
-    pub fn build_clients(&self) {
+    pub fn generate(&self) {
         self.builder.build_clients();
     }
 
