@@ -1,6 +1,7 @@
+use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
-use crate::events::EventsRequest;
+use crate::events::{EventRequest, EventsRequest};
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::GraphResponse;
@@ -17,6 +18,12 @@ where
 {
     pub fn id<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
         CalendarsRequest::new(id.as_ref(), self.client)
+    }
+    pub fn events(&self) -> EventRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        EventRequest::new(self.client)
     }
     pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
         self.client
@@ -103,6 +110,20 @@ impl<'a, Client> CalendarsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::CalendarView);
+        CalendarViewRequest::new(id.as_ref(), self.client)
+    }
+    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::CalendarViews);
+        CalendarViewsRequest::new(self.client)
+    }
     get!({
         doc: "# Get calendars from users",
         name: get_calendars,
