@@ -16,6 +16,20 @@ impl<'a, Client> CalendarRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::CalendarView);
+        CalendarViewRequest::new(id.as_ref(), self.client)
+    }
+    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::CalendarViews);
+        CalendarViewsRequest::new(self.client)
+    }
     pub fn id<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Calendars);
         CalendarsRequest::new(id.as_ref(), self.client)
