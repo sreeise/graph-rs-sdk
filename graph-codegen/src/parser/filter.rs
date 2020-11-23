@@ -1,4 +1,4 @@
-use crate::parser::error::ParserError;
+use crate::parser::error::ParseError;
 use crate::parser::{Request, RequestMap, RequestSet};
 use crate::traits::{Modify, INTERNAL_PATH_ID};
 use from_as::*;
@@ -342,7 +342,7 @@ impl ToString for MatchTarget {
 }
 
 impl TryFrom<String> for MatchTarget {
-    type Error = ParserError;
+    type Error = ParseError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let mut vec: VecDeque<&str> = value.split(':').collect();
@@ -356,7 +356,7 @@ impl TryFrom<String> for MatchTarget {
                 "TagAndOperationMap" => Ok(MatchTarget::TagAndOperationMap(value.to_string())),
                 "TagOrOperationMap" => Ok(MatchTarget::TagOrOperationMap(value.to_string())),
                 "OperationId" => Ok(MatchTarget::OperationId(value.to_string())),
-                _ => Err(ParserError::DeserializeMatchTarget),
+                _ => Err(ParseError::DeserializeMatchTarget),
             }
         } else if vec.len() == 1 {
             let key = vec.pop_front().unwrap();
@@ -366,7 +366,7 @@ impl TryFrom<String> for MatchTarget {
                 "TagAndOperationMap" => Ok(MatchTarget::TagAndOperationMap(String::new())),
                 "TagOrOperationMap" => Ok(MatchTarget::TagOrOperationMap(String::new())),
                 "OperationId" => Ok(MatchTarget::OperationId(String::new())),
-                _ => Err(ParserError::DeserializeMatchTarget),
+                _ => Err(ParseError::DeserializeMatchTarget),
             }
         } else {
             Ok(MatchTarget::Tag(String::new()))
@@ -375,7 +375,7 @@ impl TryFrom<String> for MatchTarget {
 }
 
 impl FromStr for MatchTarget {
-    type Err = ParserError;
+    type Err = ParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         MatchTarget::try_from(s.to_string())

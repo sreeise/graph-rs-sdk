@@ -50,6 +50,17 @@ impl SpecBuilder {
         self.client_links.insert(name.to_string(), set);
     }
 
+    fn extend_client_link(&mut self, name: &str, client_link: ClientLinkSettings) {
+        self.client_links
+            .entry(name.to_string())
+            .and_modify(|set| set.extend(vec![client_link.clone()]))
+            .or_insert_with(|| {
+                let mut set = BTreeSet::new();
+                set.insert(client_link);
+                set
+            });
+    }
+
     fn extend_client_links(&mut self, name: &str, client_links: BTreeSet<ClientLinkSettings>) {
         self.client_links
             .entry(name.to_string())
@@ -57,6 +68,18 @@ impl SpecBuilder {
                 set.extend(client_links.clone());
             })
             .or_insert(client_links.clone());
+    }
+
+    fn extend_client_links_map(
+        &mut self,
+        client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
+    ) {
+        for (name, set) in client_links {
+            self.client_links
+                .entry(name)
+                .and_modify(|inner_set| inner_set.extend(set.clone()))
+                .or_insert(set);
+        }
     }
 }
 
@@ -136,12 +159,12 @@ impl Builder {
                     ident_clients.insert(name.to_string());
                     let mut client_link = ClientLinkSettings::new(name.as_str());
                     client_link.as_id_method_link();
-                    spec.add_client_link(replacement.as_str(), client_link);
+                    spec.extend_client_link(replacement.as_str(), client_link);
                 },
             }
         }
 
-        spec.client_links.extend(client_links_override);
+        spec.extend_client_links_map(client_links_override);
         spec.set_ident_clients(ident_clients);
     }
 
@@ -204,12 +227,9 @@ impl Builder {
                 }
 
                 for (client_name, client) in clients.iter() {
-                    println!("Client: {:#?}", client_name);
+                    println!("\nClient: {:#?}", client_name);
                     let client_link_settings = client.client_link_settings();
-                    println!("\tClient Links:");
-                    for link in client_link_settings.iter() {
-                        println!("\t\t{:#?}", link);
-                    }
+                    println!("Client Link Settings: {:#?}\n", client_link_settings);
                 }
 
                 let snake_casing = name.to_snake_case();

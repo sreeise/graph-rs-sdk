@@ -31,6 +31,7 @@ pub enum ResourceIdentity {
     CertificateBasedAuthConfiguration,
     Communications,
     Contacts,
+    ContactFolders,
     ContentTypes,
     Contracts,
     DataPolicyOperations,
