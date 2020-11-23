@@ -27,6 +27,11 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
 
     fn try_from(resource_identity: ResourceIdentity) -> Result<Self, Self::Error> {
         match resource_identity {
+            ResourceIdentity::Activities => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/activities"),
+                secondary_name: "activities".to_string(),
+                modifier: "activities".to_string(),
+            }),
             ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
                 Ok(ClientResource::Secondary {
                     start_filter: Filter::PathStartsWith("/users/{user-id}/calendar"),
@@ -65,6 +70,16 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 secondary_name: "events".to_string(),
                 modifier: "events".to_string(),
             }),
+            ResourceIdentity::InferenceClassification => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/inferenceClassification"),
+                secondary_name: "inferenceClassification".to_string(),
+                modifier: "inferenceClassification".to_string(),
+            }),
+            ResourceIdentity::Insights => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/insights"),
+                secondary_name: "insights".to_string(),
+                modifier: "insights".to_string(),
+            }),
             ResourceIdentity::Instances => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/me/calendarView/{event-id}/instances"),
                 secondary_name: "instances".to_string(),
@@ -80,11 +95,26 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 secondary_name: "lists".to_string(),
                 modifier: "lists".to_string(),
             }),
+            ResourceIdentity::ManagedDevices => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/managedDevices"),
+                secondary_name: "managedDevices".to_string(),
+                modifier: "managedDevices".to_string(),
+            }),
             ResourceIdentity::Me => Ok(ClientResource::Main {
                 modifier: "me".to_string(),
             }),
+            ResourceIdentity::Outlook => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/outlook"),
+                secondary_name: "outlook".to_string(),
+                modifier: "outlook".to_string(),
+            }),
             ResourceIdentity::Sites => Ok(ClientResource::Main {
                 modifier: "sites".to_string(),
+            }),
+            ResourceIdentity::Settings => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/settings"),
+                secondary_name: "settings".to_string(),
+                modifier: "settings".to_string(),
             }),
             ResourceIdentity::Users => Ok(ClientResource::Main {
                 modifier: "users".to_string(),

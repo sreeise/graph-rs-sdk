@@ -1,6 +1,7 @@
 use crate::calendar::{CalendarRequest, CalendarsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
+use crate::events::{EventRequest, EventsRequest};
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::GraphResponse;
@@ -15,9 +16,37 @@ impl<'a, Client> CalendarGroupRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    pub fn calendars(&self) -> CalendarRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Calendar);
+        CalendarRequest::new(self.client)
+    }
     pub fn id<ID: AsRef<str>>(&self, id: ID) -> CalendarGroupsRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::CalendarGroups);
         CalendarGroupsRequest::new(id.as_ref(), self.client)
+    }
+    pub fn calendar<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Calendars);
+        CalendarsRequest::new(id.as_ref(), self.client)
+    }
+    pub fn events(&self) -> EventRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Event);
+        EventRequest::new(self.client)
+    }
+    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Events);
+        EventsRequest::new(id.as_ref(), self.client)
     }
     get!({
         doc: "# Get calendarGroups from users",
@@ -54,6 +83,20 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::Calendars);
         CalendarsRequest::new(id.as_ref(), self.client)
+    }
+    pub fn events(&self) -> EventRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Event);
+        EventRequest::new(self.client)
+    }
+    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Events);
+        EventsRequest::new(id.as_ref(), self.client)
     }
     get!({
         doc: "# Get calendarGroups from users",

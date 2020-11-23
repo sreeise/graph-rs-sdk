@@ -82,9 +82,11 @@ pub mod calendar_groups;
 /// Calendar view client.
 pub mod calendar_view;
 /// Certificate based auth configuration client.
-mod certificate_based_auth_configuration;
+pub mod certificate_based_auth_configuration;
 /// Communications client.
-mod communications;
+pub mod communications;
+/// Contact folders client (me, users, etc.).
+pub mod contact_folders;
 /// Contacts request client.
 pub mod contacts;
 /// Content types request client.
@@ -115,6 +117,10 @@ pub mod group_lifecycle_policies;
 pub mod groups;
 /// Identity request client.
 pub mod identity;
+// Inference classification client (me, users, etc.).
+pub mod inference_classification;
+// Insights client (me, users, etc.).
+pub mod insights;
 /// Instances request client (events and calendarView).
 pub mod instances;
 /// Invitations request client.
@@ -125,10 +131,14 @@ pub mod items;
 pub mod lists;
 /// Mail request client.
 pub mod mail;
+/// Managed devices client.
+pub mod managed_devices;
 /// Me request client.
 pub mod me;
 /// OneNote request client.
 pub mod onenote;
+/// Outlook request client.
+pub mod outlook;
 /// Places request client.
 pub mod places;
 /// Planner request client.
@@ -139,6 +149,8 @@ pub mod policies;
 pub mod schema_extensions;
 /// Service principles request client.
 pub mod service_principals;
+/// Settings request client (me, users, etc.).
+pub mod settings;
 /// Sites request client.
 pub mod sites;
 /// Subscribed skus request client.

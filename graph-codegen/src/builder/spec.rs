@@ -36,14 +36,6 @@ impl SpecBuilder {
         self.ident_clients = ident_clients;
     }
 
-    fn set_ident_client_id_links(&mut self, ident_client_id_links: BTreeMap<String, String>) {
-        self.ident_client_id_links = ident_client_id_links;
-    }
-
-    fn set_secondary_links(&mut self, secondary_links: BTreeMap<String, Vec<String>>) {
-        self.secondary_links = secondary_links;
-    }
-
     fn add_client_link(&mut self, name: &str, client_link: ClientLinkSettings) {
         let mut set = BTreeSet::new();
         set.insert(client_link);
@@ -103,42 +95,12 @@ impl Builder {
         }
     }
 
-    pub fn new_use_mod_filter(parser: Parser) -> Builder {
-        Builder {
-            spec: RefCell::new(SpecBuilder {
-                parser,
-                imports: Default::default(),
-                ident_clients: Default::default(),
-                ident_client_id_links: Default::default(),
-                secondary_links: Default::default(),
-                client_links: Default::default(),
-                build_with_modifier_filter: true,
-            }),
-        }
-    }
-
     pub(crate) fn set_build_with_modifier_filter(&self, build_with_modifier_filter: bool) {
         self.spec.borrow_mut().build_with_modifier_filter = build_with_modifier_filter;
     }
 
     pub fn filter(&self, filter: Filter<'_>) -> PathMap {
         self.spec.borrow().parser.filter(filter)
-    }
-
-    pub fn add_imports(&self, imports: &[&str]) {
-        self.spec.borrow_mut().add_imports(imports);
-    }
-
-    pub fn add_ident_clients(&self, ident_clients: &[&str]) {
-        self.spec.borrow_mut().add_ident_clients(ident_clients);
-    }
-
-    pub fn use_default_imports(&self) {
-        self.add_imports(&[
-            "crate::client::Graph",
-            "graph_http::IntoResponse",
-            "reqwest::Method",
-        ]);
     }
 
     pub fn use_defaults(&self) {
