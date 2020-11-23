@@ -18,24 +18,24 @@ use std::str::FromStr;
 #[derive(Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(default)]
 pub struct ParserSpec {
-    paths: PathMap,
+    pub(crate) paths: PathMap,
     #[serde(skip_serializing_if = "VecDeque::is_empty")]
-    requests: VecDeque<RequestMap>,
+    pub(crate) requests: VecDeque<RequestMap>,
     #[serde(skip_serializing_if = "HashMap::is_empty")]
-    tag_map: HashMap<String, String>,
+    pub(crate) tag_map: HashMap<String, String>,
     #[serde(skip_serializing_if = "HashMap::is_empty")]
-    operation_map: HashMap<String, String>,
-    modify_target: ModifierMap,
-    secondary_modify_target: SecondaryModifierMap,
-    url_modify_target: HashSet<UrlMatchTarget>,
-    modifiers: BTreeSet<String>,
-    links_override: HashMap<String, Vec<String>>,
-    secondary_links: HashMap<String, Vec<String>>,
-    client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
+    pub(crate) operation_map: HashMap<String, String>,
+    pub(crate) modify_target: ModifierMap,
+    pub(crate) secondary_modify_target: SecondaryModifierMap,
+    pub(crate) url_modify_target: HashSet<UrlMatchTarget>,
+    pub(crate) modifiers: BTreeSet<String>,
+    pub(crate) links_override: HashMap<String, Vec<String>>,
+    pub(crate) secondary_links: HashMap<String, Vec<String>>,
+    pub(crate) client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
 }
 
 impl ParserSpec {
-    fn parser_spec(path_map: PathMap) -> ParserSpec {
+    pub(crate) fn parser_spec(path_map: PathMap) -> ParserSpec {
         ParserSpec {
             paths: path_map,
             requests: Default::default(),
@@ -279,62 +279,8 @@ impl Parser {
                 .secondary_targets
                 .extend(secondary_modifiers.secondary_targets);
 
-            dbg!(&spec.modify_target);
+            println!("{:#?}", &spec.modify_target);
         }
-
-        // TODO: Move these to ParserSettings.
-        spec.modify_target.operation_map(
-            "deviceManagement.detectedApps.managedDevices",
-            "deviceManagement.detectedApps.appManagedDevices",
-        );
-        spec.modify_target.operation_map(
-            "directoryObjects.microsoft.graph.administrativeUnit",
-            "directoryObjects.administrativeUnits",
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId("directory.administrativeUnits.delta.fa14".to_string()),
-            vec![
-                MatchTarget::OperationId("directoryObjects.administrativeUnits.delta".to_string()),
-                MatchTarget::OperationMap("directoryObjects.administrativeUnits".to_string()),
-            ],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationId("directoryRoles.delta.fa14".to_string()),
-            vec![
-                MatchTarget::OperationId("directoryRoles.delta".to_string()),
-                MatchTarget::OperationMap("directoryRoles".to_string()),
-            ],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("policies.policyRoot".to_string()),
-            vec![MatchTarget::OperationMap("policies".to_string())],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("groupLifecyclePolicies.groupLifecyclePolicy".to_string()),
-            vec![MatchTarget::OperationMap(
-                "groupLifecyclePolicies".to_string(),
-            )],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("auditLogs.auditLogRoot".to_string()),
-            vec![MatchTarget::OperationMap("auditLogs".to_string())],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("policies.policyRoot".to_string()),
-            vec![MatchTarget::OperationMap("policies".to_string())],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("teams.primaryChannel.messages".to_string()),
-            vec![MatchTarget::OperationMap(
-                "teams.primaryChannel.primaryChannelMessages".to_string(),
-            )],
-        );
-        spec.modify_target.map.insert(
-            MatchTarget::OperationMap("teams.primaryChannel.tabs".to_string()),
-            vec![MatchTarget::OperationMap(
-                "teams.primaryChannel.primaryChannelTabs".to_string(),
-            )],
-        );
 
         self.use_filters_internal(spec, ParserSettings::default_path_filters());
     }

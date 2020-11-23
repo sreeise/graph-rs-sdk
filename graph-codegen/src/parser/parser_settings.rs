@@ -27,6 +27,7 @@ impl ParserSettings {
                 "crate::calendar::CalendarRequest",
                 "crate::core::ResourceIdentity",
             ],
+            ResourceIdentity::ContactFolders => vec!["crate::core::ResourceIdentity"],
             ResourceIdentity::Lists => vec![
                 "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
                 "crate::items::{ItemRequest, ItemsRequest}",
@@ -45,6 +46,7 @@ impl ParserSettings {
                 "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
                 "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
                 "crate::calendar::{CalendarRequest, CalendarsRequest}",
+                "crate::education::{MeRequest as EducationMeRequest}",
                 "crate::events::{EventsRequest, EventRequest}",
                 "crate::core::ResourceIdentity",
             ],
@@ -52,6 +54,7 @@ impl ParserSettings {
                 "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
                 "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
                 "crate::calendar::{CalendarRequest, CalendarsRequest}",
+                "crate::education::{UsersRequest as EducationUsersRequest}",
                 "crate::events::{EventsRequest, EventRequest}",
                 "crate::core::ResourceIdentity",
             ],
@@ -72,6 +75,11 @@ impl ParserSettings {
         ]))]
     }
 
+    // Filters for clients when the parsing and generation happens. Some clients,
+    // such as Users and Groups use the same path for resources like calendars, and
+    // so we generate a separate module for calendars. In cases like these, Users and
+    // Groups will use the same calendar module. This cuts down on the size of the crate
+    // and makes it easier to generate clients that use the same resources.
     pub fn path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'static>> {
         match resource_identity {
             ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
@@ -199,6 +207,12 @@ impl ParserSettings {
                     MatchTarget::OperationId("calendarViews".to_string()),
                 );
             },
+            ResourceIdentity::ContactFolders => {
+                map.insert(
+                    "me.contactFolders",
+                    MatchTarget::OperationMap("contactFolders".to_string()),
+                );
+            },
             ResourceIdentity::ContentTypes => {
                 map.insert(
                     "sites.contentTypes",
@@ -255,6 +269,10 @@ impl ParserSettings {
             ResourceIdentity::CalendarView => {
                 vec![UrlMatchTarget::resource_id("calendarView", "calendarViews")]
             },
+            ResourceIdentity::ContactFolders => vec![UrlMatchTarget::resource_id(
+                "contactFolders",
+                "contactFolder",
+            )],
             ResourceIdentity::ContentTypes => {
                 vec![UrlMatchTarget::resource_id("contentTypes", "contentType")]
             },
@@ -471,10 +489,13 @@ impl ParserSettings {
                     .with_extend_path_ident()
                     .with_set_resource_identity();
 
+                let mut settings9 = ClientLinkSettings::new("educationMe");
+                settings9.use_method_name("education");
+
                 let mut set = BTreeSet::new();
                 set.extend(vec![
                     settings, settings2, settings3, settings4, settings5, settings6, settings7,
-                    settings8,
+                    settings8, settings9,
                 ]);
                 map.insert("me".to_string(), set);
             },
@@ -577,6 +598,13 @@ impl ParserSettings {
                     settings8,
                 ]);
                 map.insert("users".to_string(), set);
+
+                let mut user_setting = ClientLinkSettings::new("educationUsers");
+                user_setting.use_method_name("education");
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![user_setting]);
+                map.insert("user".to_string(), set);
             },
             _ => {},
         }
@@ -591,6 +619,9 @@ impl ParserSettings {
     pub fn target_modifiers(resource_identity: ResourceIdentity) -> ModifierMap {
         let mut modify_target = ModifierMap::default();
         match resource_identity {
+            ResourceIdentity::AuditLogs => {
+                modify_target.operation_map("auditLogs.auditLogRoot", "auditLogs");
+            },
             ResourceIdentity::Calendar => {
                 modify_target.map.insert(
                     MatchTarget::OperationId("users.ListCalendars".to_string()),
@@ -734,6 +765,23 @@ impl ParserSettings {
                     ],
                 );
             },
+            ResourceIdentity::ContactFolders => {
+                // me.UpdateContactFolders
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetContactFolders".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("contactFolders".to_string()),
+                        MatchTarget::OperationId("contactFolders.GetContactFolders".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateContactFolders".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("contactFolders".to_string()),
+                        MatchTarget::OperationId("contactFolders.UpdateContactFolders".to_string()),
+                    ],
+                );
+            },
             ResourceIdentity::ContentTypes => {
                 modify_target.map.insert(
                     MatchTarget::OperationId("sites.ListContentTypes".to_string()),
@@ -765,6 +813,38 @@ impl ParserSettings {
                         MatchTarget::OperationId(
                             "sites.contentTypes.CreateContentTypes".to_string(),
                         ),
+                    ],
+                );
+            },
+            ResourceIdentity::DeviceManagement => {
+                modify_target.operation_map(
+                    "deviceManagement.detectedApps.managedDevices",
+                    "deviceManagement.detectedApps.appManagedDevices",
+                );
+            },
+            ResourceIdentity::Directory => {
+                modify_target.operation_map(
+                    "directoryObjects.microsoft.graph.administrativeUnit",
+                    "directoryObjects.administrativeUnits",
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId(
+                        "directory.administrativeUnits.delta.fa14".to_string(),
+                    ),
+                    vec![
+                        MatchTarget::OperationId(
+                            "directoryObjects.administrativeUnits.delta".to_string(),
+                        ),
+                        MatchTarget::OperationMap(
+                            "directoryObjects.administrativeUnits".to_string(),
+                        ),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("directoryRoles.delta.fa14".to_string()),
+                    vec![
+                        MatchTarget::OperationId("directoryRoles.delta".to_string()),
+                        MatchTarget::OperationMap("directoryRoles".to_string()),
                     ],
                 );
             },
@@ -841,6 +921,16 @@ impl ParserSettings {
                     MatchTarget::OperationMap("users.events.calendar.events".to_string()),
                     vec![MatchTarget::OperationMap(
                         "users.events.calendar".to_string(),
+                    )],
+                );
+            },
+            ResourceIdentity::GroupLifecyclePolicies => {
+                modify_target.map.insert(
+                    MatchTarget::OperationMap(
+                        "groupLifecyclePolicies.groupLifecyclePolicy".to_string(),
+                    ),
+                    vec![MatchTarget::OperationMap(
+                        "groupLifecyclePolicies".to_string(),
                     )],
                 );
             },
@@ -955,10 +1045,21 @@ impl ParserSettings {
                     )],
                 );
             },
-            ResourceIdentity::Users => {
-                modify_target.operation_map(
-                    "users.contactFolders.contacts",
-                    "users.contactFolders.contactFolderContact",
+            ResourceIdentity::Policies => {
+                modify_target.operation_map("policies.policyRoot", "policies");
+            },
+            ResourceIdentity::Teams => {
+                modify_target.map.insert(
+                    MatchTarget::OperationMap("teams.primaryChannel.messages".to_string()),
+                    vec![MatchTarget::OperationMap(
+                        "teams.primaryChannel.primaryChannelMessages".to_string(),
+                    )],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationMap("teams.primaryChannel.tabs".to_string()),
+                    vec![MatchTarget::OperationMap(
+                        "teams.primaryChannel.primaryChannelTabs".to_string(),
+                    )],
                 );
             },
             _ => {},
