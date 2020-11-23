@@ -18,8 +18,9 @@ impl ParserSettings {
                 // TODO: Handlebars should be imported by the builder. Figure out why this is not happening.
                 "handlebars::*",
             ],
-            ResourceIdentity::CalendarGroups => vec![
+            ResourceIdentity::CalendarGroup | ResourceIdentity::CalendarGroups => vec![
                 "crate::calendar::{CalendarRequest, CalendarsRequest}",
+                "crate::events::{EventsRequest, EventRequest}",
                 "crate::core::ResourceIdentity",
             ],
             ResourceIdentity::CalendarView => vec![
@@ -42,12 +43,20 @@ impl ParserSettings {
                 "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
                 "crate::lists::{ListRequest, ListsRequest}",
             ],
+            ResourceIdentity::ManagedDevices => vec!["crate::core::ResourceIdentity"],
             ResourceIdentity::Me => vec![
                 "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
                 "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
                 "crate::calendar::{CalendarRequest, CalendarsRequest}",
                 "crate::education::{MeRequest as EducationMeRequest}",
                 "crate::events::{EventsRequest, EventRequest}",
+                "crate::managed_devices::{ManagedDeviceRequest, ManagedDevicesRequest}",
+                "crate::contact_folders::{ContactFolderRequest, ContactFoldersRequest}",
+                "crate::insights::InsightsRequest",
+                "crate::inference_classification::InferenceClassificationRequest",
+                "crate::activities::ActivitiesRequest",
+                "crate::settings::SettingsRequest",
+                "crate::outlook::OutlookRequest",
                 "crate::core::ResourceIdentity",
             ],
             ResourceIdentity::Users => vec![
@@ -56,6 +65,13 @@ impl ParserSettings {
                 "crate::calendar::{CalendarRequest, CalendarsRequest}",
                 "crate::education::{UsersRequest as EducationUsersRequest}",
                 "crate::events::{EventsRequest, EventRequest}",
+                "crate::managed_devices::{ManagedDeviceRequest, ManagedDevicesRequest}",
+                "crate::contact_folders::{ContactFolderRequest, ContactFoldersRequest}",
+                "crate::insights::InsightsRequest",
+                "crate::inference_classification::InferenceClassificationRequest",
+                "crate::activities::ActivitiesRequest",
+                "crate::settings::SettingsRequest",
+                "crate::outlook::OutlookRequest",
                 "crate::core::ResourceIdentity",
             ],
             _ => vec![],
@@ -127,13 +143,23 @@ impl ParserSettings {
                 ]))]
             },
             ResourceIdentity::Me => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                "activities",
+                "historyItems",
+                "contacts",
+                "onlineMeetings",
+                "outlook",
+                "/settings/",
                 "calendarGroup",
                 "calendars",
                 "calendar",
                 "calendarView",
+                "contactFolder",
                 "events",
+                "inferenceClassification",
+                "insights",
                 "instances",
                 "mailFolders",
+                "managedDevices",
                 "messages",
                 "onenote",
             ]))],
@@ -146,13 +172,23 @@ impl ParserSettings {
             },
             ResourceIdentity::Users => {
                 vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "activities",
+                    "historyItems",
+                    "contacts",
+                    "onlineMeetings",
+                    "outlook",
+                    "/settings/",
                     "calendarGroup",
                     "calendars",
                     "calendar",
                     "calendarView",
+                    "contactFolder",
                     "events",
+                    "inferenceClassification",
+                    "insights",
                     "instances",
                     "mailFolders",
+                    "managedDevices",
                     "messages",
                     "onenote",
                 ]))]
@@ -168,11 +204,18 @@ impl ParserSettings {
     // users/{user-id}/calendars/{calendar-id}
     // We do not want each api implementation to have its own calendar struct
     // and methods to prevent repeated code. So we separate these out here
-    // and add a link between them.
+    // and add a link between them. We change the operation map of the
+    // requests so they are generated within the correct client.
     pub fn secondary_modifier_map(resource_identity: ResourceIdentity) -> SecondaryModifierMap {
         let mut map = SecondaryModifierMap::with_capacity(15);
 
         match resource_identity {
+            ResourceIdentity::Activities => {
+                map.insert(
+                    "me.activities",
+                    MatchTarget::OperationMap("activities".to_string()),
+                );
+            },
             ResourceIdentity::Calendar => {
                 map.insert(
                     "users.calendar",
@@ -213,6 +256,12 @@ impl ParserSettings {
                     MatchTarget::OperationMap("contactFolders".to_string()),
                 );
             },
+            ResourceIdentity::Contacts => {
+                map.insert(
+                    "me.contacts",
+                    MatchTarget::OperationMap("contacts".to_string()),
+                );
+            },
             ResourceIdentity::ContentTypes => {
                 map.insert(
                     "sites.contentTypes",
@@ -223,6 +272,12 @@ impl ParserSettings {
                 map.insert(
                     "users.events",
                     MatchTarget::OperationId("events".to_string()),
+                );
+            },
+            ResourceIdentity::InferenceClassification => {
+                map.insert(
+                    "me.inferenceClassification",
+                    MatchTarget::OperationMap("inferenceClassification".to_string()),
                 );
             },
             ResourceIdentity::Instances => {
@@ -245,6 +300,18 @@ impl ParserSettings {
             },
             ResourceIdentity::Me => {
                 map.insert("me.user", MatchTarget::OperationMap("me".to_string()));
+            },
+            ResourceIdentity::Outlook => {
+                map.insert(
+                    "me.outlook",
+                    MatchTarget::OperationMap("outlook".to_string()),
+                );
+            },
+            ResourceIdentity::Settings => {
+                map.insert(
+                    "me.settings",
+                    MatchTarget::OperationMap("settings".to_string()),
+                );
             },
             _ => {},
         }
@@ -284,6 +351,10 @@ impl ParserSettings {
             },
             ResourceIdentity::Items => vec![UrlMatchTarget::resource_id("items", "item")],
             ResourceIdentity::Lists => vec![UrlMatchTarget::resource_id("lists", "list")],
+            ResourceIdentity::ManagedDevices => vec![UrlMatchTarget::resource_id(
+                "managedDevices",
+                "managedDevice",
+            )],
             ResourceIdentity::Sites => vec![UrlMatchTarget::resource_id("sites", "site")],
             ResourceIdentity::Teams => vec![UrlMatchTarget::resource_id("teams", "team")],
             ResourceIdentity::Users => vec![UrlMatchTarget::resource_id("users", "user")],
@@ -299,7 +370,7 @@ impl ParserSettings {
     ) -> BTreeMap<String, BTreeSet<ClientLinkSettings>> {
         let mut map = BTreeMap::new();
         match resource_identity {
-            ResourceIdentity::Calendar => {
+            ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
                 let mut settings = ClientLinkSettings::new("events");
                 settings
                     .use_method_name("event")
@@ -333,11 +404,26 @@ impl ParserSettings {
                     .with_extend_path_id()
                     .with_set_resource_identity();
 
+                let mut settings6 = ClientLinkSettings::new("events");
+                settings6
+                    .use_method_name("event")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings7 = ClientLinkSettings::new("event");
+                settings7
+                    .use_method_name("events")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
                 let mut set2 = BTreeSet::new();
-                set2.extend(vec![settings4, settings5]);
+                set2.extend(vec![settings4, settings5, settings6, settings7]);
                 map.insert("calendars".to_string(), set2);
             },
-            ResourceIdentity::CalendarGroups => {
+            ResourceIdentity::CalendarGroup | ResourceIdentity::CalendarGroups => {
                 let mut settings = ClientLinkSettings::new("calendars");
                 settings
                     .use_method_name("calendar")
@@ -353,9 +439,54 @@ impl ParserSettings {
                     .with_extend_path_ident()
                     .with_set_resource_identity();
 
+                let mut settings3 = ClientLinkSettings::new("events");
+                settings3
+                    .use_method_name("event")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings4 = ClientLinkSettings::new("event");
+                settings4
+                    .use_method_name("events")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
-                set.extend(vec![settings, settings2]);
+                set.extend(vec![settings, settings2, settings3, settings4]);
                 map.insert("calendarGroups".to_string(), set);
+
+                let mut settings5 = ClientLinkSettings::new("events");
+                settings5
+                    .use_method_name("event")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings6 = ClientLinkSettings::new("event");
+                settings6
+                    .use_method_name("events")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings7 = ClientLinkSettings::new("calendars");
+                settings7
+                    .use_method_name("calendar")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings8 = ClientLinkSettings::new("calendar");
+                settings8
+                    .use_method_name("calendars")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings5, settings6, settings7, settings8]);
+                map.insert("calendarGroup".to_string(), set);
             },
             ResourceIdentity::CalendarView => {
                 let mut settings = ClientLinkSettings::new("instances");
@@ -492,10 +623,62 @@ impl ParserSettings {
                 let mut settings9 = ClientLinkSettings::new("educationMe");
                 settings9.use_method_name("education");
 
+                let mut settings10 = ClientLinkSettings::new("insights");
+                settings10
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings11 = ClientLinkSettings::new("managedDevices");
+                settings11
+                    .use_method_name("managed_device")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings12 = ClientLinkSettings::new("managedDevice");
+                settings12
+                    .use_method_name("managed_devices")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings13 = ClientLinkSettings::new("inferenceClassification");
+                settings13
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings14 = ClientLinkSettings::new("contactFolders");
+                settings14
+                    .use_method_name("contact_folder")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings15 = ClientLinkSettings::new("contactFolder");
+                settings15
+                    .use_method_name("contact_folders")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings16 = ClientLinkSettings::new("activities");
+                settings16
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings17 = ClientLinkSettings::new("settings");
+                settings17
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings18 = ClientLinkSettings::new("outlook");
+                settings18
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
                 set.extend(vec![
                     settings, settings2, settings3, settings4, settings5, settings6, settings7,
-                    settings8, settings9,
+                    settings8, settings9, settings10, settings11, settings12, settings13,
+                    settings14, settings15, settings16, settings17, settings18,
                 ]);
                 map.insert("me".to_string(), set);
             },
@@ -592,10 +775,71 @@ impl ParserSettings {
                     .with_extend_path_id()
                     .with_set_resource_identity();
 
+                let mut settings9 = ClientLinkSettings::new("insights");
+                settings9
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings10 = ClientLinkSettings::new("managedDevices");
+                settings10
+                    .use_method_name("managed_device")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings11 = ClientLinkSettings::new("managedDevice");
+                settings11
+                    .use_method_name("managed_devices")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings12 = ClientLinkSettings::new("inferenceClassification");
+                settings12
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings13 = ClientLinkSettings::new("contactFolders");
+                settings13
+                    .use_method_name("contact_folder")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings14 = ClientLinkSettings::new("contactFolder");
+                settings14
+                    .use_method_name("contact_folders")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings15 = ClientLinkSettings::new("activities");
+                settings15
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings16 = ClientLinkSettings::new("settings");
+                settings16
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings17 = ClientLinkSettings::new("outlook");
+                settings17
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
                 set.extend(vec![
                     settings, settings2, settings3, settings4, settings5, settings6, settings7,
-                    settings8,
+                    settings8, settings9, settings10, settings11, settings12, settings13,
+                    settings14, settings15, settings16, settings17,
                 ]);
                 map.insert("users".to_string(), set);
 
@@ -619,6 +863,36 @@ impl ParserSettings {
     pub fn target_modifiers(resource_identity: ResourceIdentity) -> ModifierMap {
         let mut modify_target = ModifierMap::default();
         match resource_identity {
+            ResourceIdentity::Activities => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.ListActivities".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("activities".to_string()),
+                        MatchTarget::OperationId("activities.ListActivities".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetActivities".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("activities".to_string()),
+                        MatchTarget::OperationId("activities.GetActivities".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateActivities".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("activities".to_string()),
+                        MatchTarget::OperationId("activities.UpdateActivities".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.CreateActivities".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("activities".to_string()),
+                        MatchTarget::OperationId("activities.CreateActivities".to_string()),
+                    ],
+                );
+            },
             ResourceIdentity::AuditLogs => {
                 modify_target.operation_map("auditLogs.auditLogRoot", "auditLogs");
             },
@@ -766,7 +1040,6 @@ impl ParserSettings {
                 );
             },
             ResourceIdentity::ContactFolders => {
-                // me.UpdateContactFolders
                 modify_target.map.insert(
                     MatchTarget::OperationId("me.GetContactFolders".to_string()),
                     vec![
@@ -779,6 +1052,36 @@ impl ParserSettings {
                     vec![
                         MatchTarget::OperationMap("contactFolders".to_string()),
                         MatchTarget::OperationId("contactFolders.UpdateContactFolders".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::Contacts => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetContacts".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("contacts".to_string()),
+                        MatchTarget::OperationId("contacts.GetContacts".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateContacts".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("contacts".to_string()),
+                        MatchTarget::OperationId("contacts.UpdateContacts".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.ListContacts".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("contacts".to_string()),
+                        MatchTarget::OperationId("contacts.ListContacts".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.CreateContacts".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("contacts".to_string()),
+                        MatchTarget::OperationId("contacts.CreateContacts".to_string()),
                     ],
                 );
             },
@@ -964,6 +1267,42 @@ impl ParserSettings {
                     ],
                 );
             },
+            ResourceIdentity::InferenceClassification => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetInferenceClassification".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("inferenceClassification".to_string()),
+                        MatchTarget::OperationId(
+                            "inferenceClassification.GetInferenceClassification".to_string(),
+                        ),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateInferenceClassification".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("inferenceClassification".to_string()),
+                        MatchTarget::OperationId(
+                            "inferenceClassification.UpdateInferenceClassification".to_string(),
+                        ),
+                    ],
+                );
+            },
+            ResourceIdentity::Insights => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetInsights".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("insights".to_string()),
+                        MatchTarget::OperationId("insights.GetInsights".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateInsights".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("insights".to_string()),
+                        MatchTarget::OperationId("insights.UpdateInsights".to_string()),
+                    ],
+                );
+            },
             ResourceIdentity::Items => {
                 modify_target.map.insert(
                     MatchTarget::OperationId("sites.lists.ListItems".to_string()),
@@ -1010,6 +1349,36 @@ impl ParserSettings {
                     ],
                 );
             },
+            ResourceIdentity::ManagedDevices => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetManagedDevices".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("managedDevices".to_string()),
+                        MatchTarget::OperationId("managedDevices.GetManagedDevices".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateManagedDevices".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("managedDevices".to_string()),
+                        MatchTarget::OperationId("managedDevices.UpdateManagedDevices".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetManagedDevices".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("managedDevices".to_string()),
+                        MatchTarget::OperationId("managedDevices.GetManagedDevices".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateManagedDevices".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("managedDevices".to_string()),
+                        MatchTarget::OperationId("managedDevices.UpdateManagedDevices".to_string()),
+                    ],
+                );
+            },
             ResourceIdentity::Me => {
                 // me.user.GetUser
                 modify_target.map.insert(
@@ -1029,6 +1398,22 @@ impl ParserSettings {
                 modify_target.map.insert(
                     MatchTarget::OperationMap("me.user".to_string()),
                     vec![MatchTarget::OperationMap("me".to_string())],
+                );
+            },
+            ResourceIdentity::Outlook => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetOutlook".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("outlook".to_string()),
+                        MatchTarget::OperationId("outlook.GetOutlook".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateOutlook".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("outlook".to_string()),
+                        MatchTarget::OperationId("outlook.UpdateOutlook".to_string()),
+                    ],
                 );
             },
             ResourceIdentity::Planner => {
@@ -1060,6 +1445,23 @@ impl ParserSettings {
                     vec![MatchTarget::OperationMap(
                         "teams.primaryChannel.primaryChannelTabs".to_string(),
                     )],
+                );
+            },
+            ResourceIdentity::Settings => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetSettings".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("settings".to_string()),
+                        MatchTarget::OperationId("settings.GetSettings".to_string()),
+                    ],
+                );
+
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateSettings".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("settings".to_string()),
+                        MatchTarget::OperationId("settings.UpdateSettings".to_string()),
+                    ],
                 );
             },
             _ => {},

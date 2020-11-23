@@ -24,6 +24,7 @@ where
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Event);
         EventRequest::new(self.client)
     }
     pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
@@ -124,6 +125,20 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::CalendarViews);
         CalendarViewsRequest::new(self.client)
+    }
+    pub fn events(&self) -> EventRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Event);
+        EventRequest::new(self.client)
+    }
+    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Events);
+        EventsRequest::new(id.as_ref(), self.client)
     }
     get!({
         doc: "# Get calendars from users",

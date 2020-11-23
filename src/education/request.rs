@@ -1,101 +1,360 @@
 use crate::client::Graph;
-use graph_http::types::{Collection, Content};
-use graph_http::{GraphResponse, IntoResponse};
-use handlebars::*;
+use graph_http::types::Collection;
+use graph_http::types::Content;
+use graph_http::GraphResponse;
+use graph_http::IntoResponse;
 use reqwest::Method;
 
+register_client!(ClassesRequest,);
 register_client!(EducationRequest,);
-register_client!(EducationClassesRequest,
-    edc => "education/classes",
-);
-register_client!(EducationUsersRequest,);
-register_client!(EducationMeRequest,);
-register_client!(EducationSchoolsRequest,
-    eds => "education/schools",
-);
+register_client!(EducationRootRequest,);
+register_client!(MeRequest,);
+register_client!(SchoolsRequest,);
+register_client!(UsersRequest,);
+
+impl<'a, Client> ClassesRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    get!({
+        doc: "# Get group from education",
+        name: get_group,
+        response: serde_json::Value,
+        path: "/education/classes/{{id}}/group",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get members from education",
+        name: list_members,
+        response: Collection<serde_json::Value>,
+        path: "/education/classes/{{id}}/members",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get members from education",
+        name: get_members,
+        response: serde_json::Value,
+        path: "/education/classes/{{id}}/members/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    get!({
+        doc: "# Get schools from education",
+        name: list_schools,
+        response: Collection<serde_json::Value>,
+        path: "/education/classes/{{id}}/schools",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get schools from education",
+        name: get_schools,
+        response: serde_json::Value,
+        path: "/education/classes/{{id}}/schools/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    get!({
+        doc: "# Get teachers from education",
+        name: list_teachers,
+        response: Collection<serde_json::Value>,
+        path: "/education/classes/{{id}}/teachers",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get teachers from education",
+        name: get_teachers,
+        response: serde_json::Value,
+        path: "/education/classes/{{id}}/teachers/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+}
 
 impl<'a, Client> EducationRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!( get_education_root, serde_json::Value => "/education");
-    patch!( [ update_education_root, serde_json::Value => "/education" ] );
-    get!( list_users, Collection<serde_json::Value> => "education/users" );
-    get!( list_schools, Collection<serde_json::Value> => "{{eds}}" );
-    get!( list_classes, Collection<serde_json::Value> => "{{edc}}");
-
-    pub fn classes(&self) -> EducationClassesRequest<'a, Client> {
-        EducationClassesRequest::new(&self.client)
+    pub fn classes(&self) -> ClassesRequest<'a, Client> {
+        ClassesRequest::new(self.client)
     }
-
-    pub fn schools(&self) -> EducationSchoolsRequest<'a, Client> {
-        EducationSchoolsRequest::new(&self.client)
+    pub fn education_root(&self) -> EducationRootRequest<'a, Client> {
+        EducationRootRequest::new(self.client)
     }
+    pub fn me(&self) -> MeRequest<'a, Client> {
+        MeRequest::new(self.client)
+    }
+    pub fn schools(&self) -> SchoolsRequest<'a, Client> {
+        SchoolsRequest::new(self.client)
+    }
+    pub fn users(&self) -> UsersRequest<'a, Client> {
+        UsersRequest::new(self.client)
+    }
+    get!({
+        doc: "# Get classes from education",
+        name: list_classes,
+        response: Collection<serde_json::Value>,
+        path: "/education/classes",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to classes for education",
+        name: create_classes,
+        response: serde_json::Value,
+        path: "/education/classes",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get classes from education",
+        name: get_classes,
+        response: serde_json::Value,
+        path: "/education/classes/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property classes in education",
+        name: update_classes,
+        response: GraphResponse<Content>,
+        path: "/education/classes/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get me from education",
+        name: get_me,
+        response: serde_json::Value,
+        path: "/education/me",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property me in education",
+        name: update_me,
+        response: GraphResponse<Content>,
+        path: "/education/me",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get schools from education",
+        name: list_schools,
+        response: Collection<serde_json::Value>,
+        path: "/education/schools",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to schools for education",
+        name: create_schools,
+        response: serde_json::Value,
+        path: "/education/schools",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get schools from education",
+        name: get_schools,
+        response: serde_json::Value,
+        path: "/education/schools/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property schools in education",
+        name: update_schools,
+        response: GraphResponse<Content>,
+        path: "/education/schools/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get users from education",
+        name: list_users,
+        response: Collection<serde_json::Value>,
+        path: "/education/users",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to users for education",
+        name: create_users,
+        response: serde_json::Value,
+        path: "/education/users",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get users from education",
+        name: get_users,
+        response: serde_json::Value,
+        path: "/education/users/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property users in education",
+        name: update_users,
+        response: GraphResponse<Content>,
+        path: "/education/users/{{id}}",
+        params: 1,
+        has_body: true
+    });
 }
 
-impl<'a, Client> EducationClassesRequest<'a, Client>
+impl<'a, Client> EducationRootRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!( list_classes, Collection<serde_json::Value> => "{{edc}}");
-    post!( [ create_class, serde_json::Value => "{{edc}}" ] );
-    get!( | get_class, serde_json::Value => "{{edc}}/{{id}}" );
-    patch!( [| update_class, serde_json::Value => "{{edc}}/{{id}}" ] );
-    delete!( | delete_class, GraphResponse<Content> => "{{edc}}/{{id}}" );
-    get!( | get_group, serde_json::Value => "{{edc}}/{{id}}/group" );
-    get!( | list_members, Collection<serde_json::Value> => "{{edc}}/{{id}}/members" );
-    get!( || get_member, serde_json::Value => "{{edc}}/{{id}}/members/{{id2}}" );
-    post!( [| add_member, serde_json::Value => "{{edc}}/{{id}}/members/$ref" ] );
-    delete!( || remove_member, GraphResponse<Content> => "{{edc}}/{{id}}/members/{{id2}}/$ref" );
-    get!( | list_schools, Collection<serde_json::Value> => "{{edc}}/{{id}}/schools" );
-    get!( || get_school, serde_json::Value => "{{edc}}/{{id}}/schools/{{id2}}" );
-    get!( | list_teachers, Collection<serde_json::Value> => "{{edc}}/{{id}}/teachers" );
-    get!( || get_teacher, serde_json::Value => "{{edc}}/{{id}}/teachers/{{id2}}" );
-    post!( [| add_teacher, serde_json::Value => "{{edc}}/{{id}}/teachers/$ref" ] );
-    delete!( || remove_teacher, GraphResponse<Content> => "{{edc}}/{{id}}/teachers/{{id2}}/$ref" );
+    get!({
+        doc: "# Get education",
+        name: get_education_root,
+        response: serde_json::Value,
+        path: "/education",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update education",
+        name: update_education_root,
+        response: GraphResponse<Content>,
+        path: "/education",
+        params: 0,
+        has_body: true
+    });
 }
 
-impl<'a, Client> EducationSchoolsRequest<'a, Client>
+impl<'a, Client> MeRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!( | list_classes, Collection<serde_json::Value> => "{{eds}}/{{id}}/classes" );
-    get!( || get_class, serde_json::Value => "{{eds}}/{{id}}/classes/{{id2}}" );
-    delete!( || remove_class, GraphResponse<Content> => "{{eds}}/{{id}}/classes/{{id2}}/$ref" );
-    get!( | list_users, Collection<serde_json::Value> => "{{eds}}/{{id}}/users" );
-    get!( || get_user, serde_json::Value => "{{eds}}/{{id}}/users/{{id2}}" );
-    post!( [| create_user, serde_json::Value => "{{eds}}/{{id}}/users/$ref" ] );
-    get!( list_schools, Collection<serde_json::Value> => "{{eds}}" );
-    post!( [ create_school, serde_json::Value => "{{eds}}" ] );
-    get!( | get_school, serde_json::Value => "{{eds}}/{{id}}" );
-    patch!( [| update_school, serde_json::Value => "{{eds}}/{{id}}" ] );
-    delete!( | delete_school, GraphResponse<Content> => "{{eds}}/{{id}}" );
+    get!({
+        doc: "# Get classes from education",
+        name: list_classes,
+        response: Collection<serde_json::Value>,
+        path: "/education/me/classes",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get classes from education",
+        name: get_classes,
+        response: serde_json::Value,
+        path: "/education/me/classes/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get schools from education",
+        name: list_schools,
+        response: Collection<serde_json::Value>,
+        path: "/education/me/schools",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get schools from education",
+        name: get_schools,
+        response: serde_json::Value,
+        path: "/education/me/schools/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get user from education",
+        name: get_user,
+        response: serde_json::Value,
+        path: "/education/me/user",
+        params: 0,
+        has_body: false
+    });
 }
 
-impl<'a, Client> EducationUsersRequest<'a, Client>
+impl<'a, Client> SchoolsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!( list_classes, Collection<serde_json::Value> => "education/users/{{RID}}/classes" );
-    get!( | get_class, serde_json::Value => "education/users/{{RID}}/classes/{{id2}}" );
-    get!( list_schools, Collection<serde_json::Value> => "education/users/{{RID}}/schools" );
-    get!( | get_school, serde_json::Value => "education/users/{{RID}}/schools/{{id2}}" );
-    get!( get_user, serde_json::Value => "education/users/{{RID}/user" );
-    get!( list_users, Collection<serde_json::Value> => "education/users" );
-    post!( [ create_user, serde_json::Value => "education/users" ] );
-    get!( get_users, serde_json::Value => "education/users/{{RID}}" );
-    patch!( [ update_user, serde_json::Value => "education/users/{{RID}}" ] );
+    get!({
+        doc: "# Get classes from education",
+        name: list_classes,
+        response: Collection<serde_json::Value>,
+        path: "/education/schools/{{id}}/classes",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get classes from education",
+        name: get_classes,
+        response: serde_json::Value,
+        path: "/education/schools/{{id}}/classes/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    get!({
+        doc: "# Get users from education",
+        name: list_users,
+        response: Collection<serde_json::Value>,
+        path: "/education/schools/{{id}}/users",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get users from education",
+        name: get_users,
+        response: serde_json::Value,
+        path: "/education/schools/{{id}}/users/{{id2}}",
+        params: 2,
+        has_body: false
+    });
 }
 
-impl<'a, Client> EducationMeRequest<'a, Client>
+impl<'a, Client> UsersRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!( get_me, serde_json::Value => "education/me" );
-    patch!( [ update_me, serde_json::Value => "education/me" ] );
-    get!( list_classes, Collection<serde_json::Value> => "education/me/classes" );
-    get!( | get_class, serde_json::Value => "education/me/classes/{{id}}" );
-    get!( list_schools, Collection<serde_json::Value> => "education/me/schools" );
-    get!( | get_school, serde_json::Value => "education/me/schools/{{id}}" );
-    get!( get_user, serde_json::Value => "education/me/user" );
+    get!({
+        doc: "# Get classes from education",
+        name: list_classes,
+        response: Collection<serde_json::Value>,
+        path: "/education/users/{{id}}/classes",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get classes from education",
+        name: get_classes,
+        response: serde_json::Value,
+        path: "/education/users/{{id}}/classes/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    get!({
+        doc: "# Get schools from education",
+        name: list_schools,
+        response: Collection<serde_json::Value>,
+        path: "/education/users/{{id}}/schools",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get schools from education",
+        name: get_schools,
+        response: serde_json::Value,
+        path: "/education/users/{{id}}/schools/{{id2}}",
+        params: 2,
+        has_body: false
+    });
+    get!({
+        doc: "# Get user from education",
+        name: get_user,
+        response: serde_json::Value,
+        path: "/education/users/{{id}}/user",
+        params: 1,
+        has_body: false
+    });
 }

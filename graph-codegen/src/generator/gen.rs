@@ -5,6 +5,7 @@ use crate::parser::filter::Filter;
 use crate::parser::{Parse, Parser, ParserBuilder, ParserSettings, ParserSpec, PathMap};
 use from_as::FromFile;
 use graph_core::resource::ResourceIdentity;
+use rayon::prelude::*;
 use reqwest::Url;
 use std::cell::RefCell;
 use std::convert::TryFrom;
@@ -14,9 +15,39 @@ static API_V1_METADATA_URL_STR: &str = "https://raw.githubusercontent.com/micros
 
 lazy_static! {
     static ref API_V1_METADATA_URL: reqwest::Url =
-        reqwest::Url::parse(API_V1_METADATA_URL.as_ref()).unwrap();
+        reqwest::Url::parse(API_V1_METADATA_URL_STR.as_ref()).unwrap();
 }
 
+pub trait Generate<Clients> {
+    fn generate(clients: Clients) -> Result<(), ParseError>;
+}
+
+/// Generate the Graph API clients.
+///
+/// # Example
+/// ```rust,ignore
+/// use graph_codegen::generator::{Generator, Generate};
+/// use graph_core::resource::ResourceIdentity;
+///
+/// Generator::generate(vec![
+///     ResourceIdentity::Users,
+///     ResourceIdentity::Me,
+///     ResourceIdentity::Calendar,
+///     ResourceIdentity::CalendarGroups
+/// ]).unwrap();
+/// ```
+///
+/// Not all clients in the ResourceIdentity enum can be generated. To see which
+/// clients can be used to generate the API see ClientResource::try_from for
+/// ResourceIdentity.
+/// # Example
+/// ```
+/// # use graph_codegen::parser::client_resource::ClientResource;
+/// # use std::convert::TryFrom;
+/// # use graph_core::resource::ResourceIdentity;
+/// let client_resource = ClientResource::try_from(ResourceIdentity::Users).unwrap();
+/// println!("{:#?}", client_resource);
+/// ```
 #[derive(Default, Debug)]
 pub struct Generator {
     builder: Builder,
@@ -36,7 +67,7 @@ impl Generator {
         ClientResource::try_from(resource_identity).ok()
     }
 
-    pub fn generate(&self) {
+    pub fn generate_clients(&self) {
         self.builder.build_clients();
     }
 }
@@ -149,5 +180,25 @@ impl Parse<reqwest::Url> for Generator {
                 Ok(builder)
             },
         }
+    }
+}
+
+impl Generate<ResourceIdentity> for Generator {
+    fn generate(resource_identity: ResourceIdentity) -> Result<(), ParseError> {
+        let client_resource = ClientResource::try_from(resource_identity)?;
+        let gen = Generator {
+            builder: Generator::parse(API_V1_METADATA_URL.clone(), client_resource)?,
+        };
+        gen.builder.build_clients();
+        Ok(())
+    }
+}
+
+impl Generate<Vec<ResourceIdentity>> for Generator {
+    fn generate(vec: Vec<ResourceIdentity>) -> Result<(), ParseError> {
+        vec.par_iter().for_each(|resource_identity| {
+            Generator::generate(resource_identity.clone());
+        });
+        Ok(())
     }
 }
