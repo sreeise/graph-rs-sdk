@@ -285,15 +285,6 @@ impl<'a, Client> Identify<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    fn set_path(&self, id: &str) {
-        let ident = self.client.ident();
-        if self.client.ident().eq(&ResourceIdentity::Me) {
-            self.client.request().extend_path(&[ident.as_ref()]);
-        } else {
-            self.client.request().extend_path(&[ident.as_ref(), id]);
-        }
-    }
-
     pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Activities);
         ActivitiesRequest::new(self.client)
@@ -368,15 +359,15 @@ where
         DomainsRequest::new(self.client)
     }
 
-    pub fn drive(&self) -> DriveRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Drives);
+    pub fn drives(&self) -> DriveRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Drive);
         DriveRequest::new(self.client)
     }
 
-    pub fn drives<S: AsRef<str>>(&self, id: S) -> DrivesRequest<'a, Client> {
+    pub fn drive<S: AsRef<str>>(&self, id: S) -> DrivesRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Drives);
-        self.set_path(id.as_ref());
-        DrivesRequest::new(self.client)
+        self.client.request.extend_path(&["drives", id.as_ref()]);
+        DrivesRequest::new(id.as_ref(), self.client)
     }
 
     pub fn education(&self) -> EducationRequest<'a, Client> {

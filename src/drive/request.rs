@@ -18,7 +18,7 @@ register_client!(DriveListRequest,);
 register_client!(DriveListItemsRequest,);
 register_client!(DriveVersionsRequest,);
 register_client!(
-    DrivesRequest,
+    () DrivesRequest,
     drive_item => "drive/items", "items", ResourceIdentity::Drives,
     drive_root => "drive", "", ResourceIdentity::Drives,
     drive_root_path => "drive/root", "root", ResourceIdentity::Drives,
@@ -321,7 +321,11 @@ where
         IntoResponse::new(&self.client.request)
     }
 
-    pub fn upload_session<S: AsRef<str>, P: AsRef<Path> + Send + Sync, B: serde::Serialize>(
+    pub fn create_upload_session<
+        S: AsRef<str>,
+        P: AsRef<Path> + Send + Sync,
+        B: serde::Serialize,
+    >(
         &'a self,
         id: S,
         file: P,
@@ -528,15 +532,8 @@ where
     Client: graph_http::RequestClient,
 {
     pub fn id<ID: AsRef<str>>(&self, id: ID) -> DrivesRequest<'a, Client> {
-        let ident = self.client.ident();
-        if self.client.ident().eq(&ResourceIdentity::Me) {
-            self.client.request().extend_path(&[ident.as_ref()]);
-        } else {
-            self.client
-                .request()
-                .extend_path(&[ident.as_ref(), id.as_ref()]);
-        }
-        DrivesRequest::new(self.client)
+        self.client.request.set_ident(ResourceIdentity::Drives);
+        DrivesRequest::new(id.as_ref(), self.client)
     }
 
     pub fn list(&self) -> DriveListRequest<'a, Client> {
