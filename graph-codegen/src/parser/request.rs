@@ -83,6 +83,7 @@ pub enum ResponseType {
     NoContent,
     Delta,
     UploadSession,
+    VecU8,
 }
 
 impl ResponseType {
@@ -93,6 +94,7 @@ impl ResponseType {
             ResponseType::NoContent => "GraphResponse<Content>",
             ResponseType::SerdeJson => "serde_json::Value",
             ResponseType::UploadSession => "UploadSessionClient<Client>",
+            ResponseType::VecU8 => "Vec<u8>",
         }
     }
 
@@ -111,6 +113,8 @@ impl ResponseType {
             },
             ResponseType::UploadSession => {
                 set.insert("graph_http::UploadSessionClient".into());
+                set.insert("std::path::Path".into());
+                set.insert("graph_error::GraphFailure".into());
             },
             _ => {},
         }
@@ -135,6 +139,33 @@ impl Default for ResponseType {
     PartialEq,
     Hash,
     Debug,
+    Copy,
+    Clone,
+    Serialize,
+    Deserialize,
+    Ord,
+    PartialOrd,
+    FromFile,
+    AsFile,
+)]
+pub enum RequestType {
+    Normal,
+    Upload,
+    UploadSession,
+    Download,
+}
+
+impl Default for RequestType {
+    fn default() -> Self {
+        RequestType::Normal
+    }
+}
+
+#[derive(
+    Eq,
+    PartialEq,
+    Hash,
+    Debug,
     Default,
     Clone,
     Serialize,
@@ -150,6 +181,7 @@ pub struct Request {
     pub method_name: String,
     pub param_size: usize,
     pub has_body: bool,
+    pub request_type: RequestType,
     pub has_rid: bool,
     pub response: ResponseType,
     pub tag: String,
