@@ -1,5 +1,5 @@
 use crate::builder::{ClientLinkSettings, RegisterClient};
-use crate::parser::{Request, RequestMap};
+use crate::parser::{Request, RequestMap, RequestType};
 use bytes::{BufMut, BytesMut};
 use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet};
@@ -21,7 +21,6 @@ impl Client {
             is_ident_client: false,
         }
     }
-
     pub fn insert_client_link(&mut self, client_link: ClientLinkSettings) {
         self.client_links.insert(client_link);
     }
@@ -54,6 +53,10 @@ impl Client {
         self.client_links
             .iter()
             .find(|link_settings| link_settings.name().eq(name))
+    }
+
+    pub fn extend_methods(&mut self, methods: BTreeSet<RequestMap>) {
+        self.methods.extend(methods);
     }
 }
 
@@ -107,26 +110,77 @@ impl ClientBuilder {
 
     fn request(&self, request: &Request) -> String {
         if let Some(doc_comment) = request.doc.as_ref() {
-            format!(
-                "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {}\n\t}});",
-                request.method.as_ref(),
-                doc_comment,
-                request.method_name.as_str(),
-                request.response.as_str(),
-                request.path.as_str(),
-                request.param_size,
-                request.has_body
-            )
+            // TODO: Download macros
+            match request.request_type {
+                RequestType::Normal | RequestType::Download  => {
+                    format!(
+                        "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {}\n\t}});",
+                        request.method.as_ref(),
+                        doc_comment,
+                        request.method_name.as_str(),
+                        request.response.as_str(),
+                        request.path.as_str(),
+                        request.param_size,
+                        request.has_body
+                    )
+                }
+                RequestType::Upload => {
+                    format!(
+                        "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\tupload: true\n\t}});",
+                        request.method.as_ref(),
+                        doc_comment,
+                        request.method_name.as_str(),
+                        request.response.as_str(),
+                        request.path.as_str(),
+                        request.param_size,
+                    )
+                }
+                RequestType::UploadSession => {
+                    format!(
+                        "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {},\n\t\tupload_session: true\n\t}});",
+                        request.method.as_ref(),
+                        doc_comment,
+                        request.method_name.as_str(),
+                        request.path.as_str(),
+                        request.param_size,
+                        request.has_body
+                    )
+                }
+            }
         } else {
-            format!(
-                "\n\t{}!({{\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {}\n\t}});",
-                request.method.as_ref(),
-                request.method_name.as_str(),
-                request.response.as_str(),
-                request.path.as_str(),
-                request.param_size,
-                request.has_body
-            )
+            match request.request_type {
+                RequestType::Normal | RequestType::Download => {
+                    format!(
+                        "\n\t{}!({{\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {}\n\t}});",
+                        request.method.as_ref(),
+                        request.method_name.as_str(),
+                        request.response.as_str(),
+                        request.path.as_str(),
+                        request.param_size,
+                        request.has_body
+                    )
+                }
+                RequestType::Upload => {
+                    format!(
+                        "\n\t{}!({{\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\tupload: true\n\t}});",
+                        request.method.as_ref(),
+                        request.method_name.as_str(),
+                        request.response.as_str(),
+                        request.path.as_str(),
+                        request.param_size,
+                    )
+                }
+                RequestType::UploadSession => {
+                    format!(
+                        "\n\t{}!({{\n\t\tname: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {},\n\t\tupload_session: true\n\t}});",
+                        request.method.as_ref(),
+                        request.method_name.as_str(),
+                        request.path.as_str(),
+                        request.param_size,
+                        request.has_body
+                    )
+                }
+            }
         }
     }
 

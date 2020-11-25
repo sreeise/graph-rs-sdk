@@ -32,6 +32,7 @@ pub struct ParserSpec {
     pub(crate) links_override: HashMap<String, Vec<String>>,
     pub(crate) secondary_links: HashMap<String, Vec<String>>,
     pub(crate) client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
+    pub(crate) custom_methods: Option<HashMap<String, RequestSet>>,
 }
 
 impl ParserSpec {
@@ -48,6 +49,7 @@ impl ParserSpec {
             links_override: Default::default(),
             secondary_links: HashMap::with_capacity(10),
             client_links: Default::default(),
+            custom_methods: Default::default(),
         }
     }
 
@@ -140,6 +142,7 @@ impl Parser {
                 links_override: Default::default(),
                 secondary_links: HashMap::with_capacity(10),
                 client_links: Default::default(),
+                custom_methods: Default::default(),
             }),
         }
     }
@@ -185,6 +188,10 @@ impl Parser {
 
     pub fn client_links(&self) -> BTreeMap<String, BTreeSet<ClientLinkSettings>> {
         self.spec.borrow().client_links.clone()
+    }
+
+    pub fn custom_methods(&self) -> Option<HashMap<String, RequestSet>> {
+        self.spec.borrow().custom_methods.clone()
     }
 
     pub fn set_operation_map(&self, operation_map: HashMap<String, String>) {
@@ -278,6 +285,8 @@ impl Parser {
             spec.secondary_modify_target
                 .secondary_targets
                 .extend(secondary_modifiers.secondary_targets);
+
+            spec.custom_methods = ParserSettings::custom_methods(resource_identity);
 
             println!("{:#?}", &spec.modify_target);
         }

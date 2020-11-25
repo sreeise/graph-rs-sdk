@@ -9,14 +9,14 @@ use std::collections::{HashMap, VecDeque};
 use std::marker::PhantomData;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
 pub enum FilterIgnore<'a> {
     PathContains(&'a str),
     PathContainsMulti(Vec<&'a str>),
     PathStartsWith(&'a str),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
 pub enum Filter<'a> {
     None,
     PathStartsWith(&'a str),

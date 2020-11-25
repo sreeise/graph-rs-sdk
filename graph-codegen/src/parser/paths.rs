@@ -1,5 +1,5 @@
 use crate::parser::filter::*;
-use crate::parser::{HttpMethod, Request, ResponseType};
+use crate::parser::{HttpMethod, Request, RequestType, ResponseType};
 use crate::traits::{RequestParser, RequestParserBuilder};
 use from_as::*;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
@@ -216,6 +216,10 @@ impl RequestParserBuilder for Operation {
             request.response = ResponseType::Delta;
         } else if request.method_name.eq("create_upload_session") {
             request.response = ResponseType::UploadSession;
+        }
+
+        if request.response.eq(&ResponseType::UploadSession) {
+            request.request_type = RequestType::UploadSession;
         }
 
         if let Some(tag) = self.tags.get(0) {

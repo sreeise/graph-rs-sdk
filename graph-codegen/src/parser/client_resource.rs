@@ -2,7 +2,7 @@ use crate::parser::filter::Filter;
 use from_as::TryFrom;
 use graph_core::resource::ResourceIdentity;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum ClientResource<'a> {
     Main {
         modifier: String,
@@ -44,11 +44,13 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 secondary_name: "calendarGroups".to_string(),
                 modifier: "calendarGroups".to_string(),
             }),
-            ResourceIdentity::CalendarView => Ok(ClientResource::Secondary {
-                start_filter: Filter::PathStartsWith("/me/calendarView"),
-                secondary_name: "calendarView".to_string(),
-                modifier: "calendarView".to_string(),
-            }),
+            ResourceIdentity::CalendarView | ResourceIdentity::CalendarViews => {
+                Ok(ClientResource::Secondary {
+                    start_filter: Filter::PathStartsWith("/me/calendarView"),
+                    secondary_name: "calendarView".to_string(),
+                    modifier: "calendarView".to_string(),
+                })
+            },
             ResourceIdentity::ContactFolders => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/me/contactFolders"),
                 secondary_name: "contactFolders".to_string(),
@@ -107,6 +109,9 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 start_filter: Filter::PathStartsWith("/me/outlook"),
                 secondary_name: "outlook".to_string(),
                 modifier: "outlook".to_string(),
+            }),
+            ResourceIdentity::Planner => Ok(ClientResource::Main {
+                modifier: "planner".to_string(),
             }),
             ResourceIdentity::Sites => Ok(ClientResource::Main {
                 modifier: "sites".to_string(),

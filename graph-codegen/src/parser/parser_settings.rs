@@ -2,8 +2,13 @@ use crate::builder::ClientLinkSettings;
 use crate::parser::filter::{
     Filter, FilterIgnore, MatchTarget, ModifierMap, SecondaryModifierMap, UrlMatchTarget,
 };
+use crate::parser::ResponseType::Collection;
+use crate::parser::{
+    HttpMethod, Request, RequestMap, RequestSet, RequestType, ResourceNames, ResponseType,
+};
 use graph_core::resource::ResourceIdentity;
-use std::collections::{BTreeMap, BTreeSet};
+use inflector::Inflector;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub struct ParserSettings;
 
@@ -57,6 +62,7 @@ impl ParserSettings {
                 "crate::activities::ActivitiesRequest",
                 "crate::settings::SettingsRequest",
                 "crate::outlook::OutlookRequest",
+                "crate::drive::{DriveRequest, DrivesRequest}",
                 "crate::core::ResourceIdentity",
             ],
             ResourceIdentity::Users => vec![
@@ -72,6 +78,7 @@ impl ParserSettings {
                 "crate::activities::ActivitiesRequest",
                 "crate::settings::SettingsRequest",
                 "crate::outlook::OutlookRequest",
+                "crate::drive::{DriveRequest, DrivesRequest}",
                 "crate::core::ResourceIdentity",
             ],
             _ => vec![],
@@ -82,7 +89,6 @@ impl ParserSettings {
         vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
             "singleValueExtendedProperties",
             "multiValueExtendedProperties",
-            "planner",
             // These are basically like OData queries and look like getByPath(path={path})
             // but we dont currently handle these so they are ignored. The get activities
             // by interval is used the most in these situations.
@@ -197,6 +203,226 @@ impl ParserSettings {
         }
     }
 
+    pub fn custom_methods(
+        resource_identity: ResourceIdentity,
+    ) -> Option<HashMap<String, RequestSet>> {
+        let vec = {
+            match resource_identity {
+                ResourceIdentity::Drives => vec![
+                    Request {
+                        path: "/children".to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "list_children".to_string(),
+                        param_size: 0,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::Collection,
+                        tag: Default::default(),
+                        operation_id: "drives.ListChildren".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}/activities".to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "get_activities".to_string(),
+                        param_size: 0,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::Collection,
+                        tag: Default::default(),
+                        operation_id: "drives.GetActivities".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}".to_string(),
+                        method: HttpMethod::PATCH,
+                        method_name: "update_item".to_string(),
+                        param_size: 1,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::SerdeJson,
+                        tag: Default::default(),
+                        operation_id: "drives.UpdateItem".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}".to_string(),
+                        method: HttpMethod::DELETE,
+                        method_name: "delete_item".to_string(),
+                        param_size: 1,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::NoContent,
+                        tag: Default::default(),
+                        operation_id: "drives.DeleteItem".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}/children".to_string(),
+                        method: HttpMethod::POST,
+                        method_name: "create_folder".to_string(),
+                        param_size: 1,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::NoContent,
+                        tag: Default::default(),
+                        operation_id: "drives.CreateFolder".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}/copy".to_string(),
+                        method: HttpMethod::POST,
+                        method_name: "copy".to_string(),
+                        param_size: 1,
+                        has_body: true,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::NoContent,
+                        tag: Default::default(),
+                        operation_id: "drives.Copy".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}/thumbnails/{{id2]}/{{id3}}".to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "get_thumbnail".to_string(),
+                        param_size: 3,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::NoContent,
+                        tag: Default::default(),
+                        operation_id: "drives.GetThumbnail".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}/thumbnails/{{id2]}/{{id3}}/content"
+                            .to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "get_thumbnail_binary".to_string(),
+                        param_size: 3,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::NoContent,
+                        tag: Default::default(),
+                        operation_id: "drives.GetThumbnailBinary".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    // TODO: Setting files as the body in a request macro
+                    Request {
+                        path: "/{{drive_item}}/{{id}}/content".to_string(),
+                        method: HttpMethod::PUT,
+                        method_name: "upload_replace".to_string(),
+                        param_size: 1,
+                        has_body: false,
+                        request_type: RequestType::Upload,
+                        has_rid: false,
+                        response: ResponseType::SerdeJson,
+                        tag: Default::default(),
+                        operation_id: "drives.UploadReplace".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}/content".to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "get_item_content".to_string(),
+                        param_size: 1,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::SerdeJson,
+                        tag: Default::default(),
+                        operation_id: "drives.GetItemContent".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}".to_string(),
+                        method: HttpMethod::POST,
+                        method_name: "move_item".to_string(),
+                        param_size: 1,
+                        has_body: true,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::SerdeJson,
+                        tag: Default::default(),
+                        operation_id: "drives.MoveItem".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    // TODO: Requests that need to set the file name in the path - see drive upload new
+                    /*
+                    Request {
+                         path: "/{{drive_item}}/{{id}}:/{{file_name}}:/content".to_string(),
+                         method: HttpMethod::PUT,
+                         method_name: "upload_new".to_string(),
+                         param_size: 2,
+                         has_body: false,
+                         request_type: RequestType::Normal,
+                         has_rid: false,
+                         response: ResponseType::SerdeJson,
+                         tag: Default::default(),
+                         operation_id: "drives.UploadNew".to_string(),
+                         operation_mapping: "drives".to_string(),
+                         doc: None
+                     },
+                      */
+
+                    // TODO: Requests that need other headers - See drives preview, checkout
+                    /*
+                    Request {
+                         path: "/{{drive_item}}/{{id}}/preview".to_string(),
+                         method: HttpMethod::POST,
+                         method_name: "preview".to_string(),
+                         param_size: 1,
+                         has_body: true,
+                         request_type: RequestType::Normal,
+                         has_rid: false,
+                         response: ResponseType::SerdeJson,
+                         tag: Default::default(),
+                         operation_id: "drives.Preview".to_string(),
+                         operation_mapping: "drives".to_string(),
+                         doc: None
+                     },
+                     */
+                ],
+                _ => vec![],
+            }
+        };
+
+        if vec.is_empty() {
+            None
+        } else {
+            let mut request_set = RequestSet::default();
+
+            for request in vec {
+                let mut request_map = RequestMap::default();
+                request_map.path = request.path.clone();
+                request_map.requests.push_back(request);
+                request_set.join_inner_insert(request_map);
+            }
+
+            let mut map = HashMap::new();
+            map.insert(resource_identity.to_string().to_camel_case(), request_set);
+            Some(map)
+        }
+    }
+
     // Secondary links and modifiers. These are api's that are used multiple times
     // such as calendars and calendar groups where we might have two resources
     // such as groups and users with the same ending path:
@@ -248,6 +474,10 @@ impl ParserSettings {
                 map.insert(
                     "me.calendarView",
                     MatchTarget::OperationId("calendarViews".to_string()),
+                );
+                map.insert(
+                    "me.calendarView",
+                    MatchTarget::OperationMap("calendarViews".to_string()),
                 );
             },
             ResourceIdentity::ContactFolders => {
@@ -387,8 +617,19 @@ impl ParserSettings {
                 let mut settings3 = ClientLinkSettings::new("calendars");
                 settings3.as_id_method_link();
 
+                let mut settings4 = ClientLinkSettings::new("calendarView");
+                settings4
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings5 = ClientLinkSettings::new("calendarViews");
+                settings5
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
-                set.extend(vec![settings, settings2, settings3]);
+                set.extend(vec![settings, settings2, settings3, settings4, settings5]);
                 map.insert("calendar".to_string(), set);
 
                 let mut settings4 = ClientLinkSettings::new("calendarView");
@@ -488,7 +729,7 @@ impl ParserSettings {
                 set.extend(vec![settings5, settings6, settings7, settings8]);
                 map.insert("calendarGroup".to_string(), set);
             },
-            ResourceIdentity::CalendarView => {
+            ResourceIdentity::CalendarView | ResourceIdentity::CalendarViews => {
                 let mut settings = ClientLinkSettings::new("instances");
                 settings
                     .use_method_name("instance")
@@ -674,11 +915,24 @@ impl ParserSettings {
                     .with_extend_path_ident()
                     .with_set_resource_identity();
 
+                let mut settings19 = ClientLinkSettings::new("drives");
+                settings19
+                    .use_method_name("drive")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings20 = ClientLinkSettings::new("drive");
+                settings20
+                    .use_method_name("drives")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
                 set.extend(vec![
                     settings, settings2, settings3, settings4, settings5, settings6, settings7,
                     settings8, settings9, settings10, settings11, settings12, settings13,
-                    settings14, settings15, settings16, settings17, settings18,
+                    settings14, settings15, settings16, settings17, settings18, settings19,
+                    settings20,
                 ]);
                 map.insert("me".to_string(), set);
             },
@@ -835,11 +1089,25 @@ impl ParserSettings {
                     .with_extend_path_id()
                     .with_set_resource_identity();
 
+                let mut settings18 = ClientLinkSettings::new("drives");
+                settings18
+                    .use_method_name("drive")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings19 = ClientLinkSettings::new("drive");
+                settings19
+                    .use_method_name("drives")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
                 set.extend(vec![
                     settings, settings2, settings3, settings4, settings5, settings6, settings7,
                     settings8, settings9, settings10, settings11, settings12, settings13,
-                    settings14, settings15, settings16, settings17,
+                    settings14, settings15, settings16, settings17, settings18, settings19,
                 ]);
                 map.insert("users".to_string(), set);
 

@@ -1,6 +1,8 @@
 use crate::builder::{Client, ClientBuilder, ClientLinkSettings};
 use crate::parser::filter::{Filter, UrlMatchTarget};
-use crate::parser::{Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames};
+use crate::parser::{
+    ApiImpl, Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames,
+};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::IoTools;
@@ -8,6 +10,7 @@ use inflector::Inflector;
 use std::cell::{Ref, RefCell};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fs::OpenOptions;
+use std::io::{Read, Write};
 use std::str::FromStr;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -133,7 +136,15 @@ impl Builder {
     pub fn build_clients(&self) {
         let spec = self.spec.borrow();
         let map = Builder::parser_build(&spec);
+        /*
+         let api_impl = ApiImpl::from(map.clone());
+        api_impl
+            .as_file_pretty("./examples/example_files/calendar_views.yaml")
+            .unwrap();
+         */
+
         let imports = spec.imports.clone();
+        let custom_methods = spec.parser.custom_methods();
 
         for (name, request_set) in map.iter() {
             if !name.trim().is_empty() {
@@ -188,6 +199,31 @@ impl Builder {
                     });
                 }
 
+                if let Some(methods) = custom_methods.as_ref() {
+                    if let Some(request_set) = methods.get(name.as_ref()) {
+                        let request_set = request_set.clone();
+                        let methods = request_set.methods();
+
+                        for (name, methods) in methods.iter() {
+                            let client_methods: BTreeSet<RequestMap> =
+                                methods.into_iter().cloned().collect();
+
+                            clients
+                                .entry(name.to_string())
+                                .and_modify(|client| client.extend_methods(client_methods))
+                                .or_insert_with(|| {
+                                    let mut client =
+                                        Client::new(name.as_str(), client_methods.clone());
+
+                                    if spec.ident_clients.contains(name) {
+                                        client.set_ident_client(true);
+                                    }
+                                    client
+                                });
+                        }
+                    }
+                }
+
                 for (client_name, client) in clients.iter() {
                     println!("\nClient: {:#?}", client_name);
                     let client_link_settings = client.client_link_settings();
@@ -208,7 +244,6 @@ impl Builder {
         IoTools::create_dir(dir).unwrap();
 
         let mut file1 = OpenOptions::new()
-            .read(true)
             .write(true)
             .truncate(true)
             .create(true)
@@ -217,19 +252,18 @@ impl Builder {
         file1
             .write_all("mod request;\n\npub use request::*;".as_bytes())
             .unwrap();
-        file1.sync_all().unwrap();
+        file1.sync_data().unwrap();
 
         let mut buf = client_builder.build();
 
         let mut file = OpenOptions::new()
-            .read(true)
             .write(true)
             .truncate(true)
             .create(true)
             .open(&request_file)
             .unwrap();
         file.write_all(buf.as_mut()).unwrap();
-        file.sync_all().unwrap();
+        file.sync_data().unwrap();
     }
 
     pub fn build_with_modifier_filter(&self) -> HashMap<String, RequestSet> {
