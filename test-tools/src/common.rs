@@ -8,7 +8,7 @@ impl TestTools {
         use rand::Rng;
         const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                             abcdefghijklmnopqrstuvwxyz\
-                            0123456789)(*&^%$#@!~";
+                            0123456789";
         let mut rng = rand::thread_rng();
         let mut strings = Vec::new();
 
