@@ -849,13 +849,12 @@ macro_rules! register_method {
 
 #[macro_use]
 macro_rules! register_upload {
-    ( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: 0, upload: true  } ) => {
+    ( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: 0  } ) => {
       pub fn $name<P: AsRef<Path>>(&'a self, file: P) -> IntoResponse<'a, $T, Client>
       {
         let client = self.client.request();
         client.set_method($m);
         if let Err(err) = client
-            .request()
             .set_body_with_file(file.as_ref().to_path_buf())
         {
             return IntoResponse::new_error(self.client.request(), err);
@@ -870,13 +869,12 @@ macro_rules! register_upload {
       }
     };
 
-    ( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: 1, upload: true  } ) => {
+    ( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: 1  } ) => {
       pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, file: P) -> IntoResponse<'a, $T, Client>
       {
         let client = self.client.request();
         client.set_method($m);
         if let Err(err) = client
-            .request()
             .set_body_with_file(file.as_ref().to_path_buf())
         {
             return IntoResponse::new_error(self.client.request(), err);
@@ -891,14 +889,13 @@ macro_rules! register_upload {
       }
     };
 
-    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: 0, upload: true  } ) => {
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: 0  } ) => {
       #[doc = $doc]
       pub fn $name<P: AsRef<Path>>(&'a self, file: P) -> IntoResponse<'a, $T, Client>
       {
         let client = self.client.request();
         client.set_method($m);
         if let Err(err) = client
-            .request()
             .set_body_with_file(file.as_ref().to_path_buf())
         {
             return IntoResponse::new_error(self.client.request(), err);
@@ -913,14 +910,13 @@ macro_rules! register_upload {
       }
     };
 
-    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: 1, upload: true } ) => {
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: 1 } ) => {
       #[doc = $doc]
       pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, file: P) -> IntoResponse<'a, $T, Client>
       {
         let client = self.client.request();
         client.set_method($m);
         if let Err(err) = client
-            .request()
             .set_body_with_file(file.as_ref().to_path_buf())
         {
             return IntoResponse::new_error(self.client.request(), err);
