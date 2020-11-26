@@ -1,3 +1,4 @@
+use crate::core::ResourceIdentity;
 use crate::drives::DrivesRequest;
 use crate::error::{GraphFailure, GraphRsError};
 use graph_http::types::Content;
@@ -24,6 +25,19 @@ impl<'a, Client> DrivesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    pub(crate) fn transfer_identity(&self) {
+        let ident = self.client.ident();
+        if ident.eq(&ResourceIdentity::Users) ||
+            ident.eq(&ResourceIdentity::Me) ||
+            ident.eq(&ResourceIdentity::Sites) ||
+            ident.eq(&ResourceIdentity::Groups)
+        {
+            self.client
+                .request
+                .extend_path(&[ResourceIdentity::Drive.as_ref()]);
+        }
+    }
+
     pub fn check_in<S: AsRef<str>, B: serde::Serialize>(
         &'a self,
         id: S,

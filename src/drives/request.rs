@@ -62,29 +62,22 @@ where
     Client: graph_http::RequestClient,
 {
     pub fn items(&self) -> ItemRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.transfer_identity();
+        self.client.set_ident(ResourceIdentity::Items);
         ItemRequest::new(self.client)
     }
     pub fn item<ID: AsRef<str>>(&self, id: ID) -> ItemsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.transfer_identity();
         self.client.set_ident(ResourceIdentity::Items);
         ItemsRequest::new(id.as_ref(), self.client)
     }
     pub fn lists(&self) -> ListRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.transfer_identity();
         self.client.set_ident(ResourceIdentity::List);
         ListRequest::new(self.client)
     }
     pub fn list<ID: AsRef<str>>(&self, id: ID) -> ListsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.transfer_identity();
         self.client.set_ident(ResourceIdentity::Lists);
         ListsRequest::new(id.as_ref(), self.client)
     }
