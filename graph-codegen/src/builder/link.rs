@@ -10,6 +10,7 @@ pub struct ClientLinkSettings {
     has_extend_path_id: bool,
     has_extend_path_ident: bool,
     has_set_resource_identity: bool,
+    has_new_method_empty_id: bool,
     is_id_method_link: bool,
 }
 
@@ -22,6 +23,7 @@ impl ClientLinkSettings {
             has_extend_path_id: false,
             has_extend_path_ident: false,
             has_set_resource_identity: false,
+            has_new_method_empty_id: false,
             is_id_method_link: false,
         }
     }
@@ -43,6 +45,11 @@ impl ClientLinkSettings {
 
     pub fn with_set_resource_identity(&mut self) -> &mut ClientLinkSettings {
         self.has_set_resource_identity = true;
+        self
+    }
+
+    pub fn with_new_method_empty_id(&mut self) -> &mut ClientLinkSettings {
+        self.has_new_method_empty_id = true;
         self
     }
 
@@ -122,6 +129,11 @@ impl ClientLinkSettings {
 
     fn client_new_string(&self) -> String {
         let pascal_casing = self.base_struct_name();
+
+        if self.has_new_method_empty_id {
+            return format!("{}::new(\"\", self.client)\n}}", pascal_casing);
+        }
+
         if self.has_id_param || self.is_id_method_link {
             if self.is_id_method_link {
                 let camel_casing = self.name.to_camel_case();
@@ -135,7 +147,7 @@ impl ClientLinkSettings {
                 }
             }
 
-            return format!("{}::new(id.as_ref(), self.client)\n}}", pascal_casing);
+            format!("{}::new(id.as_ref(), self.client)\n}}", pascal_casing)
         } else {
             format!("{}::new(self.client)\n}}", pascal_casing)
         }

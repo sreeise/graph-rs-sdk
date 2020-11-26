@@ -55,6 +55,7 @@ impl ParserSettings {
                 "crate::core::ResourceIdentity",
                 "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
                 "crate::lists::{ListRequest, ListsRequest}",
+                "crate::drives::{DriveRequest, DrivesRequest}",
             ],
             ResourceIdentity::ManagedDevices => vec!["crate::core::ResourceIdentity"],
             ResourceIdentity::Me => vec![
@@ -181,6 +182,7 @@ impl ParserSettings {
                 "managedDevices",
                 "messages",
                 "onenote",
+                "planner",
             ]))],
             ResourceIdentity::Sites => {
                 vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
@@ -210,6 +212,7 @@ impl ParserSettings {
                     "managedDevices",
                     "messages",
                     "onenote",
+                    "planner",
                 ]))]
             },
             _ => ParserSettings::default_path_filters(),
@@ -1082,7 +1085,8 @@ impl ParserSettings {
                 settings19
                     .use_method_name("drive")
                     .with_extend_path_ident()
-                    .with_set_resource_identity();
+                    .with_new_method_empty_id()
+                    .with_new_method_empty_id();
 
                 let mut settings20 = ClientLinkSettings::new("drive");
                 settings20
@@ -1129,8 +1133,24 @@ impl ParserSettings {
                     .with_extend_path_ident()
                     .with_set_resource_identity();
 
+                let mut settings5 = ClientLinkSettings::new("drives");
+                settings5
+                    .use_method_name("drive")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_new_method_empty_id();
+
+                let mut settings6 = ClientLinkSettings::new("drive");
+                settings6
+                    .use_method_name("drives")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
-                set.extend(vec![settings, settings2, settings3, settings4]);
+                set.extend(vec![
+                    settings, settings2, settings3, settings4, settings5, settings6,
+                ]);
                 map.insert("sites".to_string(), set);
             },
             ResourceIdentity::Users => {
@@ -1257,7 +1277,7 @@ impl ParserSettings {
                     .use_method_name("drive")
                     .with_extend_path_ident()
                     .with_extend_path_id()
-                    .with_set_resource_identity();
+                    .with_new_method_empty_id();
 
                 let mut settings19 = ClientLinkSettings::new("drive");
                 settings19
