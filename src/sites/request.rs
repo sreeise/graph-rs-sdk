@@ -1,6 +1,7 @@
 use crate::client::Graph;
 use crate::content_types::{ContentTypeRequest, ContentTypesRequest};
 use crate::core::ResourceIdentity;
+use crate::drives::{DriveRequest, DrivesRequest};
 use crate::lists::{ListRequest, ListsRequest};
 use graph_http::types::Collection;
 use graph_http::types::Content;
@@ -70,6 +71,19 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::ContentTypes);
         ContentTypesRequest::new(id.as_ref(), self.client)
+    }
+    pub fn drives(&self) -> DriveRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Drive);
+        DriveRequest::new(self.client)
+    }
+    pub fn drive(&self) -> DrivesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        DrivesRequest::new("", self.client)
     }
     pub fn lists(&self) -> ListRequest<'a, Client> {
         self.client
