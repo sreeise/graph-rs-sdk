@@ -5,6 +5,7 @@ use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
 use crate::client::Graph;
 use crate::contact_folders::{ContactFolderRequest, ContactFoldersRequest};
 use crate::core::ResourceIdentity;
+use crate::drives::{DriveRequest, DrivesRequest};
 use crate::education::MeRequest as EducationMeRequest;
 use crate::events::{EventRequest, EventsRequest};
 use crate::inference_classification::InferenceClassificationRequest;
@@ -100,6 +101,18 @@ where
             .extend_path(&[self.client.ident().as_ref()]);
         self.client.set_ident(ResourceIdentity::ContactFolders);
         ContactFoldersRequest::new(id.as_ref(), self.client)
+    }
+    pub fn drives(&self) -> DriveRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        DriveRequest::new(self.client)
+    }
+    pub fn drive(&self) -> DrivesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        DrivesRequest::new("", self.client)
     }
     pub fn education(&self) -> EducationMeRequest<'a, Client> {
         EducationMeRequest::new(self.client)
