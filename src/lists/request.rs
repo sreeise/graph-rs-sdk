@@ -1,6 +1,7 @@
 use crate::client::Graph;
 use crate::content_types::{ContentTypeRequest, ContentTypesRequest};
 use crate::items::{ItemRequest, ItemsRequest};
+use graph_core::resource::ResourceIdentity;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::GraphResponse;
@@ -44,24 +45,28 @@ where
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ContentTypes);
         ContentTypeRequest::new(self.client)
     }
     pub fn content_type<ID: AsRef<str>>(&self, id: ID) -> ContentTypesRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ContentTypes);
         ContentTypesRequest::new(id.as_ref(), self.client)
     }
     pub fn items(&self) -> ItemRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Items);
         ItemRequest::new(self.client)
     }
     pub fn item<ID: AsRef<str>>(&self, id: ID) -> ItemsRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Items);
         ItemsRequest::new(id.as_ref(), self.client)
     }
     get!({
