@@ -2,12 +2,15 @@ use crate::builder::Builder;
 use crate::parser::client_resource::ClientResource;
 use crate::parser::error::ParseError;
 use crate::parser::filter::Filter;
-use crate::parser::{Parse, Parser, ParserBuilder, ParserSettings, ParserSpec, PathMap};
+use crate::parser::{
+    Parse, Parser, ParserBuilder, ParserSettings, ParserSpec, PathMap, RequestSet,
+};
 use from_as::FromFile;
 use graph_core::resource::ResourceIdentity;
 use rayon::prelude::*;
 use reqwest::Url;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::str::FromStr;
 
@@ -48,6 +51,35 @@ pub trait Generate<Clients> {
 /// let client_resource = ClientResource::try_from(ResourceIdentity::Users).unwrap();
 /// println!("{:#?}", client_resource);
 /// ```
+///
+/// You can also use the parser trait to do a more custom parsing.
+/// # Example
+/// ```rust,ignore
+/// use graph_codegen::generator::Generator;
+/// use graph_core::resource::ResourceIdentity;
+/// use graph_codegen::parser::Parse;
+/// use graph_codegen::parser::client_resource::ClientResource;
+///
+/// // The Main client resource filters requests based on the modifier given.
+/// // The modifier should be what the starting path for requests you want to
+/// // filter on. For instance, the client resource below will get all requests
+/// // who's path starts with /drives.
+/// let client_resource = ClientResource::Main { modifier: "/drives".to_string() };
+///
+/// // Add you OpenAPI for Microsoft Graph here. The file type can be one of JSON,
+/// // yaml, or toml.
+/// let path = std::path::Path::new("YOU_OPEN_API_FILE");
+///
+/// // Pass the path and client resource to the parse method. The generate_requests
+/// // method returns a HashMap<String, RequestSet> where the key is the name of
+/// // the current client (such as drives, users, me, etc.). See RequestSet for
+/// // more info. You can also use the generate_clients method to build and create
+/// // the generated rust code files. Note that the current settings can only be used
+/// // to create files in this repository.
+/// let builder = Generator::parse(path, client_resource).unwrap();
+/// let map = builder.generate_requests();
+/// pretty!(map);
+/// ```
 #[derive(Default, Debug)]
 pub struct Generator {
     builder: Builder,
@@ -65,6 +97,10 @@ impl Generator {
         resource_identity: ResourceIdentity,
     ) -> Option<ClientResource<'a>> {
         ClientResource::try_from(resource_identity).ok()
+    }
+
+    pub fn generate_requests(&self) -> HashMap<String, RequestSet> {
+        self.builder.generate_requests()
     }
 
     pub fn generate_clients(&self) {
@@ -197,7 +233,7 @@ impl Generate<ResourceIdentity> for Generator {
 impl Generate<Vec<ResourceIdentity>> for Generator {
     fn generate(vec: Vec<ResourceIdentity>) -> Result<(), ParseError> {
         vec.par_iter().for_each(|resource_identity| {
-            Generator::generate(resource_identity.clone());
+            Generator::generate(resource_identity.clone()).unwrap();
         });
         Ok(())
     }

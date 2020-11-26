@@ -106,6 +106,11 @@ impl Builder {
         self.spec.borrow().parser.filter(filter)
     }
 
+    pub fn generate_requests(&self) -> HashMap<String, RequestSet> {
+        let spec = self.spec.borrow();
+        Builder::parser_build(&spec)
+    }
+
     pub fn use_defaults(&self) {
         let mut spec = self.spec.borrow_mut();
         spec.add_imports(&[
@@ -133,21 +138,73 @@ impl Builder {
         spec.set_ident_clients(ident_clients);
     }
 
+    fn add_clients(
+        &self,
+        name: &str,
+        custom_methods: &HashMap<String, RequestSet>,
+        client_map: &mut BTreeMap<String, Client>,
+    ) {
+        if let Some(request_set) = custom_methods.get(name) {
+            let request_set = request_set.clone();
+            let methods = request_set.methods();
+
+            for (name, methods) in methods.iter() {
+                let client_methods: BTreeSet<RequestMap> = methods.into_iter().cloned().collect();
+
+                client_map
+                    .entry(name.to_string())
+                    .and_modify(|client| client.extend_methods(client_methods.clone()))
+                    .or_insert_with(|| {
+                        let mut client = Client::new(name.as_str(), client_methods.clone());
+                        client
+                    });
+            }
+        }
+    }
+
+    // Temporary workaround to deal with the differences in the path
+    // for drives when the resource comes from me, users, groups,
+    // and sites.
+    // For instance, the get_items methods for the drives resource
+    // has a path that starts with /drives/drive-id/items
+    // but the path for users is /users/user-id/drive/items
+    // The users path has drive/items while the drive path is just items.
+    fn fix_drive_methods(&self, methods: &mut Vec<RequestMap>) {
+        let mat = "/drives/{{RID}}";
+        let empty_root = "{{drive_root}}";
+        for request_map in methods {
+            if request_map.path.starts_with(mat) {
+                request_map.path = request_map.path.trim_start_matches(mat).to_string();
+
+                if request_map.path.is_empty() {
+                    request_map.path = empty_root.into();
+                }
+
+                // Doing the exact same thing with the path in request map but we can't
+                // just clone the path to the requests because we have a mutable
+                // borrow of the Vec<RequestMap> and we need an immutable borrow
+                // to clone.
+                for request in request_map.iter_mut() {
+                    request.has_rid = false;
+                    request.path = request.path.trim_start_matches(mat).to_string();
+
+                    if request.path.is_empty() {
+                        request.path = empty_root.into();
+                    }
+                }
+            }
+        }
+    }
+
     pub fn build_clients(&self) {
         let spec = self.spec.borrow();
-        let map = Builder::parser_build(&spec);
-        /*
-         let api_impl = ApiImpl::from(map.clone());
-        api_impl
-            .as_file_pretty("./examples/example_files/calendar_views.yaml")
-            .unwrap();
-         */
-
-        let imports = spec.imports.clone();
         let custom_methods = spec.parser.custom_methods();
+        let mut map = Builder::parser_build(&spec);
+        let imports = spec.imports.clone();
 
-        for (name, request_set) in map.iter() {
+        for (name, request_set) in map.iter_mut() {
             if !name.trim().is_empty() {
+                println!("Name: {}", name);
                 let mut request_set_imports = request_set.get_imports();
                 request_set_imports.extend(imports.iter().map(|s| s.to_string()));
 
@@ -166,7 +223,14 @@ impl Builder {
                 let imports: BTreeSet<String> = request_set_imports.into_iter().collect();
 
                 let struct_links = request_set.client_links();
-                let methods: BTreeMap<String, Vec<RequestMap>> = request_set.methods();
+                let mut methods: BTreeMap<String, Vec<RequestMap>> = request_set.methods();
+
+                // Temporary workaround to deal with the differences in the path
+                // for drives when the resource comes from me, users, groups,
+                // and sites.
+                for (_operation_id, request_map) in methods.iter_mut() {
+                    self.fix_drive_methods(request_map);
+                }
 
                 let mut clients: BTreeMap<String, Client> = BTreeMap::new();
                 for (name, methods) in methods.iter() {
@@ -199,29 +263,8 @@ impl Builder {
                     });
                 }
 
-                if let Some(methods) = custom_methods.as_ref() {
-                    if let Some(request_set) = methods.get(name.as_ref()) {
-                        let request_set = request_set.clone();
-                        let methods = request_set.methods();
-
-                        for (name, methods) in methods.iter() {
-                            let client_methods: BTreeSet<RequestMap> =
-                                methods.into_iter().cloned().collect();
-
-                            clients
-                                .entry(name.to_string())
-                                .and_modify(|client| client.extend_methods(client_methods))
-                                .or_insert_with(|| {
-                                    let mut client =
-                                        Client::new(name.as_str(), client_methods.clone());
-
-                                    if spec.ident_clients.contains(name) {
-                                        client.set_ident_client(true);
-                                    }
-                                    client
-                                });
-                        }
-                    }
+                if let Some(custom_methods) = custom_methods.as_ref() {
+                    self.add_clients(name.as_str(), custom_methods, &mut clients);
                 }
 
                 for (client_name, client) in clients.iter() {
