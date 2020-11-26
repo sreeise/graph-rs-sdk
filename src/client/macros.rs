@@ -40,10 +40,11 @@ macro_rules! register_client {
                     });
                 )*
 
-                client.request().registry(|r| {
-                    let id_string = id.to_string();
-                    r.register_helper("RID",
-                    Box::new(move |
+                if !id_stored.is_empty() {
+                    client.request().registry(|r| {
+                        let id_string = id.to_string();
+                        r.register_helper("RID",
+                        Box::new(move |
                         _: &Helper,
                         _: &Handlebars,
                         _: &Context,
@@ -54,6 +55,7 @@ macro_rules! register_client {
                             Ok(())
                     }));
                 });
+                }
 
                 $name {
                     client,
@@ -138,20 +140,22 @@ macro_rules! register_client {
                     });
                 )*
 
-               client.request().registry(|r| {
-                    let id_string = id.to_string();
-                    r.register_helper("RID",
-                    Box::new(move |
-                        _: &Helper,
-                        _: &Handlebars,
-                        _: &Context,
-                        _: &mut RenderContext,
-                        out: &mut dyn Output|
-                        -> HelperResult {
-                            out.write(&id_string)?;
-                            Ok(())
-                    }));
-                });
+               if !id_stored.is_empty() {
+                    client.request().registry(|r| {
+                        let id_string = id.to_string();
+                        r.register_helper("RID",
+                        Box::new(move |
+                            _: &Helper,
+                            _: &Handlebars,
+                            _: &Context,
+                            _: &mut RenderContext,
+                            out: &mut dyn Output|
+                            -> HelperResult {
+                                out.write(&id_string)?;
+                                Ok(())
+                        }));
+                    });
+               }
 
                 $name {
                     client,
@@ -179,20 +183,22 @@ macro_rules! register_ident_client {
                     });
                 )*
 
-                client.request().registry(|r| {
-                    let id_string = id.to_string();
-                    r.register_helper("RID",
-                    Box::new(move |
-                        _: &Helper,
-                        _: &Handlebars,
-                        _: &Context,
-                        _: &mut RenderContext,
-                        out: &mut dyn Output|
-                        -> HelperResult {
-                            out.write(&id_string)?;
-                            Ok(())
-                    }));
-                });
+                if !id.is_empty() {
+                    client.request().registry(|r| {
+                        let id_string = id.to_string();
+                        r.register_helper("RID",
+                        Box::new(move |
+                            _: &Helper,
+                            _: &Handlebars,
+                            _: &Context,
+                            _: &mut RenderContext,
+                            out: &mut dyn Output|
+                            -> HelperResult {
+                                out.write(&id_string)?;
+                                Ok(())
+                        }));
+                    });
+                }
 
                 $name {
                     client,
