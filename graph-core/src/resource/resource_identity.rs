@@ -62,6 +62,7 @@ pub enum ResourceIdentity {
     Instances,
     Invitations,
     Items,
+    List,
     Lists,
     MailFolders,
     ManagedDevices,

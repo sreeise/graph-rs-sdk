@@ -7,6 +7,7 @@ use crate::parser::{
     HttpMethod, Request, RequestMap, RequestSet, RequestType, ResourceNames, ResponseType,
 };
 use graph_core::resource::ResourceIdentity;
+use graph_http::GraphResponse;
 use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
@@ -34,6 +35,13 @@ impl ParserSettings {
                 "crate::core::ResourceIdentity",
             ],
             ResourceIdentity::ContactFolders => vec!["crate::core::ResourceIdentity"],
+            ResourceIdentity::Drive | ResourceIdentity::Drives => vec![
+                "std::path::Path",
+                "crate::core::ResourceIdentity",
+                "crate::items::{ItemRequest, ItemsRequest}",
+                "crate::lists::{ListRequest, ListsRequest}",
+                "graph_http::types::DeltaPhantom",
+            ],
             ResourceIdentity::Lists => vec![
                 "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
                 "crate::items::{ItemRequest, ItemsRequest}",
@@ -62,7 +70,7 @@ impl ParserSettings {
                 "crate::activities::ActivitiesRequest",
                 "crate::settings::SettingsRequest",
                 "crate::outlook::OutlookRequest",
-                "crate::drive::{DriveRequest, DrivesRequest}",
+                "crate::drives::{DriveRequest, DrivesRequest}",
                 "crate::core::ResourceIdentity",
             ],
             ResourceIdentity::Users => vec![
@@ -78,7 +86,7 @@ impl ParserSettings {
                 "crate::activities::ActivitiesRequest",
                 "crate::settings::SettingsRequest",
                 "crate::outlook::OutlookRequest",
-                "crate::drive::{DriveRequest, DrivesRequest}",
+                "crate::drives::{DriveRequest, DrivesRequest}",
                 "crate::core::ResourceIdentity",
             ],
             _ => vec![],
@@ -131,6 +139,11 @@ impl ParserSettings {
                     "/calendar/calendarPermissions",
                     "/calendar/getSchedule",
                     "instances",
+                ]))]
+            },
+            ResourceIdentity::Drives | ResourceIdentity::Drive => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/list/", "versions", "items",
                 ]))]
             },
             ResourceIdentity::Events => {
@@ -203,6 +216,21 @@ impl ParserSettings {
         }
     }
 
+    pub fn custom_register_clients(resource_identity: ResourceIdentity) -> Option<String> {
+        match resource_identity {
+            ResourceIdentity::Drives => Some(
+                "register_client!(
+                    () DrivesRequest,
+                    drive_item => \"drive/items\", \"items\", ResourceIdentity::Drives,
+                    drive_root => \"drive\", \"\", ResourceIdentity::Drives,
+                    drive_root_path => \"drive/root\", \"root\", ResourceIdentity::Drives,
+                );"
+                .to_string(),
+            ),
+            _ => None,
+        }
+    }
+
     pub fn custom_methods(
         resource_identity: ResourceIdentity,
     ) -> Option<HashMap<String, RequestSet>> {
@@ -210,10 +238,10 @@ impl ParserSettings {
             match resource_identity {
                 ResourceIdentity::Drives => vec![
                     Request {
-                        path: "/children".to_string(),
+                        path: "/{{drive_item}}/{{id}}/children".to_string(),
                         method: HttpMethod::GET,
                         method_name: "list_children".to_string(),
-                        param_size: 0,
+                        param_size: 1,
                         has_body: false,
                         request_type: RequestType::Normal,
                         has_rid: false,
@@ -227,7 +255,7 @@ impl ParserSettings {
                         path: "/{{drive_item}}/{{id}}/activities".to_string(),
                         method: HttpMethod::GET,
                         method_name: "get_activities".to_string(),
-                        param_size: 0,
+                        param_size: 1,
                         has_body: false,
                         request_type: RequestType::Normal,
                         has_rid: false,
@@ -240,28 +268,42 @@ impl ParserSettings {
                     Request {
                         path: "/{{drive_item}}/{{id}}".to_string(),
                         method: HttpMethod::PATCH,
-                        method_name: "update_item".to_string(),
+                        method_name: "update_items".to_string(),
                         param_size: 1,
-                        has_body: false,
+                        has_body: true,
                         request_type: RequestType::Normal,
                         has_rid: false,
                         response: ResponseType::SerdeJson,
                         tag: Default::default(),
-                        operation_id: "drives.UpdateItem".to_string(),
+                        operation_id: "drives.UpdateItems".to_string(),
                         operation_mapping: "drives".to_string(),
                         doc: None,
                     },
                     Request {
                         path: "/{{drive_item}}/{{id}}".to_string(),
                         method: HttpMethod::DELETE,
-                        method_name: "delete_item".to_string(),
+                        method_name: "delete_items".to_string(),
                         param_size: 1,
                         has_body: false,
                         request_type: RequestType::Normal,
                         has_rid: false,
                         response: ResponseType::NoContent,
                         tag: Default::default(),
-                        operation_id: "drives.DeleteItem".to_string(),
+                        operation_id: "drives.DeleteItems".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}".to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "get_items".to_string(),
+                        param_size: 1,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::SerdeJson,
+                        tag: Default::default(),
+                        operation_id: "drives.GetItems".to_string(),
                         operation_mapping: "drives".to_string(),
                         doc: None,
                     },
@@ -282,14 +324,56 @@ impl ParserSettings {
                     Request {
                         path: "/{{drive_item}}/{{id}}/copy".to_string(),
                         method: HttpMethod::POST,
-                        method_name: "copy".to_string(),
+                        method_name: "copy_item".to_string(),
                         param_size: 1,
                         has_body: true,
                         request_type: RequestType::Normal,
                         has_rid: false,
                         response: ResponseType::NoContent,
                         tag: Default::default(),
-                        operation_id: "drives.Copy".to_string(),
+                        operation_id: "drives.CopyItem".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}/versions".to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "list_item_versions".to_string(),
+                        param_size: 1,
+                        has_body: true,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::Collection,
+                        tag: Default::default(),
+                        operation_id: "drives.ListItemVersions".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}/versions/{{id2}}/restoreVersion".to_string(),
+                        method: HttpMethod::POST,
+                        method_name: "restore_item_versions".to_string(),
+                        param_size: 2,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::NoContent,
+                        tag: Default::default(),
+                        operation_id: "drives.RestoreItemVersions".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/thumbnails".to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "list_thumbnails".to_string(),
+                        param_size: 0,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::NoContent,
+                        tag: Default::default(),
+                        operation_id: "drives.ListThumbnails".to_string(),
                         operation_mapping: "drives".to_string(),
                         doc: None,
                     },
@@ -354,53 +438,88 @@ impl ParserSettings {
                     Request {
                         path: "/{{drive_item}}/{{id}}".to_string(),
                         method: HttpMethod::POST,
-                        method_name: "move_item".to_string(),
+                        method_name: "move_items".to_string(),
                         param_size: 1,
                         has_body: true,
                         request_type: RequestType::Normal,
                         has_rid: false,
                         response: ResponseType::SerdeJson,
                         tag: Default::default(),
-                        operation_id: "drives.MoveItem".to_string(),
+                        operation_id: "drives.MoveItems".to_string(),
                         operation_mapping: "drives".to_string(),
                         doc: None,
                     },
-                    // TODO: Requests that need to set the file name in the path - see drive upload new
-                    /*
                     Request {
-                         path: "/{{drive_item}}/{{id}}:/{{file_name}}:/content".to_string(),
-                         method: HttpMethod::PUT,
-                         method_name: "upload_new".to_string(),
-                         param_size: 2,
-                         has_body: false,
-                         request_type: RequestType::Normal,
-                         has_rid: false,
-                         response: ResponseType::SerdeJson,
-                         tag: Default::default(),
-                         operation_id: "drives.UploadNew".to_string(),
-                         operation_mapping: "drives".to_string(),
-                         doc: None
-                     },
-                      */
-
-                    // TODO: Requests that need other headers - See drives preview, checkout
-                    /*
+                        path: "/{{drive_root}}/root/children".to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "list_root_children".to_string(),
+                        param_size: 0,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::Collection,
+                        tag: Default::default(),
+                        operation_id: "drives.ListRootChildren".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
                     Request {
-                         path: "/{{drive_item}}/{{id}}/preview".to_string(),
-                         method: HttpMethod::POST,
-                         method_name: "preview".to_string(),
-                         param_size: 1,
-                         has_body: true,
-                         request_type: RequestType::Normal,
-                         has_rid: false,
-                         response: ResponseType::SerdeJson,
-                         tag: Default::default(),
-                         operation_id: "drives.Preview".to_string(),
-                         operation_mapping: "drives".to_string(),
-                         doc: None
-                     },
-                     */
+                        path: "{{drive_root}}/activities".to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "list_root_activities".to_string(),
+                        param_size: 0,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::Collection,
+                        tag: Default::default(),
+                        operation_id: "drives.ListRootActivities".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "{{drive_root}}/root/delta".to_string(),
+                        method: HttpMethod::GET,
+                        method_name: "delta".to_string(),
+                        param_size: 0,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::Delta,
+                        tag: Default::default(),
+                        operation_id: "drives.Delta".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/{{drive_item}}/{{id}}/checkin".to_string(),
+                        method: HttpMethod::POST,
+                        method_name: "check_in_item".to_string(),
+                        param_size: 1,
+                        has_body: true,
+                        request_type: RequestType::Normal,
+                        has_rid: false,
+                        response: ResponseType::NoContent,
+                        tag: Default::default(),
+                        operation_id: "drives.CheckIn".to_string(),
+                        operation_mapping: "drives".to_string(),
+                        doc: None,
+                    },
                 ],
+                ResourceIdentity::Items => vec![Request {
+                    path: "/items/{{RID}}".into(),
+                    method: HttpMethod::DELETE,
+                    method_name: "delete_items".into(),
+                    param_size: 1,
+                    has_body: false,
+                    request_type: RequestType::Normal,
+                    has_rid: true,
+                    response: ResponseType::NoContent,
+                    tag: "drives.driveItem".into(),
+                    operation_id: "items.DeleteItems".into(),
+                    operation_mapping: "items".into(),
+                    doc: Some("# Delete navigation property items".into()),
+                }],
                 _ => vec![],
             }
         };
@@ -778,6 +897,50 @@ impl ParserSettings {
                 let mut set = BTreeSet::new();
                 set.extend(vec![settings, settings2, settings3]);
                 map.insert("events".to_string(), set);
+            },
+            ResourceIdentity::Drive | ResourceIdentity::Drives => {
+                let mut settings = ClientLinkSettings::new("items");
+                settings
+                    .use_method_name("item")
+                    .with_id_param()
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("item");
+                settings2
+                    .use_method_name("items")
+                    .with_extend_path_id()
+                    .with_extend_path_ident();
+
+                let mut settings3 = ClientLinkSettings::new("list");
+                settings3
+                    .use_method_name("lists")
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings4 = ClientLinkSettings::new("lists");
+                settings4
+                    .use_method_name("list")
+                    .with_id_param()
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2, settings3, settings4]);
+                map.insert("drives".to_string(), set);
+
+                let mut settings5 = ClientLinkSettings::new("item");
+                settings5.use_method_name("items").with_extend_path_ident();
+
+                let mut settings6 = ClientLinkSettings::new("list");
+                settings6.use_method_name("lists").with_extend_path_ident();
+
+                let mut set2 = BTreeSet::new();
+                set2.extend(vec![settings5, settings6]);
+                map.insert("drive".to_string(), set2);
             },
             ResourceIdentity::Lists => {
                 let mut settings = ClientLinkSettings::new("items");

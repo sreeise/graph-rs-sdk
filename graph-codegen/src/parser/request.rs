@@ -279,6 +279,10 @@ impl RequestMap {
         self.requests.iter()
     }
 
+    pub fn iter_mut(&mut self) -> std::collections::vec_deque::IterMut<'_, Request> {
+        self.requests.iter_mut()
+    }
+
     pub fn extend_struct_links(&self, set: &mut HashSet<String>) {
         for request in self.iter() {
             set.extend(request.links());

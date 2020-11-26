@@ -1,4 +1,5 @@
 use bytes::Bytes;
+use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
 
 #[derive(Debug, Clone, Copy)]

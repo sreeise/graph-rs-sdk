@@ -1,8 +1,10 @@
 use crate::builder::{ClientLinkSettings, RegisterClient};
-use crate::parser::{Request, RequestMap, RequestType};
+use crate::parser::{ParserSettings, Request, RequestMap, RequestType};
 use bytes::{BufMut, BytesMut};
+use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet};
+use std::str::FromStr;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
 pub struct Client {
@@ -88,7 +90,16 @@ impl ClientBuilder {
     }
 
     fn client_registrations(&mut self) {
-        for (_name, client) in self.clients.iter() {
+        for (name, client) in self.clients.iter() {
+            if let Ok(resource_identity) = ResourceIdentity::from_str(name.as_str()) {
+                if let Some(custom_register_client) =
+                    ParserSettings::custom_register_clients(resource_identity)
+                {
+                    self.buf.put(custom_register_client.as_bytes());
+                    return;
+                }
+            }
+
             if !client.methods.is_empty() {
                 if client.is_ident_client {
                     self.buf
