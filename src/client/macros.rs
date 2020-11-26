@@ -107,7 +107,7 @@ macro_rules! register_client {
 
     ( () $name:ident, $($helper:ident => $value:expr, $value2:expr, $identity:expr,)* ) => {
         pub struct $name<'a, Client> {
-            client: &'a Graph<Client>,
+            pub(crate) client: &'a Graph<Client>,
             id: String,
         }
 
@@ -157,10 +157,6 @@ macro_rules! register_client {
                     client,
                     id: id_stored,
                 }
-            }
-
-            pub fn get_id(&self) -> &String {
-                &self.id
             }
         }
     };

@@ -106,7 +106,7 @@ pub mod domain_dns_records;
 /// Domains request client.
 pub mod domains;
 /// OneDrive request client.
-pub mod drive;
+pub mod drives;
 /// Education request client.
 pub mod education;
 /// Events request client (Calendars).
