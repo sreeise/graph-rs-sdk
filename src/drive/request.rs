@@ -221,7 +221,7 @@ where
         name: list_following,
         response: Collection<serde_json::Value>,
         path: "/following",
-        params: 1,
+        params: 0,
         has_body: false
     });
     post!({
@@ -229,7 +229,7 @@ where
         name: create_following,
         response: serde_json::Value,
         path: "/following",
-        params: 1,
+        params: 0,
         has_body: true
     });
     get!({
@@ -237,7 +237,7 @@ where
         name: get_following,
         response: serde_json::Value,
         path: "/following/{{id2}}",
-        params: 2,
+        params: 1,
         has_body: false
     });
     patch!({
@@ -245,7 +245,7 @@ where
         name: update_following,
         response: GraphResponse<Content>,
         path: "/following/{{id2}}",
-        params: 2,
+        params: 1,
         has_body: true
     });
     get!({
@@ -253,7 +253,7 @@ where
         name: get_list,
         response: serde_json::Value,
         path: "/list",
-        params: 1,
+        params: 0,
         has_body: false
     });
     patch!({
@@ -261,7 +261,7 @@ where
         name: update_list,
         response: GraphResponse<Content>,
         path: "/list",
-        params: 1,
+        params: 0,
         has_body: true
     });
     get!({
@@ -269,7 +269,7 @@ where
         name: recent,
         response: Collection<serde_json::Value>,
         path: "/recent()",
-        params: 1,
+        params: 0,
         has_body: false
     });
     get!({
@@ -277,7 +277,7 @@ where
         name: get_root,
         response: serde_json::Value,
         path: "/root",
-        params: 1,
+        params: 0,
         has_body: false
     });
     patch!({
@@ -285,7 +285,7 @@ where
         name: update_root,
         response: GraphResponse<Content>,
         path: "/root",
-        params: 1,
+        params: 0,
         has_body: true
     });
     get!({
@@ -293,7 +293,7 @@ where
         name: shared_with_me,
         response: Collection<serde_json::Value>,
         path: "/sharedWithMe()",
-        params: 1,
+        params: 0,
         has_body: false
     });
     get!({
@@ -301,7 +301,7 @@ where
         name: list_special,
         response: Collection<serde_json::Value>,
         path: "/special",
-        params: 1,
+        params: 0,
         has_body: false
     });
     post!({
@@ -309,7 +309,7 @@ where
         name: create_special,
         response: serde_json::Value,
         path: "/special",
-        params: 1,
+        params: 0,
         has_body: true
     });
     get!({
@@ -317,7 +317,7 @@ where
         name: get_special,
         response: serde_json::Value,
         path: "/special/{{id2}}",
-        params: 2,
+        params: 1,
         has_body: false
     });
     patch!({
@@ -325,7 +325,7 @@ where
         name: update_special,
         response: GraphResponse<Content>,
         path: "/special/{{id2}}",
-        params: 2,
+        params: 1,
         has_body: true
     });
     get!({
@@ -389,7 +389,7 @@ where
         response: GraphResponse<Content>,
         path: "/{{drive_item}}/{{id}}/children",
         params: 1,
-        has_body: false
+        has_body: true
     });
     get!({
         name: get_item_content,
@@ -452,7 +452,7 @@ where
         name: get_drive,
         response: serde_json::Value,
         path: "{{drive_root}}",
-        params: 1,
+        params: 0,
         has_body: false
     });
     patch!({
@@ -460,7 +460,7 @@ where
         name: update_drive,
         response: GraphResponse<Content>,
         path: "{{drive_root}}",
-        params: 1,
+        params: 0,
         has_body: true
     });
     delete!({
@@ -468,7 +468,7 @@ where
         name: delete_drive,
         response: GraphResponse<Content>,
         path: "{{drive_root}}",
-        params: 1,
+        params: 0,
         has_body: false
     });
     get!({
