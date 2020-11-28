@@ -203,10 +203,12 @@ impl Builder {
         let empty_root = "{{drive_root}}";
         for request_map in methods {
             if request_map.path.starts_with(mat) || request_map.path.starts_with(mat2) {
+                let mut reduce_param_count = false;
                 let mat = {
                     if request_map.path.starts_with(mat) {
                         mat
                     } else {
+                        reduce_param_count = true;
                         mat2
                     }
                 };
@@ -227,6 +229,12 @@ impl Builder {
 
                     if request.path.is_empty() {
                         request.path = empty_root.into();
+                    }
+
+                    if reduce_param_count {
+                        if request.param_size > 0 {
+                            request.param_size -= 1;
+                        }
                     }
                 }
             }

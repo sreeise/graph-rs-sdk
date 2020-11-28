@@ -318,7 +318,7 @@ impl ParserSettings {
                         method: HttpMethod::POST,
                         method_name: "create_folder".to_string(),
                         param_size: 1,
-                        has_body: false,
+                        has_body: true,
                         request_type: RequestType::Normal,
                         has_rid: false,
                         response: ResponseType::NoContent,
