@@ -366,7 +366,9 @@ where
 
     pub fn drive<S: AsRef<str>>(&self, id: S) -> DrivesRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Drives);
-        self.client.request.extend_path(&["drives", id.as_ref()]);
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), id.as_ref()]);
         DrivesRequest::new(id.as_ref(), self.client)
     }
 

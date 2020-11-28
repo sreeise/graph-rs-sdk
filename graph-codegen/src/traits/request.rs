@@ -143,7 +143,7 @@ impl RequestParser for &str {
         // such as microsoft.graph.delta. We remove that part of the path in
         // case of issues when performing the actual request.
         if path.contains("microsoft.graph.") {
-            path.replace("microsoft.graph.", "")
+            path.replace("microsoft.graph.", "").replace("()", "")
         } else {
             path
         }

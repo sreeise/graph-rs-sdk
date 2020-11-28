@@ -244,7 +244,7 @@ impl ParserSettings {
             match resource_identity {
                 ResourceIdentity::Drive | ResourceIdentity::Drives => vec![
                     Request {
-                        path: "/{{drive_item}}/{{id}}/children".to_string(),
+                        path: "/{{drive_item_id}}/children".to_string(),
                         method: HttpMethod::GET,
                         method_name: "list_children".to_string(),
                         param_size: 1,
@@ -258,9 +258,9 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}/activities".to_string(),
+                        path: "/{{drive_item_id}}/activities".to_string(),
                         method: HttpMethod::GET,
-                        method_name: "get_activities".to_string(),
+                        method_name: "get_item_activities".to_string(),
                         param_size: 1,
                         has_body: false,
                         request_type: RequestType::Normal,
@@ -272,7 +272,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}".to_string(),
+                        path: "/{{drive_item_id}}".to_string(),
                         method: HttpMethod::PATCH,
                         method_name: "update_items".to_string(),
                         param_size: 1,
@@ -286,7 +286,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}".to_string(),
+                        path: "/{{drive_item_id}}".to_string(),
                         method: HttpMethod::DELETE,
                         method_name: "delete_items".to_string(),
                         param_size: 1,
@@ -300,7 +300,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}".to_string(),
+                        path: "/{{drive_item_id}}".to_string(),
                         method: HttpMethod::GET,
                         method_name: "get_items".to_string(),
                         param_size: 1,
@@ -314,21 +314,21 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}/children".to_string(),
+                        path: "/{{drive_item_id}}/children".to_string(),
                         method: HttpMethod::POST,
                         method_name: "create_folder".to_string(),
                         param_size: 1,
                         has_body: true,
                         request_type: RequestType::Normal,
                         has_rid: false,
-                        response: ResponseType::NoContent,
+                        response: ResponseType::SerdeJson,
                         tag: Default::default(),
                         operation_id: "drives.CreateFolder".to_string(),
                         operation_mapping: "drives".to_string(),
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}/copy".to_string(),
+                        path: "/{{drive_item_id}}/copy".to_string(),
                         method: HttpMethod::POST,
                         method_name: "copy_item".to_string(),
                         param_size: 1,
@@ -342,11 +342,11 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}/versions".to_string(),
+                        path: "/{{drive_item_id}}/versions".to_string(),
                         method: HttpMethod::GET,
                         method_name: "list_item_versions".to_string(),
                         param_size: 1,
-                        has_body: true,
+                        has_body: false,
                         request_type: RequestType::Normal,
                         has_rid: false,
                         response: ResponseType::Collection,
@@ -356,7 +356,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}/versions/{{id2}}/restoreVersion".to_string(),
+                        path: "/{{drive_item_id}}/versions/{{id2}}/restoreVersion".to_string(),
                         method: HttpMethod::POST,
                         method_name: "restore_item_versions".to_string(),
                         param_size: 2,
@@ -384,7 +384,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}/thumbnails/{{id2]}/{{id3}}".to_string(),
+                        path: "/{{drive_item_id}}/thumbnails/{{id}}/{{id2}}".to_string(),
                         method: HttpMethod::GET,
                         method_name: "get_thumbnail".to_string(),
                         param_size: 3,
@@ -398,8 +398,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}/thumbnails/{{id2]}/{{id3}}/content"
-                            .to_string(),
+                        path: "/{{drive_item_id}}/thumbnails/{{id2}}/{{id3}}/content".to_string(),
                         method: HttpMethod::GET,
                         method_name: "get_thumbnail_binary".to_string(),
                         param_size: 3,
@@ -414,7 +413,7 @@ impl ParserSettings {
                     },
                     // TODO: Setting files as the body in a request macro
                     Request {
-                        path: "/{{drive_item}}/{{id}}/content".to_string(),
+                        path: "/{{drive_item_id}}/content".to_string(),
                         method: HttpMethod::PUT,
                         method_name: "upload_replace".to_string(),
                         param_size: 1,
@@ -428,7 +427,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}/content".to_string(),
+                        path: "/{{drive_item_id}}/content".to_string(),
                         method: HttpMethod::GET,
                         method_name: "get_item_content".to_string(),
                         param_size: 1,
@@ -442,7 +441,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}".to_string(),
+                        path: "/{{drive_item_id}}".to_string(),
                         method: HttpMethod::POST,
                         method_name: "move_items".to_string(),
                         param_size: 1,
@@ -498,7 +497,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item}}/{{id}}/checkin".to_string(),
+                        path: "/{{drive_item_id}}/checkin".to_string(),
                         method: HttpMethod::POST,
                         method_name: "check_in_item".to_string(),
                         param_size: 1,
@@ -934,23 +933,17 @@ impl ParserSettings {
                     .use_method_name("item")
                     .use_custom("self.transfer_identity();\n")
                     .with_id_param()
-                    .with_extend_path_id()
-                    .with_extend_path_ident()
                     .with_set_resource_identity();
 
                 let mut settings2 = ClientLinkSettings::new("item");
                 settings2
                     .use_method_name("items")
-                    .use_custom("self.transfer_identity();\n")
-                    .with_extend_path_id()
-                    .with_extend_path_ident();
+                    .use_custom("self.transfer_identity();\n");
 
                 let mut settings3 = ClientLinkSettings::new("list");
                 settings3
                     .use_method_name("lists")
                     .use_custom("self.transfer_identity();\n")
-                    .with_extend_path_id()
-                    .with_extend_path_ident()
                     .with_set_resource_identity();
 
                 let mut settings4 = ClientLinkSettings::new("lists");
@@ -958,8 +951,6 @@ impl ParserSettings {
                     .use_method_name("list")
                     .use_custom("self.transfer_identity();\n")
                     .with_id_param()
-                    .with_extend_path_id()
-                    .with_extend_path_ident()
                     .with_set_resource_identity();
 
                 let mut set = BTreeSet::new();

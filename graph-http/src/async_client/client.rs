@@ -4,7 +4,7 @@ use crate::traits::*;
 use crate::uploadsession::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::{
-    GraphRequest, GraphResponse, HttpClient, RequestAttribute, RequestClient, RequestType,
+    GraphRequest, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient, RequestType,
 };
 use graph_core::resource::ResourceIdentity;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
@@ -139,6 +139,10 @@ impl AsyncClient {
             req_type: self.req_type,
             registry: Handlebars::new(),
         }
+    }
+
+    fn register_ident_helper(&mut self, resource_identity: ResourceIdentity) {
+        Registry::register_internal_helper(resource_identity, &mut self.registry);
     }
 }
 
@@ -275,6 +279,13 @@ impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
             .registry
             .render_template(template, json)
             .unwrap()
+    }
+
+    async fn inner_register_ident_helper(&self, resource_identity: ResourceIdentity) {
+        self.client
+            .lock()
+            .await
+            .register_ident_helper(resource_identity);
     }
 
     async fn inner_extend_path(&self, path: &[&str]) {
@@ -440,6 +451,10 @@ impl RequestClient for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>
 
     fn render_template(&self, template: &str, json: &serde_json::Value) -> String {
         futures::executor::block_on(self.inner_render_template(template, json))
+    }
+
+    fn register_ident_helper(&self, resource_identity: ResourceIdentity) {
+        futures::executor::block_on(self.inner_register_ident_helper(resource_identity));
     }
 
     fn extend_path(&self, path: &[&str]) {

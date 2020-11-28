@@ -38,25 +38,18 @@ where
         }
     }
 
-    pub fn check_in<S: AsRef<str>, B: serde::Serialize>(
+    pub fn check_out_item<S: AsRef<str>>(
         &'a self,
         id: S,
-        body: &B,
     ) -> IntoResponse<'a, GraphResponse<Content>, Client> {
         render_path!(
             self.client,
-            template(id.as_ref(), "checkin").as_str(),
+            template(id.as_ref(), "checkout").as_str(),
             &json!({ "id": id.as_ref() })
         );
-
-        let body = serde_json::to_string(body);
-        if let Ok(body) = body {
-            let client = self.client.request();
-            client.set_method(Method::POST);
-            client.set_body(body);
-        } else if let Err(e) = body {
-            return IntoResponse::new_error(self.client.request(), GraphFailure::from(e));
-        }
+        let client = self.client.request();
+        client.set_method(Method::POST);
+        client.header(CONTENT_LENGTH, HeaderValue::from(0));
         IntoResponse::new(&self.client.request)
     }
 

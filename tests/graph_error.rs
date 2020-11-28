@@ -36,6 +36,12 @@ fn test_graph_error(err: GraphFailure, expect: GraphError) {
         GraphFailure::Parse(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::GraphRsError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::CryptoError => panic!("Expected GraphFailure::GraphError, got CryptoError"),
+        GraphFailure::HandlebarsRenderError(e) => {
+            panic!("Expected GraphFailure::GraphError, got {}", e)
+        },
+        GraphFailure::HandlebarsTemplateRenderError(e) => {
+            panic!("Expected GraphFailure::GraphError, got {}", e)
+        },
     }
 }
 
@@ -58,7 +64,7 @@ fn get_error(code: u16, status_code: &str, message: &str) -> GraphError {
 fn auth_graph_error() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let response = client.v1().me().get().send();
+    let response = client.v1().me().get_user().send();
 
     if let Ok(_res) = response {
         panic!("Got successful request for an invalid access token");
@@ -78,7 +84,7 @@ fn auth_graph_error() {
 async fn async_auth_graph_error() {
     let client = Graph::new_async("ACCESS_TOKEN");
 
-    let response = client.v1().me().get().send().await;
+    let response = client.v1().me().get_user().send().await;
 
     if let Ok(_res) = response {
         panic!("Got successful request for an invalid access token");
@@ -104,9 +110,9 @@ fn upload_session_graph_error() {
 
     let response = client
         .v1()
-        .users("0")
+        .user("0")
         .drive()
-        .upload_session(
+        .create_upload_session(
             ":/upload_session.txt:",
             "./test_files/async_upload_session.txt",
             &upload,
@@ -137,9 +143,9 @@ async fn async_upload_session_graph_error() {
 
     let response = client
         .v1()
-        .users("0")
+        .user("0")
         .drive()
-        .upload_session(
+        .create_upload_session(
             ":/async_upload_session.txt:",
             "./test_files/async_upload_session.txt",
             &upload,
@@ -170,7 +176,7 @@ fn drive_download_graph_error() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let download = client
             .v1()
-            .drives(id.as_str())
+            .drive(id.as_str())
             .download(":/non_existent_file.docx:", "./test_files");
 
         let req: GraphResult<PathBuf> = download.send();
@@ -189,7 +195,7 @@ async fn async_drive_download_graph_error() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let download = client
             .v1()
-            .users(id.as_str())
+            .user(id.as_str())
             .drive()
             .download(":/non_existent_file.docx:", "./test_files");
 

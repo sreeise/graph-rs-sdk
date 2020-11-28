@@ -215,6 +215,22 @@ impl Builder {
 
                 request_map.path = request_map.path.trim_start_matches(mat).to_string();
 
+                if !request_map.path.ends_with("/drives") {
+                    if request_map.path.starts_with('/') {
+                        request_map.path =
+                            format!("{{{{resource_drive_path}}}}{}", request_map.path);
+                    } else {
+                        request_map.path =
+                            format!("{{{{resource_drive_path}}}}/{}", request_map.path);
+                    }
+                }
+
+                request_map.path = request_map
+                    .path
+                    .replace("{{id2}}", "{{id}}")
+                    .replace("{{id3}}", "{{id2}}")
+                    .replace("{{id4}}", "{{id3}}");
+
                 if request_map.path.is_empty() {
                     request_map.path = empty_root.into();
                 }
@@ -226,6 +242,20 @@ impl Builder {
                 for request in request_map.iter_mut() {
                     request.has_rid = false;
                     request.path = request.path.trim_start_matches(mat).to_string();
+
+                    if !request.path.ends_with("/drives") {
+                        if request.path.starts_with('/') {
+                            request.path = format!("{{{{resource_drive_path}}}}{}", request.path);
+                        } else {
+                            request.path = format!("{{{{resource_drive_path}}}}/{}", request.path);
+                        }
+                    }
+
+                    request.path = request
+                        .path
+                        .replace("{{id2}}", "{{id}}")
+                        .replace("{{id3}}", "{{id2}}")
+                        .replace("{{id4}}", "{{id3}}");
 
                     if request.path.is_empty() {
                         request.path = empty_root.into();
@@ -251,6 +281,7 @@ impl Builder {
         for (name, request_set) in map.iter_mut() {
             if !name.trim().is_empty() {
                 println!("Name: {}", name);
+                let mut directory_mods = BTreeSet::new();
                 let mut request_set_imports = request_set.get_imports();
                 request_set_imports.extend(imports.iter().map(|s| s.to_string()));
 
@@ -260,6 +291,12 @@ impl Builder {
                             .iter()
                             .map(|s| s.to_string()),
                     );
+
+                    if let Some(directory_mod_vec) =
+                        ParserSettings::get_directory_mod_files(resource_identity)
+                    {
+                        directory_mods.extend(directory_mod_vec);
+                    }
                 }
 
                 let is_ident_client = spec.ident_clients.contains(name);
@@ -323,7 +360,7 @@ impl Builder {
                 let dir = format!("./src/{}", snake_casing);
                 let mod_file = format!("./src/{}/mod.rs", snake_casing);
                 let file = format!("./src/{}/request.rs", snake_casing);
-                let client_builder = ClientBuilder::new(imports, clients);
+                let client_builder = ClientBuilder::new(imports, clients, directory_mods);
 
                 println!("Building Client: {:#?}", snake_casing);
                 println!("Directory: {:#?}", dir);
@@ -340,15 +377,14 @@ impl Builder {
     fn write(client_builder: ClientBuilder, dir: String, mod_file: String, request_file: String) {
         IoTools::create_dir(dir).unwrap();
 
+        let mut mod_file_buf = client_builder.build_mod_file();
         let mut file1 = OpenOptions::new()
             .write(true)
             .truncate(true)
             .create(true)
             .open(&mod_file)
             .unwrap();
-        file1
-            .write_all("mod request;\n\npub use request::*;".as_bytes())
-            .unwrap();
+        file1.write_all(mod_file_buf.as_mut()).unwrap();
         file1.sync_data().unwrap();
 
         let mut buf = client_builder.build();

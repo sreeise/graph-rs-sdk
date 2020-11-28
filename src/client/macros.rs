@@ -157,6 +157,8 @@ macro_rules! register_client {
                     });
                }
 
+               client.request.register_ident_helper(ident);
+
                 $name {
                     client,
                     id: id_stored,

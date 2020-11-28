@@ -41,6 +41,7 @@ pub trait RequestClient {
     where
         F: Fn(&mut Handlebars) + Sync;
     fn render_template(&self, template: &str, json: &serde_json::Value) -> String;
+    fn register_ident_helper(&self, resource_identity: ResourceIdentity);
     fn extend_path(&self, path: &[&str]);
     fn set_request(
         &self,

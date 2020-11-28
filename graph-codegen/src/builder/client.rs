@@ -1,6 +1,6 @@
 use crate::builder::{ClientLinkSettings, RegisterClient};
-use crate::parser::{ParserSettings, Request, RequestMap, RequestType};
-use bytes::{BufMut, BytesMut};
+use crate::parser::{DirectoryModFile, ParserSettings, Request, RequestMap, RequestType};
+use bytes::{Buf, BufMut, BytesMut};
 use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet};
@@ -65,14 +65,20 @@ impl Client {
 #[derive(Debug, Default, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub struct ClientBuilder {
     imports: BTreeSet<String>,
+    directory_mods: BTreeSet<DirectoryModFile>,
     clients: BTreeMap<String, Client>,
     buf: BytesMut,
 }
 
 impl ClientBuilder {
-    pub fn new(imports: BTreeSet<String>, clients: BTreeMap<String, Client>) -> ClientBuilder {
+    pub fn new(
+        imports: BTreeSet<String>,
+        clients: BTreeMap<String, Client>,
+        directory_mods: BTreeSet<DirectoryModFile>,
+    ) -> ClientBuilder {
         ClientBuilder {
             imports,
+            directory_mods,
             clients,
             buf: BytesMut::with_capacity(1024),
         }
@@ -215,6 +221,29 @@ impl ClientBuilder {
             }
             self.buf.put_slice(b"\n}\n");
         }
+    }
+
+    pub fn build_mod_file(&self) -> BytesMut {
+        let mut buf = BytesMut::new();
+        if self.directory_mods.is_empty() {
+            buf.put("mod request;\n\npub use request::*;".as_bytes());
+        } else {
+            let mut uses_buf = BytesMut::new();
+            buf.put("mod request;\n".as_bytes());
+            uses_buf.put("pub use request::*;\n".as_bytes());
+
+            for directory_mod in self.directory_mods.iter() {
+                buf.put(format!("mod {};\n", directory_mod.mod_name).as_bytes());
+                if directory_mod.use_all {
+                    buf.put(format!("pub use {}::*;", directory_mod.mod_name).as_bytes());
+                }
+            }
+
+            buf.put_u8(b'\n');
+            buf.put(uses_buf.bytes());
+        }
+
+        buf
     }
 
     pub fn build(mut self) -> BytesMut {
