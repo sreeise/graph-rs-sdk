@@ -41,7 +41,7 @@ impl Registry {
                                                 ResourceIdentity::Users |
                                                 ResourceIdentity::Sites |
                                                 ResourceIdentity::Groups => {
-                                                    out.write("drive/");
+                                                    out.write("drive/")?;
                                                 },
                                                 _ => {},
                                             }
@@ -67,7 +67,7 @@ impl Registry {
                     Box::new(
                         move |_: &Helper,
                               _: &Handlebars,
-                              context: &Context,
+                              _: &Context,
                               _: &mut RenderContext,
                               out: &mut dyn Output|
                               -> HelperResult {
@@ -76,7 +76,7 @@ impl Registry {
                                 ResourceIdentity::Users |
                                 ResourceIdentity::Sites |
                                 ResourceIdentity::Groups => {
-                                    out.write("drive");
+                                    out.write("drive")?;
                                 },
                                 _ => {},
                             }

@@ -13,20 +13,17 @@ use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 use test_tools::support::cleanup::CleanUp;
 
-fn test_folder_create_delete(path_or_id: &str, folder_name: &str) {
+fn test_folder_create_delete(folder_name: &str) {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let folder: HashMap<String, serde_json::Value> = HashMap::new();
         let result = client
             .v1()
             .drive(&id)
-            .create_folder(
-                path_or_id,
-                &serde_json::json!({
-                    "name": folder_name,
-                    "folder": folder,
-                    "@microsoft.graph.conflictBehavior": "fail"
-                }),
-            )
+            .create_root_folder(&serde_json::json!({
+                "name": folder_name,
+                "folder": folder,
+                "@microsoft.graph.conflictBehavior": "fail"
+            }))
             .send();
 
         if let Ok(response) = result {
@@ -40,8 +37,7 @@ fn test_folder_create_delete(path_or_id: &str, folder_name: &str) {
 
             TestTools::assert_success(&result, "delete folder (conflict behavior: fail)");
         } else if let Err(e) = result {
-            panic!("Request error. Method: create folder with encoding. Path: {:#?}\nFolder Name: {:#?}\nError: {:#?}",
-                   path_or_id,
+            panic!("Request error. Method: create folder with encoding. Path: root\nFolder Name: {:#?}\nError: {:#?}",
                    folder_name,
                    e
             );
@@ -52,13 +48,13 @@ fn test_folder_create_delete(path_or_id: &str, folder_name: &str) {
 #[test]
 fn create_delete_folder() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    test_folder_create_delete("", "ci_docs");
+    test_folder_create_delete("ci_docs");
 }
 
 #[test]
 fn create_delete_folder_path_encode() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    test_folder_create_delete("", "special folder");
+    test_folder_create_delete("special folder");
 }
 
 #[test]
@@ -360,7 +356,7 @@ pub fn get_file_from_encoded_folder_name() {
         let result = client
             .v1()
             .drive(&id)
-            .get_items(":/encoding_test_files/spaced folder/test.txt")
+            .get_items(":/encoding_test_files/spaced folder/test.txt:")
             .send();
 
         TestTools::assert_success(&result, "get_item (from percent encoded folder)");
