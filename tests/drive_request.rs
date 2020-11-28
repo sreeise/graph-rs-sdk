@@ -18,7 +18,7 @@ fn test_folder_create_delete(path_or_id: &str, folder_name: &str) {
         let folder: HashMap<String, serde_json::Value> = HashMap::new();
         let result = client
             .v1()
-            .drives(&id)
+            .drive(&id)
             .create_folder(
                 path_or_id,
                 &serde_json::json!({
@@ -36,7 +36,7 @@ fn test_folder_create_delete(path_or_id: &str, folder_name: &str) {
             let item_id = response.body()["id"].as_str().unwrap();
             thread::sleep(Duration::from_secs(2));
 
-            let result = client.v1().drives(&id).delete(item_id).send();
+            let result = client.v1().drive(&id).delete_items(item_id).send();
 
             TestTools::assert_success(&result, "delete folder (conflict behavior: fail)");
         } else if let Err(e) = result {
@@ -67,9 +67,9 @@ fn list_versions_get_item() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let get_item_res = client
             .v1()
-            .users(id.as_str())
+            .user(id.as_str())
             .drive()
-            .get_item(":/copy_folder:")
+            .get_items(":/copy_folder:")
             .send();
 
         if let Ok(res) = get_item_res {
@@ -78,9 +78,9 @@ fn list_versions_get_item() {
 
             let versions_res = client
                 .v1()
-                .users(id.as_str())
+                .user(id.as_str())
                 .drive()
-                .list_versions(item_id)
+                .list_item_versions(item_id)
                 .send();
 
             TestTools::assert_success(&versions_res, "list version");
@@ -97,8 +97,8 @@ fn drive_check_in_out() {
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
             let result = client
                 .v1()
-                .drives(id.as_str())
-                .check_out(":/test_check_out_document.docx:")
+                .drive(id.as_str())
+                .check_out_item(":/test_check_out_document.docx:")
                 .send();
 
             TestTools::assert_success(&result, "check_out");
@@ -106,8 +106,8 @@ fn drive_check_in_out() {
             thread::sleep(Duration::from_secs(2));
             let result = client
                 .v1()
-                .drives(id.as_str())
-                .check_in(
+                .drive(id.as_str())
+                .check_in_item(
                     ":/test_check_out_document.docx:",
                     &serde_json::json!({
                         "comment": "test check in",
@@ -136,7 +136,7 @@ fn drive_download() {
 
         let download = client
             .v1()
-            .drives(id.as_str())
+            .drive(id.as_str())
             .download(":/test_document.docx:", "./test_files");
 
         let req: GraphResult<PathBuf> = download.send();
@@ -166,7 +166,7 @@ fn drive_download_format() {
 
             let download = client
                 .v1()
-                .drives(id.as_str())
+                .drive(id.as_str())
                 .download(":/test_document.docx:", "./test_files");
 
             download.format("pdf");
@@ -190,8 +190,8 @@ fn drive_update() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let req = client
             .v1()
-            .drives(id.as_str())
-            .update(
+            .drive(id.as_str())
+            .update_items(
                 ":/update_test_document.docx:",
                 &serde_json::json!({
                     "name": "update_test.docx"
@@ -205,8 +205,8 @@ fn drive_update() {
 
             let req = client
                 .v1()
-                .drives(id.as_str())
-                .update(
+                .drive(id.as_str())
+                .update_items(
                     ":/update_test.docx:",
                     &serde_json::json!({
                         "name": "update_test_document.docx"
@@ -234,7 +234,7 @@ fn drive_upload_new_and_replace_and_delete() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let upload_res = client
             .v1()
-            .drives(id.as_str())
+            .drive(id.as_str())
             .upload_new(
                 ":/test_upload_file.txt:",
                 "./test_files/test_upload_file.txt",
@@ -256,7 +256,7 @@ fn drive_upload_new_and_replace_and_delete() {
             thread::sleep(Duration::from_secs(2));
             let upload_replace = client
                 .v1()
-                .drives(id.as_str())
+                .drive(id.as_str())
                 .upload_replace(item_id, "./test_files/test_upload_file.txt")
                 .send();
 
@@ -271,7 +271,7 @@ fn drive_upload_new_and_replace_and_delete() {
             }
 
             thread::sleep(Duration::from_secs(2));
-            let delete_res = client.v1().drives(id.as_str()).delete(item_id).send();
+            let delete_res = client.v1().drive(id.as_str()).delete_items(item_id).send();
 
             if let Ok(response) = delete_res {
                 assert!(
@@ -298,9 +298,9 @@ fn drive_upload_session() {
 
         let session = client
             .v1()
-            .users(id.as_str())
+            .user(id.as_str())
             .drive()
-            .upload_session(
+            .create_upload_session(
                 ":/upload_session_file.txt:",
                 "./test_files/upload_session_file.txt",
                 &upload,
@@ -325,9 +325,9 @@ fn drive_upload_session() {
 
                         let delete_res = client
                             .v1()
-                            .users(id.as_str())
+                            .user(id.as_str())
                             .drive()
-                            .delete(drive_item_id.as_str())
+                            .delete_items(drive_item_id.as_str())
                             .send();
 
                         if let Ok(response) = delete_res {
@@ -359,8 +359,8 @@ pub fn get_file_from_encoded_folder_name() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let result = client
             .v1()
-            .drives(&id)
-            .get_item(":/encoding_test_files/spaced folder/test.txt")
+            .drive(&id)
+            .get_items(":/encoding_test_files/spaced folder/test.txt")
             .send();
 
         TestTools::assert_success(&result, "get_item (from percent encoded folder)");
@@ -373,7 +373,7 @@ pub fn get_file_from_encoded_folder_name() {
 pub fn get_drive_base() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let result = client.v1().drive().get_drive().send();
+        let result = client.v1().drives().get_drive().send();
 
         if let Ok(response) = result {
             assert!(

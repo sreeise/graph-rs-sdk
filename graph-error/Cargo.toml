@@ -17,3 +17,4 @@ snafu = "0.5.0"
 from_as = { git = "https://github.com/sreeise/from_as" }
 tokio = { version = "0.2.21", features = ["full"] }
 ring = "0.16.15"
+handlebars = "2.0.2"

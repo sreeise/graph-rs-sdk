@@ -2,6 +2,7 @@ use crate::error::GraphError;
 use crate::internal::GraphRsError;
 use crate::GraphResult;
 use from_as::FromAsError;
+use handlebars::{RenderError, TemplateRenderError};
 use std::cell::BorrowMutError;
 use std::convert::TryFrom;
 use std::error::Error;
@@ -39,6 +40,8 @@ pub enum GraphFailure {
     HyperInvalidUri(hyper::http::uri::InvalidUri),
     FromAsFileError(FromAsError),
     GraphRsError(GraphRsError),
+    HandlebarsRenderError(handlebars::RenderError),
+    HandlebarsTemplateRenderError(handlebars::TemplateRenderError),
     CryptoError,
 }
 
@@ -108,6 +111,12 @@ impl fmt::Display for GraphFailure {
             GraphFailure::HyperInvalidUri(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
             GraphFailure::FromAsFileError(ref err) => write!(f, "File error:\n{:#?}", err),
             GraphFailure::GraphRsError(ref err) => write!(f, "Internal error:\n{:#?}", err),
+            GraphFailure::HandlebarsRenderError(ref err) => {
+                write!(f, "Handlebars render error:\n{:#?}", err)
+            },
+            GraphFailure::HandlebarsTemplateRenderError(ref err) => {
+                write!(f, "Handlebars template render error:\n{:#?}", err)
+            },
             GraphFailure::CryptoError => write!(f, "Crypto Error (Unknown)"),
         }
     }
@@ -134,6 +143,8 @@ impl error::Error for GraphFailure {
             GraphFailure::HyperInvalidUri(ref err) => Some(err),
             GraphFailure::FromAsFileError(ref err) => Some(err),
             GraphFailure::GraphRsError(ref err) => Some(err),
+            GraphFailure::HandlebarsRenderError(ref err) => Some(err),
+            GraphFailure::HandlebarsTemplateRenderError(ref err) => Some(err),
             GraphFailure::CryptoError => None,
         }
     }
@@ -256,6 +267,18 @@ impl From<ring::error::Unspecified> for GraphFailure {
 impl From<GraphRsError> for GraphFailure {
     fn from(err: GraphRsError) -> Self {
         GraphFailure::GraphRsError(err)
+    }
+}
+
+impl From<handlebars::RenderError> for GraphFailure {
+    fn from(err: RenderError) -> Self {
+        GraphFailure::HandlebarsRenderError(err)
+    }
+}
+
+impl From<handlebars::TemplateRenderError> for GraphFailure {
+    fn from(err: TemplateRenderError) -> Self {
+        GraphFailure::HandlebarsTemplateRenderError(err)
     }
 }
 

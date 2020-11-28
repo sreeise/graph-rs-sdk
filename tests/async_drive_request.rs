@@ -26,7 +26,7 @@ async fn async_download() {
 
         let download = client
             .v1()
-            .users(id.as_str())
+            .user(id.as_str())
             .drive()
             .download(":/download_async.txt:", "./test_files");
 
@@ -50,7 +50,7 @@ async fn async_upload_session() {
 
         let response = client
             .v1()
-            .users(id.as_str())
+            .user(id.as_str())
             .drive()
             .upload_session(
                 ":/async_upload_session.txt:",
@@ -82,9 +82,9 @@ async fn async_upload_session() {
 
                         let delete_res = client
                             .v1()
-                            .users(id.as_str())
+                            .user(id.as_str())
                             .drive()
-                            .delete(drive_item_id.as_str())
+                            .delete_items(drive_item_id.as_str())
                             .send()
                             .await;
 
@@ -123,7 +123,7 @@ async fn async_upload_session_standalone_request() {
 
         let request = client
             .v1()
-            .users(id.as_str())
+            .user(id.as_str())
             .drive()
             .upload_session(
                 ":/async_upload_session_request.txt:",
@@ -157,9 +157,9 @@ async fn async_upload_session_standalone_request() {
 
                         let delete_res = client
                             .v1()
-                            .users(id.as_str())
+                            .user(id.as_str())
                             .drive()
-                            .delete(drive_item_id.as_str())
+                            .delete_items(drive_item_id.as_str())
                             .send()
                             .await;
 
@@ -195,7 +195,7 @@ async fn create_delete_folder_async() {
         let folder: HashMap<String, serde_json::Value> = HashMap::new();
         let create_folder_res = client
             .v1()
-            .drives(id.as_str())
+            .drive(id.as_str())
             .create_folder(
                 "",
                 &serde_json::json!({
@@ -211,7 +211,7 @@ async fn create_delete_folder_async() {
             let item_id = response.body()["id"].as_str().unwrap();
             tokio::time::delay_for(Duration::from_secs(2)).await;
 
-            let req = client.v1().drives(id).delete(item_id).send().await;
+            let req = client.v1().drive(id).delete_items(item_id).send().await;
 
             if let Ok(response) = req {
                 assert!(
@@ -238,7 +238,7 @@ async fn drive_upload_new_and_replace_and_delete() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let upload_res = client
             .v1()
-            .drives(id.as_str())
+            .drive(id.as_str())
             .upload_new(
                 ":/test_upload_file_async.txt:",
                 "./test_files/test_upload_file_async.txt",
@@ -262,7 +262,7 @@ async fn drive_upload_new_and_replace_and_delete() {
             tokio::time::delay_for(Duration::from_secs(2)).await;
             let upload_replace = client
                 .v1()
-                .drives(id.as_str())
+                .drive(id.as_str())
                 .upload_replace(item_id, "./test_files/test_upload_file_async.txt")
                 .send()
                 .await;
@@ -278,7 +278,12 @@ async fn drive_upload_new_and_replace_and_delete() {
             }
 
             tokio::time::delay_for(Duration::from_secs(2)).await;
-            let delete_res = client.v1().drives(id.as_str()).delete(item_id).send().await;
+            let delete_res = client
+                .v1()
+                .drive(id.as_str())
+                .delete_items(item_id)
+                .send()
+                .await;
 
             if let Ok(response) = delete_res {
                 assert!(

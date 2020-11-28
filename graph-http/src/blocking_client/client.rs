@@ -2,7 +2,7 @@ use crate::download::{BlockingDownload, DownloadClient};
 use crate::uploadsession::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::{
-    GraphRequest, GraphResponse, HttpClient, RequestAttribute, RequestClient, RequestType,
+    GraphRequest, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient, RequestType,
 };
 use graph_core::resource::ResourceIdentity;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
@@ -142,6 +142,10 @@ impl BlockingClient {
             req_type: self.req_type,
             registry: Handlebars::new(),
         }
+    }
+
+    fn register_ident_helper(&mut self, resource_identity: ResourceIdentity) {
+        Registry::register_internal_helper(resource_identity, &mut self.registry);
     }
 }
 
@@ -314,6 +318,12 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>> {
             .registry
             .render_template(template, json)
             .unwrap()
+    }
+
+    fn register_ident_helper(&self, resource_identity: ResourceIdentity) {
+        self.client
+            .borrow_mut()
+            .register_ident_helper(resource_identity);
     }
 
     fn extend_path(&self, path: &[&str]) {
