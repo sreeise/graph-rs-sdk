@@ -23,6 +23,7 @@ lazy_static! {
 
 pub trait Generate<Clients> {
     fn generate(clients: Clients) -> Result<(), ParseError>;
+    fn dry_run(clients: Clients) -> Result<(), ParseError>;
 }
 
 /// Generate the Graph API clients.
@@ -228,12 +229,30 @@ impl Generate<ResourceIdentity> for Generator {
         gen.builder.build_clients();
         Ok(())
     }
+
+    fn dry_run(resource_identity: ResourceIdentity) -> Result<(), ParseError> {
+        let client_resource = ClientResource::try_from(resource_identity)?;
+        let mut gen = Generator {
+            builder: Generator::parse(API_V1_METADATA_URL.clone(), client_resource)?,
+        };
+        // This tells the builder to stop before creating the files and writing to them.
+        gen.builder.set_dry_run(true);
+        gen.builder.build_clients();
+        Ok(())
+    }
 }
 
 impl Generate<Vec<ResourceIdentity>> for Generator {
     fn generate(vec: Vec<ResourceIdentity>) -> Result<(), ParseError> {
         vec.par_iter().for_each(|resource_identity| {
             Generator::generate(resource_identity.clone()).unwrap();
+        });
+        Ok(())
+    }
+
+    fn dry_run(vec: Vec<ResourceIdentity>) -> Result<(), ParseError> {
+        vec.par_iter().for_each(|resource_identity| {
+            Generator::dry_run(resource_identity.clone()).unwrap();
         });
         Ok(())
     }

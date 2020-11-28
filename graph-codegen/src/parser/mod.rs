@@ -1,4 +1,5 @@
 pub mod client_resource;
+mod directory_mod;
 pub mod error;
 pub mod filter;
 mod parse;
@@ -8,6 +9,7 @@ mod request;
 mod resource;
 mod spec;
 
+pub use directory_mod::*;
 pub use parse::*;
 pub use parser_settings::*;
 pub use paths::*;

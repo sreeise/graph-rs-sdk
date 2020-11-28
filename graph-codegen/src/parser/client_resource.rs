@@ -65,7 +65,7 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 modifier: "contentTypes".to_string(),
             }),
             ResourceIdentity::Drive | ResourceIdentity::Drives => Ok(ClientResource::Main {
-                modifier: "drives".to_string(),
+                modifier: "drive".to_string(),
             }),
             ResourceIdentity::Education => Ok(ClientResource::Main {
                 modifier: ResourceIdentity::Education.to_string(),

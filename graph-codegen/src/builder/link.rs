@@ -6,6 +6,7 @@ use std::str::FromStr;
 pub struct ClientLinkSettings {
     name: String,
     method_name: Option<String>,
+    custom_calls: Option<String>,
     has_id_param: bool,
     has_extend_path_id: bool,
     has_extend_path_ident: bool,
@@ -19,6 +20,7 @@ impl ClientLinkSettings {
         ClientLinkSettings {
             name: name.to_string(),
             method_name: None,
+            custom_calls: None,
             has_id_param: false,
             has_extend_path_id: false,
             has_extend_path_ident: false,
@@ -60,6 +62,11 @@ impl ClientLinkSettings {
 
     pub fn use_method_name(&mut self, name: &str) -> &mut ClientLinkSettings {
         self.method_name = Some(name.to_string());
+        self
+    }
+
+    pub fn use_custom(&mut self, value: &str) -> &mut ClientLinkSettings {
+        self.custom_calls = Some(value.to_string());
         self
     }
 
@@ -155,6 +162,11 @@ impl ClientLinkSettings {
 
     pub fn format(&self) -> String {
         let mut s = self.method_start_string();
+
+        if let Some(custom) = self.custom_calls.as_ref() {
+            s.push_str(custom.as_str());
+        }
+
         s.push_str(self.extend_path_str());
         s.push_str(self.resource_identity_str().as_str());
         s.push_str(self.client_new_string().as_str());
