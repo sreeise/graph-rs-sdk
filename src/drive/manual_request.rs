@@ -1,5 +1,5 @@
 use crate::core::ResourceIdentity;
-use crate::drives::DrivesRequest;
+use crate::drive::DrivesRequest;
 use crate::error::{GraphFailure, GraphRsError};
 use graph_http::types::Content;
 use graph_http::IntoResponse;

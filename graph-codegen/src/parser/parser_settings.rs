@@ -4,7 +4,8 @@ use crate::parser::filter::{
 };
 use crate::parser::ResponseType::Collection;
 use crate::parser::{
-    HttpMethod, Request, RequestMap, RequestSet, RequestType, ResourceNames, ResponseType,
+    DirectoryModFile, HttpMethod, Request, RequestMap, RequestSet, RequestType, ResourceNames,
+    ResponseType,
 };
 use graph_core::resource::ResourceIdentity;
 use graph_http::GraphResponse;
@@ -41,6 +42,8 @@ impl ParserSettings {
                 "crate::items::{ItemRequest, ItemsRequest}",
                 "crate::lists::{ListRequest, ListsRequest}",
                 "graph_http::types::DeltaPhantom",
+                // TODO: Handlebars should be imported by the builder. Figure out why this is not happening.
+                "handlebars::*",
             ],
             ResourceIdentity::Lists => vec![
                 "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
@@ -55,7 +58,7 @@ impl ParserSettings {
                 "crate::core::ResourceIdentity",
                 "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
                 "crate::lists::{ListRequest, ListsRequest}",
-                "crate::drives::{DriveRequest, DrivesRequest}",
+                "crate::drive::DrivesRequest",
             ],
             ResourceIdentity::ManagedDevices => vec!["crate::core::ResourceIdentity"],
             ResourceIdentity::Me => vec![
@@ -71,7 +74,7 @@ impl ParserSettings {
                 "crate::activities::ActivitiesRequest",
                 "crate::settings::SettingsRequest",
                 "crate::outlook::OutlookRequest",
-                "crate::drives::{DriveRequest, DrivesRequest}",
+                "crate::drive::DrivesRequest",
                 "crate::core::ResourceIdentity",
             ],
             ResourceIdentity::Users => vec![
@@ -87,7 +90,7 @@ impl ParserSettings {
                 "crate::activities::ActivitiesRequest",
                 "crate::settings::SettingsRequest",
                 "crate::outlook::OutlookRequest",
-                "crate::drives::{DriveRequest, DrivesRequest}",
+                "crate::drive::DrivesRequest",
                 "crate::core::ResourceIdentity",
             ],
             _ => vec![],
@@ -239,7 +242,7 @@ impl ParserSettings {
     ) -> Option<HashMap<String, RequestSet>> {
         let vec = {
             match resource_identity {
-                ResourceIdentity::Drives => vec![
+                ResourceIdentity::Drive | ResourceIdentity::Drives => vec![
                     Request {
                         path: "/{{drive_item}}/{{id}}/children".to_string(),
                         method: HttpMethod::GET,
@@ -540,7 +543,18 @@ impl ParserSettings {
             }
 
             let mut map = HashMap::new();
-            map.insert(resource_identity.to_string().to_camel_case(), request_set);
+            match resource_identity {
+                ResourceIdentity::Drive | ResourceIdentity::Drives => {
+                    map.insert(
+                        ResourceIdentity::Drives.to_string().to_camel_case(),
+                        request_set,
+                    );
+                },
+                _ => {
+                    map.insert(resource_identity.to_string().to_camel_case(), request_set);
+                },
+            }
+
             Some(map)
         }
     }
@@ -669,6 +683,19 @@ impl ParserSettings {
         }
 
         map
+    }
+
+    pub fn get_directory_mod_files(
+        resource_identity: ResourceIdentity,
+    ) -> Option<Vec<DirectoryModFile>> {
+        match resource_identity {
+            ResourceIdentity::Drive | ResourceIdentity::Drives => Some(vec![DirectoryModFile {
+                resource_identity,
+                mod_name: "manual_request".to_string(),
+                use_all: true,
+            }]),
+            _ => None,
+        }
     }
 
     // Modify that paths that have a resource id. See UrlMatchTarget
@@ -905,6 +932,7 @@ impl ParserSettings {
                 let mut settings = ClientLinkSettings::new("items");
                 settings
                     .use_method_name("item")
+                    .use_custom("self.transfer_identity();\n")
                     .with_id_param()
                     .with_extend_path_id()
                     .with_extend_path_ident()
@@ -913,12 +941,14 @@ impl ParserSettings {
                 let mut settings2 = ClientLinkSettings::new("item");
                 settings2
                     .use_method_name("items")
+                    .use_custom("self.transfer_identity();\n")
                     .with_extend_path_id()
                     .with_extend_path_ident();
 
                 let mut settings3 = ClientLinkSettings::new("list");
                 settings3
                     .use_method_name("lists")
+                    .use_custom("self.transfer_identity();\n")
                     .with_extend_path_id()
                     .with_extend_path_ident()
                     .with_set_resource_identity();
@@ -926,6 +956,7 @@ impl ParserSettings {
                 let mut settings4 = ClientLinkSettings::new("lists");
                 settings4
                     .use_method_name("list")
+                    .use_custom("self.transfer_identity();\n")
                     .with_id_param()
                     .with_extend_path_id()
                     .with_extend_path_ident()
@@ -1088,18 +1119,11 @@ impl ParserSettings {
                     .with_new_method_empty_id()
                     .with_new_method_empty_id();
 
-                let mut settings20 = ClientLinkSettings::new("drive");
-                settings20
-                    .use_method_name("drives")
-                    .with_extend_path_ident()
-                    .with_set_resource_identity();
-
                 let mut set = BTreeSet::new();
                 set.extend(vec![
                     settings, settings2, settings3, settings4, settings5, settings6, settings7,
                     settings8, settings9, settings10, settings11, settings12, settings13,
                     settings14, settings15, settings16, settings17, settings18, settings19,
-                    settings20,
                 ]);
                 map.insert("me".to_string(), set);
             },
@@ -1140,17 +1164,8 @@ impl ParserSettings {
                     .with_extend_path_id()
                     .with_new_method_empty_id();
 
-                let mut settings6 = ClientLinkSettings::new("drive");
-                settings6
-                    .use_method_name("drives")
-                    .with_extend_path_ident()
-                    .with_extend_path_id()
-                    .with_set_resource_identity();
-
                 let mut set = BTreeSet::new();
-                set.extend(vec![
-                    settings, settings2, settings3, settings4, settings5, settings6,
-                ]);
+                set.extend(vec![settings, settings2, settings3, settings4, settings5]);
                 map.insert("sites".to_string(), set);
             },
             ResourceIdentity::Users => {
@@ -1279,18 +1294,11 @@ impl ParserSettings {
                     .with_extend_path_id()
                     .with_new_method_empty_id();
 
-                let mut settings19 = ClientLinkSettings::new("drive");
-                settings19
-                    .use_method_name("drives")
-                    .with_extend_path_ident()
-                    .with_extend_path_id()
-                    .with_set_resource_identity();
-
                 let mut set = BTreeSet::new();
                 set.extend(vec![
                     settings, settings2, settings3, settings4, settings5, settings6, settings7,
                     settings8, settings9, settings10, settings11, settings12, settings13,
-                    settings14, settings15, settings16, settings17, settings18, settings19,
+                    settings14, settings15, settings16, settings17, settings18,
                 ]);
                 map.insert("users".to_string(), set);
 

@@ -23,6 +23,7 @@ pub struct SpecBuilder {
     secondary_links: BTreeMap<String, Vec<String>>,
     client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
     build_with_modifier_filter: bool,
+    dry_run: bool,
 }
 
 impl SpecBuilder {
@@ -76,6 +77,10 @@ impl SpecBuilder {
                 .or_insert(set);
         }
     }
+
+    fn set_dry_run(&mut self, dry_run: bool) {
+        self.dry_run = dry_run;
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -94,6 +99,7 @@ impl Builder {
                 secondary_links: Default::default(),
                 client_links: Default::default(),
                 build_with_modifier_filter: false,
+                dry_run: false,
             }),
         }
     }
@@ -111,6 +117,10 @@ impl Builder {
         Builder::parser_build(&spec)
     }
 
+    pub fn set_dry_run(&self, dry_run: bool) {
+        self.spec.borrow_mut().set_dry_run(dry_run);
+    }
+
     pub fn use_defaults(&self) {
         let mut spec = self.spec.borrow_mut();
         spec.add_imports(&[
@@ -120,6 +130,11 @@ impl Builder {
         ]);
 
         let mut ident_clients: HashSet<String> = HashSet::new();
+
+        // Drives does not get added because we use drive instead of drives
+        // to create both.
+        ident_clients.insert("drives".to_string());
+
         let modifiers = spec.parser.resource_modifier_set();
         let client_links_override = spec.parser.client_links();
 
@@ -138,12 +153,24 @@ impl Builder {
         spec.set_ident_clients(ident_clients);
     }
 
-    fn add_clients(
+    fn add_custom_clients(
         &self,
         name: &str,
         custom_methods: &HashMap<String, RequestSet>,
         client_map: &mut BTreeMap<String, Client>,
     ) {
+        for (name, client) in client_map.iter_mut() {
+            if let Some(request_set) = custom_methods.get(name) {
+                let methods = request_set.methods();
+
+                for (_name, methods) in methods.iter() {
+                    let client_methods: BTreeSet<RequestMap> =
+                        methods.into_iter().cloned().collect();
+                    client.extend_methods(client_methods);
+                }
+            }
+        }
+
         if let Some(request_set) = custom_methods.get(name) {
             let request_set = request_set.clone();
             let methods = request_set.methods();
@@ -171,9 +198,19 @@ impl Builder {
     // The users path has drive/items while the drive path is just items.
     fn fix_drive_methods(&self, methods: &mut Vec<RequestMap>) {
         let mat = "/drives/{{RID}}";
+        let mat2 = "/drives/{{id}}";
+
         let empty_root = "{{drive_root}}";
         for request_map in methods {
-            if request_map.path.starts_with(mat) {
+            if request_map.path.starts_with(mat) || request_map.path.starts_with(mat2) {
+                let mat = {
+                    if request_map.path.starts_with(mat) {
+                        mat
+                    } else {
+                        mat2
+                    }
+                };
+
                 request_map.path = request_map.path.trim_start_matches(mat).to_string();
 
                 if request_map.path.is_empty() {
@@ -201,6 +238,7 @@ impl Builder {
         let custom_methods = spec.parser.custom_methods();
         let mut map = Builder::parser_build(&spec);
         let imports = spec.imports.clone();
+        let dry_run = spec.dry_run;
 
         for (name, request_set) in map.iter_mut() {
             if !name.trim().is_empty() {
@@ -234,7 +272,7 @@ impl Builder {
 
                 let mut clients: BTreeMap<String, Client> = BTreeMap::new();
                 for (name, methods) in methods.iter() {
-                    let client_methods: BTreeSet<RequestMap> =
+                    let mut client_methods: BTreeSet<RequestMap> =
                         methods.into_iter().cloned().collect();
 
                     let mut client = Client::new(name.as_str(), client_methods);
@@ -264,7 +302,7 @@ impl Builder {
                 }
 
                 if let Some(custom_methods) = custom_methods.as_ref() {
-                    self.add_clients(name.as_str(), custom_methods, &mut clients);
+                    self.add_custom_clients(name.as_str(), custom_methods, &mut clients);
                 }
 
                 for (client_name, client) in clients.iter() {
@@ -278,7 +316,15 @@ impl Builder {
                 let mod_file = format!("./src/{}/mod.rs", snake_casing);
                 let file = format!("./src/{}/request.rs", snake_casing);
                 let client_builder = ClientBuilder::new(imports, clients);
-                Builder::write(client_builder, dir, mod_file, file);
+
+                println!("Building Client: {:#?}", snake_casing);
+                println!("Directory: {:#?}", dir);
+                println!("Mod file: {:#?}", mod_file);
+                println!("Request file: {:#?}", file);
+
+                if !dry_run {
+                    Builder::write(client_builder, dir, mod_file, file);
+                }
             }
         }
     }

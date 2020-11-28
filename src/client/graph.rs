@@ -14,7 +14,7 @@ use crate::device_management::DeviceManagementRequest;
 use crate::directory::DirectoryRequest;
 use crate::domain_dns_records::DomainDnsRecordsRequest;
 use crate::domains::DomainsRequest;
-use crate::drives::{DriveRequest, DrivesRequest};
+use crate::drive::{DriveRequest, DrivesRequest};
 use crate::education::EducationRequest;
 use crate::group_lifecycle_policies::GroupLifecyclePoliciesRequest;
 use crate::groups::{
