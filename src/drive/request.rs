@@ -322,6 +322,13 @@ where
         params: 0,
         has_body: false
     });
+    post!({
+        name: create_root_folder,
+        response: serde_json::Value,
+        path: "/{{drive_root}}/root/children",
+        params: 0,
+        has_body: true
+    });
     get!({
         name: list_root_activities,
         response: Collection<serde_json::Value>,
