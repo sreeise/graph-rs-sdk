@@ -92,7 +92,7 @@ fn education_classes() {
     client
         .v1()
         .education()
-        .create_classes((&serde_json::json!({})));
+        .create_classes(&serde_json::json!({}));
 
     client.url_ref(|url| {
         assert_eq!(
