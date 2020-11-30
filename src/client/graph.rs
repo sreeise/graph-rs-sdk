@@ -1,12 +1,9 @@
 use crate::activities::ActivitiesRequest;
 use crate::app_catalogs::AppCatalogsRequest;
 use crate::applications::{ApplicationRequest, ApplicationsRequest};
-use crate::attachments::AttachmentRequest;
 use crate::audit_logs::AuditLogsRequest;
-use crate::calendar::CalendarRequest;
 use crate::certificate_based_auth_configuration::CertificateBasedAuthConfigurationRequest;
 use crate::communications::CommunicationsRequest;
-use crate::contacts::ContactsRequest;
 use crate::contracts::ContractsRequest;
 use crate::data_policy_operations::DataPolicyOperationsRequest;
 use crate::device_app_management::DeviceAppManagementRequest;
@@ -22,7 +19,6 @@ use crate::groups::{
 };
 use crate::identity::IdentityRequest;
 use crate::invitations::InvitationsRequest;
-use crate::mail::MailRequest;
 use crate::me::MeRequest;
 //use crate::onenote::OnenoteRequest;
 use crate::places::PlacesRequest;

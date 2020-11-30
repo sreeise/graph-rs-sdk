@@ -11,7 +11,9 @@ use reqwest::Url;
 use serde::Serialize;
 use std::cell::{RefCell, RefMut};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
+use std::convert::TryFrom;
 use std::fmt::Debug;
+use std::io::{Read, Write};
 use std::path::Path;
 use std::str::FromStr;
 

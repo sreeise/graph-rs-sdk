@@ -3,7 +3,6 @@ use crate::core::ResourceIdentity;
 use crate::pages::{PageRequest, PagesRequest};
 use crate::parent_notebook::ParentNotebookRequest;
 use crate::parent_section_group::ParentSectionGroupRequest;
-use crate::section_groups::SectionGroupsRequest;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::GraphResponse;

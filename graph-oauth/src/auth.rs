@@ -11,6 +11,7 @@ use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
 use std::convert::TryFrom;
 use std::fmt;
+use std::io::{Read, Write};
 use std::process::Output;
 use url::form_urlencoded::Serializer;
 use url::Url;

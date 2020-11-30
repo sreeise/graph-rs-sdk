@@ -6,6 +6,7 @@ use from_as::*;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use std::convert::TryFrom;
 use std::fmt;
+use std::io::{Read, Write};
 
 /// OAuth 2.0 Access Token
 ///
