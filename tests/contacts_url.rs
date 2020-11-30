@@ -1,3 +1,6 @@
+// TODO: contacts
+
+/*
 use graph_rs::client::Graph;
 
 static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";
@@ -82,3 +85,5 @@ fn contacts_folder() {
         .update(ID, &serde_json::json!({}));
     client.url_ref(|url|  {assert_eq!("https://graph.microsoft.com/v1.0/me/contactfolders/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI", url.to_string());});
 }
+
+ */

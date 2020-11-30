@@ -9,8 +9,8 @@ async fn delta_req() {
     }
 
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let mut delta_recv = client.v1().user(id.as_str()).delta().send().await;
+    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        let mut delta_recv = client.v1().users().delta().send().await;
 
         let mut is_done = false;
 

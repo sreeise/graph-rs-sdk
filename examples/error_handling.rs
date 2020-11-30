@@ -26,7 +26,7 @@ fn main() {
     // Use a fake access token to cause an error to be returned.
     let client = Graph::new("1234");
 
-    let response = client.v1().me().get().send();
+    let response = client.v1().me().get_user().send();
 
     if let Err(e) = response {
         match e {

@@ -52,7 +52,7 @@ async fn async_upload_session() {
             .v1()
             .user(id.as_str())
             .drive()
-            .upload_session(
+            .create_upload_session(
                 ":/async_upload_session.txt:",
                 "./test_files/async_upload_session.txt",
                 &upload,
@@ -125,7 +125,7 @@ async fn async_upload_session_standalone_request() {
             .v1()
             .user(id.as_str())
             .drive()
-            .upload_session(
+            .create_upload_session(
                 ":/async_upload_session_request.txt:",
                 "./test_files/async_upload_session_request.txt",
                 &upload,
@@ -196,14 +196,11 @@ async fn create_delete_folder_async() {
         let create_folder_res = client
             .v1()
             .drive(id.as_str())
-            .create_folder(
-                "",
-                &serde_json::json!({
-                    "name": "ci_docs_async",
-                    "folder": folder,
-                    "@microsoft.graph.conflictBehavior": "rename"
-                }),
-            )
+            .create_root_folder(&serde_json::json!({
+                "name": "ci_docs_async",
+                "folder": folder,
+                "@microsoft.graph.conflictBehavior": "rename"
+            }))
             .send()
             .await;
 

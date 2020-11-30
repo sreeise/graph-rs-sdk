@@ -18,7 +18,13 @@ fn main() {
 fn check_out_item() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1().me().drive().check_out(ITEM_ID).send().unwrap();
+    let response = client
+        .v1()
+        .me()
+        .drive()
+        .check_out_item(ITEM_ID)
+        .send()
+        .unwrap();
 
     // Should be 204 for a successful check out.
     println!("{:#?}", response.status());
@@ -40,7 +46,7 @@ fn check_in_item() {
         .v1()
         .me()
         .drive()
-        .check_in(
+        .check_in_item(
             ITEM_ID,
             &serde_json::json!({
                 "comment": comment,

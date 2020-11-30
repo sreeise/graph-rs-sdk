@@ -20,17 +20,23 @@ fn main() {
 
 fn drive_root(graph: &mut Graph<BlockingHttpClient>) {
     let drive_item: GraphResponse<serde_json::Value> =
-        graph.v1().me().drive().root().send().unwrap();
+        graph.v1().me().drive().get_root().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn drive_root_children(graph: &mut Graph<BlockingHttpClient>) {
-    let drive_item = graph.v1().me().drive().root_children().send().unwrap();
+    let drive_item = graph.v1().me().drive().list_root_children().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
 fn special_docs(graph: &mut Graph<BlockingHttpClient>) {
-    let drive_item = graph.v1().me().drive().special_documents().send().unwrap();
+    let drive_item = graph
+        .v1()
+        .me()
+        .drive()
+        .get_special("documents")
+        .send()
+        .unwrap();
     println!("{:#?}", drive_item);
 }
 
@@ -39,7 +45,7 @@ fn special_docs_child(graph: &mut Graph<BlockingHttpClient>) {
         .v1()
         .me()
         .drive()
-        .special_documents_children()
+        .get_special("documents")
         .send()
         .unwrap();
     println!("{:#?}", drive_item);

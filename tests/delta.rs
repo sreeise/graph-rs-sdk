@@ -5,7 +5,7 @@ use test_tools::oauthrequest::*;
 fn delta_req() {
     let _lock = THROTTLE_MUTEX.lock().unwrap();
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let delta_recv = client.v1().users(id.as_str()).delta().send();
+        let delta_recv = client.v1().users().delta().send();
         let mut is_done = false;
 
         loop {

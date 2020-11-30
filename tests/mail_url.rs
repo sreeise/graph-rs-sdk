@@ -1,3 +1,5 @@
+// TODO: Add back mail
+/*
 use graph_rs::prelude::*;
 use test_tools::assert_url_eq;
 
@@ -732,3 +734,5 @@ fn mail_focused_inbox() {
         "/sites/32p99453/inferenceClassification/overrides/1234",
     );
 }
+
+ */
