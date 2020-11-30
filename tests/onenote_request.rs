@@ -2,10 +2,14 @@ use graph_rs::error::{GraphFailure, GraphRsError};
 use graph_rs::prelude::*;
 // use std::fs::OpenOptions;
 // use std::io::Read;
+use std::ffi::OsString;
+use std::fs;
+use std::path::Path;
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
+use test_tools::support::cleanup::CleanUp;
 
 #[test]
 fn list_get_notebooks_and_sections() {
@@ -121,6 +125,76 @@ fn create_delete_page_from_file() {
             }
         } else if let Err(e) = res {
             panic!("Request error. Method onenote create page. Error: {:#?}", e);
+        }
+    }
+}
+
+#[test]
+fn download_page() {
+    if Environment::is_appveyor() {
+        return;
+    }
+
+    let _lock = THROTTLE_MUTEX.lock().unwrap();
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+        let file_location = "./test_files/downloaded_page.html";
+        let mut clean_up = CleanUp::new(|| {
+            if Path::new(file_location).exists() {
+                fs::remove_file(Path::new(file_location)).unwrap();
+            }
+        });
+
+        clean_up.rm_files(file_location.into());
+
+        let res = client
+            .v1()
+            .user(&id)
+            .onenote()
+            .pages()
+            .create_pages_from_file("./test_files/onenotepage.html")
+            .send();
+
+        if let Ok(page) = res {
+            thread::sleep(Duration::from_secs(4));
+            let page_id = page.body()["id"].as_str().unwrap();
+
+            let download_page = client
+                .v1()
+                .user(&id)
+                .onenote()
+                .page(page_id)
+                .download_page("./test_files");
+
+            download_page.rename(OsString::from("downloaded_page.html"));
+            let result = download_page.send();
+
+            if let Err(e) = result {
+                panic!(
+                    "Request error. Method onenote page download page: Error: {:#?}",
+                    e
+                );
+            }
+
+            thread::sleep(Duration::from_secs(2));
+            let delete_res = client
+                .v1()
+                .user(&id)
+                .onenote()
+                .page(page_id)
+                .delete_pages()
+                .send();
+
+            if let Err(e) = delete_res {
+                panic!(
+                    "Request error. Method onenote pages delete page (download page test): Error: {:#?}",
+                    e
+                );
+            }
+        } else if let Err(e) = res {
+            panic!(
+                "Request error. Method onenote create page (download page test). Error: {:#?}",
+                e
+            );
         }
     }
 }
