@@ -409,6 +409,12 @@ impl PathMap {
                     }
                     paths
                 },
+                FilterIgnore::PathEquals(s) => self
+                    .paths
+                    .clone()
+                    .into_par_iter()
+                    .filter(|(path, _path_spec)| !path.eq(s))
+                    .collect(),
             },
             Filter::MultiFilter(vec) => {
                 let mut map: BTreeMap<String, Path> = BTreeMap::new();

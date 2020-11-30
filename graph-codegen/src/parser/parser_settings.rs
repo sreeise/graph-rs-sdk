@@ -59,8 +59,56 @@ impl ParserSettings {
                 "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
                 "crate::lists::{ListRequest, ListsRequest}",
                 "crate::drive::DrivesRequest",
+                "crate::onenote::OnenoteRequest",
+            ],
+            ResourceIdentity::Onenote => vec![
+                "crate::core::ResourceIdentity",
+                "crate::notebooks::{NotebookRequest, NotebooksRequest}",
+                "crate::pages::{PagesRequest, PageRequest}",
+                "crate::sections::{SectionRequest, SectionsRequest}",
+                "crate::section_groups::{SectionGroupRequest, SectionGroupsRequest}",
+            ],
+            ResourceIdentity::Pages => vec![
+                "crate::core::ResourceIdentity",
+                "crate::parent_notebook::ParentNotebookRequest",
+                "crate::parent_section::ParentSectionRequest",
+            ],
+            ResourceIdentity::Notebooks => vec![
+                "crate::core::ResourceIdentity",
+                "crate::sections::SectionsRequest",
+                "crate::section_groups::SectionGroupsRequest",
+            ],
+            ResourceIdentity::SectionGroups => vec![
+                "crate::core::ResourceIdentity",
+                "crate::sections::SectionsRequest",
+            ],
+            ResourceIdentity::Sections => vec![
+                "crate::core::ResourceIdentity",
+                "crate::pages::PagesRequest",
+                "crate::section_groups::SectionGroupsRequest",
+                "crate::parent_notebook::ParentNotebookRequest",
+                "crate::parent_section_group::ParentSectionGroupRequest",
+            ],
+            ResourceIdentity::ParentNotebook => vec![
+                "crate::core::ResourceIdentity",
+                "crate::sections::SectionsRequest",
+                "crate::section_groups::SectionGroupsRequest",
+            ],
+            ResourceIdentity::ParentSectionGroup => vec![
+                "crate::core::ResourceIdentity",
+                "crate::sections::SectionsRequest",
+                "crate::section_groups::SectionGroupsRequest",
+                "crate::parent_notebook::ParentNotebookRequest",
+            ],
+            ResourceIdentity::ParentSection => vec![
+                "crate::core::ResourceIdentity",
+                "crate::pages::PagesRequest",
+                "crate::parent_section_group::ParentSectionGroupRequest",
+                "crate::parent_notebook::ParentNotebookRequest",
             ],
             ResourceIdentity::ManagedDevices => vec!["crate::core::ResourceIdentity"],
+            ResourceIdentity::MailFolders => vec!["crate::core::ResourceIdentity"],
+            ResourceIdentity::Messages => vec!["crate::core::ResourceIdentity"],
             ResourceIdentity::Me => vec![
                 "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
                 "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
@@ -75,6 +123,7 @@ impl ParserSettings {
                 "crate::settings::SettingsRequest",
                 "crate::outlook::OutlookRequest",
                 "crate::drive::DrivesRequest",
+                "crate::onenote::OnenoteRequest",
                 "crate::core::ResourceIdentity",
             ],
             ResourceIdentity::Users => vec![
@@ -91,6 +140,7 @@ impl ParserSettings {
                 "crate::settings::SettingsRequest",
                 "crate::outlook::OutlookRequest",
                 "crate::drive::DrivesRequest",
+                "crate::onenote::OnenoteRequest",
                 "crate::core::ResourceIdentity",
             ],
             _ => vec![],
@@ -163,6 +213,79 @@ impl ParserSettings {
                 vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                     "contentTypes",
                     "items",
+                ]))]
+            },
+            ResourceIdentity::MailFolders => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/move", "messages",
+                ]))]
+            },
+            ResourceIdentity::Messages => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/move",
+                ]))]
+            },
+            ResourceIdentity::Onenote => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "sections/{onenoteSection-id}",
+                    "sectionGroups/{sectionGroup-id}",
+                    "pages/{onenotePage-id}",
+                    "notebooks/{notebook-id}",
+                    "getNotebookFromWebUrl",
+                ]))]
+            },
+            ResourceIdentity::Pages => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "sections/{onenoteSection-id}",
+                    "sectionGroups/{sectionGroup-id}",
+                    "notebooks/{notebook-id}",
+                    "/parentNotebook/",
+                    "/parentSection/",
+                ]))]
+            },
+            ResourceIdentity::Notebooks => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "sections/{onenoteSection-id}",
+                    "sectionGroups/{sectionGroup-id}",
+                    "pages/{onenotePage-id}",
+                ]))]
+            },
+            ResourceIdentity::SectionGroups => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "sections/{onenoteSection-id}",
+                    "pages/{onenotePage-id}",
+                    "notebooks/{notebook-id}",
+                    "/sectionGroups/{sectionGroup-id}/sectionGroups/{sectionGroup-id}",
+                ]))]
+            },
+            ResourceIdentity::Sections => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "pages/{onenotePage-id}",
+                    "sectionGroups/{sectionGroup-id}",
+                    "notebooks/{notebook-id}",
+                    "/parentSectionGroup/",
+                    "/parentNotebook/",
+                ]))]
+            },
+            ResourceIdentity::ParentNotebook => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/parentNotebook/sectionGroups/{sectionGroup-id}",
+                    "/parentNotebook/sections/{onenoteSection-id}",
+                ]))]
+            },
+            ResourceIdentity::ParentSectionGroup => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/parentSectionGroup/parentNotebook/",
+                    "/parentSectionGroup/sectionGroups/",
+                    "/parentSectionGroup/sections/",
+                    "/parentSectionGroup/parentSectionGroup",
+                ]))]
+            },
+            ResourceIdentity::ParentSection => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/parentSection/pages/",
+                    "/parentSectionGroup/",
+                    "/parentNotebook/",
                 ]))]
             },
             ResourceIdentity::Me => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
@@ -398,7 +521,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "/{{drive_item_id}}/thumbnails/{{id}}/{{id2}}".to_string(),
+                        path: "/{{drive_item_id}}/thumbnails/{{id2}}/{{id3}}".to_string(),
                         method: HttpMethod::GET,
                         method_name: "get_thumbnail".to_string(),
                         param_size: 3,
@@ -539,6 +662,36 @@ impl ParserSettings {
                     operation_mapping: "items".into(),
                     doc: Some("# Delete navigation property items".into()),
                 }],
+                ResourceIdentity::Pages => vec![
+                    Request {
+                        path: "/pages/{{RID}}".into(),
+                        method: HttpMethod::DELETE,
+                        method_name: "delete_pages".into(),
+                        param_size: 0,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: true,
+                        response: ResponseType::NoContent,
+                        tag: "pages".into(),
+                        operation_id: "me.onenote.pages.DeletePages".into(),
+                        operation_mapping: "me.onenote.pages".into(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "/pages/{{RID}}/content".into(),
+                        method: HttpMethod::PATCH,
+                        method_name: "update_page_content".into(),
+                        param_size: 0,
+                        has_body: true,
+                        request_type: RequestType::Normal,
+                        has_rid: true,
+                        response: ResponseType::SerdeJson,
+                        tag: "pages".into(),
+                        operation_id: "me.onenote.pages.UpdatePageContent".into(),
+                        operation_mapping: "me.onenote.pages".into(),
+                        doc: None,
+                    },
+                ],
                 _ => vec![],
             }
         };
@@ -677,6 +830,18 @@ impl ParserSettings {
                     MatchTarget::OperationMap("lists".to_string()),
                 );
             },
+            ResourceIdentity::MailFolders => {
+                map.insert(
+                    "me.mailFolders",
+                    MatchTarget::OperationMap("mailFolders".to_string()),
+                );
+            },
+            ResourceIdentity::Messages => {
+                map.insert(
+                    "me.messages",
+                    MatchTarget::OperationMap("messages".to_string()),
+                );
+            },
             ResourceIdentity::Me => {
                 map.insert("me.user", MatchTarget::OperationMap("me".to_string()));
             },
@@ -692,6 +857,36 @@ impl ParserSettings {
                     MatchTarget::OperationMap("settings".to_string()),
                 );
             },
+            ResourceIdentity::Notebooks => {
+                map.insert(
+                    "me.onenote.notebooks",
+                    MatchTarget::OperationMap("notebooks".to_string()),
+                );
+            },
+            ResourceIdentity::SectionGroups => {
+                map.insert(
+                    "me.onenote.sectionGroups",
+                    MatchTarget::OperationMap("sectionGroups".to_string()),
+                );
+            },
+            ResourceIdentity::Sections => {
+                map.insert(
+                    "me.onenote.sections",
+                    MatchTarget::OperationMap("sections".to_string()),
+                );
+            },
+            ResourceIdentity::Pages => {
+                map.insert(
+                    "me.onenote.pages",
+                    MatchTarget::OperationMap("pages".to_string()),
+                );
+            },
+            ResourceIdentity::ParentSection => {
+                map.insert(
+                    "me.onenote.pages.parentSection",
+                    MatchTarget::OperationMap("parentSection".to_string()),
+                );
+            },
             _ => {},
         }
 
@@ -703,6 +898,11 @@ impl ParserSettings {
     ) -> Option<Vec<DirectoryModFile>> {
         match resource_identity {
             ResourceIdentity::Drive | ResourceIdentity::Drives => Some(vec![DirectoryModFile {
+                resource_identity,
+                mod_name: "manual_request".to_string(),
+                use_all: true,
+            }]),
+            ResourceIdentity::Pages => Some(vec![DirectoryModFile {
                 resource_identity,
                 mod_name: "manual_request".to_string(),
                 use_all: true,
@@ -743,10 +943,23 @@ impl ParserSettings {
             },
             ResourceIdentity::Items => vec![UrlMatchTarget::resource_id("items", "item")],
             ResourceIdentity::Lists => vec![UrlMatchTarget::resource_id("lists", "list")],
+            ResourceIdentity::MailFolders => {
+                vec![UrlMatchTarget::resource_id("mailFolders", "mailFolder")]
+            },
+            ResourceIdentity::Messages => vec![UrlMatchTarget::resource_id("messages", "message")],
             ResourceIdentity::ManagedDevices => vec![UrlMatchTarget::resource_id(
                 "managedDevices",
                 "managedDevice",
             )],
+            ResourceIdentity::Notebooks => {
+                vec![UrlMatchTarget::resource_id("notebooks", "notebook")]
+            },
+            ResourceIdentity::Onenote => vec![UrlMatchTarget::resource_id("notebooks", "notebook")],
+            ResourceIdentity::Pages => vec![UrlMatchTarget::resource_id("pages", "page")],
+            ResourceIdentity::Sections => vec![UrlMatchTarget::resource_id("sections", "section")],
+            ResourceIdentity::SectionGroups => {
+                vec![UrlMatchTarget::resource_id("sectionGroups", "sectionGroup")]
+            },
             ResourceIdentity::Sites => vec![UrlMatchTarget::resource_id("sites", "site")],
             ResourceIdentity::Teams => vec![UrlMatchTarget::resource_id("teams", "team")],
             ResourceIdentity::Users => vec![UrlMatchTarget::resource_id("users", "user")],
@@ -1012,6 +1225,215 @@ impl ParserSettings {
                 set.extend(vec![settings, settings2, settings3, settings4]);
                 map.insert("lists".to_string(), set);
             },
+            ResourceIdentity::Onenote => {
+                let mut settings = ClientLinkSettings::new("pages");
+                settings
+                    .use_method_name("page")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("page");
+                settings2
+                    .use_method_name("pages")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings3 = ClientLinkSettings::new("notebooks");
+                settings3
+                    .use_method_name("notebook")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings4 = ClientLinkSettings::new("notebook");
+                settings4
+                    .use_method_name("notebooks")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings5 = ClientLinkSettings::new("sectionGroups");
+                settings5
+                    .use_method_name("sectionGroup")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings6 = ClientLinkSettings::new("sectionGroup");
+                settings6
+                    .use_method_name("sectionGroups")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings7 = ClientLinkSettings::new("sections");
+                settings7
+                    .use_method_name("section")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings8 = ClientLinkSettings::new("section");
+                settings8
+                    .use_method_name("sections")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![
+                    settings, settings2, settings3, settings4, settings5, settings6, settings7,
+                    settings8,
+                ]);
+                map.insert("onenote".to_string(), set);
+            },
+            ResourceIdentity::Notebooks => {
+                let mut settings = ClientLinkSettings::new("sectionGroups");
+                settings
+                    .use_method_name("sectionGroup")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("sections");
+                settings2
+                    .use_method_name("section")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2]);
+                map.insert("notebooks".to_string(), set);
+            },
+            ResourceIdentity::Sections => {
+                let mut settings = ClientLinkSettings::new("pages");
+                settings
+                    .use_method_name("page")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("parentNotebook");
+                settings2
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings3 = ClientLinkSettings::new("parentSectionGroup");
+                settings3
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2, settings3]);
+                map.insert("sections".to_string(), set);
+            },
+            ResourceIdentity::Pages => {
+                let mut settings = ClientLinkSettings::new("parentNotebook");
+                settings
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("parentSection");
+                settings2
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2]);
+                map.insert("pages".to_string(), set);
+            },
+            ResourceIdentity::ParentSection => {
+                let mut settings = ClientLinkSettings::new("pages");
+                settings
+                    .use_method_name("page")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("parentSectionGroup");
+                settings2
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings3 = ClientLinkSettings::new("parentNotebook");
+                settings3
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2, settings3]);
+                map.insert("parentSection".to_string(), set);
+            },
+            ResourceIdentity::SectionGroups => {
+                let mut settings = ClientLinkSettings::new("sections");
+                settings
+                    .use_method_name("section")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings]);
+                map.insert("sectionGroups".to_string(), set);
+            },
+            ResourceIdentity::ParentNotebook => {
+                let mut settings = ClientLinkSettings::new("sections");
+                settings
+                    .use_method_name("section")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("sectionGroups");
+                settings2
+                    .use_method_name("sectionGroup")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2]);
+                map.insert("parentNotebook".to_string(), set);
+            },
+            ResourceIdentity::ParentSectionGroup => {
+                let mut settings = ClientLinkSettings::new("sections");
+                settings
+                    .use_method_name("section")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("sectionGroups");
+                settings2
+                    .use_method_name("sectionGroup")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings3 = ClientLinkSettings::new("parentNotebook");
+                settings3
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                // Parent section group has requests that have the path /parentSectionGroup/parentSectionGroup
+                // and these requests have the same method name, such as get_parent_section_group, which
+                // is a conflict because parent section group already has that method name. So we remove
+                // those requests entirely and provide a link to the same parent section group which
+                // will extend the path correctly when calling these methods.
+                let mut settings4 = ClientLinkSettings::new("parentSectionGroup");
+                settings4.with_extend_path_ident();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2, settings3, settings4]);
+                map.insert("parentSectionGroup".to_string(), set);
+            },
             ResourceIdentity::Me => {
                 let mut settings = ClientLinkSettings::new("calendarGroups");
                 settings
@@ -1124,11 +1546,17 @@ impl ParserSettings {
                     .with_new_method_empty_id()
                     .with_new_method_empty_id();
 
+                let mut settings20 = ClientLinkSettings::new("onenote");
+                settings20
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
                 set.extend(vec![
                     settings, settings2, settings3, settings4, settings5, settings6, settings7,
                     settings8, settings9, settings10, settings11, settings12, settings13,
                     settings14, settings15, settings16, settings17, settings18, settings19,
+                    settings20,
                 ]);
                 map.insert("me".to_string(), set);
             },
@@ -1169,8 +1597,16 @@ impl ParserSettings {
                     .with_extend_path_id()
                     .with_new_method_empty_id();
 
+                let mut settings6 = ClientLinkSettings::new("onenote");
+                settings6
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
-                set.extend(vec![settings, settings2, settings3, settings4, settings5]);
+                set.extend(vec![
+                    settings, settings2, settings3, settings4, settings5, settings6,
+                ]);
                 map.insert("sites".to_string(), set);
             },
             ResourceIdentity::Users => {
@@ -1299,11 +1735,17 @@ impl ParserSettings {
                     .with_extend_path_id()
                     .with_new_method_empty_id();
 
+                let mut settings19 = ClientLinkSettings::new("onenote");
+                settings19
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
                 let mut set = BTreeSet::new();
                 set.extend(vec![
                     settings, settings2, settings3, settings4, settings5, settings6, settings7,
                     settings8, settings9, settings10, settings11, settings12, settings13,
-                    settings14, settings15, settings16, settings17, settings18,
+                    settings14, settings15, settings16, settings17, settings18, settings19,
                 ]);
                 map.insert("users".to_string(), set);
 
@@ -1843,6 +2285,66 @@ impl ParserSettings {
                     ],
                 );
             },
+            ResourceIdentity::Messages => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.ListMessages".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("messages".to_string()),
+                        MatchTarget::OperationId("messages.ListMessages".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetMessages".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("messages".to_string()),
+                        MatchTarget::OperationId("messages.GetMessages".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.CreateMessages".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("messages".to_string()),
+                        MatchTarget::OperationId("messages.CreateMessages".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateMessages".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("messages".to_string()),
+                        MatchTarget::OperationId("messages.UpdateMessages".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::MailFolders => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.ListMailFolders".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("mailFolders".to_string()),
+                        MatchTarget::OperationId("mailFolders.ListMailFolders".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetMailFolders".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("mailFolders".to_string()),
+                        MatchTarget::OperationId("mailFolders.GetMailFolders".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.CreateMailFolders".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("mailFolders".to_string()),
+                        MatchTarget::OperationId("mailFolders.CreateMailFolders".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateMailFolders".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("mailFolders".to_string()),
+                        MatchTarget::OperationId("mailFolders.UpdateMailFolders".to_string()),
+                    ],
+                );
+            },
             ResourceIdentity::Me => {
                 // me.user.GetUser
                 modify_target.map.insert(
@@ -1862,6 +2364,207 @@ impl ParserSettings {
                 modify_target.map.insert(
                     MatchTarget::OperationMap("me.user".to_string()),
                     vec![MatchTarget::OperationMap("me".to_string())],
+                );
+            },
+            ResourceIdentity::Notebooks => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.ListNotebooks".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("notebooks".to_string()),
+                        MatchTarget::OperationId("notebooks.ListNotebooks".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.GetNotebooks".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("notebooks".to_string()),
+                        MatchTarget::OperationId("notebooks.GetNotebooks".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.CreateNotebooks".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("notebooks".to_string()),
+                        MatchTarget::OperationId("notebooks.CreateNotebooks".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::Onenote => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.GetOnenote".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("onenote".to_string()),
+                        MatchTarget::OperationId("onenote.GetOnenote".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.UpdateOnenote".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("onenote".to_string()),
+                        MatchTarget::OperationId("onenote.UpdateOnenote".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::SectionGroups => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.CreateSectionGroups".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sectionGroups".to_string()),
+                        MatchTarget::OperationId("sectionGroups.CreateSectionGroups".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.GetSectionGroups".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sectionGroups".to_string()),
+                        MatchTarget::OperationId("sectionGroups.GetSectionGroup".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.ListSectionGroups".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sectionGroups".to_string()),
+                        MatchTarget::OperationId("sectionGroups.ListSectionGroups".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.UpdateSectionGroups".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sectionGroups".to_string()),
+                        MatchTarget::OperationId("sectionGroups.UpdateSectionGroup".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::Pages => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.GetPages".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("pages".to_string()),
+                        MatchTarget::OperationId("pages.GetPages".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.UpdatePages".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("pages".to_string()),
+                        MatchTarget::OperationId("pages.UpdatePages".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.ListPages".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("pages".to_string()),
+                        MatchTarget::OperationId("pages.ListPages".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.CreatePages".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("pages".to_string()),
+                        MatchTarget::OperationId("pages.CreatePages".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::Sections => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.ListSections".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sections".to_string()),
+                        MatchTarget::OperationId("sections.ListSections".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.CreateSections".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sections".to_string()),
+                        MatchTarget::OperationId("sections.CreateSections".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.UpdateSections".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sections".to_string()),
+                        MatchTarget::OperationId("sections.UpdateSections".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.GetSections".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("sections".to_string()),
+                        MatchTarget::OperationId("sections.GetSections".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::ParentSection => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.pages.GetParentSection".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("me.onenote.pages.parentSection".to_string()),
+                        MatchTarget::OperationId(
+                            "me.onenote.pages.parentSection.GetParentNotebook".to_string(),
+                        ),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.pages.UpdateParentSection".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("me.onenote.pages.parentSection".to_string()),
+                        MatchTarget::OperationId(
+                            "me.onenote.pages.parentSection.UpdateParentNotebook".to_string(),
+                        ),
+                    ],
+                );
+            },
+            ResourceIdentity::ParentNotebook => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("me.onenote.sections.GetParentNotebook".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("me.onenote.sections.parentNotebook".to_string()),
+                        MatchTarget::OperationId(
+                            "me.onenote.sections.parentNotebook.GetParentNotebook".to_string(),
+                        ),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId(
+                        "me.onenote.sections.UpdateParentNotebook".to_string(),
+                    ),
+                    vec![
+                        MatchTarget::OperationMap("me.onenote.sections.parentNotebook".to_string()),
+                        MatchTarget::OperationId(
+                            "me.onenote.sections.parentNotebook.UpdateParentNotebook".to_string(),
+                        ),
+                    ],
+                );
+            },
+            ResourceIdentity::ParentSectionGroup => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId(
+                        "me.onenote.sections.GetParentSectionGroup".to_string(),
+                    ),
+                    vec![
+                        MatchTarget::OperationMap(
+                            "me.onenote.sections.parentSectionGroup".to_string(),
+                        ),
+                        MatchTarget::OperationId(
+                            "me.onenote.sections.parentSectionGroup.GetParentSectionGroup"
+                                .to_string(),
+                        ),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId(
+                        "me.onenote.sections.UpdateParentSectionGroup".to_string(),
+                    ),
+                    vec![
+                        MatchTarget::OperationMap(
+                            "me.onenote.sections.parentSectionGroup".to_string(),
+                        ),
+                        MatchTarget::OperationId(
+                            "me.onenote.sections.parentSectionGroup.UpdateParentSectionGroup"
+                                .to_string(),
+                        ),
+                    ],
                 );
             },
             ResourceIdentity::Outlook => {
