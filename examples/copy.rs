@@ -8,6 +8,9 @@ use std::time::Duration;
 static DRIVE_FILE_COPY_NAME: &str = "FILE_NAME_OF_COPY";
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
+// This can either be the id of the file or a path to the file in OneDrive
+// that is wrapped by : Example ":/documents/my_file.txt:"
 static ITEM_ID: &str = "ITEM_ID";
 
 fn main() {

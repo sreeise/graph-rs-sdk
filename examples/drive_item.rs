@@ -4,44 +4,39 @@ use graph_rs::oauth::OAuth;
 use graph_rs::prelude::*;
 use std::convert::TryFrom;
 
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
 fn main() {
-    let oauth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let mut graph = Graph::try_from(&oauth).unwrap();
-
-    // You can pick a function below to query common OneDrive resources.
-    // For more common OneDrive API queries see the EP trait.
-
-    // This will run all the API requests below.
-    drive_root(&mut graph);
-    drive_root_children(&mut graph);
-    special_docs(&mut graph);
-    special_docs_child(&mut graph);
+    drive_root();
+    drive_root_children();
+    special_docs();
 }
 
-fn drive_root(graph: &mut Graph<BlockingHttpClient>) {
+fn drive_root() {
+    let client = Graph::new(ACCESS_TOKEN);
+
     let drive_item: GraphResponse<serde_json::Value> =
-        graph.v1().me().drive().get_root().send().unwrap();
+        client.v1().me().drive().get_root().send().unwrap();
     println!("{:#?}", drive_item);
 }
 
-fn drive_root_children(graph: &mut Graph<BlockingHttpClient>) {
-    let drive_item = graph.v1().me().drive().list_root_children().send().unwrap();
-    println!("{:#?}", drive_item);
-}
+fn drive_root_children() {
+    let client = Graph::new(ACCESS_TOKEN);
 
-fn special_docs(graph: &mut Graph<BlockingHttpClient>) {
-    let drive_item = graph
+    let drive_item = client
         .v1()
         .me()
         .drive()
-        .get_special("documents")
+        .list_root_children()
         .send()
         .unwrap();
     println!("{:#?}", drive_item);
 }
 
-fn special_docs_child(graph: &mut Graph<BlockingHttpClient>) {
-    let drive_item = graph
+fn special_docs() {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let drive_item = client
         .v1()
         .me()
         .drive()
