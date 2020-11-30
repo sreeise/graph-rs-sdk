@@ -3,8 +3,9 @@ use graph_http::{AsyncHttpClient, BlockingHttpClient};
 use graph_rs::client::Graph;
 use graph_rs::oauth::{AccessToken, OAuth};
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::env;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::sync::Mutex;
 
 // static mutex's that are used for preventing test failures

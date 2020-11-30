@@ -6,7 +6,9 @@ use inflector::Inflector;
 use rayon::prelude::*;
 use std::collections::hash_set::{Difference, Iter};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
+use std::convert::TryFrom;
 use std::hash::{Hash, Hasher};
+use std::io::{Read, Write};
 
 #[derive(
     Debug,

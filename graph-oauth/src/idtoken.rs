@@ -3,6 +3,7 @@ use from_as::*;
 use graph_error::{AsRes, GraphFailure};
 use std::borrow::Cow;
 use std::convert::TryFrom;
+use std::io::{Read, Write};
 use std::str::FromStr;
 use url::form_urlencoded;
 

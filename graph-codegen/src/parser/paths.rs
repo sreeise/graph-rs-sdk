@@ -6,6 +6,8 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use regex::Regex;
 use reqwest::Url;
 use std::collections::{BTreeMap, HashSet, VecDeque};
+use std::convert::TryFrom;
+use std::io::{Read, Write};
 
 pub trait IsInPath {
     fn retain_is_in_path(&mut self);

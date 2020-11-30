@@ -1,6 +1,8 @@
 use crate::oauth::wellknown::WellKnown;
 use crate::oauth::{OAuth, OAuthError};
 use from_as::*;
+use std::convert::TryFrom;
+use std::io::{Read, Write};
 
 static LOGIN_LIVE_HOST: &str = "https://login.live.com";
 static MICROSOFT_ONLINE_HOST: &str = "https://login.microsoftonline.com";

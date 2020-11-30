@@ -9,6 +9,7 @@ use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::cell::{Ref, RefCell};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::convert::TryFrom;
 use std::fs::OpenOptions;
 use std::io::{Read, Write};
 use std::str::FromStr;

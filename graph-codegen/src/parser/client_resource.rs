@@ -1,6 +1,6 @@
 use crate::parser::filter::Filter;
-use from_as::TryFrom;
 use graph_core::resource::ResourceIdentity;
+use std::convert::TryFrom;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum ClientResource<'a> {

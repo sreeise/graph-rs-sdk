@@ -6,6 +6,8 @@ use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Serialize, Serializer};
 use std::collections::{HashMap, VecDeque};
+use std::convert::TryFrom;
+use std::io::{Read, Write};
 use std::marker::PhantomData;
 use std::str::FromStr;
 
