@@ -1,5 +1,7 @@
 use graph_rs::error::{GraphFailure, GraphRsError};
 use graph_rs::prelude::*;
+// use std::fs::OpenOptions;
+// use std::io::Read;
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::THROTTLE_MUTEX;
@@ -18,7 +20,7 @@ fn list_get_notebooks_and_sections() {
             .user(id.as_str())
             .onenote()
             .notebooks()
-            .list()
+            .list_notebooks()
             .send();
 
         println!("{:#?}", notebooks);
@@ -40,8 +42,8 @@ fn list_get_notebooks_and_sections() {
                 .v1()
                 .user(id.as_str())
                 .onenote()
-                .notebooks()
-                .get(notebook_id.as_str())
+                .notebook(notebook_id.as_str())
+                .get_notebooks()
                 .send();
 
             if let Ok(notebook) = get_notebook {
@@ -60,8 +62,8 @@ fn list_get_notebooks_and_sections() {
                 .v1()
                 .user(id.as_str())
                 .onenote()
-                .notebooks()
-                .list_sections(notebook_id.as_str())
+                .notebook(notebook_id.as_str())
+                .list_sections()
                 .send();
 
             if let Ok(collection) = sections {
@@ -84,7 +86,7 @@ fn list_get_notebooks_and_sections() {
 }
 
 #[test]
-fn create_delete_page() {
+fn create_delete_page_from_file() {
     if Environment::is_appveyor() {
         return;
     }
@@ -95,7 +97,8 @@ fn create_delete_page() {
             .v1()
             .user(&id)
             .onenote()
-            .create_page("./test_files/onenotepage.html")
+            .pages()
+            .create_pages_from_file("./test_files/onenotepage.html")
             .send();
 
         if let Ok(page) = res {
@@ -106,8 +109,8 @@ fn create_delete_page() {
                 .v1()
                 .user(&id)
                 .onenote()
-                .pages()
-                .delete(page_id)
+                .page(page_id)
+                .delete_pages()
                 .send();
 
             if let Err(e) = delete_res {
@@ -122,6 +125,56 @@ fn create_delete_page() {
     }
 }
 
+/*
+#[test]
+fn create_delete_page() {
+    if Environment::is_appveyor() {
+        return;
+    }
+
+    let _lock = THROTTLE_MUTEX.lock().unwrap();
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+        let mut file = OpenOptions::new()
+            .read(true)
+            .open("./test_files/onenotepage.html")
+            .unwrap();
+
+        let mut page = String::new();
+        file.read_to_string(&mut page).unwrap();
+
+        let res = client
+            .v1()
+            .user(&id)
+            .onenote()
+            .pages()
+            .create_pages(&page)
+            .send();
+
+        if let Ok(page) = res {
+            let page_id = page.body()["id"].as_str().unwrap();
+
+            thread::sleep(Duration::from_secs(5));
+            let delete_res = client
+                .v1()
+                .user(&id)
+                .onenote()
+                .page(page_id)
+                .delete_pages()
+                .send();
+
+            if let Err(e) = delete_res {
+                panic!(
+                    "Request error. Method onenote pages delete page: Error: {:#?}",
+                    e
+                );
+            }
+        } else if let Err(e) = res {
+            panic!("Request error. Method onenote create page. Error: {:#?}", e);
+        }
+    }
+}
+ */
+
 #[test]
 fn onenote_create_page_invalid_ext() {
     let client = Graph::new("");
@@ -130,7 +183,8 @@ fn onenote_create_page_invalid_ext() {
         .v1()
         .me()
         .onenote()
-        .create_page("./test_files/test_upload_file.txt")
+        .pages()
+        .create_pages_from_file("./test_files/test_upload_file.txt")
         .send();
 
     if let Err(err) = response {
@@ -163,8 +217,9 @@ fn onenote_sections_create_page_invalid_ext() {
         .v1()
         .me()
         .onenote()
-        .sections()
-        .create_page("id", "./test_files/test_upload_file.txt")
+        .section("id")
+        .pages()
+        .create_pages_from_file("./test_files/test_upload_file.txt")
         .send();
 
     if let Err(err) = response {

@@ -1,197 +1,199 @@
 use crate::client::Graph;
-use graph_error::{AsRes, GraphRsError};
-use graph_http::types::{Collection, Content};
-use graph_http::{
-    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, GraphResponse,
-    IntoResponse, RequestClient,
-};
-use handlebars::*;
-use reqwest::header::{HeaderValue, CONTENT_TYPE};
+use crate::core::ResourceIdentity;
+use crate::notebooks::{NotebookRequest, NotebooksRequest};
+use crate::pages::{PageRequest, PagesRequest};
+use crate::section_groups::{SectionGroupRequest, SectionGroupsRequest};
+use crate::sections::{SectionRequest, SectionsRequest};
+use graph_http::types::Collection;
+use graph_http::types::Content;
+use graph_http::GraphResponse;
+use graph_http::IntoResponse;
 use reqwest::Method;
-use std::ffi::OsStr;
-use std::path::Path;
 
-register_client!(
-    OnenoteRequest,
-    notebook => "onenote/notebooks",
-    section => "onenote/sections",
-    section_group => "onenote/sectionGroups",
-    pages => "onenote/pages",
-);
+register_client!(OnenoteRequest,);
 
 impl<'a, Client> OnenoteRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!( list_sections, Collection<serde_json::Value> => "{{section}}" );
-    get!( list_section_groups, Collection<serde_json::Value> => "{{section_group}}" );
-    get!( list_pages, Collection<serde_json::Value> => "{{pages}}" );
-
-    pub fn notebooks(&self) -> OnenoteNotebookRequest<'a, Client> {
-        OnenoteNotebookRequest::new(self.client)
+    pub fn notebooks(&self) -> NotebookRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        NotebookRequest::new(self.client)
     }
-
-    pub fn sections(&self) -> OnenoteSectionRequest<'a, Client> {
-        OnenoteSectionRequest::new(self.client)
+    pub fn notebook<ID: AsRef<str>>(&self, id: ID) -> NotebooksRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Notebooks);
+        NotebooksRequest::new(id.as_ref(), self.client)
     }
-
-    pub fn section_group(&self) -> OnenoteSectionGroupRequest<'a, Client> {
-        OnenoteSectionGroupRequest::new(self.client)
+    pub fn pages(&self) -> PageRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        PageRequest::new(self.client)
     }
-
-    pub fn pages(&self) -> OnenotePageRequest<'a, Client> {
-        OnenotePageRequest::new(self.client)
+    pub fn page<ID: AsRef<str>>(&self, id: ID) -> PagesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Pages);
+        PagesRequest::new(id.as_ref(), self.client)
     }
-
-    pub fn create_page<P: AsRef<Path>>(
-        &self,
-        file: P,
-    ) -> IntoResponse<'a, serde_json::Value, Client> {
-        render_path!(self.client, "{{pages}}");
-
-        if !file.as_ref().extension().eq(&Some(OsStr::new("html"))) {
-            return IntoResponse::new_error(
-                self.client.request(),
-                GraphRsError::InvalidFileExtension {
-                    requires: "html".to_string(),
-                    found: file
-                        .as_ref()
-                        .extension()
-                        .unwrap_or_default()
-                        .to_string_lossy()
-                        .to_string(),
-                }
-                .as_failure(),
-            );
-        }
-
-        if let Err(e) = self
-            .client
-            .request()
-            .set_body_with_file(file.as_ref().to_path_buf())
-        {
-            return IntoResponse::new_error(self.client.request(), e);
-        }
-        let client = self.client.request();
-        client.header(CONTENT_TYPE, HeaderValue::from_static("text/html"));
-        client.set_method(Method::POST);
-        IntoResponse::new(self.client.request())
+    pub fn sections(&self) -> SectionRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        SectionRequest::new(self.client)
     }
-}
-
-register_client!(OnenoteNotebookRequest,);
-
-impl<'a, Client> OnenoteNotebookRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( list, Collection<serde_json::Value> => "{{notebook}}" );
-    get!( | list_sections, Collection<serde_json::Value> => "{{notebook}}/{{id}}/sections" );
-    get!( | get, serde_json::Value => "{{notebook}}/{{id}}" );
-    post!( [ create, serde_json::Value => "{{notebook}}" ]);
-    post!( [ | copy, serde_json::Value => "{{notebook}}/{{id}}/copyNotebook" ] );
-    post!( [ | create_section, serde_json::Value => "{{notebook}}/{{id}}/sections" ] );
-
-    pub fn recent(
-        &self,
-        include_personal_notebooks: bool,
-    ) -> IntoResponse<'a, serde_json::Value, Client> {
-        render_path!(
-            self.client,
-            format!(
-                "{{{{notebook}}}}/getRecentNotebooks(includePersonalNotebooks={})",
-                include_personal_notebooks
-            ).as_str()
-        );
-        self.client.request().set_method(Method::GET);
-        IntoResponse::new(&self.client.request)
+    pub fn section_groups(&self) -> SectionGroupRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        SectionGroupRequest::new(self.client)
     }
-}
-
-register_client!(OnenoteSectionRequest,);
-
-impl<'a, Client> OnenoteSectionRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( list, Collection<serde_json::Value> => "{{section}}" );
-    get!( | list_pages, Collection<serde_json::Value> => "{{section}}/{{id}}/pages" );
-    get!( | get, serde_json::Value => "{{section}}/{{id}}" );
-    post!( [ | copy_to_notebook, GraphResponse<Content> => "{{section}}/{{id}}/copyToNotebook" ] );
-    post!( [ | copy_to_section_group, GraphResponse<Content> => "{{section}}/{{id}}/copyToSectionGroup" ] );
-
-    pub fn create_page<S: AsRef<str>, P: AsRef<Path>>(
-        &self,
-        id: S,
-        file: P,
-    ) -> IntoResponse<'a, serde_json::Value, Client> {
-        render_path!(
-            self.client,
-            "{{section}}/{{id}}/pages",
-            &serde_json::json!({ "id": id.as_ref() })
-        );
-
-        if !file.as_ref().extension().eq(&Some(OsStr::new("html"))) {
-            return IntoResponse::new_error(
-                self.client.request(),
-                GraphRsError::InvalidFileExtension {
-                    requires: "html".to_string(),
-                    found: file
-                        .as_ref()
-                        .extension()
-                        .unwrap_or_default()
-                        .to_string_lossy()
-                        .to_string(),
-                }
-                .as_failure(),
-            );
-        }
-
-        if let Err(e) = self
-            .client
-            .request()
-            .set_body_with_file(file.as_ref().to_path_buf())
-        {
-            return IntoResponse::new_error(self.client.request(), e);
-        }
-        let client = self.client.request();
-        client.header(CONTENT_TYPE, HeaderValue::from_static("text/html"));
-        client.set_method(Method::POST);
-        IntoResponse::new(&self.client.request)
+    pub fn section_group<ID: AsRef<str>>(&self, id: ID) -> SectionGroupsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::SectionGroups);
+        SectionGroupsRequest::new(id.as_ref(), self.client)
     }
-}
-
-register_client!(OnenoteSectionGroupRequest,);
-
-impl<'a, Client> OnenoteSectionGroupRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( list, Collection<serde_json::Value> => "{{section_group}}" );
-    get!( | list_sections, Collection<serde_json::Value> => "{{section_group}}/{{id}}/sections" );
-    get!( | get, serde_json::Value => "{{section_group}}/{{id}}" );
-    post!( [ | create, serde_json::Value => "{{section_group}}/{{id}}/sectionGroups" ] );
-    post!( [ | create_section, serde_json::Value => "{{section_group}}/{{id}}/sections" ] );
-}
-
-register_client!(OnenotePageRequest,);
-
-impl<'a, Client> OnenotePageRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( list, Collection<serde_json::Value> => "{{pages}}" );
-    get!( | get, serde_json::Value => "{{pages}}/{{id}}" );
-    get!( | content, GraphResponse<Content> => "{{pages}}/{{id}}/content" );
-    patch!( [ | update, serde_json::Value => "{{pages}}/{{id}}/content" ] );
-    post!( [ | copy_to_section, GraphResponse<Content> => "{{pages}}/{{id}}/copyToSection" ] );
-    delete!( | delete, GraphResponse<Content> => "{{pages}}/{{id}}" );
-}
-
-impl<'a> OnenotePageRequest<'a, BlockingHttpClient> {
-    download!( | download, BlockingDownload => "{{pages}}/{{id}}/content" );
-}
-
-impl<'a> OnenotePageRequest<'a, AsyncHttpClient> {
-    async_download!( | download, AsyncDownload => "{{pages}}/{{id}}/content" );
+    pub fn section<ID: AsRef<str>>(&self, id: ID) -> SectionsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Sections);
+        SectionsRequest::new(id.as_ref(), self.client)
+    }
+    get!({
+        doc: "# Get notebooks from me",
+        name: list_notebooks,
+        response: Collection<serde_json::Value>,
+        path: "/onenote/notebooks",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to notebooks for me",
+        name: create_notebooks,
+        response: serde_json::Value,
+        path: "/onenote/notebooks",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get operations from me",
+        name: list_operations,
+        response: Collection<serde_json::Value>,
+        path: "/onenote/operations",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to operations for me",
+        name: create_operations,
+        response: serde_json::Value,
+        path: "/onenote/operations",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get operations from me",
+        name: get_operations,
+        response: serde_json::Value,
+        path: "/onenote/operations/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property operations in me",
+        name: update_operations,
+        response: GraphResponse<Content>,
+        path: "/onenote/operations/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get pages from me",
+        name: list_pages,
+        response: Collection<serde_json::Value>,
+        path: "/onenote/pages",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to pages for me",
+        name: create_pages,
+        response: serde_json::Value,
+        path: "/onenote/pages",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get resources from me",
+        name: list_resources,
+        response: Collection<serde_json::Value>,
+        path: "/onenote/resources",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to resources for me",
+        name: create_resources,
+        response: serde_json::Value,
+        path: "/onenote/resources",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get resources from me",
+        name: get_resources,
+        response: serde_json::Value,
+        path: "/onenote/resources/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property resources in me",
+        name: update_resources,
+        response: GraphResponse<Content>,
+        path: "/onenote/resources/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get sectionGroups from me",
+        name: list_section_groups,
+        response: Collection<serde_json::Value>,
+        path: "/onenote/sectionGroups",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to sectionGroups for me",
+        name: create_section_groups,
+        response: serde_json::Value,
+        path: "/onenote/sectionGroups",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get sections from me",
+        name: list_sections,
+        response: Collection<serde_json::Value>,
+        path: "/onenote/sections",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to sections for me",
+        name: create_sections,
+        response: serde_json::Value,
+        path: "/onenote/sections",
+        params: 0,
+        has_body: true
+    });
 }
