@@ -4,7 +4,7 @@ macro_rules! register_client {
         $( register_helper!($helper, $value); )*
 
         pub struct $name<'a, Client> {
-            client: &'a Graph<Client>,
+            pub(crate) client: &'a Graph<Client>,
         }
 
         impl<'a, Client> $name<'a, Client> where Client: graph_http::RequestClient {
@@ -27,7 +27,7 @@ macro_rules! register_client {
         $( register_helper!($helper, $value); )*
 
         pub struct $name<'a, Client> {
-            client: &'a Graph<Client>,
+            pub(crate) client: &'a Graph<Client>,
             id: String,
         }
 
@@ -71,7 +71,7 @@ macro_rules! register_client {
 
     ( $name:ident, $($helper:ident => $value:expr, $value2:expr, $identity:expr,)* ) => {
         pub struct $name<'a, Client> {
-            client: &'a Graph<Client>,
+            pub(crate) client: &'a Graph<Client>,
         }
 
         impl<'a, Client> $name<'a, Client> where Client: graph_http::RequestClient {
@@ -174,7 +174,7 @@ macro_rules! register_ident_client {
         $( register_helper!($helper, $value); )*
 
         pub struct $name<'a, Client> {
-            client: &'a Graph<Client>,
+            pub(crate) client: &'a Graph<Client>,
         }
 
         impl<'a, Client> $name<'a, Client,> where Client: graph_http::RequestClient  {
@@ -213,7 +213,7 @@ macro_rules! register_ident_client {
         $( register_helper!($helper, $value); )*
 
         pub struct $name<'a, Client> {
-            client: &'a Graph<Client>,
+            pub(crate) client: &'a Graph<Client>,
             id: String,
         }
 
@@ -256,31 +256,6 @@ macro_rules! register_ident_client {
                         .request()
                         .extend_path(&[ident.as_ref(), self.id.as_str()]);
                 }
-            }
-
-            pub fn mail(&'a self) -> MailRequest<'a, Client> {
-                self.set_path();
-                MailRequest::new(self.client)
-            }
-
-            pub fn calendar(&'a self) -> CalendarRequest<'a, Client> {
-                self.set_path();
-                CalendarRequest::new(self.client)
-            }
-
-            pub fn onenote(&'a self) -> OnenoteRequest<'a, Client> {
-                self.set_path();
-                OnenoteRequest::new(self.client)
-            }
-
-            pub fn contacts(&'a self) -> ContactsRequest<'a, Client> {
-                self.set_path();
-                ContactsRequest::new(self.client)
-            }
-
-            pub fn attachments(&'a self) -> AttachmentRequest<'a, Client> {
-                self.set_path();
-                AttachmentRequest::new(self.client)
             }
         }
     };
