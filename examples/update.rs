@@ -25,7 +25,7 @@ fn update() {
         .v1()
         .me()
         .drive()
-        .update(ITEM_ID, &value)
+        .update_items(ITEM_ID, &value)
         .send()
         .unwrap();
 

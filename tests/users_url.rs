@@ -15,7 +15,7 @@ fn list_users() {
 fn get_users() {
     let client = Graph::new("");
 
-    client.v1().me().get();
+    client.v1().me().get_user();
     assert_url_eq(&client, "/me");
 
     client.v1().user(USER_ID).get_user();

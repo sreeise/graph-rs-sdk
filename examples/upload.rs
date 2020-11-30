@@ -58,7 +58,7 @@ fn sites_upload_new() {
 
     let drive_item: GraphResponse<serde_json::Value> = graph
         .v1()
-        .sites(RESOURCE_ID)
+        .site(RESOURCE_ID)
         .drive()
         .upload_new(DRIVE_PARENT_ID, LOCAL_FILE_PATH)
         .send()

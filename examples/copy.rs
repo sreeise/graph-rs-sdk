@@ -27,7 +27,7 @@ fn copy_item() {
         .v1()
         .me()
         .drive()
-        .copy(
+        .copy_item(
             ITEM_ID,
             &serde_json::json!({
                 "name": DRIVE_FILE_COPY_NAME,

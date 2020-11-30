@@ -1,3 +1,5 @@
+// TODO: Add back mail
+/*
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::THROTTLE_MUTEX;
@@ -100,3 +102,5 @@ fn mail_create_and_delete_message() {
         }
     }
 }
+
+ */

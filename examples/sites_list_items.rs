@@ -13,7 +13,7 @@ fn main() {
     create_list_item();
     get_list_item();
     update_list_item();
-    delete_list_item();
+    //delete_list_item();
 }
 
 pub fn create_list() {
@@ -21,9 +21,9 @@ pub fn create_list() {
 
     let list_result = client
         .v1()
-        .sites(SITE_ID)
+        .site(SITE_ID)
         .lists()
-        .create(&serde_json::json!({
+        .create_lists(&serde_json::json!({
             "displayName": "Books",
             "columns": [
                 {
@@ -53,10 +53,10 @@ fn list_all_list_items() {
 
     let list_item_response = client
         .v1()
-        .sites(SITE_ID)
-        .lists()
-        .items()
+        .site(SITE_ID)
         .list(LIST_ID)
+        .items()
+        .list_items()
         .send();
 
     println!("{:#?}", list_item_response);
@@ -67,19 +67,16 @@ fn create_list_item() {
 
     let list_item_response = client
         .v1()
-        .sites(SITE_ID)
-        .lists()
+        .site(SITE_ID)
+        .list(LIST_ID)
         .items()
-        .create(
-            LIST_ID,
-            &serde_json::json!({
-                "ListItem": {
-                    "fields": {
-                        "Title": "Widget"
-                    }
+        .create_items(&serde_json::json!({
+            "ListItem": {
+                "fields": {
+                    "Title": "Widget"
                 }
-            }),
-        )
+            }
+        }))
         .send();
 
     println!("{:#?}", list_item_response);
@@ -90,21 +87,17 @@ fn update_list_item() {
 
     let list_item_response = client
         .v1()
-        .sites(SITE_ID)
-        .lists()
-        .items()
-        .update(
-            LIST_ID,
-            LIST_ITEM_ID,
-            &serde_json::json!({
-                "ListItem": {
-                    "fields": {
-                        "Color": "Fuchsia",
-                        "Quantity": 934
-                    }
+        .site(SITE_ID)
+        .list(LIST_ID)
+        .item(LIST_ITEM_ID)
+        .update_items(&serde_json::json!({
+            "ListItem": {
+                "fields": {
+                    "Color": "Fuchsia",
+                    "Quantity": 934
                 }
-            }),
-        )
+            }
+        }))
         .send();
 
     println!("{:#?}", list_item_response);
@@ -115,25 +108,29 @@ fn get_list_item() {
 
     let list_item_response = client
         .v1()
-        .sites(SITE_ID)
-        .lists()
-        .items()
-        .get(LIST_ID, LIST_ITEM_ID)
+        .site(SITE_ID)
+        .list(LIST_ID)
+        .item(LIST_ITEM_ID)
+        .get_items()
         .send();
 
     println!("{:#?}", list_item_response);
 }
 
+// TODO: Add back delete list item
+/*
 fn delete_list_item() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let sites = client
         .v1()
-        .sites(SITE_ID)
-        .lists()
-        .items()
-        .delete(LIST_ID, LIST_ITEM_ID)
+        .site(SITE_ID)
+        .list(LIST_ID)
+        .item(LIST_ITEM_ID)
+        .delete_items()
         .send();
 
     println!("{:#?}", sites);
 }
+
+ */

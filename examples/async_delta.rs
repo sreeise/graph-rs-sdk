@@ -7,7 +7,7 @@ static USER_ID: &str = "USER_ID";
 #[tokio::main]
 async fn main() -> Result<(), GraphFailure> {
     let client = Graph::new_async(ACCESS_TOKEN);
-    let mut delta_recv = client.v1().users(USER_ID).delta().send().await;
+    let mut delta_recv = client.v1().users().delta().send().await;
 
     loop {
         match delta_recv.recv().await {

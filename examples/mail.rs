@@ -1,3 +1,8 @@
+fn main() {}
+
+// TODO: Add back mail
+
+/*
 use graph_rs::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -294,3 +299,5 @@ pub fn send_mail() {
 
     println!("{:#?}", send_mail_response);
 }
+
+ */

@@ -16,7 +16,13 @@ fn delete_id(item_id: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
     // Send the request.
-    let response: GraphResponse<Content> = client.v1().me().drive().delete(item_id).send().unwrap();
+    let response: GraphResponse<Content> = client
+        .v1()
+        .me()
+        .drive()
+        .delete_items(item_id)
+        .send()
+        .unwrap();
 
     println!("{:#?}", response);
     println!("\nItem was deleted. Status: {}", response.status());
@@ -27,7 +33,8 @@ pub fn delete_path(path: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
     // Send the request.
-    let response: GraphResponse<Content> = client.v1().me().drive().delete(path).send().unwrap();
+    let response: GraphResponse<Content> =
+        client.v1().me().drive().delete_items(path).send().unwrap();
 
     println!("{:#?}", response);
     println!("\nItem was deleted. Status: {}", response.status());

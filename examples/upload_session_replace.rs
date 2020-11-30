@@ -35,7 +35,7 @@ fn upload_session_replace() {
         .v1()
         .me()
         .drive()
-        .upload_session(PARENT_ITEM_ID, PATH_TO_FILE, &upload)
+        .create_upload_session(PARENT_ITEM_ID, PATH_TO_FILE, &upload)
         .send();
 
     if let Ok(session) = session {

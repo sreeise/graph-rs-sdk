@@ -33,7 +33,7 @@ async fn main() -> Result<(), GraphFailure> {
         .v1()
         .me()
         .drive()
-        .upload_session(PATH_IN_ONE_DRIVE, PATH_TO_FILE, &upload)
+        .create_upload_session(PATH_IN_ONE_DRIVE, PATH_TO_FILE, &upload)
         .send()
         .await;
 

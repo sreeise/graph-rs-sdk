@@ -8,7 +8,7 @@ fn main() {
 
 fn get_drive_item(item_id: &str) {
     let graph = Graph::new("ACCESS_TOKEN");
-    let drive_item = graph.v1().me().drive().get_item(item_id).send().unwrap();
+    let drive_item = graph.v1().me().drive().get_items(item_id).send().unwrap();
     println!("{:#?}", drive_item);
 }
 
@@ -21,7 +21,7 @@ fn get_sites_drive_item(item_id: &str, sites_id: &str) {
         .v1()
         .site(sites_id)
         .drive()
-        .get_item(item_id)
+        .get_items(item_id)
         .send()
         .unwrap();
     println!("{:#?}", drive_item);

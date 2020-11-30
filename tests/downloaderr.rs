@@ -25,7 +25,7 @@ fn download_config_file_exists() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let download_client = client
             .v1()
-            .users(id.as_str())
+            .user(id.as_str())
             .drive()
             .download(":/downloadtestdoc.txt:", "./test_files");
         let result = download_client.send();
