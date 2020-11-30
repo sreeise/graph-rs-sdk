@@ -125,11 +125,18 @@ impl ClientBuilder {
         )
     }
 
+    fn download_impl_start(&self, name: &String, is_async: bool) -> String {
+        if is_async {
+            format!("\nimpl<'a> {}<'a, AsyncHttpClient> {{", name)
+        } else {
+            format!("\nimpl<'a> {}<'a, BlockingHttpClient> {{", name)
+        }
+    }
+
     fn request(&self, request: &Request) -> String {
         if let Some(doc_comment) = request.doc.as_ref() {
-            // TODO: Download macros
             match request.request_type {
-                RequestType::Normal | RequestType::Download  => {
+                RequestType::Normal => {
                     format!(
                         "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {}\n\t}});",
                         request.method.as_ref(),
@@ -162,11 +169,29 @@ impl ClientBuilder {
                         request.param_size,
                         request.has_body
                     )
+                },
+                RequestType::Download => {
+                    format!(
+                        "\n\tdownload!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: BlockingDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
+                        doc_comment,
+                        request.method_name.as_str(),
+                        request.path.as_str(),
+                        request.param_size
+                    )
+                },
+                RequestType::AsyncDownload => {
+                    format!(
+                        "\n\tasync_download!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: AsyncDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
+                        doc_comment,
+                        request.method_name.as_str(),
+                        request.path.as_str(),
+                        request.param_size
+                    )
                 }
             }
         } else {
             match request.request_type {
-                RequestType::Normal | RequestType::Download => {
+                RequestType::Normal => {
                     format!(
                         "\n\t{}!({{\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {}\n\t}});",
                         request.method.as_ref(),
@@ -196,6 +221,22 @@ impl ClientBuilder {
                         request.param_size,
                         request.has_body
                     )
+                },
+                RequestType::Download => {
+                    format!(
+                        "\n\tdownload!({{\n\t\tname: {},\n\t\tresponse: BlockingDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
+                        request.method_name.as_str(),
+                        request.path.as_str(),
+                        request.param_size
+                    )
+                },
+                RequestType::AsyncDownload => {
+                    format!(
+                        "\n\tasync_download!({{\n\t\tname: {},\n\t\tresponse: AsyncDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
+                        request.method_name.as_str(),
+                        request.path.as_str(),
+                        request.param_size
+                    )
                 }
             }
         }
@@ -215,11 +256,43 @@ impl ClientBuilder {
 
             for request_map in client.methods.iter() {
                 for request in request_map.iter() {
-                    let r = self.request(request);
-                    self.buf.put(r.as_bytes());
+                    if request.request_type.ne(&RequestType::Download) &&
+                        request.request_type.ne(&RequestType::AsyncDownload)
+                    {
+                        let r = self.request(request);
+                        self.buf.put(r.as_bytes());
+                    }
                 }
             }
             self.buf.put_slice(b"\n}\n");
+        }
+    }
+
+    fn download_client_impl(&mut self) {
+        for (_name, client) in self.clients.iter() {
+            let name_pascal_casing = format!("{}Request", client.name.to_pascal_case());
+
+            for request_map in client.methods.iter() {
+                for request in request_map.iter() {
+                    match request.request_type {
+                        RequestType::Download => {
+                            let impl_start = self.download_impl_start(&name_pascal_casing, false);
+                            self.buf.put(impl_start.as_bytes());
+                            let r = self.request(request);
+                            self.buf.put(r.as_bytes());
+                            self.buf.put_slice(b"\n}\n");
+                        },
+                        RequestType::AsyncDownload => {
+                            let impl_start = self.download_impl_start(&name_pascal_casing, true);
+                            self.buf.put(impl_start.as_bytes());
+                            let r = self.request(request);
+                            self.buf.put(r.as_bytes());
+                            self.buf.put_slice(b"\n}\n");
+                        },
+                        _ => {},
+                    }
+                }
+            }
         }
     }
 
@@ -250,6 +323,7 @@ impl ClientBuilder {
         self.imports();
         self.client_registrations();
         self.client_impl();
+        self.download_client_impl();
         self.buf
     }
 }

@@ -6,8 +6,12 @@ use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::GraphResponse;
 use graph_http::IntoResponse;
+use graph_http::{
+    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, RequestClient,
+};
 use handlebars::*;
 use reqwest::Method;
+use std::path::Path;
 
 register_client!(PageRequest,);
 register_client!(PagesRequest, ());
@@ -141,5 +145,23 @@ where
         path: "/pages/{{RID}}/preview()",
         params: 0,
         has_body: false
+    });
+}
+
+impl<'a> PagesRequest<'a, BlockingHttpClient> {
+    download!({
+        name: download_page,
+        response: BlockingDownload,
+        path: "/pages/{{RID}}/content",
+        params: 0
+    });
+}
+
+impl<'a> PagesRequest<'a, AsyncHttpClient> {
+    async_download!({
+        name: download_page,
+        response: AsyncDownload,
+        path: "/pages/{{RID}}/content",
+        params: 0
     });
 }

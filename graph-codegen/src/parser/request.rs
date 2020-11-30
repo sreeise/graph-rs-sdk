@@ -86,6 +86,8 @@ pub enum ResponseType {
     Delta,
     UploadSession,
     VecU8,
+    Download,
+    AsyncDownload,
 }
 
 impl ResponseType {
@@ -97,6 +99,8 @@ impl ResponseType {
             ResponseType::SerdeJson => "serde_json::Value",
             ResponseType::UploadSession => "UploadSessionClient<Client>",
             ResponseType::VecU8 => "Vec<u8>",
+            ResponseType::Download => "BlockingDownload",
+            ResponseType::AsyncDownload => "AsyncDownload",
         }
     }
 
@@ -115,6 +119,16 @@ impl ResponseType {
             },
             ResponseType::UploadSession => {
                 set.insert("graph_http::UploadSessionClient".into());
+                set.insert("std::path::Path".into());
+                set.insert("graph_error::GraphFailure".into());
+            },
+            ResponseType::Download => {
+                set.insert("graph_http::{BlockingDownload, BlockingHttpClient}".into());
+                set.insert("std::path::Path".into());
+                set.insert("graph_error::GraphFailure".into());
+            },
+            ResponseType::AsyncDownload => {
+                set.insert("graph_http::{AsyncDownload, AsyncHttpClient}".into());
                 set.insert("std::path::Path".into());
                 set.insert("graph_error::GraphFailure".into());
             },
@@ -155,6 +169,7 @@ pub enum RequestType {
     Upload,
     UploadSession,
     Download,
+    AsyncDownload,
 }
 
 impl Default for RequestType {
