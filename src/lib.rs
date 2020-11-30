@@ -131,14 +131,28 @@ pub mod items;
 pub mod lists;
 /// Mail request client.
 pub mod mail;
+/// Mail folders request client.
+pub mod mail_folders;
 /// Managed devices client.
 pub mod managed_devices;
 /// Me request client.
 pub mod me;
+/// Messages request client.
+pub mod messages;
+/// Notebooks request client.
+pub mod notebooks;
 /// OneNote request client.
 pub mod onenote;
 /// Outlook request client.
 pub mod outlook;
+/// Onenote pages request client.
+pub mod pages;
+/// Onenote parent notebook request client.
+pub mod parent_notebook;
+/// Onenote parent section request client.
+pub mod parent_section;
+/// Onenote parent section group request client.
+pub mod parent_section_group;
 /// Places request client.
 pub mod places;
 /// Planner request client.
@@ -147,6 +161,10 @@ pub mod planner;
 pub mod policies;
 /// Schema extensions request client.
 pub mod schema_extensions;
+/// Onenote section group request client.
+pub mod section_groups;
+/// Onenote section request client.
+pub mod sections;
 /// Service principles request client.
 pub mod service_principals;
 /// Settings request client (me, users, etc.).

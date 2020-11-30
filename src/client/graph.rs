@@ -24,7 +24,7 @@ use crate::identity::IdentityRequest;
 use crate::invitations::InvitationsRequest;
 use crate::mail::MailRequest;
 use crate::me::MeRequest;
-use crate::onenote::OnenoteRequest;
+//use crate::onenote::OnenoteRequest;
 use crate::places::PlacesRequest;
 use crate::planner::PlannerRequest;
 use crate::policies::PoliciesRequest;

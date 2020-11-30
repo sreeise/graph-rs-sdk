@@ -290,7 +290,7 @@ where
     get!({
         name: get_thumbnail,
         response: GraphResponse<Content>,
-        path: "/{{drive_item_id}}/thumbnails/{{id}}/{{id2}}",
+        path: "/{{drive_item_id}}/thumbnails/{{id2}}/{{id3}}",
         params: 3,
         has_body: false
     });
