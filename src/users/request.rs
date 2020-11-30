@@ -11,6 +11,7 @@ use crate::events::{EventRequest, EventsRequest};
 use crate::inference_classification::InferenceClassificationRequest;
 use crate::insights::InsightsRequest;
 use crate::managed_devices::{ManagedDeviceRequest, ManagedDevicesRequest};
+use crate::onenote::OnenoteRequest;
 use crate::outlook::OutlookRequest;
 use crate::settings::SettingsRequest;
 use graph_http::types::Collection;
@@ -192,6 +193,13 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::ManagedDevices);
         ManagedDevicesRequest::new(id.as_ref(), self.client)
+    }
+    pub fn onenote(&self) -> OnenoteRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Onenote);
+        OnenoteRequest::new(self.client)
     }
     pub fn outlook(&self) -> OutlookRequest<'a, Client> {
         self.client

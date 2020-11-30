@@ -3,6 +3,7 @@ use crate::content_types::{ContentTypeRequest, ContentTypesRequest};
 use crate::core::ResourceIdentity;
 use crate::drive::DrivesRequest;
 use crate::lists::{ListRequest, ListsRequest};
+use crate::onenote::OnenoteRequest;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::GraphResponse;
@@ -90,6 +91,13 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::Lists);
         ListsRequest::new(id.as_ref(), self.client)
+    }
+    pub fn onenote(&self) -> OnenoteRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Onenote);
+        OnenoteRequest::new(self.client)
     }
     get!({
         doc: "# Get entity from sites by key",
