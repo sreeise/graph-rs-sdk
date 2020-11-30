@@ -7,12 +7,12 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 // It is recommended to create a new file that can be used for demonstration purposes here.
 // Deleting an item can be done in 2 different ways shown in the methods below.
 fn main() {
-    delete_id("DRIVE_ITEM_ID");
-    delete_path(":/PATH_FROM_ROOT:");
+    delete_by_id("DRIVE_ITEM_ID");
+    delete_by_path(":/PATH_FROM_ROOT:");
 }
 
-// Delte a drive item by id.
-fn delete_id(item_id: &str) {
+// Delete a drive item by id.
+fn delete_by_id(item_id: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
     // Send the request.
@@ -29,7 +29,7 @@ fn delete_id(item_id: &str) {
 }
 
 // Deleting an item by path.
-pub fn delete_path(path: &str) {
+pub fn delete_by_path(path: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
     // Send the request.
