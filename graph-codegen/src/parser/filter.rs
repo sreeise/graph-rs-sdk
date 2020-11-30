@@ -14,6 +14,7 @@ pub enum FilterIgnore<'a> {
     PathContains(&'a str),
     PathContainsMulti(Vec<&'a str>),
     PathStartsWith(&'a str),
+    PathEquals(&'a str),
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]

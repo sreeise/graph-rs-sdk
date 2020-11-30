@@ -307,6 +307,7 @@ impl Builder {
 
                 let struct_links = request_set.client_links();
                 let mut methods: BTreeMap<String, Vec<RequestMap>> = request_set.methods();
+                println!("methods: {:#?}", methods);
 
                 // Temporary workaround to deal with the differences in the path
                 // for drives when the resource comes from me, users, groups,

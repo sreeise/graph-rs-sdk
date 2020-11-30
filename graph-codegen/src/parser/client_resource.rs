@@ -105,6 +105,16 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 secondary_name: "managedDevices".to_string(),
                 modifier: "managedDevices".to_string(),
             }),
+            ResourceIdentity::MailFolders => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/mailFolders"),
+                secondary_name: "mailFolders".to_string(),
+                modifier: "mailFolders".to_string(),
+            }),
+            ResourceIdentity::Messages => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/messages"),
+                secondary_name: "messages".to_string(),
+                modifier: "messages".to_string(),
+            }),
             ResourceIdentity::Me => Ok(ClientResource::Main {
                 modifier: "me".to_string(),
             }),
@@ -112,6 +122,52 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 start_filter: Filter::PathStartsWith("/me/outlook"),
                 secondary_name: "outlook".to_string(),
                 modifier: "outlook".to_string(),
+            }),
+            ResourceIdentity::Onenote => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/onenote"),
+                secondary_name: "onenote".to_string(),
+                modifier: "onenote".to_string(),
+            }),
+            ResourceIdentity::Notebooks => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/onenote/notebook"),
+                secondary_name: "notebooks".to_string(),
+                modifier: "notebooks".to_string(),
+            }),
+            ResourceIdentity::Sections => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/onenote/sections"),
+                secondary_name: "sections".to_string(),
+                modifier: "sections".to_string(),
+            }),
+            ResourceIdentity::SectionGroups => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/onenote/sectionGroups"),
+                secondary_name: "sectionGroups".to_string(),
+                modifier: "sectionGroups".to_string(),
+            }),
+            ResourceIdentity::Pages => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/onenote/pages"),
+                secondary_name: "pages".to_string(),
+                modifier: "pages".to_string(),
+            }),
+            ResourceIdentity::ParentNotebook => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith(
+                    "/me/onenote/sections/{onenoteSection-id}/parentNotebook",
+                ),
+                secondary_name: "parentNotebook".to_string(),
+                modifier: "parentNotebook".to_string(),
+            }),
+            ResourceIdentity::ParentSectionGroup => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith(
+                    "/me/onenote/sections/{onenoteSection-id}/parentSectionGroup",
+                ),
+                secondary_name: "parentSectionGroup".to_string(),
+                modifier: "parentSectionGroup".to_string(),
+            }),
+            ResourceIdentity::ParentSection => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith(
+                    "/me/onenote/pages/{onenotePage-id}/parentSection",
+                ),
+                secondary_name: "parentSection".to_string(),
+                modifier: "parentSection".to_string(),
             }),
             ResourceIdentity::Planner => Ok(ClientResource::Main {
                 modifier: "planner".to_string(),
