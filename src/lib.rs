@@ -71,6 +71,8 @@ pub mod activities;
 pub mod app_catalogs;
 /// Audit logs request client.
 pub mod audit_logs;
+/// Planner buckets request client.
+pub mod buckets;
 // Applications request client.
 pub mod applications;
 // Attachment request client.
@@ -93,6 +95,8 @@ pub mod contacts;
 pub mod content_types;
 /// Contracts request client.
 pub mod contracts;
+/// Groups conversations request client.
+pub mod conversations;
 /// Data policy operations request client.
 pub mod data_policy_operations;
 /// Device app management request client.
@@ -157,8 +161,12 @@ pub mod parent_section_group;
 pub mod places;
 /// Planner request client.
 pub mod planner;
+/// Planner plans request client.
+pub mod plans;
 /// Policies request client.
 pub mod policies;
+/// Groups threads posts request client.
+pub mod posts;
 /// Schema extensions request client.
 pub mod schema_extensions;
 /// Onenote section group request client.
@@ -175,10 +183,14 @@ pub mod sites;
 pub mod subscribed_skus;
 /// Subscriptions request client.
 pub mod subscriptions;
+/// Planner tasks request client.
+pub mod tasks;
 /// Teams request client.
 pub mod teams;
 /// Teamwork request client.
 pub mod teamwork;
+/// Groups thread request client.
+pub mod threads;
 /// Users request client.
 pub mod users;
 
