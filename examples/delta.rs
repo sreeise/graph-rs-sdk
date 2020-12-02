@@ -13,7 +13,7 @@ fn main() {
 
     let delta_recv = client
         .v1()
-        .groups("") // The group id won't be used here.
+        .groups() // The group id won't be used here.
         .delta()
         .send();
 
