@@ -26,6 +26,7 @@ macro_rules! register_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ()) => {
         $( register_helper!($helper, $value); )*
 
+        #[allow(dead_code)]
         pub struct $name<'a, Client> {
             pub(crate) client: &'a Graph<Client>,
             id: String,
@@ -105,6 +106,7 @@ macro_rules! register_client {
 
     // Drive only macro.
     ( () $name:ident, $($helper:ident => $value:expr, $value2:expr, $identity:expr,)* ) => {
+        #[allow(dead_code)]
         pub struct $name<'a, Client> {
             pub(crate) client: &'a Graph<Client>,
             id: String,
@@ -159,99 +161,6 @@ macro_rules! register_client {
                 $name {
                     client,
                     id: id_stored,
-                }
-            }
-        }
-    };
-}
-
-#[macro_use]
-macro_rules! register_ident_client {
-    ( $name:ident, $($helper:ident => $value:expr,)* ()) => {
-        $( register_helper!($helper, $value); )*
-
-        pub struct $name<'a, Client> {
-            pub(crate) client: &'a Graph<Client>,
-        }
-
-        impl<'a, Client> $name<'a, Client,> where Client: graph_http::RequestClient  {
-            pub fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
-                $(
-                    client.request().registry(|r| {
-                        r.register_helper(stringify!($helper), Box::new($helper));
-                    });
-                )*
-
-                if !id.is_empty() {
-                    client.request().registry(|r| {
-                        let id_string = id.to_string();
-                        r.register_helper("RID",
-                        Box::new(move |
-                            _: &Helper,
-                            _: &Handlebars,
-                            _: &Context,
-                            _: &mut RenderContext,
-                            out: &mut dyn Output|
-                            -> HelperResult {
-                                out.write(&id_string)?;
-                                Ok(())
-                        }));
-                    });
-                }
-
-                $name {
-                    client,
-                }
-            }
-        }
-    };
-
-    ( $name:ident, $($helper:ident => $value:expr,)* ) => {
-        $( register_helper!($helper, $value); )*
-
-        pub struct $name<'a, Client> {
-            pub(crate) client: &'a Graph<Client>,
-            id: String,
-        }
-
-        impl<'a, Client> $name<'a, Client> where Client: graph_http::RequestClient {
-            pub fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
-                $(
-                    client.request().registry()
-                        .register_helper(stringify!($helper), Box::new($helper));
-                )*
-                client.request().registry(|r| {
-                    let id_string = id.to_string();
-                    r.register_helper("RID",
-                    Box::new(move |
-                        _: &Helper,
-                        _: &Handlebars,
-                        _: &Context,
-                        _: &mut RenderContext,
-                        out: &mut dyn Output|
-                        -> HelperResult {
-                            out.write(&id_string)?;
-                            Ok(())
-                    }));
-                });
-
-                $name {
-                    client,
-                    id: id.into(),
-                }
-            }
-
-            fn set_path(&self) {
-                let ident = self.client.ident();
-                if self.client.ident().eq(&ResourceIdentity::Me) {
-                    self.client
-                        .request()
-                        .extend_path(&[ident.as_ref()]);
-
-                } else {
-                   self.client
-                        .request()
-                        .extend_path(&[ident.as_ref(), self.id.as_str()]);
                 }
             }
         }

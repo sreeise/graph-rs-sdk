@@ -14,13 +14,10 @@ use crate::domains::DomainsRequest;
 use crate::drive::{DriveRequest, DrivesRequest};
 use crate::education::EducationRequest;
 use crate::group_lifecycle_policies::GroupLifecyclePoliciesRequest;
-use crate::groups::{
-    GroupConversationPostRequest, GroupConversationRequest, GroupThreadPostRequest,
-};
+use crate::groups::{GroupRequest, GroupsRequest};
 use crate::identity::IdentityRequest;
 use crate::invitations::InvitationsRequest;
 use crate::me::MeRequest;
-//use crate::onenote::OnenoteRequest;
 use crate::places::PlacesRequest;
 use crate::planner::PlannerRequest;
 use crate::policies::PoliciesRequest;
@@ -37,11 +34,9 @@ use graph_core::resource::ResourceIdentity;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
 use graph_http::{
-    types::Collection, types::Content, types::DeltaPhantom, AsyncHttpClient, BlockingHttpClient,
-    GraphResponse, IntoResponse, RequestClient,
+    types::DeltaPhantom, AsyncHttpClient, BlockingHttpClient, IntoResponse, RequestClient,
 };
 use graph_oauth::oauth::{AccessToken, OAuth};
-use handlebars::*;
 use reqwest::header::{HeaderValue, ACCEPT};
 use reqwest::Method;
 use std::convert::TryFrom;
@@ -373,9 +368,14 @@ where
         EducationRequest::new(self.client)
     }
 
-    pub fn groups<S: AsRef<str>>(&self, id: S) -> IdentGroups<'a, Client> {
+    pub fn groups(&self) -> GroupRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Groups);
-        IdentGroups::new(id.as_ref(), self.client)
+        GroupRequest::new(self.client)
+    }
+
+    pub fn group<S: AsRef<str>>(&self, id: S) -> GroupsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Groups);
+        GroupsRequest::new(id.as_ref(), self.client)
     }
 
     pub fn group_lifecycle_policies(&self) -> GroupLifecyclePoliciesRequest<'a, Client> {
@@ -486,55 +486,5 @@ where
         }
         render_path!(self.client, "$batch", &serde_json::json!({}));
         IntoResponse::new(&self.client.request)
-    }
-}
-
-register_ident_client!(IdentGroups,);
-
-impl<'a, Client> IdentGroups<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( list, Collection<serde_json::Value> => "groups" );
-    get!( get, serde_json::Value => "groups/{{RID}}" );
-    get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "groups/delta" );
-    get!( list_events, Collection<serde_json::Value> => "groups/{{RID}}/events" );
-    get!( list_lifecycle_policies, Collection<serde_json::Value> => "groups/{{RID}}/groupLifecyclePolicies" );
-    get!( list_member_of, Collection<serde_json::Value> => "groups/{{RID}}/memberOf" );
-    get!( list_transitive_member_of, Collection<serde_json::Value> => "groups/{{RID}}/transitiveMemberOf" );
-    get!( list_members, Collection<serde_json::Value> => "groups/{{RID}}/members"  );
-    get!( list_transitive_members, Collection<serde_json::Value> => "groups/{{RID}}/transitiveMembers" );
-    get!( list_owners, Collection<serde_json::Value> => "groups/{{RID}}/owners" );
-    get!( list_photos, Collection<serde_json::Value> => "groups/{{RID}}/photos" );
-    get!( root_site, Collection<serde_json::Value> => "groups/{{RID}}/sites/root" );
-    get!( list_planner_plans, Collection<serde_json::Value> => "groups/{{RID}}/planner/plans" );
-    post!( [ create, serde_json::Value => "groups" ] );
-    post!( add_favorite, GraphResponse<Content> => "groups/{{RID}}/addFavorite" );
-    post!( [ add_member, GraphResponse<Content> => "groups/{{RID}}/members/$ref" ] );
-    post!( [ add_owner, GraphResponse<Content> => "groups/{{RID}}/owners/$ref" ] );
-    post!( [ check_member_groups, Collection<String> => "groups/{{RID}}/checkMemberGroups" ] );
-    post!( [ member_groups, Collection<String> => "groups/{{RID}}/getMemberGroups" ] );
-    post!( [ member_objects, Collection<String> => "groups/{{RID}}/getMemberObjects" ] );
-    post!( remove_favorite, GraphResponse<Content> => "groups/{{RID}}/removeFavorite" );
-    post!( renew, GraphResponse<Content> => "groups/{{RID}}/renew" );
-    post!( reset_unseen_count, GraphResponse<Content> => "groups/{{RID}}/resetUnseenCount" );
-    post!( subscribe_by_mail, GraphResponse<Content> => "groups/{{RID}}/subscribeByMail" );
-    post!( unsubscribe_by_mail, GraphResponse<Content> => "groups/{{RID}}/unsubscribeByMail" );
-    post!( [ validate_properties, GraphResponse<Content> => "groups/{{RID}}/validateProperties" ] );
-    patch!( [ update, serde_json::Value => "groups/{{RID}}" ] );
-    delete!( delete, GraphResponse<Content> => "groups/{{RID}}" );
-    delete!( | remove_member, GraphResponse<Content> => "groups/{{RID}}/members/{{id}}/$ref" );
-    delete!( | remove_owner, GraphResponse<Content> => "groups/{{RID}}/owners/{{id}}/$ref" );
-
-    pub fn conversations(&self) -> GroupConversationRequest<'a, Client> {
-        GroupConversationRequest::new(self.client)
-    }
-
-    pub fn conversation_posts(&'a self) -> GroupConversationPostRequest<'a, Client> {
-        GroupConversationPostRequest::new(self.client)
-    }
-
-    pub fn thread_posts(&'a self) -> GroupThreadPostRequest<'a, Client> {
-        GroupThreadPostRequest::new(self.client)
     }
 }
