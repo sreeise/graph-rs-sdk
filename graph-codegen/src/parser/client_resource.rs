@@ -32,6 +32,11 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 secondary_name: "activities".to_string(),
                 modifier: "activities".to_string(),
             }),
+            ResourceIdentity::Buckets => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/planner/buckets"),
+                secondary_name: "buckets".to_string(),
+                modifier: "buckets".to_string(),
+            }),
             ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
                 Ok(ClientResource::Secondary {
                     start_filter: Filter::PathStartsWith("/users/{user-id}/calendar"),
@@ -64,6 +69,12 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 secondary_name: "contentTypes".to_string(),
                 modifier: "contentTypes".to_string(),
             }),
+            // /groups/{group-id}/conversations
+            ResourceIdentity::Conversations => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/groups/{group-id}/conversations"),
+                secondary_name: "conversations".to_string(),
+                modifier: "conversations".to_string(),
+            }),
             ResourceIdentity::Drive | ResourceIdentity::Drives => Ok(ClientResource::Main {
                 modifier: "drive".to_string(),
             }),
@@ -74,6 +85,9 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 start_filter: Filter::PathStartsWith("/users"),
                 secondary_name: "events".to_string(),
                 modifier: "events".to_string(),
+            }),
+            ResourceIdentity::Groups => Ok(ClientResource::Main {
+                modifier: "groups".to_string(),
             }),
             ResourceIdentity::InferenceClassification => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/me/inferenceClassification"),
@@ -172,6 +186,18 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
             ResourceIdentity::Planner => Ok(ClientResource::Main {
                 modifier: "planner".to_string(),
             }),
+            ResourceIdentity::Posts => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith(
+                    "/groups/{group-id}/threads/{conversationThread-id}/posts",
+                ),
+                secondary_name: "posts".to_string(),
+                modifier: "posts".to_string(),
+            }),
+            ResourceIdentity::Plans => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/planner/plans"),
+                secondary_name: "plans".to_string(),
+                modifier: "plans".to_string(),
+            }),
             ResourceIdentity::Sites => Ok(ClientResource::Main {
                 modifier: "sites".to_string(),
             }),
@@ -182,6 +208,16 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
             }),
             ResourceIdentity::Users => Ok(ClientResource::Main {
                 modifier: "users".to_string(),
+            }),
+            ResourceIdentity::Tasks => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/planner/tasks"),
+                secondary_name: "tasks".to_string(),
+                modifier: "tasks".to_string(),
+            }),
+            ResourceIdentity::Threads => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/groups/{group-id}/threads"),
+                secondary_name: "threads".to_string(),
+                modifier: "threads".to_string(),
             }),
             _ => Err(()),
         }
