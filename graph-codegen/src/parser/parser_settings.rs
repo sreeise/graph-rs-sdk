@@ -794,7 +794,7 @@ impl ParserSettings {
                 ],
                 ResourceIdentity::Groups => vec![
                     Request {
-                        path: "groups/{{RID}}/owners/{{id}}/$ref".into(),
+                        path: "/groups/{{RID}}/owners/{{id}}/$ref".into(),
                         method: HttpMethod::DELETE,
                         method_name: "remove_owner".into(),
                         param_size: 1,
@@ -808,7 +808,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "groups/{{RID}}/members/{{id}}/$ref".into(),
+                        path: "/groups/{{RID}}/members/{{id}}/$ref".into(),
                         method: HttpMethod::DELETE,
                         method_name: "remove_member".into(),
                         param_size: 1,
@@ -822,7 +822,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "groups/{{RID}}/members/$ref".into(),
+                        path: "/groups/{{RID}}/members/$ref".into(),
                         method: HttpMethod::POST,
                         method_name: "add_member".into(),
                         param_size: 0,
@@ -836,7 +836,7 @@ impl ParserSettings {
                         doc: None,
                     },
                     Request {
-                        path: "groups/{{RID}}/owners/$ref".into(),
+                        path: "/groups/{{RID}}/owners/$ref".into(),
                         method: HttpMethod::POST,
                         method_name: "add_owner".into(),
                         param_size: 0,
@@ -850,6 +850,20 @@ impl ParserSettings {
                         doc: None,
                     },
                 ],
+                ResourceIdentity::Conversations => vec![Request {
+                    path: "/conversations/{{RID}}".into(),
+                    method: HttpMethod::DELETE,
+                    method_name: "delete_conversations".into(),
+                    param_size: 0,
+                    has_body: false,
+                    request_type: RequestType::Normal,
+                    has_rid: true,
+                    response: ResponseType::NoContent,
+                    tag: "conversations".into(),
+                    operation_id: "groups.conversations.DeleteConversations".into(),
+                    operation_mapping: "groups.conversations".into(),
+                    doc: None,
+                }],
                 _ => vec![],
             }
         };
@@ -1073,6 +1087,12 @@ impl ParserSettings {
                 map.insert(
                     "planner.tasks",
                     MatchTarget::OperationMap("tasks".to_string()),
+                );
+            },
+            ResourceIdentity::Threads => {
+                map.insert(
+                    "groups.threads",
+                    MatchTarget::OperationMap("threads".to_string()),
                 );
             },
             _ => {},
