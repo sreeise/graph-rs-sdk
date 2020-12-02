@@ -11,14 +11,14 @@ fn main() {}
 fn get_or_list_groups() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1().groups(GROUP_ID).get().send()?;
+    let response = client.v1().group(GROUP_ID).get_group().send()?;
 
     println!("Group response: {:#?}", response);
 
     let response = client
         .v1()
-        .groups("") // Won't be used
-        .list()
+        .groups() // Won't be used
+        .list_group()
         .send()?;
 
     println!("List groups response: {:#?}", response);
@@ -30,14 +30,14 @@ fn get_or_list_groups() -> GraphResult<()> {
 fn add_favorites_members_owners() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1().groups(GROUP_ID).add_favorite().send()?;
+    let response = client.v1().group(GROUP_ID).add_favorite().send()?;
 
     println!("Add favorite response: {:#?}", response);
 
     let directory_object_id = "<DIRECTORY_OBJECT_ID>";
     let response = client
         .v1()
-        .groups(GROUP_ID)
+        .group(GROUP_ID)
         .add_member(&serde_json::json!({
             "@odata.id":
                 format!(
@@ -52,7 +52,7 @@ fn add_favorites_members_owners() -> GraphResult<()> {
     let user_id = "<USER_ID>";
     let response = client
         .v1()
-        .groups(GROUP_ID)
+        .group(GROUP_ID)
         .add_owner(&serde_json::json!({
             "@odata.id": format!("https://graph.microsoft.com/v1.0/users/{}", user_id)
         }))
@@ -69,8 +69,8 @@ fn create_update_delete_group() -> GraphResult<()> {
 
     let response = client
         .v1()
-        .groups("") // Won't be used.
-        .create(&serde_json::json!({
+        .groups() // Won't be used.
+        .create_group(&serde_json::json!({
             "description": "Self help community for library",
             "displayName": "Library Assist",
             "groupTypes": [
@@ -86,8 +86,8 @@ fn create_update_delete_group() -> GraphResult<()> {
 
     let response = client
         .v1()
-        .groups(GROUP_ID)
-        .update(&serde_json::json!({
+        .group(GROUP_ID)
+        .update_group(&serde_json::json!({
             "description": "description-value",
             "displayName": "displayName-value",
             "groupTypes": [
@@ -102,7 +102,7 @@ fn create_update_delete_group() -> GraphResult<()> {
 
     println!("Update group: {:#?}", response);
 
-    let response = client.v1().groups(GROUP_ID).delete().send()?;
+    let response = client.v1().group(GROUP_ID).delete_group().send()?;
 
     println!("Delete group: {:#?}", response);
 
@@ -113,17 +113,17 @@ fn create_update_delete_group() -> GraphResult<()> {
 fn list_methods() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1().groups(GROUP_ID).list_members().send()?;
+    let response = client.v1().group(GROUP_ID).list_members().send()?;
 
     println!("{:#?}", response);
 
-    let response = client.v1().groups(GROUP_ID).list_member_of().send()?;
+    let response = client.v1().group(GROUP_ID).list_member_of().send()?;
 
     println!("{:#?}", response);
 
     let response = client
         .v1()
-        .groups(GROUP_ID)
+        .group(GROUP_ID)
         .list_transitive_members()
         .send()?;
 
@@ -131,17 +131,17 @@ fn list_methods() -> GraphResult<()> {
 
     let response = client
         .v1()
-        .groups(GROUP_ID)
+        .group(GROUP_ID)
         .list_transitive_member_of()
         .send()?;
 
     println!("{:#?}", response);
 
-    let response = client.v1().groups(GROUP_ID).list_owners().send()?;
+    let response = client.v1().group(GROUP_ID).list_owners().send()?;
 
     println!("{:#?}", response);
 
-    let response = client.v1().groups(GROUP_ID).list_photos().send()?;
+    let response = client.v1().group(GROUP_ID).list_photos().send()?;
 
     println!("{:#?}", response);
 
@@ -152,21 +152,21 @@ fn list_methods() -> GraphResult<()> {
 fn remove_methods() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1().groups(GROUP_ID).remove_favorite().send()?;
+    let response = client.v1().group(GROUP_ID).remove_favorite().send()?;
 
     println!("{:#?}", response);
 
     let member_id = "<MEMBER_ID>";
     let response = client
         .v1()
-        .groups(GROUP_ID)
+        .group(GROUP_ID)
         .remove_member(member_id)
         .send()?;
 
     println!("{:#?}", response);
 
     let owner_id = "<OWNER_ID>";
-    let response = client.v1().groups(GROUP_ID).remove_owner(owner_id).send()?;
+    let response = client.v1().group(GROUP_ID).remove_owner(owner_id).send()?;
 
     println!("{:#?}", response);
 
