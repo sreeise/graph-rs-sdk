@@ -18,6 +18,10 @@ impl ParserSettings {
     /// Imports that won't be added from parsing and need to be manually added.
     pub fn imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         match resource_identity {
+            ResourceIdentity::Buckets => vec![
+                "crate::tasks::{TaskRequest, TasksRequest}",
+                "crate::core::ResourceIdentity",
+            ],
             ResourceIdentity::Calendar | ResourceIdentity::Calendars => vec![
                 "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
                 "crate::events::{EventsRequest, EventRequest}",
@@ -36,6 +40,10 @@ impl ParserSettings {
                 "crate::core::ResourceIdentity",
             ],
             ResourceIdentity::ContactFolders => vec!["crate::core::ResourceIdentity"],
+            ResourceIdentity::Conversations => vec![
+                "crate::core::ResourceIdentity",
+                "crate::threads::{ThreadRequest, ThreadsRequest}",
+            ],
             ResourceIdentity::Drive | ResourceIdentity::Drives => vec![
                 "std::path::Path",
                 "crate::core::ResourceIdentity",
@@ -108,6 +116,14 @@ impl ParserSettings {
                 "crate::parent_section_group::ParentSectionGroupRequest",
                 "crate::parent_notebook::ParentNotebookRequest",
             ],
+            ResourceIdentity::Plans => vec![
+                "crate::buckets::{BucketRequest, BucketsRequest}",
+                "crate::tasks::{TaskRequest, TasksRequest}",
+                "crate::core::ResourceIdentity",
+            ],
+            ResourceIdentity::Posts => vec![
+                "crate::core::ResourceIdentity",
+            ],
             ResourceIdentity::ManagedDevices => vec!["crate::core::ResourceIdentity"],
             ResourceIdentity::MailFolders => vec!["crate::core::ResourceIdentity"],
             ResourceIdentity::Messages => vec!["crate::core::ResourceIdentity"],
@@ -145,6 +161,25 @@ impl ParserSettings {
                 "crate::onenote::OnenoteRequest",
                 "crate::core::ResourceIdentity",
             ],
+            ResourceIdentity::Groups => vec![
+                "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
+                "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
+                "crate::calendar::{CalendarRequest, CalendarsRequest}",
+                "crate::events::{EventsRequest, EventRequest}",
+                "crate::drive::DrivesRequest",
+                "crate::onenote::OnenoteRequest",
+                "crate::threads::{ThreadRequest, ThreadsRequest}",
+                "crate::conversations::{ConversationRequest, ConversationsRequest}",
+                "crate::planner::PlannerRequest",
+                "crate::core::ResourceIdentity",
+            ],
+            ResourceIdentity::Tasks => vec![
+                "crate::core::ResourceIdentity",
+            ],
+            ResourceIdentity::Threads => vec![
+                "crate::core::ResourceIdentity",
+                "crate::posts::{PostRequest, PostsRequest}",
+            ],
             _ => vec![],
         }
     }
@@ -168,6 +203,11 @@ impl ParserSettings {
     // and makes it easier to generate clients that use the same resources.
     pub fn path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'static>> {
         match resource_identity {
+            ResourceIdentity::Buckets => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "buckets/{plannerBucket-id}/tasks/",
+                ]))]
+            },
             ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
                 vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                     "calendarGroup",
@@ -195,6 +235,11 @@ impl ParserSettings {
                     "/calendar/calendarPermissions",
                     "/calendar/getSchedule",
                     "instances",
+                ]))]
+            },
+            ResourceIdentity::Conversations => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/threads/",
                 ]))]
             },
             ResourceIdentity::Drives | ResourceIdentity::Drive => {
@@ -290,6 +335,12 @@ impl ParserSettings {
                     "/parentNotebook/",
                 ]))]
             },
+            ResourceIdentity::Plans => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/buckets/",
+                    "/tasks/",
+                ]))]
+            },
             ResourceIdentity::Me => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "activities",
                 "historyItems",
@@ -341,6 +392,25 @@ impl ParserSettings {
                     "messages",
                     "onenote",
                     "planner",
+                ]))]
+            },
+            ResourceIdentity::Groups => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/calendarGroup/",
+                    "/calendars/",
+                    "/calendar/",
+                    "/calendarView/",
+                    "/events/",
+                    "/onenote/",
+                    "/planner/",
+                    "/conversations/",
+                    "/threads/",
+                    "/conversations/",
+                ]))]
+            },
+            ResourceIdentity::Threads => {
+                vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                    "/posts/",
                 ]))]
             },
             _ => ParserSettings::default_path_filters(),
@@ -722,6 +792,64 @@ impl ParserSettings {
                         doc: None,
                     },
                 ],
+                ResourceIdentity::Groups => vec![
+                    Request {
+                        path: "groups/{{RID}}/owners/{{id}}/$ref".into(),
+                        method: HttpMethod::DELETE,
+                        method_name: "remove_owner".into(),
+                        param_size: 1,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: true,
+                        response: ResponseType::NoContent,
+                        tag: "groups".into(),
+                        operation_id: "groups.RemoveOwner".into(),
+                        operation_mapping: "groups".into(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "groups/{{RID}}/members/{{id}}/$ref".into(),
+                        method: HttpMethod::DELETE,
+                        method_name: "remove_member".into(),
+                        param_size: 1,
+                        has_body: false,
+                        request_type: RequestType::Normal,
+                        has_rid: true,
+                        response: ResponseType::NoContent,
+                        tag: "groups".into(),
+                        operation_id: "groups.RemoveMember".into(),
+                        operation_mapping: "groups".into(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "groups/{{RID}}/members/$ref".into(),
+                        method: HttpMethod::POST,
+                        method_name: "add_member".into(),
+                        param_size: 0,
+                        has_body: true,
+                        request_type: RequestType::Normal,
+                        has_rid: true,
+                        response: ResponseType::NoContent,
+                        tag: "groups".into(),
+                        operation_id: "groups.AddMember".into(),
+                        operation_mapping: "groups".into(),
+                        doc: None,
+                    },
+                    Request {
+                        path: "groups/{{RID}}/owners/$ref".into(),
+                        method: HttpMethod::POST,
+                        method_name: "add_owner".into(),
+                        param_size: 0,
+                        has_body: true,
+                        request_type: RequestType::Normal,
+                        has_rid: true,
+                        response: ResponseType::NoContent,
+                        tag: "groups".into(),
+                        operation_id: "groups.AddOwner".into(),
+                        operation_mapping: "groups".into(),
+                        doc: None,
+                    },
+                ],
                 _ => vec![],
             }
         };
@@ -772,6 +900,12 @@ impl ParserSettings {
                 map.insert(
                     "me.activities",
                     MatchTarget::OperationMap("activities".to_string()),
+                );
+            },
+            ResourceIdentity::Buckets => {
+                map.insert(
+                    "planner.buckets",
+                    MatchTarget::OperationMap("buckets".to_string()),
                 );
             },
             ResourceIdentity::Calendar => {
@@ -830,6 +964,12 @@ impl ParserSettings {
                     MatchTarget::OperationMap("contentTypes".to_string()),
                 );
             },
+            ResourceIdentity::Conversations => {
+                map.insert(
+                    "groups.conversations",
+                    MatchTarget::OperationMap("conversations".to_string()),
+                );
+            },
             ResourceIdentity::Events => {
                 map.insert(
                     "users.events",
@@ -881,6 +1021,12 @@ impl ParserSettings {
                     MatchTarget::OperationMap("outlook".to_string()),
                 );
             },
+            ResourceIdentity::Plans => {
+                map.insert(
+                    "planner.plans",
+                    MatchTarget::OperationMap("plans".to_string()),
+                );
+            },
             ResourceIdentity::Settings => {
                 map.insert(
                     "me.settings",
@@ -917,6 +1063,18 @@ impl ParserSettings {
                     MatchTarget::OperationMap("parentSection".to_string()),
                 );
             },
+            ResourceIdentity::Posts => {
+                map.insert(
+                    "groups.threads.posts",
+                    MatchTarget::OperationMap("posts".to_string()),
+                );
+            },
+            ResourceIdentity::Tasks => {
+                map.insert(
+                    "planner.tasks",
+                    MatchTarget::OperationMap("tasks".to_string()),
+                );
+            },
             _ => {},
         }
 
@@ -948,6 +1106,7 @@ impl ParserSettings {
             ResourceIdentity::Applications => {
                 vec![UrlMatchTarget::resource_id("applications", "application")]
             },
+            ResourceIdentity::Buckets => vec![UrlMatchTarget::resource_id("buckets", "bucket")],
             ResourceIdentity::Calendar => {
                 vec![UrlMatchTarget::resource_id("calendars", "calendar")]
             },
@@ -964,6 +1123,9 @@ impl ParserSettings {
             )],
             ResourceIdentity::ContentTypes => {
                 vec![UrlMatchTarget::resource_id("contentTypes", "contentType")]
+            },
+            ResourceIdentity::Conversations => {
+                vec![UrlMatchTarget::resource_id("conversations", "conversation")]
             },
             ResourceIdentity::Drives => vec![UrlMatchTarget::resource_id("drives", "drive")],
             ResourceIdentity::Events => vec![UrlMatchTarget::resource_id("events", "event")],
@@ -986,13 +1148,17 @@ impl ParserSettings {
             },
             ResourceIdentity::Onenote => vec![UrlMatchTarget::resource_id("notebooks", "notebook")],
             ResourceIdentity::Pages => vec![UrlMatchTarget::resource_id("pages", "page")],
+            ResourceIdentity::Posts => vec![UrlMatchTarget::resource_id("posts", "post")],
             ResourceIdentity::Sections => vec![UrlMatchTarget::resource_id("sections", "section")],
+            ResourceIdentity::Plans => vec![UrlMatchTarget::resource_id("plans", "plan")],
             ResourceIdentity::SectionGroups => {
                 vec![UrlMatchTarget::resource_id("sectionGroups", "sectionGroup")]
             },
             ResourceIdentity::Sites => vec![UrlMatchTarget::resource_id("sites", "site")],
             ResourceIdentity::Teams => vec![UrlMatchTarget::resource_id("teams", "team")],
+            ResourceIdentity::Threads => vec![UrlMatchTarget::resource_id("threads", "thread")],
             ResourceIdentity::Users => vec![UrlMatchTarget::resource_id("users", "user")],
+            ResourceIdentity::Tasks => vec![UrlMatchTarget::resource_id("tasks", "task")],
             ResourceIdentity::Workbooks => {
                 vec![UrlMatchTarget::resource_id("workbooks", "workbook")]
             },
@@ -1005,6 +1171,24 @@ impl ParserSettings {
     ) -> BTreeMap<String, BTreeSet<ClientLinkSettings>> {
         let mut map = BTreeMap::new();
         match resource_identity {
+            ResourceIdentity::Buckets => {
+                let mut settings = ClientLinkSettings::new("tasks");
+                settings
+                    .use_method_name("task")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("task");
+                settings2
+                    .use_method_name("tasks")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2]);
+                map.insert("buckets".to_string(), set);
+            },
             ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
                 let mut settings = ClientLinkSettings::new("events");
                 settings
@@ -1183,6 +1367,26 @@ impl ParserSettings {
                 let mut set = BTreeSet::new();
                 set.extend(vec![settings, settings2, settings3]);
                 map.insert("events".to_string(), set);
+            },
+            ResourceIdentity::Conversations => {
+                let mut settings = ClientLinkSettings::new("threads");
+                settings
+                    .use_method_name("thread")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("thread");
+                settings2
+                    .use_method_name("threads")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2]);
+                map.insert("conversations".to_string(), set);
             },
             ResourceIdentity::Drive | ResourceIdentity::Drives => {
                 let mut settings = ClientLinkSettings::new("items");
@@ -1464,6 +1668,41 @@ impl ParserSettings {
                 set.extend(vec![settings, settings2, settings3, settings4]);
                 map.insert("parentSectionGroup".to_string(), set);
             },
+            ResourceIdentity::Plans => {
+                let mut settings = ClientLinkSettings::new("buckets");
+                settings
+                    .use_method_name("bucket")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("bucket");
+                settings2
+                    .use_method_name("buckets")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings3 = ClientLinkSettings::new("tasks");
+                settings3
+                    .use_method_name("task")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings4 = ClientLinkSettings::new("task");
+                settings4
+                    .use_method_name("tasks")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2, settings3, settings4]);
+                map.insert("plans".to_string(), set);
+            },
             ResourceIdentity::Me => {
                 let mut settings = ClientLinkSettings::new("calendarGroups");
                 settings
@@ -1589,6 +1828,122 @@ impl ParserSettings {
                     settings20,
                 ]);
                 map.insert("me".to_string(), set);
+            },
+            ResourceIdentity::Groups => {
+                let mut settings = ClientLinkSettings::new("calendarGroups");
+                settings
+                    .use_method_name("calendarGroup")
+                    .with_id_param()
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("calendarGroup");
+                settings2
+                    .use_method_name("calendarGroups")
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity();
+
+                let mut settings3 = ClientLinkSettings::new("calendars");
+                settings3
+                    .use_method_name("calendar")
+                    .with_id_param()
+                    .with_set_resource_identity()
+                    .with_extend_path_id()
+                    .with_extend_path_ident();
+
+                let mut settings4 = ClientLinkSettings::new("calendar");
+                settings4
+                    .use_method_name("calendars")
+                    .with_set_resource_identity()
+                    .with_extend_path_id()
+                    .with_extend_path_ident();
+
+                let mut settings5 = ClientLinkSettings::new("event");
+                settings5
+                    .use_method_name("events")
+                    .with_set_resource_identity()
+                    .with_extend_path_id()
+                    .with_extend_path_ident();
+
+                let mut settings6 = ClientLinkSettings::new("events");
+                settings6
+                    .use_method_name("event")
+                    .with_id_param()
+                    .with_set_resource_identity()
+                    .with_extend_path_id()
+                    .with_extend_path_ident();
+
+                let mut settings7 = ClientLinkSettings::new("calendarView");
+                settings7
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings8 = ClientLinkSettings::new("calendarViews");
+                settings8
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings9 = ClientLinkSettings::new("drives");
+                settings9
+                    .use_method_name("drive")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id();
+
+                let mut settings10 = ClientLinkSettings::new("onenote");
+                settings10
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings11 = ClientLinkSettings::new("thread");
+                settings11
+                    .use_method_name("threads")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings12 = ClientLinkSettings::new("threads");
+                settings12
+                    .use_method_name("thread")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings13 = ClientLinkSettings::new("conversations");
+                settings13
+                    .use_method_name("conversation")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings14 = ClientLinkSettings::new("conversation");
+                settings14
+                    .use_method_name("conversations")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings15 = ClientLinkSettings::new("planner");
+                settings15
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![
+                    settings, settings2, settings3, settings4, settings5, settings6, settings7,
+                    settings8, settings9, settings10, settings11, settings12, settings13,
+                    settings14, settings15,
+                ]);
+                map.insert("groups".to_string(), set);
             },
             ResourceIdentity::Sites => {
                 let mut settings = ClientLinkSettings::new("contentTypes");
@@ -1786,6 +2141,26 @@ impl ParserSettings {
                 set.extend(vec![user_setting]);
                 map.insert("user".to_string(), set);
             },
+            ResourceIdentity::Threads => {
+                let mut settings = ClientLinkSettings::new("posts");
+                settings
+                    .use_method_name("post")
+                    .with_id_param()
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut settings2 = ClientLinkSettings::new("post");
+                settings2
+                    .use_method_name("posts")
+                    .with_extend_path_ident()
+                    .with_extend_path_id()
+                    .with_set_resource_identity();
+
+                let mut set = BTreeSet::new();
+                set.extend(vec![settings, settings2]);
+                map.insert("threads".to_string(), set);
+            },
             _ => {},
         }
 
@@ -1831,6 +2206,43 @@ impl ParserSettings {
             },
             ResourceIdentity::AuditLogs => {
                 modify_target.operation_map("auditLogs.auditLogRoot", "auditLogs");
+            },
+            ResourceIdentity::Buckets => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("planner.GetBuckets".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("planner.buckets".to_string()),
+                        MatchTarget::OperationId("planner.buckets.GetBuckets".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("planner.UpdateBuckets".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("planner.buckets".to_string()),
+                        MatchTarget::OperationId("planner.buckets.UpdateBuckets".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("planner.ListBuckets".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("planner.buckets".to_string()),
+                        MatchTarget::OperationId("planner.buckets.ListBuckets".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("planner.plans.GetBuckets".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("planner.buckets".to_string()),
+                        MatchTarget::OperationId("planner.buckets.GetBuckets".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("planner.plans.ListBuckets".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("planner.buckets".to_string()),
+                        MatchTarget::OperationId("planner.buckets.ListBuckets".to_string()),
+                    ],
+                );
             },
             ResourceIdentity::Calendar => {
                 modify_target.map.insert(
@@ -2051,6 +2463,44 @@ impl ParserSettings {
                         MatchTarget::OperationMap("sites.contentTypes".to_string()),
                         MatchTarget::OperationId(
                             "sites.contentTypes.CreateContentTypes".to_string(),
+                        ),
+                    ],
+                );
+            },
+            ResourceIdentity::Conversations => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("groups.ListConversations".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("groups.conversations".to_string()),
+                        MatchTarget::OperationId(
+                            "groups.conversations.ListConversations".to_string(),
+                        ),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("groups.CreateConversations".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("groups.conversations".to_string()),
+                        MatchTarget::OperationId(
+                            "groups.conversations.CreateConversations".to_string(),
+                        ),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("groups.GetConversations".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("groups.conversations".to_string()),
+                        MatchTarget::OperationId(
+                            "groups.conversations.GetConversations".to_string(),
+                        ),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("groups.UpdateConversations".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("groups.conversations".to_string()),
+                        MatchTarget::OperationId(
+                            "groups.conversations.UpdateConversations".to_string(),
                         ),
                     ],
                 );
@@ -2630,6 +3080,52 @@ impl ParserSettings {
             ResourceIdentity::Policies => {
                 modify_target.operation_map("policies.policyRoot", "policies");
             },
+            ResourceIdentity::Posts => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("groups.threads.UpdatePosts".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("groups.threads.posts".to_string()),
+                        MatchTarget::OperationId("groups.threads.posts.UpdatePosts".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("groups.threads.GetPosts".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("groups.threads.posts".to_string()),
+                        MatchTarget::OperationId("groups.threads.posts.GetPosts".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("groups.threads.ListPosts".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("groups.threads.posts".to_string()),
+                        MatchTarget::OperationId("groups.threads.posts.ListPosts".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("groups.threads.CreatePosts".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("groups.threads.posts".to_string()),
+                        MatchTarget::OperationId("groups.threads.posts.CreatePosts".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::Plans => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("planner.GetPlans".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("planner.plans".to_string()),
+                        MatchTarget::OperationId("planner.plans.GetPlans".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("planner.UpdatePlans".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("planner.plans".to_string()),
+                        MatchTarget::OperationId("planner.plans.UpdatePlans".to_string()),
+                    ],
+                );
+            },
             ResourceIdentity::Teams => {
                 modify_target.map.insert(
                     MatchTarget::OperationMap("teams.primaryChannel.messages".to_string()),
@@ -2658,6 +3154,45 @@ impl ParserSettings {
                     vec![
                         MatchTarget::OperationMap("settings".to_string()),
                         MatchTarget::OperationId("settings.UpdateSettings".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::Tasks => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("planner.ListTasks".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("planner.tasks".to_string()),
+                        MatchTarget::OperationId("planner.tasks.ListTasks".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("planner.UpdateTasks".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("planner.tasks".to_string()),
+                        MatchTarget::OperationId("planner.tasks.UpdateTasks".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("planner.GetTasks".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("planner.tasks".to_string()),
+                        MatchTarget::OperationId("planner.tasks.GetTasks".to_string()),
+                    ],
+                );
+            },
+            ResourceIdentity::Threads => {
+                modify_target.map.insert(
+                    MatchTarget::OperationId("groups.UpdateThreads".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("groups.threads".to_string()),
+                        MatchTarget::OperationId("groups.threads.UpdateThreads".to_string()),
+                    ],
+                );
+                modify_target.map.insert(
+                    MatchTarget::OperationId("groups.GetThreads".to_string()),
+                    vec![
+                        MatchTarget::OperationMap("groups.threads".to_string()),
+                        MatchTarget::OperationId("groups.threads.GetThreads".to_string()),
                     ],
                 );
             },
