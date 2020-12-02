@@ -70,6 +70,13 @@ where
         params: 0,
         has_body: true
     });
+    delete!({
+        name: delete_conversations,
+        response: GraphResponse<Content>,
+        path: "/conversations/{{RID}}",
+        params: 0,
+        has_body: false
+    });
     get!({
         doc: "# Get threads from groups",
         name: list_threads,

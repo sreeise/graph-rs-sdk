@@ -59,7 +59,7 @@ where
         name: get_threads,
         response: serde_json::Value,
         path: "/threads/{{RID}}",
-        params: 1,
+        params: 0,
         has_body: false
     });
     patch!({
@@ -67,7 +67,7 @@ where
         name: update_threads,
         response: GraphResponse<Content>,
         path: "/threads/{{RID}}",
-        params: 1,
+        params: 0,
         has_body: true
     });
     get!({
@@ -75,7 +75,7 @@ where
         name: list_posts,
         response: Collection<serde_json::Value>,
         path: "/threads/{{RID}}/posts",
-        params: 1,
+        params: 0,
         has_body: false
     });
     post!({
@@ -83,7 +83,7 @@ where
         name: create_posts,
         response: serde_json::Value,
         path: "/threads/{{RID}}/posts",
-        params: 1,
+        params: 0,
         has_body: true
     });
     post!({
@@ -91,7 +91,7 @@ where
         name: reply,
         response: GraphResponse<Content>,
         path: "/threads/{{RID}}/reply",
-        params: 1,
+        params: 0,
         has_body: true
     });
 }
