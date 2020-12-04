@@ -314,10 +314,6 @@ impl Parser {
         path_map
     }
 
-    fn use_filter_internal(&self, mut spec: RefMut<ParserSpec>, filter: Filter<'_>) {
-        spec.paths = spec.paths.filter(filter).into();
-    }
-
     fn use_filters_internal(&self, mut spec: RefMut<ParserSpec>, filters: Vec<Filter<'_>>) {
         let mut path_map = spec.paths.clone();
 
