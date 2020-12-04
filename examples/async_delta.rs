@@ -2,7 +2,6 @@ use graph_error::GraphFailure;
 use graph_rs::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
-static USER_ID: &str = "USER_ID";
 
 #[tokio::main]
 async fn main() -> Result<(), GraphFailure> {

@@ -32,30 +32,8 @@ impl SpecBuilder {
         self.imports.extend(imports.iter().map(|s| s.to_string()));
     }
 
-    fn add_ident_clients(&mut self, ident_clients: &[&str]) {
-        self.ident_clients
-            .extend(ident_clients.iter().map(|s| s.to_string()));
-    }
-
     fn set_ident_clients(&mut self, ident_clients: HashSet<String>) {
         self.ident_clients = ident_clients;
-    }
-
-    fn add_client_link(&mut self, name: &str, client_link: ClientLinkSettings) {
-        let mut set = BTreeSet::new();
-        set.insert(client_link);
-        self.client_links.insert(name.to_string(), set);
-    }
-
-    fn extend_client_link(&mut self, name: &str, client_link: ClientLinkSettings) {
-        self.client_links
-            .entry(name.to_string())
-            .and_modify(|set| set.extend(vec![client_link.clone()]))
-            .or_insert_with(|| {
-                let mut set = BTreeSet::new();
-                set.insert(client_link);
-                set
-            });
     }
 
     fn extend_client_links(&mut self, name: &str, client_links: BTreeSet<ClientLinkSettings>) {
@@ -319,7 +297,7 @@ impl Builder {
 
                 let mut clients: BTreeMap<String, Client> = BTreeMap::new();
                 for (name, methods) in methods.iter() {
-                    let mut client_methods: BTreeSet<RequestMap> =
+                    let client_methods: BTreeSet<RequestMap> =
                         methods.into_iter().cloned().collect();
 
                     let mut client = Client::new(name.as_str(), client_methods);

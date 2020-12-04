@@ -232,7 +232,7 @@ impl Generate<ResourceIdentity> for Generator {
 
     fn dry_run(resource_identity: ResourceIdentity) -> Result<(), ParseError> {
         let client_resource = ClientResource::try_from(resource_identity)?;
-        let mut gen = Generator {
+        let gen = Generator {
             builder: Generator::parse(API_V1_METADATA_URL.clone(), client_resource)?,
         };
         // This tells the builder to stop before creating the files and writing to them.
