@@ -133,8 +133,6 @@ pub mod invitations;
 pub mod items;
 /// Lists request client.
 pub mod lists;
-/// Mail request client.
-pub mod mail;
 /// Mail folders request client.
 pub mod mail_folders;
 /// Managed devices client.
