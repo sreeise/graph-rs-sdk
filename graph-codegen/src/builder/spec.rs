@@ -1,8 +1,6 @@
 use crate::builder::{Client, ClientBuilder, ClientLinkSettings};
 use crate::parser::filter::{Filter, UrlMatchTarget};
-use crate::parser::{
-    ApiImpl, Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames,
-};
+use crate::parser::{Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::IoTools;
@@ -34,6 +32,17 @@ impl SpecBuilder {
 
     fn set_ident_clients(&mut self, ident_clients: HashSet<String>) {
         self.ident_clients = ident_clients;
+    }
+
+    fn extend_client_link(&mut self, name: &str, client_link: ClientLinkSettings) {
+        self.client_links
+            .entry(name.to_string())
+            .and_modify(|set| set.extend(vec![client_link.clone()]))
+            .or_insert_with(|| {
+                let mut set = BTreeSet::new();
+                set.insert(client_link);
+                set
+            });
     }
 
     fn extend_client_links(&mut self, name: &str, client_links: BTreeSet<ClientLinkSettings>) {
@@ -160,10 +169,7 @@ impl Builder {
                 client_map
                     .entry(name.to_string())
                     .and_modify(|client| client.extend_methods(client_methods.clone()))
-                    .or_insert_with(|| {
-                        let mut client = Client::new(name.as_str(), client_methods.clone());
-                        client
-                    });
+                    .or_insert_with(|| Client::new(name.as_str(), client_methods.clone()));
             }
         }
     }

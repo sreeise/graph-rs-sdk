@@ -2,6 +2,7 @@ use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::events::{EventRequest, EventsRequest};
+use crate::extended_properties::ExtendedPropertiesRequest;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::GraphResponse;
@@ -153,6 +154,13 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::Events);
         EventsRequest::new(id.as_ref(), self.client)
+    }
+    pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ExtendedProperties);
+        ExtendedPropertiesRequest::new(self.client)
     }
     get!({
         doc: "# Get calendars from users",

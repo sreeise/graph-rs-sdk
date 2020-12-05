@@ -1,4 +1,3 @@
-use crate::attachments::{MailFolderMessageAttachmentRequest, MailMessageAttachmentRequest};
 use crate::client::Graph;
 use graph_http::types::{Collection, Content, DeltaPhantom};
 use graph_http::{GraphResponse, IntoResponse};
@@ -59,10 +58,6 @@ where
     post!( [ | reply_all, GraphResponse<Content> => "{{mm}}/{{id}}/replyAll" ] );
     patch!( [ | update, serde_json::Value => "{{mm}}/{{id}}" ] );
     delete!( | delete, GraphResponse<Content> => "{{mm}}/{{id}}" );
-
-    pub fn attachments(&'a self) -> MailMessageAttachmentRequest<'a, Client> {
-        MailMessageAttachmentRequest::new(self.client)
-    }
 }
 
 register_client!(MailFolderRequest,);
@@ -105,10 +100,6 @@ where
 
     pub fn rules(&'a self) -> MailRuleRequest<'a, Client> {
         MailRuleRequest::new(self.client)
-    }
-
-    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a, Client> {
-        MailFolderMessageAttachmentRequest::new(self.client)
     }
 }
 
@@ -168,10 +159,6 @@ where
     post!( [ || add_attachment, serde_json::Value => "{{mf}}/{{id}}/{{mm}}/{{id2}}/attachments" ] );
     patch!( [ || update, serde_json::Value => "{{mf}}/{{id}}/{{mm}}/{{id2}}" ] );
     delete!( || delete, GraphResponse<Content> => "{{mf}}/{{id}}/{{mm}}/{{id2}}" );
-
-    pub fn attachments(&'a self) -> MailFolderMessageAttachmentRequest<'a, Client> {
-        MailFolderMessageAttachmentRequest::new(self.client)
-    }
 }
 
 register_client!(MailRuleRequest,);

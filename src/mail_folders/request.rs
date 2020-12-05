@@ -1,5 +1,6 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
+use crate::extended_properties::ExtendedPropertiesRequest;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
@@ -74,6 +75,13 @@ where
 {
     pub fn child_folders(&self) -> ChildFoldersRequest<'a, Client> {
         ChildFoldersRequest::new(self.client)
+    }
+    pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ExtendedProperties);
+        ExtendedPropertiesRequest::new(self.client)
     }
     get!({
         doc: "# Get mailFolders from me",

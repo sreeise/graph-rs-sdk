@@ -1,5 +1,6 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
+use crate::extended_properties::ExtendedPropertiesRequest;
 use graph_error::GraphFailure;
 use graph_http::types::Collection;
 use graph_http::types::Content;
@@ -70,6 +71,13 @@ where
     pub fn attachments(&self) -> AttachmentsRequest<'a, Client> {
         AttachmentsRequest::new(self.client)
     }
+    pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ExtendedProperties);
+        ExtendedPropertiesRequest::new(self.client)
+    }
     get!({
         doc: "# Get messages from me",
         name: get_messages,
@@ -85,6 +93,20 @@ where
         path: "/messages/{{RID}}",
         params: 0,
         has_body: true
+    });
+    delete!({
+        name: delete_messages,
+        response: GraphResponse<Content>,
+        path: "/messages/{{RID}}",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        name: get_message_content,
+        response: GraphResponse<Content>,
+        path: "/messages/{{RID}}/$value",
+        params: 0,
+        has_body: false
     });
     get!({
         doc: "# Get attachments from me",
@@ -187,6 +209,13 @@ where
         name: forward,
         response: GraphResponse<Content>,
         path: "/messages/{{RID}}/forward",
+        params: 0,
+        has_body: true
+    });
+    post!({
+        name: move_message,
+        response: serde_json::Value,
+        path: "/messages/{{RID}}/move",
         params: 0,
         has_body: true
     });

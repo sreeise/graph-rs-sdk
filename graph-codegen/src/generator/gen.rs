@@ -2,13 +2,10 @@ use crate::builder::Builder;
 use crate::parser::client_resource::ClientResource;
 use crate::parser::error::ParseError;
 use crate::parser::filter::Filter;
-use crate::parser::{
-    Parse, Parser, ParserBuilder, ParserSettings, ParserSpec, PathMap, RequestSet,
-};
+use crate::parser::{Parse, Parser, ParserSettings, ParserSpec, PathMap, RequestSet};
 use from_as::FromFile;
 use graph_core::resource::ResourceIdentity;
 use rayon::prelude::*;
-use reqwest::Url;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::convert::TryFrom;

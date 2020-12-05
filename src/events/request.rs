@@ -1,7 +1,9 @@
 use crate::calendar::CalendarRequest;
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
+use crate::extended_properties::ExtendedPropertiesRequest;
 use crate::instances::{InstanceRequest, InstancesRequest};
+use graph_error::GraphFailure;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
@@ -10,6 +12,7 @@ use graph_http::IntoResponse;
 use graph_http::UploadSessionClient;
 use handlebars::*;
 use reqwest::Method;
+use std::path::Path;
 
 register_client!(AttachmentsRequest,);
 register_client!(EventRequest,);
@@ -22,10 +25,10 @@ where
     post!({
         doc: "# Invoke action createUploadSession",
         name: create_upload_session,
-        response: UploadSessionClient<Client>,
         path: "/events/{{RID}}/attachments/createUploadSession",
         params: 0,
-        has_body: true
+        has_body: true,
+        upload_session: true
     });
 }
 
@@ -76,6 +79,13 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::Calendar);
         CalendarRequest::new(self.client)
+    }
+    pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ExtendedProperties);
+        ExtendedPropertiesRequest::new(self.client)
     }
     pub fn instances(&self) -> InstanceRequest<'a, Client> {
         self.client

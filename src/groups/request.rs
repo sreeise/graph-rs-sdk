@@ -113,11 +113,11 @@ where
         self.client.set_ident(ResourceIdentity::Conversations);
         ConversationsRequest::new(id.as_ref(), self.client)
     }
-    pub fn drive<ID: AsRef<str>>(&self, id: ID) -> DrivesRequest<'a, Client> {
+    pub fn drive(&self) -> DrivesRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        DrivesRequest::new(id.as_ref(), self.client)
+        DrivesRequest::new("", self.client)
     }
     pub fn events(&self) -> EventRequest<'a, Client> {
         self.client

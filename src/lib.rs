@@ -75,8 +75,6 @@ pub mod audit_logs;
 pub mod buckets;
 // Applications request client.
 pub mod applications;
-// Attachment request client.
-pub mod attachments;
 /// Calendar request client.
 pub mod calendar;
 /// Calendar groups client.
@@ -115,6 +113,8 @@ pub mod drive;
 pub mod education;
 /// Events request client (Calendars).
 pub mod events;
+/// Extended properties request client.
+pub mod extended_properties;
 /// Group lifecycle policies request client.
 pub mod group_lifecycle_policies;
 /// Groups request client.

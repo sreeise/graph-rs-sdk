@@ -1,58 +1,137 @@
 use crate::client::Graph;
-use graph_http::types::{Collection, Content, DeltaPhantom};
-use graph_http::{GraphResponse, IntoResponse};
-
+use crate::core::ResourceIdentity;
+use crate::extended_properties::ExtendedPropertiesRequest;
+use graph_http::types::Collection;
+use graph_http::types::Content;
+use graph_http::types::DeltaPhantom;
+use graph_http::GraphResponse;
+use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
 
-register_client!(
-    ContactsRequest,
-    ct => "contacts",
-    cf => "contactfolders",
-);
+register_client!(ContactRequest,);
+register_client!(ContactsRequest, ());
+register_client!(OrgContactRequest,);
+
+impl<'a, Client> ContactRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> ContactsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Contacts);
+        ContactsRequest::new(id.as_ref(), self.client)
+    }
+    pub fn org_contact(&self) -> OrgContactRequest<'a, Client> {
+        OrgContactRequest::new(self.client)
+    }
+    get!({
+        doc: "# Invoke function delta",
+        name: delta,
+        response: DeltaPhantom<serde_json::Value>,
+        path: "/contacts/delta()",
+        params: 0,
+        has_body: false
+    });
+}
 
 impl<'a, Client> ContactsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "{{ct}}/delta" );
-    get!( list, Collection<serde_json::Value> => "{{ct}}" );
-    get!( | get, serde_json::Value => "{{ct}}/{{id}}" );
-    post!( [ create, serde_json::Value => "{{ct}}" ] );
-    patch!( [ | update, serde_json::Value => "{{ct}}/{{id}}" ] );
-    delete!( | delete, GraphResponse<Content> => "{{ct}}/{{id}}" );
-
-    pub fn contacts_folder(&'a self) -> ContactsFolderRequest<'a, Client> {
-        ContactsFolderRequest::new(self.client)
+    pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ExtendedProperties);
+        ExtendedPropertiesRequest::new(self.client)
     }
+    pub fn org_contact(&self) -> OrgContactRequest<'a, Client> {
+        OrgContactRequest::new(self.client)
+    }
+    get!({
+        doc: "# Get directReports from contacts",
+        name: list_direct_reports,
+        response: Collection<serde_json::Value>,
+        path: "/contacts/{{RID}}/directReports",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get directReports from contacts",
+        name: get_direct_reports,
+        response: serde_json::Value,
+        path: "/contacts/{{RID}}/directReports/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get manager from contacts",
+        name: get_manager,
+        response: serde_json::Value,
+        path: "/contacts/{{RID}}/manager",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get memberOf from contacts",
+        name: list_member_of,
+        response: Collection<serde_json::Value>,
+        path: "/contacts/{{RID}}/memberOf",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get memberOf from contacts",
+        name: get_member_of,
+        response: serde_json::Value,
+        path: "/contacts/{{RID}}/memberOf/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Get transitiveMemberOf from contacts",
+        name: list_transitive_member_of,
+        response: Collection<serde_json::Value>,
+        path: "/contacts/{{RID}}/transitiveMemberOf",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Get transitiveMemberOf from contacts",
+        name: get_transitive_member_of,
+        response: serde_json::Value,
+        path: "/contacts/{{RID}}/transitiveMemberOf/{{id}}",
+        params: 1,
+        has_body: false
+    });
 }
 
-register_client!(ContactsFolderRequest,);
-
-impl<'a, Client> ContactsFolderRequest<'a, Client>
+impl<'a, Client> OrgContactRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!( delta, DeltaPhantom<Collection<serde_json::Value>> => "{{cf}}/delta" );
-    get!( | get, serde_json::Value => "{{cf}}/{{id}}" );
-    get!( | list_child_folders, Collection<serde_json::Value> => "{{cf}}/{{id}}/childFolders" );
-    post!( [ | create_child_folder, serde_json::Value => "{{cf}}/{{id}}/childFolders" ] );
-    patch!( [ | update, serde_json::Value => "{{cf}}/{{id}}" ] );
-    delete!( | delete, GraphResponse<Content> => "{{cf}}/{{id}}" );
-
-    pub fn contacts(&'a self) -> ContactsFolderContactsRequest<'a, Client> {
-        ContactsFolderContactsRequest::new(self.client)
-    }
-}
-
-register_client!(ContactsFolderContactsRequest,);
-
-impl<'a, Client> ContactsFolderContactsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!( | delta, DeltaPhantom<Collection<serde_json::Value>> => "{{cf}}/{{id}}/{{ct}}/delta" );
-    get!( | list, Collection<serde_json::Value> => "{{cf}}/{{id}}/{{ct}}" );
-    post!( [ | create, serde_json::Value => "{{cf}}/{{id}}" ] );
-    delete!( || delete, GraphResponse<Content> => "{{cf}}/{{id}}/{{ct}}/{{id2}}" );
+    get!({
+        doc: "# Get entity from contacts by key",
+        name: get_org_contact,
+        response: serde_json::Value,
+        path: "/contacts/{{RID}}",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update entity in contacts",
+        name: update_org_contact,
+        response: GraphResponse<Content>,
+        path: "/contacts/{{RID}}",
+        params: 0,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete entity from contacts",
+        name: delete_org_contact,
+        response: GraphResponse<Content>,
+        path: "/contacts/{{RID}}",
+        params: 0,
+        has_body: false
+    });
 }

@@ -1,5 +1,4 @@
 use from_as::FromAsError;
-use reqwest::Error;
 use serde::export::Formatter;
 
 #[derive(Debug)]

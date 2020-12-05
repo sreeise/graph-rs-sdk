@@ -1,6 +1,7 @@
 use crate::calendar::CalendarRequest;
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
+use crate::extended_properties::ExtendedPropertiesRequest;
 use crate::instances::{InstanceRequest, InstancesRequest};
 use graph_error::GraphFailure;
 use graph_http::types::Collection;
@@ -45,6 +46,13 @@ where
         self.client.set_ident(ResourceIdentity::Calendar);
         CalendarRequest::new(self.client)
     }
+    pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ExtendedProperties);
+        ExtendedPropertiesRequest::new(self.client)
+    }
     pub fn instances(&self) -> InstanceRequest<'a, Client> {
         self.client
             .request
@@ -58,123 +66,19 @@ where
         self.client.set_ident(ResourceIdentity::Instances);
         InstancesRequest::new(id.as_ref(), self.client)
     }
-    post!({
-        doc: "# Invoke action accept",
-        name: accept,
-        response: GraphResponse<Content>,
-        path: "/calendarView/{{RID}}/accept",
-        params: 0,
-        has_body: true
-    });
     get!({
-        doc: "# Get attachments from me",
-        name: list_attachments,
-        response: Collection<serde_json::Value>,
-        path: "/calendarView/{{RID}}/attachments",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to attachments for me",
-        name: create_attachments,
+        doc: "# Get calendarView from me",
+        name: get_calendar_view,
         response: serde_json::Value,
-        path: "/calendarView/{{RID}}/attachments",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get attachments from me",
-        name: get_attachments,
-        response: serde_json::Value,
-        path: "/calendarView/{{RID}}/attachments/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property attachments in me",
-        name: update_attachments,
-        response: GraphResponse<Content>,
-        path: "/calendarView/{{RID}}/attachments/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    get!({
-        doc: "# Get calendar from me",
-        name: get_calendar,
-        response: serde_json::Value,
-        path: "/calendarView/{{RID}}/calendar",
+        path: "/calendarView/{{RID}}",
         params: 0,
         has_body: false
     });
     patch!({
-        doc: "# Update the navigation property calendar in me",
-        name: update_calendar,
+        doc: "# Update the navigation property calendarView in me",
+        name: update_calendar_view,
         response: GraphResponse<Content>,
-        path: "/calendarView/{{RID}}/calendar",
-        params: 0,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action decline",
-        name: decline,
-        response: GraphResponse<Content>,
-        path: "/calendarView/{{RID}}/decline",
-        params: 0,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action dismissReminder",
-        name: dismiss_reminder,
-        response: GraphResponse<Content>,
-        path: "/calendarView/{{RID}}/dismissReminder",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get extensions from me",
-        name: list_extensions,
-        response: Collection<serde_json::Value>,
-        path: "/calendarView/{{RID}}/extensions",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to extensions for me",
-        name: create_extensions,
-        response: serde_json::Value,
-        path: "/calendarView/{{RID}}/extensions",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get extensions from me",
-        name: get_extensions,
-        response: serde_json::Value,
-        path: "/calendarView/{{RID}}/extensions/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property extensions in me",
-        name: update_extensions,
-        response: GraphResponse<Content>,
-        path: "/calendarView/{{RID}}/extensions/{{id}}",
-        params: 1,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action snoozeReminder",
-        name: snooze_reminder,
-        response: GraphResponse<Content>,
-        path: "/calendarView/{{RID}}/snoozeReminder",
-        params: 0,
-        has_body: true
-    });
-    post!({
-        doc: "# Invoke action tentativelyAccept",
-        name: tentatively_accept,
-        response: GraphResponse<Content>,
-        path: "/calendarView/{{RID}}/tentativelyAccept",
+        path: "/calendarView/{{RID}}",
         params: 0,
         has_body: true
     });

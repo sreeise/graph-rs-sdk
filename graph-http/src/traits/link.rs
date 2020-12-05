@@ -36,6 +36,7 @@ pub trait NextLink<RHS = Self> {
 pub trait DeltaLink<RHS = Self> {
     fn delta_link(&self) -> Option<String>;
 
+    #[allow(unused_assignments)]
     fn delta<T: 'static + Send + NextLink>(&self, access_token: &str) -> Option<Receiver<Delta<T>>>
     where
         for<'de> T: serde::Deserialize<'de>,

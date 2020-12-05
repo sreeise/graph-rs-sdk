@@ -6,7 +6,6 @@ use crate::parser::{HttpMethod, ParserSettings, PathMap, Request, RequestMap, Re
 use crate::traits::{Modify, RequestParser, RequestParserBuilder};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use rayon::prelude::*;
 use reqwest::Url;
 use serde::Serialize;
 use std::cell::{RefCell, RefMut};
