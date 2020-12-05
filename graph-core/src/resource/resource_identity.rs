@@ -52,6 +52,7 @@ pub enum ResourceIdentity {
     Education,
     Event,
     Events,
+    ExtendedProperties,
     GroupLifecyclePolicies,
     GroupSettingTemplates,
     GroupSettings,

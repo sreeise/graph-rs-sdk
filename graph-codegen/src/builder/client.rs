@@ -147,7 +147,7 @@ impl ClientBuilder {
                         request.param_size,
                         request.has_body
                     )
-                }
+                },
                 RequestType::Upload => {
                     format!(
                         "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\tupload: true\n\t}});",
@@ -158,7 +158,7 @@ impl ClientBuilder {
                         request.path.as_str(),
                         request.param_size,
                     )
-                }
+                },
                 RequestType::UploadSession => {
                     format!(
                         "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {},\n\t\tupload_session: true\n\t}});",
@@ -187,7 +187,7 @@ impl ClientBuilder {
                         request.path.as_str(),
                         request.param_size
                     )
-                }
+                },
             }
         } else {
             match request.request_type {
@@ -201,7 +201,7 @@ impl ClientBuilder {
                         request.param_size,
                         request.has_body
                     )
-                }
+                },
                 RequestType::Upload => {
                     format!(
                         "\n\t{}!({{\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\tupload: true\n\t}});",
@@ -211,7 +211,7 @@ impl ClientBuilder {
                         request.path.as_str(),
                         request.param_size,
                     )
-                }
+                },
                 RequestType::UploadSession => {
                     format!(
                         "\n\t{}!({{\n\t\tname: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {},\n\t\tupload_session: true\n\t}});",
@@ -237,7 +237,7 @@ impl ClientBuilder {
                         request.path.as_str(),
                         request.param_size
                     )
-                }
+                },
             }
         }
     }

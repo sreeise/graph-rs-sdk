@@ -221,6 +221,13 @@ impl SecondaryModifierMap {
             .push_back(SecondaryTarget::new(pat, match_target));
     }
 
+    pub fn insert_operation_mapping(&mut self, pat: &str, match_target: &str) {
+        self.secondary_targets.push_back(SecondaryTarget::new(
+            pat,
+            MatchTarget::OperationMap(match_target.to_string()),
+        ));
+    }
+
     pub fn modify(&self, request: &mut Request) {
         for target in self.secondary_targets.iter() {
             target.modify(request);

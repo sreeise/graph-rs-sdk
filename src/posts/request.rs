@@ -1,5 +1,6 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
+use crate::extended_properties::ExtendedPropertiesRequest;
 use graph_error::GraphFailure;
 use graph_http::types::Collection;
 use graph_http::types::Content;
@@ -83,6 +84,13 @@ where
 {
     pub fn attachments(&self) -> AttachmentsRequest<'a, Client> {
         AttachmentsRequest::new(self.client)
+    }
+    pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ExtendedProperties);
+        ExtendedPropertiesRequest::new(self.client)
     }
     pub fn in_reply_to(&self) -> InReplyToRequest<'a, Client> {
         InReplyToRequest::new(self.client)

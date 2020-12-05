@@ -4,6 +4,7 @@ use crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest};
 use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
 use crate::client::Graph;
 use crate::contact_folders::{ContactFolderRequest, ContactFoldersRequest};
+use crate::contacts::{ContactRequest, ContactsRequest};
 use crate::core::ResourceIdentity;
 use crate::drive::DrivesRequest;
 use crate::education::MeRequest as EducationMeRequest;
@@ -90,6 +91,12 @@ where
         self.client.set_ident(ResourceIdentity::Calendars);
         CalendarsRequest::new(id.as_ref(), self.client)
     }
+    pub fn contacts(&self) -> ContactRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        ContactRequest::new(self.client)
+    }
     pub fn contact_folders(&self) -> ContactFolderRequest<'a, Client> {
         self.client
             .request
@@ -102,6 +109,13 @@ where
             .extend_path(&[self.client.ident().as_ref()]);
         self.client.set_ident(ResourceIdentity::ContactFolders);
         ContactFoldersRequest::new(id.as_ref(), self.client)
+    }
+    pub fn contact<ID: AsRef<str>>(&self, id: ID) -> ContactsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Contacts);
+        ContactsRequest::new(id.as_ref(), self.client)
     }
     pub fn drive(&self) -> DrivesRequest<'a, Client> {
         self.client

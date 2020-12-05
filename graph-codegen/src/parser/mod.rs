@@ -7,6 +7,7 @@ mod parser_settings;
 mod paths;
 mod request;
 mod resource;
+mod settings;
 mod spec;
 
 pub use directory_mod::*;

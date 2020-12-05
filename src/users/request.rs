@@ -4,6 +4,7 @@ use crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest};
 use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
 use crate::client::Graph;
 use crate::contact_folders::{ContactFolderRequest, ContactFoldersRequest};
+use crate::contacts::{ContactRequest, ContactsRequest};
 use crate::core::ResourceIdentity;
 use crate::drive::DrivesRequest;
 use crate::education::UsersRequest as EducationUsersRequest;
@@ -11,6 +12,7 @@ use crate::events::{EventRequest, EventsRequest};
 use crate::inference_classification::InferenceClassificationRequest;
 use crate::insights::InsightsRequest;
 use crate::managed_devices::{ManagedDeviceRequest, ManagedDevicesRequest};
+use crate::messages::{MessageRequest, MessagesRequest};
 use crate::onenote::OnenoteRequest;
 use crate::outlook::OutlookRequest;
 use crate::settings::SettingsRequest;
@@ -130,6 +132,12 @@ where
         self.client.set_ident(ResourceIdentity::Calendars);
         CalendarsRequest::new(id.as_ref(), self.client)
     }
+    pub fn contacts(&self) -> ContactRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        ContactRequest::new(self.client)
+    }
     pub fn contact_folders(&self) -> ContactFolderRequest<'a, Client> {
         self.client
             .request
@@ -142,6 +150,13 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::ContactFolders);
         ContactFoldersRequest::new(id.as_ref(), self.client)
+    }
+    pub fn contact<ID: AsRef<str>>(&self, id: ID) -> ContactsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Contacts);
+        ContactsRequest::new(id.as_ref(), self.client)
     }
     pub fn drive(&self) -> DrivesRequest<'a, Client> {
         self.client
@@ -193,6 +208,19 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::ManagedDevices);
         ManagedDevicesRequest::new(id.as_ref(), self.client)
+    }
+    pub fn messages(&self) -> MessageRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        MessageRequest::new(self.client)
+    }
+    pub fn message<ID: AsRef<str>>(&self, id: ID) -> MessagesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Messages);
+        MessagesRequest::new(id.as_ref(), self.client)
     }
     pub fn onenote(&self) -> OnenoteRequest<'a, Client> {
         self.client

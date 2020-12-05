@@ -1,5 +1,3 @@
-// TODO: Add back mail
-/*
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::THROTTLE_MUTEX;
@@ -16,9 +14,8 @@ fn list_and_get_messages() {
         if let Ok(res) = client
             .v1()
             .user(id.as_str())
-            .mail()
             .messages()
-            .list()
+            .list_messages()
             .send()
         {
             let value = res.body().value().unwrap();
@@ -28,9 +25,8 @@ fn list_and_get_messages() {
             let get_req = client
                 .v1()
                 .user(id.as_str())
-                .mail()
-                .messages()
-                .get(message_id)
+                .message(message_id)
+                .get_messages()
                 .send();
 
             if let Ok(response) = get_req {
@@ -58,9 +54,8 @@ fn mail_create_and_delete_message() {
         let result = client
             .v1()
             .user(id.as_str())
-            .mail()
             .messages()
-            .create(&serde_json::json!({
+            .create_messages(&serde_json::json!({
                 "subject":"Did you see last night's game?",
                 "importance":"Low",
                     "body":{
@@ -84,9 +79,8 @@ fn mail_create_and_delete_message() {
             let delete_res = client
                 .v1()
                 .user(id.as_str())
-                .mail()
-                .messages()
-                .delete(message_id)
+                .message(message_id)
+                .delete_messages()
                 .send();
             if let Err(e) = delete_res {
                 panic!(
@@ -102,5 +96,3 @@ fn mail_create_and_delete_message() {
         }
     }
 }
-
- */
