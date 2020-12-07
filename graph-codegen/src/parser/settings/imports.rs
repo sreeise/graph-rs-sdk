@@ -149,6 +149,8 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::events::{EventsRequest, EventRequest}",
             "crate::managed_devices::{ManagedDeviceRequest, ManagedDevicesRequest}",
             "crate::contact_folders::{ContactFolderRequest, ContactFoldersRequest}",
+            "crate::messages::{MessageRequest, MessagesRequest}",
+            "crate::mail_folders::{MailFolderRequest, MailFoldersRequest}",
             "crate::insights::InsightsRequest",
             "crate::inference_classification::InferenceClassificationRequest",
             "crate::activities::ActivitiesRequest",
@@ -158,6 +160,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::onenote::OnenoteRequest",
             "crate::core::ResourceIdentity",
             "crate::contacts::{ContactRequest, ContactsRequest}",
+
         ],
         ResourceIdentity::Sessions => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::Users => vec![
@@ -169,6 +172,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::managed_devices::{ManagedDeviceRequest, ManagedDevicesRequest}",
             "crate::contact_folders::{ContactFolderRequest, ContactFoldersRequest}",
             "crate::messages::{MessageRequest, MessagesRequest}",
+            "crate::mail_folders::{MailFolderRequest, MailFoldersRequest}",
             "crate::insights::InsightsRequest",
             "crate::inference_classification::InferenceClassificationRequest",
             "crate::activities::ActivitiesRequest",
