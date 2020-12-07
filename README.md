@@ -73,11 +73,9 @@ let client =  Graph::new("ACCESS_TOKEN");
 let response = client.v1()
     .me()
     .drive()
-    .root_children()
+    .get_drive()
     .send()
     .unwrap();
-        
-println!("{:#?}", response);  
 ```
 
 For async requests use the await keyword.
@@ -91,7 +89,7 @@ let client =  Graph::new_async("ACCESS_TOKEN");
 let response = client.v1()
     .me()
     .drive()
-    .root_children()
+    .get_drive()
     .send()
     .await
     .unwrap();
@@ -118,30 +116,58 @@ pub struct DriveItem {
 let response: DriveItem = client.v1()
     .me()
     .drive()
-    .get_item("ITEM_ID")
+    .get_items("ITEM_ID")
     .json()?;
         
 println!("{:#?}", response);   
 ``` 
 
 ### OneDrive
+
+Make requests to drive using a drive id or through specific drives for me, sites,
+users, and groups.
+
 ```rust
 use graph_rs::prelude::*;
     
 let client = Graph::new("ACCESS_TOKEN");
-    
+
+// Some requests don't require an id.
+let response = client.v1()
+    .drives()
+    .get_drive();
+
+// Using a drive id.
+let response = client.v1()
+    .drive("DRIVE-ID")
+    .get_items("ITEM_ID")
+    .send()?;
+
+// Using me.
 let response = client.v1()
     .me()
     .drive()
-    .get_item("ITEM_ID")
+    .get_items("ITEM_ID")
     .send()?;
     
-println!("{:#?}", response.value());
-    
+println!("{:#?}", response);
+
+// Using sites.
+let response = client.v1()
+    .sites("SITE-ID")
+    .drive()
+    .get_items("ITEM_ID")
+    .send()?;
+
+println!("{:#?}", response);
+```
+
+Create a folder.
+
+```rust
 let folder: HashMap<String, serde_json::Value> = HashMap::new();
 
-let drive_item = client
-    .v1()
+let response = client.v1()
     .me()
     .drive()
     .create_folder(
@@ -154,19 +180,22 @@ let drive_item = client
     )
     .send()?;
         
-println!("{:#?}", drive_item):
-    
-// Use path based addressing
-// Pass the location of the item to get from the OneDrive root folder.
+println!("{:#?}", response);
+```
+
+Path based addressing for drive.
+
+```rust
+// Pass the path location of the item staring from the OneDrive root folder.
 // Start the path with :/ and end with :
     
 let response = client.v1()
     .me()
     .drive()
-    .get_item(":/document.docx:")
+    .get_items(":/documents/document.docx:")
     .send()?;
         
-println!("{:#?}", response.value());
+println!("{:#?}", response.body());
 ```
     
 ### Mail
@@ -176,20 +205,25 @@ use graph_rs::prelude::*;
         
 let client = Graph::new("ACCESS_TOKEN");
         
-// Returns serde_json::Value
-let json = client.v1()
-    .users("USER_ID")
-    .mail()
+// List messages for a user.
+let response = client.v1()
+    .user("USER-ID")
     .messages()
-    .list()
+    .list_messages()
     .send()?;
-              
+
+// List messages using me.
+let response = client.v1()
+    .me()
+    .messages()
+    .list_messages()
+    .send()?;
+             
 // Create a message
 let response = client.v1()
-    .users("USER_ID")
-    .mail()
+    .user("USER_ID")
     .messages()
-    .create(&serde_json::json!({
+    .create_messages(&serde_json::json!({
         "subject":"Did you see last night's game?",
         "importance":"Low",
         "body":{
@@ -204,36 +238,11 @@ let response = client.v1()
     }))
     .send()?;
         
-println!("{:#?}", response.value()); // => Message
+println!("{:#?}", response.body()); // => Message
 
-// Create a message in a well known folder
-let draft_message_response = client.v1()
-    .me()
-    .mail()
-    .mail_folder()
-    .messages()
-    .create("drafts", &serde_json::json!({
-        "subject":"Did you see last night's game?",
-        "importance":"Low",
-        "body":{
-            "contentType":"HTML",
-            "content":"They were <b>awesome</b>!"
-        },
-        "toRecipients":[
-            {
-                "emailAddress":{
-                    "address":"AdeleV@contoso.onmicrosoft.com"
-                }
-            }
-         ]
-    })).send();
-
-println!("{:#?}", draft_message_response);
-        
-let send_mail_response = client.v1()
-    .me()
-    .mail()
-    .messages()
+// Send mail.
+let response = client.v1()
+    .user("USER-ID")
     .send_mail(&serde_json::json!({
         "message": {
             "subject": "Meet for lunch?",
@@ -260,7 +269,48 @@ let send_mail_response = client.v1()
         }))
     .send()?;
                                        
-println!("{:#?}", send_mail_response);
+println!("{:#?}", response);
+```
+
+Mail folders
+
+```rust
+// Create a mail folder.
+let response = client.v1()
+    .user("USER-ID")
+    .mail_folders()
+    .create_mail_folders(&serde_json::json!({
+        "displayName": "Clutter"
+    }))
+    .send()?;
+
+// List messages in a mail folder.
+let response = client.v1()
+    .me()
+    .mail_folder("drafts")
+    .messages()
+    .list_messages()
+    .send()?;
+
+// Create messages in a mail folder.
+let response = client.v1()
+    .user("USER-ID")
+    .mail_folder("drafts")
+    .messages()
+    .create_messages(&serde_json::json!({
+        "subject":"Did you see last night's game?",
+        "importance":"Low",
+        "body":{
+            "contentType":"HTML",
+                "content":"They were <b>awesome</b>!"
+            },
+        "toRecipients":[{
+            "emailAddress":{
+                "address":"AdeleV@contoso.onmicrosoft.com"
+            }
+        }]
+    }))
+    .send()?;
 ```
         
 Use your own struct. Anything that implements serde::Serialize
@@ -308,9 +358,8 @@ let message = Message {
 // Create a message
 let response = client.v1()
     .me()
-    .mail()
     .messages()
-    .create(&message)
+    .create_messages(&message)
     .send()?;
             
 println!(":#?", response);
@@ -328,11 +377,11 @@ let client = Graph::new("ACCESS_TOKEN");
 let response = client.v1()
     .me()
     .drive()
-    .root_children()
+    .get_drive()
     .select(&["id", "name"])
     .send()?;
     
-println!("{:#?}", response.value()):
+println!("{:#?}", response.body());
 ```
    
 #### Batch Requests
