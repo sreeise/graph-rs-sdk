@@ -58,6 +58,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             // TODO: Handlebars should be imported by the builder. Figure out why this is not happening.
             "handlebars::*",
         ],
+        ResourceIdentity::Domains => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::Lists => vec![
             "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
             "crate::items::{ItemRequest, ItemsRequest}",

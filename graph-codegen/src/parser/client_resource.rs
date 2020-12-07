@@ -94,6 +94,9 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
             ResourceIdentity::Drive | ResourceIdentity::Drives => Ok(ClientResource::Main {
                 modifier: "drive".to_string(),
             }),
+            ResourceIdentity::Domains => Ok(ClientResource::Main {
+                modifier: "domains".to_string(),
+            }),
             ResourceIdentity::Education => Ok(ClientResource::Main {
                 modifier: ResourceIdentity::Education.to_string(),
             }),
