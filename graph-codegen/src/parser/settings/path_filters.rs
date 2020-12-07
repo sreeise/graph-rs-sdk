@@ -37,6 +37,18 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "instances",
             ]))]
         },
+        ResourceIdentity::CallRecords => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                "sessions/{session-id}",
+            ]))]
+        },
+        ResourceIdentity::Communications => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                "callRecords/{callRecord-id}/",
+                "calls/{call-id}/",
+                "calls/logTeleconferenceDeviceQuality",
+            ]))]
+        },
         ResourceIdentity::Conversations => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/threads/",

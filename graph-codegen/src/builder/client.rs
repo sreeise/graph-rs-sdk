@@ -320,6 +320,7 @@ impl ClientBuilder {
     }
 
     pub fn build(mut self) -> BytesMut {
+        self.buf.put("// GENERATED CODE\n\n".as_bytes());
         self.imports();
         self.client_registrations();
         self.client_impl();

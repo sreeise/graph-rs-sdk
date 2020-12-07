@@ -81,6 +81,10 @@ pub mod calendar;
 pub mod calendar_groups;
 /// Calendar view client.
 pub mod calendar_view;
+/// Communication call records request client.
+pub mod call_records;
+/// Communication calls request client.
+pub mod calls;
 /// Certificate based auth configuration client.
 pub mod certificate_based_auth_configuration;
 /// Communications client.
@@ -173,6 +177,8 @@ pub mod section_groups;
 pub mod sections;
 /// Service principles request client.
 pub mod service_principals;
+/// Communications call record sessions request client.
+pub mod sessions;
 /// Settings request client (me, users, etc.).
 pub mod settings;
 /// Sites request client.
