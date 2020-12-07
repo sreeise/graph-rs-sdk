@@ -237,7 +237,6 @@ impl Parser {
         let mut spec = self.spec.borrow_mut();
 
         for name in names.iter() {
-            dbg!(name);
             let shorthand = &name[..name.len() - 1];
             let shorthand_name = format!("{}.{}", name, shorthand);
             let double_name = format!("{}.{}", name, name);

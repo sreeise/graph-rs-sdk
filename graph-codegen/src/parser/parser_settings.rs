@@ -6,11 +6,8 @@ use crate::parser::settings::{
     get_client_link_settings, get_custom_requests, get_imports, get_path_filters,
     get_target_map_modifier,
 };
-use crate::parser::{
-    DirectoryModFile, HttpMethod, Request, RequestMap, RequestSet, RequestType, ResponseType,
-};
+use crate::parser::{DirectoryModFile, RequestSet};
 use graph_core::resource::ResourceIdentity;
-use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub struct ParserSettings;
@@ -104,6 +101,18 @@ impl ParserSettings {
                 map.insert(
                     "me.calendarView",
                     MatchTarget::OperationMap("calendarViews".to_string()),
+                );
+            },
+            ResourceIdentity::Calls => {
+                map.insert(
+                    "communications.calls",
+                    MatchTarget::OperationMap("calls".to_string()),
+                );
+            },
+            ResourceIdentity::CallRecords => {
+                map.insert(
+                    "communications.callRecords",
+                    MatchTarget::OperationMap("callRecords".to_string()),
                 );
             },
             ResourceIdentity::ContactFolders => {
@@ -211,6 +220,12 @@ impl ParserSettings {
                     MatchTarget::OperationMap("sections".to_string()),
                 );
             },
+            ResourceIdentity::Sessions => {
+                map.insert(
+                    "communications.callRecords.sessions",
+                    MatchTarget::OperationMap("sessions".to_string()),
+                );
+            },
             ResourceIdentity::Pages => {
                 map.insert(
                     "me.onenote.pages",
@@ -283,6 +298,10 @@ impl ParserSettings {
             ResourceIdentity::CalendarView => {
                 vec![UrlMatchTarget::resource_id("calendarView", "calendarViews")]
             },
+            ResourceIdentity::Calls => vec![UrlMatchTarget::resource_id("calls", "call")],
+            ResourceIdentity::CallRecords => {
+                vec![UrlMatchTarget::resource_id("callRecords", "callRecord")]
+            },
             ResourceIdentity::ContactFolders => vec![UrlMatchTarget::resource_id(
                 "contactFolders",
                 "contactFolder",
@@ -321,6 +340,7 @@ impl ParserSettings {
             ResourceIdentity::SectionGroups => {
                 vec![UrlMatchTarget::resource_id("sectionGroups", "sectionGroup")]
             },
+            ResourceIdentity::Sessions => vec![UrlMatchTarget::resource_id("sessions", "session")],
             ResourceIdentity::Sites => vec![UrlMatchTarget::resource_id("sites", "site")],
             ResourceIdentity::Teams => vec![UrlMatchTarget::resource_id("teams", "team")],
             ResourceIdentity::Threads => vec![UrlMatchTarget::resource_id("threads", "thread")],

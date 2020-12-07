@@ -207,6 +207,80 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         },
+        ResourceIdentity::Calls => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.GetCalls".to_string()),
+                vec![
+                    MatchTarget::OperationMap("calls".to_string()),
+                    MatchTarget::OperationId("calls.GetCalls".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.UpdateCalls".to_string()),
+                vec![
+                    MatchTarget::OperationMap("calls".to_string()),
+                    MatchTarget::OperationId("calls.UpdateCalls".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.ListCalls".to_string()),
+                vec![
+                    MatchTarget::OperationMap("calls".to_string()),
+                    MatchTarget::OperationId("calls.ListCalls".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.CreateCalls".to_string()),
+                vec![
+                    MatchTarget::OperationMap("calls".to_string()),
+                    MatchTarget::OperationId("calls.CreateCalls".to_string()),
+                ],
+            );
+        },
+        ResourceIdentity::CallRecords => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.GetCallRecords".to_string()),
+                vec![
+                    MatchTarget::OperationMap("callRecords".to_string()),
+                    MatchTarget::OperationId("callRecords.GetCallRecords".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.UpdateCallRecords".to_string()),
+                vec![
+                    MatchTarget::OperationMap("callRecords".to_string()),
+                    MatchTarget::OperationId("callRecords.UpdateCallRecords".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.calls.GetCallRecords".to_string()),
+                vec![
+                    MatchTarget::OperationMap("callRecords".to_string()),
+                    MatchTarget::OperationId("callRecords.GetCallRecords".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.calls.UpdateCallRecords".to_string()),
+                vec![
+                    MatchTarget::OperationMap("callRecords".to_string()),
+                    MatchTarget::OperationId("callRecords.UpdateCallRecords".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.ListCallRecords".to_string()),
+                vec![
+                    MatchTarget::OperationMap("callRecords".to_string()),
+                    MatchTarget::OperationId("callRecords.ListCallRecords".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.CreateCallRecords".to_string()),
+                vec![
+                    MatchTarget::OperationMap("callRecords".to_string()),
+                    MatchTarget::OperationId("callRecords.CreateCallRecords".to_string()),
+                ],
+            );
+        },
         ResourceIdentity::ContactFolders => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetContactFolders".to_string()),
@@ -921,20 +995,6 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         },
-        ResourceIdentity::Teams => {
-            modify_target.map.insert(
-                MatchTarget::OperationMap("teams.primaryChannel.messages".to_string()),
-                vec![MatchTarget::OperationMap(
-                    "teams.primaryChannel.primaryChannelMessages".to_string(),
-                )],
-            );
-            modify_target.map.insert(
-                MatchTarget::OperationMap("teams.primaryChannel.tabs".to_string()),
-                vec![MatchTarget::OperationMap(
-                    "teams.primaryChannel.primaryChannelTabs".to_string(),
-                )],
-            );
-        },
         ResourceIdentity::Settings => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetSettings".to_string()),
@@ -950,6 +1010,50 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationMap("settings".to_string()),
                     MatchTarget::OperationId("settings.UpdateSettings".to_string()),
                 ],
+            );
+        },
+        ResourceIdentity::Sessions => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.callRecords.GetSessions".to_string()),
+                vec![
+                    MatchTarget::OperationMap("sessions".to_string()),
+                    MatchTarget::OperationId("sessions.GetSessions".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.callRecords.ListSessions".to_string()),
+                vec![
+                    MatchTarget::OperationMap("sessions".to_string()),
+                    MatchTarget::OperationId("sessions.ListSessions".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.callRecords.UpdateSessions".to_string()),
+                vec![
+                    MatchTarget::OperationMap("sessions".to_string()),
+                    MatchTarget::OperationId("sessions.UpdateSessions".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("communications.callRecords.CreateSessions".to_string()),
+                vec![
+                    MatchTarget::OperationMap("sessions".to_string()),
+                    MatchTarget::OperationId("sessions.CreateSessions".to_string()),
+                ],
+            );
+        },
+        ResourceIdentity::Teams => {
+            modify_target.map.insert(
+                MatchTarget::OperationMap("teams.primaryChannel.messages".to_string()),
+                vec![MatchTarget::OperationMap(
+                    "teams.primaryChannel.primaryChannelMessages".to_string(),
+                )],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationMap("teams.primaryChannel.tabs".to_string()),
+                vec![MatchTarget::OperationMap(
+                    "teams.primaryChannel.primaryChannelTabs".to_string(),
+                )],
             );
         },
         ResourceIdentity::Tasks => {

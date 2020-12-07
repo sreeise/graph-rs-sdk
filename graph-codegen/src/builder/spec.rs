@@ -45,6 +45,7 @@ impl SpecBuilder {
             });
     }
 
+    /*
     fn extend_client_links(&mut self, name: &str, client_links: BTreeSet<ClientLinkSettings>) {
         self.client_links
             .entry(name.to_string())
@@ -53,6 +54,7 @@ impl SpecBuilder {
             })
             .or_insert(client_links.clone());
     }
+     */
 
     fn extend_client_links_map(
         &mut self,

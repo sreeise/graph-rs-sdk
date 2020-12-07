@@ -616,6 +616,57 @@ pub fn get_client_link_settings(
             set.extend(vec![settings]);
             map.insert("posts".to_string(), set);
         },
+        ResourceIdentity::CallRecords => {
+            let mut settings = ClientLinkSettings::new("sessions");
+            settings
+                .use_method_name("session")
+                .with_id_param()
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
+            let mut settings2 = ClientLinkSettings::new("session");
+            settings2
+                .use_method_name("sessions")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
+            let mut set = BTreeSet::new();
+            set.extend(vec![settings, settings2]);
+            map.insert("callRecords".to_string(), set);
+        },
+        ResourceIdentity::Communications => {
+            let mut settings = ClientLinkSettings::new("callRecords");
+            settings
+                .use_method_name("callRecord")
+                .with_id_param()
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings2 = ClientLinkSettings::new("callRecord");
+            settings2
+                .use_method_name("callRecords")
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings3 = ClientLinkSettings::new("calls");
+            settings3
+                .use_method_name("call")
+                .with_id_param()
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings4 = ClientLinkSettings::new("call");
+            settings4
+                .use_method_name("calls")
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut set = BTreeSet::new();
+            set.extend(vec![settings, settings2, settings3, settings4]);
+            map.insert("communications".to_string(), set);
+        },
         ResourceIdentity::Me => {
             let mut settings = ClientLinkSettings::new("calendarGroups");
             settings

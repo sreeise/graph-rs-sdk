@@ -1,15 +1,5 @@
 use graph_core::resource::ResourceIdentity;
 
-/*
-           ResourceIdentity::Posts,
-           ResourceIdentity::Events,
-           ResourceIdentity::Calendars,
-           ResourceIdentity::Contacts,
-           ResourceIdentity::Messages,
-           ResourceIdentity::MailFolders,
-           ResourceIdentity::ContactFolders,
-*/
-
 pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
     match resource_identity {
         ResourceIdentity::Buckets => vec![
@@ -34,6 +24,18 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::calendar::CalendarRequest",
             "crate::core::ResourceIdentity",
             "crate::extended_properties::ExtendedPropertiesRequest",
+        ],
+        ResourceIdentity::Calls => vec![
+            "crate::core::ResourceIdentity",
+        ],
+        ResourceIdentity::CallRecords => vec![
+            "crate::core::ResourceIdentity",
+            "crate::sessions::{SessionRequest, SessionsRequest}",
+        ],
+        ResourceIdentity::Communications => vec![
+            "crate::core::ResourceIdentity",
+            "crate::call_records::{CallRecordRequest, CallRecordsRequest}",
+            "crate::calls::{CallRequest, CallsRequest}",
         ],
         ResourceIdentity::Contacts => vec![
             "crate::core::ResourceIdentity",
@@ -156,6 +158,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::core::ResourceIdentity",
             "crate::contacts::{ContactRequest, ContactsRequest}",
         ],
+        ResourceIdentity::Sessions => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::Users => vec![
             "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
             "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",

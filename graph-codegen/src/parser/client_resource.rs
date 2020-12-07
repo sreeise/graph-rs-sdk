@@ -59,6 +59,10 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                     modifier: "calendarView".to_string(),
                 })
             },
+            ResourceIdentity::CallRecords => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/communications/callRecords"),
+                modifier: "callRecords".to_string(),
+            }),
             ResourceIdentity::CertificateBasedAuthConfiguration => Ok(ClientResource::Main {
                 modifier: "certificateBasedAuthConfiguration".to_string(),
             }),
@@ -192,6 +196,12 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
             }),
             ResourceIdentity::Sites => Ok(ClientResource::Main {
                 modifier: "sites".to_string(),
+            }),
+            ResourceIdentity::Sessions => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith(
+                    "/communications/callRecords/{callRecord-id}/sessions",
+                ),
+                modifier: "sessions".to_string(),
             }),
             ResourceIdentity::Settings => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/me/settings"),
