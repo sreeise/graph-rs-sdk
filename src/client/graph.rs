@@ -10,7 +10,7 @@ use crate::device_app_management::DeviceAppManagementRequest;
 use crate::device_management::DeviceManagementRequest;
 use crate::directory::DirectoryRequest;
 use crate::domain_dns_records::DomainDnsRecordsRequest;
-use crate::domains::DomainsRequest;
+use crate::domains::{DomainRequest, DomainsRequest};
 use crate::drive::{DriveRequest, DrivesRequest};
 use crate::education::EducationRequest;
 use crate::group_lifecycle_policies::GroupLifecyclePoliciesRequest;
@@ -345,9 +345,14 @@ where
         DomainDnsRecordsRequest::new(self.client)
     }
 
-    pub fn domains(&self) -> DomainsRequest<'a, Client> {
+    pub fn domains(&self) -> DomainRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Domains);
-        DomainsRequest::new(self.client)
+        DomainRequest::new(self.client)
+    }
+
+    pub fn domain<S: AsRef<str>>(&self, id: S) -> DomainsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Domains);
+        DomainsRequest::new(id.as_ref(), self.client)
     }
 
     pub fn drives(&self) -> DriveRequest<'a, Client> {

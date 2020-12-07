@@ -314,6 +314,7 @@ impl ParserSettings {
                 vec![UrlMatchTarget::resource_id("conversations", "conversation")]
             },
             ResourceIdentity::Drives => vec![UrlMatchTarget::resource_id("drives", "drive")],
+            ResourceIdentity::Domains => vec![UrlMatchTarget::resource_id("domains", "domain")],
             ResourceIdentity::Events => vec![UrlMatchTarget::resource_id("events", "event")],
             ResourceIdentity::Groups => vec![UrlMatchTarget::resource_id("groups", "group")],
             ResourceIdentity::Instances => {
