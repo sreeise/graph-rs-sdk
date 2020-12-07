@@ -168,22 +168,6 @@ macro_rules! register_client {
 }
 
 #[macro_use]
-macro_rules! register_helper {
-    ( $name:ident, $value:expr ) => {
-        fn $name(
-            _: &Helper,
-            _: &Handlebars,
-            _: &Context,
-            _: &mut RenderContext,
-            out: &mut dyn Output,
-        ) -> HelperResult {
-            out.write($value)?;
-            Ok(())
-        }
-    };
-}
-
-#[macro_use]
 macro_rules! render_path {
     ($client:expr, $template:expr) => {
         let path = $client
