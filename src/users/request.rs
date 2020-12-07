@@ -1,3 +1,5 @@
+// GENERATED CODE
+
 use crate::activities::ActivitiesRequest;
 use crate::calendar::{CalendarRequest, CalendarsRequest};
 use crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest};
@@ -11,6 +13,7 @@ use crate::education::UsersRequest as EducationUsersRequest;
 use crate::events::{EventRequest, EventsRequest};
 use crate::inference_classification::InferenceClassificationRequest;
 use crate::insights::InsightsRequest;
+use crate::mail_folders::{MailFolderRequest, MailFoldersRequest};
 use crate::managed_devices::{ManagedDeviceRequest, ManagedDevicesRequest};
 use crate::messages::{MessageRequest, MessagesRequest};
 use crate::onenote::OnenoteRequest;
@@ -192,6 +195,19 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::Insights);
         InsightsRequest::new(self.client)
+    }
+    pub fn mail_folders(&self) -> MailFolderRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        MailFolderRequest::new(self.client)
+    }
+    pub fn mail_folder<ID: AsRef<str>>(&self, id: ID) -> MailFoldersRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::MailFolders);
+        MailFoldersRequest::new(id.as_ref(), self.client)
     }
     pub fn managed_app_registrations(&self) -> ManagedAppRegistrationsRequest<'a, Client> {
         ManagedAppRegistrationsRequest::new(self.client)

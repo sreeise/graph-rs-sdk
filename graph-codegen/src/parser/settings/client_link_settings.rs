@@ -797,12 +797,38 @@ pub fn get_client_link_settings(
                 .with_extend_path_ident()
                 .with_set_resource_identity();
 
+            let mut settings23 = ClientLinkSettings::new("mailFolders");
+            settings23
+                .use_method_name("mailFolder")
+                .with_id_param()
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings24 = ClientLinkSettings::new("mailFolder");
+            settings24
+                .use_method_name("mailFolders")
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings25 = ClientLinkSettings::new("messages");
+            settings25
+                .use_method_name("message")
+                .with_id_param()
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings26 = ClientLinkSettings::new("message");
+            settings26
+                .use_method_name("messages")
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
             let mut set = BTreeSet::new();
             set.extend(vec![
                 settings, settings2, settings3, settings4, settings5, settings6, settings7,
                 settings8, settings9, settings10, settings11, settings12, settings13, settings14,
                 settings15, settings16, settings17, settings18, settings19, settings20, settings21,
-                settings22,
+                settings22, settings23, settings24, settings25, settings26,
             ]);
             map.insert("me".to_string(), set);
         },
@@ -1133,12 +1159,27 @@ pub fn get_client_link_settings(
                 .with_extend_path_id()
                 .with_set_resource_identity();
 
+            let mut settings24 = ClientLinkSettings::new("mailFolders");
+            settings24
+                .use_method_name("mailFolder")
+                .with_id_param()
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
+            let mut settings25 = ClientLinkSettings::new("mailFolder");
+            settings25
+                .use_method_name("mailFolders")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
             let mut set = BTreeSet::new();
             set.extend(vec![
                 settings, settings2, settings3, settings4, settings5, settings6, settings7,
                 settings8, settings9, settings10, settings11, settings12, settings13, settings14,
                 settings15, settings16, settings17, settings18, settings19, settings20, settings21,
-                settings22, settings23,
+                settings22, settings23, settings24, settings25,
             ]);
             map.insert("users".to_string(), set);
 
