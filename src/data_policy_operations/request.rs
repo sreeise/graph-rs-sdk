@@ -1,3 +1,5 @@
+// GENERATED CODE
+
 use crate::client::Graph;
 use graph_http::types::Collection;
 use graph_http::types::Content;
