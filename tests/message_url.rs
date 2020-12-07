@@ -1,17 +1,28 @@
 // TODO: #292 before tests are brought back.
 
-/*
+#[macro_use]
+extern crate lazy_static;
+
 use graph_rs::prelude::*;
 use test_tools::assert_url_eq;
+use test_tools::common::TestTools;
+
+lazy_static! {
+    static ref ID_VEC: Vec<String> = TestTools::random_strings(4, 20);
+}
 
 #[test]
 pub fn list_messages() {
     let client = Graph::new("");
-    let _ = client.v1().me().messages().list();
+    let _ = client.v1().me().messages().list_messages();
     assert_url_eq(&client, "/me/messages");
 
-    let _ = client.v1().site("32p99453").messages().list();
-    assert_url_eq(&client, "/sites/32p99453/messages");
+    let _ = client
+        .v1()
+        .user(ID_VEC[0].as_str())
+        .messages()
+        .list_messages();
+    assert_url_eq(&client, &format!("/users/{}/messages", ID_VEC[0]));
 }
 
 #[test]
@@ -20,28 +31,38 @@ pub fn list_mail_folder_messages() {
     let _ = client
         .v1()
         .me()
-        .mail_folder()
+        .mail_folder(ID_VEC[0].as_str())
         .messages()
-        .list("32p99453");
-    assert_url_eq(&client, "/me/mailFolders/32p99453/messages");
+        .list_messages();
+    assert_url_eq(&client, &format!("/me/mailFolders/{}/messages", ID_VEC[0]));
 
     let _ = client
         .v1()
-        .site("32p99453")
-        .mail_folder()
+        .user(ID_VEC[0].as_str())
+        .mail_folder(ID_VEC[1].as_str())
         .messages()
-        .list("1234");
-    assert_url_eq(&client, "/sites/32p99453/mailFolders/1234/messages");
+        .list_messages();
+    assert_url_eq(
+        &client,
+        &format!("/users/{}/mailFolders/{}/messages", ID_VEC[0], ID_VEC[1]),
+    );
 }
 
 #[test]
 pub fn get_messages() {
     let client = Graph::new("");
-    let _ = client.v1().me().messages().get("1234");
-    assert_url_eq(&client, "/me/messages/1234");
+    let _ = client.v1().me().message(ID_VEC[0].as_str()).get_messages();
+    assert_url_eq(&client, &format!("/me/messages/{}", ID_VEC[0]));
 
-    let _ = client.v1().site("32p99453").messages().get("1234");
-    assert_url_eq(&client, "/sites/32p99453/messages/1234");
+    let _ = client
+        .v1()
+        .user(ID_VEC[0].as_str())
+        .message(ID_VEC[1].as_str())
+        .get_messages();
+    assert_url_eq(
+        &client,
+        &format!("/users/{}/messages/{}", ID_VEC[0], ID_VEC[1]),
+    );
 }
 
 #[test]
@@ -50,18 +71,13 @@ pub fn get_mail_folder_messages() {
     let _ = client
         .v1()
         .me()
-        .mail_folder()
-        .messages()
-        .get("99453", "1234");
-    assert_url_eq(&client, "/me/mailFolders/99453/messages/1234");
-
-    let _ = client
-        .v1()
-        .site("32p99453")
-        .mail_folder()
-        .messages()
-        .get("99453", "1234");
-    assert_url_eq(&client, "/sites/32p99453/mailFolders/99453/messages/1234");
+        .mail_folder(ID_VEC[0].as_str())
+        .message(ID_VEC[1].as_str())
+        .get_messages();
+    assert_url_eq(
+        &client,
+        &format!("/me/mailFolders/{}/messages/{}", ID_VEC[0], ID_VEC[1]),
+    );
 }
 
 #[test]
@@ -70,39 +86,39 @@ pub fn update_messages() {
     let _ = client
         .v1()
         .me()
-        .
-        .messages()
-        .update("1234", &String::new());
-    assert_url_eq(&client, "/me/messages/1234");
-
-    let _ = client
-        .v1()
-        .site("32p99453")
-        .messages()
-        .update("1234", &String::new());
-    assert_url_eq(&client, "/sites/32p99453/messages/1234");
+        .message(ID_VEC[0].as_str())
+        .update_messages(&String::new());
+    assert_url_eq(&client, &format!("/me/messages/{}", ID_VEC[0]));
 }
 
 #[test]
 pub fn update_mail_folder_messages() {
     let client = Graph::new("");
-    let _ =
-        client
-            .v1()
-            .me()
-            .mail_folder()
-            .messages()
-            .update("99453", "1234", &String::new());
-    assert_url_eq(&client, "/me/mailFolders/99453/messages/1234");
-
     let _ = client
         .v1()
-        .site("32p99453")
-        .mail_folder()
-        .messages()
-        .update("99453", "1234", &String::new());
-    assert_url_eq(&client, "/sites/32p99453/mailFolders/99453/messages/1234");
+        .me()
+        .mail_folder(ID_VEC[0].as_str())
+        .message(ID_VEC[1].as_str())
+        .update_messages(&String::new());
+    assert_url_eq(
+        &client,
+        &format!("/me/mailFolders/{}/messages/{}", ID_VEC[0], ID_VEC[1]),
+    );
 }
+
+#[test]
+pub fn create_mail_folder() {
+    let client = Graph::new("");
+    let _ = client
+        .v1()
+        .user(ID_VEC[0].as_str())
+        .mail_folders()
+        .create_mail_folders(&String::new());
+    assert_url_eq(&client, &format!("/users/{}/mailFolders", ID_VEC[0]));
+}
+
+/*
+
 
 #[test]
 pub fn create_messages() {
@@ -116,20 +132,6 @@ pub fn create_messages() {
         .messages()
         .create(&String::new());
     assert_url_eq(&client, "/sites/32p99453/messages");
-}
-
-#[test]
-pub fn create_mail_folder() {
-    let client = Graph::new("");
-    let _ = client.v1().me().mail_folder().create(&String::new());
-    assert_url_eq(&client, "/me/mailFolders");
-
-    let _ = client
-        .v1()
-        .site("32p99453")
-        .mail_folder()
-        .create(&String::new());
-    assert_url_eq(&client, "/sites/32p99453/mailFolders");
 }
 
 #[test]
