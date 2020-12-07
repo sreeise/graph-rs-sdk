@@ -517,4 +517,3 @@ impl fmt::Debug for AccessToken {
             .finish()
     }
 }
-
