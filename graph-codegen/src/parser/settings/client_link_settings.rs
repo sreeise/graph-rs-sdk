@@ -407,8 +407,24 @@ pub fn get_client_link_settings(
                 .with_extend_path_ident()
                 .with_extend_path_id()
                 .with_set_resource_identity();
+
+            let mut settings2 = ClientLinkSettings::new("messages");
+            settings2
+                .use_method_name("message")
+                .with_id_param()
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
+            let mut settings3 = ClientLinkSettings::new("message");
+            settings3
+                .use_method_name("messages")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
             let mut set = BTreeSet::new();
-            set.extend(vec![settings]);
+            set.extend(vec![settings, settings2, settings3]);
             map.insert("mailFolders".to_string(), set);
         },
         ResourceIdentity::Messages => {

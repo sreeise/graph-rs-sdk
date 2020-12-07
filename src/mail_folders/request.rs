@@ -1,6 +1,9 @@
+// GENERATED CODE
+
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
+use crate::messages::{MessageRequest, MessagesRequest};
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
@@ -82,6 +85,19 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::ExtendedProperties);
         ExtendedPropertiesRequest::new(self.client)
+    }
+    pub fn messages(&self) -> MessageRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        MessageRequest::new(self.client)
+    }
+    pub fn message<ID: AsRef<str>>(&self, id: ID) -> MessagesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Messages);
+        MessagesRequest::new(id.as_ref(), self.client)
     }
     get!({
         doc: "# Get mailFolders from me",

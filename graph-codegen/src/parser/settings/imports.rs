@@ -135,11 +135,12 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ResourceIdentity::ManagedDevices => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::MailFolders => vec![
             "crate::core::ResourceIdentity",
-            "crate::extended_properties::ExtendedPropertiesRequest"
+            "crate::messages::{MessageRequest, MessagesRequest}",
+            "crate::extended_properties::ExtendedPropertiesRequest",
         ],
         ResourceIdentity::Messages => vec![
             "crate::core::ResourceIdentity",
-            "crate::extended_properties::ExtendedPropertiesRequest"
+            "crate::extended_properties::ExtendedPropertiesRequest",
         ],
         ResourceIdentity::Me => vec![
             "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
