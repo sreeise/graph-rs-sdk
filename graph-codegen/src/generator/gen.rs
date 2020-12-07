@@ -1,7 +1,6 @@
 use crate::builder::Builder;
 use crate::parser::client_resource::ClientResource;
 use crate::parser::error::ParseError;
-use crate::parser::filter::Filter;
 use crate::parser::{Parse, Parser, ParserSettings, ParserSpec, PathMap, RequestSet};
 use from_as::FromFile;
 use graph_core::resource::ResourceIdentity;
@@ -133,18 +132,17 @@ impl Parse<&std::path::Path> for Generator {
             },
             ClientResource::Secondary {
                 start_filter,
-                secondary_name,
                 modifier,
             } => {
                 let path_map: PathMap = PathMap::from_file(parse_from)?;
                 let mut path_map: PathMap = path_map.filter(start_filter).into();
-                let path_map = path_map.clean_secondary(secondary_name.as_str());
+                let path_map = path_map.clean_secondary(modifier.as_str());
 
                 let parser = Parser {
                     spec: RefCell::new(ParserSpec::parser_spec(path_map)),
                 };
 
-                if let Ok(resource_identity) = ResourceIdentity::from_str(secondary_name.as_str()) {
+                if let Ok(resource_identity) = ResourceIdentity::from_str(modifier.as_str()) {
                     let mut spec = parser.spec.borrow_mut();
                     for filter in ParserSettings::path_filters(resource_identity).iter() {
                         spec.paths = spec.paths.filter(filter.clone()).into();
@@ -185,19 +183,18 @@ impl Parse<reqwest::Url> for Generator {
             },
             ClientResource::Secondary {
                 start_filter,
-                secondary_name,
                 modifier,
             } => {
                 let path_map = PathMap::try_from(parse_from)?;
                 let mut path_map: PathMap = path_map.filter(start_filter).into();
-                let path_map = path_map.clean_secondary(secondary_name.as_str());
+                let path_map = path_map.clean_secondary(modifier.as_str());
                 let parser_spec = ParserSpec::parser_spec(path_map);
 
                 let parser = Parser {
                     spec: RefCell::new(parser_spec),
                 };
 
-                if let Ok(resource_identity) = ResourceIdentity::from_str(secondary_name.as_str()) {
+                if let Ok(resource_identity) = ResourceIdentity::from_str(modifier.as_str()) {
                     let mut spec = parser.spec.borrow_mut();
                     for filter in ParserSettings::path_filters(resource_identity).iter() {
                         spec.paths = spec.paths.filter(filter.clone()).into();
