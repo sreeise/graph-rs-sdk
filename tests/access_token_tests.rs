@@ -99,3 +99,33 @@ fn is_expired_test() {
     thread::sleep(Duration::from_secs(4));
     assert_eq!(access_token.is_expired(), false);
 }
+
+pub const ACCESS_TOKEN_INT  : &'static str = r#"{
+    "access_token": "fasdfasdfasfdasdfasfsdf",
+    "token_type": "Bearer",
+    "expires_in": 65874,
+    "scope": null,
+    "refresh_token": null,
+    "user_id": "santa@north.pole.com",
+    "id_token": "789aasdf-asdf",
+    "state": null,
+    "timestamp": "2020-10-27T16:31:38.788098400Z"
+}"#;
+
+pub const ACCESS_TOKEN_STRING  : &'static str = r#"{
+    "access_token": "fasdfasdfasfdasdfasfsdf",
+    "token_type": "Bearer",
+    "expires_in": "65874",
+    "scope": null,
+    "refresh_token": null,
+    "user_id": "helpers@north.pole.com",
+    "id_token": "789aasdf-asdf",
+    "state": null,
+    "timestamp": "2020-10-27T16:31:38.788098400Z"
+}"#;
+
+#[test]
+pub fn test_deserialize() {
+    let _token: AccessToken = serde_json::from_str(ACCESS_TOKEN_INT).unwrap();
+    let _token: AccessToken = serde_json::from_str(ACCESS_TOKEN_STRING).unwrap();
+}

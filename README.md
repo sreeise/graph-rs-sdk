@@ -5,10 +5,26 @@
 
 ### Graph API Client in Rust
 
-Disclaimer:
-Integrates with several parts of the Graph API including OneDrive, Mail, Calendars, and OneNote. I would
-like to cover more in the future and will continue to work on this as I get the time. Currently, work is
-being done to fully implement async as well as to parse open api configs to make development easier.
+There are several parts to this project:
+
+graph-oauth: OAuth client for getting access/refresh tokens from the Graph api.
+
+graph-error: Errors that come back from the Graph api.
+
+graph-rs(src directory): The Graph client for interacting with the Graph api. The oauth client is also reexported from here.
+
+There are many api's already implemented including activities, attachments, calendar, contacts, drive, education, groups, mail, onenote, planner, and users.
+See upcoming changes below for what will be added in the future.
+
+Installation and basic usage can be found below and there are extensive examples in the examples directory.
+
+### Upcoming Changes
+
+This repository is still in development and will change considerably. There are several implementations of Graph api's that need to be added. I am also getting the project ready for a release on crates.io but I don't want to release something that is 1. Not maintainable long term and 2. Not fully implemented. 
+
+I am attempting to maintain backwards compatibility for those who already use this repository as well. I will post an update if that ends up not being possible. To be clear, the way in which the Graph client and the already implemented api's are used will not change. The major changes coming up are adding functionality not changing it.
+
+To make development easier and to provide a maintainable library, work is currently being done for parsing open api configs for the Graph Api. After this work is completed any new api's added or removed will be based on these configurations. Also after the work is done, I will look into adding a first version to crates.io.
  
 ### Install and Build - Requires Rust nightly
 
@@ -397,140 +413,3 @@ loop {
     }
 }
 ```   
-        
-        
-### Coverage
-
-This is not an exhaustive list but it does give a good
-overview of most of what is covered so far.  
-
-[x] indicates that its covered.      
-        
-#### OneDrive  
-   
-OneDrive API               | Covered
--------------              | -------------
-List Children              | [x]
-Get Item                   | [x]
-Get Drive                  | [x]
-List Drives                | [x] 
-Recent Files               | [x] 
-Shared Files               | [x] 
-Get Thumbnails             | [x]
-Create Folder              | [x]
-Update Item                | [x]
-Delete Item                | [x]
-Move Item                  | [x]
-Copy Item                  | [x]
-Download                   | [x]
-Upload                     | [x]
-Upload Session             | [x]
-Track Changes              | [ ]
-List Versions              | [x]
-Delta                      | [x]
-Search Items               | [x]
-Preview Item               | [x]
-Get Item Analytics         | [ ]
-Permissions                | [ ]
-Get Special Folder         | [x]
-        
-#### Mail
-   
-Mail API                                | Covered
--------------                           | -------------
-Message - List                          | [x]
-Message - Get                           | [x]
-Message - Create                        | [x]
-Message - Copy                          | [x]
-Message - Forward                       | [x]
-Message - Move                          | [x]
-Message - Create Forward                | [x]
-Message - Create Reply                  | [x]
-Message - Create Reply All              | [x]
-Message - Reply                         | [x]
-Message - Reply All                     | [x]
-Message - Send                          | [x]
-Message - Send Mail                     | [x]
-Message - List Attachment               | [x]
-Message - Add Attachment                | [x]
-Mail Folder - List                      | [x]
-Mail Folder - Get                       | [x]
-Mail Folder - Create                    | [x]
-Mail Folder - Copy                      | [x]
-Mail Folder - Update                    | [x]
-Mail Folder - Update Message            | [x]
-Mail Folder - Create Message            | [x]
-Mail Folder - Forward Message           | [x]
-Mail Folder - Move Message              | [x]
-Mail Folder - Message Create Forward    | [x]
-Mail Folder - Message Create Reply      | [x]
-Mail Folder - Message Create Reply All  | [x]
-Mail Folder - Message Reply             | [x]
-Mail Folder - Message Reply All         | [x]
-Mail Folder - Get Message Delta         | [x]
-Mail Folder - List Child Folders        | [x]
-Mail Folder - Create Child Folder       | [x]
-Attachments                             | [x]
-Search Folder                           | [x]
-Rules                                   | [x]
-Focused Inbox                           | [x]
-
-Calendars
-
-Calendar API            | Covered
--------------           | -------------
-List Calendars          | [x]
-Create calendar         | [x]
-Get Calendar            | [x]
-Update Calendar         | [x]
-Create Calendar         | [x]
-Delete Calendar         | [x]
-List Calendars Group    | [x]
-Get Calendar Group      | [x]
-Update Calendar Group   | [x]
-Create Calendar Group   | [x]
-Delete Calendar Group   | [x]
-Get Schedule            | [ ]
-Find Meeting Times      | [ ]
-Calendar Events         | [ ]
-Calendar Attachments    | [x]
-Categories              | [x]
-List Views              | [x]
-Calendar Group View     | [x]
-Get Delta View          | [ ]
-Reminder View           | [ ] 
-
-Users
-
-Users API               | Covered
--------------           | -------------
-List Users              | [x]
-Get User                | [x]
-Create User             | [x]
-Update User             | [x]
-Delete User             | [x]
-Get Delta               | [x]
-
-OneNote
-
-OneNote API                     | Covered
--------------                   | -------------
-List Notebooks                  | [x]
-Get Notebook                    | [x]
-List Notebook Sections          | [x]
-Create Notebook                 | [x]
-Copy Notebook                   | [x]
-Create Notebook Section         | [x]
-Get Recent Notebooks            | [x]
-List Section Group              | [x]
-Get Section Group               | [x]
-List Section Group Sections     | [x]
-Create Section Group            | [x]
-Create Section Group Section    | [x]
-Create Notebook Section         | [x]
-List Pages                      | [x]
-Get Page                        | [x]
-Page Copy To Section            | [x]
-Delete Page                     | [x]
-Update Page                     | [ ]
-Resources                       | [ ]

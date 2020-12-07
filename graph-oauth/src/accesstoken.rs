@@ -4,6 +4,7 @@ use chrono::{DateTime, Duration, TimeZone, Utc};
 use chrono_humanize::HumanTime;
 use from_as::*;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
+use serde_aux::prelude::*;
 use std::convert::TryFrom;
 use std::fmt;
 use std::io::{Read, Write};
@@ -51,6 +52,7 @@ use std::io::{Read, Write};
 pub struct AccessToken {
     access_token: String,
     token_type: String,
+    #[serde(deserialize_with = "deserialize_number_from_string")]
     expires_in: i64,
     scope: Option<String>,
     refresh_token: Option<String>,
@@ -515,3 +517,4 @@ impl fmt::Debug for AccessToken {
             .finish()
     }
 }
+
