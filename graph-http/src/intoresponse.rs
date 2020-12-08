@@ -42,70 +42,70 @@ where
         }
     }
 
-    pub fn query(&self, key: &str, value: &str) -> &Self {
+    pub fn query(self, key: &str, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.append_query_pair(key, value);
         });
         self
     }
 
-    pub fn select(&self, value: &[&str]) -> &Self {
+    pub fn select(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.select(value);
         });
         self
     }
 
-    pub fn expand(&self, value: &[&str]) -> &Self {
+    pub fn expand(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.expand(value);
         });
         self
     }
 
-    pub fn filter(&self, value: &[&str]) -> &Self {
+    pub fn filter(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.filter(value);
         });
         self
     }
 
-    pub fn order_by(&self, value: &[&str]) -> &Self {
+    pub fn order_by(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.order_by(value);
         });
         self
     }
 
-    pub fn search(&self, value: &str) -> &Self {
+    pub fn search(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.search(value);
         });
         self
     }
 
-    pub fn format(&self, value: &str) -> &Self {
+    pub fn format(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.format(value);
         });
         self
     }
 
-    pub fn skip(&self, value: &str) -> &Self {
+    pub fn skip(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.skip(value);
         });
         self
     }
 
-    pub fn top(&self, value: &str) -> &Self {
+    pub fn top(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.top(value);
         });
         self
     }
 
-    pub fn header<H: IntoHeaderName>(&self, name: H, value: HeaderValue) -> &Self {
+    pub fn header<H: IntoHeaderName>(self, name: H, value: HeaderValue) -> Self {
         self.client.header(name, value);
         self
     }
@@ -121,6 +121,15 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         }
         let response = self.client.response()?;
         Ok(response.json()?)
+    }
+
+    pub fn text(self) -> GraphResult<String> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.client.response()?;
+        response.text().map_err(GraphFailure::from)
     }
 }
 
@@ -200,6 +209,15 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         let request = self.client.build().await;
         let response = request.send().await?;
         response.json().await.map_err(GraphFailure::from)
+    }
+
+    pub async fn text(self) -> GraphResult<String> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.client.response().await?;
+        response.text().await.map_err(GraphFailure::from)
     }
 }
 
