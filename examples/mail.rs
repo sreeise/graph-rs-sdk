@@ -1,8 +1,3 @@
-fn main() {}
-
-// TODO: Add back mail
-
-/*
 use graph_rs::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -32,28 +27,31 @@ fn main() {
 fn list_messages() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let message_collection_response = client.v1().me().mail().messages().list().send();
-
-    println!("{:#?}", message_collection_response);
+    let response = client.v1().me().messages().list_messages().send();
+    println!("{:#?}", response);
 }
 
 fn delete_message() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let message_collection_response = client.v1().me().mail().messages().delete(MESSAGE_ID).send();
+    let response = client
+        .v1()
+        .me()
+        .message(MESSAGE_ID)
+        .delete_messages()
+        .send();
 
-    println!("{:#?}", message_collection_response);
+    println!("{:#?}", response);
 }
 
 fn create_message() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let create_message_response = client
+    let response = client
         .v1()
         .me()
-        .mail()
         .messages()
-        .create(&serde_json::json!({
+        .create_messages(&serde_json::json!({
             "subject":"Did you see last night's game?",
             "importance":"Low",
             "body":{
@@ -70,9 +68,45 @@ fn create_message() {
         }))
         .send();
 
-    println!("{:#?}", create_message_response);
+    println!("{:#?}", response);
 }
 
+pub fn send_mail() {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let response = client
+        .v1()
+        .me()
+        .send_mail(&serde_json::json!({
+                "message": {
+                "subject": "Meet for lunch?",
+                "body": {
+                    "contentType": "Text",
+                    "content": "The new cafeteria is open."
+                },
+                "toRecipients": [
+                    {
+                        "emailAddress": {
+                        "address": "fannyd@contoso.onmicrosoft.com"
+                        }
+                    }
+                ],
+                "ccRecipients": [
+                    {
+                        "emailAddress": {
+                        "address": "danas@contoso.onmicrosoft.com"
+                        }
+                    }
+                ]
+            },
+            "saveToSentItems": "false"
+        }))
+        .send();
+
+    println!("{:#?}", response);
+}
+
+/*
 fn add_attachment() {
     let client = Graph::new(ACCESS_TOKEN);
 
@@ -216,10 +250,9 @@ pub fn delete_mail_folder_message() {
     let delete_message_response = client
         .v1()
         .me()
-        .mail()
-        .mail_folder()
-        .messages()
-        .delete(MAIL_FOLDER_ID, MESSAGE_ID)
+        .mail_folder(MAIL_FOLDER_ID)
+        .message(MESSAGE_ID)
+        .delete_messages()
         .send();
 
     println!("{:#?}", delete_message_response);
@@ -261,43 +294,6 @@ fn get_child_folders_attachment(child_folders: Vec<&str>) {
         .send();
 
     println!("{:#?}", get_attachment_response);
-}
-
-pub fn send_mail() {
-    let client = Graph::new(ACCESS_TOKEN);
-
-    let send_mail_response = client
-        .v1()
-        .me()
-        .mail()
-        .messages()
-        .send_mail(&serde_json::json!({
-                "message": {
-                "subject": "Meet for lunch?",
-                "body": {
-                    "contentType": "Text",
-                    "content": "The new cafeteria is open."
-                },
-                "toRecipients": [
-                    {
-                        "emailAddress": {
-                        "address": "fannyd@contoso.onmicrosoft.com"
-                        }
-                    }
-                ],
-                "ccRecipients": [
-                    {
-                        "emailAddress": {
-                        "address": "danas@contoso.onmicrosoft.com"
-                        }
-                    }
-                ]
-            },
-            "saveToSentItems": "false"
-        }))
-        .send();
-
-    println!("{:#?}", send_mail_response);
 }
 
  */
