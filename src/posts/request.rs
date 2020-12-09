@@ -1,34 +1,19 @@
+// GENERATED CODE
+
+use crate::attachments::{AttachmentRequest, AttachmentsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
-use graph_error::GraphFailure;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::GraphResponse;
 use graph_http::IntoResponse;
-use graph_http::UploadSessionClient;
 use handlebars::*;
 use reqwest::Method;
-use std::path::Path;
 
-register_client!(AttachmentsRequest,);
 register_client!(InReplyToRequest,);
 register_client!(PostRequest,);
 register_client!(PostsRequest, ());
-
-impl<'a, Client> AttachmentsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    post!({
-        doc: "# Invoke action createUploadSession",
-        name: create_upload_session,
-        path: "/posts/{{RID}}/attachments/createUploadSession",
-        params: 0,
-        has_body: true,
-        upload_session: true
-    });
-}
 
 impl<'a, Client> InReplyToRequest<'a, Client>
 where
@@ -82,8 +67,18 @@ impl<'a, Client> PostsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn attachments(&self) -> AttachmentsRequest<'a, Client> {
-        AttachmentsRequest::new(self.client)
+    pub fn attachments(&self) -> AttachmentRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        AttachmentRequest::new(self.client)
+    }
+    pub fn attachment<ID: AsRef<str>>(&self, id: ID) -> AttachmentsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Attachments);
+        AttachmentsRequest::new(id.as_ref(), self.client)
     }
     pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
         self.client
@@ -125,22 +120,6 @@ where
         response: serde_json::Value,
         path: "/posts/{{RID}}/attachments",
         params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get attachments from groups",
-        name: get_attachments,
-        response: serde_json::Value,
-        path: "/posts/{{RID}}/attachments/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property attachments in groups",
-        name: update_attachments,
-        response: GraphResponse<Content>,
-        path: "/posts/{{RID}}/attachments/{{id}}",
-        params: 1,
         has_body: true
     });
     get!({

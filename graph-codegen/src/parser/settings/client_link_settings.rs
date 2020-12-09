@@ -187,8 +187,25 @@ pub fn get_client_link_settings(
                 .with_extend_path_id()
                 .with_set_resource_identity();
 
+            let mut settings5 = ClientLinkSettings::new("attachments");
+            settings5
+                .with_id_param()
+                .use_method_name("attachment")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
+            let mut settings6 = ClientLinkSettings::new("attachment");
+            settings6
+                .use_method_name("attachments")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
             let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4]);
+            set.extend(vec![
+                settings, settings2, settings3, settings4, settings5, settings6,
+            ]);
             map.insert("calendarView".to_string(), set);
         },
         ResourceIdentity::Events => {
@@ -218,8 +235,25 @@ pub fn get_client_link_settings(
                 .with_extend_path_id()
                 .with_set_resource_identity();
 
+            let mut settings5 = ClientLinkSettings::new("attachments");
+            settings5
+                .with_id_param()
+                .use_method_name("attachment")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
+            let mut settings6 = ClientLinkSettings::new("attachment");
+            settings6
+                .use_method_name("attachments")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
             let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4]);
+            set.extend(vec![
+                settings, settings2, settings3, settings4, settings5, settings6,
+            ]);
             map.insert("events".to_string(), set);
         },
         ResourceIdentity::Conversations => {
@@ -433,8 +467,24 @@ pub fn get_client_link_settings(
                 .with_extend_path_ident()
                 .with_extend_path_id()
                 .with_set_resource_identity();
+
+            let mut settings2 = ClientLinkSettings::new("attachments");
+            settings2
+                .with_id_param()
+                .use_method_name("attachment")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
+            let mut settings3 = ClientLinkSettings::new("attachment");
+            settings3
+                .use_method_name("attachments")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
             let mut set = BTreeSet::new();
-            set.extend(vec![settings]);
+            set.extend(vec![settings, settings2, settings3]);
             map.insert("messages".to_string(), set);
         },
         ResourceIdentity::Notebooks => {
@@ -628,8 +678,23 @@ pub fn get_client_link_settings(
                 .with_extend_path_id()
                 .with_set_resource_identity();
 
+            let mut settings2 = ClientLinkSettings::new("attachments");
+            settings2
+                .with_id_param()
+                .use_method_name("attachment")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
+            let mut settings3 = ClientLinkSettings::new("attachment");
+            settings3
+                .use_method_name("attachments")
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
             let mut set = BTreeSet::new();
-            set.extend(vec![settings]);
+            set.extend(vec![settings, settings2, settings3]);
             map.insert("posts".to_string(), set);
         },
         ResourceIdentity::CallRecords => {
