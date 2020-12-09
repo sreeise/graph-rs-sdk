@@ -479,6 +479,20 @@ pub fn get_custom_requests(
                     doc: None,
                 },
             ],
+            ResourceIdentity::ChildFolders => vec![Request {
+                path: "/childFolders/{{RID}}/move".into(),
+                method: HttpMethod::POST,
+                method_name: "move_child_folders".into(),
+                param_size: 0,
+                has_body: true,
+                request_type: RequestType::Normal,
+                has_rid: true,
+                response: ResponseType::SerdeJson,
+                tag: "childFolders".into(),
+                operation_id: "childFolders.MoveChildFolders".into(),
+                operation_mapping: "childFolders".into(),
+                doc: None,
+            }],
             _ => vec![],
         }
     };

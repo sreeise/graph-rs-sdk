@@ -281,19 +281,4 @@ fn add_mail_folder_message_attachment() {
     println!("{:#?}", add_attachment_response);
 }
 
-fn get_child_folders_attachment(child_folders: Vec<&str>) {
-    let client = Graph::new(ACCESS_TOKEN);
-
-    let get_attachment_response = client
-        .v1()
-        .me()
-        .mail()
-        .mail_folder()
-        .attachments()
-        .child_folder(MAIL_FOLDER_ID, &child_folders, MESSAGE_ID, ATTACHMENT_ID)
-        .send();
-
-    println!("{:#?}", get_attachment_response);
-}
-
  */

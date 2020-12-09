@@ -421,6 +421,43 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         },
+        ResourceIdentity::ChildFolders => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("me.mailFolders.UpdateChildFolders".to_string()),
+                vec![
+                    MatchTarget::OperationMap("childFolders".to_string()),
+                    MatchTarget::OperationId("childFolders.UpdateChildFolders".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("me.mailFolders.CreateChildFolders".to_string()),
+                vec![
+                    MatchTarget::OperationMap("childFolders".to_string()),
+                    MatchTarget::OperationId("childFolders.CreateChildFolders".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("me.mailFolders.ListChildFolders".to_string()),
+                vec![
+                    MatchTarget::OperationMap("childFolders".to_string()),
+                    MatchTarget::OperationId("childFolders.ListChildFolders".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("me.mailFolders.GetChildFolders".to_string()),
+                vec![
+                    MatchTarget::OperationMap("childFolders".to_string()),
+                    MatchTarget::OperationId("childFolders.GetChildFolders".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("me.mailFolders.childFolders.move".to_string()),
+                vec![
+                    MatchTarget::OperationMap("childFolders".to_string()),
+                    MatchTarget::OperationId("childFolders.MoveChildFolders".to_string()),
+                ],
+            );
+        },
         ResourceIdentity::DeviceManagement => {
             modify_target.operation_map(
                 "deviceManagement.detectedApps.managedDevices",
