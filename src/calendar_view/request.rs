@@ -1,45 +1,38 @@
 // GENERATED CODE
 
+use crate::attachments::{AttachmentRequest, AttachmentsRequest};
 use crate::calendar::CalendarRequest;
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
 use crate::instances::{InstanceRequest, InstancesRequest};
-use graph_error::GraphFailure;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
 use graph_http::GraphResponse;
 use graph_http::IntoResponse;
-use graph_http::UploadSessionClient;
 use handlebars::*;
 use reqwest::Method;
-use std::path::Path;
 
-register_client!(AttachmentsRequest,);
 register_client!(CalendarViewRequest, ());
 register_client!(CalendarViewsRequest,);
-
-impl<'a, Client> AttachmentsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    post!({
-        doc: "# Invoke action createUploadSession",
-        name: create_upload_session,
-        path: "/calendarView/{{RID}}/attachments/createUploadSession",
-        params: 0,
-        has_body: true,
-        upload_session: true
-    });
-}
 
 impl<'a, Client> CalendarViewRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn attachments(&self) -> AttachmentsRequest<'a, Client> {
-        AttachmentsRequest::new(self.client)
+    pub fn attachments(&self) -> AttachmentRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        AttachmentRequest::new(self.client)
+    }
+    pub fn attachment<ID: AsRef<str>>(&self, id: ID) -> AttachmentsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Attachments);
+        AttachmentsRequest::new(id.as_ref(), self.client)
     }
     pub fn calendar(&self) -> CalendarRequest<'a, Client> {
         self.client
@@ -90,22 +83,6 @@ where
         response: serde_json::Value,
         path: "/calendarView/{{RID}}/attachments",
         params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get attachments from me",
-        name: get_attachments,
-        response: serde_json::Value,
-        path: "/calendarView/{{RID}}/attachments/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property attachments in me",
-        name: update_attachments,
-        response: GraphResponse<Content>,
-        path: "/calendarView/{{RID}}/attachments/{{id}}",
-        params: 1,
         has_body: true
     });
     get!({

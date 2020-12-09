@@ -14,7 +14,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "instances",
                 "calendarView",
                 "events",
-                "attachments",
+                "/attachments/",
             ]))]
         },
         ResourceIdentity::CalendarGroups => {
@@ -35,6 +35,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "/calendar/calendarPermissions",
                 "/calendar/getSchedule",
                 "instances",
+                "/attachments/",
             ]))]
         },
         ResourceIdentity::CallRecords => {
@@ -66,6 +67,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "calendar/events",
                 "/calendar/getSchedule",
                 "calendarPermissions",
+                "/attachments/",
             ]))]
         },
         ResourceIdentity::Lists => {
@@ -82,6 +84,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
         ResourceIdentity::Messages => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/move",
+                "/attachments/",
             ]))]
         },
         ResourceIdentity::Onenote => {
@@ -151,6 +154,11 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/buckets/",
                 "/tasks/",
+            ]))]
+        },
+        ResourceIdentity::Posts => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                "/attachments/",
             ]))]
         },
         ResourceIdentity::Me => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![

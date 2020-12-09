@@ -27,6 +27,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::calendar::CalendarRequest",
             "crate::core::ResourceIdentity",
             "crate::extended_properties::ExtendedPropertiesRequest",
+            "crate::attachments::{AttachmentRequest, AttachmentsRequest}",
         ],
         ResourceIdentity::Calls => vec![
             "crate::core::ResourceIdentity",
@@ -71,6 +72,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::instances::{InstanceRequest, InstancesRequest}",
             "crate::core::ResourceIdentity",
             "crate::extended_properties::ExtendedPropertiesRequest",
+            "crate::attachments::{AttachmentRequest, AttachmentsRequest}",
         ],
         ResourceIdentity::Sites => vec![
             "crate::core::ResourceIdentity",
@@ -134,6 +136,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ResourceIdentity::Posts => vec![
             "crate::core::ResourceIdentity",
             "crate::extended_properties::ExtendedPropertiesRequest",
+            "crate::attachments::{AttachmentRequest, AttachmentsRequest}",
         ],
         ResourceIdentity::ManagedDevices => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::MailFolders => vec![
@@ -144,6 +147,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ResourceIdentity::Messages => vec![
             "crate::core::ResourceIdentity",
             "crate::extended_properties::ExtendedPropertiesRequest",
+            "crate::attachments::{AttachmentRequest, AttachmentsRequest}",
         ],
         ResourceIdentity::Me => vec![
             "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
