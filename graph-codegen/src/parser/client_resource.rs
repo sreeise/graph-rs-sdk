@@ -39,6 +39,12 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
             ResourceIdentity::AuditLogs => Ok(ClientResource::Main {
                 modifier: "auditLogs".to_string(),
             }),
+            ResourceIdentity::Attachments => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith(
+                    "/groups/{group-id}/calendar/events/{event-id}/attachments",
+                ),
+                modifier: "attachments".to_string(),
+            }),
             ResourceIdentity::Buckets => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/planner/buckets"),
                 modifier: "buckets".to_string(),

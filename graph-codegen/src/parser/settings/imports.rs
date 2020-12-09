@@ -2,6 +2,9 @@ use graph_core::resource::ResourceIdentity;
 
 pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
     match resource_identity {
+        ResourceIdentity::Attachments => vec![
+            "crate::core::ResourceIdentity",
+        ],
         ResourceIdentity::Buckets => vec![
             "crate::tasks::{TaskRequest, TasksRequest}",
             "crate::core::ResourceIdentity",
