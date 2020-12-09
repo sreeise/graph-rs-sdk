@@ -37,6 +37,36 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
         ResourceIdentity::AuditLogs => {
             modify_target.operation_map("auditLogs.auditLogRoot", "auditLogs");
         },
+        ResourceIdentity::Attachments => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("groups.calendar.events.ListAttachments".to_string()),
+                vec![
+                    MatchTarget::OperationMap("attachments".to_string()),
+                    MatchTarget::OperationId("attachments.ListAttachments".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("groups.calendar.events.GetAttachments".to_string()),
+                vec![
+                    MatchTarget::OperationMap("attachments".to_string()),
+                    MatchTarget::OperationId("attachments.GetAttachments".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("groups.calendar.events.CreateAttachments".to_string()),
+                vec![
+                    MatchTarget::OperationMap("attachments".to_string()),
+                    MatchTarget::OperationId("attachments.CreateAttachment".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("groups.calendar.events.UpdateAttachments".to_string()),
+                vec![
+                    MatchTarget::OperationMap("attachments".to_string()),
+                    MatchTarget::OperationId("attachments.UpdateAttachments".to_string()),
+                ],
+            );
+        },
         ResourceIdentity::Buckets => {
             modify_target.map.insert(
                 MatchTarget::OperationId("planner.GetBuckets".to_string()),

@@ -75,6 +75,8 @@ pub mod audit_logs;
 pub mod buckets;
 // Applications request client.
 pub mod applications;
+// Attachments request client.
+pub mod attachments;
 /// Calendar request client.
 pub mod calendar;
 /// Calendar groups client.

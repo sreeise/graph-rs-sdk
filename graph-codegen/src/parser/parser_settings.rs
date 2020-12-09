@@ -76,6 +76,9 @@ impl ParserSettings {
             ResourceIdentity::Activities => {
                 map.insert_operation_mapping("me.activities", "activities");
             },
+            ResourceIdentity::Attachments => {
+                map.insert_operation_mapping("groups.calendar.events.attachments", "attachments");
+            },
             ResourceIdentity::Buckets => {
                 map.insert_operation_mapping("planner.buckets", "buckets");
             },
@@ -286,6 +289,9 @@ impl ParserSettings {
         match resource_identity {
             ResourceIdentity::Applications => {
                 vec![UrlMatchTarget::resource_id("applications", "application")]
+            },
+            ResourceIdentity::Attachments => {
+                vec![UrlMatchTarget::resource_id("attachments", "attachment")]
             },
             ResourceIdentity::Buckets => vec![UrlMatchTarget::resource_id("buckets", "bucket")],
             ResourceIdentity::Calendar => {
