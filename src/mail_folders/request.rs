@@ -1,5 +1,6 @@
 // GENERATED CODE
 
+use crate::child_folders::{ChildFolderRequest, ChildFoldersRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
@@ -12,31 +13,8 @@ use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
 
-register_client!(ChildFoldersRequest,);
 register_client!(MailFolderRequest,);
 register_client!(MailFoldersRequest, ());
-
-impl<'a, Client> ChildFoldersRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Invoke function delta",
-        name: delta,
-        response: DeltaPhantom<serde_json::Value>,
-        path: "/mailFolders/{{RID}}/childFolders/delta()",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Invoke action copy",
-        name: copy,
-        response: serde_json::Value,
-        path: "/mailFolders/{{RID}}/childFolders/{{id}}/copy",
-        params: 1,
-        has_body: true
-    });
-}
 
 impl<'a, Client> MailFolderRequest<'a, Client>
 where
@@ -76,8 +54,18 @@ impl<'a, Client> MailFoldersRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn child_folders(&self) -> ChildFoldersRequest<'a, Client> {
-        ChildFoldersRequest::new(self.client)
+    pub fn child_folders(&self) -> ChildFolderRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        ChildFolderRequest::new(self.client)
+    }
+    pub fn child_folder<ID: AsRef<str>>(&self, id: ID) -> ChildFoldersRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ChildFolders);
+        ChildFoldersRequest::new(id.as_ref(), self.client)
     }
     pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
         self.client
@@ -113,38 +101,6 @@ where
         response: GraphResponse<Content>,
         path: "/mailFolders/{{RID}}",
         params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get childFolders from me",
-        name: list_child_folders,
-        response: Collection<serde_json::Value>,
-        path: "/mailFolders/{{RID}}/childFolders",
-        params: 0,
-        has_body: false
-    });
-    post!({
-        doc: "# Create new navigation property to childFolders for me",
-        name: create_child_folders,
-        response: serde_json::Value,
-        path: "/mailFolders/{{RID}}/childFolders",
-        params: 0,
-        has_body: true
-    });
-    get!({
-        doc: "# Get childFolders from me",
-        name: get_child_folders,
-        response: serde_json::Value,
-        path: "/mailFolders/{{RID}}/childFolders/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    patch!({
-        doc: "# Update the navigation property childFolders in me",
-        name: update_child_folders,
-        response: GraphResponse<Content>,
-        path: "/mailFolders/{{RID}}/childFolders/{{id}}",
-        params: 1,
         has_body: true
     });
     post!({

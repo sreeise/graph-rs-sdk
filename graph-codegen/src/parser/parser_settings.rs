@@ -142,6 +142,12 @@ impl ParserSettings {
                     MatchTarget::OperationMap("conversations".to_string()),
                 );
             },
+            ResourceIdentity::ChildFolders => {
+                map.insert(
+                    "me.mailFolders.childFolders",
+                    MatchTarget::OperationMap("childFolders".to_string()),
+                );
+            },
             ResourceIdentity::Events => {
                 map.insert(
                     "users.events",
@@ -318,6 +324,9 @@ impl ParserSettings {
             },
             ResourceIdentity::Conversations => {
                 vec![UrlMatchTarget::resource_id("conversations", "conversation")]
+            },
+            ResourceIdentity::ChildFolders => {
+                vec![UrlMatchTarget::resource_id("childFolders", "childFolder")]
             },
             ResourceIdentity::Drives => vec![UrlMatchTarget::resource_id("drives", "drive")],
             ResourceIdentity::Domains => vec![UrlMatchTarget::resource_id("domains", "domain")],

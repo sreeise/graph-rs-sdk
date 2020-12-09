@@ -47,11 +47,17 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ],
         ResourceIdentity::ContactFolders => vec![
             "crate::core::ResourceIdentity",
+            "crate::child_folders::{ChildFolderRequest, ChildFoldersRequest}",
+            "crate::contacts::{ContactRequest, ContactsRequest}",
             "crate::extended_properties::ExtendedPropertiesRequest"
         ],
         ResourceIdentity::Conversations => vec![
             "crate::core::ResourceIdentity",
             "crate::threads::{ThreadRequest, ThreadsRequest}",
+        ],
+        ResourceIdentity::ChildFolders => vec![
+            "crate::core::ResourceIdentity",
+            "crate::messages::{MessageRequest, MessagesRequest}",
         ],
         ResourceIdentity::Drive | ResourceIdentity::Drives => vec![
             "std::path::Path",
@@ -142,6 +148,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ResourceIdentity::MailFolders => vec![
             "crate::core::ResourceIdentity",
             "crate::messages::{MessageRequest, MessagesRequest}",
+            "crate::child_folders::{ChildFolderRequest, ChildFoldersRequest}",
             "crate::extended_properties::ExtendedPropertiesRequest",
         ],
         ResourceIdentity::Messages => vec![

@@ -55,6 +55,17 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "/threads/",
             ]))]
         },
+        ResourceIdentity::ChildFolders => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                "/move",
+            ]))]
+        },
+        ResourceIdentity::ContactFolders => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+                "childFolders",
+                "contactFolders/{contactFolder-id}/contacts/",
+            ]))]
+        },
         ResourceIdentity::Drives | ResourceIdentity::Drive => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/list/", "versions", "items",
@@ -78,7 +89,9 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
         },
         ResourceIdentity::MailFolders => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
-                "/move", "messages",
+                "/move",
+                "messages",
+                "childFolders",
             ]))]
         },
         ResourceIdentity::Messages => {

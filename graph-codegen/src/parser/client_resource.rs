@@ -141,6 +141,12 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 start_filter: Filter::PathStartsWith("/me/mailFolders"),
                 modifier: "mailFolders".to_string(),
             }),
+            ResourceIdentity::ChildFolders => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith(
+                    "/me/mailFolders/{mailFolder-id}/childFolders",
+                ),
+                modifier: "childFolders".to_string(),
+            }),
             ResourceIdentity::Messages => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/me/messages"),
                 modifier: "messages".to_string(),

@@ -89,6 +89,8 @@ pub mod call_records;
 pub mod calls;
 /// Certificate based auth configuration client.
 pub mod certificate_based_auth_configuration;
+/// Mail folders child folders request client.
+pub mod child_folders;
 /// Communications client.
 pub mod communications;
 /// Contact folders client (me, users, etc.).

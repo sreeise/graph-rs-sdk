@@ -33,6 +33,7 @@ pub enum ResourceIdentity {
     Calls,
     CallRecords,
     CertificateBasedAuthConfiguration,
+    ChildFolders,
     Communications,
     Contacts,
     ContactFolders,
