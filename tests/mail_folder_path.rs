@@ -32,7 +32,6 @@ pub fn list_mail_folder_messages() {
     );
 }
 
-
 #[test]
 pub fn get_mail_folder_messages() {
     let client = Graph::new("");
@@ -47,7 +46,6 @@ pub fn get_mail_folder_messages() {
         &format!("/me/mailFolders/{}/messages/{}", ID_VEC[0], ID_VEC[1]),
     );
 }
-
 
 #[test]
 pub fn update_mail_folder_messages() {

@@ -80,6 +80,7 @@ pub enum ResourceIdentity {
     Onenote,
     OnlineMeetings,
     Outlook,
+    OrgContacts,
     Pages,
     ParentNotebook,
     ParentSection,
