@@ -344,7 +344,14 @@ impl Builder {
                     println!("Client Link Settings: {:#?}\n", client_link_settings);
                 }
 
-                let snake_casing = name.to_snake_case();
+                let mut snake_casing = name.to_snake_case();
+
+                // The path /contacts is not related to me/contacts or users/user-id/contacts
+                // but is really org contacts. The directory contacts is for me and users.
+                if name.eq("contacts") && clients.contains_key("orgContact") {
+                    snake_casing = "org_contact".to_string();
+                }
+
                 let dir = format!("./src/{}", snake_casing);
                 let mod_file = format!("./src/{}/mod.rs", snake_casing);
                 let file = format!("./src/{}/request.rs", snake_casing);

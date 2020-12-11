@@ -153,6 +153,8 @@ pub mod messages;
 pub mod notebooks;
 /// OneNote request client.
 pub mod onenote;
+/// Contacts/Org Contacts request client.
+pub mod org_contact;
 /// Outlook request client.
 pub mod outlook;
 /// Onenote pages request client.
