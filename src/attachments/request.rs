@@ -69,4 +69,11 @@ where
         params: 0,
         has_body: true
     });
+    get!({
+        name: get_content,
+        response: GraphResponse<Content>,
+        path: "/attachments/{{RID}}/$value",
+        params: 0,
+        has_body: false
+    });
 }

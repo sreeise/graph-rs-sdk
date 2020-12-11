@@ -1,3 +1,5 @@
+// GENERATED CODE
+
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
