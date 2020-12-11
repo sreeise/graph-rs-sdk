@@ -130,12 +130,6 @@ impl ParserSettings {
                     MatchTarget::OperationMap("contacts".to_string()),
                 );
             },
-            ResourceIdentity::OrgContacts => {
-                map.insert(
-                    "contacts",
-                    MatchTarget::OperationMap("orgContact".to_string()),
-                );
-            },
             ResourceIdentity::ContentTypes => {
                 map.insert(
                     "sites.contentTypes",

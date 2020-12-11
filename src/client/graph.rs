@@ -18,6 +18,7 @@ use crate::groups::{GroupRequest, GroupsRequest};
 use crate::identity::IdentityRequest;
 use crate::invitations::InvitationsRequest;
 use crate::me::MeRequest;
+use crate::org_contact::{OrgContactRequest, OrgContactsRequest};
 use crate::places::PlacesRequest;
 use crate::planner::PlannerRequest;
 use crate::policies::PoliciesRequest;
@@ -402,6 +403,16 @@ where
     pub fn me(&self) -> MeRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Me);
         MeRequest::new(self.client)
+    }
+
+    pub fn org_contact<S: AsRef<str>>(&self, id: S) -> OrgContactsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::OrgContact);
+        OrgContactsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn org_contacts(&self) -> OrgContactRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::OrgContact);
+        OrgContactRequest::new(self.client)
     }
 
     pub fn places(&self) -> PlacesRequest<'a, Client> {
