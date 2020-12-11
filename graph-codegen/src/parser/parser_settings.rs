@@ -285,6 +285,11 @@ impl ParserSettings {
                 mod_name: "manual_request".to_string(),
                 use_all: true,
             }]),
+            ResourceIdentity::ChildFolders => Some(vec![DirectoryModFile {
+                resource_identity,
+                mod_name: "manual_request".to_string(),
+                use_all: true,
+            }]),
             _ => None,
         }
     }

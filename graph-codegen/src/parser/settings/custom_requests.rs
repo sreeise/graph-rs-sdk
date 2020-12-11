@@ -493,6 +493,20 @@ pub fn get_custom_requests(
                 operation_mapping: "childFolders".into(),
                 doc: None,
             }],
+            ResourceIdentity::Attachments => vec![Request {
+                path: "/attachments/{{RID}}/$value".into(),
+                method: HttpMethod::GET,
+                method_name: "get_content".into(),
+                param_size: 0,
+                has_body: false,
+                request_type: RequestType::Normal,
+                has_rid: true,
+                response: ResponseType::NoContent,
+                tag: "attachments".into(),
+                operation_id: "attachments.GetContent".into(),
+                operation_mapping: "attachments".into(),
+                doc: None,
+            }],
             _ => vec![],
         }
     };

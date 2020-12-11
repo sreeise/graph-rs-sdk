@@ -29,7 +29,7 @@ macro_rules! register_client {
         #[allow(dead_code)]
         pub struct $name<'a, Client> {
             pub(crate) client: &'a Graph<Client>,
-            id: String,
+            pub(crate) id: String,
         }
 
         impl<'a, Client> $name<'a, Client,> where Client: graph_http::RequestClient  {
@@ -109,7 +109,7 @@ macro_rules! register_client {
         #[allow(dead_code)]
         pub struct $name<'a, Client> {
             pub(crate) client: &'a Graph<Client>,
-            id: String,
+            pub(crate) id: String,
         }
 
         impl<'a, Client> $name<'a, Client> where Client: graph_http::RequestClient {
