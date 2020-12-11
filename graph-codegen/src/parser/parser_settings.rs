@@ -130,6 +130,12 @@ impl ParserSettings {
                     MatchTarget::OperationMap("contacts".to_string()),
                 );
             },
+            ResourceIdentity::OrgContacts => {
+                map.insert(
+                    "contacts",
+                    MatchTarget::OperationMap("orgContact".to_string()),
+                );
+            },
             ResourceIdentity::ContentTypes => {
                 map.insert(
                     "sites.contentTypes",
@@ -323,7 +329,9 @@ impl ParserSettings {
                 "contactFolders",
                 "contactFolder",
             )],
-            ResourceIdentity::Contacts => vec![UrlMatchTarget::resource_id("contacts", "contact")],
+            ResourceIdentity::Contacts => {
+                vec![UrlMatchTarget::resource_id("contacts", "contact")]
+            },
             ResourceIdentity::ContentTypes => {
                 vec![UrlMatchTarget::resource_id("contentTypes", "contentType")]
             },

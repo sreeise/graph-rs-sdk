@@ -12,7 +12,8 @@ fn get_drafts_mail_folder() {
     let _lock = THROTTLE_MUTEX.lock().unwrap();
 
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let result = client.v1()
+        let result = client
+            .v1()
             .user(id.as_str())
             .mail_folder("drafts")
             .get_mail_folders()
@@ -23,7 +24,10 @@ fn get_drafts_mail_folder() {
             assert_eq!("Drafts", display_name);
         } else if let Err(e) = result {
             println!("{:#?}", e);
-            panic!("Request error. Method: mail_folder get_mail_folder drafts. Error:\n{:#?}", e);
+            panic!(
+                "Request error. Method: mail_folder get_mail_folder drafts. Error:\n{:#?}",
+                e
+            );
         }
     }
 }

@@ -13,7 +13,6 @@ use reqwest::Method;
 
 register_client!(ContactRequest,);
 register_client!(ContactsRequest, ());
-register_client!(OrgContactRequest,);
 
 impl<'a, Client> ContactRequest<'a, Client>
 where
@@ -23,9 +22,22 @@ where
         self.client.set_ident(ResourceIdentity::Contacts);
         ContactsRequest::new(id.as_ref(), self.client)
     }
-    pub fn org_contact(&self) -> OrgContactRequest<'a, Client> {
-        OrgContactRequest::new(self.client)
-    }
+    get!({
+        doc: "# Get contacts from me",
+        name: list_contacts,
+        response: Collection<serde_json::Value>,
+        path: "/contacts",
+        params: 0,
+        has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to contacts for me",
+        name: create_contacts,
+        response: serde_json::Value,
+        path: "/contacts",
+        params: 0,
+        has_body: true
+    });
     get!({
         doc: "# Invoke function delta",
         name: delta,
@@ -47,93 +59,68 @@ where
         self.client.set_ident(ResourceIdentity::ExtendedProperties);
         ExtendedPropertiesRequest::new(self.client)
     }
-    pub fn org_contact(&self) -> OrgContactRequest<'a, Client> {
-        OrgContactRequest::new(self.client)
-    }
     get!({
-        doc: "# Get directReports from contacts",
-        name: list_direct_reports,
-        response: Collection<serde_json::Value>,
-        path: "/contacts/{{RID}}/directReports",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get directReports from contacts",
-        name: get_direct_reports,
-        response: serde_json::Value,
-        path: "/contacts/{{RID}}/directReports/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    get!({
-        doc: "# Get manager from contacts",
-        name: get_manager,
-        response: serde_json::Value,
-        path: "/contacts/{{RID}}/manager",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get memberOf from contacts",
-        name: list_member_of,
-        response: Collection<serde_json::Value>,
-        path: "/contacts/{{RID}}/memberOf",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get memberOf from contacts",
-        name: get_member_of,
-        response: serde_json::Value,
-        path: "/contacts/{{RID}}/memberOf/{{id}}",
-        params: 1,
-        has_body: false
-    });
-    get!({
-        doc: "# Get transitiveMemberOf from contacts",
-        name: list_transitive_member_of,
-        response: Collection<serde_json::Value>,
-        path: "/contacts/{{RID}}/transitiveMemberOf",
-        params: 0,
-        has_body: false
-    });
-    get!({
-        doc: "# Get transitiveMemberOf from contacts",
-        name: get_transitive_member_of,
-        response: serde_json::Value,
-        path: "/contacts/{{RID}}/transitiveMemberOf/{{id}}",
-        params: 1,
-        has_body: false
-    });
-}
-
-impl<'a, Client> OrgContactRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get entity from contacts by key",
-        name: get_org_contact,
+        doc: "# Get contacts from me",
+        name: get_contacts,
         response: serde_json::Value,
         path: "/contacts/{{RID}}",
         params: 0,
         has_body: false
     });
     patch!({
-        doc: "# Update entity in contacts",
-        name: update_org_contact,
+        doc: "# Update the navigation property contacts in me",
+        name: update_contacts,
         response: GraphResponse<Content>,
         path: "/contacts/{{RID}}",
         params: 0,
         has_body: true
     });
-    delete!({
-        doc: "# Delete entity from contacts",
-        name: delete_org_contact,
-        response: GraphResponse<Content>,
-        path: "/contacts/{{RID}}",
+    get!({
+        doc: "# Get extensions from me",
+        name: list_extensions,
+        response: Collection<serde_json::Value>,
+        path: "/contacts/{{RID}}/extensions",
         params: 0,
         has_body: false
+    });
+    post!({
+        doc: "# Create new navigation property to extensions for me",
+        name: create_extensions,
+        response: serde_json::Value,
+        path: "/contacts/{{RID}}/extensions",
+        params: 0,
+        has_body: true
+    });
+    get!({
+        doc: "# Get extensions from me",
+        name: get_extensions,
+        response: serde_json::Value,
+        path: "/contacts/{{RID}}/extensions/{{id}}",
+        params: 1,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property extensions in me",
+        name: update_extensions,
+        response: GraphResponse<Content>,
+        path: "/contacts/{{RID}}/extensions/{{id}}",
+        params: 1,
+        has_body: true
+    });
+    get!({
+        doc: "# Get photo from me",
+        name: get_photo,
+        response: serde_json::Value,
+        path: "/contacts/{{RID}}/photo",
+        params: 0,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property photo in me",
+        name: update_photo,
+        response: GraphResponse<Content>,
+        path: "/contacts/{{RID}}/photo",
+        params: 0,
+        has_body: true
     });
 }

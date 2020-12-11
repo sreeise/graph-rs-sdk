@@ -76,7 +76,8 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 start_filter: Filter::PathStartsWith("/me/contactFolders"),
                 modifier: "contactFolders".to_string(),
             }),
-            ResourceIdentity::Contacts => Ok(ClientResource::Main {
+            ResourceIdentity::Contacts => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/contacts"),
                 modifier: "contacts".to_string(),
             }),
             ResourceIdentity::ContentTypes => Ok(ClientResource::Secondary {
