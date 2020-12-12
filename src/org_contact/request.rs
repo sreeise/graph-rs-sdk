@@ -1,8 +1,6 @@
 // NOT GENERATED CODE
 
 use crate::client::Graph;
-use crate::core::ResourceIdentity;
-use crate::extended_properties::ExtendedPropertiesRequest;
 use graph_http::types::Collection;
 use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;

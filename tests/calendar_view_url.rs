@@ -100,7 +100,8 @@ fn calendar_group_calendar_view() {
         .calendar_group(ID_VEC[0].as_str())
         .calendar(ID_VEC[1].as_str())
         .calendar_view(ID_VEC[2].as_str())
-        .get_attachments(ID_VEC[3].as_str());
+        .attachment(ID_VEC[3].as_str())
+        .get_attachments();
     assert_url_eq(
         &client,
         &format!(
