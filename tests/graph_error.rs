@@ -32,7 +32,6 @@ fn test_graph_error(err: GraphFailure, expect: GraphError) {
         GraphFailure::HyperError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::HyperHttpError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::HyperInvalidUri(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::FromAsFileError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::Parse(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::GraphRsError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::CryptoError => panic!("Expected GraphFailure::GraphError, got CryptoError"),

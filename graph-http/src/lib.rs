@@ -2,8 +2,6 @@ extern crate reqwest;
 pub extern crate serde;
 #[macro_use]
 pub extern crate serde_derive;
-extern crate log;
-extern crate pretty_env_logger;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 

@@ -1,12 +1,11 @@
 [package]
 name = "graph-http"
 version = "0.0.1"
-authors = ["sreeise <reeisesean@gmail.com>"]
+authors = ["sreeise"]
 edition = "2018"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs"
-description = "Microsoft Graph Api Client"
-publish = false
+description = "Http client and utilities for the graph-rs project"
 
 [dependencies]
 url = { version = "2.1.1", features = ["serde"] }
@@ -26,5 +25,3 @@ futures = "0.3.5"
 graph-error = "0.0.1"
 graph-core = "0.0.1"
 bytes = "0.5.6"
-pretty_env_logger = "0.3"
-log = "0.4"

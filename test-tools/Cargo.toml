@@ -10,8 +10,6 @@ publish = false
 
 [dependencies]
 url = "2.1.1"
-graph-rs = { path = "../" }
-graph-error = { path = "../graph-error" }
 rand = "0.6.5"
 from_as = { version = "0.1.0", git = "https://github.com/sreeise/from_as" }
 serde = "1.0.101"
@@ -21,4 +19,8 @@ toml = "0.5"
 lazy_static = "1.4.0"
 tokio = { version = "0.2", features = ["full"] }
 futures = "0.3.5"
-graph-http = { version = "0.0.1", path = "../graph-http" }
+# graph-http = { version = "0.0.1", path = "../graph-http" }
+# graph-error = { path = "../graph-error" }
+graph-rs = { path = "../" }
+graph-http = "0.0.1"
+graph-error = "0.0.1"
