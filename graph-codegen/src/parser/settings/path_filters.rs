@@ -169,6 +169,11 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "/tasks/",
             ]))]
         },
+        ResourceIdentity::Planner => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
+            "plans/{plannerPlan-id}/",
+            "buckets/{plannerBucket-id}/",
+            "tasks/{plannerTask-id}/",
+        ]))],
         ResourceIdentity::Posts => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/attachments/",

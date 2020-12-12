@@ -8,7 +8,7 @@ macro_rules! register_client {
         }
 
         impl<'a, Client> $name<'a, Client> where Client: graph_http::RequestClient {
-            pub fn new(client: &'a Graph<Client>) -> $name<'a, Client> {
+            pub(crate) fn new(client: &'a Graph<Client>) -> $name<'a, Client> {
 
                 $(
                     client.request().registry(|r| {
@@ -33,7 +33,7 @@ macro_rules! register_client {
         }
 
         impl<'a, Client> $name<'a, Client,> where Client: graph_http::RequestClient  {
-            pub fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
+            pub(crate) fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
                 let id_stored = id.to_string();
                 $(
                     client.request().registry(|r| {
@@ -72,7 +72,7 @@ macro_rules! register_client {
         }
 
         impl<'a, Client> $name<'a, Client> where Client: graph_http::RequestClient {
-            pub fn new(client: &'a Graph<Client>) -> $name<'a, Client> {
+            pub(crate) fn new(client: &'a Graph<Client>) -> $name<'a, Client> {
                 let ident = client.ident();
                 $(
                     client.request().registry(|r| {
@@ -113,7 +113,7 @@ macro_rules! register_client {
         }
 
         impl<'a, Client> $name<'a, Client> where Client: graph_http::RequestClient {
-            pub fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
+            pub(crate) fn new(id: &str, client: &'a Graph<Client>) -> $name<'a, Client> {
                 let ident = client.ident();
                 let id_stored = id.to_string();
                 $(

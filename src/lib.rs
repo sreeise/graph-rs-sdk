@@ -1,49 +1,107 @@
+//! ### Microsoft Graph API Client in Rust
 //! graph-rs is an API client for Microsoft Graph V1.0 and Graph Beta.
 //!
-//! - For more information and examples please see the repository on
+//! Installation and basic usage can be found below and there are extensive examples in the example's directory
+//! on GitHub](https://github.com/sreeise/graph-rs).
+//!
+//! ### What Api's are available
+//!
+//! The Api's available are generated from Microsoft's msgraph-metadata repository which stores OpenApi configs for the
+//! Graph Api. There may be some requests and/or Api's not yet included in this project but in general most of them are
+//! implemented.
+//!
+//! ### Feature requests or Bug reports.
+//!
+//! For both feature requests and bug reports please file an issue on
 //! [GitHub](https://github.com/sreeise/graph-rs)
-//! - If you run into issues related to graph-rs specifically please
-//! file an issue on [GitHub](https://github.com/sreeise/graph-rs)
+//! and a response or fix will be done as soon as possible.
+//!
+//! ### Use
+//!
+//! The client supports both blocking and async requests.
+//!
+//! ### Blocking Client
+//!
+//! To use the blocking client
+//!```rust
+//! use graph_rs::prelude::*;
+//!
+//! let client =  Graph::new("ACCESS_TOKEN");
+//!```
+//!
+//! ### Async Client
+//!
+//! To use the async client
+//!```rust
+//! use graph_rs::prelude::*;
+//!
+//! let client =  Graph::new_async("ACCESS_TOKEN");
+//!```
+//!
+//! #### The send method and Graph types
+//! The send() method is the main method for sending a request. The return value will be wrapped
+//! in a response object and the body will be one of:
+//!
+//! 1. serde_json::Value
+//!
+//! 2. Collection<serde_json::Value>
+//!
+//! 3. Content (204 responses that return a content field)
 //!
 //! # Basic Use:
 //! ```rust,ignore
 //! use graph_rs::prelude::*;
 //!
-//! let client = Graph::new("ACCESS_TOKEN");
+//! let client =  Graph::new("ACCESS_TOKEN");
 //!
-//! // Use the V1.0 endpoint:
 //! let response = client.v1()
 //!     .me()
 //!     .drive()
-//!     .root_children()
-//!     .send()?;
-//! println!("{:#?}", response.body());
-//!
-//! // Use the Graph beta endpoint.
-//! let response = client.beta()
-//!     .me()
-//!     .drive()
 //!     .get_drive()
-//!     .send()?;
+//!     .send()
+//!     .unwrap();
+//!
+//! // Print the value returned in the body of the response
 //! println!("{:#?}", response.body());
 //! ```
 //!
 //! # Using the Async Client
+//!
 //! ```rust,ignore
 //! use graph_rs::prelude::*;
 //!
 //! let client =  Graph::new_async("ACCESS_TOKEN");
 //!
-//! // Returns GraphResponse<Collection<serde_json::Value>>
-//! let response = client
-//!     .v1()
-//!     .drives("{drive-id}")
-//!     .root()?;
+//! let response = client.v1()
+//!     .me()
+//!     .drive()
+//!     .get_drive()
+//!     .send()
+//!     .await
+//!     .unwrap();
 //!
-// println!("{:#?}", response.body());
-//!
+//! println!("{:#?}", response);
 //! ```
 //!
+//! ### Use the Graph version one or beta Api
+//! v1() refers to the endpoint for version 1 of the Microsoft graph Api. You can also
+//! use the beta() method which uses the Microsoft graph beta Api endpoint.
+//!
+//! ```rust,ignore
+//! use graph_rs::prelude::*;
+//!
+//! let client =  Graph::new_async("ACCESS_TOKEN");
+//!
+//! let _response = client.beta()
+//!     .me()
+//!     .get_user()
+//!     .send()?;
+//! ```
+//!
+//! - For more information and examples please see the repository on
+//! [GitHub](https://github.com/sreeise/graph-rs)
+//! - If you run into issues related to graph-rs specifically please
+//! file an issue on [GitHub](https://github.com/sreeise/graph-rs)
 
 #![feature(type_alias_impl_trait)]
 #![feature(async_closure)]
@@ -127,9 +185,9 @@ pub mod group_lifecycle_policies;
 pub mod groups;
 /// Identity request client.
 pub mod identity;
-// Inference classification client (me, users, etc.).
+/// Inference classification client (me, users, etc.).
 pub mod inference_classification;
-// Insights client (me, users, etc.).
+/// Insights client (me, users, etc.).
 pub mod insights;
 /// Instances request client (events and calendarView).
 pub mod instances;
@@ -228,6 +286,7 @@ pub mod header {
     pub use reqwest::header::*;
 }
 
+/// Types used across multiple crates.
 pub mod core {
     pub use graph_core::resource::*;
 }
