@@ -34,9 +34,7 @@ reqwest = { version = "0.10", features = ["json", "blocking", "stream"] }
 strum_macros = "0.14.0"
 strum = "0.14.0"
 rayon = "1.0.3"
-log = "0.4"
 base64 = "0.10.1"
-pretty_env_logger = "0.3"
 handlebars = "2.0.2"
 graph-oauth = { path = "./graph-oauth" }
 graph-error = { path = "./graph-error" }
