@@ -5,6 +5,8 @@ authors = ["sreeise"]
 edition = "2018"
 readme = "README.md"
 license = "MIT"
+repository = "https://github.com/sreeise/graph-rs"
+description = "Microsoft Graph Api Client"
 
 exclude = [
     "test_files/*",

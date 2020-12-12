@@ -28,7 +28,6 @@ To use the blocking client
 
     let client =  Graph::new("ACCESS_TOKEN");
 
-
 ### Async Client
 
 To use the async client
