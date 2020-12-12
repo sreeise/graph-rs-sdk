@@ -1,7 +1,6 @@
 use crate::error::GraphError;
 use crate::internal::GraphRsError;
 use crate::GraphResult;
-use from_as::FromAsError;
 use handlebars::{RenderError, TemplateRenderError};
 use std::cell::BorrowMutError;
 use std::convert::TryFrom;
@@ -38,7 +37,6 @@ pub enum GraphFailure {
     HyperError(hyper::Error),
     HyperHttpError(hyper::http::Error),
     HyperInvalidUri(hyper::http::uri::InvalidUri),
-    FromAsFileError(FromAsError),
     GraphRsError(GraphRsError),
     HandlebarsRenderError(handlebars::RenderError),
     HandlebarsTemplateRenderError(handlebars::TemplateRenderError),
@@ -109,7 +107,6 @@ impl fmt::Display for GraphFailure {
             GraphFailure::HyperError(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
             GraphFailure::HyperHttpError(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
             GraphFailure::HyperInvalidUri(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
-            GraphFailure::FromAsFileError(ref err) => write!(f, "File error:\n{:#?}", err),
             GraphFailure::GraphRsError(ref err) => write!(f, "Internal error:\n{:#?}", err),
             GraphFailure::HandlebarsRenderError(ref err) => {
                 write!(f, "Handlebars render error:\n{:#?}", err)
@@ -141,7 +138,6 @@ impl error::Error for GraphFailure {
             GraphFailure::HyperError(ref err) => Some(err),
             GraphFailure::HyperHttpError(ref err) => Some(err),
             GraphFailure::HyperInvalidUri(ref err) => Some(err),
-            GraphFailure::FromAsFileError(ref err) => Some(err),
             GraphFailure::GraphRsError(ref err) => Some(err),
             GraphFailure::HandlebarsRenderError(ref err) => Some(err),
             GraphFailure::HandlebarsTemplateRenderError(ref err) => Some(err),
@@ -249,12 +245,6 @@ impl From<hyper::http::Error> for GraphFailure {
 impl From<hyper::http::uri::InvalidUri> for GraphFailure {
     fn from(err: hyper::http::uri::InvalidUri) -> Self {
         GraphFailure::HyperInvalidUri(err)
-    }
-}
-
-impl From<FromAsError> for GraphFailure {
-    fn from(err: FromAsError) -> Self {
-        GraphFailure::FromAsFileError(err)
     }
 }
 
