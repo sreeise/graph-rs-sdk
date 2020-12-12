@@ -51,8 +51,6 @@
 extern crate graph_error;
 extern crate graph_oauth;
 extern crate handlebars;
-extern crate log;
-extern crate pretty_env_logger;
 extern crate reqwest;
 pub extern crate serde;
 pub extern crate serde_json;
