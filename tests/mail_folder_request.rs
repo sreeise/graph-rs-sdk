@@ -1,5 +1,3 @@
-use std::thread;
-use std::time::Duration;
 use test_tools::oauthrequest::THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 
