@@ -75,6 +75,13 @@ where
         params: 0,
         has_body: true
     });
+    delete!({
+        name: delete_contacts,
+        response: GraphResponse<Content>,
+        path: "/contacts/{{RID}}",
+        params: 0,
+        has_body: false
+    });
     get!({
         doc: "# Get extensions from me",
         name: list_extensions,

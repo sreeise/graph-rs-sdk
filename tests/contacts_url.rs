@@ -1,89 +1,60 @@
-// TODO: contacts
+#[macro_use]
+extern crate lazy_static;
 
-/*
-use graph_rs::client::Graph;
+use graph_rs::prelude::*;
+use test_tools::assert_url_eq;
+use test_tools::common::TestTools;
 
-static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";
+lazy_static! {
+    static ref ID_VEC: Vec<String> = TestTools::random_strings(4, 20);
+}
 
 #[test]
-fn contacts() {
+fn list_contacts() {
     let client = Graph::new("");
+    let _ = client.v1().me().contacts().list_contacts();
+    assert_url_eq(&client, "/me/contacts");
+}
 
-    let _ = client.v1().me().contacts().list();
-    client.url_ref(|url| {
-        assert_eq!(
-            "https://graph.microsoft.com/v1.0/me/contacts",
-            url.to_string()
-        );
-    });
-    let _ = client.v1().me().contacts().get(ID);
-    client.url_ref(|url|  {assert_eq!("https://graph.microsoft.com/v1.0/me/contacts/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI", url.to_string());});
+#[test]
+fn get_contacts() {
+    let client = Graph::new("");
+    let _ = client.v1().me().contact(ID_VEC[0].as_str()).get_contacts();
+    assert_url_eq(&client, &format!("/me/contacts/{}", ID_VEC[0]));
+}
+
+#[test]
+fn contacts_delta() {
+    let client = Graph::new("");
     let _ = client.v1().me().contacts().delta();
-    client.url_ref(|url| {
-        assert_eq!(
-            "https://graph.microsoft.com/v1.0/me/contacts/delta",
-            url.to_string()
-        );
-    });
-    let _ = client.v1().me().contacts().create(&serde_json::json!({}));
-    client.url_ref(|url| {
-        assert_eq!(
-            "https://graph.microsoft.com/v1.0/me/contacts",
-            url.to_string()
-        );
-    });
-    let _ = client
-        .v1()
-        .me()
-        .contacts()
-        .update(ID, &serde_json::json!({}));
-    client.url_ref(|url|  {assert_eq!("https://graph.microsoft.com/v1.0/me/contacts/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI", url.to_string());});
-    let _ = client.v1().me().contacts().delete(ID);
-    client.url_ref(|url|  {assert_eq!("https://graph.microsoft.com/v1.0/me/contacts/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI", url.to_string());});
+    assert_url_eq(&client, "/me/contacts/delta()");
 }
 
 #[test]
-fn contacts_folder() {
+fn create_contacts() {
+    let client = Graph::new("");
+    let _ = client.v1().me().contacts().create_contacts(&String::new());
+    assert_url_eq(&client, "/me/contacts");
+}
+
+#[test]
+fn update_contacts() {
     let client = Graph::new("");
     let _ = client
         .v1()
         .me()
-        .contacts()
-        .contacts_folder()
-        .contacts()
-        .list(ID);
-    client.url_ref(|url|  {assert_eq!("https://graph.microsoft.com/v1.0/me/contactfolders/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/contacts", url.to_string());});
-    let _ = client
-        .v1()
-        .me()
-        .contacts()
-        .contacts_folder()
-        .list_child_folders(ID);
-    client.url_ref(|url|  {assert_eq!("https://graph.microsoft.com/v1.0/me/contactfolders/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/childFolders", url.to_string());});
-    let _ = client.v1().me().contacts().contacts_folder().get(ID);
-    client.url_ref(|url|  {assert_eq!("https://graph.microsoft.com/v1.0/me/contactfolders/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI", url.to_string());});
-    let _ = client.v1().me().contacts().contacts_folder().delta();
-    client.url_ref(|url| {
-        assert_eq!(
-            "https://graph.microsoft.com/v1.0/me/contactfolders/delta",
-            url.to_string()
-        );
-    });
-    let _ = client
-        .v1()
-        .me()
-        .contacts()
-        .contacts_folder()
-        .contacts()
-        .create(ID, &serde_json::json!({}));
-    client.url_ref(|url|  {assert_eq!("https://graph.microsoft.com/v1.0/me/contactfolders/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI", url.to_string());});
-    let _ = client
-        .v1()
-        .me()
-        .contacts()
-        .contacts_folder()
-        .update(ID, &serde_json::json!({}));
-    client.url_ref(|url|  {assert_eq!("https://graph.microsoft.com/v1.0/me/contactfolders/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI", url.to_string());});
+        .contact(ID_VEC[0].as_str())
+        .update_contacts(&String::new());
+    assert_url_eq(&client, &format!("/me/contacts/{}", ID_VEC[0]));
 }
 
- */
+#[test]
+fn delete_contacts() {
+    let client = Graph::new("");
+    let _ = client
+        .v1()
+        .me()
+        .contact(ID_VEC[0].as_str())
+        .delete_contacts();
+    assert_url_eq(&client, &format!("/me/contacts/{}", ID_VEC[0]));
+}

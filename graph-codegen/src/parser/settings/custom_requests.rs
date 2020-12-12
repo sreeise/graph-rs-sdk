@@ -507,6 +507,20 @@ pub fn get_custom_requests(
                 operation_mapping: "attachments".into(),
                 doc: None,
             }],
+            ResourceIdentity::Contacts => vec![Request {
+                path: "/contacts/{{RID}}".into(),
+                method: HttpMethod::DELETE,
+                method_name: "delete_contacts".into(),
+                param_size: 0,
+                has_body: false,
+                request_type: RequestType::Normal,
+                has_rid: true,
+                response: ResponseType::NoContent,
+                tag: "contacts".into(),
+                operation_id: "contacts.DeleteContacts".into(),
+                operation_mapping: "contacts".into(),
+                doc: None,
+            }],
             _ => vec![],
         }
     };
