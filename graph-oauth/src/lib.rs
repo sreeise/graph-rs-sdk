@@ -1,15 +1,10 @@
-//! # OAuth
-//! An authorization and access token API implementing the OAuth 2.0 authorization
-//! framework. This version is specifically meant for the OneDrive API V1.0
-//! and the Graph beta API.
+//! OAuth client for the graph-rs project.
 //!
-//! Requires knowing the OAuth grant that is being used
-//! to request authorization and access tokens. This is to ensure that
-//! the credentials used in requests include only information that is
-//! required or optional for that specific grant and not any other. Even
-//! if you accidently pass a value, such as a nonce, for a grant type
-//! that does not use it, any request that is made will not include the
-//! nonce regardless.
+//! See the project on [GitHub](https://github.com/sreeise/graph-rs).
+//!
+//! # OAuth
+//! An authorization and access token client for Microsoft Graph and the OAuth 2.0 authorization
+//! framework. This project is specifically meant to be used for the Microsoft Graph Api.
 //!
 //! # Disclaimer
 //! Using this API for other resource owners besides Microsoft may work but
