@@ -3,41 +3,22 @@
 [![Build Status](https://travis-ci.org/sreeise/graph-rs.svg?branch=master)](https://travis-ci.org/sreeise/graph-rs)
 [![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
 
-### Graph API Client in Rust
+### Microsoft Graph API Client in Rust
 
-There are several parts to this project:
+Installation and basic usage can be found below and there are extensive examples in the example's directory.
 
-graph-oauth: OAuth client for getting access/refresh tokens from the Graph api.
+### What Api's are available
 
-graph-error: Errors that come back from the Graph api.
+The Api's available are generated from Microsoft's msgraph-metadata repository which stores OpenApi configs for the 
+Graph Api. There may be some requests and/or Api's not yet included in this project but in general most of them are
+implemented.
 
-graph-rs(src directory): The Graph client for interacting with the Graph api. The oauth client is also reexported from here.
+### Feature requests or Bug reports.
 
-There are many api's already implemented including activities, attachments, calendar, contacts, drive, education, groups, mail, onenote, planner, and users.
-See upcoming changes below for what will be added in the future.
+For both feature requests and bug reports please file an issue on GitHub
+and I will try to get back with a response or fix as soon as I can.
 
-Installation and basic usage can be found below and there are extensive examples in the examples directory.
-
-### Upcoming Changes
-
-This repository is still in development and will change considerably. There are several implementations of Graph api's that need to be added. I am also getting the project ready for a release on crates.io but I don't want to release something that is 1. Not maintainable long term and 2. Not fully implemented. 
-
-I am attempting to maintain backwards compatibility for those who already use this repository as well. I will post an update if that ends up not being possible. To be clear, the way in which the Graph client and the already implemented api's are used will not change. The major changes coming up are adding functionality not changing it.
-
-To make development easier and to provide a maintainable library, work is currently being done for parsing open api configs for the Graph Api. After this work is completed any new api's added or removed will be based on these configurations. Also after the work is done, I will look into adding a first version to crates.io.
- 
-### Install and Build - Requires Rust nightly
-
-Normal Rust build using cargo. The nightly version is set in the rust-toolchain file.
-
-    $ cargo build
-
-### Tests and Docs
-Of the portions that are implemented there are also examples and docs. Run: 
-
-    $ cargo doc --no-deps --open
-
-### Use - subject to change.
+### Use
 
 The client supports both blocking and async requests.
 
@@ -462,3 +443,36 @@ loop {
     }
 }
 ```   
+
+## For those interested in the code itself
+
+### Build - Requires Rust nightly
+
+Normal Rust build using cargo. The nightly version is set in the rust-toolchain file.
+
+    $ cargo build
+
+### Docs
+Of the portions that are implemented there are also examples and docs. Run:
+
+    $ cargo doc --no-deps --open
+
+There are several parts to this project:
+
+* graph-oauth: OAuth client for getting access/refresh tokens from the Graph api.
+* graph-error: Errors that come back from the Graph Api.
+* graph-codegen: OpenApi parser and generator specifically for the Graph Api's.
+* graph-core: Common types shared across all or multiple parts of the project
+* test-tools: Helps facilitate project testing.  
+* graph-rs (src directory): The Graph client for interacting with the Graph Api
+  including the Api's generated from the OpenApi config. The oauth client is also 
+  reexported from here.
+  
+### Testing
+
+The project does validation testing for the Graph Api's using a developer sandbox to ensure the implementation
+provided here works correctly. However, the total amount of individual requests that can be called and that is provided in this 
+project is well into the hundreds, and some areas are lacking in coverage. The goal is to cover the main parts of each
+Api.
+
+Tests are run on Ubuntu Linux and Windows 10 instances.
