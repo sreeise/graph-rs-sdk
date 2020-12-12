@@ -106,6 +106,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(async_closure)]
 
+extern crate graph_core;
 extern crate graph_error;
 extern crate graph_oauth;
 extern crate handlebars;
