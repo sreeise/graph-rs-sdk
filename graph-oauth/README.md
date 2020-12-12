@@ -1,6 +1,8 @@
 # graph-oauth
 
-OAuth2 for graph-rs.
+OAuth2 for the graph-rs project.
+
+See the project on [GitHub](https://github.com/sreeise/graph-rs).
 
 ### Authorization Flows and Microsoft Graph
 
@@ -21,7 +23,7 @@ Using authorization flows:
     let mut request = oauth.build().authorization_code_grant();
     let access_token = request.access_token().send().unwrap();
 
-For a better understanding see the examples directory.
+For a better understanding see the example's directory.
 
 For more information on Microsoft graph and OAuth 2.0 authorization flows see:
 https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-app-types
