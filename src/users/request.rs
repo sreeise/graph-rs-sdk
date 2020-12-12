@@ -18,6 +18,7 @@ use crate::managed_devices::{ManagedDeviceRequest, ManagedDevicesRequest};
 use crate::messages::{MessageRequest, MessagesRequest};
 use crate::onenote::OnenoteRequest;
 use crate::outlook::OutlookRequest;
+use crate::planner::PlannerRequest;
 use crate::settings::SettingsRequest;
 use graph_http::types::Collection;
 use graph_http::types::Content;
@@ -251,6 +252,13 @@ where
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::Outlook);
         OutlookRequest::new(self.client)
+    }
+    pub fn planner(&self) -> PlannerRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Planner);
+        PlannerRequest::new(self.client)
     }
     pub fn settings(&self) -> SettingsRequest<'a, Client> {
         self.client

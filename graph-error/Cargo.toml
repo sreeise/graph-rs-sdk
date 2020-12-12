@@ -3,6 +3,10 @@ name = "graph-error"
 version = "0.1.0"
 authors = ["sreeise"]
 edition = "2018"
+license = "MIT"
+repository = "https://github.com/sreeise/graph-rs"
+description = "Microsoft Graph Api Client"
+publish = false
 
 [dependencies]
 reqwest = { version = "0.10", features = ["json", "blocking"] }

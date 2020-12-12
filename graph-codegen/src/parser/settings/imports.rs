@@ -101,6 +101,12 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "graph_http::{BlockingDownload, AsyncDownload, BlockingHttpClient, AsyncHttpClient, RequestClient}",
             "std::path::Path",
         ],
+        ResourceIdentity::Planner => vec![
+            "crate::core::ResourceIdentity",
+            "crate::plans::{PlanRequest, PlansRequest}",
+            "crate::buckets::{BucketRequest, BucketsRequest}",
+            "crate::tasks::{TaskRequest, TasksRequest}",
+        ],
         ResourceIdentity::Notebooks => vec![
             "crate::core::ResourceIdentity",
             "crate::sections::SectionsRequest",
@@ -175,7 +181,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::onenote::OnenoteRequest",
             "crate::core::ResourceIdentity",
             "crate::contacts::{ContactRequest, ContactsRequest}",
-
+            "crate::planner::PlannerRequest",
         ],
         ResourceIdentity::Sessions => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::Users => vec![
@@ -197,6 +203,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::onenote::OnenoteRequest",
             "crate::core::ResourceIdentity",
             "crate::contacts::{ContactRequest, ContactsRequest}",
+            "crate::planner::PlannerRequest",
         ],
         ResourceIdentity::Groups => vec![
             "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",

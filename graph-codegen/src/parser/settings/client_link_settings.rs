@@ -813,6 +813,52 @@ pub fn get_client_link_settings(
             set.extend(vec![settings, settings2, settings3, settings4]);
             map.insert("communications".to_string(), set);
         },
+        ResourceIdentity::Planner => {
+            let mut settings = ClientLinkSettings::new("plans");
+            settings
+                .use_method_name("plan")
+                .with_id_param()
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings2 = ClientLinkSettings::new("plan");
+            settings2
+                .use_method_name("plans")
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings3 = ClientLinkSettings::new("buckets");
+            settings3
+                .use_method_name("bucket")
+                .with_id_param()
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings4 = ClientLinkSettings::new("bucket");
+            settings4
+                .use_method_name("buckets")
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings5 = ClientLinkSettings::new("tasks");
+            settings5
+                .use_method_name("task")
+                .with_id_param()
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut settings6 = ClientLinkSettings::new("task");
+            settings6
+                .use_method_name("tasks")
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
+            let mut set = BTreeSet::new();
+            set.extend(vec![
+                settings, settings2, settings3, settings4, settings5, settings6,
+            ]);
+            map.insert("planner".to_string(), set);
+        },
         ResourceIdentity::Me => {
             let mut settings = ClientLinkSettings::new("calendarGroups");
             settings
@@ -969,12 +1015,17 @@ pub fn get_client_link_settings(
                 .with_extend_path_ident()
                 .with_set_resource_identity();
 
+            let mut settings27 = ClientLinkSettings::new("planner");
+            settings27
+                .with_extend_path_ident()
+                .with_set_resource_identity();
+
             let mut set = BTreeSet::new();
             set.extend(vec![
                 settings, settings2, settings3, settings4, settings5, settings6, settings7,
                 settings8, settings9, settings10, settings11, settings12, settings13, settings14,
                 settings15, settings16, settings17, settings18, settings19, settings20, settings21,
-                settings22, settings23, settings24, settings25, settings26,
+                settings22, settings23, settings24, settings25, settings26, settings27,
             ]);
             map.insert("me".to_string(), set);
         },
@@ -1320,12 +1371,18 @@ pub fn get_client_link_settings(
                 .with_extend_path_id()
                 .with_set_resource_identity();
 
+            let mut settings26 = ClientLinkSettings::new("planner");
+            settings26
+                .with_extend_path_ident()
+                .with_extend_path_id()
+                .with_set_resource_identity();
+
             let mut set = BTreeSet::new();
             set.extend(vec![
                 settings, settings2, settings3, settings4, settings5, settings6, settings7,
                 settings8, settings9, settings10, settings11, settings12, settings13, settings14,
                 settings15, settings16, settings17, settings18, settings19, settings20, settings21,
-                settings22, settings23, settings24, settings25,
+                settings22, settings23, settings24, settings25, settings26,
             ]);
             map.insert("users".to_string(), set);
 
