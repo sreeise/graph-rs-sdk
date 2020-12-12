@@ -3,6 +3,11 @@ name = "graph-core"
 version = "0.1.0"
 authors = ["sreeise"]
 edition = "2018"
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/sreeise/graph-rs"
+description = "Microsoft Graph Api Client"
+publish = false
 
 [dependencies]
 strum = { version = "0.19", features = ["derive"] }

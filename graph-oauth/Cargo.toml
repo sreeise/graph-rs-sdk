@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["sreeise"]
 edition = "2018"
 license = "MIT"
+repository = "https://github.com/sreeise/graph-rs"
+description = "Microsoft Graph Api Client"
+publish = false
 
 [dependencies]
 url = "1.7.2"
