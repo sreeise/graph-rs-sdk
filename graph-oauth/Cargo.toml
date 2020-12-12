@@ -1,6 +1,6 @@
 [package]
 name = "graph-oauth"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["sreeise"]
 edition = "2018"
 license = "MIT"
@@ -22,6 +22,6 @@ strum = "0.14.0"
 webbrowser = "0.4.0"
 chrono-humanize = "0.0.11"
 chrono = { version = "0.4.6", features = ["serde"] }
-graph-error = { path = "../graph-error" }
-from_as = { git = "https://github.com/sreeise/from_as" }
+graph-error = { version = "0.0.1", path = "../graph-error" }
+from_as = { git = "https://github.com/sreeise/from_as", version = "0.1.0" }
 ring = "0.16.15"

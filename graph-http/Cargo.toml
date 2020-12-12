@@ -1,6 +1,6 @@
 [package]
 name = "graph-http"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["sreeise <reeisesean@gmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -21,8 +21,9 @@ tokio = { version = "0.2.21", features = ["full"] }
 async-std = "1.6.0"
 async-trait = "0.1.35"
 futures = "0.3.5"
-graph-error = { path = "../graph-error" }
-graph-core = { path = "../graph-core" }
+graph-error = { version = "0.0.1", path = "../graph-error" }
+# graph-core = { version = "0.0.1", path = "../graph-core" }
+graph-core = "0.0.1"
 bytes = "0.5.6"
 pretty_env_logger = "0.3"
 log = "0.4"

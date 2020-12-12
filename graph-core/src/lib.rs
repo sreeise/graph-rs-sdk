@@ -1,3 +1,6 @@
+//! # Common types for the graph-rs project.
+//! See the project on [GitHub](https://github.com/sreeise/graph-rs).
+
 #[macro_use]
 pub extern crate strum;
 #[macro_use]
