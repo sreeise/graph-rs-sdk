@@ -4,8 +4,6 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 static MESSAGE_ID: &str = "MESSAGE_ID";
 
-static MAIL_FOLDER_ID: &str = "MAIL_FOLDER_ID_OR_WELL_KNOWN_FOLDER";
-
 static ATTACHMENT_ID: &str = "ATTACHMENT_ID";
 
 fn main() {

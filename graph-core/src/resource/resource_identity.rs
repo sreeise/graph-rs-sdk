@@ -80,7 +80,6 @@ pub enum ResourceIdentity {
     Onenote,
     OnlineMeetings,
     Outlook,
-    #[strum(serialize = "contacts")]
     OrgContact,
     Pages,
     ParentNotebook,
