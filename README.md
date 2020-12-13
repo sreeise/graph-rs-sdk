@@ -5,18 +5,19 @@
 
 ### Microsoft Graph API Client in Rust
 
-Installation and basic usage can be found below and there are extensive examples in the example's directory.
+Installation and basic usage can be found below and there are extensive examples in the example's directory
+included in the project on [GitHub](https://github.com/sreeise/graph-rs).
 
 ### What Api's are available
 
-The Api's available are generated from Microsoft's msgraph-metadata repository which stores OpenApi configs for the 
-Graph Api. There may be some requests and/or Api's not yet included in this project but in general most of them are
-implemented.
+The Api's available are generated from OpenApi configs that are stored in Microsoft's msgraph-metadata repository
+for the Graph Api. There may be some requests and/or Api's not yet included in this project that are in the OpenApi
+config but in general most of them are implemented.
 
 ### Feature requests or Bug reports.
 
 For both feature requests and bug reports please file an issue on GitHub
-and I will try to get back with a response or fix as soon as I can.
+and a response or fix will be given as soon as possible.
 
 ### Use
 
@@ -130,6 +131,15 @@ let response = client.v1()
     .get_items("ITEM_ID")
     .send()?;
     
+println!("{:#?}", response);
+
+// Using users.
+let response = client.v1()
+    .users("USER_ID")
+    .drive()
+    .get_items("ITEM_ID")
+    .send()?;
+
 println!("{:#?}", response);
 
 // Using sites.
@@ -475,3 +485,10 @@ project is well into the hundreds, and some areas are lacking in coverage. The g
 Api.
 
 Tests are run on Ubuntu Linux and Windows 10 instances.
+
+### graph-rs versions before 12/13/2020
+
+The graph-rs project is now published on crates.io and that is the recommended version to use.
+Because of the many changes that came with publishing, if you still need to migrate or would like 
+to use the previous version then you can use the v2master branch which is still the same as the 
+master branch before it was published as a crate.
