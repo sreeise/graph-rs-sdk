@@ -7,6 +7,8 @@
 
     graph-rs-sdk = "0.0.1"
 
+Requires Rust nightly.
+
 ### Microsoft Graph API Client in Rust
 
 Installation and basic usage can be found below and there are extensive examples in the example's directory
