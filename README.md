@@ -1,6 +1,6 @@
 # graph-rs
 
-[![Build Status](https://travis-ci.org/sreeise/graph-rs.svg?branch=master)](https://travis-ci.org/sreeise/graph-rs)
+[![Build Status](https://travis-ci.com/sreeise/graph-rs.svg?branch=master)](https://travis-ci.com/sreeise/graph-rs)
 [![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
 
 ### Microsoft Graph API Client in Rust
