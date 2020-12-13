@@ -1,4 +1,4 @@
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 
 // This example shows batch requests to perform multiple requests at once.
 // The response may not return all at one time. In these cases a next link url

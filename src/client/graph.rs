@@ -51,13 +51,13 @@ use std::str::FromStr;
 ///
 /// # Blocking - Most simple and easy to use
 /// ```
-/// # use graph_rs::client::Graph;
+/// # use graph_rs_sdk::client::Graph;
 /// let _client = Graph::new("ACCESS_TOKEN");
 /// ```
 ///
 /// # Async
 /// ```
-/// # use graph_rs::client::Graph;
+/// # use graph_rs_sdk::client::Graph;
 /// let _client = Graph::new_async("ACCESS_TOKEN");
 /// ```
 pub struct Graph<Client> {
@@ -126,7 +126,7 @@ impl<'a> GraphBlocking {
     ///
     /// # Example
     /// ```
-    /// use graph_rs::client::Graph;
+    /// use graph_rs_sdk::client::Graph;
     ///
     /// let client = Graph::new("ACCESS_TOKEN");
     /// ```
@@ -199,7 +199,7 @@ impl<'a> GraphAsync {
     ///
     /// # Example
     /// ```
-    /// use graph_rs::client::Graph;
+    /// use graph_rs_sdk::client::Graph;
     ///
     /// let client = Graph::new_async("ACCESS_TOKEN");
     /// ```

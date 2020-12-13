@@ -1,5 +1,5 @@
-use graph_rs::error::{GraphFailure, GraphRsError};
-use graph_rs::prelude::*;
+use graph_rs_sdk::error::{GraphFailure, GraphRsError};
+use graph_rs_sdk::prelude::*;
 // use std::fs::OpenOptions;
 // use std::io::Read;
 use std::ffi::OsString;

@@ -1,4 +1,4 @@
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 
 // This example shows checking a drive item in and out.
 

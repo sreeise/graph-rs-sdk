@@ -1,7 +1,7 @@
 use graph_error::GraphFailure;
 use graph_http::traits::AsyncIterator;
 use graph_http::NextSession;
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 
 // This example shows creating an upload session for a new file
 // and iterating through the individual upload session values.

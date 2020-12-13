@@ -70,7 +70,7 @@ graph-oauth = "0.0.1"
 graph-http = "0.0.1"
 graph-error = "0.0.1"
 graph-core = "0.0.1"
-# test-tools = { path = "./test-tools", version = "0.0.1" }
+test-tools = { path = "./test-tools", version = "0.0.1" }
 tokio = { version = "0.2", features = ["full"] }
 futures = "0.3.5"
 # from_as = { git = "https://github.com/sreeise/from_as", version = "0.1.0" }

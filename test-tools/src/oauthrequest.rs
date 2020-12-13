@@ -1,7 +1,7 @@
 use from_as::*;
 use graph_http::{AsyncHttpClient, BlockingHttpClient};
-use graph_rs::client::Graph;
-use graph_rs::oauth::{AccessToken, OAuth};
+use graph_rs_sdk::client::Graph;
+use graph_rs_sdk::oauth::{AccessToken, OAuth};
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::env;

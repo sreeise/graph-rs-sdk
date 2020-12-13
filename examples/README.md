@@ -13,7 +13,7 @@ and access tokens.
 
 ### Using the Graph API
 
-    use graph_rs::prelude::*;
+    use graph_rs_sdk::prelude::*;
     
     let client = Graph::new("ACCESS_TOKEN");
     

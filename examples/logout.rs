@@ -6,7 +6,7 @@ extern crate rocket;
 #[macro_use]
 extern crate serde_json;
 extern crate reqwest;
-use graph_rs::oauth::OAuth;
+use graph_rs_sdk::oauth::OAuth;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
 

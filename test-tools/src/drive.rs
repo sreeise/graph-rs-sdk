@@ -1,8 +1,8 @@
 use graph_http::url::GraphUrl;
 use graph_http::BlockingHttpClient;
-use graph_rs::client::Graph;
-use graph_rs::core::ResourceIdentity;
-use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
+use graph_rs_sdk::client::Graph;
+use graph_rs_sdk::core::ResourceIdentity;
+use graph_rs_sdk::{GRAPH_URL, GRAPH_URL_BETA};
 use url::Url;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]

@@ -1,4 +1,4 @@
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 
 // This example shows choosing a file in the root of a drive (normally where
 // folders such as Documents are), and changing the name.

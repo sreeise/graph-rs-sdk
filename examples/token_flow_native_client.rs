@@ -1,4 +1,4 @@
-use graph_rs::oauth::OAuth;
+use graph_rs_sdk::oauth::OAuth;
 
 /*
 The following example shows authenticating an application to use the OneDrive REST API

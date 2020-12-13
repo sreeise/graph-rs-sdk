@@ -1,4 +1,4 @@
-use graph_rs::oauth::{GrantRequest, GrantType, OAuth};
+use graph_rs_sdk::oauth::{GrantRequest, GrantType, OAuth};
 
 #[test]
 pub fn implicit_grant_url() {

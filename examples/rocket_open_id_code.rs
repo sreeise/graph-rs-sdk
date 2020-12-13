@@ -7,7 +7,7 @@ extern crate rocket;
 extern crate serde_json;
 extern crate reqwest;
 use from_as::*;
-use graph_rs::oauth::{IdToken, OAuth};
+use graph_rs_sdk::oauth::{IdToken, OAuth};
 use rocket::Data;
 use rocket_codegen::routes;
 use std::convert::TryFrom;

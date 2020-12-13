@@ -1,6 +1,6 @@
 use graph_oauth::oauth::jwtkeys::JWTKeys;
 use graph_oauth::oauth::{OAuth, OAuthCredential};
-use graph_rs::oauth::graphdiscovery::{
+use graph_rs_sdk::oauth::graphdiscovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
 

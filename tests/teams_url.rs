@@ -1,5 +1,5 @@
 use graph_http::BlockingHttpClient;
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 use test_tools::assert_url_eq;
 
 static RID: &str = "T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x";

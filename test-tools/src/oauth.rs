@@ -1,4 +1,4 @@
-use graph_rs::oauth::*;
+use graph_rs_sdk::oauth::*;
 use std::borrow::Cow;
 use url::Url;
 

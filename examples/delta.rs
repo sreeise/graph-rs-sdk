@@ -1,5 +1,5 @@
 use graph_http::traits::*;
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 use std::sync::mpsc::Receiver;
 
 /*

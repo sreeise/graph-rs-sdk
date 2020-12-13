@@ -1,5 +1,5 @@
 use graph_http::{NextSession, Session};
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 
 // This example shows creating an upload session to replace an existing file
 // and iterating through the individual upload session values.

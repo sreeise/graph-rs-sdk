@@ -2,7 +2,7 @@
 extern crate lazy_static;
 
 use graph_http::BlockingHttpClient;
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 use test_tools::assert_url_eq;
 use test_tools::common::TestTools;
 

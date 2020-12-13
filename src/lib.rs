@@ -24,7 +24,7 @@
 //!
 //! To use the blocking client
 //!```rust
-//! use graph_rs::prelude::*;
+//! use graph_rs_sdk::prelude::*;
 //!
 //! let client =  Graph::new("ACCESS_TOKEN");
 //!```
@@ -33,7 +33,7 @@
 //!
 //! To use the async client
 //!```rust
-//! use graph_rs::prelude::*;
+//! use graph_rs_sdk::prelude::*;
 //!
 //! let client =  Graph::new_async("ACCESS_TOKEN");
 //!```
@@ -50,7 +50,7 @@
 //!
 //! # Basic Use:
 //! ```rust,ignore
-//! use graph_rs::prelude::*;
+//! use graph_rs_sdk::prelude::*;
 //!
 //! let client =  Graph::new("ACCESS_TOKEN");
 //!
@@ -68,7 +68,7 @@
 //! # Using the Async Client
 //!
 //! ```rust,ignore
-//! use graph_rs::prelude::*;
+//! use graph_rs_sdk::prelude::*;
 //!
 //! let client =  Graph::new_async("ACCESS_TOKEN");
 //!
@@ -88,7 +88,7 @@
 //! use the beta() method which uses the Microsoft graph beta Api endpoint.
 //!
 //! ```rust,ignore
-//! use graph_rs::prelude::*;
+//! use graph_rs_sdk::prelude::*;
 //!
 //! let client =  Graph::new_async("ACCESS_TOKEN");
 //!

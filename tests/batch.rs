@@ -1,5 +1,5 @@
-use graph_rs::prelude::*;
-use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
+use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::{GRAPH_URL, GRAPH_URL_BETA};
 use test_tools::oauthrequest::OAuthTestClient;
 
 #[test]

@@ -8,7 +8,7 @@ extern crate serde_json;
 extern crate reqwest;
 
 use from_as::*;
-use graph_rs::oauth::OAuth;
+use graph_rs_sdk::oauth::OAuth;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
 use std::thread;

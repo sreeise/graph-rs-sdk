@@ -1,5 +1,5 @@
 use graph_error::GraphFailure;
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 

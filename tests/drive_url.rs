@@ -1,6 +1,6 @@
 use graph_http::{BlockingHttpClient, Session};
-use graph_rs::prelude::*;
-use graph_rs::GRAPH_URL;
+use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::GRAPH_URL;
 use test_tools::assert_url_eq;
 
 static RID: &str = "T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x";

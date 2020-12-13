@@ -3,6 +3,10 @@
 [![Build Status](https://travis-ci.com/sreeise/graph-rs.svg?branch=master)](https://travis-ci.com/sreeise/graph-rs)
 [![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
 
+### Now available on [crates.io](https://crates.io/crates/graph-rs-sdk)
+
+    graph-rs-sdk = "0.0.1"
+
 ### Microsoft Graph API Client in Rust
 
 Installation and basic usage can be found below and there are extensive examples in the example's directory
@@ -27,13 +31,25 @@ The client supports both blocking and async requests.
 
 To use the blocking client
 
-    let client =  Graph::new("ACCESS_TOKEN");
+```rust
+use graph_rs_sdk::prelude::*;
+
+fn main() {
+  let client =  Graph::new("ACCESS_TOKEN");
+}
+```
 
 ### Async Client
 
 To use the async client
 
-    let client = Graph::new_async("ACCESS_TOKEN");
+```rust
+use graph_rs_sdk::prelude::*;
+
+fn main() {
+  let client = Graph::new_async("ACCESS_TOKEN");
+}
+```
     
 #### The send method and Graph types
 The send() method is the main method for sending a request. The return value will be wrapped
@@ -46,7 +62,7 @@ in a response object and the body will be one of:
     3. Content (204 responses that return a content field)
 
 ```rust
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 
 let client =  Graph::new("ACCESS_TOKEN");
 
@@ -62,7 +78,7 @@ let response = client.v1()
 For async requests use the await keyword.
 
 ```rust
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 
 let client =  Graph::new_async("ACCESS_TOKEN");
 
@@ -83,7 +99,7 @@ The json() method can be used to convert the response to your own types. These
 types must implement serde::Deserialize.
 
 ```rust
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
         
 let client = Graph::new("ACCESS_TOKEN");
         
@@ -109,7 +125,7 @@ Make requests to drive using a drive id or through specific drives for me, sites
 users, and groups.
 
 ```rust
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
     
 let client = Graph::new("ACCESS_TOKEN");
 
@@ -191,7 +207,7 @@ println!("{:#?}", response.body());
 ### Mail
 
 ```rust
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
         
 let client = Graph::new("ACCESS_TOKEN");
         
@@ -358,7 +374,7 @@ println!(":#?", response);
 #### OData Queries
 
 ```rust
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
             
 let client = Graph::new("ACCESS_TOKEN");
     
@@ -380,7 +396,7 @@ Batch requests use a mpsc::channel and return the receiver
 for responses.
 
 ```rust
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 use std::error::Error;
 
 static USER_ID: &str = "USER_ID";

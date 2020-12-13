@@ -1,4 +1,4 @@
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "<SITE_ID>";
 

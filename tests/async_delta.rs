@@ -1,4 +1,4 @@
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 

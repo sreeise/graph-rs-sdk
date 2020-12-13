@@ -1,4 +1,4 @@
-use graph_rs::oauth::AccessToken;
+use graph_rs_sdk::oauth::AccessToken;
 use std::thread;
 use std::time::Duration;
 

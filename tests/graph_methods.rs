@@ -1,5 +1,5 @@
-use graph_rs::client::Graph;
-use graph_rs::{GRAPH_URL, GRAPH_URL_BETA};
+use graph_rs_sdk::client::Graph;
+use graph_rs_sdk::{GRAPH_URL, GRAPH_URL_BETA};
 
 #[test]
 fn graph_is_v1_or_beta() {

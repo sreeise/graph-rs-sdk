@@ -1,5 +1,5 @@
-use graph_rs::error::*;
-use graph_rs::prelude::*;
+use graph_rs_sdk::error::*;
+use graph_rs_sdk::prelude::*;
 use test_tools::oauthrequest::OAuthTestClient;
 use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
 

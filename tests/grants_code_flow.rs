@@ -1,5 +1,5 @@
 use graph_oauth::oauth::GrantType;
-use graph_rs::oauth::{AccessToken, GrantRequest, OAuth};
+use graph_rs_sdk::oauth::{AccessToken, GrantRequest, OAuth};
 
 #[test]
 fn sign_in_code_url() {

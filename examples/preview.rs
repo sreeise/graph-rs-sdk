@@ -1,4 +1,4 @@
-use graph_rs::prelude::*;
+use graph_rs_sdk::prelude::*;
 
 // You can get preview URLs for an item. Provide optional
 // properties with an EmbeddableUrl.
