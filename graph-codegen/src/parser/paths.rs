@@ -126,8 +126,8 @@ impl Schema {
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Operation {
-    #[serde(skip_serializing_if = "VecDeque::is_empty")]
-    pub tags: VecDeque<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tags: Option<VecDeque<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -224,8 +224,10 @@ impl RequestParserBuilder for Operation {
             request.request_type = RequestType::UploadSession;
         }
 
-        if let Some(tag) = self.tags.get(0) {
-            request.tag = tag.to_string();
+        if let Some(tags) = self.tags.as_ref() {
+            if let Some(tag) = tags.get(0) {
+                request.tag = tag.to_string();
+            }
         }
 
         request.modify(modifiers, secondary_modifiers);
