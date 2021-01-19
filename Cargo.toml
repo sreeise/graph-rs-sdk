@@ -1,6 +1,6 @@
 [package]
 name = "graph-rs-sdk"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["sreeise"]
 edition = "2018"
 readme = "README.md"
@@ -42,8 +42,8 @@ handlebars = "2.0.2"
 # graph-error = { version = "0.0.1", path = "./graph-error" }
 # graph-http = { version = "0.0.1", path = "./graph-http" }
 # graph-core = { version = "0.0.1", path = "./graph-core" }
-graph-oauth = "0.0.1"
-graph-http = "0.0.1"
+graph-oauth = "0.0.2"
+graph-http = "0.0.2"
 graph-error = "0.0.1"
 graph-core = "0.0.1"
 tokio = { version = "0.2.21", features = ["full"] }
@@ -66,8 +66,8 @@ lazy_static = "1.4.0"
 # graph-http = { path = "graph-http", version = "0.0.1" }
 # graph-error = { path = "./graph-error", version = "0.0.1" }
 # graph-core = { path = "./graph-core", version = "0.0.1" }
-graph-oauth = "0.0.1"
-graph-http = "0.0.1"
+graph-oauth = "0.0.2"
+graph-http = "0.0.2"
 graph-error = "0.0.1"
 graph-core = "0.0.1"
 test-tools = { path = "./test-tools", version = "0.0.1" }

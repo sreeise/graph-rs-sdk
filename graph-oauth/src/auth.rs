@@ -6,7 +6,7 @@ use crate::strum::IntoEnumIterator;
 use from_as::*;
 use graph_error::GraphFailure;
 use ring::rand::SecureRandom;
-use serde::export::PhantomData;
+use std::marker::PhantomData;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
 use std::convert::TryFrom;
