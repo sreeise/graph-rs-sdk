@@ -1,6 +1,6 @@
 use graph_oauth::oauth::AccessToken;
-use std::time::Duration;
 use std::thread;
+use std::time::Duration;
 
 #[test]
 fn get_method() {
