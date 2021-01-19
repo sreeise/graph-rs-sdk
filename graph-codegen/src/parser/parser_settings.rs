@@ -1,7 +1,6 @@
 use crate::builder::ClientLinkSettings;
-use crate::parser::filter::{
-    Filter, FilterIgnore, MatchTarget, ModifierMap, SecondaryModifierMap, UrlMatchTarget,
-};
+use crate::parser::filter::ResourceUrlModifier;
+use crate::parser::filter::{Filter, FilterIgnore, ModifierMap, SecondaryModifierMap};
 use crate::parser::settings::{
     get_client_link_settings, get_custom_requests, get_imports, get_path_filters,
     get_target_map_modifier,
@@ -15,7 +14,14 @@ pub struct ParserSettings;
 impl ParserSettings {
     /// Imports that won't be added from parsing and need to be manually added.
     pub fn imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
-        get_imports(resource_identity)
+        let mut vec: Vec<&'static str> = vec![
+            "crate::client::Graph",
+            "graph_http::IntoResponse",
+            "reqwest::Method",
+        ];
+        vec.extend(get_imports(resource_identity));
+        vec.sort();
+        vec
     }
 
     pub fn default_path_filters() -> Vec<Filter<'static>> {
@@ -70,7 +76,7 @@ impl ParserSettings {
     // and add a link between them. We change the operation map of the
     // requests so they are generated within the correct client.
     pub fn secondary_modifier_map(resource_identity: ResourceIdentity) -> SecondaryModifierMap {
-        let mut map = SecondaryModifierMap::with_capacity(15);
+        let mut map = SecondaryModifierMap::with_capacity(5);
 
         match resource_identity {
             ResourceIdentity::Activities => {
@@ -87,183 +93,94 @@ impl ParserSettings {
                 map.insert_operation_mapping("users.calendars", "calendars");
             },
             ResourceIdentity::CalendarGroups => {
-                map.insert(
-                    "users.calendarGroups",
-                    MatchTarget::OperationMap("calendarGroups".to_string()),
-                );
-                map.insert(
-                    "users.calendarGroups",
-                    MatchTarget::OperationId("calendarGroups".to_string()),
-                );
+                map.insert_operation_map_and_id("users.calendarGroups", "calendarGroups");
             },
             ResourceIdentity::CalendarView => {
-                map.insert(
-                    "me.calendarView",
-                    MatchTarget::OperationId("calendarViews".to_string()),
-                );
-                map.insert(
-                    "me.calendarView",
-                    MatchTarget::OperationMap("calendarViews".to_string()),
-                );
+                map.insert_operation_map_and_id("me.calendarView", "calendarViews");
             },
             ResourceIdentity::Calls => {
-                map.insert(
-                    "communications.calls",
-                    MatchTarget::OperationMap("calls".to_string()),
-                );
+                map.insert_operation_mapping("communications.calls", "calls");
             },
             ResourceIdentity::CallRecords => {
-                map.insert(
-                    "communications.callRecords",
-                    MatchTarget::OperationMap("callRecords".to_string()),
-                );
+                map.insert_operation_mapping("communications.callRecords", "callRecords");
             },
             ResourceIdentity::ContactFolders => {
-                map.insert(
-                    "me.contactFolders",
-                    MatchTarget::OperationMap("contactFolders".to_string()),
-                );
+                map.insert_operation_mapping("me.contactFolders", "contactFolders");
             },
             ResourceIdentity::Contacts => {
-                map.insert(
-                    "me.contacts",
-                    MatchTarget::OperationMap("contacts".to_string()),
-                );
+                map.insert_operation_mapping("me.contacts", "contacts");
             },
             ResourceIdentity::ContentTypes => {
-                map.insert(
-                    "sites.contentTypes",
-                    MatchTarget::OperationMap("contentTypes".to_string()),
-                );
+                map.insert_operation_mapping("sites.contentTypes", "contentTypes");
             },
             ResourceIdentity::Conversations => {
-                map.insert(
-                    "groups.conversations",
-                    MatchTarget::OperationMap("conversations".to_string()),
-                );
+                map.insert_operation_mapping("groups.conversations", "conversations");
             },
             ResourceIdentity::ChildFolders => {
-                map.insert(
-                    "me.mailFolders.childFolders",
-                    MatchTarget::OperationMap("childFolders".to_string()),
-                );
+                map.insert_operation_mapping("me.mailFolders.childFolders", "childFolders");
             },
             ResourceIdentity::Events => {
-                map.insert(
-                    "users.events",
-                    MatchTarget::OperationId("events".to_string()),
-                );
+                map.insert_operation_id("users.events", "events");
             },
             ResourceIdentity::InferenceClassification => {
-                map.insert(
+                map.insert_operation_mapping(
                     "me.inferenceClassification",
-                    MatchTarget::OperationMap("inferenceClassification".to_string()),
+                    "inferenceClassification",
                 );
             },
             ResourceIdentity::Instances => {
-                map.insert(
-                    "me.calendarView.instances",
-                    MatchTarget::OperationMap("instances".to_string()),
-                );
+                map.insert_operation_mapping("me.calendarView.instances", "instances");
             },
             ResourceIdentity::Items => {
-                map.insert(
-                    "sites.lists.items",
-                    MatchTarget::OperationMap("items".to_string()),
-                );
+                map.insert_operation_mapping("sites.lists.items", "items");
             },
             ResourceIdentity::Lists => {
-                map.insert(
-                    "sites.lists",
-                    MatchTarget::OperationMap("lists".to_string()),
-                );
+                map.insert_operation_mapping("sites.lists", "lists");
             },
             ResourceIdentity::MailFolders => {
-                map.insert(
-                    "me.mailFolders",
-                    MatchTarget::OperationMap("mailFolders".to_string()),
-                );
+                map.insert_operation_mapping("me.mailFolders", "mailFolders");
             },
             ResourceIdentity::Messages => {
-                map.insert(
-                    "me.messages",
-                    MatchTarget::OperationMap("messages".to_string()),
-                );
+                map.insert_operation_mapping("me.messages", "messages");
             },
             ResourceIdentity::Me => {
-                map.insert("me.user", MatchTarget::OperationMap("me".to_string()));
+                map.insert_operation_mapping("me.user", "me");
             },
             ResourceIdentity::Outlook => {
-                map.insert(
-                    "me.outlook",
-                    MatchTarget::OperationMap("outlook".to_string()),
-                );
+                map.insert_operation_mapping("me.outlook", "outlook");
             },
             ResourceIdentity::Plans => {
-                map.insert(
-                    "planner.plans",
-                    MatchTarget::OperationMap("plans".to_string()),
-                );
+                map.insert_operation_mapping("planner.plans", "plans");
             },
             ResourceIdentity::Settings => {
-                map.insert(
-                    "me.settings",
-                    MatchTarget::OperationMap("settings".to_string()),
-                );
+                map.insert_operation_mapping("me.settings", "settings");
             },
             ResourceIdentity::Notebooks => {
-                map.insert(
-                    "me.onenote.notebooks",
-                    MatchTarget::OperationMap("notebooks".to_string()),
-                );
+                map.insert_operation_mapping("me.onenote.notebooks", "notebooks");
             },
             ResourceIdentity::SectionGroups => {
-                map.insert(
-                    "me.onenote.sectionGroups",
-                    MatchTarget::OperationMap("sectionGroups".to_string()),
-                );
+                map.insert_operation_mapping("me.onenote.sectionGroups", "sectionGroups");
             },
             ResourceIdentity::Sections => {
-                map.insert(
-                    "me.onenote.sections",
-                    MatchTarget::OperationMap("sections".to_string()),
-                );
+                map.insert_operation_mapping("me.onenote.sections", "sections");
             },
             ResourceIdentity::Sessions => {
-                map.insert(
-                    "communications.callRecords.sessions",
-                    MatchTarget::OperationMap("sessions".to_string()),
-                );
+                map.insert_operation_mapping("communications.callRecords.sessions", "sessions");
             },
             ResourceIdentity::Pages => {
-                map.insert(
-                    "me.onenote.pages",
-                    MatchTarget::OperationMap("pages".to_string()),
-                );
+                map.insert_operation_mapping("me.onenote.pages", "pages");
             },
             ResourceIdentity::ParentSection => {
-                map.insert(
-                    "me.onenote.pages.parentSection",
-                    MatchTarget::OperationMap("parentSection".to_string()),
-                );
+                map.insert_operation_mapping("me.onenote.pages.parentSection", "parentSection");
             },
             ResourceIdentity::Posts => {
-                map.insert(
-                    "groups.threads.posts",
-                    MatchTarget::OperationMap("posts".to_string()),
-                );
+                map.insert_operation_mapping("groups.threads.posts", "posts");
             },
             ResourceIdentity::Tasks => {
-                map.insert(
-                    "planner.tasks",
-                    MatchTarget::OperationMap("tasks".to_string()),
-                );
+                map.insert_operation_mapping("planner.tasks", "tasks");
             },
             ResourceIdentity::Threads => {
-                map.insert(
-                    "groups.threads",
-                    MatchTarget::OperationMap("threads".to_string()),
-                );
+                map.insert_operation_mapping("groups.threads", "threads");
             },
             _ => {},
         }
@@ -271,108 +188,107 @@ impl ParserSettings {
         map
     }
 
-    pub fn get_directory_mod_files(
-        resource_identity: ResourceIdentity,
-    ) -> Option<Vec<DirectoryModFile>> {
+    pub fn directory_mod(resource_identity: ResourceIdentity) -> Option<DirectoryModFile> {
         match resource_identity {
-            ResourceIdentity::Drive | ResourceIdentity::Drives => Some(vec![DirectoryModFile {
+            ResourceIdentity::Drive | ResourceIdentity::Drives => Some(DirectoryModFile {
                 resource_identity,
-                mod_name: "manual_request".to_string(),
+                mod_name: "manual_request".into(),
                 use_all: true,
-            }]),
-            ResourceIdentity::Pages => Some(vec![DirectoryModFile {
+            }),
+            ResourceIdentity::Pages => Some(DirectoryModFile {
                 resource_identity,
-                mod_name: "manual_request".to_string(),
+                mod_name: "manual_request".into(),
                 use_all: true,
-            }]),
-            ResourceIdentity::ChildFolders => Some(vec![DirectoryModFile {
+            }),
+            ResourceIdentity::ChildFolders => Some(DirectoryModFile {
                 resource_identity,
-                mod_name: "manual_request".to_string(),
+                mod_name: "manual_request".into(),
                 use_all: true,
-            }]),
+            }),
             _ => None,
         }
     }
 
-    // Modify that paths that have a resource id. See UrlMatchTarget
-    // for more info.
-    pub fn url_target_modifiers(resource_identity: ResourceIdentity) -> Vec<UrlMatchTarget> {
+    pub fn resource_url_modifier(
+        resource_identity: ResourceIdentity,
+    ) -> Option<ResourceUrlModifier> {
         match resource_identity {
             ResourceIdentity::Applications => {
-                vec![UrlMatchTarget::resource_id("applications", "application")]
+                Some(ResourceUrlModifier::new("applications", "application"))
             },
             ResourceIdentity::Attachments => {
-                vec![UrlMatchTarget::resource_id("attachments", "attachment")]
+                Some(ResourceUrlModifier::new("attachments", "attachment"))
             },
-            ResourceIdentity::Buckets => vec![UrlMatchTarget::resource_id("buckets", "bucket")],
-            ResourceIdentity::Calendar => {
-                vec![UrlMatchTarget::resource_id("calendars", "calendar")]
+            ResourceIdentity::Buckets => Some(ResourceUrlModifier::new("buckets", "bucket")),
+            ResourceIdentity::Calendar => Some(ResourceUrlModifier::new("calendars", "calendar")),
+            ResourceIdentity::CalendarGroups => {
+                Some(ResourceUrlModifier::new("calendarGroups", "calendarGroup"))
             },
-            ResourceIdentity::CalendarGroups => vec![UrlMatchTarget::resource_id(
-                "calendarGroups",
-                "calendarGroup",
-            )],
             ResourceIdentity::CalendarView => {
-                vec![UrlMatchTarget::resource_id("calendarView", "calendarViews")]
+                Some(ResourceUrlModifier::new("calendarView", "calendarViews"))
             },
-            ResourceIdentity::Calls => vec![UrlMatchTarget::resource_id("calls", "call")],
+            ResourceIdentity::Calls => Some(ResourceUrlModifier::new("calls", "call")),
             ResourceIdentity::CallRecords => {
-                vec![UrlMatchTarget::resource_id("callRecords", "callRecord")]
+                Some(ResourceUrlModifier::new("callRecords", "callRecord"))
             },
-            ResourceIdentity::ContactFolders => vec![UrlMatchTarget::resource_id(
-                "contactFolders",
-                "contactFolder",
-            )],
-            ResourceIdentity::Contacts => {
-                vec![UrlMatchTarget::resource_id("contacts", "contact")]
+            ResourceIdentity::ContactFolders => {
+                Some(ResourceUrlModifier::new("contactFolders", "contactFolder"))
             },
+            ResourceIdentity::Contacts => Some(ResourceUrlModifier::new("contacts", "contact")),
             ResourceIdentity::ContentTypes => {
-                vec![UrlMatchTarget::resource_id("contentTypes", "contentType")]
+                Some(ResourceUrlModifier::new("contentTypes", "contentType"))
             },
             ResourceIdentity::Conversations => {
-                vec![UrlMatchTarget::resource_id("conversations", "conversation")]
+                Some(ResourceUrlModifier::new("conversations", "conversation"))
             },
             ResourceIdentity::ChildFolders => {
-                vec![UrlMatchTarget::resource_id("childFolders", "childFolder")]
+                Some(ResourceUrlModifier::new("childFolders", "childFolder"))
             },
-            ResourceIdentity::Drives => vec![UrlMatchTarget::resource_id("drives", "drive")],
-            ResourceIdentity::Domains => vec![UrlMatchTarget::resource_id("domains", "domain")],
-            ResourceIdentity::Events => vec![UrlMatchTarget::resource_id("events", "event")],
-            ResourceIdentity::Groups => vec![UrlMatchTarget::resource_id("groups", "group")],
-            ResourceIdentity::Instances => {
-                vec![UrlMatchTarget::resource_id("instances", "instance")]
-            },
-            ResourceIdentity::Items => vec![UrlMatchTarget::resource_id("items", "item")],
-            ResourceIdentity::Lists => vec![UrlMatchTarget::resource_id("lists", "list")],
+            ResourceIdentity::Drives => Some(ResourceUrlModifier::new("drives", "drive")),
+            ResourceIdentity::Domains => Some(ResourceUrlModifier::new("domains", "domain")),
+            ResourceIdentity::Events => Some(ResourceUrlModifier::new("events", "event")),
+            ResourceIdentity::Groups => Some(ResourceUrlModifier::new("groups", "group")),
+            ResourceIdentity::Instances => Some(ResourceUrlModifier::new("instances", "instance")),
+            ResourceIdentity::Items => Some(ResourceUrlModifier::new("items", "item")),
+            ResourceIdentity::Lists => Some(ResourceUrlModifier::new("lists", "list")),
             ResourceIdentity::MailFolders => {
-                vec![UrlMatchTarget::resource_id("mailFolders", "mailFolder")]
+                Some(ResourceUrlModifier::new("mailFolders", "mailFolder"))
             },
-            ResourceIdentity::Messages => vec![UrlMatchTarget::resource_id("messages", "message")],
-            ResourceIdentity::ManagedDevices => vec![UrlMatchTarget::resource_id(
-                "managedDevices",
-                "managedDevice",
-            )],
-            ResourceIdentity::Notebooks => {
-                vec![UrlMatchTarget::resource_id("notebooks", "notebook")]
+            ResourceIdentity::Messages => Some(ResourceUrlModifier::new("messages", "message")),
+            ResourceIdentity::ManagedDevices => {
+                Some(ResourceUrlModifier::new("managedDevices", "managedDevice"))
             },
-            ResourceIdentity::Onenote => vec![UrlMatchTarget::resource_id("notebooks", "notebook")],
-            ResourceIdentity::Pages => vec![UrlMatchTarget::resource_id("pages", "page")],
-            ResourceIdentity::Posts => vec![UrlMatchTarget::resource_id("posts", "post")],
-            ResourceIdentity::Sections => vec![UrlMatchTarget::resource_id("sections", "section")],
-            ResourceIdentity::Plans => vec![UrlMatchTarget::resource_id("plans", "plan")],
+            ResourceIdentity::Notebooks => Some(ResourceUrlModifier::new("notebooks", "notebook")),
+            ResourceIdentity::Onenote => Some(ResourceUrlModifier::new("notebooks", "notebook")),
+            ResourceIdentity::Pages => Some(ResourceUrlModifier::new("pages", "page")),
+            ResourceIdentity::Posts => Some(ResourceUrlModifier::new("posts", "post")),
+            ResourceIdentity::Sections => Some(ResourceUrlModifier::new("sections", "section")),
+            ResourceIdentity::Plans => Some(ResourceUrlModifier::new("plans", "plan")),
             ResourceIdentity::SectionGroups => {
-                vec![UrlMatchTarget::resource_id("sectionGroups", "sectionGroup")]
+                Some(ResourceUrlModifier::new("sectionGroups", "sectionGroup"))
             },
-            ResourceIdentity::Sessions => vec![UrlMatchTarget::resource_id("sessions", "session")],
-            ResourceIdentity::Sites => vec![UrlMatchTarget::resource_id("sites", "site")],
-            ResourceIdentity::Teams => vec![UrlMatchTarget::resource_id("teams", "team")],
-            ResourceIdentity::Threads => vec![UrlMatchTarget::resource_id("threads", "thread")],
-            ResourceIdentity::Users => vec![UrlMatchTarget::resource_id("users", "user")],
-            ResourceIdentity::Tasks => vec![UrlMatchTarget::resource_id("tasks", "task")],
-            ResourceIdentity::Workbooks => {
-                vec![UrlMatchTarget::resource_id("workbooks", "workbook")]
-            },
-            _ => vec![],
+            ResourceIdentity::Sessions => Some(ResourceUrlModifier::new("sessions", "session")),
+            ResourceIdentity::Sites => Some(ResourceUrlModifier::new("sites", "site")),
+            ResourceIdentity::Teams => Some(ResourceUrlModifier::new("teams", "team")),
+            ResourceIdentity::Threads => Some(ResourceUrlModifier::new("threads", "thread")),
+            ResourceIdentity::Users => Some(ResourceUrlModifier::new("users", "user")),
+            ResourceIdentity::Tasks => Some(ResourceUrlModifier::new("tasks", "task")),
+            ResourceIdentity::Workbooks => Some(ResourceUrlModifier::new("workbooks", "workbook")),
+            _ => None,
+        }
+    }
+
+    /// These are clients that will have {{RID}} in the path of requests
+    /// Ident clients are also those that have a ResourceUrlModifier. The
+    /// resource identity checks here are those that do not have a match
+    /// for a ResourceUrlModifier.
+    pub fn is_ident_client(resource_identity: ResourceIdentity) -> bool {
+        match resource_identity {
+            ResourceIdentity::Drive |
+            ResourceIdentity::Drives |
+            ResourceIdentity::Calendar |
+            ResourceIdentity::Calendars => true,
+            _ => false,
         }
     }
 
@@ -388,5 +304,27 @@ impl ParserSettings {
     // in naming conflicts that is fixed by these modifiers.
     pub fn target_modifiers(resource_identity: ResourceIdentity) -> ModifierMap {
         get_target_map_modifier(resource_identity)
+    }
+
+    pub fn links_override(resource_identity: ResourceIdentity) -> HashMap<String, Vec<String>> {
+        let mut links_override = HashMap::new();
+        match resource_identity {
+            ResourceIdentity::Directory => {
+                links_override.insert(
+                    "directory".to_string(),
+                    [
+                        "directoryRoles",
+                        "directoryObjects",
+                        "directoryRoleTemplates",
+                    ]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+                );
+            },
+            _ => {},
+        }
+
+        links_override
     }
 }

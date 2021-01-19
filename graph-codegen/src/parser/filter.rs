@@ -74,49 +74,33 @@ impl From<Filter<'_>> for StoredFilter {
     }
 }
 
+/// Modifies the paths that start with a resource and id by replacing
+/// that part of the path for the client sdk generation. An example
+/// would be where we have the path `/drives/{{id}}/items`. Passing the
+/// value of 'drives' to this modifier would change the path to
+/// `/drives/{{{RID}}/items`
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
-pub enum UrlMatchTarget {
-    // Modifies the paths that start with a resource and id by replacing
-    // that part of the path for the client sdk generation. An example
-    // would be where we have the path /drives/{{id}}/items. Passing the
-    // value of 'drives' to this modifier would change the path to
-    // /drives/{{{RID}}/items
-    ResourceId(String, String, String),
+pub struct ResourceUrlModifier {
+    pub(crate) name: String,
+    pub(crate) replacement: String,
+    pub(crate) formatted: String,
 }
 
-impl UrlMatchTarget {
-    pub fn resource_id(name: &str, replacement: &str) -> UrlMatchTarget {
-        UrlMatchTarget::ResourceId(
-            format!("/{}/{{{{id}}}}", name),
-            replacement.to_string(),
-            name.to_string(),
-        )
+impl ResourceUrlModifier {
+    pub fn new(name: &str, replacement: &str) -> ResourceUrlModifier {
+        ResourceUrlModifier {
+            name: name.into(),
+            replacement: replacement.into(),
+            formatted: format!("/{}/{{{{id}}}}", name),
+        }
     }
 
     pub fn matches(&self, request_map: &RequestMap) -> bool {
-        match self {
-            UrlMatchTarget::ResourceId(s, _replacement, _name) => {
-                if request_map.path.starts_with(s.as_str()) {
-                    return true;
-                }
-            },
-        }
-        false
-    }
-
-    pub fn matches_resource_id(&self, request_map: &RequestMap) -> bool {
-        match self {
-            UrlMatchTarget::ResourceId(s, _replacement, _name) => {
-                if request_map.path.starts_with(&s.replace("id", "RID")) {
-                    return true;
-                }
-            },
-        }
-        false
+        request_map.path.starts_with(&self.formatted)
     }
 }
 
-impl Modify<RequestMap> for UrlMatchTarget {
+impl Modify<RequestMap> for ResourceUrlModifier {
     fn modify(&self, value: &mut RequestMap) {
         let path = value
             .path
@@ -135,44 +119,43 @@ impl Modify<RequestMap> for UrlMatchTarget {
     }
 }
 
-impl Modify<RequestSet> for UrlMatchTarget {
+impl Modify<RequestSet> for ResourceUrlModifier {
     fn modify(&self, value: &mut RequestSet) {
         let mut matches = false;
         for request_map in value.set.iter() {
-            if self.matches_resource_id(request_map) {
+            if request_map
+                .path
+                .starts_with(&self.formatted.replace("id", "RID"))
+            {
                 matches = true;
                 break;
             }
         }
 
         if matches {
-            let (mut rid_request_set, non_rid_request_set) = value.split_on_resource_id();
-            match self {
-                UrlMatchTarget::ResourceId(_s, replacement, _name) => {
-                    let mut request_map_vec: Vec<RequestMap> =
-                        non_rid_request_set.set.into_iter().collect();
-                    for request_map in request_map_vec.iter_mut() {
-                        let param_size = INTERNAL_PATH_ID.captures_iter(&request_map.path).count();
-                        for request in request_map.requests.iter_mut() {
-                            if let Some(index) = request.operation_mapping.find('.') {
-                                request
-                                    .operation_mapping
-                                    .replace_range(0..index, replacement);
-                            } else {
-                                request.operation_mapping = replacement.to_string();
-                            }
+            let (mut rid_request_set, non_rid_set) = value.split_on_resource_id();
+            let mut request_map_vec: Vec<RequestMap> = non_rid_set.set.into_iter().collect();
 
-                            request.param_size = param_size;
-                            if request.path.contains("RID") && request.param_size > 0 {
-                                request.param_size -= 1;
-                            }
-                        }
+            for request_map in request_map_vec.iter_mut() {
+                let param_size = INTERNAL_PATH_ID.captures_iter(&request_map.path).count();
+                for request in request_map.requests.iter_mut() {
+                    if let Some(index) = request.operation_mapping.find('.') {
+                        request
+                            .operation_mapping
+                            .replace_range(0..index, &self.replacement);
+                    } else {
+                        request.operation_mapping = self.replacement.to_string();
                     }
 
-                    rid_request_set.set.extend(request_map_vec);
-                    value.set = rid_request_set.set;
-                },
+                    request.param_size = param_size;
+                    if request.path.contains("RID") && request.param_size > 0 {
+                        request.param_size -= 1;
+                    }
+                }
             }
+
+            rid_request_set.set.extend(request_map_vec);
+            value.set = rid_request_set.set;
         }
     }
 }
@@ -226,6 +209,18 @@ impl SecondaryModifierMap {
             pat,
             MatchTarget::OperationMap(match_target.to_string()),
         ));
+    }
+
+    pub fn insert_operation_id(&mut self, pat: &str, match_target: &str) {
+        self.secondary_targets.push_back(SecondaryTarget::new(
+            pat,
+            MatchTarget::OperationId(match_target.to_string()),
+        ));
+    }
+
+    pub fn insert_operation_map_and_id(&mut self, pat: &str, match_target: &str) {
+        self.insert_operation_mapping(pat, match_target);
+        self.insert_operation_id(pat, match_target);
     }
 
     pub fn modify(&self, request: &mut Request) {

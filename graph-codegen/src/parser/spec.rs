@@ -1,12 +1,14 @@
 use crate::builder::ClientLinkSettings;
-use crate::parser::filter::{Filter, ModifierMap, SecondaryModifierMap, UrlMatchTarget};
-use crate::parser::{HttpMethod, ParserSettings, PathMap, Request, RequestMap, RequestSet};
+use crate::parser::filter::{Filter, ModifierMap, ResourceUrlModifier, SecondaryModifierMap};
+use crate::parser::{
+    DirectoryModFile, HttpMethod, ParserSettings, PathMap, Request, RequestMap, RequestSet,
+};
 use crate::traits::{Modify, RequestParser, RequestParserBuilder};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use reqwest::Url;
 use std::cell::{RefCell, RefMut};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::path::Path;
@@ -17,12 +19,15 @@ pub struct Modifier<'a> {
     pub(crate) name: String,
     pub(crate) resource_identity: ResourceIdentity,
     pub(crate) modifier_map: ModifierMap,
-    pub(crate) url_modify_target: HashSet<UrlMatchTarget>,
+    pub(crate) resource_url_modifier: Option<ResourceUrlModifier>,
     pub(crate) client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
     pub(crate) secondary_modify_target: SecondaryModifierMap,
     pub(crate) custom_methods: Option<HashMap<String, RequestSet>>,
     pub(crate) filters: Vec<Filter<'a>>,
+    pub(crate) imports: Vec<&'static str>,
     pub(crate) links_override: HashMap<String, Vec<String>>,
+    pub(crate) directory_mod: Option<DirectoryModFile>,
+    pub(crate) is_ident_client: bool,
 }
 
 impl<'a> Modifier<'a> {
@@ -31,37 +36,24 @@ impl<'a> Modifier<'a> {
         let shorthand_name = format!("{}.{}", modifier_name, shorthand);
         let double_name = format!("{}.{}", modifier_name, modifier_name);
         let resource_identity = ResourceIdentity::from_str(modifier_name).unwrap();
+
         let mut filters = ParserSettings::path_filters(resource_identity);
         let default_filters = ParserSettings::default_path_filters();
         filters.extend(default_filters);
-        let url_modifiers = ParserSettings::url_target_modifiers(resource_identity);
-        let mut url_modify_target = HashSet::with_capacity(15);
-        url_modify_target.extend(url_modifiers);
-
-        let mut links_override = HashMap::new();
-
-        links_override.insert(
-            "directory".to_string(),
-            [
-                "directoryRoles",
-                "directoryObjects",
-                "directoryRoleTemplates",
-            ]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
-        );
 
         let mut modifier = Modifier {
             name: modifier_name.to_string(),
             resource_identity,
             modifier_map: ParserSettings::target_modifiers(resource_identity),
-            url_modify_target,
+            resource_url_modifier: ParserSettings::resource_url_modifier(resource_identity),
             client_links: ParserSettings::client_link_settings(resource_identity),
             secondary_modify_target: ParserSettings::secondary_modifier_map(resource_identity),
             custom_methods: ParserSettings::custom_methods(resource_identity),
             filters,
-            links_override,
+            imports: ParserSettings::imports(resource_identity),
+            links_override: ParserSettings::links_override(resource_identity),
+            directory_mod: ParserSettings::directory_mod(resource_identity),
+            is_ident_client: false,
         };
 
         modifier.modifier_map.operation_map("", modifier_name);
@@ -71,6 +63,14 @@ impl<'a> Modifier<'a> {
         modifier
             .modifier_map
             .operation_map(double_name.as_str(), modifier_name);
+
+        if modifier.resource_url_modifier.is_some() {
+            modifier.is_ident_client = true;
+            modifier.imports.push("handlebars::*");
+        } else if ParserSettings::is_ident_client(resource_identity) {
+            modifier.is_ident_client = true;
+            modifier.imports.push("handlebars::*");
+        }
 
         modifier
     }
@@ -147,29 +147,6 @@ impl<'a> Parser<'a> {
                 modifiers: Default::default(),
             }),
         }
-    }
-
-    pub fn parse_secondary<P: AsRef<Path>>(
-        file: P,
-        start_filter: Filter,
-        secondary_name: &str,
-    ) -> Parser<'a> {
-        let parser = Parser {
-            spec: RefCell::new(ParserSpec::parse_secondary(
-                file,
-                start_filter,
-                secondary_name,
-            )),
-        };
-
-        if let Ok(resource_identity) = ResourceIdentity::from_str(secondary_name) {
-            let mut spec = parser.spec.borrow_mut();
-            for filter in ParserSettings::path_filters(resource_identity).iter() {
-                spec.paths = spec.paths.filter(filter.clone()).into();
-            }
-        }
-
-        parser
     }
 
     pub fn path_map(&self) -> PathMap {
@@ -305,7 +282,7 @@ impl<'a> Parser<'a> {
                     req_map.requests.push_back(request);
                 }
 
-                for url_modifier in modifier.url_modify_target.iter() {
+                if let Some(url_modifier) = modifier.resource_url_modifier.as_ref() {
                     if url_modifier.matches(&req_map) {
                         url_modifier.modify(&mut req_map);
                     }
@@ -326,7 +303,7 @@ impl<'a> Parser<'a> {
                 request_set.join_inner_insert(req);
             }
 
-            for url_modifier in modifier.url_modify_target.iter() {
+            if let Some(url_modifier) = modifier.resource_url_modifier.as_ref() {
                 url_modifier.modify(&mut request_set);
             }
 

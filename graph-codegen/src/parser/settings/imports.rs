@@ -13,8 +13,6 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
             "crate::events::{EventsRequest, EventRequest}",
             "crate::core::ResourceIdentity",
-            // TODO: Handlebars should be imported by the builder. Figure out why this is not happening.
-            "handlebars::*",
             "crate::extended_properties::ExtendedPropertiesRequest",
         ],
         ResourceIdentity::CalendarGroup | ResourceIdentity::CalendarGroups => vec![
@@ -65,8 +63,6 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::items::{ItemRequest, ItemsRequest}",
             "crate::lists::{ListRequest, ListsRequest}",
             "graph_http::types::DeltaPhantom",
-            // TODO: Handlebars should be imported by the builder. Figure out why this is not happening.
-            "handlebars::*",
         ],
         ResourceIdentity::Domains => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::Lists => vec![
