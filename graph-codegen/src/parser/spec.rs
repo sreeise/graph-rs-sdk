@@ -1,149 +1,150 @@
 use crate::builder::ClientLinkSettings;
-use crate::parser::filter::{
-    Filter, MatchTarget, ModifierMap, SecondaryModifierMap, UrlMatchTarget,
-};
+use crate::parser::filter::{Filter, ModifierMap, SecondaryModifierMap, UrlMatchTarget};
 use crate::parser::{HttpMethod, ParserSettings, PathMap, Request, RequestMap, RequestSet};
 use crate::traits::{Modify, RequestParser, RequestParserBuilder};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use reqwest::Url;
-use serde::Serialize;
 use std::cell::{RefCell, RefMut};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::convert::TryFrom;
 use std::fmt::Debug;
-use std::io::{Read, Write};
 use std::path::Path;
 use std::str::FromStr;
 
-#[derive(Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
-#[serde(default)]
-pub struct ParserSpec {
-    pub(crate) paths: PathMap,
-    #[serde(skip_serializing_if = "VecDeque::is_empty")]
-    pub(crate) requests: VecDeque<RequestMap>,
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub(crate) tag_map: HashMap<String, String>,
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub(crate) operation_map: HashMap<String, String>,
-    pub(crate) modify_target: ModifierMap,
-    pub(crate) secondary_modify_target: SecondaryModifierMap,
+#[derive(Default, Debug, Clone)]
+pub struct Modifier<'a> {
+    pub(crate) name: String,
+    pub(crate) resource_identity: ResourceIdentity,
+    pub(crate) modifier_map: ModifierMap,
     pub(crate) url_modify_target: HashSet<UrlMatchTarget>,
-    pub(crate) modifiers: BTreeSet<String>,
-    pub(crate) links_override: HashMap<String, Vec<String>>,
-    pub(crate) secondary_links: HashMap<String, Vec<String>>,
     pub(crate) client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
+    pub(crate) secondary_modify_target: SecondaryModifierMap,
     pub(crate) custom_methods: Option<HashMap<String, RequestSet>>,
+    pub(crate) filters: Vec<Filter<'a>>,
+    pub(crate) links_override: HashMap<String, Vec<String>>,
 }
 
-impl ParserSpec {
-    pub(crate) fn parser_spec(path_map: PathMap) -> ParserSpec {
+impl<'a> Modifier<'a> {
+    pub fn new(modifier_name: &str) -> Modifier<'a> {
+        let shorthand = &modifier_name[..modifier_name.len() - 1];
+        let shorthand_name = format!("{}.{}", modifier_name, shorthand);
+        let double_name = format!("{}.{}", modifier_name, modifier_name);
+        let resource_identity = ResourceIdentity::from_str(modifier_name).unwrap();
+        let mut filters = ParserSettings::path_filters(resource_identity);
+        let default_filters = ParserSettings::default_path_filters();
+        filters.extend(default_filters);
+        let url_modifiers = ParserSettings::url_target_modifiers(resource_identity);
+        let mut url_modify_target = HashSet::with_capacity(15);
+        url_modify_target.extend(url_modifiers);
+
+        let mut links_override = HashMap::new();
+
+        links_override.insert(
+            "directory".to_string(),
+            [
+                "directoryRoles",
+                "directoryObjects",
+                "directoryRoleTemplates",
+            ]
+            .iter()
+            .map(|s| s.to_string())
+            .collect(),
+        );
+
+        let mut modifier = Modifier {
+            name: modifier_name.to_string(),
+            resource_identity,
+            modifier_map: ParserSettings::target_modifiers(resource_identity),
+            url_modify_target,
+            client_links: ParserSettings::client_link_settings(resource_identity),
+            secondary_modify_target: ParserSettings::secondary_modifier_map(resource_identity),
+            custom_methods: ParserSettings::custom_methods(resource_identity),
+            filters,
+            links_override,
+        };
+
+        modifier.modifier_map.operation_map("", modifier_name);
+        modifier
+            .modifier_map
+            .operation_map(shorthand_name.as_str(), modifier_name);
+        modifier
+            .modifier_map
+            .operation_map(double_name.as_str(), modifier_name);
+
+        modifier
+    }
+
+    pub fn build_modifier_vec(names: &[&str]) -> Vec<Modifier<'a>> {
+        let mut vec: Vec<Modifier> = Vec::new();
+        for name in names.iter() {
+            vec.push(Modifier::new(name));
+        }
+        vec
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ParserSpec<'a> {
+    pub(crate) paths: PathMap,
+    pub(crate) modifiers: Vec<Modifier<'a>>,
+}
+
+impl<'a> ParserSpec<'a> {
+    pub(crate) fn parser_spec(path_map: PathMap, modifiers: Vec<Modifier<'a>>) -> ParserSpec<'a> {
         ParserSpec {
             paths: path_map,
-            requests: Default::default(),
-            tag_map: Default::default(),
-            operation_map: Default::default(),
-            modify_target: ModifierMap::with_capacity(30),
-            secondary_modify_target: SecondaryModifierMap::with_capacity(15),
-            url_modify_target: HashSet::with_capacity(15),
-            modifiers: Default::default(),
-            links_override: Default::default(),
-            secondary_links: HashMap::with_capacity(10),
-            client_links: Default::default(),
-            custom_methods: Default::default(),
+            modifiers,
         }
     }
 
-    pub fn new(mut path_map: PathMap) -> ParserSpec {
+    pub fn new(mut path_map: PathMap, modifiers: Vec<Modifier<'a>>) -> ParserSpec<'a> {
         path_map.clean();
-        ParserSpec::parser_spec(path_map)
+        ParserSpec::parser_spec(path_map, modifiers)
     }
 
-    pub fn parse<P: AsRef<Path>>(file: P) -> ParserSpec {
+    pub fn parse<P: AsRef<Path>>(file: P) -> ParserSpec<'a> {
         let mut path_map: PathMap = PathMap::from_file(file.as_ref()).unwrap();
         path_map.clean();
-        ParserSpec::parser_spec(path_map)
+        ParserSpec::parser_spec(path_map, Default::default())
     }
 
     pub fn parse_secondary<P: AsRef<Path>>(
         file: P,
         start_filter: Filter,
         secondary_name: &str,
-    ) -> ParserSpec {
+    ) -> ParserSpec<'a> {
         let path_map: PathMap = PathMap::from_file(file.as_ref()).unwrap();
         let mut path_map: PathMap = path_map.filter(start_filter).into();
         let path_map = path_map.clean_secondary(secondary_name);
-        ParserSpec::parser_spec(path_map)
+        ParserSpec::parser_spec(path_map, Default::default())
+    }
+
+    pub fn set_modifiers(&mut self, modifiers: Vec<Modifier<'a>>) {
+        self.modifiers = modifiers;
     }
 }
 
-impl Debug for ParserSpec {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ParserSpec")
-            .field("tag_map", &self.tag_map)
-            .field("operation_map", &self.operation_map)
-            .field("modify_target", &self.modify_target)
-            .field("url_modify_target", &self.url_modify_target)
-            .field("modifiers", &self.modifiers)
-            .field("links_override", &self.links_override)
-            .finish()
-    }
+#[derive(Default, Debug, Clone)]
+pub struct Parser<'a> {
+    pub(crate) spec: RefCell<ParserSpec<'a>>,
 }
 
-impl ParserSpec {
-    pub fn modifier_map(&mut self) -> &mut ModifierMap {
-        &mut self.modify_target
-    }
-
-    pub fn resource_modifier_set(&mut self) -> HashSet<UrlMatchTarget> {
-        self.url_modify_target.clone()
-    }
-
-    pub fn add_client_link_settings(&mut self, name: &str, settings: ClientLinkSettings) {
-        self.client_links
-            .entry(name.to_string())
-            .and_modify(|set| {
-                set.insert(settings.clone());
-            })
-            .or_insert_with(|| {
-                let mut set = BTreeSet::new();
-                set.insert(settings.clone());
-                set
-            });
-    }
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
-#[serde(default)]
-pub struct Parser {
-    pub(crate) spec: RefCell<ParserSpec>,
-}
-
-impl Parser {
-    pub fn parse<P: AsRef<Path>>(file: P) -> Parser {
+impl<'a> Parser<'a> {
+    pub fn parse<P: AsRef<Path>>(file: P) -> Parser<'a> {
         Parser {
             spec: RefCell::new(ParserSpec::parse(file)),
         }
     }
 
-    pub fn parse_filter<P: AsRef<str>>(file: P, filter: Filter<'_>) -> Parser {
+    pub fn parse_filter<P: AsRef<str>>(file: P, filter: Filter<'_>) -> Parser<'a> {
         let mut path_map: PathMap = PathMap::from_file(file.as_ref()).unwrap();
         path_map.clean();
 
         Parser {
             spec: RefCell::new(ParserSpec {
                 paths: path_map.filter(filter).into(),
-                requests: Default::default(),
-                tag_map: Default::default(),
-                operation_map: Default::default(),
-                modify_target: ModifierMap::with_capacity(30),
-                secondary_modify_target: SecondaryModifierMap::with_capacity(15),
-                url_modify_target: HashSet::with_capacity(15),
                 modifiers: Default::default(),
-                links_override: Default::default(),
-                secondary_links: HashMap::with_capacity(10),
-                client_links: Default::default(),
-                custom_methods: Default::default(),
             }),
         }
     }
@@ -152,7 +153,7 @@ impl Parser {
         file: P,
         start_filter: Filter,
         secondary_name: &str,
-    ) -> Parser {
+    ) -> Parser<'a> {
         let parser = Parser {
             spec: RefCell::new(ParserSpec::parse_secondary(
                 file,
@@ -179,119 +180,12 @@ impl Parser {
         self.spec.borrow_mut().paths = path_map;
     }
 
-    pub fn resource_modifier_set(&self) -> HashSet<UrlMatchTarget> {
-        self.spec.borrow().url_modify_target.clone()
+    pub fn modifiers(&self) -> Vec<Modifier<'a>> {
+        self.spec.borrow().modifiers.clone()
     }
 
-    pub fn secondary_links(&self) -> HashMap<String, Vec<String>> {
-        self.spec.borrow().secondary_links.clone()
-    }
-
-    pub fn client_links(&self) -> BTreeMap<String, BTreeSet<ClientLinkSettings>> {
-        self.spec.borrow().client_links.clone()
-    }
-
-    pub fn custom_methods(&self) -> Option<HashMap<String, RequestSet>> {
-        self.spec.borrow().custom_methods.clone()
-    }
-
-    pub fn set_operation_map(&self, operation_map: HashMap<String, String>) {
-        self.spec.borrow_mut().operation_map = operation_map;
-    }
-
-    pub fn add_operation_mapping(&self, original: &str, replace_with: &str) {
-        self.spec
-            .borrow_mut()
-            .operation_map
-            .insert(original.into(), replace_with.into());
-    }
-
-    pub fn add_tag_mapping(&self, original: &str, replace_with: &str) {
-        self.spec
-            .borrow_mut()
-            .tag_map
-            .insert(original.into(), replace_with.into());
-    }
-
-    pub fn add_match_modifier(&self, matcher: MatchTarget, modifier: Vec<MatchTarget>) {
-        self.spec
-            .borrow_mut()
-            .modify_target
-            .map
-            .insert(matcher, modifier);
-    }
-
-    pub fn add_url_modifier(&self, modifier: UrlMatchTarget) {
-        self.spec.borrow_mut().url_modify_target.insert(modifier);
-    }
-
-    pub fn modifier_map(&self) -> RefMut<ParserSpec> {
-        self.spec.borrow_mut()
-    }
-
-    pub fn use_default_modifier(&self, name: &str) {
-        self.use_default_modifiers(&[name]);
-    }
-
-    pub fn use_default_modifiers(&self, names: &[&str]) {
-        let mut spec = self.spec.borrow_mut();
-
-        for name in names.iter() {
-            let shorthand = &name[..name.len() - 1];
-            let shorthand_name = format!("{}.{}", name, shorthand);
-            let double_name = format!("{}.{}", name, name);
-            let functions = format!("{}.Functions", name);
-            let actions = format!("{}.Actions", name);
-
-            spec.modify_target.map.insert(
-                MatchTarget::OperationMap("".to_string()),
-                vec![MatchTarget::TagAndOperationMap(name.to_string())],
-            );
-            spec.modify_target.map.insert(
-                MatchTarget::OperationMap(shorthand_name),
-                vec![MatchTarget::TagAndOperationMap(name.to_string())],
-            );
-            spec.modify_target.map.insert(
-                MatchTarget::OperationMap(double_name),
-                vec![MatchTarget::OperationMap(name.to_string())],
-            );
-            spec.modify_target.map.insert(
-                MatchTarget::TagAndOperationMap(actions),
-                vec![MatchTarget::TagAndOperationMap(name.to_string())],
-            );
-            spec.modify_target.map.insert(
-                MatchTarget::TagAndOperationMap(functions),
-                vec![MatchTarget::TagAndOperationMap(name.to_string())],
-            );
-
-            spec.modifiers.insert(name.to_string());
-            let resource_identity = ResourceIdentity::from_str(name).unwrap();
-
-            let filters = ParserSettings::path_filters(resource_identity);
-            for filter in filters {
-                spec.paths = spec.paths.filter(filter).into();
-            }
-
-            let settings = ParserSettings::client_link_settings(resource_identity);
-            spec.client_links.extend(settings);
-
-            let target_modifiers = ParserSettings::target_modifiers(resource_identity);
-            spec.modify_target.map.extend(target_modifiers.map);
-
-            let url_modifiers = ParserSettings::url_target_modifiers(resource_identity);
-            spec.url_modify_target.extend(url_modifiers);
-
-            let secondary_modifiers = ParserSettings::secondary_modifier_map(resource_identity);
-            spec.secondary_modify_target
-                .secondary_targets
-                .extend(secondary_modifiers.secondary_targets);
-
-            spec.custom_methods = ParserSettings::custom_methods(resource_identity);
-
-            println!("{:#?}", &spec.modify_target);
-        }
-
-        self.use_filters_internal(spec, ParserSettings::default_path_filters());
+    pub fn set_modifiers(&self, modifiers: Vec<Modifier<'a>>) {
+        self.spec.borrow_mut().set_modifiers(modifiers);
     }
 
     pub fn filter(&self, filter: Filter<'_>) -> PathMap {
@@ -329,38 +223,9 @@ impl Parser {
         self.use_filters_internal(spec, filters);
     }
 
-    pub fn add_links_override(&self, spec_client_name: &str, links: &[&str]) {
-        self.spec.borrow_mut().links_override.insert(
-            spec_client_name.to_string(),
-            links.iter().map(|s| s.to_string()).collect(),
-        );
-    }
-
-    pub fn use_default_links_override(&self) {
-        let mut spec = self.spec.borrow_mut();
-        spec.links_override.insert(
-            "directory".to_string(),
-            [
-                "directoryRoles",
-                "directoryObjects",
-                "directoryRoleTemplates",
-            ]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
-        );
-    }
-
-    pub fn get_links_override(&self) -> HashMap<String, Vec<String>> {
-        self.spec.borrow().links_override.clone()
-    }
-
     pub fn build(&self) -> HashMap<String, RequestSet> {
-        let mut spec = self.spec.borrow_mut();
-        let modifier = spec.modify_target.clone();
-        let secondary_modifier = spec.secondary_modify_target.clone();
-        let modifier_filters = spec.modifiers.clone();
-        let url_modifiers = spec.url_modify_target.clone();
+        let spec = self.spec.borrow();
+        let modifiers = spec.modifiers.clone();
         let mut req_set_map = HashMap::new();
 
         let operation_mapping_fn = |request: &mut Request, modifier_filter: &str| {
@@ -369,87 +234,111 @@ impl Parser {
             }
         };
 
-        for modifier_filter in modifier_filters.iter() {
-            let path_map: PathMap = spec
+        for modifier in modifiers {
+            let mut path_map: PathMap = spec
                 .paths
-                .filter(Filter::PathStartsWith(&format!("/{}", modifier_filter)))
+                .filter(Filter::PathStartsWith(&format!("/{}", modifier.name)))
                 .into();
 
+            for filter in modifier.filters.iter() {
+                path_map = path_map.filter(filter.clone()).into();
+            }
+
+            let mut requests: VecDeque<RequestMap> = VecDeque::new();
             for (path, path_spec) in path_map.paths.iter() {
                 let mut req_map = RequestMap::default();
                 let path = path.transform_path();
                 req_map.path = path.clone();
 
                 if let Some(operation) = path_spec.get.as_ref() {
-                    let mut request = operation.build(path.clone(), &modifier, &secondary_modifier);
+                    let mut request = operation.build(
+                        path.clone(),
+                        &modifier.modifier_map,
+                        &modifier.secondary_modify_target,
+                    );
                     request.method = HttpMethod::GET;
-                    operation_mapping_fn(&mut request, modifier_filter.as_ref());
+                    operation_mapping_fn(&mut request, modifier.name.as_ref());
                     req_map.requests.push_back(request);
                 }
 
                 if let Some(operation) = path_spec.post.as_ref() {
-                    let mut request = operation.build(path.clone(), &modifier, &secondary_modifier);
+                    let mut request = operation.build(
+                        path.clone(),
+                        &modifier.modifier_map,
+                        &modifier.secondary_modify_target,
+                    );
                     request.method = HttpMethod::POST;
-                    operation_mapping_fn(&mut request, modifier_filter.as_ref());
+                    operation_mapping_fn(&mut request, modifier.name.as_ref());
                     req_map.requests.push_back(request);
                 }
 
                 if let Some(operation) = path_spec.put.as_ref() {
-                    let mut request = operation.build(path.clone(), &modifier, &secondary_modifier);
+                    let mut request = operation.build(
+                        path.clone(),
+                        &modifier.modifier_map,
+                        &modifier.secondary_modify_target,
+                    );
                     request.method = HttpMethod::PUT;
-                    operation_mapping_fn(&mut request, modifier_filter.as_ref());
+                    operation_mapping_fn(&mut request, modifier.name.as_ref());
                     req_map.requests.push_back(request);
                 }
 
                 if let Some(operation) = path_spec.patch.as_ref() {
-                    let mut request = operation.build(path.clone(), &modifier, &secondary_modifier);
+                    let mut request = operation.build(
+                        path.clone(),
+                        &modifier.modifier_map,
+                        &modifier.secondary_modify_target,
+                    );
                     request.method = HttpMethod::PATCH;
-                    operation_mapping_fn(&mut request, modifier_filter.as_ref());
+                    operation_mapping_fn(&mut request, modifier.name.as_ref());
                     req_map.requests.push_back(request);
                 }
 
                 if let Some(operation) = path_spec.delete.as_ref() {
-                    let mut request = operation.build(path.clone(), &modifier, &secondary_modifier);
+                    let mut request = operation.build(
+                        path.clone(),
+                        &modifier.modifier_map,
+                        &modifier.secondary_modify_target,
+                    );
                     request.method = HttpMethod::DELETE;
-                    operation_mapping_fn(&mut request, modifier_filter.as_ref());
+                    operation_mapping_fn(&mut request, modifier.name.as_ref());
                     req_map.requests.push_back(request);
                 }
 
-                for modifier in url_modifiers.iter() {
-                    if modifier.matches(&req_map) {
-                        modifier.modify(&mut req_map);
+                for url_modifier in modifier.url_modify_target.iter() {
+                    if url_modifier.matches(&req_map) {
+                        url_modifier.modify(&mut req_map);
                     }
                 }
 
-                if let Some(r) = spec
-                    .requests
+                if let Some(request_map) = requests
                     .iter_mut()
                     .find(|r| r.path.eq(req_map.path.as_str()))
                 {
-                    r.requests.extend(req_map.requests);
+                    request_map.requests.extend(req_map.requests);
                 } else {
-                    spec.requests.push_back(req_map);
+                    requests.push_back(req_map);
                 }
             }
 
             let mut request_set = RequestSet::default();
-            let mut requests = spec.requests.clone();
             while let Some(req) = requests.pop_front() {
                 request_set.join_inner_insert(req);
             }
 
-            for modifier in url_modifiers.iter() {
-                modifier.modify(&mut request_set);
+            for url_modifier in modifier.url_modify_target.iter() {
+                url_modifier.modify(&mut request_set);
             }
 
-            req_set_map.insert(modifier_filter.clone(), request_set);
-            spec.requests.clear();
+            req_set_map.insert(modifier.name.clone(), request_set);
+            requests.clear();
         }
+
         req_set_map
     }
 }
 
-impl TryFrom<reqwest::Url> for Parser {
+impl<'a> TryFrom<reqwest::Url> for Parser<'a> {
     type Error = reqwest::Error;
 
     fn try_from(value: Url) -> Result<Self, Self::Error> {
@@ -457,7 +346,7 @@ impl TryFrom<reqwest::Url> for Parser {
         let s = response.text().unwrap();
         let path_map: PathMap = serde_yaml::from_str(s.as_str()).unwrap();
         Ok(Parser {
-            spec: RefCell::new(ParserSpec::new(path_map)),
+            spec: RefCell::new(ParserSpec::new(path_map, Default::default())),
         })
     }
 }

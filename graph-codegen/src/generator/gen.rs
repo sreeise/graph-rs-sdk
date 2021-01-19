@@ -1,7 +1,7 @@
 use crate::builder::Builder;
 use crate::parser::client_resource::ClientResource;
 use crate::parser::error::ParseError;
-use crate::parser::{Parse, Parser, ParserSettings, ParserSpec, PathMap, RequestSet};
+use crate::parser::{Modifier, Parse, Parser, ParserSettings, ParserSpec, PathMap, RequestSet};
 use from_as::FromFile;
 use graph_core::resource::ResourceIdentity;
 use rayon::prelude::*;
@@ -78,21 +78,21 @@ pub trait Generate<Clients> {
 /// pretty!(map);
 /// ```
 #[derive(Default, Debug)]
-pub struct Generator {
-    builder: Builder,
+pub struct Generator<'a> {
+    builder: Builder<'a>,
 }
 
-impl Generator {
-    pub fn new(resource_identity: ResourceIdentity) -> Result<Generator, ParseError> {
+impl<'a> Generator<'a> {
+    pub fn new(resource_identity: ResourceIdentity) -> Result<Generator<'a>, ParseError> {
         let client_resource = ClientResource::try_from(resource_identity)?;
         Ok(Generator {
             builder: Generator::parse(API_V1_METADATA_URL.clone(), client_resource)?,
         })
     }
 
-    pub fn get_client_resource<'a>(
+    pub fn get_client_resource<'b>(
         resource_identity: ResourceIdentity,
-    ) -> Option<ClientResource<'a>> {
+    ) -> Option<ClientResource<'b>> {
         ClientResource::try_from(resource_identity).ok()
     }
 
@@ -103,26 +103,28 @@ impl Generator {
     pub fn generate_clients(&self) {
         self.builder.build_clients();
     }
+
+    pub fn get_parser() -> Result<Parser<'a>, ParseError> {
+        Ok(Parser::try_from(API_V1_METADATA_URL.clone())?)
+    }
 }
 
-impl Parse<&std::path::Path> for Generator {
+impl Parse<&std::path::Path> for Generator<'_> {
     type Error = ParseError;
 
-    fn parse(
+    fn parse<'a>(
         parse_from: &std::path::Path,
         client_resource: ClientResource<'_>,
-    ) -> Result<Builder, Self::Error> {
+    ) -> Result<Builder<'a>, Self::Error> {
         match client_resource {
             ClientResource::Main { modifier } => {
                 let mut path_map: PathMap = PathMap::from_file(parse_from)?;
                 path_map.clean();
 
+                let modifiers = Modifier::build_modifier_vec(&[&modifier]);
                 let parser = Parser {
-                    spec: RefCell::new(ParserSpec::parser_spec(path_map)),
+                    spec: RefCell::new(ParserSpec::parser_spec(path_map, modifiers)),
                 };
-
-                parser.use_default_modifiers(&[modifier.as_ref()]);
-                parser.use_default_links_override();
 
                 let builder = Builder::new(parser);
                 builder.set_build_with_modifier_filter(true);
@@ -138,8 +140,9 @@ impl Parse<&std::path::Path> for Generator {
                 let mut path_map: PathMap = path_map.filter(start_filter).into();
                 let path_map = path_map.clean_secondary(modifier.as_str());
 
+                let modifiers = Modifier::build_modifier_vec(&[&modifier]);
                 let parser = Parser {
-                    spec: RefCell::new(ParserSpec::parser_spec(path_map)),
+                    spec: RefCell::new(ParserSpec::parser_spec(path_map, modifiers)),
                 };
 
                 if let Ok(resource_identity) = ResourceIdentity::from_str(modifier.as_str()) {
@@ -148,9 +151,6 @@ impl Parse<&std::path::Path> for Generator {
                         spec.paths = spec.paths.filter(filter.clone()).into();
                     }
                 }
-
-                parser.use_default_modifiers(&[modifier.as_ref()]);
-                parser.use_default_links_override();
 
                 let builder = Builder::new(parser);
                 builder.set_build_with_modifier_filter(true);
@@ -162,18 +162,18 @@ impl Parse<&std::path::Path> for Generator {
     }
 }
 
-impl Parse<reqwest::Url> for Generator {
+impl Parse<reqwest::Url> for Generator<'_> {
     type Error = ParseError;
 
-    fn parse(
+    fn parse<'a>(
         parse_from: reqwest::Url,
         client_resource: ClientResource<'_>,
-    ) -> Result<Builder, Self::Error> {
+    ) -> Result<Builder<'a>, Self::Error> {
         match client_resource {
             ClientResource::Main { modifier } => {
                 let parser = Parser::try_from(parse_from)?;
-                parser.use_default_modifiers(&[modifier.as_ref()]);
-                parser.use_default_links_override();
+                let modifiers = Modifier::build_modifier_vec(&[&modifier]);
+                parser.set_modifiers(modifiers);
 
                 let builder = Builder::new(parser);
                 builder.set_build_with_modifier_filter(true);
@@ -188,7 +188,8 @@ impl Parse<reqwest::Url> for Generator {
                 let path_map = PathMap::try_from(parse_from)?;
                 let mut path_map: PathMap = path_map.filter(start_filter).into();
                 let path_map = path_map.clean_secondary(modifier.as_str());
-                let parser_spec = ParserSpec::parser_spec(path_map);
+                let modifiers = Modifier::build_modifier_vec(&[&modifier]);
+                let parser_spec = ParserSpec::parser_spec(path_map, modifiers);
 
                 let parser = Parser {
                     spec: RefCell::new(parser_spec),
@@ -201,9 +202,6 @@ impl Parse<reqwest::Url> for Generator {
                     }
                 }
 
-                parser.use_default_modifiers(&[modifier.as_ref()]);
-                parser.use_default_links_override();
-
                 let builder = Builder::new(parser);
                 builder.set_build_with_modifier_filter(true);
                 builder.use_defaults();
@@ -214,7 +212,7 @@ impl Parse<reqwest::Url> for Generator {
     }
 }
 
-impl Generate<ResourceIdentity> for Generator {
+impl<'a> Generate<ResourceIdentity> for Generator<'a> {
     fn generate(resource_identity: ResourceIdentity) -> Result<(), ParseError> {
         let client_resource = ClientResource::try_from(resource_identity)?;
         let gen = Generator {
@@ -236,7 +234,7 @@ impl Generate<ResourceIdentity> for Generator {
     }
 }
 
-impl Generate<Vec<ResourceIdentity>> for Generator {
+impl<'a> Generate<Vec<ResourceIdentity>> for Generator<'a> {
     fn generate(vec: Vec<ResourceIdentity>) -> Result<(), ParseError> {
         vec.par_iter().for_each(|resource_identity| {
             Generator::generate(resource_identity.clone()).unwrap();

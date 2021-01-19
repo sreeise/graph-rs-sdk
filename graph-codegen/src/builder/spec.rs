@@ -1,21 +1,20 @@
 use crate::builder::{Client, ClientBuilder, ClientLinkSettings};
 use crate::parser::filter::{Filter, UrlMatchTarget};
-use crate::parser::{Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames};
-use from_as::*;
+use crate::parser::{
+    Modifier, Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames,
+};
 use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::cell::{Ref, RefCell};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use std::convert::TryFrom;
 use std::fs::OpenOptions;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::str::FromStr;
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
-pub struct SpecBuilder {
-    pub(crate) parser: Parser,
-    #[serde(skip_serializing_if = "HashSet::is_empty")]
+#[derive(Default, Debug, Clone)]
+pub struct SpecBuilder<'a> {
+    pub(crate) parser: Parser<'a>,
     imports: HashSet<String>,
     ident_clients: HashSet<String>,
     ident_client_id_links: BTreeMap<String, String>,
@@ -25,7 +24,7 @@ pub struct SpecBuilder {
     dry_run: bool,
 }
 
-impl SpecBuilder {
+impl<'a> SpecBuilder<'a> {
     fn add_imports(&mut self, imports: &[&str]) {
         self.imports.extend(imports.iter().map(|s| s.to_string()));
     }
@@ -45,17 +44,6 @@ impl SpecBuilder {
             });
     }
 
-    /*
-    fn extend_client_links(&mut self, name: &str, client_links: BTreeSet<ClientLinkSettings>) {
-        self.client_links
-            .entry(name.to_string())
-            .and_modify(|set| {
-                set.extend(client_links.clone());
-            })
-            .or_insert(client_links.clone());
-    }
-     */
-
     fn extend_client_links_map(
         &mut self,
         client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
@@ -73,13 +61,13 @@ impl SpecBuilder {
     }
 }
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
-pub struct Builder {
-    pub(crate) spec: RefCell<SpecBuilder>,
+#[derive(Default, Debug, Clone)]
+pub struct Builder<'a> {
+    pub(crate) spec: RefCell<SpecBuilder<'a>>,
 }
 
-impl Builder {
-    pub fn new(parser: Parser) -> Builder {
+impl<'a> Builder<'a> {
+    pub fn new(parser: Parser<'a>) -> Builder<'a> {
         Builder {
             spec: RefCell::new(SpecBuilder {
                 parser,
@@ -113,6 +101,7 @@ impl Builder {
 
     pub fn use_defaults(&self) {
         let mut spec = self.spec.borrow_mut();
+        let modifiers = spec.parser.modifiers();
         spec.add_imports(&[
             "crate::client::Graph",
             "graph_http::IntoResponse",
@@ -125,21 +114,21 @@ impl Builder {
         // to create both.
         ident_clients.insert("drives".to_string());
 
-        let modifiers = spec.parser.resource_modifier_set();
-        let client_links_override = spec.parser.client_links();
+        for modifier in modifiers {
+            let client_links_override = modifier.client_links.clone();
 
-        for resource_target in modifiers.iter() {
-            match resource_target {
-                UrlMatchTarget::ResourceId(_s, replacement, name) => {
-                    ident_clients.insert(name.to_string());
-                    let mut client_link = ClientLinkSettings::new(name.as_str());
-                    client_link.as_id_method_link();
-                    spec.extend_client_link(replacement.as_str(), client_link);
-                },
+            for url_modifier in modifier.url_modify_target.iter() {
+                match url_modifier {
+                    UrlMatchTarget::ResourceId(_s, replacement, name) => {
+                        ident_clients.insert(name.to_string());
+                        let mut client_link = ClientLinkSettings::new(name.as_str());
+                        client_link.as_id_method_link();
+                        spec.extend_client_link(replacement.as_str(), client_link);
+                    },
+                }
             }
+            spec.extend_client_links_map(client_links_override);
         }
-
-        spec.extend_client_links_map(client_links_override);
         spec.set_ident_clients(ident_clients);
     }
 
@@ -260,7 +249,7 @@ impl Builder {
 
     pub fn build_clients(&self) {
         let spec = self.spec.borrow();
-        let custom_methods = spec.parser.custom_methods();
+        let modifiers = spec.parser.modifiers();
         let mut map = Builder::parser_build(&spec);
         let imports = spec.imports.clone();
         let dry_run = spec.dry_run;
@@ -334,8 +323,12 @@ impl Builder {
                     });
                 }
 
-                if let Some(custom_methods) = custom_methods.as_ref() {
-                    self.add_custom_clients(name.as_str(), custom_methods, &mut clients);
+                for modifier in modifiers.iter() {
+                    if modifier.name.eq(name.as_str()) {
+                        if let Some(custom_methods) = modifier.custom_methods.as_ref() {
+                            self.add_custom_clients(name.as_str(), custom_methods, &mut clients);
+                        }
+                    }
                 }
 
                 for (client_name, client) in clients.iter() {
@@ -394,12 +387,7 @@ impl Builder {
         file.sync_data().unwrap();
     }
 
-    pub fn build_with_modifier_filter(&self) -> HashMap<String, RequestSet> {
-        let spec = self.spec.borrow();
-        Builder::parser_build(&spec)
-    }
-
-    fn parser_build(spec: &Ref<SpecBuilder>) -> HashMap<String, RequestSet> {
+    fn parser_build(spec: &Ref<SpecBuilder<'a>>) -> HashMap<String, RequestSet> {
         if spec.build_with_modifier_filter {
             spec.parser.build()
         } else {
@@ -407,7 +395,8 @@ impl Builder {
             let resource_names = ResourceNames::from(path_map);
             let vec = resource_names.to_vec();
             let vec_str: Vec<&str> = vec.iter().map(|s| s.as_str()).collect();
-            spec.parser.use_default_modifiers(&vec_str);
+            let modifiers = Modifier::build_modifier_vec(&vec_str);
+            spec.parser.set_modifiers(modifiers);
             spec.parser.build()
         }
     }
