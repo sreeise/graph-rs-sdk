@@ -7,9 +7,9 @@ use crate::{GraphResponse, RequestAttribute, RequestClient};
 use async_trait::async_trait;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
-use std::fmt::Formatter;
 use std::convert::TryFrom;
 use std::fmt::Debug;
+use std::fmt::Formatter;
 use std::path::Path;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
