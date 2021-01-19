@@ -1,5 +1,5 @@
 use from_as::FromAsError;
-use serde::export::Formatter;
+use std::fmt::Formatter;
 
 #[derive(Debug)]
 pub enum ParseError {

@@ -5,7 +5,7 @@
 
 ### Now available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
-    graph-rs-sdk = "0.0.1"
+    graph-rs-sdk = "0.0.2"
 
 Requires Rust nightly.
 
