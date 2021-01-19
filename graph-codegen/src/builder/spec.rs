@@ -1,22 +1,16 @@
 use crate::builder::{Client, ClientBuilder, ClientLinkSettings};
-use crate::parser::filter::{Filter, UrlMatchTarget};
-use crate::parser::{
-    Modifier, Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames,
-};
-use graph_core::resource::ResourceIdentity;
+use crate::parser::filter::Filter;
+use crate::parser::{Modifier, Parser, PathMap, RequestMap, RequestSet, ResourceNames};
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::cell::{Ref, RefCell};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::str::FromStr;
 
 #[derive(Default, Debug, Clone)]
 pub struct SpecBuilder<'a> {
     pub(crate) parser: Parser<'a>,
-    imports: HashSet<String>,
-    ident_clients: HashSet<String>,
     ident_client_id_links: BTreeMap<String, String>,
     secondary_links: BTreeMap<String, Vec<String>>,
     client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
@@ -25,14 +19,6 @@ pub struct SpecBuilder<'a> {
 }
 
 impl<'a> SpecBuilder<'a> {
-    fn add_imports(&mut self, imports: &[&str]) {
-        self.imports.extend(imports.iter().map(|s| s.to_string()));
-    }
-
-    fn set_ident_clients(&mut self, ident_clients: HashSet<String>) {
-        self.ident_clients = ident_clients;
-    }
-
     fn extend_client_link(&mut self, name: &str, client_link: ClientLinkSettings) {
         self.client_links
             .entry(name.to_string())
@@ -71,8 +57,6 @@ impl<'a> Builder<'a> {
         Builder {
             spec: RefCell::new(SpecBuilder {
                 parser,
-                imports: Default::default(),
-                ident_clients: Default::default(),
                 ident_client_id_links: Default::default(),
                 secondary_links: Default::default(),
                 client_links: Default::default(),
@@ -102,34 +86,18 @@ impl<'a> Builder<'a> {
     pub fn use_defaults(&self) {
         let mut spec = self.spec.borrow_mut();
         let modifiers = spec.parser.modifiers();
-        spec.add_imports(&[
-            "crate::client::Graph",
-            "graph_http::IntoResponse",
-            "reqwest::Method",
-        ]);
-
-        let mut ident_clients: HashSet<String> = HashSet::new();
-
-        // Drives does not get added because we use drive instead of drives
-        // to create both.
-        ident_clients.insert("drives".to_string());
 
         for modifier in modifiers {
             let client_links_override = modifier.client_links.clone();
 
-            for url_modifier in modifier.url_modify_target.iter() {
-                match url_modifier {
-                    UrlMatchTarget::ResourceId(_s, replacement, name) => {
-                        ident_clients.insert(name.to_string());
-                        let mut client_link = ClientLinkSettings::new(name.as_str());
-                        client_link.as_id_method_link();
-                        spec.extend_client_link(replacement.as_str(), client_link);
-                    },
-                }
+            if let Some(url_modifier) = modifier.resource_url_modifier.as_ref() {
+                let mut client_link = ClientLinkSettings::new(url_modifier.name.as_str());
+                client_link.as_id_method_link();
+                spec.extend_client_link(url_modifier.replacement.as_str(), client_link);
             }
+
             spec.extend_client_links_map(client_links_override);
         }
-        spec.set_ident_clients(ident_clients);
     }
 
     fn add_custom_clients(
@@ -251,7 +219,6 @@ impl<'a> Builder<'a> {
         let spec = self.spec.borrow();
         let modifiers = spec.parser.modifiers();
         let mut map = Builder::parser_build(&spec);
-        let imports = spec.imports.clone();
         let dry_run = spec.dry_run;
 
         for (name, request_set) in map.iter_mut() {
@@ -259,26 +226,17 @@ impl<'a> Builder<'a> {
                 println!("Name: {}", name);
                 let mut directory_mods = BTreeSet::new();
                 let mut request_set_imports = request_set.get_imports();
-                request_set_imports.extend(imports.iter().map(|s| s.to_string()));
 
-                if let Ok(resource_identity) = ResourceIdentity::from_str(name.as_str()) {
-                    request_set_imports.extend(
-                        ParserSettings::imports(resource_identity)
-                            .iter()
-                            .map(|s| s.to_string()),
-                    );
+                for modifier in modifiers.iter() {
+                    if modifier.name.eq(name.as_str()) {
+                        request_set_imports.extend(modifier.imports.iter().map(|s| s.to_string()));
 
-                    if let Some(directory_mod_vec) =
-                        ParserSettings::get_directory_mod_files(resource_identity)
-                    {
-                        directory_mods.extend(directory_mod_vec);
+                        if let Some(dir_mod) = modifier.directory_mod.as_ref() {
+                            directory_mods.insert(dir_mod.clone());
+                        }
                     }
                 }
 
-                let is_ident_client = spec.ident_clients.contains(name);
-                if is_ident_client {
-                    request_set_imports.insert("handlebars::*".into());
-                }
                 let imports: BTreeSet<String> = request_set_imports.into_iter().collect();
 
                 let struct_links = request_set.client_links();
@@ -303,7 +261,11 @@ impl<'a> Builder<'a> {
                         client.extend_client_links(client_link.clone());
                     }
 
-                    if spec.ident_clients.contains(name) {
+                    if modifiers
+                        .iter()
+                        .find(|modifier| modifier.name.eq(name.as_str()))
+                        .is_some()
+                    {
                         client.set_ident_client(true);
                     }
 
