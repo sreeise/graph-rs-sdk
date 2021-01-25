@@ -75,7 +75,7 @@ tokio = { version = "0.2", features = ["full"] }
 futures = "0.3.5"
 # from_as = { git = "https://github.com/sreeise/from_as", version = "0.1.0" }
 from_as = "0.1.0"
-# graph-codegen = { path = "./graph-codegen", version = "0.0.1" }
+graph-codegen = { path = "./graph-codegen", version = "0.0.1" }
 regex = "1"
 
 [badges]

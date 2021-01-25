@@ -13,7 +13,7 @@ pub struct ParserSettings;
 
 impl ParserSettings {
     /// Imports that won't be added from parsing and need to be manually added.
-    pub fn imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
+    pub fn imports(resource_identity: ResourceIdentity) -> BTreeSet<String> {
         let mut vec: Vec<&'static str> = vec![
             "crate::client::Graph",
             "graph_http::IntoResponse",
@@ -21,7 +21,9 @@ impl ParserSettings {
         ];
         vec.extend(get_imports(resource_identity));
         vec.sort();
-        vec
+        let mut set: BTreeSet<String> = BTreeSet::new();
+        set.extend(vec.into_iter().map(|s| s.to_string()));
+        set
     }
 
     pub fn default_path_filters() -> Vec<Filter<'static>> {

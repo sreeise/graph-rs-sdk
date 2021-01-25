@@ -2,13 +2,14 @@ use crate::builder::ClientLinkSettings;
 use crate::parser::filter::{Filter, ModifierMap, ResourceUrlModifier, SecondaryModifierMap};
 use crate::parser::{
     DirectoryModFile, HttpMethod, ParserSettings, PathMap, Request, RequestMap, RequestSet,
+    ResourceRequestMap,
 };
 use crate::traits::{Modify, RequestParser, RequestParserBuilder};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use reqwest::Url;
 use std::cell::{RefCell, RefMut};
-use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::path::Path;
@@ -24,7 +25,7 @@ pub struct Modifier<'a> {
     pub(crate) secondary_modify_target: SecondaryModifierMap,
     pub(crate) custom_methods: Option<HashMap<String, RequestSet>>,
     pub(crate) filters: Vec<Filter<'a>>,
-    pub(crate) imports: Vec<&'static str>,
+    pub(crate) imports: BTreeSet<String>,
     pub(crate) links_override: HashMap<String, Vec<String>>,
     pub(crate) directory_mod: Option<DirectoryModFile>,
     pub(crate) is_ident_client: bool,
@@ -66,10 +67,10 @@ impl<'a> Modifier<'a> {
 
         if modifier.resource_url_modifier.is_some() {
             modifier.is_ident_client = true;
-            modifier.imports.push("handlebars::*");
+            modifier.imports.insert("handlebars::*".into());
         } else if ParserSettings::is_ident_client(resource_identity) {
             modifier.is_ident_client = true;
-            modifier.imports.push("handlebars::*");
+            modifier.imports.insert("handlebars::*".into());
         }
 
         modifier
@@ -200,10 +201,10 @@ impl<'a> Parser<'a> {
         self.use_filters_internal(spec, filters);
     }
 
-    pub fn build(&self) -> HashMap<String, RequestSet> {
+    pub fn build(&self) -> Vec<ResourceRequestMap<'a>> {
         let spec = self.spec.borrow();
         let modifiers = spec.modifiers.clone();
-        let mut req_set_map = HashMap::new();
+        let mut resource_requests: Vec<ResourceRequestMap> = Vec::new();
 
         let operation_mapping_fn = |request: &mut Request, modifier_filter: &str| {
             if request.operation_mapping.is_empty() {
@@ -307,11 +308,12 @@ impl<'a> Parser<'a> {
                 url_modifier.modify(&mut request_set);
             }
 
-            req_set_map.insert(modifier.name.clone(), request_set);
+            //req_set_map.insert(modifier.name.clone(), request_set);
+            resource_requests.push(ResourceRequestMap::new(modifier, request_set));
             requests.clear();
         }
 
-        req_set_map
+        resource_requests
     }
 }
 

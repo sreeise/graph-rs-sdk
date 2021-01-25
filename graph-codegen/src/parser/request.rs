@@ -1,5 +1,5 @@
 use crate::parser::filter::{ModifierMap, SecondaryModifierMap};
-use crate::parser::{ResourceNameMapping, ResourceNames};
+use crate::parser::{Modifier, ResourceNameMapping, ResourceNames};
 use crate::traits::{HashMapExt, RequestParser};
 use from_as::*;
 use inflector::Inflector;
@@ -103,8 +103,8 @@ impl ResponseType {
         }
     }
 
-    pub fn as_imports(&self) -> HashSet<String> {
-        let mut set: HashSet<String> = HashSet::new();
+    pub fn as_imports(&self) -> BTreeSet<String> {
+        let mut set: BTreeSet<String> = BTreeSet::new();
         match self {
             ResponseType::Collection => {
                 set.insert("graph_http::types::Collection".into());
@@ -282,12 +282,11 @@ impl IntoIterator for RequestMap {
 }
 
 impl RequestMap {
-    pub fn get_imports(&self) -> HashSet<String> {
-        let mut imports: HashSet<String> = HashSet::new();
+    pub fn get_imports(&self) -> BTreeSet<String> {
+        let mut imports: BTreeSet<String> = BTreeSet::new();
         for request in self.requests.iter() {
             imports.extend(request.response.as_imports());
         }
-
         imports
     }
 
@@ -540,12 +539,12 @@ impl RequestSet {
         map
     }
 
-    pub fn get_imports(&self) -> HashSet<String> {
-        let mut imports_vec: HashSet<String> = HashSet::new();
+    pub fn get_imports(&self) -> BTreeSet<String> {
+        let mut imports = BTreeSet::new();
         for request_map in self.set.iter() {
-            imports_vec.extend(request_map.get_imports());
+            imports.extend(request_map.get_imports());
         }
-        imports_vec
+        imports
     }
 
     pub fn iter(&self) -> Iter<'_, RequestMap> {
@@ -598,5 +597,26 @@ pub struct ApiImpl {
 impl From<HashMap<String, RequestSet>> for ApiImpl {
     fn from(requests: HashMap<String, RequestSet>) -> Self {
         ApiImpl { requests }
+    }
+}
+
+#[derive(Default, Debug, Clone)]
+pub struct ResourceRequestMap<'a> {
+    pub modifier: Modifier<'a>,
+    pub request_set: RequestSet,
+}
+
+impl<'a> ResourceRequestMap<'a> {
+    pub fn new(modifier: Modifier<'a>, request_set: RequestSet) -> ResourceRequestMap<'a> {
+        ResourceRequestMap {
+            modifier,
+            request_set,
+        }
+    }
+
+    pub fn get_imports(&self) -> BTreeSet<String> {
+        let mut imports = self.modifier.imports.clone();
+        imports.extend(self.request_set.get_imports());
+        imports
     }
 }
