@@ -1,6 +1,9 @@
 use crate::builder::{Client, ClientBuilder, ClientLinkSettings};
 use crate::parser::filter::Filter;
-use crate::parser::{Modifier, Parser, PathMap, RequestMap, RequestSet, ResourceNames};
+use crate::parser::{
+    DirectoryModFile, Modifier, Parser, PathMap, RequestMap, RequestSet, ResourceNames,
+    ResourceRequestMap,
+};
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::cell::{Ref, RefCell};
@@ -74,7 +77,7 @@ impl<'a> Builder<'a> {
         self.spec.borrow().parser.filter(filter)
     }
 
-    pub fn generate_requests(&self) -> HashMap<String, RequestSet> {
+    pub fn generate_requests(&self) -> Vec<ResourceRequestMap<'a>> {
         let spec = self.spec.borrow();
         Builder::parser_build(&spec)
     }
@@ -215,111 +218,102 @@ impl<'a> Builder<'a> {
         }
     }
 
+    pub fn build_client_map(&self, resource_map: &ResourceRequestMap) -> BTreeMap<String, Client> {
+        let mut methods = resource_map.request_set.methods();
+        let struct_links = resource_map.request_set.client_links();
+
+        let mut clients: BTreeMap<String, Client> = BTreeMap::new();
+
+        for (name, methods) in methods.iter() {
+            let client_methods: BTreeSet<RequestMap> = methods.into_iter().cloned().collect();
+            let mut client = Client::new(name.as_str(), client_methods);
+
+            if let Some(client_link_settings) = resource_map.modifier.client_links.get(name) {
+                client.extend_client_links(client_link_settings.clone());
+            }
+
+            if let Some(url_modifier) = resource_map.modifier.resource_url_modifier.as_ref() {
+                if url_modifier.replacement.eq(name) {
+                    let mut client_link = ClientLinkSettings::new(url_modifier.name.as_str());
+                    client_link.as_id_method_link();
+                    client.insert_client_link(client_link);
+                }
+            }
+
+            if resource_map.modifier.is_ident_client && resource_map.modifier.name.eq(name.as_str())
+            {
+                client.set_ident_client(true);
+            }
+
+            clients.insert(name.to_string(), client);
+        }
+
+        for (name, links) in struct_links.iter() {
+            clients.entry(name.to_string()).and_modify(|client| {
+                for link in links.iter() {
+                    if !client.get_client_link_setting(link).is_some() && name.ne(link.as_str()) {
+                        let link_settings = ClientLinkSettings::new(link.as_str());
+                        client.insert_client_link(link_settings);
+                    }
+                }
+            });
+        }
+
+        clients
+    }
+
     pub fn build_clients(&self) {
         let spec = self.spec.borrow();
-        let modifiers = spec.parser.modifiers();
-        let mut map = Builder::parser_build(&spec);
+        let resources = Builder::parser_build(&spec);
         let dry_run = spec.dry_run;
 
-        for (name, request_set) in map.iter_mut() {
-            if !name.trim().is_empty() {
-                println!("Name: {}", name);
-                let mut directory_mods = BTreeSet::new();
-                let mut request_set_imports = request_set.get_imports();
+        for resource_map in resources.iter() {
+            let imports = resource_map.get_imports();
+            let mut methods = resource_map.request_set.methods();
+            let mut directory_mods = BTreeSet::new();
 
-                for modifier in modifiers.iter() {
-                    if modifier.name.eq(name.as_str()) {
-                        request_set_imports.extend(modifier.imports.iter().map(|s| s.to_string()));
+            if let Some(directory_mod) = resource_map.modifier.directory_mod.as_ref() {
+                directory_mods.insert(directory_mod.clone());
+            }
 
-                        if let Some(dir_mod) = modifier.directory_mod.as_ref() {
-                            directory_mods.insert(dir_mod.clone());
-                        }
-                    }
-                }
+            // Temporary workaround to deal with the differences in the path
+            // for drives when the resource comes from me, users, groups,
+            // and sites.
+            for (_operation_id, request_map) in methods.iter_mut() {
+                self.fix_drive_methods(request_map);
+            }
 
-                let imports: BTreeSet<String> = request_set_imports.into_iter().collect();
+            let mut clients = self.build_client_map(resource_map);
 
-                let struct_links = request_set.client_links();
-                let mut methods: BTreeMap<String, Vec<RequestMap>> = request_set.methods();
-                println!("methods: {:#?}", methods);
+            if let Some(custom_methods) = resource_map.modifier.custom_methods.as_ref() {
+                self.add_custom_clients(
+                    resource_map.modifier.name.as_str(),
+                    custom_methods,
+                    &mut clients,
+                );
+            }
 
-                // Temporary workaround to deal with the differences in the path
-                // for drives when the resource comes from me, users, groups,
-                // and sites.
-                for (_operation_id, request_map) in methods.iter_mut() {
-                    self.fix_drive_methods(request_map);
-                }
+            let mut snake_casing = resource_map.modifier.name.to_snake_case();
 
-                let mut clients: BTreeMap<String, Client> = BTreeMap::new();
-                for (name, methods) in methods.iter() {
-                    let client_methods: BTreeSet<RequestMap> =
-                        methods.into_iter().cloned().collect();
+            // The path /contacts is not related to me/contacts or users/user-id/contacts
+            // but is really org contacts. The directory contacts is for me and users.
+            if resource_map.modifier.name.eq("contacts") && clients.contains_key("orgContact") {
+                snake_casing = "org_contact".to_string();
+            }
 
-                    let mut client = Client::new(name.as_str(), client_methods);
+            let dir = format!("./src/{}", snake_casing);
+            let mod_file = format!("./src/{}/mod.rs", snake_casing);
+            let file = format!("./src/{}/request.rs", snake_casing);
+            let client_builder = ClientBuilder::new(imports, clients, directory_mods);
 
-                    if let Some(client_link) = spec.client_links.get(name) {
-                        client.extend_client_links(client_link.clone());
-                    }
+            println!("Client Builder: {:#?}", client_builder);
+            println!("Building Client: {:#?}", snake_casing);
+            println!("Directory: {:#?}", dir);
+            println!("Mod file: {:#?}", mod_file);
+            println!("Request file: {:#?}", file);
 
-                    if modifiers
-                        .iter()
-                        .find(|modifier| modifier.name.eq(name.as_str()))
-                        .is_some()
-                    {
-                        client.set_ident_client(true);
-                    }
-
-                    clients.insert(name.to_string(), client);
-                }
-
-                for (name, links) in struct_links.iter() {
-                    clients.entry(name.to_string()).and_modify(|client| {
-                        for link in links.iter() {
-                            if !client.get_client_link_setting(link).is_some() &&
-                                name.ne(link.as_str())
-                            {
-                                let link_settings = ClientLinkSettings::new(link.as_str());
-                                client.insert_client_link(link_settings);
-                            }
-                        }
-                    });
-                }
-
-                for modifier in modifiers.iter() {
-                    if modifier.name.eq(name.as_str()) {
-                        if let Some(custom_methods) = modifier.custom_methods.as_ref() {
-                            self.add_custom_clients(name.as_str(), custom_methods, &mut clients);
-                        }
-                    }
-                }
-
-                for (client_name, client) in clients.iter() {
-                    println!("\nClient: {:#?}", client_name);
-                    let client_link_settings = client.client_link_settings();
-                    println!("Client Link Settings: {:#?}\n", client_link_settings);
-                }
-
-                let mut snake_casing = name.to_snake_case();
-
-                // The path /contacts is not related to me/contacts or users/user-id/contacts
-                // but is really org contacts. The directory contacts is for me and users.
-                if name.eq("contacts") && clients.contains_key("orgContact") {
-                    snake_casing = "org_contact".to_string();
-                }
-
-                let dir = format!("./src/{}", snake_casing);
-                let mod_file = format!("./src/{}/mod.rs", snake_casing);
-                let file = format!("./src/{}/request.rs", snake_casing);
-                let client_builder = ClientBuilder::new(imports, clients, directory_mods);
-
-                println!("Building Client: {:#?}", snake_casing);
-                println!("Directory: {:#?}", dir);
-                println!("Mod file: {:#?}", mod_file);
-                println!("Request file: {:#?}", file);
-
-                if !dry_run {
-                    Builder::write(client_builder, dir, mod_file, file);
-                }
+            if !dry_run {
+                Builder::write(client_builder, dir, mod_file, file);
             }
         }
     }
@@ -349,7 +343,7 @@ impl<'a> Builder<'a> {
         file.sync_data().unwrap();
     }
 
-    fn parser_build(spec: &Ref<SpecBuilder<'a>>) -> HashMap<String, RequestSet> {
+    fn parser_build(spec: &Ref<SpecBuilder<'a>>) -> Vec<ResourceRequestMap<'a>> {
         if spec.build_with_modifier_filter {
             spec.parser.build()
         } else {

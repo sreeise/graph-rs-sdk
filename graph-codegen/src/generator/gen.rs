@@ -1,7 +1,9 @@
 use crate::builder::Builder;
 use crate::parser::client_resource::ClientResource;
 use crate::parser::error::ParseError;
-use crate::parser::{Modifier, Parse, Parser, ParserSettings, ParserSpec, PathMap, RequestSet};
+use crate::parser::{
+    Modifier, Parse, Parser, ParserSettings, ParserSpec, PathMap, RequestSet, ResourceRequestMap,
+};
 use from_as::FromFile;
 use graph_core::resource::ResourceIdentity;
 use rayon::prelude::*;
@@ -96,7 +98,7 @@ impl<'a> Generator<'a> {
         ClientResource::try_from(resource_identity).ok()
     }
 
-    pub fn generate_requests(&self) -> HashMap<String, RequestSet> {
+    pub fn generate_requests(&self) -> Vec<ResourceRequestMap<'a>> {
         self.builder.generate_requests()
     }
 
@@ -128,7 +130,6 @@ impl Parse<&std::path::Path> for Generator<'_> {
 
                 let builder = Builder::new(parser);
                 builder.set_build_with_modifier_filter(true);
-                builder.use_defaults();
 
                 Ok(builder)
             },
@@ -154,7 +155,6 @@ impl Parse<&std::path::Path> for Generator<'_> {
 
                 let builder = Builder::new(parser);
                 builder.set_build_with_modifier_filter(true);
-                builder.use_defaults();
 
                 Ok(builder)
             },
@@ -177,7 +177,6 @@ impl Parse<reqwest::Url> for Generator<'_> {
 
                 let builder = Builder::new(parser);
                 builder.set_build_with_modifier_filter(true);
-                builder.use_defaults();
 
                 Ok(builder)
             },
@@ -204,7 +203,6 @@ impl Parse<reqwest::Url> for Generator<'_> {
 
                 let builder = Builder::new(parser);
                 builder.set_build_with_modifier_filter(true);
-                builder.use_defaults();
 
                 Ok(builder)
             },
