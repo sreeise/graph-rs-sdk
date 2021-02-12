@@ -1,5 +1,4 @@
-use crate::parser::filter::{ModifierMap, SecondaryModifierMap};
-use crate::parser::Request;
+use crate::parser::{HttpMethod, Modifier, Request};
 use inflector::Inflector;
 use regex::Regex;
 use std::collections::{HashSet, VecDeque};
@@ -23,12 +22,7 @@ lazy_static! {
 }
 
 pub trait RequestParserBuilder<RHS: ?Sized = Self> {
-    fn build(
-        &self,
-        path: String,
-        modifiers: &ModifierMap,
-        secondary_modifiers: &SecondaryModifierMap,
-    ) -> Request;
+    fn build(&self, path: String, modifier: &Modifier, http_method: HttpMethod) -> Request;
 }
 
 pub trait RequestParser<RHS = Self> {

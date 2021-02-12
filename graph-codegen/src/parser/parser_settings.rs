@@ -1,5 +1,5 @@
 use crate::builder::ClientLinkSettings;
-use crate::parser::filter::ResourceUrlModifier;
+use crate::parser::filter::ResourceIdentityModifier;
 use crate::parser::filter::{Filter, FilterIgnore, ModifierMap, SecondaryModifierMap};
 use crate::parser::settings::{
     get_client_link_settings, get_custom_requests, get_imports, get_path_filters,
@@ -211,71 +211,47 @@ impl ParserSettings {
         }
     }
 
-    pub fn resource_url_modifier(
+    pub fn resource_identity_modifier(
         resource_identity: ResourceIdentity,
-    ) -> Option<ResourceUrlModifier> {
+    ) -> Option<ResourceIdentityModifier> {
         match resource_identity {
-            ResourceIdentity::Applications => {
-                Some(ResourceUrlModifier::new("applications", "application"))
-            },
-            ResourceIdentity::Attachments => {
-                Some(ResourceUrlModifier::new("attachments", "attachment"))
-            },
-            ResourceIdentity::Buckets => Some(ResourceUrlModifier::new("buckets", "bucket")),
-            ResourceIdentity::Calendar => Some(ResourceUrlModifier::new("calendars", "calendar")),
-            ResourceIdentity::CalendarGroups => {
-                Some(ResourceUrlModifier::new("calendarGroups", "calendarGroup"))
-            },
-            ResourceIdentity::CalendarView => {
-                Some(ResourceUrlModifier::new("calendarView", "calendarViews"))
-            },
-            ResourceIdentity::Calls => Some(ResourceUrlModifier::new("calls", "call")),
-            ResourceIdentity::CallRecords => {
-                Some(ResourceUrlModifier::new("callRecords", "callRecord"))
-            },
-            ResourceIdentity::ContactFolders => {
-                Some(ResourceUrlModifier::new("contactFolders", "contactFolder"))
-            },
-            ResourceIdentity::Contacts => Some(ResourceUrlModifier::new("contacts", "contact")),
-            ResourceIdentity::ContentTypes => {
-                Some(ResourceUrlModifier::new("contentTypes", "contentType"))
-            },
-            ResourceIdentity::Conversations => {
-                Some(ResourceUrlModifier::new("conversations", "conversation"))
-            },
-            ResourceIdentity::ChildFolders => {
-                Some(ResourceUrlModifier::new("childFolders", "childFolder"))
-            },
-            ResourceIdentity::Drives => Some(ResourceUrlModifier::new("drives", "drive")),
-            ResourceIdentity::Domains => Some(ResourceUrlModifier::new("domains", "domain")),
-            ResourceIdentity::Events => Some(ResourceUrlModifier::new("events", "event")),
-            ResourceIdentity::Groups => Some(ResourceUrlModifier::new("groups", "group")),
-            ResourceIdentity::Instances => Some(ResourceUrlModifier::new("instances", "instance")),
-            ResourceIdentity::Items => Some(ResourceUrlModifier::new("items", "item")),
-            ResourceIdentity::Lists => Some(ResourceUrlModifier::new("lists", "list")),
-            ResourceIdentity::MailFolders => {
-                Some(ResourceUrlModifier::new("mailFolders", "mailFolder"))
-            },
-            ResourceIdentity::Messages => Some(ResourceUrlModifier::new("messages", "message")),
-            ResourceIdentity::ManagedDevices => {
-                Some(ResourceUrlModifier::new("managedDevices", "managedDevice"))
-            },
-            ResourceIdentity::Notebooks => Some(ResourceUrlModifier::new("notebooks", "notebook")),
-            ResourceIdentity::Onenote => Some(ResourceUrlModifier::new("notebooks", "notebook")),
-            ResourceIdentity::Pages => Some(ResourceUrlModifier::new("pages", "page")),
-            ResourceIdentity::Posts => Some(ResourceUrlModifier::new("posts", "post")),
-            ResourceIdentity::Sections => Some(ResourceUrlModifier::new("sections", "section")),
-            ResourceIdentity::Plans => Some(ResourceUrlModifier::new("plans", "plan")),
-            ResourceIdentity::SectionGroups => {
-                Some(ResourceUrlModifier::new("sectionGroups", "sectionGroup"))
-            },
-            ResourceIdentity::Sessions => Some(ResourceUrlModifier::new("sessions", "session")),
-            ResourceIdentity::Sites => Some(ResourceUrlModifier::new("sites", "site")),
-            ResourceIdentity::Teams => Some(ResourceUrlModifier::new("teams", "team")),
-            ResourceIdentity::Threads => Some(ResourceUrlModifier::new("threads", "thread")),
-            ResourceIdentity::Users => Some(ResourceUrlModifier::new("users", "user")),
-            ResourceIdentity::Tasks => Some(ResourceUrlModifier::new("tasks", "task")),
-            ResourceIdentity::Workbooks => Some(ResourceUrlModifier::new("workbooks", "workbook")),
+            ResourceIdentity::Applications |
+            ResourceIdentity::Attachments |
+            ResourceIdentity::Buckets |
+            ResourceIdentity::Calendar |
+            ResourceIdentity::CalendarGroups |
+            ResourceIdentity::CalendarView |
+            ResourceIdentity::CallRecords |
+            ResourceIdentity::Calls |
+            ResourceIdentity::ChildFolders |
+            ResourceIdentity::ContactFolders |
+            ResourceIdentity::Contacts |
+            ResourceIdentity::ContentTypes |
+            ResourceIdentity::Conversations |
+            ResourceIdentity::Drives |
+            ResourceIdentity::Domains |
+            ResourceIdentity::Events |
+            ResourceIdentity::Groups |
+            ResourceIdentity::Instances |
+            ResourceIdentity::Items |
+            ResourceIdentity::Lists |
+            ResourceIdentity::MailFolders |
+            ResourceIdentity::Messages |
+            ResourceIdentity::ManagedDevices |
+            ResourceIdentity::Notebooks |
+            ResourceIdentity::Onenote |
+            ResourceIdentity::Pages |
+            ResourceIdentity::Posts |
+            ResourceIdentity::Sections |
+            ResourceIdentity::Plans |
+            ResourceIdentity::SectionGroups |
+            ResourceIdentity::Sessions |
+            ResourceIdentity::Sites |
+            ResourceIdentity::Teams |
+            ResourceIdentity::Threads |
+            ResourceIdentity::Users |
+            ResourceIdentity::Tasks |
+            ResourceIdentity::Workbooks => Some(ResourceIdentityModifier::new(resource_identity)),
             _ => None,
         }
     }

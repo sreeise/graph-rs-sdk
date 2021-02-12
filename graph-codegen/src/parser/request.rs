@@ -1,4 +1,3 @@
-use crate::parser::filter::{ModifierMap, SecondaryModifierMap};
 use crate::parser::{Modifier, ResourceNameMapping, ResourceNames};
 use crate::traits::{HashMapExt, RequestParser};
 use from_as::*;
@@ -207,15 +206,15 @@ pub struct Request {
 }
 
 impl Request {
-    pub fn modify(&mut self, map: &ModifierMap, secondary_map: &SecondaryModifierMap) {
-        for (mat, modify_vec) in map.map.iter() {
+    pub fn modify(&mut self, modifier: &Modifier) {
+        for (mat, modify_vec) in modifier.modifier_map.map.iter() {
             if mat.matches(self) {
                 for modifier in modify_vec.iter() {
                     modifier.modify(self);
                 }
             }
         }
-        secondary_map.modify(self);
+        modifier.secondary_modify_target.modify(self);
     }
 }
 

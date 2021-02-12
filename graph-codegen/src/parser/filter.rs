@@ -1,15 +1,10 @@
-use crate::parser::error::ParseError;
 use crate::parser::{Request, RequestMap, RequestSet};
 use crate::traits::{Modify, INTERNAL_PATH_ID};
 use from_as::*;
-use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
-use serde::ser::SerializeMap;
-use serde::{Serialize, Serializer};
+use graph_core::resource::ResourceIdentity;
 use std::collections::{HashMap, VecDeque};
 use std::convert::TryFrom;
 use std::io::{Read, Write};
-use std::marker::PhantomData;
-use std::str::FromStr;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
 pub enum FilterIgnore<'a> {
@@ -31,76 +26,55 @@ pub enum Filter<'a> {
     MultiFilter(Vec<Filter<'a>>),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
-pub enum SerializedFilter {
-    None,
-    PathStartsWith,
-    PathEquals,
-    Regex,
-    Ignore,
-    Multi,
-    Modify,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
-pub struct StoredFilter {
-    filter: SerializedFilter,
-    value: String,
-}
-
-impl StoredFilter {
-    pub fn new(filter: SerializedFilter, value: &str) -> StoredFilter {
-        StoredFilter {
-            filter,
-            value: value.into(),
-        }
-    }
-}
-
-impl From<Filter<'_>> for StoredFilter {
-    fn from(filter: Filter<'_>) -> Self {
-        match filter {
-            Filter::None => StoredFilter::new(SerializedFilter::None, ""),
-            Filter::PathStartsWith(s) => StoredFilter::new(SerializedFilter::PathStartsWith, s),
-            Filter::PathEquals(s) => StoredFilter::new(SerializedFilter::PathEquals, s),
-            Filter::Regex(s) => StoredFilter::new(SerializedFilter::Regex, s),
-            Filter::IgnoreIf(filter_ignore) => match filter_ignore {
-                FilterIgnore::PathStartsWith(s) => StoredFilter::new(SerializedFilter::Ignore, s),
-                FilterIgnore::PathContains(s) => StoredFilter::new(SerializedFilter::Ignore, s),
-                _ => StoredFilter::new(SerializedFilter::None, ""),
-            },
-            _ => StoredFilter::new(SerializedFilter::None, ""),
-        }
-    }
-}
-
 /// Modifies the paths that start with a resource and id by replacing
 /// that part of the path for the client sdk generation. An example
 /// would be where we have the path `/drives/{{id}}/items`. Passing the
 /// value of 'drives' to this modifier would change the path to
 /// `/drives/{{{RID}}/items`
-#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
-pub struct ResourceUrlModifier {
-    pub(crate) name: String,
-    pub(crate) replacement: String,
-    pub(crate) formatted: String,
+pub trait ResourceUrlReplacement: Modify<RequestSet> + Modify<RequestMap> {
+    fn name(&self) -> String;
+    fn replacement(&self) -> String;
+
+    fn formatted(&self) -> String {
+        format!("/{}/{{{{id}}}}", self.name())
+    }
+
+    fn matches(&self, request_map: &RequestMap) -> bool {
+        request_map.path.starts_with(&self.formatted())
+    }
 }
 
-impl ResourceUrlModifier {
-    pub fn new(name: &str, replacement: &str) -> ResourceUrlModifier {
-        ResourceUrlModifier {
-            name: name.into(),
-            replacement: replacement.into(),
-            formatted: format!("/{}/{{{{id}}}}", name),
+#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
+pub struct ResourceIdentityModifier {
+    resource_identity: ResourceIdentity,
+}
+
+impl ResourceUrlReplacement for ResourceIdentityModifier {
+    fn name(&self) -> String {
+        self.resource_identity.to_string()
+    }
+
+    fn replacement(&self) -> String {
+        let name = self.name();
+
+        if name.ends_with('s') {
+            let replacement = &name[..name.len() - 1];
+            replacement.into()
+        } else {
+            let mut replacement = String::from(name);
+            replacement.push('s');
+            replacement
         }
     }
+}
 
-    pub fn matches(&self, request_map: &RequestMap) -> bool {
-        request_map.path.starts_with(&self.formatted)
+impl ResourceIdentityModifier {
+    pub fn new(resource_identity: ResourceIdentity) -> ResourceIdentityModifier {
+        ResourceIdentityModifier { resource_identity }
     }
 }
 
-impl Modify<RequestMap> for ResourceUrlModifier {
+impl Modify<RequestMap> for ResourceIdentityModifier {
     fn modify(&self, value: &mut RequestMap) {
         let path = value
             .path
@@ -119,13 +93,14 @@ impl Modify<RequestMap> for ResourceUrlModifier {
     }
 }
 
-impl Modify<RequestSet> for ResourceUrlModifier {
+impl Modify<RequestSet> for ResourceIdentityModifier {
     fn modify(&self, value: &mut RequestSet) {
+        let formatted = self.formatted();
         let mut matches = false;
         for request_map in value.set.iter() {
             if request_map
                 .path
-                .starts_with(&self.formatted.replace("id", "RID"))
+                .starts_with(&formatted.replace("id", "RID"))
             {
                 matches = true;
                 break;
@@ -135,6 +110,7 @@ impl Modify<RequestSet> for ResourceUrlModifier {
         if matches {
             let (mut rid_request_set, non_rid_set) = value.split_on_resource_id();
             let mut request_map_vec: Vec<RequestMap> = non_rid_set.set.into_iter().collect();
+            let replacement = self.replacement();
 
             for request_map in request_map_vec.iter_mut() {
                 let param_size = INTERNAL_PATH_ID.captures_iter(&request_map.path).count();
@@ -142,9 +118,9 @@ impl Modify<RequestSet> for ResourceUrlModifier {
                     if let Some(index) = request.operation_mapping.find('.') {
                         request
                             .operation_mapping
-                            .replace_range(0..index, &self.replacement);
+                            .replace_range(0..index, &replacement);
                     } else {
-                        request.operation_mapping = self.replacement.to_string();
+                        request.operation_mapping = replacement.to_string();
                     }
 
                     request.param_size = param_size;
@@ -334,60 +310,7 @@ impl MatchTarget {
     }
 }
 
-impl ToString for MatchTarget {
-    fn to_string(&self) -> String {
-        match self {
-            MatchTarget::Tag(s) => format!("Tag:{}", s),
-            MatchTarget::OperationMap(s) => format!("OperationMap:{}", s),
-            MatchTarget::TagAndOperationMap(s) => format!("TagAndOperationMap:{}", s),
-            MatchTarget::TagOrOperationMap(s) => format!("TagAndOperationMap:{}", s),
-            MatchTarget::OperationId(s) => format!("OperationId:{}", s),
-        }
-    }
-}
-
-impl TryFrom<String> for MatchTarget {
-    type Error = ParseError;
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        let mut vec: VecDeque<&str> = value.split(':').collect();
-        vec.retain(|s| !s.is_empty());
-        if vec.len() == 2 {
-            let key = vec.pop_front().unwrap();
-            let value = vec.pop_front().unwrap();
-            match key {
-                "Tag" => Ok(MatchTarget::Tag(value.to_string())),
-                "OperationMap" => Ok(MatchTarget::OperationMap(value.to_string())),
-                "TagAndOperationMap" => Ok(MatchTarget::TagAndOperationMap(value.to_string())),
-                "TagOrOperationMap" => Ok(MatchTarget::TagOrOperationMap(value.to_string())),
-                "OperationId" => Ok(MatchTarget::OperationId(value.to_string())),
-                _ => Err(ParseError::DeserializeMatchTarget),
-            }
-        } else if vec.len() == 1 {
-            let key = vec.pop_front().unwrap();
-            match key {
-                "Tag" => Ok(MatchTarget::Tag(String::new())),
-                "OperationMap" => Ok(MatchTarget::OperationMap(String::new())),
-                "TagAndOperationMap" => Ok(MatchTarget::TagAndOperationMap(String::new())),
-                "TagOrOperationMap" => Ok(MatchTarget::TagOrOperationMap(String::new())),
-                "OperationId" => Ok(MatchTarget::OperationId(String::new())),
-                _ => Err(ParseError::DeserializeMatchTarget),
-            }
-        } else {
-            Ok(MatchTarget::Tag(String::new()))
-        }
-    }
-}
-
-impl FromStr for MatchTarget {
-    type Err = ParseError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        MatchTarget::try_from(s.to_string())
-    }
-}
-
-#[derive(Default, Debug, Clone, FromFile, AsFile)]
+#[derive(Default, Debug, Clone)]
 pub struct ModifierMap {
     pub map: HashMap<MatchTarget, Vec<MatchTarget>>,
 }
@@ -421,64 +344,5 @@ impl ModifierMap {
             MatchTarget::OperationId(from.to_string()),
             vec![MatchTarget::OperationId(to.to_string())],
         );
-    }
-}
-
-struct ModifierMapVisitor {
-    marker: PhantomData<fn() -> ModifierMap>,
-}
-
-impl ModifierMapVisitor {
-    fn new() -> Self {
-        ModifierMapVisitor {
-            marker: PhantomData,
-        }
-    }
-}
-
-impl<'de> Visitor<'de> for ModifierMapVisitor {
-    type Value = ModifierMap;
-
-    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-        formatter.write_str(
-            "a HashMap<String, String> where the key is in the \
-        format key:value and key is the MatchTarget name and the value is the enum's value",
-        )
-    }
-
-    fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
-    where
-        M: MapAccess<'de>,
-    {
-        let mut map = ModifierMap::with_capacity(access.size_hint().unwrap_or(0));
-
-        while let Some((key, value)) = access.next_entry::<String, Vec<MatchTarget>>()? {
-            let mt = MatchTarget::from_str(key.as_str()).unwrap();
-            map.map.insert(mt, value);
-        }
-
-        Ok(map)
-    }
-}
-
-impl Serialize for ModifierMap {
-    fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(self.map.len()))?;
-        for (k, v) in &self.map {
-            map.serialize_entry(&k.to_string(), &v)?;
-        }
-        map.end()
-    }
-}
-
-impl<'de> Deserialize<'de> for ModifierMap {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_map(ModifierMapVisitor::new())
     }
 }
