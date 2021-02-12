@@ -1,8 +1,7 @@
 use crate::builder::{Client, ClientBuilder, ClientLinkSettings};
-use crate::parser::filter::Filter;
+use crate::parser::filter::{Filter, ResourceUrlReplacement};
 use crate::parser::{
-    DirectoryModFile, Modifier, Parser, PathMap, RequestMap, RequestSet, ResourceNames,
-    ResourceRequestMap,
+    Modifier, Parser, PathMap, RequestMap, RequestSet, ResourceNames, ResourceRequestMap,
 };
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
@@ -16,35 +15,11 @@ pub struct SpecBuilder<'a> {
     pub(crate) parser: Parser<'a>,
     ident_client_id_links: BTreeMap<String, String>,
     secondary_links: BTreeMap<String, Vec<String>>,
-    client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
     build_with_modifier_filter: bool,
     dry_run: bool,
 }
 
 impl<'a> SpecBuilder<'a> {
-    fn extend_client_link(&mut self, name: &str, client_link: ClientLinkSettings) {
-        self.client_links
-            .entry(name.to_string())
-            .and_modify(|set| set.extend(vec![client_link.clone()]))
-            .or_insert_with(|| {
-                let mut set = BTreeSet::new();
-                set.insert(client_link);
-                set
-            });
-    }
-
-    fn extend_client_links_map(
-        &mut self,
-        client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
-    ) {
-        for (name, set) in client_links {
-            self.client_links
-                .entry(name)
-                .and_modify(|inner_set| inner_set.extend(set.clone()))
-                .or_insert(set);
-        }
-    }
-
     fn set_dry_run(&mut self, dry_run: bool) {
         self.dry_run = dry_run;
     }
@@ -62,7 +37,6 @@ impl<'a> Builder<'a> {
                 parser,
                 ident_client_id_links: Default::default(),
                 secondary_links: Default::default(),
-                client_links: Default::default(),
                 build_with_modifier_filter: false,
                 dry_run: false,
             }),
@@ -84,23 +58,6 @@ impl<'a> Builder<'a> {
 
     pub fn set_dry_run(&self, dry_run: bool) {
         self.spec.borrow_mut().set_dry_run(dry_run);
-    }
-
-    pub fn use_defaults(&self) {
-        let mut spec = self.spec.borrow_mut();
-        let modifiers = spec.parser.modifiers();
-
-        for modifier in modifiers {
-            let client_links_override = modifier.client_links.clone();
-
-            if let Some(url_modifier) = modifier.resource_url_modifier.as_ref() {
-                let mut client_link = ClientLinkSettings::new(url_modifier.name.as_str());
-                client_link.as_id_method_link();
-                spec.extend_client_link(url_modifier.replacement.as_str(), client_link);
-            }
-
-            spec.extend_client_links_map(client_links_override);
-        }
     }
 
     fn add_custom_clients(
@@ -219,7 +176,7 @@ impl<'a> Builder<'a> {
     }
 
     pub fn build_client_map(&self, resource_map: &ResourceRequestMap) -> BTreeMap<String, Client> {
-        let mut methods = resource_map.request_set.methods();
+        let methods = resource_map.request_set.methods();
         let struct_links = resource_map.request_set.client_links();
 
         let mut clients: BTreeMap<String, Client> = BTreeMap::new();
@@ -233,8 +190,8 @@ impl<'a> Builder<'a> {
             }
 
             if let Some(url_modifier) = resource_map.modifier.resource_url_modifier.as_ref() {
-                if url_modifier.replacement.eq(name) {
-                    let mut client_link = ClientLinkSettings::new(url_modifier.name.as_str());
+                if url_modifier.replacement().eq(name) {
+                    let mut client_link = ClientLinkSettings::new(url_modifier.name().as_str());
                     client_link.as_id_method_link();
                     client.insert_client_link(client_link);
                 }

@@ -1,5 +1,5 @@
 use crate::parser::filter::*;
-use crate::parser::{HttpMethod, Request, RequestType, ResponseType};
+use crate::parser::{HttpMethod, Modifier, Request, RequestType, ResponseType};
 use crate::traits::{RequestParser, RequestParserBuilder};
 use from_as::*;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
@@ -194,12 +194,7 @@ impl RequestParser for Operation {
 impl RequestParserBuilder for Operation {
     /// The build method is where each individual request
     /// is parsed.
-    fn build(
-        &self,
-        path: String,
-        modifiers: &ModifierMap,
-        secondary_modifiers: &SecondaryModifierMap,
-    ) -> Request {
+    fn build(&self, path: String, modifier: &Modifier, http_method: HttpMethod) -> Request {
         let mut request = Request::default();
         request.path = path;
         request.operation_id = self.operation_id.to_string();
@@ -230,7 +225,12 @@ impl RequestParserBuilder for Operation {
             }
         }
 
-        request.modify(modifiers, secondary_modifiers);
+        request.modify(&modifier);
+        request.method = http_method;
+
+        if request.operation_mapping.is_empty() {
+            request.operation_mapping = modifier.name.to_string();
+        }
         request
     }
 }
@@ -263,6 +263,56 @@ pub struct Path {
     #[serde(default)]
     #[serde(skip_serializing_if = "VecDeque::is_empty")]
     pub parameters: VecDeque<Parameter>,
+}
+
+impl Path {
+    pub fn build_requests(&self, path: &String, modifier: &Modifier) -> VecDeque<Request> {
+        let mut requests = VecDeque::new();
+
+        if let Some(request) =
+            Path::build_request(&path, &modifier, self.get.as_ref(), HttpMethod::GET)
+        {
+            requests.push_back(request);
+        }
+
+        if let Some(request) =
+            Path::build_request(&path, &modifier, self.post.as_ref(), HttpMethod::POST)
+        {
+            requests.push_back(request);
+        }
+
+        if let Some(request) =
+            Path::build_request(&path, &modifier, self.put.as_ref(), HttpMethod::PUT)
+        {
+            requests.push_back(request);
+        }
+
+        if let Some(request) =
+            Path::build_request(&path, &modifier, self.patch.as_ref(), HttpMethod::PATCH)
+        {
+            requests.push_back(request);
+        }
+
+        if let Some(request) =
+            Path::build_request(&path, &modifier, self.delete.as_ref(), HttpMethod::DELETE)
+        {
+            requests.push_back(request);
+        }
+        requests
+    }
+
+    fn build_request(
+        path: &String,
+        modifier: &Modifier,
+        operation: Option<&Operation>,
+        http_method: HttpMethod,
+    ) -> Option<Request> {
+        if let Some(operation) = operation.as_ref() {
+            Some(operation.build(path.clone(), &modifier, http_method))
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]

@@ -4,13 +4,6 @@ use handlebars::*;
 #[derive(Default)]
 pub struct Registry;
 
-/*
-       if ident.eq(&ResourceIdentity::Users) ||
-           ident.eq(&ResourceIdentity::Me) ||
-           ident.eq(&ResourceIdentity::Sites) ||
-           ident.eq(&ResourceIdentity::Groups)
-*/
-// resource_drive_path
 impl Registry {
     pub fn register_internal_helper(
         resource_identity: ResourceIdentity,

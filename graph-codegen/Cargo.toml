@@ -17,10 +17,10 @@ from_as = { git = "https://github.com/sreeise/from_as", version = "0.1.0" }
 regex = "1"
 Inflector = "0.11.4"
 reqwest = { version = "0.10", features = ["json", "blocking", "stream"] }
-# graph-http = { version = "0.0.1", path = "../graph-http" }
-# graph-core = { version = "0.0.1", path = "../graph-core" }
-graph-http = "0.0.2"
-graph-core = "0.0.1"
+graph-http = { version = "0.0.2", path = "../graph-http" }
+graph-core = { version = "0.0.1", path = "../graph-core" }
+# graph-http = "0.0.2"
+# graph-core = "0.0.1"
 bytes = "0.5.6"
 lazy_static = "1.4.0"
 rayon = "1.5.0"

@@ -1,15 +1,16 @@
 use crate::builder::ClientLinkSettings;
-use crate::parser::filter::{Filter, ModifierMap, ResourceUrlModifier, SecondaryModifierMap};
-use crate::parser::{
-    DirectoryModFile, HttpMethod, ParserSettings, PathMap, Request, RequestMap, RequestSet,
-    ResourceRequestMap,
+use crate::parser::filter::{
+    Filter, ModifierMap, ResourceIdentityModifier, ResourceUrlReplacement, SecondaryModifierMap,
 };
-use crate::traits::{Modify, RequestParser, RequestParserBuilder};
+use crate::parser::{
+    DirectoryModFile, ParserSettings, PathMap, RequestMap, RequestSet, ResourceRequestMap,
+};
+use crate::traits::{Modify, RequestParser};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use reqwest::Url;
 use std::cell::{RefCell, RefMut};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::path::Path;
@@ -20,7 +21,7 @@ pub struct Modifier<'a> {
     pub(crate) name: String,
     pub(crate) resource_identity: ResourceIdentity,
     pub(crate) modifier_map: ModifierMap,
-    pub(crate) resource_url_modifier: Option<ResourceUrlModifier>,
+    pub(crate) resource_url_modifier: Option<ResourceIdentityModifier>,
     pub(crate) client_links: BTreeMap<String, BTreeSet<ClientLinkSettings>>,
     pub(crate) secondary_modify_target: SecondaryModifierMap,
     pub(crate) custom_methods: Option<HashMap<String, RequestSet>>,
@@ -46,7 +47,7 @@ impl<'a> Modifier<'a> {
             name: modifier_name.to_string(),
             resource_identity,
             modifier_map: ParserSettings::target_modifiers(resource_identity),
-            resource_url_modifier: ParserSettings::resource_url_modifier(resource_identity),
+            resource_url_modifier: ParserSettings::resource_identity_modifier(resource_identity),
             client_links: ParserSettings::client_link_settings(resource_identity),
             secondary_modify_target: ParserSettings::secondary_modifier_map(resource_identity),
             custom_methods: ParserSettings::custom_methods(resource_identity),
@@ -65,10 +66,9 @@ impl<'a> Modifier<'a> {
             .modifier_map
             .operation_map(double_name.as_str(), modifier_name);
 
-        if modifier.resource_url_modifier.is_some() {
-            modifier.is_ident_client = true;
-            modifier.imports.insert("handlebars::*".into());
-        } else if ParserSettings::is_ident_client(resource_identity) {
+        if modifier.resource_url_modifier.is_some() ||
+            ParserSettings::is_ident_client(resource_identity)
+        {
             modifier.is_ident_client = true;
             modifier.imports.insert("handlebars::*".into());
         }
@@ -206,12 +206,6 @@ impl<'a> Parser<'a> {
         let modifiers = spec.modifiers.clone();
         let mut resource_requests: Vec<ResourceRequestMap> = Vec::new();
 
-        let operation_mapping_fn = |request: &mut Request, modifier_filter: &str| {
-            if request.operation_mapping.is_empty() {
-                request.operation_mapping = modifier_filter.to_string();
-            }
-        };
-
         for modifier in modifiers {
             let mut path_map: PathMap = spec
                 .paths
@@ -227,61 +221,7 @@ impl<'a> Parser<'a> {
                 let mut req_map = RequestMap::default();
                 let path = path.transform_path();
                 req_map.path = path.clone();
-
-                if let Some(operation) = path_spec.get.as_ref() {
-                    let mut request = operation.build(
-                        path.clone(),
-                        &modifier.modifier_map,
-                        &modifier.secondary_modify_target,
-                    );
-                    request.method = HttpMethod::GET;
-                    operation_mapping_fn(&mut request, modifier.name.as_ref());
-                    req_map.requests.push_back(request);
-                }
-
-                if let Some(operation) = path_spec.post.as_ref() {
-                    let mut request = operation.build(
-                        path.clone(),
-                        &modifier.modifier_map,
-                        &modifier.secondary_modify_target,
-                    );
-                    request.method = HttpMethod::POST;
-                    operation_mapping_fn(&mut request, modifier.name.as_ref());
-                    req_map.requests.push_back(request);
-                }
-
-                if let Some(operation) = path_spec.put.as_ref() {
-                    let mut request = operation.build(
-                        path.clone(),
-                        &modifier.modifier_map,
-                        &modifier.secondary_modify_target,
-                    );
-                    request.method = HttpMethod::PUT;
-                    operation_mapping_fn(&mut request, modifier.name.as_ref());
-                    req_map.requests.push_back(request);
-                }
-
-                if let Some(operation) = path_spec.patch.as_ref() {
-                    let mut request = operation.build(
-                        path.clone(),
-                        &modifier.modifier_map,
-                        &modifier.secondary_modify_target,
-                    );
-                    request.method = HttpMethod::PATCH;
-                    operation_mapping_fn(&mut request, modifier.name.as_ref());
-                    req_map.requests.push_back(request);
-                }
-
-                if let Some(operation) = path_spec.delete.as_ref() {
-                    let mut request = operation.build(
-                        path.clone(),
-                        &modifier.modifier_map,
-                        &modifier.secondary_modify_target,
-                    );
-                    request.method = HttpMethod::DELETE;
-                    operation_mapping_fn(&mut request, modifier.name.as_ref());
-                    req_map.requests.push_back(request);
-                }
+                req_map.requests = path_spec.build_requests(&path, &modifier);
 
                 if let Some(url_modifier) = modifier.resource_url_modifier.as_ref() {
                     if url_modifier.matches(&req_map) {
@@ -307,12 +247,9 @@ impl<'a> Parser<'a> {
             if let Some(url_modifier) = modifier.resource_url_modifier.as_ref() {
                 url_modifier.modify(&mut request_set);
             }
-
-            //req_set_map.insert(modifier.name.clone(), request_set);
             resource_requests.push(ResourceRequestMap::new(modifier, request_set));
             requests.clear();
         }
-
         resource_requests
     }
 }
