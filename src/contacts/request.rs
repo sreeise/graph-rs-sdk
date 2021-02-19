@@ -4,9 +4,8 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -70,14 +69,14 @@ where
     patch!({
         doc: "# Update the navigation property contacts in me",
         name: update_contacts,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contacts/{{RID}}",
         params: 0,
         has_body: true
     });
     delete!({
         name: delete_contacts,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contacts/{{RID}}",
         params: 0,
         has_body: false
@@ -109,7 +108,7 @@ where
     patch!({
         doc: "# Update the navigation property extensions in me",
         name: update_extensions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contacts/{{RID}}/extensions/{{id}}",
         params: 1,
         has_body: true
@@ -125,7 +124,7 @@ where
     patch!({
         doc: "# Update the navigation property photo in me",
         name: update_photo,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contacts/{{RID}}/photo",
         params: 0,
         has_body: true

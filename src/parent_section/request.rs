@@ -4,8 +4,7 @@ use crate::pages::PagesRequest;
 use crate::parent_notebook::ParentNotebookRequest;
 use crate::parent_section_group::ParentSectionGroupRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -47,7 +46,7 @@ where
     patch!({
         doc: "# Update the navigation property parentSection in me",
         name: update_parent_section,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/parentSection",
         params: 0,
         has_body: true
@@ -95,7 +94,7 @@ where
     patch!({
         doc: "# Update the navigation property parentNotebook in me",
         name: update_parent_notebook,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/parentSection/parentNotebook",
         params: 0,
         has_body: true
@@ -111,7 +110,7 @@ where
     patch!({
         doc: "# Update the navigation property parentSectionGroup in me",
         name: update_parent_section_group,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/parentSection/parentSectionGroup",
         params: 0,
         has_body: true

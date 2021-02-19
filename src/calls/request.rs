@@ -3,8 +3,7 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -40,7 +39,7 @@ where
     post!({
         doc: "# Invoke action logTeleconferenceDeviceQuality",
         name: log_teleconference_device_quality,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calls/logTeleconferenceDeviceQuality",
         params: 0,
         has_body: true
@@ -65,7 +64,7 @@ where
     patch!({
         doc: "# Update the navigation property calls in communications",
         name: update_calls,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calls/{{RID}}",
         params: 0,
         has_body: true
@@ -73,7 +72,7 @@ where
     post!({
         doc: "# Invoke action answer",
         name: answer,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calls/{{RID}}/answer",
         params: 0,
         has_body: true
@@ -89,7 +88,7 @@ where
     post!({
         doc: "# Invoke action changeScreenSharingRole",
         name: change_screen_sharing_role,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calls/{{RID}}/changeScreenSharingRole",
         params: 0,
         has_body: true
@@ -97,7 +96,7 @@ where
     post!({
         doc: "# Invoke action keepAlive",
         name: keep_alive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calls/{{RID}}/keepAlive",
         params: 0,
         has_body: false
@@ -137,7 +136,7 @@ where
     patch!({
         doc: "# Update the navigation property operations in communications",
         name: update_operations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calls/{{RID}}/operations/{{id}}",
         params: 1,
         has_body: true
@@ -169,7 +168,7 @@ where
     patch!({
         doc: "# Update the navigation property participants in communications",
         name: update_participants,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calls/{{RID}}/participants/{{id}}",
         params: 1,
         has_body: true
@@ -193,7 +192,7 @@ where
     post!({
         doc: "# Invoke action redirect",
         name: redirect,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calls/{{RID}}/redirect",
         params: 0,
         has_body: true
@@ -201,7 +200,7 @@ where
     post!({
         doc: "# Invoke action reject",
         name: reject,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calls/{{RID}}/reject",
         params: 0,
         has_body: true
@@ -217,7 +216,7 @@ where
     post!({
         doc: "# Invoke action transfer",
         name: transfer,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calls/{{RID}}/transfer",
         params: 0,
         has_body: true

@@ -21,8 +21,7 @@ use crate::outlook::OutlookRequest;
 use crate::planner::PlannerRequest;
 use crate::settings::SettingsRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -241,7 +240,7 @@ where
     patch!({
         doc: "# Update me",
         name: update_user,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me",
         params: 0,
         has_body: true
@@ -273,7 +272,7 @@ where
     patch!({
         doc: "# Update the navigation property appRoleAssignments in me",
         name: update_app_role_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/appRoleAssignments/{{id}}",
         params: 1,
         has_body: true
@@ -289,7 +288,7 @@ where
     post!({
         doc: "# Invoke action changePassword",
         name: change_password,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/changePassword",
         params: 0,
         has_body: true
@@ -337,7 +336,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceManagementTroubleshootingEvents in me",
         name: update_device_management_troubleshooting_events,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/deviceManagementTroubleshootingEvents/{{id}}",
         params: 1,
         has_body: true
@@ -369,7 +368,7 @@ where
     patch!({
         doc: "# Update the navigation property drive in me",
         name: update_drive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/drive",
         params: 0,
         has_body: true
@@ -401,7 +400,7 @@ where
     patch!({
         doc: "# Update the navigation property drives in me",
         name: update_drives,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/drives/{{id}}",
         params: 1,
         has_body: true
@@ -409,7 +408,7 @@ where
     post!({
         doc: "# Invoke action exportPersonalData",
         name: export_personal_data,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/exportPersonalData",
         params: 0,
         has_body: true
@@ -441,7 +440,7 @@ where
     patch!({
         doc: "# Update the navigation property extensions in me",
         name: update_extensions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/extensions/{{id}}",
         params: 1,
         has_body: true
@@ -521,7 +520,7 @@ where
     patch!({
         doc: "# Update the navigation property joinedTeams in me",
         name: update_joined_teams,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/joinedTeams/{{id}}",
         params: 1,
         has_body: true
@@ -553,7 +552,7 @@ where
     patch!({
         doc: "# Update the navigation property licenseDetails in me",
         name: update_license_details,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/licenseDetails/{{id}}",
         params: 1,
         has_body: true
@@ -673,7 +672,7 @@ where
     patch!({
         doc: "# Update the navigation property people in me",
         name: update_people,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/people/{{id}}",
         params: 1,
         has_body: true
@@ -689,7 +688,7 @@ where
     patch!({
         doc: "# Update the navigation property photo in me",
         name: update_photo,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/photo",
         params: 0,
         has_body: true
@@ -721,7 +720,7 @@ where
     patch!({
         doc: "# Update the navigation property photos in me",
         name: update_photos,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/photos/{{id}}",
         params: 1,
         has_body: true
@@ -745,7 +744,7 @@ where
     post!({
         doc: "# Invoke action removeAllDevicesFromManagement",
         name: remove_all_devices_from_management,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/removeAllDevicesFromManagement",
         params: 0,
         has_body: false
@@ -793,7 +792,7 @@ where
     patch!({
         doc: "# Update the navigation property scopedRoleMemberOf in me",
         name: update_scoped_role_member_of,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/scopedRoleMemberOf/{{id}}",
         params: 1,
         has_body: true
@@ -801,7 +800,7 @@ where
     post!({
         doc: "# Invoke action sendMail",
         name: send_mail,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/sendMail",
         params: 0,
         has_body: true
@@ -817,7 +816,7 @@ where
     patch!({
         doc: "# Update the navigation property settings in me",
         name: update_settings,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/settings",
         params: 0,
         has_body: true
@@ -849,7 +848,7 @@ where
     post!({
         doc: "# Invoke action wipeManagedAppRegistrationsByDeviceTag",
         name: wipe_managed_app_registrations_by_device_tag,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/me/wipeManagedAppRegistrationsByDeviceTag",
         params: 0,
         has_body: true

@@ -6,8 +6,7 @@ use crate::core::ResourceIdentity;
 use crate::plans::{PlanRequest, PlansRequest};
 use crate::tasks::{TaskRequest, TasksRequest};
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -67,7 +66,7 @@ where
     patch!({
         doc: "# Update planner",
         name: update_planner,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/planner",
         params: 0,
         has_body: true
@@ -99,7 +98,7 @@ where
     patch!({
         doc: "# Update the navigation property buckets in planner",
         name: update_buckets,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/planner/buckets/{{id}}",
         params: 1,
         has_body: true
@@ -131,7 +130,7 @@ where
     patch!({
         doc: "# Update the navigation property plans in planner",
         name: update_plans,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/planner/plans/{{id}}",
         params: 1,
         has_body: true
@@ -163,7 +162,7 @@ where
     patch!({
         doc: "# Update the navigation property tasks in planner",
         name: update_tasks,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/planner/tasks/{{id}}",
         params: 1,
         has_body: true

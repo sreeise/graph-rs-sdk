@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -26,7 +25,7 @@ where
     patch!({
         doc: "# Update appCatalogs",
         name: update_app_catalogs,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/appCatalogs",
         params: 0,
         has_body: true
@@ -58,7 +57,7 @@ where
     patch!({
         doc: "# Update the navigation property teamsApps in appCatalogs",
         name: update_teams_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/appCatalogs/teamsApps/{{id}}",
         params: 1,
         has_body: true
@@ -96,7 +95,7 @@ where
     patch!({
         doc: "# Update the navigation property appDefinitions in appCatalogs",
         name: update_app_definitions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}",
         params: 2,
         has_body: true

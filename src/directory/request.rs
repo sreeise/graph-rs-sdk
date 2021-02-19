@@ -1,8 +1,7 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -55,7 +54,7 @@ where
     patch!({
         doc: "# Update the navigation property deletedItems in directory",
         name: update_deleted_items,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directory/deletedItems/{{id}}",
         params: 1,
         has_body: true
@@ -71,7 +70,7 @@ where
     patch!({
         doc: "# Update directory",
         name: update_directory,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directory",
         params: 0,
         has_body: true
@@ -87,7 +86,7 @@ where
     patch!({
         doc: "# Update the navigation property administrativeUnits in directory",
         name: update_administrative_units,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directory/administrativeUnits/{{id}}",
         params: 1,
         has_body: true
@@ -133,7 +132,7 @@ where
     patch!({
         doc: "# Update the navigation property scopedRoleMembers in directory",
         name: update_scoped_role_members,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directory/administrativeUnits/{{id}}/scopedRoleMembers/{{id2}}",
         params: 2,
         has_body: true
@@ -149,7 +148,7 @@ where
     patch!({
         doc: "# Update the navigation property extensions in directory",
         name: update_extensions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directory/administrativeUnits/{{id}}/extensions/{{id2}}",
         params: 2,
         has_body: true
@@ -230,7 +229,7 @@ where
     patch!({
         doc: "# Update entity in directoryObjects",
         name: update_directory_object,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directoryObjects/{{id}}",
         params: 1,
         has_body: true
@@ -238,7 +237,7 @@ where
     delete!({
         doc: "# Delete entity from directoryObjects",
         name: delete_directory_object,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directoryObjects/{{id}}",
         params: 1,
         has_body: false
@@ -262,7 +261,7 @@ where
     post!({
         doc: "# Invoke action validateProperties",
         name: validate_properties,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directoryObjects/validateProperties",
         params: 0,
         has_body: true
@@ -354,7 +353,7 @@ where
     patch!({
         doc: "# Update entity in directoryRoleTemplates",
         name: update_directory_role_template,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directoryRoleTemplates/{{id}}",
         params: 1,
         has_body: true
@@ -362,7 +361,7 @@ where
     delete!({
         doc: "# Delete entity from directoryRoleTemplates",
         name: delete_directory_role_template,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directoryRoleTemplates/{{id}}",
         params: 1,
         has_body: false
@@ -400,7 +399,7 @@ where
     patch!({
         doc: "# Update the navigation property scopedMembers in directoryRoles",
         name: update_scoped_members,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directoryRoles/{{id}}/scopedMembers/{{id2}}",
         params: 2,
         has_body: true
@@ -448,7 +447,7 @@ where
     patch!({
         doc: "# Update entity in directoryRoles",
         name: update_directory_role,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directoryRoles/{{id}}",
         params: 1,
         has_body: true
@@ -456,7 +455,7 @@ where
     delete!({
         doc: "# Delete entity from directoryRoles",
         name: delete_directory_role,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/directoryRoles/{{id}}",
         params: 1,
         has_body: false

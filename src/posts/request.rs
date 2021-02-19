@@ -5,8 +5,7 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -22,7 +21,7 @@ where
     post!({
         doc: "# Invoke action forward",
         name: forward,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/posts/{{RID}}/inReplyTo/forward",
         params: 0,
         has_body: true
@@ -30,7 +29,7 @@ where
     post!({
         doc: "# Invoke action reply",
         name: reply,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/posts/{{RID}}/inReplyTo/reply",
         params: 0,
         has_body: true
@@ -101,7 +100,7 @@ where
     patch!({
         doc: "# Update the navigation property posts in groups",
         name: update_posts,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/posts/{{RID}}",
         params: 0,
         has_body: true
@@ -149,7 +148,7 @@ where
     patch!({
         doc: "# Update the navigation property extensions in groups",
         name: update_extensions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/posts/{{RID}}/extensions/{{id}}",
         params: 1,
         has_body: true
@@ -157,7 +156,7 @@ where
     post!({
         doc: "# Invoke action forward",
         name: forward,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/posts/{{RID}}/forward",
         params: 0,
         has_body: true
@@ -173,7 +172,7 @@ where
     patch!({
         doc: "# Update the navigation property inReplyTo in groups",
         name: update_in_reply_to,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/posts/{{RID}}/inReplyTo",
         params: 0,
         has_body: true
@@ -181,7 +180,7 @@ where
     post!({
         doc: "# Invoke action reply",
         name: reply,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/posts/{{RID}}/reply",
         params: 0,
         has_body: true

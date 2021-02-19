@@ -1,6 +1,5 @@
 use crate::client::Graph;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -21,7 +20,7 @@ where
     patch!({
         doc: "# Update the navigation property settings in me",
         name: update_settings,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/settings",
         params: 0,
         has_body: true
@@ -37,7 +36,7 @@ where
     patch!({
         doc: "# Update the navigation property shiftPreferences in me",
         name: update_shift_preferences,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/settings/shiftPreferences",
         params: 0,
         has_body: true

@@ -21,9 +21,8 @@ use crate::outlook::OutlookRequest;
 use crate::planner::PlannerRequest;
 use crate::settings::SettingsRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -278,7 +277,7 @@ where
     patch!({
         doc: "# Update entity in users",
         name: update_user,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}",
         params: 0,
         has_body: true
@@ -286,7 +285,7 @@ where
     delete!({
         doc: "# Delete entity from users",
         name: delete_user,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}",
         params: 0,
         has_body: false
@@ -318,7 +317,7 @@ where
     patch!({
         doc: "# Update the navigation property appRoleAssignments in users",
         name: update_app_role_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/appRoleAssignments/{{id}}",
         params: 1,
         has_body: true
@@ -334,7 +333,7 @@ where
     post!({
         doc: "# Invoke action changePassword",
         name: change_password,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/changePassword",
         params: 0,
         has_body: true
@@ -382,7 +381,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceManagementTroubleshootingEvents in users",
         name: update_device_management_troubleshooting_events,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/deviceManagementTroubleshootingEvents/{{id}}",
         params: 1,
         has_body: true
@@ -414,7 +413,7 @@ where
     patch!({
         doc: "# Update the navigation property drive in users",
         name: update_drive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/drive",
         params: 0,
         has_body: true
@@ -446,7 +445,7 @@ where
     patch!({
         doc: "# Update the navigation property drives in users",
         name: update_drives,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/drives/{{id}}",
         params: 1,
         has_body: true
@@ -454,7 +453,7 @@ where
     post!({
         doc: "# Invoke action exportPersonalData",
         name: export_personal_data,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/exportPersonalData",
         params: 0,
         has_body: true
@@ -486,7 +485,7 @@ where
     patch!({
         doc: "# Update the navigation property extensions in users",
         name: update_extensions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/extensions/{{id}}",
         params: 1,
         has_body: true
@@ -566,7 +565,7 @@ where
     patch!({
         doc: "# Update the navigation property joinedTeams in users",
         name: update_joined_teams,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/joinedTeams/{{id}}",
         params: 1,
         has_body: true
@@ -598,7 +597,7 @@ where
     patch!({
         doc: "# Update the navigation property licenseDetails in users",
         name: update_license_details,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/licenseDetails/{{id}}",
         params: 1,
         has_body: true
@@ -718,7 +717,7 @@ where
     patch!({
         doc: "# Update the navigation property people in users",
         name: update_people,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/people/{{id}}",
         params: 1,
         has_body: true
@@ -734,7 +733,7 @@ where
     patch!({
         doc: "# Update the navigation property photo in users",
         name: update_photo,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/photo",
         params: 0,
         has_body: true
@@ -766,7 +765,7 @@ where
     patch!({
         doc: "# Update the navigation property photos in users",
         name: update_photos,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/photos/{{id}}",
         params: 1,
         has_body: true
@@ -790,7 +789,7 @@ where
     post!({
         doc: "# Invoke action removeAllDevicesFromManagement",
         name: remove_all_devices_from_management,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/removeAllDevicesFromManagement",
         params: 0,
         has_body: false
@@ -838,7 +837,7 @@ where
     patch!({
         doc: "# Update the navigation property scopedRoleMemberOf in users",
         name: update_scoped_role_member_of,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/scopedRoleMemberOf/{{id}}",
         params: 1,
         has_body: true
@@ -846,7 +845,7 @@ where
     post!({
         doc: "# Invoke action sendMail",
         name: send_mail,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/sendMail",
         params: 0,
         has_body: true
@@ -862,7 +861,7 @@ where
     patch!({
         doc: "# Update the navigation property settings in users",
         name: update_settings,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/settings",
         params: 0,
         has_body: true
@@ -894,7 +893,7 @@ where
     post!({
         doc: "# Invoke action wipeManagedAppRegistrationsByDeviceTag",
         name: wipe_managed_app_registrations_by_device_tag,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/users/{{RID}}/wipeManagedAppRegistrationsByDeviceTag",
         params: 0,
         has_body: true

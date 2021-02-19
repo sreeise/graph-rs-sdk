@@ -5,8 +5,7 @@ use crate::drive::DrivesRequest;
 use crate::lists::{ListRequest, ListsRequest};
 use crate::onenote::OnenoteRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -110,7 +109,7 @@ where
     patch!({
         doc: "# Update entity in sites",
         name: update_site,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sites/{{RID}}",
         params: 0,
         has_body: true
@@ -118,7 +117,7 @@ where
     delete!({
         doc: "# Delete entity from sites",
         name: delete_site,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sites/{{RID}}",
         params: 0,
         has_body: false
@@ -158,7 +157,7 @@ where
     patch!({
         doc: "# Update the navigation property columns in sites",
         name: update_columns,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sites/{{RID}}/columns/{{id}}",
         params: 1,
         has_body: true
@@ -174,7 +173,7 @@ where
     patch!({
         doc: "# Update the navigation property drive in sites",
         name: update_drive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sites/{{RID}}/drive",
         params: 0,
         has_body: true
@@ -206,7 +205,7 @@ where
     patch!({
         doc: "# Update the navigation property drives in sites",
         name: update_drives,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sites/{{RID}}/drives/{{id}}",
         params: 1,
         has_body: true
@@ -238,7 +237,7 @@ where
     patch!({
         doc: "# Update the navigation property items in sites",
         name: update_items,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sites/{{RID}}/items/{{id}}",
         params: 1,
         has_body: true
@@ -270,7 +269,7 @@ where
     patch!({
         doc: "# Update the navigation property sites in sites",
         name: update_sites,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sites/{{RID}}/sites/{{id}}",
         params: 1,
         has_body: true

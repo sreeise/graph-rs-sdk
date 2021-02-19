@@ -1,4 +1,3 @@
-use graph_http::types::Content;
 use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -16,7 +15,7 @@ fn delete_by_id(item_id: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
     // Send the request.
-    let response: GraphResponse<Content> = client
+    let response = client
         .v1()
         .me()
         .drive()
@@ -33,8 +32,7 @@ pub fn delete_by_path(path: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
     // Send the request.
-    let response: GraphResponse<Content> =
-        client.v1().me().drive().delete_items(path).send().unwrap();
+    let response = client.v1().me().drive().delete_items(path).send().unwrap();
 
     println!("{:#?}", response);
     println!("\nItem was deleted. Status: {}", response.status());

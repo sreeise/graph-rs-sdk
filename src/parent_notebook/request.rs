@@ -3,8 +3,7 @@ use crate::core::ResourceIdentity;
 use crate::section_groups::SectionGroupsRequest;
 use crate::sections::SectionsRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -39,7 +38,7 @@ where
     patch!({
         doc: "# Update the navigation property parentNotebook in me",
         name: update_parent_notebook,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/parentNotebook",
         params: 1,
         has_body: true

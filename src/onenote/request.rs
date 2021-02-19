@@ -5,8 +5,7 @@ use crate::pages::{PageRequest, PagesRequest};
 use crate::section_groups::{SectionGroupRequest, SectionGroupsRequest};
 use crate::sections::{SectionRequest, SectionsRequest};
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -111,7 +110,7 @@ where
     patch!({
         doc: "# Update the navigation property operations in me",
         name: update_operations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/onenote/operations/{{id}}",
         params: 1,
         has_body: true
@@ -159,7 +158,7 @@ where
     patch!({
         doc: "# Update the navigation property resources in me",
         name: update_resources,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/onenote/resources/{{id}}",
         params: 1,
         has_body: true

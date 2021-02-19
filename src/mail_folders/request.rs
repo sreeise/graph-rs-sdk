@@ -6,9 +6,8 @@ use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
 use crate::messages::{MessageRequest, MessagesRequest};
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -98,7 +97,7 @@ where
     patch!({
         doc: "# Update the navigation property mailFolders in me",
         name: update_mail_folders,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/mailFolders/{{RID}}",
         params: 0,
         has_body: true
@@ -138,7 +137,7 @@ where
     patch!({
         doc: "# Update the navigation property messageRules in me",
         name: update_message_rules,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/mailFolders/{{RID}}/messageRules/{{id}}",
         params: 1,
         has_body: true

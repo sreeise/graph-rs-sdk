@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -53,7 +52,7 @@ where
     patch!({
         doc: "# Update the navigation property items in sites",
         name: update_items,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/items/{{RID}}",
         params: 0,
         has_body: true
@@ -77,7 +76,7 @@ where
     patch!({
         doc: "# Update the navigation property driveItem in sites",
         name: update_drive_item,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/items/{{RID}}/driveItem",
         params: 0,
         has_body: true
@@ -93,7 +92,7 @@ where
     patch!({
         doc: "# Update the navigation property fields in sites",
         name: update_fields,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/items/{{RID}}/fields",
         params: 0,
         has_body: true
@@ -125,7 +124,7 @@ where
     patch!({
         doc: "# Update the navigation property versions in sites",
         name: update_versions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/items/{{RID}}/versions/{{id}}",
         params: 1,
         has_body: true
@@ -147,7 +146,7 @@ where
     patch!({
         doc: "# Update the navigation property fields in sites",
         name: update_fields,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/items/{{RID}}/versions/{{id}}/fields",
         params: 1,
         has_body: true
@@ -155,7 +154,7 @@ where
     post!({
         doc: "# Invoke action restoreVersion",
         name: restore_version,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/items/{{RID}}/versions/{{id}}/restoreVersion",
         params: 1,
         has_body: false

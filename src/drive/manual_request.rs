@@ -1,11 +1,11 @@
 use crate::core::ResourceIdentity;
 use crate::drive::DrivesRequest;
 use crate::error::{GraphFailure, GraphRsError};
-use graph_http::types::Content;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use graph_http::{
-    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, GraphResponse,
-    RequestAttribute, RequestClient, RequestType, UploadSessionClient,
+    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, RequestAttribute,
+    RequestClient, RequestType, UploadSessionClient,
 };
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use reqwest::Method;
@@ -38,10 +38,7 @@ where
         }
     }
 
-    pub fn check_out_item<S: AsRef<str>>(
-        &'a self,
-        id: S,
-    ) -> IntoResponse<'a, GraphResponse<Content>, Client> {
+    pub fn check_out_item<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, NoContent, Client> {
         render_path!(
             self.client,
             template(id.as_ref(), "checkout").as_str(),

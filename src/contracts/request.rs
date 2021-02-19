@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -22,7 +21,7 @@ where
     patch!({
         doc: "# Update entity in contracts",
         name: update_contract,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contracts/{{id}}",
         params: 1,
         has_body: true
@@ -30,7 +29,7 @@ where
     delete!({
         doc: "# Delete entity from contracts",
         name: delete_contract,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contracts/{{id}}",
         params: 1,
         has_body: false

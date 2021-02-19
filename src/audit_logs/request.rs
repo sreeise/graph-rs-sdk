@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -38,7 +37,7 @@ where
     patch!({
         doc: "# Update auditLogs",
         name: update_audit_log_root,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/auditLogs",
         params: 0,
         has_body: true
@@ -54,7 +53,7 @@ where
     patch!({
         doc: "# Update the navigation property directoryAudits in auditLogs",
         name: update_directory_audits,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/auditLogs/directoryAudits/{{id}}",
         params: 1,
         has_body: true
@@ -70,7 +69,7 @@ where
     patch!({
         doc: "# Update the navigation property restrictedSignIns in auditLogs",
         name: update_restricted_sign_ins,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/auditLogs/restrictedSignIns/{{id}}",
         params: 1,
         has_body: true
@@ -102,7 +101,7 @@ where
     patch!({
         doc: "# Update the navigation property signIns in auditLogs",
         name: update_sign_ins,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/auditLogs/signIns/{{id}}",
         params: 1,
         has_body: true

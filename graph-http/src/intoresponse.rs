@@ -2,7 +2,7 @@ use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
 use crate::traits::AsyncTryFrom;
 use crate::traits::NextLink;
-use crate::types::{Content, Delta, DeltaPhantom, NoContent};
+use crate::types::{Delta, DeltaPhantom, NoContent};
 use crate::uploadsession::UploadSessionClient;
 use crate::{DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse, RequestClient};
 use graph_error::{GraphFailure, GraphResult};
@@ -164,21 +164,6 @@ impl<'a> IntoResponseBlocking<'a, UploadSessionClient<BlockingHttpClient>> {
     }
 }
 
-impl<'a> IntoResponseBlocking<'a, GraphResponse<Content>> {
-    pub fn build(self) -> DispatchBlocking<GraphResponse<Content>> {
-        let builder = self.client.build();
-        DispatchBlocking::new(builder, None, self.error)
-    }
-
-    pub fn send(self) -> GraphResult<GraphResponse<Content>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-        let response = self.client.response()?;
-        Ok(std::convert::TryFrom::try_from(response)?)
-    }
-}
-
 impl<'a> IntoResponseBlocking<'a, NoContent> {
     pub fn build(self) -> DispatchBlocking<GraphResponse<NoContent>> {
         let builder = self.client.build();
@@ -246,21 +231,6 @@ where
     }
 
     pub async fn send(self) -> GraphResult<GraphResponse<T>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-        let response = self.client.response().await?;
-        AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
-    }
-}
-
-impl<'a> IntoResponseAsync<'a, GraphResponse<Content>> {
-    pub async fn build(self) -> DispatchAsync<GraphResponse<Content>> {
-        let builder = self.client.build().await;
-        DispatchAsync::new(builder, None, self.error)
-    }
-
-    pub async fn send(self) -> GraphResult<GraphResponse<Content>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }

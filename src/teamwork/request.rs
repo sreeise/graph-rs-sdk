@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -22,7 +21,7 @@ where
     patch!({
         doc: "# Update the navigation property workforceIntegrations in teamwork",
         name: update_workforce_integrations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teamwork/workforceIntegrations/{{id}}",
         params: 1,
         has_body: true
@@ -54,7 +53,7 @@ where
     patch!({
         doc: "# Update teamwork",
         name: update_teamwork,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teamwork",
         params: 0,
         has_body: true

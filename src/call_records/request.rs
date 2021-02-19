@@ -4,8 +4,7 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::sessions::{SessionRequest, SessionsRequest};
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -67,7 +66,7 @@ where
     patch!({
         doc: "# Update the navigation property callRecords in communications",
         name: update_call_records,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/callRecords/{{RID}}",
         params: 0,
         has_body: true

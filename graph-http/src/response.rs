@@ -1,9 +1,7 @@
 use crate::traits::*;
-use crate::types::*;
 use crate::url::GraphUrl;
 use async_trait::async_trait;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
-use reqwest::Response;
 use std::convert::TryFrom;
 
 #[derive(Debug)]
@@ -178,52 +176,10 @@ where
     }
 }
 
-impl TryFrom<reqwest::blocking::Response> for GraphResponse<Content> {
-    type Error = GraphFailure;
-
-    fn try_from(response: reqwest::blocking::Response) -> Result<Self, Self::Error> {
-        if let Ok(mut error) = GraphError::try_from(&response) {
-            let error_message: GraphResult<ErrorMessage> =
-                response.json().map_err(GraphFailure::from);
-            if let Ok(message) = error_message {
-                error.set_error_message(message);
-            }
-            return Err(GraphFailure::from(error));
-        }
-
-        let url = GraphUrl::from(response.url());
-        let headers = response.headers().to_owned();
-        let status = response.status().as_u16();
-        if let Ok(content) = response.text() {
-            Ok(GraphResponse::new(
-                url,
-                Content::from(content),
-                status,
-                headers,
-            ))
-        } else {
-            Ok(GraphResponse::new(
-                url,
-                Content::from(String::new()),
-                status,
-                headers,
-            ))
-        }
-    }
-}
-
 impl<T> TryFrom<GraphResult<reqwest::blocking::Response>> for GraphResponse<T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
-    type Error = GraphFailure;
-
-    fn try_from(result: GraphResult<reqwest::blocking::Response>) -> Result<Self, Self::Error> {
-        std::convert::TryFrom::try_from(result?)
-    }
-}
-
-impl TryFrom<GraphResult<reqwest::blocking::Response>> for GraphResponse<Content> {
     type Error = GraphFailure;
 
     fn try_from(result: GraphResult<reqwest::blocking::Response>) -> Result<Self, Self::Error> {
@@ -257,54 +213,10 @@ where
 }
 
 #[async_trait]
-impl AsyncTryFrom<reqwest::Response> for GraphResponse<Content> {
-    type Error = GraphFailure;
-
-    async fn async_try_from(response: Response) -> Result<Self, Self::Error> {
-        if let Ok(mut error) = GraphError::try_from(&response) {
-            let error_message: GraphResult<ErrorMessage> =
-                response.json().await.map_err(GraphFailure::from);
-            if let Ok(message) = error_message {
-                error.set_error_message(message);
-            }
-            return Err(GraphFailure::from(error));
-        }
-
-        let url = GraphUrl::from(response.url());
-        let status = response.status().as_u16();
-        let headers = response.headers().clone();
-        if let Ok(content) = response.text().await {
-            Ok(GraphResponse::new(
-                url,
-                Content::from(content),
-                status,
-                headers,
-            ))
-        } else {
-            Ok(GraphResponse::new(
-                url,
-                Content::from(String::new()),
-                status,
-                headers,
-            ))
-        }
-    }
-}
-
-#[async_trait]
 impl<T> AsyncTryFrom<GraphResult<reqwest::Response>> for GraphResponse<T>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
-    type Error = GraphFailure;
-
-    async fn async_try_from(result: GraphResult<reqwest::Response>) -> Result<Self, Self::Error> {
-        AsyncTryFrom::<reqwest::Response>::async_try_from(result?).await
-    }
-}
-
-#[async_trait]
-impl AsyncTryFrom<GraphResult<reqwest::Response>> for GraphResponse<Content> {
     type Error = GraphFailure;
 
     async fn async_try_from(result: GraphResult<reqwest::Response>) -> Result<Self, Self::Error> {

@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -22,7 +21,7 @@ where
     patch!({
         doc: "# Update the navigation property outlook in me",
         name: update_outlook,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/outlook",
         params: 0,
         has_body: true
@@ -54,7 +53,7 @@ where
     patch!({
         doc: "# Update the navigation property masterCategories in me",
         name: update_master_categories,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/outlook/masterCategories/{{id}}",
         params: 1,
         has_body: true

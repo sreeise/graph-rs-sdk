@@ -65,16 +65,6 @@ where
     }
 }
 
-impl DispatchBlocking<GraphResponse<Content>> {
-    pub fn send(self) -> GraphResult<GraphResponse<Content>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-        let response = self.request.send()?;
-        Ok(std::convert::TryFrom::try_from(response)?)
-    }
-}
-
 impl DispatchBlocking<GraphResponse<NoContent>> {
     pub fn send(self) -> GraphResult<GraphResponse<serde_json::Value>> {
         if self.error.is_some() {
@@ -147,16 +137,6 @@ where
     for<'de> T: serde::Deserialize<'de>,
 {
     pub async fn send(self) -> GraphResult<GraphResponse<T>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-        let response = self.request.send().await?;
-        AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
-    }
-}
-
-impl DispatchAsync<GraphResponse<Content>> {
-    pub async fn send(self) -> GraphResult<GraphResponse<Content>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }

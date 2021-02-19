@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -120,7 +119,7 @@ where
     patch!({
         doc: "# Update the navigation property classes in education",
         name: update_classes,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/education/classes/{{id}}",
         params: 1,
         has_body: true
@@ -136,7 +135,7 @@ where
     patch!({
         doc: "# Update the navigation property me in education",
         name: update_me,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/education/me",
         params: 0,
         has_body: true
@@ -168,7 +167,7 @@ where
     patch!({
         doc: "# Update the navigation property schools in education",
         name: update_schools,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/education/schools/{{id}}",
         params: 1,
         has_body: true
@@ -200,7 +199,7 @@ where
     patch!({
         doc: "# Update the navigation property users in education",
         name: update_users,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/education/users/{{id}}",
         params: 1,
         has_body: true
@@ -222,7 +221,7 @@ where
     patch!({
         doc: "# Update education",
         name: update_education_root,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/education",
         params: 0,
         has_body: true

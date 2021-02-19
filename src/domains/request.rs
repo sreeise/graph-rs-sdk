@@ -3,8 +3,7 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -53,7 +52,7 @@ where
     patch!({
         doc: "# Update entity in domains",
         name: update_domain,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/domains/{{RID}}",
         params: 0,
         has_body: true
@@ -61,7 +60,7 @@ where
     delete!({
         doc: "# Delete entity from domains",
         name: delete_domain,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/domains/{{RID}}",
         params: 0,
         has_body: false
@@ -85,7 +84,7 @@ where
     post!({
         doc: "# Invoke action forceDelete",
         name: force_delete,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/domains/{{RID}}/forceDelete",
         params: 0,
         has_body: true
@@ -117,7 +116,7 @@ where
     patch!({
         doc: "# Update the navigation property serviceConfigurationRecords in domains",
         name: update_service_configuration_records,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/domains/{{RID}}/serviceConfigurationRecords/{{id}}",
         params: 1,
         has_body: true
@@ -149,7 +148,7 @@ where
     patch!({
         doc: "# Update the navigation property verificationDnsRecords in domains",
         name: update_verification_dns_records,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/domains/{{RID}}/verificationDnsRecords/{{id}}",
         params: 1,
         has_body: true

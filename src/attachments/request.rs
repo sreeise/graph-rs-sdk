@@ -4,8 +4,7 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use graph_error::GraphFailure;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use graph_http::UploadSessionClient;
 use handlebars::*;
@@ -64,14 +63,14 @@ where
     patch!({
         doc: "# Update the navigation property attachments in groups",
         name: update_attachments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/attachments/{{RID}}",
         params: 0,
         has_body: true
     });
     get!({
         name: get_content,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/attachments/{{RID}}/$value",
         params: 0,
         has_body: false
