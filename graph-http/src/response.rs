@@ -74,6 +74,72 @@ impl<T> GraphResponse<T> {
     pub fn async_job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
         futures::executor::block_on(self.inner_async_job_status())
     }
+
+    pub(crate) fn from_no_content(
+        response: reqwest::blocking::Response,
+    ) -> GraphResult<GraphResponse<serde_json::Value>> {
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            Err(GraphFailure::from(error))
+        } else {
+            let url = GraphUrl::from(response.url());
+            let status = response.status().as_u16();
+            let headers = response.headers().to_owned();
+            let result: GraphResult<String> = response.text().map_err(GraphFailure::from);
+
+            let body = match result {
+                Ok(s) => {
+                    let value: GraphResult<serde_json::Value> =
+                        serde_json::from_str(s.as_str()).map_err(GraphFailure::from);
+                    if let Ok(value) = value {
+                        value
+                    } else {
+                        serde_json::Value::String(s)
+                    }
+                },
+                Err(_) => serde_json::Value::String(String::new()),
+            };
+
+            Ok(GraphResponse::new(url, body, status, headers))
+        }
+    }
+
+    pub(crate) async fn async_from_no_content(
+        response: reqwest::Response,
+    ) -> GraphResult<GraphResponse<serde_json::Value>> {
+        if let Ok(mut error) = GraphError::try_from(&response) {
+            let error_message: GraphResult<ErrorMessage> =
+                response.json().await.map_err(GraphFailure::from);
+            if let Ok(message) = error_message {
+                error.set_error_message(message);
+            }
+            Err(GraphFailure::from(error))
+        } else {
+            let url = GraphUrl::from(response.url());
+            let status = response.status().as_u16();
+            let headers = response.headers().to_owned();
+            let result: GraphResult<String> = response.text().await.map_err(GraphFailure::from);
+
+            let body = match result {
+                Ok(s) => {
+                    let value: GraphResult<serde_json::Value> =
+                        serde_json::from_str(s.as_str()).map_err(GraphFailure::from);
+                    if let Ok(value) = value {
+                        value
+                    } else {
+                        serde_json::Value::String(s)
+                    }
+                },
+                Err(_) => serde_json::Value::String(String::new()),
+            };
+
+            Ok(GraphResponse::new(url, body, status, headers))
+        }
+    }
 }
 
 impl<T> AsRef<T> for GraphResponse<T> {

@@ -75,6 +75,16 @@ impl DispatchBlocking<GraphResponse<Content>> {
     }
 }
 
+impl DispatchBlocking<GraphResponse<NoContent>> {
+    pub fn send(self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let response = self.request.send()?;
+        GraphResponse::<serde_json::Value>::from_no_content(response)
+    }
+}
+
 impl DispatchBlocking<UploadSessionClient<BlockingHttpClient>> {
     pub fn send(self) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
         if self.error.is_some() {
@@ -152,6 +162,16 @@ impl DispatchAsync<GraphResponse<Content>> {
         }
         let response = self.request.send().await?;
         AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
+    }
+}
+
+impl DispatchAsync<GraphResponse<NoContent>> {
+    pub async fn send(self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let response = self.request.send().await?;
+        GraphResponse::<serde_json::Value>::async_from_no_content(response).await
     }
 }
 
