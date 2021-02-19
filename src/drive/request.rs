@@ -3,9 +3,8 @@ use crate::core::ResourceIdentity;
 use crate::items::{ItemRequest, ItemsRequest};
 use crate::lists::{ListRequest, ListsRequest};
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -45,7 +44,7 @@ where
     patch!({
         doc: "# Update drive",
         name: update_drive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/drive",
         params: 0,
         has_body: true
@@ -77,7 +76,7 @@ where
     patch!({
         doc: "# Update the navigation property following in drive",
         name: update_following,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/drive/following/{{id}}",
         params: 1,
         has_body: true
@@ -93,7 +92,7 @@ where
     patch!({
         doc: "# Update the navigation property list in drive",
         name: update_list,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/drive/list",
         params: 0,
         has_body: true
@@ -117,7 +116,7 @@ where
     patch!({
         doc: "# Update the navigation property root in drive",
         name: update_root,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/drive/root",
         params: 0,
         has_body: true
@@ -157,7 +156,7 @@ where
     patch!({
         doc: "# Update the navigation property special in drive",
         name: update_special,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/drive/special/{{id}}",
         params: 1,
         has_body: true
@@ -219,7 +218,7 @@ where
     });
     delete!({
         name: delete_items,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/{{drive_item_id}}",
         params: 1,
         has_body: false
@@ -240,7 +239,7 @@ where
     });
     post!({
         name: check_in_item,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/{{drive_item_id}}/checkin",
         params: 1,
         has_body: true
@@ -275,21 +274,21 @@ where
     });
     post!({
         name: copy_item,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/{{drive_item_id}}/copy",
         params: 1,
         has_body: true
     });
     get!({
         name: get_thumbnail_binary,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/{{drive_item_id}}/thumbnails/{{id2}}/{{id3}}/content",
         params: 3,
         has_body: false
     });
     get!({
         name: get_thumbnail,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/{{drive_item_id}}/thumbnails/{{id2}}/{{id3}}",
         params: 3,
         has_body: false
@@ -303,14 +302,14 @@ where
     });
     post!({
         name: restore_item_versions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/{{drive_item_id}}/versions/{{id2}}/restoreVersion",
         params: 2,
         has_body: false
     });
     get!({
         name: list_thumbnails,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/{{drive_item}}/thumbnails",
         params: 0,
         has_body: false
@@ -354,7 +353,7 @@ where
     patch!({
         doc: "# Update entity in drives",
         name: update_drive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "{{resource_drive_path}}/",
         params: 0,
         has_body: true
@@ -362,7 +361,7 @@ where
     delete!({
         doc: "# Delete entity from drives",
         name: delete_drive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "{{resource_drive_path}}/",
         params: 0,
         has_body: false
@@ -394,7 +393,7 @@ where
     patch!({
         doc: "# Update the navigation property following in drives",
         name: update_following,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "{{resource_drive_path}}/following/{{id}}",
         params: 1,
         has_body: true
@@ -410,7 +409,7 @@ where
     patch!({
         doc: "# Update the navigation property list in drives",
         name: update_list,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "{{resource_drive_path}}/list",
         params: 0,
         has_body: true
@@ -434,7 +433,7 @@ where
     patch!({
         doc: "# Update the navigation property root in drives",
         name: update_root,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "{{resource_drive_path}}/root",
         params: 0,
         has_body: true
@@ -474,7 +473,7 @@ where
     patch!({
         doc: "# Update the navigation property special in drives",
         name: update_special,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "{{resource_drive_path}}/special/{{id}}",
         params: 1,
         has_body: true

@@ -1,8 +1,7 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -51,7 +50,7 @@ where
     patch!({
         doc: "# Update the navigation property tasks in planner",
         name: update_tasks,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/tasks/{{RID}}",
         params: 0,
         has_body: true
@@ -67,7 +66,7 @@ where
     patch!({
         doc: "# Update the navigation property assignedToTaskBoardFormat in planner",
         name: update_assigned_to_task_board_format,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/tasks/{{RID}}/assignedToTaskBoardFormat",
         params: 0,
         has_body: true
@@ -83,7 +82,7 @@ where
     patch!({
         doc: "# Update the navigation property bucketTaskBoardFormat in planner",
         name: update_bucket_task_board_format,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/tasks/{{RID}}/bucketTaskBoardFormat",
         params: 0,
         has_body: true
@@ -99,7 +98,7 @@ where
     patch!({
         doc: "# Update the navigation property details in planner",
         name: update_details,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/tasks/{{RID}}/details",
         params: 0,
         has_body: true
@@ -115,7 +114,7 @@ where
     patch!({
         doc: "# Update the navigation property progressTaskBoardFormat in planner",
         name: update_progress_task_board_format,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/tasks/{{RID}}/progressTaskBoardFormat",
         params: 0,
         has_body: true

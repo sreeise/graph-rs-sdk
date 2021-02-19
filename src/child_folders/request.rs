@@ -4,9 +4,8 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::messages::{MessageRequest, MessagesRequest};
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -76,7 +75,7 @@ where
     patch!({
         doc: "# Update the navigation property childFolders in me",
         name: update_child_folders,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/childFolders/{{RID}}",
         params: 0,
         has_body: true

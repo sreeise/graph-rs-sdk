@@ -4,8 +4,7 @@ use crate::core::ResourceIdentity;
 use crate::events::{EventRequest, EventsRequest};
 use crate::extended_properties::ExtendedPropertiesRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -60,7 +59,7 @@ where
     patch!({
         doc: "# Update the navigation property calendar in users",
         name: update_calendar,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendar",
         params: 0,
         has_body: true
@@ -92,7 +91,7 @@ where
     patch!({
         doc: "# Update the navigation property calendarPermissions in users",
         name: update_calendar_permissions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendar/calendarPermissions/{{id}}",
         params: 1,
         has_body: true
@@ -173,7 +172,7 @@ where
     patch!({
         doc: "# Update the navigation property calendars in users",
         name: update_calendars,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendars/{{RID}}",
         params: 0,
         has_body: true
@@ -205,7 +204,7 @@ where
     patch!({
         doc: "# Update the navigation property calendarPermissions in users",
         name: update_calendar_permissions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendars/{{RID}}/calendarPermissions/{{id}}",
         params: 1,
         has_body: true

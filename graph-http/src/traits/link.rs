@@ -1,9 +1,8 @@
-use crate::types::{Content, Delta};
+use crate::types::Delta;
 use crate::url::GraphUrl;
 use crate::GraphResponse;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::CONTENT_TYPE;
-use std::convert::TryFrom;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
 
@@ -14,7 +13,7 @@ pub trait DownloadLink<RHS = Self> {
 pub trait MetadataLink<RHS = Self> {
     fn metadata_link(&self) -> Option<String>;
 
-    fn metadata(&self) -> Option<GraphResult<GraphResponse<Content>>> {
+    fn metadata(&self) -> Option<GraphResult<GraphResponse<serde_json::Value>>> {
         let link = self.metadata_link()?;
         let client = reqwest::blocking::Client::new();
         let response = client.get(link.as_str()).send();
@@ -22,7 +21,7 @@ pub trait MetadataLink<RHS = Self> {
         if let Err(e) = response {
             Some(Err(GraphFailure::from(e)))
         } else if let Ok(res) = response {
-            Some(GraphResponse::try_from(res))
+            Some(GraphResponse::<serde_json::Value>::from_no_content(res))
         } else {
             None
         }

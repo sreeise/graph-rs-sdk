@@ -5,9 +5,8 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -84,21 +83,21 @@ where
     patch!({
         doc: "# Update the navigation property messages in me",
         name: update_messages,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/messages/{{RID}}",
         params: 0,
         has_body: true
     });
     delete!({
         name: delete_messages,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/messages/{{RID}}",
         params: 0,
         has_body: false
     });
     get!({
         name: get_message_content,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/messages/{{RID}}/$value",
         params: 0,
         has_body: false
@@ -178,7 +177,7 @@ where
     patch!({
         doc: "# Update the navigation property extensions in me",
         name: update_extensions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/messages/{{RID}}/extensions/{{id}}",
         params: 1,
         has_body: true
@@ -186,7 +185,7 @@ where
     post!({
         doc: "# Invoke action forward",
         name: forward,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/messages/{{RID}}/forward",
         params: 0,
         has_body: true
@@ -201,7 +200,7 @@ where
     post!({
         doc: "# Invoke action reply",
         name: reply,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/messages/{{RID}}/reply",
         params: 0,
         has_body: true
@@ -209,7 +208,7 @@ where
     post!({
         doc: "# Invoke action replyAll",
         name: reply_all,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/messages/{{RID}}/replyAll",
         params: 0,
         has_body: true
@@ -217,7 +216,7 @@ where
     post!({
         doc: "# Invoke action send",
         name: send,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/messages/{{RID}}/send",
         params: 0,
         has_body: false

@@ -7,9 +7,8 @@ use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
 use crate::instances::{InstanceRequest, InstancesRequest};
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -64,7 +63,7 @@ where
     post!({
         doc: "# Invoke action accept",
         name: accept,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendarView/{{RID}}/accept",
         params: 0,
         has_body: true
@@ -96,7 +95,7 @@ where
     patch!({
         doc: "# Update the navigation property calendar in me",
         name: update_calendar,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendarView/{{RID}}/calendar",
         params: 0,
         has_body: true
@@ -104,7 +103,7 @@ where
     post!({
         doc: "# Invoke action decline",
         name: decline,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendarView/{{RID}}/decline",
         params: 0,
         has_body: true
@@ -112,7 +111,7 @@ where
     post!({
         doc: "# Invoke action dismissReminder",
         name: dismiss_reminder,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendarView/{{RID}}/dismissReminder",
         params: 0,
         has_body: false
@@ -144,7 +143,7 @@ where
     patch!({
         doc: "# Update the navigation property extensions in me",
         name: update_extensions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendarView/{{RID}}/extensions/{{id}}",
         params: 1,
         has_body: true
@@ -152,7 +151,7 @@ where
     post!({
         doc: "# Invoke action snoozeReminder",
         name: snooze_reminder,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendarView/{{RID}}/snoozeReminder",
         params: 0,
         has_body: true
@@ -160,7 +159,7 @@ where
     post!({
         doc: "# Invoke action tentativelyAccept",
         name: tentatively_accept,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/calendarView/{{RID}}/tentativelyAccept",
         params: 0,
         has_body: true

@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -71,7 +70,7 @@ where
     patch!({
         doc: "# Update the navigation property windowsInformationProtectionPolicies in deviceAppManagement",
         name: update_windows_information_protection_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/windowsInformationProtectionPolicies/{{id}}",
         params: 1,
         has_body: true
@@ -95,7 +94,7 @@ where
     post!({
         doc: "# Invoke action syncMicrosoftStoreForBusinessApps",
         name: sync_microsoft_store_for_business_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/syncMicrosoftStoreForBusinessApps",
         params: 0,
         has_body: false
@@ -111,7 +110,7 @@ where
     patch!({
         doc: "# Update the navigation property mobileApps in deviceAppManagement",
         name: update_mobile_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileApps/{{id}}",
         params: 1,
         has_body: true
@@ -143,7 +142,7 @@ where
     patch!({
         doc: "# Update the navigation property managedEBooks in deviceAppManagement",
         name: update_managed_e_books,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedEBooks/{{id}}",
         params: 1,
         has_body: true
@@ -175,7 +174,7 @@ where
     patch!({
         doc: "# Update the navigation property iosManagedAppProtections in deviceAppManagement",
         name: update_ios_managed_app_protections,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/iosManagedAppProtections/{{id}}",
         params: 1,
         has_body: true
@@ -223,7 +222,7 @@ where
     patch!({
         doc: "# Update the navigation property targetedManagedAppConfigurations in deviceAppManagement",
         name: update_targeted_managed_app_configurations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/targetedManagedAppConfigurations/{{id}}",
         params: 1,
         has_body: true
@@ -247,7 +246,7 @@ where
     patch!({
         doc: "# Update the navigation property vppTokens in deviceAppManagement",
         name: update_vpp_tokens,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/vppTokens/{{id}}",
         params: 1,
         has_body: true
@@ -311,7 +310,7 @@ where
     patch!({
         doc: "# Update the navigation property androidManagedAppProtections in deviceAppManagement",
         name: update_android_managed_app_protections,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/androidManagedAppProtections/{{id}}",
         params: 1,
         has_body: true
@@ -327,7 +326,7 @@ where
     patch!({
         doc: "# Update the navigation property defaultManagedAppProtections in deviceAppManagement",
         name: update_default_managed_app_protections,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/defaultManagedAppProtections/{{id}}",
         params: 1,
         has_body: true
@@ -359,7 +358,7 @@ where
     patch!({
         doc: "# Update deviceAppManagement",
         name: update_device_app_management,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement",
         params: 0,
         has_body: true
@@ -375,7 +374,7 @@ where
     patch!({
         doc: "# Update the navigation property mobileAppCategories in deviceAppManagement",
         name: update_mobile_app_categories,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileAppCategories/{{id}}",
         params: 1,
         has_body: true
@@ -439,7 +438,7 @@ where
     patch!({
         doc: "# Update the navigation property managedAppStatuses in deviceAppManagement",
         name: update_managed_app_statuses,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedAppStatuses/{{id}}",
         params: 1,
         has_body: true
@@ -455,7 +454,7 @@ where
     patch!({
         doc: "# Update the navigation property mobileAppConfigurations in deviceAppManagement",
         name: update_mobile_app_configurations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileAppConfigurations/{{id}}",
         params: 1,
         has_body: true
@@ -503,7 +502,7 @@ where
     patch!({
         doc: "# Update the navigation property mdmWindowsInformationProtectionPolicies in deviceAppManagement",
         name: update_mdm_windows_information_protection_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mdmWindowsInformationProtectionPolicies/{{id}}",
         params: 1,
         has_body: true
@@ -519,7 +518,7 @@ where
     patch!({
         doc: "# Update the navigation property managedAppRegistrations in deviceAppManagement",
         name: update_managed_app_registrations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedAppRegistrations/{{id}}",
         params: 1,
         has_body: true
@@ -535,7 +534,7 @@ where
     patch!({
         doc: "# Update the navigation property managedAppPolicies in deviceAppManagement",
         name: update_managed_app_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedAppPolicies/{{id}}",
         params: 1,
         has_body: true
@@ -557,7 +556,7 @@ where
     patch!({
         doc: "# Update the navigation property deploymentSummary in deviceAppManagement",
         name: update_deployment_summary,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/androidManagedAppProtections/{{id}}/deploymentSummary",
         params: 1,
         has_body: true
@@ -573,7 +572,7 @@ where
     patch!({
         doc: "# Update the navigation property apps in deviceAppManagement",
         name: update_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/androidManagedAppProtections/{{id}}/apps/{{id2}}",
         params: 2,
         has_body: true
@@ -627,7 +626,7 @@ where
     patch!({
         doc: "# Update the navigation property deploymentSummary in deviceAppManagement",
         name: update_deployment_summary,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/defaultManagedAppProtections/{{id}}/deploymentSummary",
         params: 1,
         has_body: true
@@ -643,7 +642,7 @@ where
     patch!({
         doc: "# Update the navigation property apps in deviceAppManagement",
         name: update_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/defaultManagedAppProtections/{{id}}/apps/{{id2}}",
         params: 2,
         has_body: true
@@ -681,7 +680,7 @@ where
     patch!({
         doc: "# Update the navigation property apps in deviceAppManagement",
         name: update_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/iosManagedAppProtections/{{id}}/apps/{{id2}}",
         params: 2,
         has_body: true
@@ -697,7 +696,7 @@ where
     patch!({
         doc: "# Update the navigation property deploymentSummary in deviceAppManagement",
         name: update_deployment_summary,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/iosManagedAppProtections/{{id}}/deploymentSummary",
         params: 1,
         has_body: true
@@ -711,7 +710,7 @@ where
     post!({
         doc: "# Invoke action targetApps",
         name: target_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedAppPolicies/{{id}}/targetApps",
         params: 1,
         has_body: true
@@ -771,7 +770,7 @@ where
     patch!({
         doc: "# Update the navigation property operations in deviceAppManagement",
         name: update_operations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedAppRegistrations/{{id}}/operations/{{id2}}",
         params: 2,
         has_body: true
@@ -787,7 +786,7 @@ where
     patch!({
         doc: "# Update the navigation property appliedPolicies in deviceAppManagement",
         name: update_applied_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedAppRegistrations/{{id}}/appliedPolicies/{{id2}}",
         params: 2,
         has_body: true
@@ -819,7 +818,7 @@ where
     patch!({
         doc: "# Update the navigation property intendedPolicies in deviceAppManagement",
         name: update_intended_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedAppRegistrations/{{id}}/intendedPolicies/{{id2}}",
         params: 2,
         has_body: true
@@ -833,7 +832,7 @@ where
     post!({
         doc: "# Invoke action targetApps",
         name: target_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedAppRegistrations/{{id}}/appliedPolicies/{{id2}}/targetApps",
         params: 2,
         has_body: true
@@ -847,7 +846,7 @@ where
     post!({
         doc: "# Invoke action targetApps",
         name: target_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedAppRegistrations/{{id}}/intendedPolicies/{{id2}}/targetApps",
         params: 2,
         has_body: true
@@ -872,7 +871,7 @@ where
     patch!({
         doc: "# Update the navigation property userStateSummary in deviceAppManagement",
         name: update_user_state_summary,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedEBooks/{{id}}/userStateSummary/{{id2}}",
         params: 2,
         has_body: true
@@ -888,7 +887,7 @@ where
     patch!({
         doc: "# Update the navigation property assignments in deviceAppManagement",
         name: update_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedEBooks/{{id}}/assignments/{{id2}}",
         params: 2,
         has_body: true
@@ -920,7 +919,7 @@ where
     patch!({
         doc: "# Update the navigation property installSummary in deviceAppManagement",
         name: update_install_summary,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedEBooks/{{id}}/installSummary",
         params: 1,
         has_body: true
@@ -952,7 +951,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceStates in deviceAppManagement",
         name: update_device_states,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedEBooks/{{id}}/deviceStates/{{id2}}",
         params: 2,
         has_body: true
@@ -976,7 +975,7 @@ where
     post!({
         doc: "# Invoke action assign",
         name: assign,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedEBooks/{{id}}/assign",
         params: 1,
         has_body: true
@@ -1014,7 +1013,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceStates in deviceAppManagement",
         name: update_device_states,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/managedEBooks/{{id}}/userStateSummary/{{id2}}/deviceStates/{{id3}}",
         params: 3,
         has_body: true
@@ -1028,7 +1027,7 @@ where
     post!({
         doc: "# Invoke action assign",
         name: assign,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileAppConfigurations/{{id}}/assign",
         params: 1,
         has_body: true
@@ -1060,7 +1059,7 @@ where
     patch!({
         doc: "# Update the navigation property userStatuses in deviceAppManagement",
         name: update_user_statuses,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileAppConfigurations/{{id}}/userStatuses/{{id2}}",
         params: 2,
         has_body: true
@@ -1092,7 +1091,7 @@ where
     patch!({
         doc: "# Update the navigation property assignments in deviceAppManagement",
         name: update_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileAppConfigurations/{{id}}/assignments/{{id2}}",
         params: 2,
         has_body: true
@@ -1124,7 +1123,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceStatuses in deviceAppManagement",
         name: update_device_statuses,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileAppConfigurations/{{id}}/deviceStatuses/{{id2}}",
         params: 2,
         has_body: true
@@ -1140,7 +1139,7 @@ where
     patch!({
         doc: "# Update the navigation property userStatusSummary in deviceAppManagement",
         name: update_user_status_summary,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileAppConfigurations/{{id}}/userStatusSummary",
         params: 1,
         has_body: true
@@ -1156,7 +1155,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceStatusSummary in deviceAppManagement",
         name: update_device_status_summary,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileAppConfigurations/{{id}}/deviceStatusSummary",
         params: 1,
         has_body: true
@@ -1178,7 +1177,7 @@ where
     patch!({
         doc: "# Update the navigation property assignments in deviceAppManagement",
         name: update_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileApps/{{id}}/assignments/{{id2}}",
         params: 2,
         has_body: true
@@ -1194,7 +1193,7 @@ where
     post!({
         doc: "# Invoke action assign",
         name: assign,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/mobileApps/{{id}}/assign",
         params: 1,
         has_body: true
@@ -1256,7 +1255,7 @@ where
     patch!({
         doc: "# Update the navigation property assignments in deviceAppManagement",
         name: update_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/targetedManagedAppConfigurations/{{id}}/assignments/{{id2}}",
         params: 2,
         has_body: true
@@ -1288,7 +1287,7 @@ where
     patch!({
         doc: "# Update the navigation property apps in deviceAppManagement",
         name: update_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/targetedManagedAppConfigurations/{{id}}/apps/{{id2}}",
         params: 2,
         has_body: true
@@ -1296,7 +1295,7 @@ where
     post!({
         doc: "# Invoke action assign",
         name: assign,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/targetedManagedAppConfigurations/{{id}}/assign",
         params: 1,
         has_body: true
@@ -1312,7 +1311,7 @@ where
     patch!({
         doc: "# Update the navigation property deploymentSummary in deviceAppManagement",
         name: update_deployment_summary,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/targetedManagedAppConfigurations/{{id}}/deploymentSummary",
         params: 1,
         has_body: true
@@ -1320,7 +1319,7 @@ where
     post!({
         doc: "# Invoke action targetApps",
         name: target_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceAppManagement/targetedManagedAppConfigurations/{{id}}/targetApps",
         params: 1,
         has_body: true

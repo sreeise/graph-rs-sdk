@@ -1,4 +1,3 @@
-use graph_http::types::Content;
 use graph_rs_sdk::prelude::*;
 use std::thread;
 use std::time::Duration;
@@ -26,7 +25,7 @@ fn copy_item() {
     // requested above so the copy of the item will be placed in the same folder. This can
     // be changed to wherever you would like the copy placed.
 
-    let mut response: GraphResponse<Content> = graph
+    let mut response = graph
         .v1()
         .me()
         .drive()

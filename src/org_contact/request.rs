@@ -2,9 +2,8 @@
 
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -60,7 +59,7 @@ where
     patch!({
         doc: "# Update entity in contacts",
         name: update_org_contact,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contacts/{{RID}}",
         params: 0,
         has_body: true
@@ -68,7 +67,7 @@ where
     delete!({
         doc: "# Delete entity from contacts",
         name: delete_org_contact,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contacts/{{RID}}",
         params: 0,
         has_body: false

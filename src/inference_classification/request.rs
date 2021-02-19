@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -22,7 +21,7 @@ where
     patch!({
         doc: "# Update the navigation property inferenceClassification in me",
         name: update_inference_classification,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/inferenceClassification",
         params: 0,
         has_body: true
@@ -54,7 +53,7 @@ where
     patch!({
         doc: "# Update the navigation property overrides in me",
         name: update_overrides,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/inferenceClassification/overrides/{{id}}",
         params: 1,
         has_body: true

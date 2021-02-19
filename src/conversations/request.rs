@@ -2,8 +2,7 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::threads::{ThreadRequest, ThreadsRequest};
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -65,14 +64,14 @@ where
     patch!({
         doc: "# Update the navigation property conversations in groups",
         name: update_conversations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/conversations/{{RID}}",
         params: 0,
         has_body: true
     });
     delete!({
         name: delete_conversations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/conversations/{{RID}}",
         params: 0,
         has_body: false

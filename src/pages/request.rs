@@ -3,8 +3,7 @@ use crate::core::ResourceIdentity;
 use crate::parent_notebook::ParentNotebookRequest;
 use crate::parent_section::ParentSectionRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use graph_http::{
     AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, RequestClient,
@@ -71,14 +70,14 @@ where
     patch!({
         doc: "# Update the navigation property pages in me",
         name: update_pages,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/pages/{{RID}}",
         params: 0,
         has_body: true
     });
     delete!({
         name: delete_pages,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/pages/{{RID}}",
         params: 0,
         has_body: false
@@ -101,7 +100,7 @@ where
     post!({
         doc: "# Invoke action onenotePatchContent",
         name: onenote_patch_content,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/pages/{{RID}}/onenotePatchContent",
         params: 0,
         has_body: true
@@ -117,7 +116,7 @@ where
     patch!({
         doc: "# Update the navigation property parentNotebook in me",
         name: update_parent_notebook,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/pages/{{RID}}/parentNotebook",
         params: 0,
         has_body: true
@@ -133,7 +132,7 @@ where
     patch!({
         doc: "# Update the navigation property parentSection in me",
         name: update_parent_section,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/pages/{{RID}}/parentSection",
         params: 0,
         has_body: true

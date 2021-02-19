@@ -10,9 +10,8 @@ use crate::onenote::OnenoteRequest;
 use crate::planner::PlannerRequest;
 use crate::threads::{ThreadRequest, ThreadsRequest};
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -171,7 +170,7 @@ where
     patch!({
         doc: "# Update entity in groups",
         name: update_group,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}",
         params: 0,
         has_body: true
@@ -179,7 +178,7 @@ where
     delete!({
         doc: "# Delete entity from groups",
         name: delete_group,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}",
         params: 0,
         has_body: false
@@ -211,7 +210,7 @@ where
     patch!({
         doc: "# Update the navigation property acceptedSenders in groups",
         name: update_accepted_senders,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/acceptedSenders/{{id}}",
         params: 1,
         has_body: true
@@ -219,7 +218,7 @@ where
     post!({
         doc: "# Invoke action addFavorite",
         name: add_favorite,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/addFavorite",
         params: 0,
         has_body: false
@@ -251,7 +250,7 @@ where
     patch!({
         doc: "# Update the navigation property appRoleAssignments in groups",
         name: update_app_role_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/appRoleAssignments/{{id}}",
         params: 1,
         has_body: true
@@ -275,7 +274,7 @@ where
     patch!({
         doc: "# Update the navigation property calendar in groups",
         name: update_calendar,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/calendar",
         params: 0,
         has_body: true
@@ -331,7 +330,7 @@ where
     patch!({
         doc: "# Update the navigation property drive in groups",
         name: update_drive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/drive",
         params: 0,
         has_body: true
@@ -363,7 +362,7 @@ where
     patch!({
         doc: "# Update the navigation property drives in groups",
         name: update_drives,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/drives/{{id}}",
         params: 1,
         has_body: true
@@ -411,7 +410,7 @@ where
     patch!({
         doc: "# Update the navigation property extensions in groups",
         name: update_extensions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/extensions/{{id}}",
         params: 1,
         has_body: true
@@ -443,7 +442,7 @@ where
     patch!({
         doc: "# Update the navigation property groupLifecyclePolicies in groups",
         name: update_group_lifecycle_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/groupLifecyclePolicies/{{id}}",
         params: 1,
         has_body: true
@@ -507,7 +506,7 @@ where
     patch!({
         doc: "# Update the navigation property onenote in groups",
         name: update_onenote,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/onenote",
         params: 0,
         has_body: true
@@ -539,7 +538,7 @@ where
     patch!({
         doc: "# Update the navigation property photo in groups",
         name: update_photo,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/photo",
         params: 0,
         has_body: true
@@ -571,7 +570,7 @@ where
     patch!({
         doc: "# Update the navigation property photos in groups",
         name: update_photos,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/photos/{{id}}",
         params: 1,
         has_body: true
@@ -587,7 +586,7 @@ where
     patch!({
         doc: "# Update the navigation property planner in groups",
         name: update_planner,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/planner",
         params: 0,
         has_body: true
@@ -619,7 +618,7 @@ where
     patch!({
         doc: "# Update the navigation property rejectedSenders in groups",
         name: update_rejected_senders,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/rejectedSenders/{{id}}",
         params: 1,
         has_body: true
@@ -627,7 +626,7 @@ where
     post!({
         doc: "# Invoke action removeFavorite",
         name: remove_favorite,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/removeFavorite",
         params: 0,
         has_body: false
@@ -635,7 +634,7 @@ where
     post!({
         doc: "# Invoke action renew",
         name: renew,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/renew",
         params: 0,
         has_body: false
@@ -643,7 +642,7 @@ where
     post!({
         doc: "# Invoke action resetUnseenCount",
         name: reset_unseen_count,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/resetUnseenCount",
         params: 0,
         has_body: false
@@ -675,7 +674,7 @@ where
     patch!({
         doc: "# Update the navigation property settings in groups",
         name: update_settings,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/settings/{{id}}",
         params: 1,
         has_body: true
@@ -707,7 +706,7 @@ where
     patch!({
         doc: "# Update the navigation property sites in groups",
         name: update_sites,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/sites/{{id}}",
         params: 1,
         has_body: true
@@ -715,7 +714,7 @@ where
     post!({
         doc: "# Invoke action subscribeByMail",
         name: subscribe_by_mail,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/subscribeByMail",
         params: 0,
         has_body: false
@@ -731,7 +730,7 @@ where
     patch!({
         doc: "# Update the navigation property team in groups",
         name: update_team,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/team",
         params: 0,
         has_body: true
@@ -787,7 +786,7 @@ where
     post!({
         doc: "# Invoke action unsubscribeByMail",
         name: unsubscribe_by_mail,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/unsubscribeByMail",
         params: 0,
         has_body: false
@@ -795,35 +794,35 @@ where
     post!({
         doc: "# Invoke action validateProperties",
         name: validate_properties,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/groups/{{RID}}/validateProperties",
         params: 0,
         has_body: true
     });
     post!({
         name: add_member,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "groups/{{RID}}/members/$ref",
         params: 0,
         has_body: true
     });
     delete!({
         name: remove_member,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "groups/{{RID}}/members/{{id}}/$ref",
         params: 1,
         has_body: false
     });
     post!({
         name: add_owner,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "groups/{{RID}}/owners/$ref",
         params: 0,
         has_body: true
     });
     delete!({
         name: remove_owner,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "groups/{{RID}}/owners/{{id}}/$ref",
         params: 1,
         has_body: false

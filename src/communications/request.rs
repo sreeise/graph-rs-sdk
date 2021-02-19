@@ -5,8 +5,7 @@ use crate::calls::{CallRequest, CallsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -29,7 +28,7 @@ where
     patch!({
         doc: "# Update communications",
         name: update_cloud_communications,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/communications",
         params: 0,
         has_body: true
@@ -99,7 +98,7 @@ where
     patch!({
         doc: "# Update the navigation property callRecords in communications",
         name: update_call_records,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/communications/callRecords/{{id}}",
         params: 1,
         has_body: true
@@ -131,7 +130,7 @@ where
     patch!({
         doc: "# Update the navigation property calls in communications",
         name: update_calls,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/communications/calls/{{id}}",
         params: 1,
         has_body: true
@@ -163,7 +162,7 @@ where
     patch!({
         doc: "# Update the navigation property onlineMeetings in communications",
         name: update_online_meetings,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/communications/onlineMeetings/{{id}}",
         params: 1,
         has_body: true

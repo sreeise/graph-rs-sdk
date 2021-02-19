@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -58,7 +57,7 @@ where
     patch!({
         doc: "# Update the navigation property conditionalAccessPolicies in policies",
         name: update_conditional_access_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies/conditionalAccessPolicies/{{id}}",
         params: 1,
         has_body: true
@@ -74,7 +73,7 @@ where
     patch!({
         doc: "# Update the navigation property homeRealmDiscoveryPolicies in policies",
         name: update_home_realm_discovery_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies/homeRealmDiscoveryPolicies/{{id}}",
         params: 1,
         has_body: true
@@ -106,7 +105,7 @@ where
     patch!({
         doc: "# Update the navigation property claimsMappingPolicies in policies",
         name: update_claims_mapping_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies/claimsMappingPolicies/{{id}}",
         params: 1,
         has_body: true
@@ -154,7 +153,7 @@ where
     patch!({
         doc: "# Update the navigation property activityBasedTimeoutPolicies in policies",
         name: update_activity_based_timeout_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies/activityBasedTimeoutPolicies/{{id}}",
         params: 1,
         has_body: true
@@ -170,7 +169,7 @@ where
     patch!({
         doc: "# Update policies",
         name: update_policy_root,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies",
         params: 0,
         has_body: true
@@ -186,7 +185,7 @@ where
     patch!({
         doc: "# Update the navigation property tokenLifetimePolicies in policies",
         name: update_token_lifetime_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies/tokenLifetimePolicies/{{id}}",
         params: 1,
         has_body: true
@@ -202,7 +201,7 @@ where
     patch!({
         doc: "# Update the navigation property tokenIssuancePolicies in policies",
         name: update_token_issuance_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies/tokenIssuancePolicies/{{id}}",
         params: 1,
         has_body: true
@@ -218,7 +217,7 @@ where
     patch!({
         doc: "# Update the navigation property permissionGrantPolicies in policies",
         name: update_permission_grant_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies/permissionGrantPolicies/{{id}}",
         params: 1,
         has_body: true
@@ -234,7 +233,7 @@ where
     patch!({
         doc: "# Update the navigation property identitySecurityDefaultsEnforcementPolicy in policies",
         name: update_identity_security_defaults_enforcement_policy,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies/identitySecurityDefaultsEnforcementPolicy",
         params: 0,
         has_body: true
@@ -304,7 +303,7 @@ where
     patch!({
         doc: "# Update the navigation property includes in policies",
         name: update_includes,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies/permissionGrantPolicies/{{id}}/includes/{{id2}}",
         params: 2,
         has_body: true
@@ -336,7 +335,7 @@ where
     patch!({
         doc: "# Update the navigation property excludes in policies",
         name: update_excludes,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/policies/permissionGrantPolicies/{{id}}/excludes/{{id2}}",
         params: 2,
         has_body: true

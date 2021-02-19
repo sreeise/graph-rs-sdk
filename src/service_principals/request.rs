@@ -1,8 +1,7 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -23,7 +22,7 @@ where
     patch!({
         doc: "# Update the navigation property appRoleAssignedTo in servicePrincipals",
         name: update_app_role_assigned_to,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/servicePrincipals/{{id}}/appRoleAssignedTo/{{id2}}",
         params: 2,
         has_body: true
@@ -63,7 +62,7 @@ where
     patch!({
         doc: "# Update the navigation property endpoints in servicePrincipals",
         name: update_endpoints,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/servicePrincipals/{{id}}/endpoints/{{id2}}",
         params: 2,
         has_body: true
@@ -87,7 +86,7 @@ where
     patch!({
         doc: "# Update entity in servicePrincipals",
         name: update_service_principal,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/servicePrincipals/{{id}}",
         params: 1,
         has_body: true
@@ -95,7 +94,7 @@ where
     delete!({
         doc: "# Delete entity from servicePrincipals",
         name: delete_service_principal,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/servicePrincipals/{{id}}",
         params: 1,
         has_body: false
@@ -207,7 +206,7 @@ where
     post!({
         doc: "# Invoke action removePassword",
         name: remove_password,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/servicePrincipals/{{id}}/removePassword",
         params: 1,
         has_body: true
@@ -263,7 +262,7 @@ where
     patch!({
         doc: "# Update the navigation property appRoleAssignments in servicePrincipals",
         name: update_app_role_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/servicePrincipals/{{id}}/appRoleAssignments/{{id2}}",
         params: 2,
         has_body: true
@@ -343,7 +342,7 @@ where
     post!({
         doc: "# Invoke action removeKey",
         name: remove_key,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/servicePrincipals/{{id}}/removeKey",
         params: 1,
         has_body: true

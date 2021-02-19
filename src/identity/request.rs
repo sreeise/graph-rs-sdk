@@ -1,7 +1,7 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::{GraphResponse, IntoResponse};
+use graph_http::types::NoContent;
+use graph_http::IntoResponse;
 use reqwest::Method;
 
 register_client!(IdentityRequest,);
@@ -25,7 +25,7 @@ where
     patch!({
         doc: "# Update the navigation property policies in identity",
         name: update_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/identity/conditionalAccess/policies/{{id}}",
         params: 1,
         has_body: true
@@ -33,7 +33,7 @@ where
     delete!({
         doc: "# Delete navigation property policies for identity",
         name: delete_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/identity/conditionalAccess/policies/{{id}}",
         params: 1,
         has_body: false
@@ -65,7 +65,7 @@ where
     patch!({
         doc: "# Update the navigation property namedLocations in identity",
         name: update_named_locations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/identity/conditionalAccess/namedLocations/{{id}}",
         params: 1,
         has_body: true
@@ -73,7 +73,7 @@ where
     delete!({
         doc: "# Delete navigation property namedLocations for identity",
         name: delete_named_locations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/identity/conditionalAccess/namedLocations/{{id}}",
         params: 1,
         has_body: false
@@ -128,7 +128,7 @@ where
     patch!({
         doc: "# Update entity in identityProviders",
         name: update_identity_provider,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/identityProviders/{{id}}",
         params: 1,
         has_body: true
@@ -136,7 +136,7 @@ where
     delete!({
         doc: "# Delete entity from identityProviders",
         name: delete_identity_provider,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/identityProviders/{{id}}",
         params: 1,
         has_body: false
@@ -159,7 +159,7 @@ where
     patch!({
         doc: "# Update identity",
         name: update_identity_container,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/identity",
         params: 0,
         has_body: true
@@ -191,7 +191,7 @@ where
     patch!({
         doc: "# Update the navigation property conditionalAccess in identity",
         name: update_conditional_access,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/identity/conditionalAccess",
         params: 0,
         has_body: true
@@ -199,7 +199,7 @@ where
     delete!({
         doc: "# Delete navigation property conditionalAccess for identity",
         name: delete_conditional_access,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/identity/conditionalAccess",
         params: 0,
         has_body: false

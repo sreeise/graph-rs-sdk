@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -50,7 +49,7 @@ where
     patch!({
         doc: "# Update the navigation property shared in me",
         name: update_shared,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/insights/shared/{{id}}",
         params: 1,
         has_body: true
@@ -82,7 +81,7 @@ where
     patch!({
         doc: "# Update the navigation property trending in me",
         name: update_trending,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/insights/trending/{{id}}",
         params: 1,
         has_body: true
@@ -114,7 +113,7 @@ where
     patch!({
         doc: "# Update the navigation property used in me",
         name: update_used,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/insights/used/{{id}}",
         params: 1,
         has_body: true

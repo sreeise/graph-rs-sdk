@@ -1,8 +1,7 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -90,7 +89,7 @@ where
     post!({
         doc: "# Invoke action removePassword",
         name: remove_password,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/applications/{{RID}}/removePassword",
         params: 0,
         has_body: true
@@ -146,7 +145,7 @@ where
     patch!({
         doc: "# Update entity in applications",
         name: update_application,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/applications/{{RID}}",
         params: 0,
         has_body: true
@@ -154,7 +153,7 @@ where
     delete!({
         doc: "# Delete entity from applications",
         name: delete_application,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/applications/{{RID}}",
         params: 0,
         has_body: false
@@ -162,7 +161,7 @@ where
     post!({
         doc: "# Invoke action removeKey",
         name: remove_key,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/applications/{{RID}}/removeKey",
         params: 0,
         has_body: true
@@ -186,7 +185,7 @@ where
     patch!({
         doc: "# Update the navigation property extensionProperties in applications",
         name: update_extension_properties,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/applications/{{RID}}/extensionProperties/{{id}}",
         params: 1,
         has_body: true

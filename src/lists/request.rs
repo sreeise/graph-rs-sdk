@@ -3,8 +3,7 @@ use crate::content_types::{ContentTypeRequest, ContentTypesRequest};
 use crate::items::{ItemRequest, ItemsRequest};
 use graph_core::resource::ResourceIdentity;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -80,7 +79,7 @@ where
     patch!({
         doc: "# Update the navigation property lists in sites",
         name: update_lists,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/lists/{{RID}}",
         params: 0,
         has_body: true
@@ -112,7 +111,7 @@ where
     patch!({
         doc: "# Update the navigation property columns in sites",
         name: update_columns,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/lists/{{RID}}/columns/{{id}}",
         params: 1,
         has_body: true
@@ -128,7 +127,7 @@ where
     patch!({
         doc: "# Update the navigation property drive in sites",
         name: update_drive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/lists/{{RID}}/drive",
         params: 0,
         has_body: true
@@ -160,7 +159,7 @@ where
     patch!({
         doc: "# Update the navigation property subscriptions in sites",
         name: update_subscriptions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/lists/{{RID}}/subscriptions/{{id}}",
         params: 1,
         has_body: true

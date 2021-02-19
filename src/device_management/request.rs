@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -76,7 +75,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceConfigurationDeviceStateSummaries in deviceManagement",
         name: update_device_configuration_device_state_summaries,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceConfigurationDeviceStateSummaries",
         params: 0,
         has_body: true
@@ -108,7 +107,7 @@ where
     patch!({
         doc: "# Update the navigation property applePushNotificationCertificate in deviceManagement",
         name: update_apple_push_notification_certificate,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/applePushNotificationCertificate",
         params: 0,
         has_body: true
@@ -124,7 +123,7 @@ where
     patch!({
         doc: "# Update the navigation property complianceManagementPartners in deviceManagement",
         name: update_compliance_management_partners,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/complianceManagementPartners/{{id}}",
         params: 1,
         has_body: true
@@ -140,7 +139,7 @@ where
     patch!({
         doc: "# Update the navigation property telecomExpenseManagementPartners in deviceManagement",
         name: update_telecom_expense_management_partners,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/telecomExpenseManagementPartners/{{id}}",
         params: 1,
         has_body: true
@@ -188,7 +187,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceCategories in deviceManagement",
         name: update_device_categories,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCategories/{{id}}",
         params: 1,
         has_body: true
@@ -220,7 +219,7 @@ where
     patch!({
         doc: "# Update the navigation property exchangeConnectors in deviceManagement",
         name: update_exchange_connectors,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/exchangeConnectors/{{id}}",
         params: 1,
         has_body: true
@@ -236,7 +235,7 @@ where
     patch!({
         doc: "# Update the navigation property managedDevices in deviceManagement",
         name: update_managed_devices,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}",
         params: 1,
         has_body: true
@@ -284,7 +283,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceCompliancePolicySettingStateSummaries in deviceManagement",
         name: update_device_compliance_policy_setting_state_summaries,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}",
         params: 1,
         has_body: true
@@ -300,7 +299,7 @@ where
     patch!({
         doc: "# Update the navigation property remoteAssistancePartners in deviceManagement",
         name: update_remote_assistance_partners,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/remoteAssistancePartners/{{id}}",
         params: 1,
         has_body: true
@@ -316,7 +315,7 @@ where
     patch!({
         doc: "# Update the navigation property iosUpdateStatuses in deviceManagement",
         name: update_ios_update_statuses,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/iosUpdateStatuses/{{id}}",
         params: 1,
         has_body: true
@@ -396,7 +395,7 @@ where
     patch!({
         doc: "# Update the navigation property roleDefinitions in deviceManagement",
         name: update_role_definitions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/roleDefinitions/{{id}}",
         params: 1,
         has_body: true
@@ -444,7 +443,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceEnrollmentConfigurations in deviceManagement",
         name: update_device_enrollment_configurations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceEnrollmentConfigurations/{{id}}",
         params: 1,
         has_body: true
@@ -492,7 +491,7 @@ where
     patch!({
         doc: "# Update the navigation property termsAndConditions in deviceManagement",
         name: update_terms_and_conditions,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/termsAndConditions/{{id}}",
         params: 1,
         has_body: true
@@ -508,7 +507,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceManagementPartners in deviceManagement",
         name: update_device_management_partners,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceManagementPartners/{{id}}",
         params: 1,
         has_body: true
@@ -524,7 +523,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceCompliancePolicies in deviceManagement",
         name: update_device_compliance_policies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}",
         params: 1,
         has_body: true
@@ -540,7 +539,7 @@ where
     patch!({
         doc: "# Update the navigation property troubleshootingEvents in deviceManagement",
         name: update_troubleshooting_events,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/troubleshootingEvents/{{id}}",
         params: 1,
         has_body: true
@@ -572,7 +571,7 @@ where
     patch!({
         doc: "# Update the navigation property windowsInformationProtectionNetworkLearningSummaries in deviceManagement",
         name: update_windows_information_protection_network_learning_summaries,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/windowsInformationProtectionNetworkLearningSummaries/{{id}}",
         params: 1,
         has_body: true
@@ -604,7 +603,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceConfigurations in deviceManagement",
         name: update_device_configurations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceConfigurations/{{id}}",
         params: 1,
         has_body: true
@@ -620,7 +619,7 @@ where
     patch!({
         doc: "# Update the navigation property detectedApps in deviceManagement",
         name: update_detected_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}",
         params: 1,
         has_body: true
@@ -700,7 +699,7 @@ where
     patch!({
         doc: "# Update the navigation property resourceOperations in deviceManagement",
         name: update_resource_operations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/resourceOperations/{{id}}",
         params: 1,
         has_body: true
@@ -732,7 +731,7 @@ where
     patch!({
         doc: "# Update the navigation property conditionalAccessSettings in deviceManagement",
         name: update_conditional_access_settings,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/conditionalAccessSettings",
         params: 0,
         has_body: true
@@ -756,7 +755,7 @@ where
     patch!({
         doc: "# Update the navigation property mobileThreatDefenseConnectors in deviceManagement",
         name: update_mobile_threat_defense_connectors,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/mobileThreatDefenseConnectors/{{id}}",
         params: 1,
         has_body: true
@@ -772,7 +771,7 @@ where
     patch!({
         doc: "# Update deviceManagement",
         name: update_device_management,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement",
         params: 0,
         has_body: true
@@ -788,7 +787,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceCompliancePolicyDeviceStateSummary in deviceManagement",
         name: update_device_compliance_policy_device_state_summary,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicyDeviceStateSummary",
         params: 0,
         has_body: true
@@ -804,7 +803,7 @@ where
     patch!({
         doc: "# Update the navigation property windowsInformationProtectionAppLearningSummaries in deviceManagement",
         name: update_windows_information_protection_app_learning_summaries,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/windowsInformationProtectionAppLearningSummaries/{{id}}",
         params: 1,
         has_body: true
@@ -820,7 +819,7 @@ where
     patch!({
         doc: "# Update the navigation property notificationMessageTemplates in deviceManagement",
         name: update_notification_message_templates,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/notificationMessageTemplates/{{id}}",
         params: 1,
         has_body: true
@@ -868,7 +867,7 @@ where
     patch!({
         doc: "# Update the navigation property roleAssignments in deviceManagement",
         name: update_role_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/roleAssignments/{{id}}",
         params: 1,
         has_body: true
@@ -907,7 +906,7 @@ where
     post!({
         doc: "# Invoke action requestRemoteAssistance",
         name: request_remote_assistance,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/requestRemoteAssistance",
         params: 2,
         has_body: false
@@ -915,7 +914,7 @@ where
     post!({
         doc: "# Invoke action rebootNow",
         name: reboot_now,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/rebootNow",
         params: 2,
         has_body: false
@@ -923,7 +922,7 @@ where
     post!({
         doc: "# Invoke action cleanWindowsDevice",
         name: clean_windows_device,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/cleanWindowsDevice",
         params: 2,
         has_body: true
@@ -931,7 +930,7 @@ where
     post!({
         doc: "# Invoke action deleteUserFromSharedAppleDevice",
         name: delete_user_from_shared_apple_device,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/deleteUserFromSharedAppleDevice",
         params: 2,
         has_body: true
@@ -939,7 +938,7 @@ where
     post!({
         doc: "# Invoke action disableLostMode",
         name: disable_lost_mode,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/disableLostMode",
         params: 2,
         has_body: false
@@ -947,7 +946,7 @@ where
     post!({
         doc: "# Invoke action syncDevice",
         name: sync_device,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/syncDevice",
         params: 2,
         has_body: false
@@ -955,7 +954,7 @@ where
     post!({
         doc: "# Invoke action wipe",
         name: wipe,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/wipe",
         params: 2,
         has_body: true
@@ -963,7 +962,7 @@ where
     post!({
         doc: "# Invoke action updateWindowsDeviceAccount",
         name: update_windows_device_account,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/updateWindowsDeviceAccount",
         params: 2,
         has_body: true
@@ -971,7 +970,7 @@ where
     post!({
         doc: "# Invoke action windowsDefenderUpdateSignatures",
         name: windows_defender_update_signatures,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/windowsDefenderUpdateSignatures",
         params: 2,
         has_body: false
@@ -979,7 +978,7 @@ where
     post!({
         doc: "# Invoke action retire",
         name: retire,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/retire",
         params: 2,
         has_body: false
@@ -987,7 +986,7 @@ where
     post!({
         doc: "# Invoke action locateDevice",
         name: locate_device,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/locateDevice",
         params: 2,
         has_body: false
@@ -995,7 +994,7 @@ where
     post!({
         doc: "# Invoke action resetPasscode",
         name: reset_passcode,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/resetPasscode",
         params: 2,
         has_body: false
@@ -1003,7 +1002,7 @@ where
     post!({
         doc: "# Invoke action logoutSharedAppleDeviceActiveUser",
         name: logout_shared_apple_device_active_user,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/logoutSharedAppleDeviceActiveUser",
         params: 2,
         has_body: false
@@ -1011,7 +1010,7 @@ where
     post!({
         doc: "# Invoke action windowsDefenderScan",
         name: windows_defender_scan,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/windowsDefenderScan",
         params: 2,
         has_body: true
@@ -1019,7 +1018,7 @@ where
     post!({
         doc: "# Invoke action bypassActivationLock",
         name: bypass_activation_lock,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/bypassActivationLock",
         params: 2,
         has_body: false
@@ -1027,7 +1026,7 @@ where
     post!({
         doc: "# Invoke action shutDown",
         name: shut_down,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/shutDown",
         params: 2,
         has_body: false
@@ -1035,7 +1034,7 @@ where
     post!({
         doc: "# Invoke action remoteLock",
         name: remote_lock,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/remoteLock",
         params: 2,
         has_body: false
@@ -1043,7 +1042,7 @@ where
     post!({
         doc: "# Invoke action recoverPasscode",
         name: recover_passcode,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices/{{id2}}/recoverPasscode",
         params: 2,
         has_body: false
@@ -1068,7 +1067,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceSettingStateSummaries in deviceManagement",
         name: update_device_setting_state_summaries,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/deviceSettingStateSummaries/{{id2}}",
         params: 2,
         has_body: true
@@ -1124,7 +1123,7 @@ where
     patch!({
         doc: "# Update the navigation property assignments in deviceManagement",
         name: update_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/assignments/{{id2}}",
         params: 2,
         has_body: true
@@ -1132,7 +1131,7 @@ where
     post!({
         doc: "# Invoke action scheduleActionsForRules",
         name: schedule_actions_for_rules,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/scheduleActionsForRules",
         params: 1,
         has_body: true
@@ -1148,7 +1147,7 @@ where
     patch!({
         doc: "# Update the navigation property scheduledActionsForRule in deviceManagement",
         name: update_scheduled_actions_for_rule,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/scheduledActionsForRule/{{id2}}",
         params: 2,
         has_body: true
@@ -1164,7 +1163,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceStatusOverview in deviceManagement",
         name: update_device_status_overview,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/deviceStatusOverview",
         params: 1,
         has_body: true
@@ -1196,7 +1195,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceStatuses in deviceManagement",
         name: update_device_statuses,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/deviceStatuses/{{id2}}",
         params: 2,
         has_body: true
@@ -1228,7 +1227,7 @@ where
     patch!({
         doc: "# Update the navigation property userStatusOverview in deviceManagement",
         name: update_user_status_overview,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/userStatusOverview",
         params: 1,
         has_body: true
@@ -1244,7 +1243,7 @@ where
     patch!({
         doc: "# Update the navigation property userStatuses in deviceManagement",
         name: update_user_statuses,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/userStatuses/{{id2}}",
         params: 2,
         has_body: true
@@ -1298,7 +1297,7 @@ where
     patch!({
         doc: "# Update the navigation property scheduledActionConfigurations in deviceManagement",
         name: update_scheduled_action_configurations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/scheduledActionsForRule/{{id2}}/scheduledActionConfigurations/{{id3}}",
         params: 3,
         has_body: true
@@ -1320,7 +1319,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceComplianceSettingStates in deviceManagement",
         name: update_device_compliance_setting_states,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}/deviceComplianceSettingStates/{{id2}}",
         params: 2,
         has_body: true
@@ -1358,7 +1357,7 @@ where
     patch!({
         doc: "# Update the navigation property userStatuses in deviceManagement",
         name: update_user_statuses,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceConfigurations/{{id}}/userStatuses/{{id2}}",
         params: 2,
         has_body: true
@@ -1390,7 +1389,7 @@ where
     patch!({
         doc: "# Update the navigation property userStatusOverview in deviceManagement",
         name: update_user_status_overview,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceConfigurations/{{id}}/userStatusOverview",
         params: 1,
         has_body: true
@@ -1406,7 +1405,7 @@ where
     patch!({
         doc: "# Update the navigation property assignments in deviceManagement",
         name: update_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceConfigurations/{{id}}/assignments/{{id2}}",
         params: 2,
         has_body: true
@@ -1478,7 +1477,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceSettingStateSummaries in deviceManagement",
         name: update_device_setting_state_summaries,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceConfigurations/{{id}}/deviceSettingStateSummaries/{{id2}}",
         params: 2,
         has_body: true
@@ -1494,7 +1493,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceStatusOverview in deviceManagement",
         name: update_device_status_overview,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceConfigurations/{{id}}/deviceStatusOverview",
         params: 1,
         has_body: true
@@ -1510,7 +1509,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceStatuses in deviceManagement",
         name: update_device_statuses,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceConfigurations/{{id}}/deviceStatuses/{{id2}}",
         params: 2,
         has_body: true
@@ -1524,7 +1523,7 @@ where
     post!({
         doc: "# Invoke action setPriority",
         name: set_priority,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceEnrollmentConfigurations/{{id}}/setPriority",
         params: 1,
         has_body: true
@@ -1532,7 +1531,7 @@ where
     post!({
         doc: "# Invoke action assign",
         name: assign,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceEnrollmentConfigurations/{{id}}/assign",
         params: 1,
         has_body: true
@@ -1548,7 +1547,7 @@ where
     patch!({
         doc: "# Update the navigation property assignments in deviceManagement",
         name: update_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/deviceEnrollmentConfigurations/{{id}}/assignments/{{id2}}",
         params: 2,
         has_body: true
@@ -1578,7 +1577,7 @@ where
     post!({
         doc: "# Invoke action sync",
         name: sync,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/exchangeConnectors/{{id}}/sync",
         params: 1,
         has_body: true
@@ -1592,7 +1591,7 @@ where
     post!({
         doc: "# Invoke action shutDown",
         name: shut_down,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/shutDown",
         params: 1,
         has_body: false
@@ -1600,7 +1599,7 @@ where
     post!({
         doc: "# Invoke action bypassActivationLock",
         name: bypass_activation_lock,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/bypassActivationLock",
         params: 1,
         has_body: false
@@ -1608,7 +1607,7 @@ where
     post!({
         doc: "# Invoke action retire",
         name: retire,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/retire",
         params: 1,
         has_body: false
@@ -1616,7 +1615,7 @@ where
     post!({
         doc: "# Invoke action deleteUserFromSharedAppleDevice",
         name: delete_user_from_shared_apple_device,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/deleteUserFromSharedAppleDevice",
         params: 1,
         has_body: true
@@ -1656,7 +1655,7 @@ where
     post!({
         doc: "# Invoke action wipe",
         name: wipe,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/wipe",
         params: 1,
         has_body: true
@@ -1672,7 +1671,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceConfigurationStates in deviceManagement",
         name: update_device_configuration_states,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/deviceConfigurationStates/{{id2}}",
         params: 2,
         has_body: true
@@ -1680,7 +1679,7 @@ where
     post!({
         doc: "# Invoke action remoteLock",
         name: remote_lock,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/remoteLock",
         params: 1,
         has_body: false
@@ -1688,7 +1687,7 @@ where
     post!({
         doc: "# Invoke action recoverPasscode",
         name: recover_passcode,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/recoverPasscode",
         params: 1,
         has_body: false
@@ -1696,7 +1695,7 @@ where
     post!({
         doc: "# Invoke action disableLostMode",
         name: disable_lost_mode,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/disableLostMode",
         params: 1,
         has_body: false
@@ -1712,7 +1711,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceCategory in deviceManagement",
         name: update_device_category,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/deviceCategory",
         params: 1,
         has_body: true
@@ -1720,7 +1719,7 @@ where
     post!({
         doc: "# Invoke action locateDevice",
         name: locate_device,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/locateDevice",
         params: 1,
         has_body: false
@@ -1728,7 +1727,7 @@ where
     post!({
         doc: "# Invoke action logoutSharedAppleDeviceActiveUser",
         name: logout_shared_apple_device_active_user,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/logoutSharedAppleDeviceActiveUser",
         params: 1,
         has_body: false
@@ -1736,7 +1735,7 @@ where
     post!({
         doc: "# Invoke action windowsDefenderUpdateSignatures",
         name: windows_defender_update_signatures,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/windowsDefenderUpdateSignatures",
         params: 1,
         has_body: false
@@ -1744,7 +1743,7 @@ where
     post!({
         doc: "# Invoke action rebootNow",
         name: reboot_now,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/rebootNow",
         params: 1,
         has_body: false
@@ -1752,7 +1751,7 @@ where
     post!({
         doc: "# Invoke action requestRemoteAssistance",
         name: request_remote_assistance,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/requestRemoteAssistance",
         params: 1,
         has_body: false
@@ -1760,7 +1759,7 @@ where
     post!({
         doc: "# Invoke action updateWindowsDeviceAccount",
         name: update_windows_device_account,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/updateWindowsDeviceAccount",
         params: 1,
         has_body: true
@@ -1768,7 +1767,7 @@ where
     post!({
         doc: "# Invoke action cleanWindowsDevice",
         name: clean_windows_device,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/cleanWindowsDevice",
         params: 1,
         has_body: true
@@ -1776,7 +1775,7 @@ where
     post!({
         doc: "# Invoke action windowsDefenderScan",
         name: windows_defender_scan,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/windowsDefenderScan",
         params: 1,
         has_body: true
@@ -1784,7 +1783,7 @@ where
     post!({
         doc: "# Invoke action resetPasscode",
         name: reset_passcode,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/resetPasscode",
         params: 1,
         has_body: false
@@ -1792,7 +1791,7 @@ where
     post!({
         doc: "# Invoke action syncDevice",
         name: sync_device,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/syncDevice",
         params: 1,
         has_body: false
@@ -1808,7 +1807,7 @@ where
     patch!({
         doc: "# Update the navigation property deviceCompliancePolicyStates in deviceManagement",
         name: update_device_compliance_policy_states,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/managedDevices/{{id}}/deviceCompliancePolicyStates/{{id2}}",
         params: 2,
         has_body: true
@@ -1830,7 +1829,7 @@ where
     patch!({
         doc: "# Update the navigation property localizedNotificationMessages in deviceManagement",
         name: update_localized_notification_messages,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/notificationMessageTemplates/{{id}}/localizedNotificationMessages/{{id2}}",
         params: 2,
         has_body: true
@@ -1854,7 +1853,7 @@ where
     post!({
         doc: "# Invoke action sendTestMessage",
         name: send_test_message,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/notificationMessageTemplates/{{id}}/sendTestMessage",
         params: 1,
         has_body: false
@@ -1868,7 +1867,7 @@ where
     post!({
         doc: "# Invoke action disconnect",
         name: disconnect,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/remoteAssistancePartners/{{id}}/disconnect",
         params: 1,
         has_body: false
@@ -1876,7 +1875,7 @@ where
     post!({
         doc: "# Invoke action beginOnboarding",
         name: begin_onboarding,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/remoteAssistancePartners/{{id}}/beginOnboarding",
         params: 1,
         has_body: false
@@ -1917,7 +1916,7 @@ where
     patch!({
         doc: "# Update the navigation property roleAssignments in deviceManagement",
         name: update_role_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/roleDefinitions/{{id}}/roleAssignments/{{id2}}",
         params: 2,
         has_body: true
@@ -1956,7 +1955,7 @@ where
     patch!({
         doc: "# Update the navigation property assignments in deviceManagement",
         name: update_assignments,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/termsAndConditions/{{id}}/assignments/{{id2}}",
         params: 2,
         has_body: true
@@ -2004,7 +2003,7 @@ where
     patch!({
         doc: "# Update the navigation property acceptanceStatuses in deviceManagement",
         name: update_acceptance_statuses,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/deviceManagement/termsAndConditions/{{id}}/acceptanceStatuses/{{id2}}",
         params: 2,
         has_body: true

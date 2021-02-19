@@ -2,8 +2,7 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::posts::{PostRequest, PostsRequest};
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -65,7 +64,7 @@ where
     patch!({
         doc: "# Update the navigation property threads in groups",
         name: update_threads,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/threads/{{RID}}",
         params: 0,
         has_body: true
@@ -89,7 +88,7 @@ where
     post!({
         doc: "# Invoke action reply",
         name: reply,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/threads/{{RID}}/reply",
         params: 0,
         has_body: true

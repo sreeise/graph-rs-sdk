@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -49,7 +48,7 @@ where
     patch!({
         doc: "# Update the navigation property contentTypes in sites",
         name: update_content_types,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contentTypes/{{RID}}",
         params: 0,
         has_body: true
@@ -81,7 +80,7 @@ where
     patch!({
         doc: "# Update the navigation property columnLinks in sites",
         name: update_column_links,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contentTypes/{{RID}}/columnLinks/{{id}}",
         params: 1,
         has_body: true

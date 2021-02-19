@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -35,7 +34,7 @@ where
     patch!({
         doc: "# Update entity in teamsTemplates",
         name: update_teams_template,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teamsTemplates/{{id}}",
         params: 1,
         has_body: true
@@ -43,7 +42,7 @@ where
     delete!({
         doc: "# Delete entity from teamsTemplates",
         name: delete_teams_template,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teamsTemplates/{{id}}",
         params: 1,
         has_body: false
@@ -117,7 +116,7 @@ where
     patch!({
         doc: "# Update the navigation property members in teams",
         name: update_members,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/members/{{id}}",
         params: 1,
         has_body: true
@@ -133,7 +132,7 @@ where
     patch!({
         doc: "# Update the navigation property primaryChannel in teams",
         name: update_primary_channel,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/primaryChannel",
         params: 0,
         has_body: true
@@ -149,7 +148,7 @@ where
     post!({
         doc: "# Invoke action archive",
         name: archive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/archive",
         params: 0,
         has_body: true
@@ -165,7 +164,7 @@ where
     patch!({
         doc: "# Update the navigation property schedule in teams",
         name: update_schedule,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule",
         params: 0,
         has_body: true
@@ -173,7 +172,7 @@ where
     post!({
         doc: "# Invoke action unarchive",
         name: unarchive,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/unarchive",
         params: 0,
         has_body: false
@@ -189,7 +188,7 @@ where
     patch!({
         doc: "# Update the navigation property channels in teams",
         name: update_channels,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/channels/{{id}}",
         params: 1,
         has_body: true
@@ -237,7 +236,7 @@ where
     patch!({
         doc: "# Update the navigation property installedApps in teams",
         name: update_installed_apps,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/installedApps/{{id}}",
         params: 1,
         has_body: true
@@ -253,7 +252,7 @@ where
     patch!({
         doc: "# Update entity in teams",
         name: update_team,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}",
         params: 0,
         has_body: true
@@ -261,7 +260,7 @@ where
     delete!({
         doc: "# Delete entity from teams",
         name: delete_team,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}",
         params: 0,
         has_body: false
@@ -293,7 +292,7 @@ where
     patch!({
         doc: "# Update the navigation property operations in teams",
         name: update_operations,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/operations/{{id}}",
         params: 1,
         has_body: true
@@ -325,7 +324,7 @@ where
     post!({
         doc: "# Invoke action clone",
         name: clone,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/clone",
         params: 0,
         has_body: true
@@ -369,7 +368,7 @@ where
     patch!({
         doc: "# Update the navigation property members in teams",
         name: update_members,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/channels/{{id}}/members/{{id2}}",
         params: 2,
         has_body: true
@@ -385,7 +384,7 @@ where
     patch!({
         doc: "# Update the navigation property messages in teams",
         name: update_messages,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}",
         params: 2,
         has_body: true
@@ -417,7 +416,7 @@ where
     patch!({
         doc: "# Update the navigation property filesFolder in teams",
         name: update_files_folder,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/channels/{{id}}/filesFolder",
         params: 1,
         has_body: true
@@ -433,7 +432,7 @@ where
     patch!({
         doc: "# Update the navigation property tabs in teams",
         name: update_tabs,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/channels/{{id}}/tabs/{{id2}}",
         params: 2,
         has_body: true
@@ -487,7 +486,7 @@ where
     patch!({
         doc: "# Update the navigation property replies in teams",
         name: update_replies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}/replies/{{id2}}",
         params: 3,
         has_body: true
@@ -519,7 +518,7 @@ where
     patch!({
         doc: "# Update the navigation property hostedContents in teams",
         name: update_hosted_contents,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}/hostedContents/{{id3}}",
         params: 3,
         has_body: true
@@ -555,7 +554,7 @@ where
     post!({
         doc: "# Invoke action upgrade",
         name: upgrade,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/installedApps/{{id}}/upgrade",
         params: 1,
         has_body: false
@@ -591,7 +590,7 @@ where
     patch!({
         doc: "# Update the navigation property members in teams",
         name: update_members,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/primaryChannel/members/{{id}}",
         params: 1,
         has_body: true
@@ -607,7 +606,7 @@ where
     patch!({
         doc: "# Update the navigation property filesFolder in teams",
         name: update_files_folder,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/primaryChannel/filesFolder",
         params: 0,
         has_body: true
@@ -623,7 +622,7 @@ where
     patch!({
         doc: "# Update the navigation property messages in teams",
         name: update_messages,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/primaryChannel/messages/{{id}}",
         params: 1,
         has_body: true
@@ -639,7 +638,7 @@ where
     patch!({
         doc: "# Update the navigation property tabs in teams",
         name: update_tabs,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/primaryChannel/tabs/{{id}}",
         params: 1,
         has_body: true
@@ -709,7 +708,7 @@ where
     patch!({
         doc: "# Update the navigation property hostedContents in teams",
         name: update_hosted_contents,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/hostedContents/{{id2}}",
         params: 2,
         has_body: true
@@ -741,7 +740,7 @@ where
     patch!({
         doc: "# Update the navigation property replies in teams",
         name: update_replies,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/replies/{{id}}",
         params: 2,
         has_body: true
@@ -793,7 +792,7 @@ where
     patch!({
         doc: "# Update the navigation property swapShiftsChangeRequests in teams",
         name: update_swap_shifts_change_requests,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule/swapShiftsChangeRequests/{{id}}",
         params: 1,
         has_body: true
@@ -857,7 +856,7 @@ where
     patch!({
         doc: "# Update the navigation property timeOffRequests in teams",
         name: update_time_off_requests,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule/timeOffRequests/{{id}}",
         params: 1,
         has_body: true
@@ -873,7 +872,7 @@ where
     patch!({
         doc: "# Update the navigation property shifts in teams",
         name: update_shifts,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule/shifts/{{id}}",
         params: 1,
         has_body: true
@@ -889,7 +888,7 @@ where
     patch!({
         doc: "# Update the navigation property offerShiftRequests in teams",
         name: update_offer_shift_requests,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule/offerShiftRequests/{{id}}",
         params: 1,
         has_body: true
@@ -921,7 +920,7 @@ where
     patch!({
         doc: "# Update the navigation property schedulingGroups in teams",
         name: update_scheduling_groups,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule/schedulingGroups/{{id}}",
         params: 1,
         has_body: true
@@ -969,7 +968,7 @@ where
     patch!({
         doc: "# Update the navigation property openShifts in teams",
         name: update_open_shifts,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule/openShifts/{{id}}",
         params: 1,
         has_body: true
@@ -985,7 +984,7 @@ where
     patch!({
         doc: "# Update the navigation property timeOffReasons in teams",
         name: update_time_off_reasons,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule/timeOffReasons/{{id}}",
         params: 1,
         has_body: true
@@ -1001,7 +1000,7 @@ where
     patch!({
         doc: "# Update the navigation property timesOff in teams",
         name: update_times_off,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule/timesOff/{{id}}",
         params: 1,
         has_body: true
@@ -1017,7 +1016,7 @@ where
     patch!({
         doc: "# Update the navigation property openShiftChangeRequests in teams",
         name: update_open_shift_change_requests,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule/openShiftChangeRequests/{{id}}",
         params: 1,
         has_body: true
@@ -1073,7 +1072,7 @@ where
     post!({
         doc: "# Invoke action share",
         name: share,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/teams/{{RID}}/schedule/share",
         params: 0,
         has_body: true

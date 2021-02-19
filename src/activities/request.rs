@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
@@ -50,7 +49,7 @@ where
     patch!({
         doc: "# Update the navigation property activities in me",
         name: update_activities,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/activities/{{id}}",
         params: 1,
         has_body: true
@@ -82,7 +81,7 @@ where
     patch!({
         doc: "# Update the navigation property historyItems in me",
         name: update_history_items,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/activities/{{id}}/historyItems/{{id2}}",
         params: 2,
         has_body: true

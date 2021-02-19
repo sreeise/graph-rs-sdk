@@ -6,9 +6,8 @@ use crate::contacts::{ContactRequest, ContactsRequest};
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
 use graph_http::types::DeltaPhantom;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -98,7 +97,7 @@ where
     patch!({
         doc: "# Update the navigation property contactFolders in me",
         name: update_contact_folders,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/contactFolders/{{RID}}",
         params: 0,
         has_body: true

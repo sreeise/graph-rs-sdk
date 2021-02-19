@@ -2,8 +2,7 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::sections::SectionsRequest;
 use graph_http::types::Collection;
-use graph_http::types::Content;
-use graph_http::GraphResponse;
+use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
 use reqwest::Method;
@@ -51,7 +50,7 @@ where
     patch!({
         doc: "# Update the navigation property sectionGroups in me",
         name: update_section_groups,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sectionGroups/{{RID}}/parentNotebook/sectionGroups/{{id}}",
         params: 1,
         has_body: true
@@ -125,7 +124,7 @@ where
     patch!({
         doc: "# Update the navigation property sectionGroups in me",
         name: update_section_groups,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sectionGroups/{{RID}}",
         params: 0,
         has_body: true
@@ -141,7 +140,7 @@ where
     patch!({
         doc: "# Update the navigation property parentNotebook in me",
         name: update_parent_notebook,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sectionGroups/{{RID}}/parentNotebook",
         params: 0,
         has_body: true
@@ -157,7 +156,7 @@ where
     patch!({
         doc: "# Update the navigation property parentSectionGroup in me",
         name: update_parent_section_group,
-        response: GraphResponse<Content>,
+        response: NoContent,
         path: "/sectionGroups/{{RID}}/parentSectionGroup",
         params: 0,
         has_body: true
