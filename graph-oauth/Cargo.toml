@@ -22,8 +22,8 @@ strum = "0.14.0"
 webbrowser = "0.4.0"
 chrono-humanize = "0.0.11"
 chrono = { version = "0.4.6", features = ["serde"] }
-# graph-error = { version = "0.0.1", path = "../graph-error" }
-graph-error = "0.0.1"
+graph-error = { version = "0.0.1", path = "../graph-error" }
+# graph-error = "0.0.1"
 # from_as = { git = "https://github.com/sreeise/from_as", version = "0.1.0" }
 from_as = "0.1.0"
 ring = "0.16.15"
