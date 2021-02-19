@@ -32,3 +32,6 @@ impl ToString for Content {
         self.content.to_string()
     }
 }
+
+#[derive(Clone, Debug, Default)]
+pub struct NoContent;

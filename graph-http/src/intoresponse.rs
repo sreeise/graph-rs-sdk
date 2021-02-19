@@ -2,7 +2,7 @@ use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
 use crate::traits::AsyncTryFrom;
 use crate::traits::NextLink;
-use crate::types::{Content, Delta, DeltaPhantom};
+use crate::types::{Content, Delta, DeltaPhantom, NoContent};
 use crate::uploadsession::UploadSessionClient;
 use crate::{DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse, RequestClient};
 use graph_error::{GraphFailure, GraphResult};
@@ -179,6 +179,21 @@ impl<'a> IntoResponseBlocking<'a, GraphResponse<Content>> {
     }
 }
 
+impl<'a> IntoResponseBlocking<'a, NoContent> {
+    pub fn build(self) -> DispatchBlocking<GraphResponse<NoContent>> {
+        let builder = self.client.build();
+        DispatchBlocking::new(builder, None, self.error)
+    }
+
+    pub fn send(self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let response = self.client.response()?;
+        GraphResponse::<serde_json::Value>::from_no_content(response)
+    }
+}
+
 impl<'a, T: 'static + Send + NextLink + Clone> IntoResponseBlocking<'a, DeltaPhantom<T>>
 where
     for<'de> T: serde::Deserialize<'de>,
@@ -251,6 +266,21 @@ impl<'a> IntoResponseAsync<'a, GraphResponse<Content>> {
         }
         let response = self.client.response().await?;
         AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
+    }
+}
+
+impl<'a> IntoResponseAsync<'a, NoContent> {
+    pub async fn build(self) -> DispatchAsync<GraphResponse<NoContent>> {
+        let builder = self.client.build().await;
+        DispatchAsync::new(builder, None, self.error)
+    }
+
+    pub async fn send(self) -> GraphResult<GraphResponse<serde_json::Value>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let response = self.client.response().await?;
+        GraphResponse::<serde_json::Value>::async_from_no_content(response).await
     }
 }
 
