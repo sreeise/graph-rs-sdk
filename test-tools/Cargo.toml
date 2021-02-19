@@ -19,8 +19,8 @@ toml = "0.5"
 lazy_static = "1.4.0"
 tokio = { version = "0.2", features = ["full"] }
 futures = "0.3.5"
-# graph-http = { version = "0.0.1", path = "../graph-http" }
-# graph-error = { path = "../graph-error" }
+graph-http = { version = "0.0.2", path = "../graph-http" }
+graph-error = { path = "../graph-error" }
 graph-rs-sdk = { path = "../" }
-graph-http = "0.0.2"
-graph-error = "0.0.1"
+# graph-http = "0.0.2"
+# graph-error = "0.0.1"

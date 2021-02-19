@@ -38,14 +38,14 @@ strum = "0.14.0"
 rayon = "1.0.3"
 base64 = "0.10.1"
 handlebars = "2.0.2"
-# graph-oauth = { version = "0.0.1", path = "./graph-oauth" }
-# graph-error = { version = "0.0.1", path = "./graph-error" }
-# graph-http = { version = "0.0.1", path = "./graph-http" }
-# graph-core = { version = "0.0.1", path = "./graph-core" }
-graph-oauth = "0.0.2"
-graph-http = "0.0.2"
-graph-error = "0.0.1"
-graph-core = "0.0.1"
+graph-oauth = { path = "./graph-oauth", version = "0.0.2" }
+graph-http = { path = "graph-http", version = "0.0.2" }
+graph-error = { path = "./graph-error", version = "0.0.1" }
+graph-core = { path = "./graph-core", version = "0.0.1" }
+# graph-oauth = "0.0.2"
+# graph-http = "0.0.2"
+# graph-error = "0.0.1"
+# graph-core = "0.0.1"
 tokio = { version = "0.2.21", features = ["full"] }
 async-std = "1.6.0"
 async-trait = "0.1.35"
@@ -62,14 +62,14 @@ rocket_codegen = "0.4.2"
 serde = { version = "1.0.110", features = ["derive"] }
 serde_json = "1.0.53"
 lazy_static = "1.4.0"
-# graph-oauth = { path = "./graph-oauth", version = "0.0.1" }
-# graph-http = { path = "graph-http", version = "0.0.1" }
-# graph-error = { path = "./graph-error", version = "0.0.1" }
-# graph-core = { path = "./graph-core", version = "0.0.1" }
-graph-oauth = "0.0.2"
-graph-http = "0.0.2"
-graph-error = "0.0.1"
-graph-core = "0.0.1"
+graph-oauth = { path = "./graph-oauth", version = "0.0.2" }
+graph-http = { path = "graph-http", version = "0.0.2" }
+graph-error = { path = "./graph-error", version = "0.0.1" }
+graph-core = { path = "./graph-core", version = "0.0.1" }
+# graph-oauth = "0.0.2"
+# graph-http = "0.0.2"
+# graph-error = "0.0.1"
+# graph-core = "0.0.1"
 test-tools = { path = "./test-tools", version = "0.0.1" }
 tokio = { version = "0.2", features = ["full"] }
 futures = "0.3.5"
