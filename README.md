@@ -55,20 +55,16 @@ fn main() {
     
 #### The send method and Graph types
 The send() method is the main method for sending a request. The return value will be wrapped
-in a response object and the body will be one of:
-   
-    1. serde_json::Value
-    
-    2. Collection<serde_json::Value>
-   
-    3. Content (204 responses that return a content field)
+in a response object, `GraphResponse<T>` and the body will be a serde_json::Value. 
+If the response is a 204 no content and there is no body then the response body returned will 
+just be a serde_json::Value with an empty string.
 
 ```rust
 use graph_rs_sdk::prelude::*;
 
 let client =  Graph::new("ACCESS_TOKEN");
 
-// Returns GraphResponse<Collection<serde_json::Value>>
+// Returns GraphResponse<serde_json::Value>
 let response = client.v1()
     .me()
     .drive()
@@ -84,7 +80,7 @@ use graph_rs_sdk::prelude::*;
 
 let client =  Graph::new_async("ACCESS_TOKEN");
 
-// Returns GraphResponse<Collection<serde_json::Value>>
+// Returns GraphResponse<serde_json::Value>
 let response = client.v1()
     .me()
     .drive()
@@ -94,11 +90,14 @@ let response = client.v1()
     .unwrap();
         
 println!("{:#?}", response);  
+
+// Get the body of the response
+println!("{:#?}", response.body());
 ```
 
 ##### Custom Types
-The json() method can be used to convert the response to your own types. These
-types must implement serde::Deserialize.
+The json() method can be used to convert the response body to your own types. These
+types must implement `serde::Deserialize`.
 
 ```rust
 use graph_rs_sdk::prelude::*;
