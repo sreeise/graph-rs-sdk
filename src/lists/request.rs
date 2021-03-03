@@ -2,7 +2,6 @@ use crate::client::Graph;
 use crate::content_types::{ContentTypeRequest, ContentTypesRequest};
 use crate::items::{ItemRequest, ItemsRequest};
 use graph_core::resource::ResourceIdentity;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -21,7 +20,7 @@ where
     get!({
         doc: "# Get lists from sites",
         name: list_lists,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/lists",
         params: 0,
         has_body: false
@@ -87,7 +86,7 @@ where
     get!({
         doc: "# Get columns from sites",
         name: list_columns,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/lists/{{RID}}/columns",
         params: 0,
         has_body: false
@@ -135,7 +134,7 @@ where
     get!({
         doc: "# Get subscriptions from sites",
         name: list_subscriptions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/lists/{{RID}}/subscriptions",
         params: 0,
         has_body: false

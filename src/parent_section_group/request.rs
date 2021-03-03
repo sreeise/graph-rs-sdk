@@ -3,7 +3,6 @@ use crate::core::ResourceIdentity;
 use crate::parent_notebook::ParentNotebookRequest;
 use crate::section_groups::SectionGroupsRequest;
 use crate::sections::SectionsRequest;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -76,7 +75,7 @@ where
     get!({
         doc: "# Get sectionGroups from me",
         name: list_section_groups,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/parentSectionGroup/sectionGroups",
         params: 1,
         has_body: false
@@ -92,7 +91,7 @@ where
     get!({
         doc: "# Get sections from me",
         name: list_sections,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/parentSectionGroup/sections",
         params: 1,
         has_body: false

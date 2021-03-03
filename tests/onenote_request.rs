@@ -29,8 +29,8 @@ fn list_get_notebooks_and_sections() {
 
         println!("{:#?}", notebooks);
 
-        if let Ok(collection) = notebooks {
-            let vec = collection.body().value().unwrap();
+        if let Ok(response) = notebooks {
+            let vec = response.body()["value"].as_array().unwrap();
 
             let mut found_test_notebook = false;
             let mut notebook_id = String::new();
@@ -70,8 +70,8 @@ fn list_get_notebooks_and_sections() {
                 .list_sections()
                 .send();
 
-            if let Ok(collection) = sections {
-                let vec = collection.into_body().into_inner();
+            if let Ok(response) = sections {
+                let vec = response.body()["value"].as_array().unwrap();
                 let section_name = vec[0]["displayName"].as_str().unwrap();
                 assert_eq!("TestSection", section_name);
             } else if let Err(e) = sections {

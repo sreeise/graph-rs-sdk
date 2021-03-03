@@ -3,7 +3,6 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::sessions::{SessionRequest, SessionsRequest};
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -23,7 +22,7 @@ where
     get!({
         doc: "# Get callRecords from communications",
         name: list_call_records,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/callRecords",
         params: 0,
         has_body: false
@@ -74,7 +73,7 @@ where
     get!({
         doc: "# Get sessions from communications",
         name: list_sessions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/callRecords/{{RID}}/sessions",
         params: 0,
         has_body: false

@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -13,7 +12,7 @@ where
     get!({
         doc: "# Get entities from schemaExtensions",
         name: list_schema_extension,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/schemaExtensions",
         params: 0,
         has_body: false

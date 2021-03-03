@@ -267,7 +267,7 @@ pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 /// Common structs and traits.
 pub mod prelude {
     pub use crate::client::*;
-    pub use graph_http::types::{Collection, Delta};
+    pub use graph_http::types::Delta;
     pub use graph_http::GraphResponse;
 }
 

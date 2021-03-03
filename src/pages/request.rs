@@ -2,7 +2,6 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::parent_notebook::ParentNotebookRequest;
 use crate::parent_section::ParentSectionRequest;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use graph_http::{
@@ -26,7 +25,7 @@ where
     get!({
         doc: "# Get pages from me",
         name: list_pages,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/pages",
         params: 0,
         has_body: false

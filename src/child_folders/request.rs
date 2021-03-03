@@ -3,7 +3,6 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::messages::{MessageRequest, MessagesRequest};
-use graph_http::types::Collection;
 use graph_http::types::DeltaPhantom;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
@@ -24,7 +23,7 @@ where
     get!({
         doc: "# Get childFolders from me",
         name: list_child_folders,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/childFolders",
         params: 0,
         has_body: false

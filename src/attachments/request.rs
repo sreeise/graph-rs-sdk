@@ -3,7 +3,6 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use graph_error::GraphFailure;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use graph_http::UploadSessionClient;
@@ -25,7 +24,7 @@ where
     get!({
         doc: "# Get attachments from groups",
         name: list_attachments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/attachments",
         params: 0,
         has_body: false

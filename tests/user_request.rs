@@ -1,3 +1,4 @@
+use graph_http::traits::ODataLink;
 use test_tools::oauthrequest::THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 
@@ -15,7 +16,7 @@ fn user_request_test() {
             assert!(
                 response.status() == 200 || response.status() == 201 || response.status() == 204
             );
-            let value = response.body().odata_context().cloned().unwrap();
+            let value = response.body().metadata_link().unwrap();
             assert_eq!(
                 "https://graph.microsoft.com/v1.0/$metadata#users",
                 value.as_str()

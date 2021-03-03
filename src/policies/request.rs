@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -17,7 +16,7 @@ where
     get!({
         doc: "# Get claimsMappingPolicies from policies",
         name: list_claims_mapping_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/policies/claimsMappingPolicies",
         params: 0,
         has_body: false
@@ -33,7 +32,7 @@ where
     get!({
         doc: "# Get activityBasedTimeoutPolicies from policies",
         name: list_activity_based_timeout_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/policies/activityBasedTimeoutPolicies",
         params: 0,
         has_body: false
@@ -81,7 +80,7 @@ where
     get!({
         doc: "# Get tokenLifetimePolicies from policies",
         name: list_token_lifetime_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/policies/tokenLifetimePolicies",
         params: 0,
         has_body: false
@@ -113,7 +112,7 @@ where
     get!({
         doc: "# Get conditionalAccessPolicies from policies",
         name: list_conditional_access_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/policies/conditionalAccessPolicies",
         params: 0,
         has_body: false
@@ -129,7 +128,7 @@ where
     get!({
         doc: "# Get permissionGrantPolicies from policies",
         name: list_permission_grant_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/policies/permissionGrantPolicies",
         params: 0,
         has_body: false
@@ -241,7 +240,7 @@ where
     get!({
         doc: "# Get homeRealmDiscoveryPolicies from policies",
         name: list_home_realm_discovery_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/policies/homeRealmDiscoveryPolicies",
         params: 0,
         has_body: false
@@ -257,7 +256,7 @@ where
     get!({
         doc: "# Get tokenIssuancePolicies from policies",
         name: list_token_issuance_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/policies/tokenIssuancePolicies",
         params: 0,
         has_body: false
@@ -279,7 +278,7 @@ where
     get!({
         doc: "# Get excludes from policies",
         name: list_excludes,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/policies/permissionGrantPolicies/{{id}}/excludes",
         params: 1,
         has_body: false
@@ -311,7 +310,7 @@ where
     get!({
         doc: "# Get includes from policies",
         name: list_includes,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/policies/permissionGrantPolicies/{{id}}/includes",
         params: 1,
         has_body: false

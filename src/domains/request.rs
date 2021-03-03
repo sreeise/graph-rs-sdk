@@ -2,7 +2,6 @@
 
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -22,7 +21,7 @@ where
     get!({
         doc: "# Get entities from domains",
         name: list_domain,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/domains",
         params: 0,
         has_body: false
@@ -68,7 +67,7 @@ where
     get!({
         doc: "# Get domainNameReferences from domains",
         name: list_domain_name_references,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/domains/{{RID}}/domainNameReferences",
         params: 0,
         has_body: false
@@ -92,7 +91,7 @@ where
     get!({
         doc: "# Get serviceConfigurationRecords from domains",
         name: list_service_configuration_records,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/domains/{{RID}}/serviceConfigurationRecords",
         params: 0,
         has_body: false
@@ -124,7 +123,7 @@ where
     get!({
         doc: "# Get verificationDnsRecords from domains",
         name: list_verification_dns_records,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/domains/{{RID}}/verificationDnsRecords",
         params: 0,
         has_body: false

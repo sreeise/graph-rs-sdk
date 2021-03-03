@@ -2,7 +2,6 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::items::{ItemRequest, ItemsRequest};
 use crate::lists::{ListRequest, ListsRequest};
-use graph_http::types::Collection;
 use graph_http::types::DeltaPhantom;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
@@ -52,7 +51,7 @@ where
     get!({
         doc: "# Get following from drive",
         name: list_following,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/drive/following",
         params: 0,
         has_body: false
@@ -100,7 +99,7 @@ where
     get!({
         doc: "# Invoke function recent",
         name: recent,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/drive/recent()",
         params: 0,
         has_body: false
@@ -124,7 +123,7 @@ where
     get!({
         doc: "# Invoke function sharedWithMe",
         name: shared_with_me,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/drive/sharedWithMe()",
         params: 0,
         has_body: false
@@ -132,7 +131,7 @@ where
     get!({
         doc: "# Get special from drive",
         name: list_special,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/drive/special",
         params: 0,
         has_body: false
@@ -189,7 +188,7 @@ where
     get!({
         doc: "# Get entities from drives",
         name: list_drive,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/drives",
         params: 0,
         has_body: false
@@ -232,7 +231,7 @@ where
     });
     get!({
         name: get_item_activities,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/{{drive_item_id}}/activities",
         params: 1,
         has_body: false
@@ -246,7 +245,7 @@ where
     });
     get!({
         name: list_children,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/{{drive_item_id}}/children",
         params: 1,
         has_body: false
@@ -295,7 +294,7 @@ where
     });
     get!({
         name: list_item_versions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/{{drive_item_id}}/versions",
         params: 1,
         has_body: false
@@ -316,7 +315,7 @@ where
     });
     get!({
         name: list_root_children,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/{{drive_root}}/root/children",
         params: 0,
         has_body: false
@@ -330,7 +329,7 @@ where
     });
     get!({
         name: list_root_activities,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "{{drive_root}}/activities",
         params: 0,
         has_body: false
@@ -369,7 +368,7 @@ where
     get!({
         doc: "# Get following from drives",
         name: list_following,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "{{resource_drive_path}}/following",
         params: 0,
         has_body: false
@@ -417,7 +416,7 @@ where
     get!({
         doc: "# Invoke function recent",
         name: recent,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "{{resource_drive_path}}/recent()",
         params: 0,
         has_body: false
@@ -441,7 +440,7 @@ where
     get!({
         doc: "# Invoke function sharedWithMe",
         name: shared_with_me,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "{{resource_drive_path}}/sharedWithMe()",
         params: 0,
         has_body: false
@@ -449,7 +448,7 @@ where
     get!({
         doc: "# Get special from drives",
         name: list_special,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "{{resource_drive_path}}/special",
         params: 0,
         has_body: false

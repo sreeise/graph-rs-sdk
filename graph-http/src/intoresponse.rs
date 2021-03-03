@@ -1,7 +1,6 @@
 use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
-use crate::traits::AsyncTryFrom;
-use crate::traits::NextLink;
+use crate::traits::{AsyncTryFrom, ODataLink};
 use crate::types::{Delta, DeltaPhantom, NoContent};
 use crate::uploadsession::UploadSessionClient;
 use crate::{DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse, RequestClient};
@@ -179,7 +178,7 @@ impl<'a> IntoResponseBlocking<'a, NoContent> {
     }
 }
 
-impl<'a, T: 'static + Send + NextLink + Clone> IntoResponseBlocking<'a, DeltaPhantom<T>>
+impl<'a, T: 'static + Send + ODataLink + Clone> IntoResponseBlocking<'a, DeltaPhantom<T>>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
@@ -268,7 +267,7 @@ impl<'a> IntoResponseAsync<'a, UploadSessionClient<AsyncHttpClient>> {
     }
 }
 
-impl<'a, T: 'static + Send + NextLink + Clone> IntoResponseAsync<'a, DeltaPhantom<T>>
+impl<'a, T: 'static + Send + ODataLink + Clone> IntoResponseAsync<'a, DeltaPhantom<T>>
 where
     for<'de> T: serde::Deserialize<'de>,
 {

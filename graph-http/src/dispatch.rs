@@ -1,16 +1,15 @@
-use crate::GraphResponse;
-use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
-use std::marker::PhantomData;
-use std::path::PathBuf;
-
 use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
 use crate::traits::*;
 use crate::types::*;
 use crate::uploadsession::UploadSessionClient;
 use crate::url::GraphUrl;
+use crate::GraphResponse;
+use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use reqwest::header::CONTENT_TYPE;
 use std::convert::TryFrom;
+use std::marker::PhantomData;
+use std::path::PathBuf;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
 
@@ -204,7 +203,7 @@ impl<T, Builder> DispatchDelta<T, Builder> {
     }
 }
 
-impl<T: 'static + Send + NextLink + Clone> DispatchDelta<T, reqwest::blocking::RequestBuilder>
+impl<T: 'static + Send + ODataLink + Clone> DispatchDelta<T, reqwest::blocking::RequestBuilder>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
@@ -283,7 +282,7 @@ where
     }
 }
 
-impl<T: 'static + Send + NextLink + Clone> DispatchDelta<T, reqwest::RequestBuilder>
+impl<T: 'static + Send + ODataLink + Clone> DispatchDelta<T, reqwest::RequestBuilder>
 where
     for<'de> T: serde::Deserialize<'de>,
 {

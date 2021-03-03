@@ -5,7 +5,6 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
 use crate::messages::{MessageRequest, MessagesRequest};
-use graph_http::types::Collection;
 use graph_http::types::DeltaPhantom;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
@@ -26,7 +25,7 @@ where
     get!({
         doc: "# Get mailFolders from me",
         name: list_mail_folders,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/mailFolders",
         params: 0,
         has_body: false
@@ -113,7 +112,7 @@ where
     get!({
         doc: "# Get messageRules from me",
         name: list_message_rules,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/mailFolders/{{RID}}/messageRules",
         params: 0,
         has_body: false

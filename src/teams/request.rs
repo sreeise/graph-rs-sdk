@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -50,7 +49,7 @@ where
     get!({
         doc: "# Get entities from teamsTemplates",
         name: list_teams_template,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teamsTemplates",
         params: 0,
         has_body: false
@@ -66,7 +65,7 @@ where
     get!({
         doc: "# Get entities from teams",
         name: list_team,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams",
         params: 0,
         has_body: false
@@ -82,7 +81,7 @@ where
     get!({
         doc: "# Invoke function getAllMessages",
         name: get_all_messages,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/getAllMessages()",
         params: 0,
         has_body: false
@@ -196,7 +195,7 @@ where
     get!({
         doc: "# Get operations from teams",
         name: list_operations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/operations",
         params: 0,
         has_body: false
@@ -212,7 +211,7 @@ where
     get!({
         doc: "# Get members from teams",
         name: list_members,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/members",
         params: 0,
         has_body: false
@@ -268,7 +267,7 @@ where
     get!({
         doc: "# Get channels from teams",
         name: list_channels,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/channels",
         params: 0,
         has_body: false
@@ -308,7 +307,7 @@ where
     get!({
         doc: "# Get installedApps from teams",
         name: list_installed_apps,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/installedApps",
         params: 0,
         has_body: false
@@ -344,7 +343,7 @@ where
     get!({
         doc: "# Get members from teams",
         name: list_members,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/channels/{{id}}/members",
         params: 1,
         has_body: false
@@ -392,7 +391,7 @@ where
     get!({
         doc: "# Get messages from teams",
         name: list_messages,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/channels/{{id}}/messages",
         params: 1,
         has_body: false
@@ -440,7 +439,7 @@ where
     get!({
         doc: "# Get tabs from teams",
         name: list_tabs,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/channels/{{id}}/tabs",
         params: 1,
         has_body: false
@@ -462,7 +461,7 @@ where
     get!({
         doc: "# Get hostedContents from teams",
         name: list_hosted_contents,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}/hostedContents",
         params: 2,
         has_body: false
@@ -494,7 +493,7 @@ where
     get!({
         doc: "# Get replies from teams",
         name: list_replies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/channels/{{id}}/messages/{{id2}}/replies",
         params: 2,
         has_body: false
@@ -646,7 +645,7 @@ where
     get!({
         doc: "# Get members from teams",
         name: list_members,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/primaryChannel/members",
         params: 0,
         has_body: false
@@ -662,7 +661,7 @@ where
     get!({
         doc: "# Get messages from teams",
         name: list_messages,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/primaryChannel/messages",
         params: 0,
         has_body: false
@@ -678,7 +677,7 @@ where
     get!({
         doc: "# Get tabs from teams",
         name: list_tabs,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/primaryChannel/tabs",
         params: 0,
         has_body: false
@@ -716,7 +715,7 @@ where
     get!({
         doc: "# Get hostedContents from teams",
         name: list_hosted_contents,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/hostedContents",
         params: 1,
         has_body: false
@@ -748,7 +747,7 @@ where
     get!({
         doc: "# Get replies from teams",
         name: list_replies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/primaryChannel/messages/{{id}}/replies",
         params: 1,
         has_body: false
@@ -800,7 +799,7 @@ where
     get!({
         doc: "# Get openShifts from teams",
         name: list_open_shifts,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/schedule/openShifts",
         params: 0,
         has_body: false
@@ -816,7 +815,7 @@ where
     get!({
         doc: "# Get shifts from teams",
         name: list_shifts,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/schedule/shifts",
         params: 0,
         has_body: false
@@ -832,7 +831,7 @@ where
     get!({
         doc: "# Get timeOffReasons from teams",
         name: list_time_off_reasons,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/schedule/timeOffReasons",
         params: 0,
         has_body: false
@@ -896,7 +895,7 @@ where
     get!({
         doc: "# Get timeOffRequests from teams",
         name: list_time_off_requests,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/schedule/timeOffRequests",
         params: 0,
         has_body: false
@@ -928,7 +927,7 @@ where
     get!({
         doc: "# Get schedulingGroups from teams",
         name: list_scheduling_groups,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/schedule/schedulingGroups",
         params: 0,
         has_body: false
@@ -944,7 +943,7 @@ where
     get!({
         doc: "# Get swapShiftsChangeRequests from teams",
         name: list_swap_shifts_change_requests,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/schedule/swapShiftsChangeRequests",
         params: 0,
         has_body: false
@@ -1024,7 +1023,7 @@ where
     get!({
         doc: "# Get openShiftChangeRequests from teams",
         name: list_open_shift_change_requests,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/schedule/openShiftChangeRequests",
         params: 0,
         has_body: false
@@ -1040,7 +1039,7 @@ where
     get!({
         doc: "# Get offerShiftRequests from teams",
         name: list_offer_shift_requests,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/schedule/offerShiftRequests",
         params: 0,
         has_body: false
@@ -1056,7 +1055,7 @@ where
     get!({
         doc: "# Get timesOff from teams",
         name: list_times_off,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/teams/{{RID}}/schedule/timesOff",
         params: 0,
         has_body: false

@@ -4,7 +4,6 @@ use crate::call_records::{CallRecordRequest, CallRecordsRequest};
 use crate::calls::{CallRequest, CallsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -74,7 +73,7 @@ where
     get!({
         doc: "# Get callRecords from communications",
         name: list_call_records,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/communications/callRecords",
         params: 0,
         has_body: false
@@ -106,7 +105,7 @@ where
     get!({
         doc: "# Get calls from communications",
         name: list_calls,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/communications/calls",
         params: 0,
         has_body: false
@@ -138,7 +137,7 @@ where
     get!({
         doc: "# Get onlineMeetings from communications",
         name: list_online_meetings,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/communications/onlineMeetings",
         params: 0,
         has_body: false

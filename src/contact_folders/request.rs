@@ -5,7 +5,6 @@ use crate::client::Graph;
 use crate::contacts::{ContactRequest, ContactsRequest};
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
-use graph_http::types::Collection;
 use graph_http::types::DeltaPhantom;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
@@ -26,7 +25,7 @@ where
     get!({
         doc: "# Get contactFolders from me",
         name: list_contact_folders,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/contactFolders",
         params: 0,
         has_body: false
@@ -105,7 +104,7 @@ where
     get!({
         doc: "# Get contacts from me",
         name: list_contacts,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/contactFolders/{{RID}}/contacts",
         params: 0,
         has_body: false

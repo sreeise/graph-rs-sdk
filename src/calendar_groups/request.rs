@@ -2,7 +2,6 @@ use crate::calendar::{CalendarRequest, CalendarsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::events::{EventRequest, EventsRequest};
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -50,7 +49,7 @@ where
     get!({
         doc: "# Get calendarGroups from users",
         name: list_calendar_groups,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/calendarGroups",
         params: 0,
         has_body: false
@@ -116,7 +115,7 @@ where
     get!({
         doc: "# Get calendars from users",
         name: list_calendars,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/calendarGroups/{{RID}}/calendars",
         params: 0,
         has_body: false

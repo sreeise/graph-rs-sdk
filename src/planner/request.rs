@@ -5,7 +5,6 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::plans::{PlanRequest, PlansRequest};
 use crate::tasks::{TaskRequest, TasksRequest};
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -74,7 +73,7 @@ where
     get!({
         doc: "# Get buckets from planner",
         name: list_buckets,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/planner/buckets",
         params: 0,
         has_body: false
@@ -106,7 +105,7 @@ where
     get!({
         doc: "# Get plans from planner",
         name: list_plans,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/planner/plans",
         params: 0,
         has_body: false
@@ -138,7 +137,7 @@ where
     get!({
         doc: "# Get tasks from planner",
         name: list_tasks,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/planner/tasks",
         params: 0,
         has_body: false

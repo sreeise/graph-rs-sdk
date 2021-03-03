@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::DeltaPhantom;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
@@ -19,7 +18,7 @@ where
     get!({
         doc: "# Get entities from applications",
         name: list_application,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/applications",
         params: 0,
         has_body: false
@@ -57,7 +56,7 @@ where
     get!({
         doc: "# Get tokenLifetimePolicies from applications",
         name: list_token_lifetime_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/applications/{{RID}}/tokenLifetimePolicies",
         params: 0,
         has_body: false
@@ -81,7 +80,7 @@ where
     get!({
         doc: "# Get tokenIssuancePolicies from applications",
         name: list_token_issuance_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/applications/{{RID}}/tokenIssuancePolicies",
         params: 0,
         has_body: false
@@ -113,7 +112,7 @@ where
     get!({
         doc: "# Get extensionProperties from applications",
         name: list_extension_properties,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/applications/{{RID}}/extensionProperties",
         params: 0,
         has_body: false
@@ -169,7 +168,7 @@ where
     get!({
         doc: "# Get homeRealmDiscoveryPolicies from applications",
         name: list_home_realm_discovery_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/applications/{{RID}}/homeRealmDiscoveryPolicies",
         params: 0,
         has_body: false
@@ -201,7 +200,7 @@ where
     get!({
         doc: "# Get owners from applications",
         name: list_owners,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/applications/{{RID}}/owners",
         params: 0,
         has_body: false

@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::sections::SectionsRequest;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -26,7 +25,7 @@ where
     get!({
         doc: "# Get sectionGroups from me",
         name: list_section_groups,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sectionGroups/{{RID}}/parentNotebook/sectionGroups",
         params: 0,
         has_body: false
@@ -58,7 +57,7 @@ where
     get!({
         doc: "# Get sections from me",
         name: list_sections,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sectionGroups/{{RID}}/parentNotebook/sections",
         params: 0,
         has_body: false
@@ -84,7 +83,7 @@ where
     get!({
         doc: "# Get sectionGroups from me",
         name: list_section_groups,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sectionGroups",
         params: 0,
         has_body: false
@@ -164,7 +163,7 @@ where
     get!({
         doc: "# Get sectionGroups from me",
         name: list_section_groups,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sectionGroups/{{RID}}/sectionGroups",
         params: 0,
         has_body: false
@@ -180,7 +179,7 @@ where
     get!({
         doc: "# Get sections from me",
         name: list_sections,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sectionGroups/{{RID}}/sections",
         params: 0,
         has_body: false

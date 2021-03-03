@@ -1,7 +1,6 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::posts::{PostRequest, PostsRequest};
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -21,7 +20,7 @@ where
     get!({
         doc: "# Get threads from groups",
         name: list_threads,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/threads",
         params: 0,
         has_body: false
@@ -72,7 +71,7 @@ where
     get!({
         doc: "# Get posts from groups",
         name: list_posts,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/threads/{{RID}}/posts",
         params: 0,
         has_body: false
