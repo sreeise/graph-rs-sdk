@@ -1,6 +1,5 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -20,7 +19,7 @@ where
     get!({
         doc: "# Get tasks from planner",
         name: list_tasks,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/tasks",
         params: 0,
         has_body: false

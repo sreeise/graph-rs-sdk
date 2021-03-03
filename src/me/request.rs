@@ -20,7 +20,6 @@ use crate::onenote::OnenoteRequest;
 use crate::outlook::OutlookRequest;
 use crate::planner::PlannerRequest;
 use crate::settings::SettingsRequest;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -35,7 +34,7 @@ where
     get!({
         doc: "# Invoke function getUserIdsWithFlaggedAppRegistration",
         name: get_user_ids_with_flagged_app_registration,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/managedAppRegistrations/getUserIdsWithFlaggedAppRegistration()",
         params: 0,
         has_body: false
@@ -248,7 +247,7 @@ where
     get!({
         doc: "# Get appRoleAssignments from me",
         name: list_app_role_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/appRoleAssignments",
         params: 0,
         has_body: false
@@ -296,7 +295,7 @@ where
     get!({
         doc: "# Get createdObjects from me",
         name: list_created_objects,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/createdObjects",
         params: 0,
         has_body: false
@@ -312,7 +311,7 @@ where
     get!({
         doc: "# Get deviceManagementTroubleshootingEvents from me",
         name: list_device_management_troubleshooting_events,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/deviceManagementTroubleshootingEvents",
         params: 0,
         has_body: false
@@ -344,7 +343,7 @@ where
     get!({
         doc: "# Get directReports from me",
         name: list_direct_reports,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/directReports",
         params: 0,
         has_body: false
@@ -376,7 +375,7 @@ where
     get!({
         doc: "# Get drives from me",
         name: list_drives,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/drives",
         params: 0,
         has_body: false
@@ -416,7 +415,7 @@ where
     get!({
         doc: "# Get extensions from me",
         name: list_extensions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/extensions",
         params: 0,
         has_body: false
@@ -456,7 +455,7 @@ where
     get!({
         doc: "# Get followedSites from me",
         name: list_followed_sites,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/followedSites",
         params: 0,
         has_body: false
@@ -472,7 +471,7 @@ where
     post!({
         doc: "# Invoke action getMailTips",
         name: get_mail_tips,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/getMailTips",
         params: 0,
         has_body: true
@@ -480,7 +479,7 @@ where
     get!({
         doc: "# Invoke function getManagedAppDiagnosticStatuses",
         name: get_managed_app_diagnostic_statuses,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/getManagedAppDiagnosticStatuses()",
         params: 0,
         has_body: false
@@ -488,7 +487,7 @@ where
     get!({
         doc: "# Invoke function getManagedAppPolicies",
         name: get_managed_app_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/getManagedAppPolicies()",
         params: 0,
         has_body: false
@@ -496,7 +495,7 @@ where
     get!({
         doc: "# Get joinedTeams from me",
         name: list_joined_teams,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/joinedTeams",
         params: 0,
         has_body: false
@@ -528,7 +527,7 @@ where
     get!({
         doc: "# Get licenseDetails from me",
         name: list_license_details,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/licenseDetails",
         params: 0,
         has_body: false
@@ -560,7 +559,7 @@ where
     get!({
         doc: "# Get managedAppRegistrations from me",
         name: list_managed_app_registrations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/managedAppRegistrations",
         params: 0,
         has_body: false
@@ -584,7 +583,7 @@ where
     get!({
         doc: "# Get memberOf from me",
         name: list_member_of,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/memberOf",
         params: 0,
         has_body: false
@@ -616,7 +615,7 @@ where
     get!({
         doc: "# Get ownedDevices from me",
         name: list_owned_devices,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/ownedDevices",
         params: 0,
         has_body: false
@@ -632,7 +631,7 @@ where
     get!({
         doc: "# Get ownedObjects from me",
         name: list_owned_objects,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/ownedObjects",
         params: 0,
         has_body: false
@@ -648,7 +647,7 @@ where
     get!({
         doc: "# Get people from me",
         name: list_people,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/people",
         params: 0,
         has_body: false
@@ -696,7 +695,7 @@ where
     get!({
         doc: "# Get photos from me",
         name: list_photos,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/photos",
         params: 0,
         has_body: false
@@ -728,7 +727,7 @@ where
     get!({
         doc: "# Get registeredDevices from me",
         name: list_registered_devices,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/registeredDevices",
         params: 0,
         has_body: false
@@ -768,7 +767,7 @@ where
     get!({
         doc: "# Get scopedRoleMemberOf from me",
         name: list_scoped_role_member_of,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/scopedRoleMemberOf",
         params: 0,
         has_body: false
@@ -824,7 +823,7 @@ where
     get!({
         doc: "# Get transitiveMemberOf from me",
         name: list_transitive_member_of,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/transitiveMemberOf",
         params: 0,
         has_body: false
@@ -840,7 +839,7 @@ where
     post!({
         doc: "# Invoke action translateExchangeIds",
         name: translate_exchange_ids,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/me/translateExchangeIds",
         params: 0,
         has_body: true

@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::DeltaPhantom;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
@@ -38,7 +37,7 @@ where
     get!({
         doc: "# Get appRoleAssignments from servicePrincipals",
         name: list_app_role_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/appRoleAssignments",
         params: 1,
         has_body: false
@@ -70,7 +69,7 @@ where
     get!({
         doc: "# Get createdObjects from servicePrincipals",
         name: list_created_objects,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/createdObjects",
         params: 1,
         has_body: false
@@ -102,7 +101,7 @@ where
     get!({
         doc: "# Get endpoints from servicePrincipals",
         name: list_endpoints,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/endpoints",
         params: 1,
         has_body: false
@@ -150,7 +149,7 @@ where
     get!({
         doc: "# Get owners from servicePrincipals",
         name: list_owners,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/owners",
         params: 1,
         has_body: false
@@ -158,7 +157,7 @@ where
     get!({
         doc: "# Get entities from servicePrincipals",
         name: list_service_principal,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals",
         params: 0,
         has_body: false
@@ -174,7 +173,7 @@ where
     get!({
         doc: "# Get appRoleAssignedTo from servicePrincipals",
         name: list_app_role_assigned_to,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/appRoleAssignedTo",
         params: 1,
         has_body: false
@@ -190,7 +189,7 @@ where
     get!({
         doc: "# Get memberOf from servicePrincipals",
         name: list_member_of,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/memberOf",
         params: 1,
         has_body: false
@@ -198,7 +197,7 @@ where
     get!({
         doc: "# Invoke function delta",
         name: delta,
-        response: DeltaPhantom<Collection<serde_json::Value>>,
+        response: DeltaPhantom<serde_json::Value>,
         path: "/servicePrincipals/delta()",
         params: 0,
         has_body: false
@@ -230,7 +229,7 @@ where
     get!({
         doc: "# Get tokenIssuancePolicies from servicePrincipals",
         name: list_token_issuance_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/tokenIssuancePolicies",
         params: 1,
         has_body: false
@@ -246,7 +245,7 @@ where
     get!({
         doc: "# Get tokenLifetimePolicies from servicePrincipals",
         name: list_token_lifetime_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/tokenLifetimePolicies",
         params: 1,
         has_body: false
@@ -278,7 +277,7 @@ where
     get!({
         doc: "# Get transitiveMemberOf from servicePrincipals",
         name: list_transitive_member_of,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/transitiveMemberOf",
         params: 1,
         has_body: false
@@ -294,7 +293,7 @@ where
     get!({
         doc: "# Get ownedObjects from servicePrincipals",
         name: list_owned_objects,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/ownedObjects",
         params: 1,
         has_body: false
@@ -310,7 +309,7 @@ where
     get!({
         doc: "# Get homeRealmDiscoveryPolicies from servicePrincipals",
         name: list_home_realm_discovery_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/homeRealmDiscoveryPolicies",
         params: 1,
         has_body: false
@@ -318,7 +317,7 @@ where
     get!({
         doc: "# Get claimsMappingPolicies from servicePrincipals",
         name: list_claims_mapping_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/servicePrincipals/{{id}}/claimsMappingPolicies",
         params: 1,
         has_body: false

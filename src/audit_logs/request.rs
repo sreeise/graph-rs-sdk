@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -13,7 +12,7 @@ where
     get!({
         doc: "# Get directoryAudits from auditLogs",
         name: list_directory_audits,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/auditLogs/directoryAudits",
         params: 0,
         has_body: false
@@ -77,7 +76,7 @@ where
     get!({
         doc: "# Get signIns from auditLogs",
         name: list_sign_ins,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/auditLogs/signIns",
         params: 0,
         has_body: false
@@ -109,7 +108,7 @@ where
     get!({
         doc: "# Get restrictedSignIns from auditLogs",
         name: list_restricted_sign_ins,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/auditLogs/restrictedSignIns",
         params: 0,
         has_body: false

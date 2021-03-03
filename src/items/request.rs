@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -19,7 +18,7 @@ where
     get!({
         doc: "# Get items from sites",
         name: list_items,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/items",
         params: 0,
         has_body: false
@@ -100,7 +99,7 @@ where
     get!({
         doc: "# Get versions from sites",
         name: list_versions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/items/{{RID}}/versions",
         params: 0,
         has_body: false

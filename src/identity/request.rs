@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -41,7 +40,7 @@ where
     get!({
         doc: "# Get policies from identity",
         name: list_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/identity/conditionalAccess/policies",
         params: 0,
         has_body: false
@@ -81,7 +80,7 @@ where
     get!({
         doc: "# Get namedLocations from identity",
         name: list_named_locations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/identity/conditionalAccess/namedLocations",
         params: 0,
         has_body: false
@@ -104,7 +103,7 @@ where
     get!({
         doc: "# Get entities from identityProviders",
         name: list_identity_provider,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/identityProviders",
         params: 0,
         has_body: false

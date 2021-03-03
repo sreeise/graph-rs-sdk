@@ -2,7 +2,6 @@
 
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -23,7 +22,7 @@ where
     get!({
         doc: "# Get calls from communications",
         name: list_calls,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/calls",
         params: 0,
         has_body: false
@@ -112,7 +111,7 @@ where
     get!({
         doc: "# Get operations from communications",
         name: list_operations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/calls/{{RID}}/operations",
         params: 0,
         has_body: false
@@ -144,7 +143,7 @@ where
     get!({
         doc: "# Get participants from communications",
         name: list_participants,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/calls/{{RID}}/participants",
         params: 0,
         has_body: false

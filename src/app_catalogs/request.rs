@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -33,7 +32,7 @@ where
     get!({
         doc: "# Get teamsApps from appCatalogs",
         name: list_teams_apps,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/appCatalogs/teamsApps",
         params: 0,
         has_body: false
@@ -71,7 +70,7 @@ where
     get!({
         doc: "# Get appDefinitions from appCatalogs",
         name: list_app_definitions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/appCatalogs/teamsApps/{{id}}/appDefinitions",
         params: 1,
         has_body: false

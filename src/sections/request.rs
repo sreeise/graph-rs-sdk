@@ -3,7 +3,6 @@ use crate::core::ResourceIdentity;
 use crate::pages::{PageRequest, PagesRequest};
 use crate::parent_notebook::ParentNotebookRequest;
 use crate::parent_section_group::ParentSectionGroupRequest;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -23,7 +22,7 @@ where
     get!({
         doc: "# Get sections from me",
         name: list_sections,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sections",
         params: 0,
         has_body: false
@@ -105,7 +104,7 @@ where
     get!({
         doc: "# Get pages from me",
         name: list_pages,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sections/{{RID}}/pages",
         params: 0,
         has_body: false

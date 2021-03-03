@@ -1,5 +1,5 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
+
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -26,7 +26,7 @@ where
     get!({
         doc: "# Get members from education",
         name: list_members,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/classes/{{id}}/members",
         params: 1,
         has_body: false
@@ -42,7 +42,7 @@ where
     get!({
         doc: "# Get schools from education",
         name: list_schools,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/classes/{{id}}/schools",
         params: 1,
         has_body: false
@@ -58,7 +58,7 @@ where
     get!({
         doc: "# Get teachers from education",
         name: list_teachers,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/classes/{{id}}/teachers",
         params: 1,
         has_body: false
@@ -95,7 +95,7 @@ where
     get!({
         doc: "# Get classes from education",
         name: list_classes,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/classes",
         params: 0,
         has_body: false
@@ -143,7 +143,7 @@ where
     get!({
         doc: "# Get schools from education",
         name: list_schools,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/schools",
         params: 0,
         has_body: false
@@ -175,7 +175,7 @@ where
     get!({
         doc: "# Get users from education",
         name: list_users,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/users",
         params: 0,
         has_body: false
@@ -235,7 +235,7 @@ where
     get!({
         doc: "# Get classes from education",
         name: list_classes,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/me/classes",
         params: 0,
         has_body: false
@@ -251,7 +251,7 @@ where
     get!({
         doc: "# Get schools from education",
         name: list_schools,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/me/schools",
         params: 0,
         has_body: false
@@ -281,7 +281,7 @@ where
     get!({
         doc: "# Get classes from education",
         name: list_classes,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/schools/{{id}}/classes",
         params: 1,
         has_body: false
@@ -297,7 +297,7 @@ where
     get!({
         doc: "# Get users from education",
         name: list_users,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/schools/{{id}}/users",
         params: 1,
         has_body: false
@@ -319,7 +319,7 @@ where
     get!({
         doc: "# Get classes from education",
         name: list_classes,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/users/{{id}}/classes",
         params: 1,
         has_body: false
@@ -335,7 +335,7 @@ where
     get!({
         doc: "# Get schools from education",
         name: list_schools,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/education/users/{{id}}/schools",
         params: 1,
         has_body: false

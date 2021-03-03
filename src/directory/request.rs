@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::DeltaPhantom;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
@@ -30,7 +29,7 @@ where
     get!({
         doc: "# Get administrativeUnits from directory",
         name: list_administrative_units,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directory/administrativeUnits",
         params: 0,
         has_body: false
@@ -94,7 +93,7 @@ where
     get!({
         doc: "# Get deletedItems from directory",
         name: list_deleted_items,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directory/deletedItems",
         params: 0,
         has_body: false
@@ -116,7 +115,7 @@ where
     get!({
         doc: "# Get members from directory",
         name: list_members,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directory/administrativeUnits/{{id}}/members",
         params: 1,
         has_body: false
@@ -164,7 +163,7 @@ where
     get!({
         doc: "# Get scopedRoleMembers from directory",
         name: list_scoped_role_members,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directory/administrativeUnits/{{id}}/scopedRoleMembers",
         params: 1,
         has_body: false
@@ -180,7 +179,7 @@ where
     get!({
         doc: "# Get extensions from directory",
         name: list_extensions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directory/administrativeUnits/{{id}}/extensions",
         params: 1,
         has_body: false
@@ -205,7 +204,7 @@ where
     get!({
         doc: "# Get entities from directoryObjects",
         name: list_directory_object,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryObjects",
         params: 0,
         has_body: false
@@ -245,7 +244,7 @@ where
     post!({
         doc: "# Invoke action checkMemberGroups",
         name: check_member_groups,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryObjects/{{id}}/checkMemberGroups",
         params: 1,
         has_body: true
@@ -253,7 +252,7 @@ where
     post!({
         doc: "# Invoke action getMemberObjects",
         name: get_member_objects,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryObjects/{{id}}/getMemberObjects",
         params: 1,
         has_body: true
@@ -269,7 +268,7 @@ where
     post!({
         doc: "# Invoke action checkMemberObjects",
         name: check_member_objects,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryObjects/{{id}}/checkMemberObjects",
         params: 1,
         has_body: true
@@ -285,7 +284,7 @@ where
     post!({
         doc: "# Invoke action getByIds",
         name: get_by_ids,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryObjects/getByIds",
         params: 0,
         has_body: true
@@ -293,7 +292,7 @@ where
     post!({
         doc: "# Invoke action getMemberGroups",
         name: get_member_groups,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryObjects/{{id}}/getMemberGroups",
         params: 1,
         has_body: true
@@ -301,7 +300,7 @@ where
     post!({
         doc: "# Invoke action getAvailableExtensionProperties",
         name: get_available_extension_properties,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryObjects/getAvailableExtensionProperties",
         params: 0,
         has_body: true
@@ -315,7 +314,7 @@ where
     get!({
         doc: "# Invoke function delta",
         name: delta,
-        response: DeltaPhantom<Collection<serde_json::Value>>,
+        response: DeltaPhantom<serde_json::Value>,
         path: "/directory/administrativeUnits/delta()",
         params: 0,
         has_body: false
@@ -329,7 +328,7 @@ where
     get!({
         doc: "# Get entities from directoryRoleTemplates",
         name: list_directory_role_template,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryRoleTemplates",
         params: 0,
         has_body: false
@@ -375,7 +374,7 @@ where
     get!({
         doc: "# Get entities from directoryRoles",
         name: list_directory_role,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryRoles",
         params: 0,
         has_body: false
@@ -407,7 +406,7 @@ where
     get!({
         doc: "# Invoke function delta",
         name: delta,
-        response: DeltaPhantom<Collection<serde_json::Value>>,
+        response: DeltaPhantom<serde_json::Value>,
         path: "/directoryRoles/delta()",
         params: 0,
         has_body: false
@@ -415,7 +414,7 @@ where
     get!({
         doc: "# Get members from directoryRoles",
         name: list_members,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryRoles/{{id}}/members",
         params: 1,
         has_body: false
@@ -423,7 +422,7 @@ where
     get!({
         doc: "# Get scopedMembers from directoryRoles",
         name: list_scoped_members,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/directoryRoles/{{id}}/scopedMembers",
         params: 1,
         has_body: false

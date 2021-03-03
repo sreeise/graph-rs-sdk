@@ -4,6 +4,16 @@ use async_trait::async_trait;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use std::convert::TryFrom;
 
+fn no_content_to_json(s: String) -> serde_json::Value {
+    let value: GraphResult<serde_json::Value> =
+        serde_json::from_str(s.as_str()).map_err(GraphFailure::from);
+    if let Ok(value) = value {
+        value
+    } else {
+        serde_json::Value::String(s)
+    }
+}
+
 #[derive(Debug)]
 pub struct GraphResponse<T> {
     url: GraphUrl,
@@ -87,20 +97,10 @@ impl<T> GraphResponse<T> {
             let url = GraphUrl::from(response.url());
             let status = response.status().as_u16();
             let headers = response.headers().to_owned();
-            let result: GraphResult<String> = response.text().map_err(GraphFailure::from);
-
-            let body = match result {
-                Ok(s) => {
-                    let value: GraphResult<serde_json::Value> =
-                        serde_json::from_str(s.as_str()).map_err(GraphFailure::from);
-                    if let Ok(value) = value {
-                        value
-                    } else {
-                        serde_json::Value::String(s)
-                    }
-                },
-                Err(_) => serde_json::Value::String(String::new()),
-            };
+            let body = response
+                .text()
+                .map(|s| no_content_to_json(s))
+                .unwrap_or(serde_json::Value::String(String::new()));
 
             Ok(GraphResponse::new(url, body, status, headers))
         }
@@ -120,20 +120,11 @@ impl<T> GraphResponse<T> {
             let url = GraphUrl::from(response.url());
             let status = response.status().as_u16();
             let headers = response.headers().to_owned();
-            let result: GraphResult<String> = response.text().await.map_err(GraphFailure::from);
-
-            let body = match result {
-                Ok(s) => {
-                    let value: GraphResult<serde_json::Value> =
-                        serde_json::from_str(s.as_str()).map_err(GraphFailure::from);
-                    if let Ok(value) = value {
-                        value
-                    } else {
-                        serde_json::Value::String(s)
-                    }
-                },
-                Err(_) => serde_json::Value::String(String::new()),
-            };
+            let body = response
+                .text()
+                .await
+                .map(|s| no_content_to_json(s))
+                .unwrap_or(serde_json::Value::String(String::new()));
 
             Ok(GraphResponse::new(url, body, status, headers))
         }

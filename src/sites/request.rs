@@ -4,7 +4,6 @@ use crate::core::ResourceIdentity;
 use crate::drive::DrivesRequest;
 use crate::lists::{ListRequest, ListsRequest};
 use crate::onenote::OnenoteRequest;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -24,7 +23,7 @@ where
     get!({
         doc: "# Get entities from sites",
         name: list_site,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sites",
         params: 0,
         has_body: false
@@ -40,7 +39,7 @@ where
     post!({
         doc: "# Invoke action add",
         name: add,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sites/add",
         params: 0,
         has_body: true
@@ -48,7 +47,7 @@ where
     post!({
         doc: "# Invoke action remove",
         name: remove,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sites/remove",
         params: 0,
         has_body: true
@@ -133,7 +132,7 @@ where
     get!({
         doc: "# Get columns from sites",
         name: list_columns,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sites/{{RID}}/columns",
         params: 0,
         has_body: false
@@ -181,7 +180,7 @@ where
     get!({
         doc: "# Get drives from sites",
         name: list_drives,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sites/{{RID}}/drives",
         params: 0,
         has_body: false
@@ -213,7 +212,7 @@ where
     get!({
         doc: "# Get items from sites",
         name: list_items,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sites/{{RID}}/items",
         params: 0,
         has_body: false
@@ -245,7 +244,7 @@ where
     get!({
         doc: "# Get sites from sites",
         name: list_sites,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/sites/{{RID}}/sites",
         params: 0,
         has_body: false

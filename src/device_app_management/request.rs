@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -78,7 +77,7 @@ where
     get!({
         doc: "# Get androidManagedAppProtections from deviceAppManagement",
         name: list_android_managed_app_protections,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/androidManagedAppProtections",
         params: 0,
         has_body: false
@@ -118,7 +117,7 @@ where
     get!({
         doc: "# Get vppTokens from deviceAppManagement",
         name: list_vpp_tokens,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/vppTokens",
         params: 0,
         has_body: false
@@ -150,7 +149,7 @@ where
     get!({
         doc: "# Get mobileAppCategories from deviceAppManagement",
         name: list_mobile_app_categories,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/mobileAppCategories",
         params: 0,
         has_body: false
@@ -182,7 +181,7 @@ where
     get!({
         doc: "# Get mobileAppConfigurations from deviceAppManagement",
         name: list_mobile_app_configurations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/mobileAppConfigurations",
         params: 0,
         has_body: false
@@ -198,7 +197,7 @@ where
     get!({
         doc: "# Get windowsInformationProtectionPolicies from deviceAppManagement",
         name: list_windows_information_protection_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/windowsInformationProtectionPolicies",
         params: 0,
         has_body: false
@@ -230,7 +229,7 @@ where
     get!({
         doc: "# Invoke function getUserIdsWithFlaggedAppRegistration",
         name: get_user_ids_with_flagged_app_registration,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedAppRegistrations/getUserIdsWithFlaggedAppRegistration()",
         params: 0,
         has_body: false
@@ -254,7 +253,7 @@ where
     get!({
         doc: "# Get targetedManagedAppConfigurations from deviceAppManagement",
         name: list_targeted_managed_app_configurations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/targetedManagedAppConfigurations",
         params: 0,
         has_body: false
@@ -270,7 +269,7 @@ where
     get!({
         doc: "# Get managedAppPolicies from deviceAppManagement",
         name: list_managed_app_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedAppPolicies",
         params: 0,
         has_body: false
@@ -286,7 +285,7 @@ where
     get!({
         doc: "# Get managedEBooks from deviceAppManagement",
         name: list_managed_e_books,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedEBooks",
         params: 0,
         has_body: false
@@ -334,7 +333,7 @@ where
     get!({
         doc: "# Get defaultManagedAppProtections from deviceAppManagement",
         name: list_default_managed_app_protections,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/defaultManagedAppProtections",
         params: 0,
         has_body: false
@@ -382,7 +381,7 @@ where
     get!({
         doc: "# Get mobileApps from deviceAppManagement",
         name: list_mobile_apps,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/mobileApps",
         params: 0,
         has_body: false
@@ -398,7 +397,7 @@ where
     get!({
         doc: "# Get managedAppRegistrations from deviceAppManagement",
         name: list_managed_app_registrations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedAppRegistrations",
         params: 0,
         has_body: false
@@ -414,7 +413,7 @@ where
     get!({
         doc: "# Get mdmWindowsInformationProtectionPolicies from deviceAppManagement",
         name: list_mdm_windows_information_protection_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/mdmWindowsInformationProtectionPolicies",
         params: 0,
         has_body: false
@@ -462,7 +461,7 @@ where
     get!({
         doc: "# Get iosManagedAppProtections from deviceAppManagement",
         name: list_ios_managed_app_protections,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/iosManagedAppProtections",
         params: 0,
         has_body: false
@@ -478,7 +477,7 @@ where
     get!({
         doc: "# Get managedAppStatuses from deviceAppManagement",
         name: list_managed_app_statuses,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedAppStatuses",
         params: 0,
         has_body: false
@@ -580,7 +579,7 @@ where
     get!({
         doc: "# Get apps from deviceAppManagement",
         name: list_apps,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/androidManagedAppProtections/{{id}}/apps",
         params: 1,
         has_body: false
@@ -602,7 +601,7 @@ where
     get!({
         doc: "# Get apps from deviceAppManagement",
         name: list_apps,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/defaultManagedAppProtections/{{id}}/apps",
         params: 1,
         has_body: false
@@ -656,7 +655,7 @@ where
     get!({
         doc: "# Get apps from deviceAppManagement",
         name: list_apps,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/iosManagedAppProtections/{{id}}/apps",
         params: 1,
         has_body: false
@@ -730,7 +729,7 @@ where
     get!({
         doc: "# Get operations from deviceAppManagement",
         name: list_operations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedAppRegistrations/{{id}}/operations",
         params: 1,
         has_body: false
@@ -746,7 +745,7 @@ where
     get!({
         doc: "# Get intendedPolicies from deviceAppManagement",
         name: list_intended_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedAppRegistrations/{{id}}/intendedPolicies",
         params: 1,
         has_body: false
@@ -794,7 +793,7 @@ where
     get!({
         doc: "# Get appliedPolicies from deviceAppManagement",
         name: list_applied_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedAppRegistrations/{{id}}/appliedPolicies",
         params: 1,
         has_body: false
@@ -895,7 +894,7 @@ where
     get!({
         doc: "# Get assignments from deviceAppManagement",
         name: list_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedEBooks/{{id}}/assignments",
         params: 1,
         has_body: false
@@ -927,7 +926,7 @@ where
     get!({
         doc: "# Get deviceStates from deviceAppManagement",
         name: list_device_states,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedEBooks/{{id}}/deviceStates",
         params: 1,
         has_body: false
@@ -959,7 +958,7 @@ where
     get!({
         doc: "# Get userStateSummary from deviceAppManagement",
         name: list_user_state_summary,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedEBooks/{{id}}/userStateSummary",
         params: 1,
         has_body: false
@@ -989,7 +988,7 @@ where
     get!({
         doc: "# Get deviceStates from deviceAppManagement",
         name: list_device_states,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/managedEBooks/{{id}}/userStateSummary/{{id2}}/deviceStates",
         params: 2,
         has_body: false
@@ -1035,7 +1034,7 @@ where
     get!({
         doc: "# Get userStatuses from deviceAppManagement",
         name: list_user_statuses,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/mobileAppConfigurations/{{id}}/userStatuses",
         params: 1,
         has_body: false
@@ -1067,7 +1066,7 @@ where
     get!({
         doc: "# Get assignments from deviceAppManagement",
         name: list_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/mobileAppConfigurations/{{id}}/assignments",
         params: 1,
         has_body: false
@@ -1099,7 +1098,7 @@ where
     get!({
         doc: "# Get deviceStatuses from deviceAppManagement",
         name: list_device_statuses,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/mobileAppConfigurations/{{id}}/deviceStatuses",
         params: 1,
         has_body: false
@@ -1201,7 +1200,7 @@ where
     get!({
         doc: "# Get categories from deviceAppManagement",
         name: list_categories,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/mobileApps/{{id}}/categories",
         params: 1,
         has_body: false
@@ -1209,7 +1208,7 @@ where
     get!({
         doc: "# Get assignments from deviceAppManagement",
         name: list_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/mobileApps/{{id}}/assignments",
         params: 1,
         has_body: false
@@ -1231,7 +1230,7 @@ where
     get!({
         doc: "# Get assignments from deviceAppManagement",
         name: list_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/targetedManagedAppConfigurations/{{id}}/assignments",
         params: 1,
         has_body: false
@@ -1263,7 +1262,7 @@ where
     get!({
         doc: "# Get apps from deviceAppManagement",
         name: list_apps,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceAppManagement/targetedManagedAppConfigurations/{{id}}/apps",
         params: 1,
         has_body: false

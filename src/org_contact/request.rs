@@ -1,7 +1,6 @@
 // NOT GENERATED CODE
 
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::DeltaPhantom;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
@@ -29,7 +28,7 @@ where
     get!({
         doc: "# Get entities from contacts",
         name: list_org_contact,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/contacts",
         params: 0,
         has_body: false
@@ -75,7 +74,7 @@ where
     get!({
         doc: "# Get directReports from contacts",
         name: list_direct_reports,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/contacts/{{RID}}/directReports",
         params: 0,
         has_body: false
@@ -99,7 +98,7 @@ where
     get!({
         doc: "# Get memberOf from contacts",
         name: list_member_of,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/contacts/{{RID}}/memberOf",
         params: 0,
         has_body: false
@@ -115,7 +114,7 @@ where
     get!({
         doc: "# Get transitiveMemberOf from contacts",
         name: list_transitive_member_of,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/contacts/{{RID}}/transitiveMemberOf",
         params: 0,
         has_body: false

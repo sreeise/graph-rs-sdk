@@ -3,7 +3,6 @@ use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::events::{EventRequest, EventsRequest};
 use crate::extended_properties::ExtendedPropertiesRequest;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -67,7 +66,7 @@ where
     get!({
         doc: "# Get calendarPermissions from users",
         name: list_calendar_permissions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/calendar/calendarPermissions",
         params: 0,
         has_body: false
@@ -99,7 +98,7 @@ where
     post!({
         doc: "# Invoke action getSchedule",
         name: get_schedule,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/calendar/getSchedule",
         params: 0,
         has_body: true
@@ -107,7 +106,7 @@ where
     get!({
         doc: "# Get calendars from users",
         name: list_calendars,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/calendars",
         params: 0,
         has_body: false
@@ -180,7 +179,7 @@ where
     get!({
         doc: "# Get calendarPermissions from users",
         name: list_calendar_permissions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/calendars/{{RID}}/calendarPermissions",
         params: 0,
         has_body: false
@@ -212,7 +211,7 @@ where
     post!({
         doc: "# Invoke action getSchedule",
         name: get_schedule,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/calendars/{{RID}}/getSchedule",
         params: 0,
         has_body: true

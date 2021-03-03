@@ -4,7 +4,6 @@ use crate::notebooks::{NotebookRequest, NotebooksRequest};
 use crate::pages::{PageRequest, PagesRequest};
 use crate::section_groups::{SectionGroupRequest, SectionGroupsRequest};
 use crate::sections::{SectionRequest, SectionsRequest};
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -70,7 +69,7 @@ where
     get!({
         doc: "# Get notebooks from me",
         name: list_notebooks,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/onenote/notebooks",
         params: 0,
         has_body: false
@@ -86,7 +85,7 @@ where
     get!({
         doc: "# Get operations from me",
         name: list_operations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/onenote/operations",
         params: 0,
         has_body: false
@@ -118,7 +117,7 @@ where
     get!({
         doc: "# Get pages from me",
         name: list_pages,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/onenote/pages",
         params: 0,
         has_body: false
@@ -134,7 +133,7 @@ where
     get!({
         doc: "# Get resources from me",
         name: list_resources,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/onenote/resources",
         params: 0,
         has_body: false
@@ -166,7 +165,7 @@ where
     get!({
         doc: "# Get sectionGroups from me",
         name: list_section_groups,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/onenote/sectionGroups",
         params: 0,
         has_body: false
@@ -182,7 +181,7 @@ where
     get!({
         doc: "# Get sections from me",
         name: list_sections,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/onenote/sections",
         params: 0,
         has_body: false

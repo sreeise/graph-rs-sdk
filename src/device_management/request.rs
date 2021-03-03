@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -83,7 +82,7 @@ where
     get!({
         doc: "# Get resourceOperations from deviceManagement",
         name: list_resource_operations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/resourceOperations",
         params: 0,
         has_body: false
@@ -147,7 +146,7 @@ where
     get!({
         doc: "# Get exchangeConnectors from deviceManagement",
         name: list_exchange_connectors,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/exchangeConnectors",
         params: 0,
         has_body: false
@@ -163,7 +162,7 @@ where
     get!({
         doc: "# Get iosUpdateStatuses from deviceManagement",
         name: list_ios_update_statuses,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/iosUpdateStatuses",
         params: 0,
         has_body: false
@@ -195,7 +194,7 @@ where
     get!({
         doc: "# Get deviceManagementPartners from deviceManagement",
         name: list_device_management_partners,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceManagementPartners",
         params: 0,
         has_body: false
@@ -243,7 +242,7 @@ where
     get!({
         doc: "# Get notificationMessageTemplates from deviceManagement",
         name: list_notification_message_templates,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/notificationMessageTemplates",
         params: 0,
         has_body: false
@@ -259,7 +258,7 @@ where
     get!({
         doc: "# Get deviceCompliancePolicySettingStateSummaries from deviceManagement",
         name: list_device_compliance_policy_setting_state_summaries,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries",
         params: 0,
         has_body: false
@@ -323,7 +322,7 @@ where
     get!({
         doc: "# Get telecomExpenseManagementPartners from deviceManagement",
         name: list_telecom_expense_management_partners,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/telecomExpenseManagementPartners",
         params: 0,
         has_body: false
@@ -339,7 +338,7 @@ where
     get!({
         doc: "# Get termsAndConditions from deviceManagement",
         name: list_terms_and_conditions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/termsAndConditions",
         params: 0,
         has_body: false
@@ -363,7 +362,7 @@ where
     get!({
         doc: "# Get deviceCategories from deviceManagement",
         name: list_device_categories,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCategories",
         params: 0,
         has_body: false
@@ -403,7 +402,7 @@ where
     get!({
         doc: "# Get mobileThreatDefenseConnectors from deviceManagement",
         name: list_mobile_threat_defense_connectors,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/mobileThreatDefenseConnectors",
         params: 0,
         has_body: false
@@ -419,7 +418,7 @@ where
     get!({
         doc: "# Get detectedApps from deviceManagement",
         name: list_detected_apps,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/detectedApps",
         params: 0,
         has_body: false
@@ -451,7 +450,7 @@ where
     get!({
         doc: "# Get complianceManagementPartners from deviceManagement",
         name: list_compliance_management_partners,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/complianceManagementPartners",
         params: 0,
         has_body: false
@@ -467,7 +466,7 @@ where
     get!({
         doc: "# Get roleAssignments from deviceManagement",
         name: list_role_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/roleAssignments",
         params: 0,
         has_body: false
@@ -547,7 +546,7 @@ where
     get!({
         doc: "# Get windowsInformationProtectionAppLearningSummaries from deviceManagement",
         name: list_windows_information_protection_app_learning_summaries,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/windowsInformationProtectionAppLearningSummaries",
         params: 0,
         has_body: false
@@ -579,7 +578,7 @@ where
     get!({
         doc: "# Get troubleshootingEvents from deviceManagement",
         name: list_troubleshooting_events,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/troubleshootingEvents",
         params: 0,
         has_body: false
@@ -627,7 +626,7 @@ where
     get!({
         doc: "# Get windowsInformationProtectionNetworkLearningSummaries from deviceManagement",
         name: list_windows_information_protection_network_learning_summaries,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/windowsInformationProtectionNetworkLearningSummaries",
         params: 0,
         has_body: false
@@ -643,7 +642,7 @@ where
     get!({
         doc: "# Get remoteAssistancePartners from deviceManagement",
         name: list_remote_assistance_partners,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/remoteAssistancePartners",
         params: 0,
         has_body: false
@@ -659,7 +658,7 @@ where
     get!({
         doc: "# Get deviceCompliancePolicies from deviceManagement",
         name: list_device_compliance_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCompliancePolicies",
         params: 0,
         has_body: false
@@ -675,7 +674,7 @@ where
     get!({
         doc: "# Get roleDefinitions from deviceManagement",
         name: list_role_definitions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/roleDefinitions",
         params: 0,
         has_body: false
@@ -707,7 +706,7 @@ where
     get!({
         doc: "# Get deviceEnrollmentConfigurations from deviceManagement",
         name: list_device_enrollment_configurations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceEnrollmentConfigurations",
         params: 0,
         has_body: false
@@ -827,7 +826,7 @@ where
     get!({
         doc: "# Get managedDevices from deviceManagement",
         name: list_managed_devices,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/managedDevices",
         params: 0,
         has_body: false
@@ -843,7 +842,7 @@ where
     get!({
         doc: "# Get deviceConfigurations from deviceManagement",
         name: list_device_configurations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceConfigurations",
         params: 0,
         has_body: false
@@ -892,7 +891,7 @@ where
     get!({
         doc: "# Get managedDevices from deviceManagement",
         name: list_managed_devices,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/detectedApps/{{id}}/managedDevices",
         params: 1,
         has_body: false
@@ -1075,7 +1074,7 @@ where
     get!({
         doc: "# Get deviceStatuses from deviceManagement",
         name: list_device_statuses,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/deviceStatuses",
         params: 1,
         has_body: false
@@ -1091,7 +1090,7 @@ where
     post!({
         doc: "# Invoke action assign",
         name: assign,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/assign",
         params: 1,
         has_body: true
@@ -1099,7 +1098,7 @@ where
     get!({
         doc: "# Get deviceSettingStateSummaries from deviceManagement",
         name: list_device_setting_state_summaries,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/deviceSettingStateSummaries",
         params: 1,
         has_body: false
@@ -1171,7 +1170,7 @@ where
     get!({
         doc: "# Get scheduledActionsForRule from deviceManagement",
         name: list_scheduled_actions_for_rule,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/scheduledActionsForRule",
         params: 1,
         has_body: false
@@ -1203,7 +1202,7 @@ where
     get!({
         doc: "# Get assignments from deviceManagement",
         name: list_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/assignments",
         params: 1,
         has_body: false
@@ -1251,7 +1250,7 @@ where
     get!({
         doc: "# Get userStatuses from deviceManagement",
         name: list_user_statuses,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/userStatuses",
         params: 1,
         has_body: false
@@ -1273,7 +1272,7 @@ where
     get!({
         doc: "# Get scheduledActionConfigurations from deviceManagement",
         name: list_scheduled_action_configurations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCompliancePolicies/{{id}}/scheduledActionsForRule/{{id2}}/scheduledActionConfigurations",
         params: 2,
         has_body: false
@@ -1327,7 +1326,7 @@ where
     get!({
         doc: "# Get deviceComplianceSettingStates from deviceManagement",
         name: list_device_compliance_setting_states,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}/deviceComplianceSettingStates",
         params: 1,
         has_body: false
@@ -1365,7 +1364,7 @@ where
     get!({
         doc: "# Get deviceStatuses from deviceManagement",
         name: list_device_statuses,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceConfigurations/{{id}}/deviceStatuses",
         params: 1,
         has_body: false
@@ -1413,7 +1412,7 @@ where
     get!({
         doc: "# Get deviceSettingStateSummaries from deviceManagement",
         name: list_device_setting_state_summaries,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceConfigurations/{{id}}/deviceSettingStateSummaries",
         params: 1,
         has_body: false
@@ -1429,7 +1428,7 @@ where
     get!({
         doc: "# Get assignments from deviceManagement",
         name: list_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceConfigurations/{{id}}/assignments",
         params: 1,
         has_body: false
@@ -1445,7 +1444,7 @@ where
     get!({
         doc: "# Get userStatuses from deviceManagement",
         name: list_user_statuses,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceConfigurations/{{id}}/userStatuses",
         params: 1,
         has_body: false
@@ -1461,7 +1460,7 @@ where
     post!({
         doc: "# Invoke action assign",
         name: assign,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceConfigurations/{{id}}/assign",
         params: 1,
         has_body: true
@@ -1555,7 +1554,7 @@ where
     get!({
         doc: "# Get assignments from deviceManagement",
         name: list_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/deviceEnrollmentConfigurations/{{id}}/assignments",
         params: 1,
         has_body: false
@@ -1623,7 +1622,7 @@ where
     get!({
         doc: "# Get deviceCompliancePolicyStates from deviceManagement",
         name: list_device_compliance_policy_states,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/managedDevices/{{id}}/deviceCompliancePolicyStates",
         params: 1,
         has_body: false
@@ -1639,7 +1638,7 @@ where
     get!({
         doc: "# Get deviceConfigurationStates from deviceManagement",
         name: list_device_configuration_states,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/managedDevices/{{id}}/deviceConfigurationStates",
         params: 1,
         has_body: false
@@ -1837,7 +1836,7 @@ where
     get!({
         doc: "# Get localizedNotificationMessages from deviceManagement",
         name: list_localized_notification_messages,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/notificationMessageTemplates/{{id}}/localizedNotificationMessages",
         params: 1,
         has_body: false
@@ -1892,7 +1891,7 @@ where
     get!({
         doc: "# Get roleAssignments from deviceManagement",
         name: list_role_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/roleDefinitions/{{id}}/roleAssignments",
         params: 1,
         has_body: false
@@ -1963,7 +1962,7 @@ where
     get!({
         doc: "# Get assignments from deviceManagement",
         name: list_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/termsAndConditions/{{id}}/assignments",
         params: 1,
         has_body: false
@@ -1979,7 +1978,7 @@ where
     get!({
         doc: "# Get acceptanceStatuses from deviceManagement",
         name: list_acceptance_statuses,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/deviceManagement/termsAndConditions/{{id}}/acceptanceStatuses",
         params: 1,
         has_body: false

@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -37,7 +36,7 @@ where
     get!({
         doc: "# Get entities from invitations",
         name: list_invitation,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/invitations",
         params: 0,
         has_body: false

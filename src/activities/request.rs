@@ -1,5 +1,5 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
+
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -17,7 +17,7 @@ where
     get!({
         doc: "# Get activities from me",
         name: list_activities,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/activities",
         params: 0,
         has_body: false
@@ -33,7 +33,7 @@ where
     get!({
         doc: "# Invoke function recent",
         name: recent,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/activities/recent()",
         params: 0,
         has_body: false
@@ -57,7 +57,7 @@ where
     get!({
         doc: "# Get historyItems from me",
         name: list_history_items,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/activities/{{id}}/historyItems",
         params: 1,
         has_body: false

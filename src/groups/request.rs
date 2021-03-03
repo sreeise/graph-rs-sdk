@@ -9,7 +9,7 @@ use crate::events::{EventRequest, EventsRequest};
 use crate::onenote::OnenoteRequest;
 use crate::planner::PlannerRequest;
 use crate::threads::{ThreadRequest, ThreadsRequest};
-use graph_http::types::Collection;
+
 use graph_http::types::DeltaPhantom;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
@@ -30,7 +30,7 @@ where
     get!({
         doc: "# Get entities from groups",
         name: list_group,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups",
         params: 0,
         has_body: false
@@ -186,7 +186,7 @@ where
     get!({
         doc: "# Get acceptedSenders from groups",
         name: list_accepted_senders,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/acceptedSenders",
         params: 0,
         has_body: false
@@ -226,7 +226,7 @@ where
     get!({
         doc: "# Get appRoleAssignments from groups",
         name: list_app_role_assignments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/appRoleAssignments",
         params: 0,
         has_body: false
@@ -282,7 +282,7 @@ where
     get!({
         doc: "# Get calendarView from groups",
         name: list_calendar_view,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/calendarView",
         params: 0,
         has_body: false
@@ -298,7 +298,7 @@ where
     get!({
         doc: "# Get conversations from groups",
         name: list_conversations,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/conversations",
         params: 0,
         has_body: false
@@ -338,7 +338,7 @@ where
     get!({
         doc: "# Get drives from groups",
         name: list_drives,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/drives",
         params: 0,
         has_body: false
@@ -370,7 +370,7 @@ where
     get!({
         doc: "# Get events from groups",
         name: list_events,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/events",
         params: 0,
         has_body: false
@@ -386,7 +386,7 @@ where
     get!({
         doc: "# Get extensions from groups",
         name: list_extensions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/extensions",
         params: 0,
         has_body: false
@@ -418,7 +418,7 @@ where
     get!({
         doc: "# Get groupLifecyclePolicies from groups",
         name: list_group_lifecycle_policies,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/groupLifecyclePolicies",
         params: 0,
         has_body: false
@@ -450,7 +450,7 @@ where
     get!({
         doc: "# Get memberOf from groups",
         name: list_member_of,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/memberOf",
         params: 0,
         has_body: false
@@ -466,7 +466,7 @@ where
     get!({
         doc: "# Get members from groups",
         name: list_members,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/members",
         params: 0,
         has_body: false
@@ -482,7 +482,7 @@ where
     get!({
         doc: "# Get membersWithLicenseErrors from groups",
         name: list_members_with_license_errors,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/membersWithLicenseErrors",
         params: 0,
         has_body: false
@@ -514,7 +514,7 @@ where
     get!({
         doc: "# Get owners from groups",
         name: list_owners,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/owners",
         params: 0,
         has_body: false
@@ -546,7 +546,7 @@ where
     get!({
         doc: "# Get photos from groups",
         name: list_photos,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/photos",
         params: 0,
         has_body: false
@@ -594,7 +594,7 @@ where
     get!({
         doc: "# Get rejectedSenders from groups",
         name: list_rejected_senders,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/rejectedSenders",
         params: 0,
         has_body: false
@@ -650,7 +650,7 @@ where
     get!({
         doc: "# Get settings from groups",
         name: list_settings,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/settings",
         params: 0,
         has_body: false
@@ -682,7 +682,7 @@ where
     get!({
         doc: "# Get sites from groups",
         name: list_sites,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/sites",
         params: 0,
         has_body: false
@@ -738,7 +738,7 @@ where
     get!({
         doc: "# Get threads from groups",
         name: list_threads,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/threads",
         params: 0,
         has_body: false
@@ -754,7 +754,7 @@ where
     get!({
         doc: "# Get transitiveMemberOf from groups",
         name: list_transitive_member_of,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/transitiveMemberOf",
         params: 0,
         has_body: false
@@ -770,7 +770,7 @@ where
     get!({
         doc: "# Get transitiveMembers from groups",
         name: list_transitive_members,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/groups/{{RID}}/transitiveMembers",
         params: 0,
         has_body: false

@@ -18,10 +18,8 @@ fn list_and_get_messages() {
             .list_messages()
             .send()
         {
-            let value = res.body().value().unwrap();
-            let value = value[0].clone();
-            let message_id = value["id"].as_str().unwrap();
-
+            let vec = res.body()["value"].as_array().unwrap();
+            let message_id = vec[0]["id"].as_str().unwrap();
             let get_req = client
                 .v1()
                 .user(id.as_str())

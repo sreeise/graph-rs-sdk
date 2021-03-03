@@ -4,7 +4,6 @@ use crate::attachments::{AttachmentRequest, AttachmentsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::extended_properties::ExtendedPropertiesRequest;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -47,7 +46,7 @@ where
     get!({
         doc: "# Get posts from groups",
         name: list_posts,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/posts",
         params: 0,
         has_body: false
@@ -108,7 +107,7 @@ where
     get!({
         doc: "# Get attachments from groups",
         name: list_attachments,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/posts/{{RID}}/attachments",
         params: 0,
         has_body: false
@@ -124,7 +123,7 @@ where
     get!({
         doc: "# Get extensions from groups",
         name: list_extensions,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/posts/{{RID}}/extensions",
         params: 0,
         has_body: false

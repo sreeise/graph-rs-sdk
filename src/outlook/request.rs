@@ -1,5 +1,4 @@
 use crate::client::Graph;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -29,7 +28,7 @@ where
     get!({
         doc: "# Get masterCategories from me",
         name: list_master_categories,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/outlook/masterCategories",
         params: 0,
         has_body: false
@@ -61,7 +60,7 @@ where
     get!({
         doc: "# Invoke function supportedLanguages",
         name: supported_languages,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/outlook/supportedLanguages()",
         params: 0,
         has_body: false
@@ -69,7 +68,7 @@ where
     get!({
         doc: "# Invoke function supportedTimeZones",
         name: supported_time_zones,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/outlook/supportedTimeZones()",
         params: 0,
         has_body: false

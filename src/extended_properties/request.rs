@@ -1,4 +1,5 @@
 // NOT GENERATED CODE.
+
 use crate::client::Graph;
 use graph_http::IntoResponse;
 use reqwest::Method;

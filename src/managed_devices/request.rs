@@ -1,6 +1,5 @@
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
-use graph_http::types::Collection;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use handlebars::*;
@@ -20,7 +19,7 @@ where
     get!({
         doc: "# Get managedDevices from me",
         name: list_managed_devices,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/managedDevices",
         params: 0,
         has_body: false
@@ -82,7 +81,7 @@ where
     get!({
         doc: "# Get deviceCompliancePolicyStates from me",
         name: list_device_compliance_policy_states,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/managedDevices/{{RID}}/deviceCompliancePolicyStates",
         params: 0,
         has_body: false
@@ -114,7 +113,7 @@ where
     get!({
         doc: "# Get deviceConfigurationStates from me",
         name: list_device_configuration_states,
-        response: Collection<serde_json::Value>,
+        response: serde_json::Value,
         path: "/managedDevices/{{RID}}/deviceConfigurationStates",
         params: 0,
         has_body: false
