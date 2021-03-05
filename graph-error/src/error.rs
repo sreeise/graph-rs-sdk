@@ -1,4 +1,7 @@
 use crate::{GraphFailure, GraphHeaders, GraphResult};
+use async_trait::async_trait;
+use reqwest::header::HeaderMap;
+use std::any::Any;
 use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt;
@@ -79,10 +82,8 @@ impl GraphError {
         self.error_message = error_message;
     }
 
-    pub fn try_set_error_message(&mut self, msg: &str) {
-        let error_message: Result<ErrorMessage, serde_json::error::Error> =
-            serde_json::from_str(msg);
-        if let Ok(error_message) = error_message {
+    pub fn try_set_error_message(&mut self, result: GraphResult<ErrorMessage>) {
+        if let Ok(error_message) = result {
             self.set_error_message(error_message);
         }
     }
@@ -321,5 +322,61 @@ impl TryFrom<&reqwest::Response> for GraphError {
         let mut graph_error = GraphError::try_from(status)?;
         graph_error.set_headers(GraphHeaders::from(value));
         Ok(graph_error)
+    }
+}
+
+pub trait ResponseErrorExt<R> {
+    fn map_err_msg(self) -> GraphResult<(reqwest::Url, u16, HeaderMap, R)>;
+}
+
+impl<R: Any> ResponseErrorExt<R> for GraphError {
+    fn map_err_msg(self) -> GraphResult<(reqwest::Url, u16, HeaderMap, R)> {
+        Err(GraphFailure::from(self))
+    }
+}
+
+impl ResponseErrorExt<reqwest::blocking::Response> for reqwest::blocking::Response {
+    fn map_err_msg(
+        self,
+    ) -> GraphResult<(reqwest::Url, u16, HeaderMap, reqwest::blocking::Response)> {
+        if let Ok(mut error) = GraphError::try_from(&self) {
+            error.try_set_error_message(self.json().map_err(GraphFailure::from));
+            error.map_err_msg()
+        } else {
+            let url = self.url().clone();
+            let status = self.status().as_u16();
+            let headers = self.headers().to_owned();
+            Ok((url, status, headers, self))
+        }
+    }
+}
+
+#[async_trait]
+pub trait AsyncResponseErrorExt<R> {
+    async fn async_map_err_msg(self) -> GraphResult<(reqwest::Url, u16, HeaderMap, R)>;
+}
+
+#[async_trait]
+impl<R: Any> AsyncResponseErrorExt<R> for GraphError {
+    async fn async_map_err_msg(self) -> GraphResult<(reqwest::Url, u16, HeaderMap, R)> {
+        Err(GraphFailure::from(self))
+    }
+}
+
+#[async_trait]
+impl AsyncResponseErrorExt<reqwest::Response> for reqwest::Response {
+    async fn async_map_err_msg(
+        self,
+    ) -> GraphResult<(reqwest::Url, u16, HeaderMap, reqwest::Response)> {
+        if let Ok(mut error) = GraphError::try_from(&self) {
+            let result: GraphResult<ErrorMessage> = self.json().await.map_err(GraphFailure::from);
+            error.try_set_error_message(result);
+            error.map_err_msg()
+        } else {
+            let url = self.url().clone();
+            let status = self.status().as_u16();
+            let headers = self.headers().to_owned();
+            Ok((url, status, headers, self))
+        }
     }
 }
