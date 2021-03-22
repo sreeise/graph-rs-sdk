@@ -1,9 +1,8 @@
 use crate::builder::Builder;
 use crate::parser::client_resource::ClientResource;
 use crate::parser::error::ParseError;
-use crate::parser::{
-    Modifier, Parse, Parser, ParserSettings, ParserSpec, PathMap, ResourceRequestMap,
-};
+use crate::parser::{Modifier, Parser, ParserSettings, ParserSpec, PathMap, ResourceRequestMap};
+use crate::traits::Parse;
 use from_as::FromFile;
 use graph_core::resource::ResourceIdentity;
 use rayon::prelude::*;
