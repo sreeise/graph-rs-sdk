@@ -30,11 +30,6 @@ impl ParserSettings {
         vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
             "singleValueExtendedProperties",
             "multiValueExtendedProperties",
-            // These are basically like OData queries and look like getByPath(path={path})
-            // but we dont currently handle these so they are ignored. The get activities
-            // by interval is used the most in these situations.
-            "={",
-            "getActivitiesByInterval",
         ]))]
     }
 
