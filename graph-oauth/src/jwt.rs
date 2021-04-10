@@ -185,8 +185,7 @@ impl JwtParser {
         let value = utf8_header.to_owned();
         let jwt_header: Header = serde_json::from_str(&value)?;
 
-        let mut jwt = JsonWebToken::default();
-        jwt.header = Some(jwt_header);
+        let mut jwt = JsonWebToken { header: Some(jwt_header), ..Default::default() };
 
         // Step 6
         let count: usize = input.matches('.').count();

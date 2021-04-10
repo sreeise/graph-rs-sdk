@@ -292,7 +292,6 @@ impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
         self.client.lock().await.url.extend_path(path);
     }
 
-    #[allow(clippy::identity_conversion)]
     async fn inner_set_request(
         &self,
         req_att: Vec<RequestAttribute<reqwest::Body, reqwest::multipart::Form>>,
@@ -304,7 +303,7 @@ impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
                 RequestAttribute::Ident(ident) => client.ident = ident,
                 RequestAttribute::Url(url) => client.url = url,
                 RequestAttribute::Method(method) => client.method = method,
-                RequestAttribute::Body(body) => client.body = Some(body.into()),
+                RequestAttribute::Body(body) => client.body = Some(body),
                 RequestAttribute::BodyFile(path) => {
                     let buffer = futures::executor::block_on(tokio::fs::read_to_string(path))?;
                     client.body = Some(buffer.into());

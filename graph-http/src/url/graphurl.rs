@@ -58,6 +58,7 @@ impl GraphUrl {
             .append_pair(key.as_ref(), value.as_ref());
     }
 
+    #[allow(clippy::result_unit_err)]
     pub fn path_segments_mutable(&mut self) -> Result<PathSegmentsMut, ()> {
         self.url.path_segments_mut()
     }
