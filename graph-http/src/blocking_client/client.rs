@@ -330,7 +330,6 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>> {
         self.client.borrow_mut().url.extend_path(path);
     }
 
-    #[allow(clippy::identity_conversion)]
     fn set_request(
         &self,
         req_att: Vec<RequestAttribute<reqwest::blocking::Body, reqwest::blocking::multipart::Form>>,
@@ -342,7 +341,7 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>> {
                 RequestAttribute::Ident(ident) => client.ident = ident,
                 RequestAttribute::Url(url) => client.url = url,
                 RequestAttribute::Method(method) => client.method = method,
-                RequestAttribute::Body(body) => client.body = Some(body.into()),
+                RequestAttribute::Body(body) => client.body = Some(body),
                 RequestAttribute::BodyFile(path) => {
                     let mut file = File::open(path)?;
                     let mut buffer = String::new();

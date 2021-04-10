@@ -82,7 +82,7 @@ impl<T> GraphResponse<T> {
         response
             .text()
             .map(|s| serde_json::from_str(s.as_str()).unwrap_or(serde_json::Value::String(s)))
-            .or(Ok(serde_json::Value::String(String::new())))
+            .or_else(|_| Ok(serde_json::Value::String(String::new())))
             .map(|body| GraphResponse::new(GraphUrl::from(url), body, status, headers))
     }
 
@@ -94,7 +94,7 @@ impl<T> GraphResponse<T> {
             .text()
             .await
             .map(|s| serde_json::from_str(s.as_str()).unwrap_or(serde_json::Value::String(s)))
-            .or(Ok(serde_json::Value::String(String::new())))
+            .or_else(|_| Ok(serde_json::Value::String(String::new())))
             .map(|body| GraphResponse::new(GraphUrl::from(url), body, status, headers))
     }
 }

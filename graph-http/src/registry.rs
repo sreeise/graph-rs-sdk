@@ -39,7 +39,7 @@ impl Registry {
                                                 _ => {},
                                             }
 
-                                            if id_str.starts_with(':') && id_str.ends_with(":") {
+                                            if id_str.starts_with(':') && id_str.ends_with(':') {
                                                 out.write("root")?;
                                             } else {
                                                 out.write("items/")?;
