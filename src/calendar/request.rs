@@ -1,3 +1,5 @@
+// GENERATED CODE
+
 use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
@@ -63,6 +65,22 @@ where
         params: 0,
         has_body: true
     });
+    delete!({
+        doc: "# Delete navigation property calendar for users",
+        name: delete_calendar,
+        response: NoContent,
+        path: "/calendar",
+        params: 1,
+        has_body: false
+    });
+    get!({
+        doc: "# Invoke function allowedCalendarSharingRoles",
+        name: allowed_calendar_sharing_roles,
+        response: serde_json::Value,
+        path: "/calendar/allowedCalendarSharingRoles(User={{id}})",
+        params: 1,
+        has_body: false
+    });
     get!({
         doc: "# Get calendarPermissions from users",
         name: list_calendar_permissions,
@@ -94,6 +112,14 @@ where
         path: "/calendar/calendarPermissions/{{id}}",
         params: 1,
         has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property calendarPermissions for users",
+        name: delete_calendar_permissions,
+        response: NoContent,
+        path: "/calendar/calendarPermissions/{{id}}",
+        params: 1,
+        has_body: false
     });
     post!({
         doc: "# Invoke action getSchedule",
@@ -176,6 +202,22 @@ where
         params: 0,
         has_body: true
     });
+    delete!({
+        doc: "# Delete navigation property calendars for users",
+        name: delete_calendars,
+        response: NoContent,
+        path: "/calendars/{{RID}}",
+        params: 0,
+        has_body: false
+    });
+    get!({
+        doc: "# Invoke function allowedCalendarSharingRoles",
+        name: allowed_calendar_sharing_roles,
+        response: serde_json::Value,
+        path: "/calendars/{{RID}}/allowedCalendarSharingRoles(User={{id}})",
+        params: 1,
+        has_body: false
+    });
     get!({
         doc: "# Get calendarPermissions from users",
         name: list_calendar_permissions,
@@ -207,6 +249,14 @@ where
         path: "/calendars/{{RID}}/calendarPermissions/{{id}}",
         params: 1,
         has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property calendarPermissions for users",
+        name: delete_calendar_permissions,
+        response: NoContent,
+        path: "/calendars/{{RID}}/calendarPermissions/{{id}}",
+        params: 1,
+        has_body: false
     });
     post!({
         doc: "# Invoke action getSchedule",

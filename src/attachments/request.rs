@@ -67,6 +67,14 @@ where
         params: 0,
         has_body: true
     });
+    delete!({
+        doc: "# Delete navigation property attachments for groups",
+        name: delete_attachments,
+        response: NoContent,
+        path: "/attachments/{{RID}}",
+        params: 2,
+        has_body: false
+    });
     get!({
         name: get_content,
         response: NoContent,
