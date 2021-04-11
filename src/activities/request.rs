@@ -1,5 +1,6 @@
-use crate::client::Graph;
+// GENERATED CODE
 
+use crate::client::Graph;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
@@ -34,7 +35,7 @@ where
         doc: "# Invoke function recent",
         name: recent,
         response: serde_json::Value,
-        path: "/activities/recent()",
+        path: "/activities/recent",
         params: 0,
         has_body: false
     });
@@ -53,6 +54,14 @@ where
         path: "/activities/{{id}}",
         params: 1,
         has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property activities for me",
+        name: delete_activities,
+        response: NoContent,
+        path: "/activities/{{id}}",
+        params: 1,
+        has_body: false
     });
     get!({
         doc: "# Get historyItems from me",
@@ -86,6 +95,14 @@ where
         params: 2,
         has_body: true
     });
+    delete!({
+        doc: "# Delete navigation property historyItems for me",
+        name: delete_history_items,
+        response: NoContent,
+        path: "/activities/{{id}}/historyItems/{{id2}}",
+        params: 2,
+        has_body: false
+    });
 }
 
 impl<'a, Client> HistoryItemsRequest<'a, Client>
@@ -97,6 +114,30 @@ where
         name: get_activity,
         response: serde_json::Value,
         path: "/activities/{{id}}/historyItems/{{id2}}/activity",
+        params: 2,
+        has_body: false
+    });
+    get!({
+        doc: "# Get ref of activity from me",
+        name: get_ref_activity,
+        response: serde_json::Value,
+        path: "/activities/{{id}}/historyItems/{{id2}}/activity/$ref",
+        params: 2,
+        has_body: false
+    });
+    put!({
+        doc: "# Update the ref of navigation property activity in me",
+        name: update_ref_activity,
+        response: NoContent,
+        path: "/activities/{{id}}/historyItems/{{id2}}/activity/$ref",
+        params: 2,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete ref of navigation property activity for me",
+        name: delete_ref_activity,
+        response: NoContent,
+        path: "/activities/{{id}}/historyItems/{{id2}}/activity/$ref",
         params: 2,
         has_body: false
     });

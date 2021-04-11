@@ -1,3 +1,5 @@
+// GENERATED CODE
+
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
 use crate::tasks::{TaskRequest, TasksRequest};
@@ -67,6 +69,14 @@ where
         path: "/buckets/{{RID}}",
         params: 0,
         has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property buckets for planner",
+        name: delete_buckets,
+        response: NoContent,
+        path: "/buckets/{{RID}}",
+        params: 0,
+        has_body: false
     });
     get!({
         doc: "# Get tasks from planner",

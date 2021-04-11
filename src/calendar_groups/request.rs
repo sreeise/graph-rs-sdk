@@ -1,3 +1,5 @@
+// GENERATED CODE
+
 use crate::calendar::{CalendarRequest, CalendarsRequest};
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
@@ -112,6 +114,14 @@ where
         params: 0,
         has_body: true
     });
+    delete!({
+        doc: "# Delete navigation property calendarGroups for users",
+        name: delete_calendar_groups,
+        response: NoContent,
+        path: "/calendarGroups/{{RID}}",
+        params: 0,
+        has_body: false
+    });
     get!({
         doc: "# Get calendars from users",
         name: list_calendars,
@@ -143,5 +153,13 @@ where
         path: "/calendarGroups/{{RID}}/calendars/{{id}}",
         params: 1,
         has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property calendars for users",
+        name: delete_calendars,
+        response: NoContent,
+        path: "/calendarGroups/{{RID}}/calendars/{{id}}",
+        params: 1,
+        has_body: false
     });
 }

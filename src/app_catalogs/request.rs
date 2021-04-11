@@ -1,9 +1,12 @@
+// GENERATED CODE
+
 use crate::client::Graph;
 use graph_http::types::NoContent;
 use graph_http::IntoResponse;
 use reqwest::Method;
 
 register_client!(AppCatalogsRequest,);
+register_client!(AppDefinitionsRequest,);
 register_client!(TeamsAppsRequest,);
 
 impl<'a, Client> AppCatalogsRequest<'a, Client>
@@ -11,7 +14,7 @@ where
     Client: graph_http::RequestClient,
 {
     pub fn teams_apps(&self) -> TeamsAppsRequest<'a, Client> {
-        TeamsAppsRequest::new(&self.client)
+        TeamsAppsRequest::new(self.client)
     }
     get!({
         doc: "# Get appCatalogs",
@@ -61,12 +64,53 @@ where
         params: 1,
         has_body: true
     });
+    delete!({
+        doc: "# Delete navigation property teamsApps for appCatalogs",
+        name: delete_teams_apps,
+        response: NoContent,
+        path: "/appCatalogs/teamsApps/{{id}}",
+        params: 1,
+        has_body: false
+    });
+}
+
+impl<'a, Client> AppDefinitionsRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    get!({
+        doc: "# Get bot from appCatalogs",
+        name: get_bot,
+        response: serde_json::Value,
+        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}/bot",
+        params: 2,
+        has_body: false
+    });
+    patch!({
+        doc: "# Update the navigation property bot in appCatalogs",
+        name: update_bot,
+        response: NoContent,
+        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}/bot",
+        params: 2,
+        has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property bot for appCatalogs",
+        name: delete_bot,
+        response: NoContent,
+        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}/bot",
+        params: 2,
+        has_body: false
+    });
 }
 
 impl<'a, Client> TeamsAppsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    pub fn app_definitions(&self) -> AppDefinitionsRequest<'a, Client> {
+        AppDefinitionsRequest::new(self.client)
+    }
     get!({
         doc: "# Get appDefinitions from appCatalogs",
         name: list_app_definitions,
@@ -98,5 +142,13 @@ where
         path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}",
         params: 2,
         has_body: true
+    });
+    delete!({
+        doc: "# Delete navigation property appDefinitions for appCatalogs",
+        name: delete_app_definitions,
+        response: NoContent,
+        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}",
+        params: 2,
+        has_body: false
     });
 }
