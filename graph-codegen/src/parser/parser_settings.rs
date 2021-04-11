@@ -85,7 +85,7 @@ impl ParserSettings {
             ResourceIdentity::Buckets => {
                 map.insert_operation_mapping("planner.buckets", "buckets");
             },
-            ResourceIdentity::Calendar => {
+            ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
                 map.insert_operation_mapping("users.calendar", "calendar");
                 map.insert_operation_mapping("users.calendars", "calendars");
             },
@@ -213,7 +213,6 @@ impl ParserSettings {
             ResourceIdentity::Applications |
             ResourceIdentity::Attachments |
             ResourceIdentity::Buckets |
-            ResourceIdentity::Calendar |
             ResourceIdentity::CalendarGroups |
             ResourceIdentity::CalendarView |
             ResourceIdentity::CallRecords |
@@ -246,7 +245,12 @@ impl ParserSettings {
             ResourceIdentity::Threads |
             ResourceIdentity::Users |
             ResourceIdentity::Tasks |
-            ResourceIdentity::Workbooks => Some(ResourceIdentityModifier::new(resource_identity)),
+            ResourceIdentity::Workbooks => {
+                Some(ResourceIdentityModifier::new(resource_identity, false))
+            },
+            ResourceIdentity::Calendar => {
+                Some(ResourceIdentityModifier::new(resource_identity, true))
+            },
             _ => None,
         }
     }
@@ -257,10 +261,7 @@ impl ParserSettings {
     /// for a ResourceUrlModifier.
     pub fn is_ident_client(resource_identity: ResourceIdentity) -> bool {
         match resource_identity {
-            ResourceIdentity::Drive |
-            ResourceIdentity::Drives |
-            ResourceIdentity::Calendar |
-            ResourceIdentity::Calendars => true,
+            ResourceIdentity::Drive | ResourceIdentity::Drives => true,
             _ => false,
         }
     }

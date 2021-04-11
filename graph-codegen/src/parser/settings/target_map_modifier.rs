@@ -120,6 +120,20 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
             modify_target.map.insert(
+                MatchTarget::OperationId("users.CreateCalendars".to_string()),
+                vec![
+                    MatchTarget::OperationId("users.calendars.CreateCalendar".to_string()),
+                    MatchTarget::OperationMap("users.calendars".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("users.DeleteCalendars".to_string()),
+                vec![
+                    MatchTarget::OperationId("users.calendars.DeleteCalendar".to_string()),
+                    MatchTarget::OperationMap("users.calendars".to_string()),
+                ],
+            );
+            modify_target.map.insert(
                 MatchTarget::OperationId("users.GetCalendar".to_string()),
                 vec![
                     MatchTarget::OperationId("users.calendar.GetCalendar".to_string()),
@@ -185,6 +199,15 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 MatchTarget::OperationId("users.ListCalendarGroups".to_string()),
                 vec![
                     MatchTarget::OperationId("users.calendarGroups.ListCalendarGroups".to_string()),
+                    MatchTarget::OperationMap("users.calendarGroups".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("users.DeleteCalendarGroups".to_string()),
+                vec![
+                    MatchTarget::OperationId(
+                        "users.calendarGroups.DeleteCalendarGroups".to_string(),
+                    ),
                     MatchTarget::OperationMap("users.calendarGroups".to_string()),
                 ],
             );

@@ -2,7 +2,7 @@ use crate::parser::{Request, RequestMap, RequestSet};
 use crate::traits::{Modify, INTERNAL_PATH_ID};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::convert::TryFrom;
 use std::io::{Read, Write};
 
@@ -35,18 +35,29 @@ pub trait ResourceUrlReplacement: Modify<RequestSet> + Modify<RequestMap> {
     fn name(&self) -> String;
     fn replacement(&self) -> String;
 
+    fn modify_using_replacement(&self) -> bool;
+
     fn formatted(&self) -> String {
         format!("/{}/{{{{id}}}}", self.name())
     }
 
+    fn formatted_replacement(&self) -> String {
+        format!("/{}/{{{{id}}}}", self.replacement())
+    }
+
     fn matches(&self, request_map: &RequestMap) -> bool {
         request_map.path.starts_with(&self.formatted())
+    }
+
+    fn matches_replacement(&self, request_map: &RequestMap) -> bool {
+        request_map.path.starts_with(&self.formatted_replacement())
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
 pub struct ResourceIdentityModifier {
     resource_identity: ResourceIdentity,
+    modify_using_replacement: bool,
 }
 
 impl ResourceUrlReplacement for ResourceIdentityModifier {
@@ -66,11 +77,21 @@ impl ResourceUrlReplacement for ResourceIdentityModifier {
             replacement
         }
     }
+
+    fn modify_using_replacement(&self) -> bool {
+        self.modify_using_replacement
+    }
 }
 
 impl ResourceIdentityModifier {
-    pub fn new(resource_identity: ResourceIdentity) -> ResourceIdentityModifier {
-        ResourceIdentityModifier { resource_identity }
+    pub fn new(
+        resource_identity: ResourceIdentity,
+        modify_using_replacement: bool,
+    ) -> ResourceIdentityModifier {
+        ResourceIdentityModifier {
+            resource_identity,
+            modify_using_replacement,
+        }
     }
 }
 

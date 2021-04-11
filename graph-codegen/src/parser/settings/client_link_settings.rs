@@ -156,8 +156,11 @@ pub fn get_client_link_settings(
                 .with_extend_path_ident()
                 .with_set_resource_identity();
 
+            let mut settings9 = ClientLinkSettings::new("calendarGroups");
+            settings9.as_id_method_link();
+
             let mut set = BTreeSet::new();
-            set.extend(vec![settings5, settings6, settings7, settings8]);
+            set.extend(vec![settings5, settings6, settings7, settings8, settings9]);
             map.insert("calendarGroup".to_string(), set);
         },
         ResourceIdentity::CalendarView | ResourceIdentity::CalendarViews => {

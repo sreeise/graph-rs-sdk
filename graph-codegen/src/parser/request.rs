@@ -91,9 +91,9 @@ pub enum ResponseType {
 impl ResponseType {
     pub fn as_str(&self) -> &'static str {
         match self {
-            ResponseType::Collection => "Collection<serde_json::Value>",
+            ResponseType::Collection => "serde_json::Value",
             ResponseType::Delta => "DeltaPhantom<serde_json::Value>",
-            ResponseType::NoContent => "GraphResponse<Content>",
+            ResponseType::NoContent => "NoContent",
             ResponseType::SerdeJson => "serde_json::Value",
             ResponseType::UploadSession => "UploadSessionClient<Client>",
             ResponseType::VecU8 => "Vec<u8>",
@@ -105,15 +105,11 @@ impl ResponseType {
     pub fn as_imports(&self) -> BTreeSet<String> {
         let mut set: BTreeSet<String> = BTreeSet::new();
         match self {
-            ResponseType::Collection => {
-                set.insert("graph_http::types::Collection".into());
-            },
             ResponseType::Delta => {
                 set.insert("graph_http::types::DeltaPhantom".into());
             },
             ResponseType::NoContent => {
-                set.insert("graph_http::types::Content".into());
-                set.insert("graph_http::GraphResponse".into());
+                set.insert("graph_http::types::NoContent".into());
             },
             ResponseType::UploadSession => {
                 set.insert("graph_http::UploadSessionClient".into());

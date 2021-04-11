@@ -156,6 +156,46 @@ impl Parse<&std::path::Path> for Generator<'_> {
 
                 Ok(builder)
             },
+            ClientResource::MainResourceIdentity { modifier } => {
+                let mut path_map: PathMap = PathMap::from_file(parse_from)?;
+                path_map.clean();
+
+                let modifiers = Modifier::build_modifier_vec_resource_identity(&[modifier]);
+                let parser = Parser {
+                    spec: RefCell::new(ParserSpec::parser_spec(path_map, modifiers)),
+                };
+
+                let builder = Builder::new(parser);
+                builder.set_build_with_modifier_filter(true);
+
+                Ok(builder)
+            },
+            ClientResource::SecondaryResourceIdentity {
+                start_filter,
+                modifier,
+            } => {
+                let path_map: PathMap = PathMap::from_file(parse_from)?;
+                let mut path_map: PathMap = path_map.filter(start_filter).into();
+                let path_map = path_map.clean_secondary(&modifier.to_string());
+                let modifiers = Modifier::build_modifier_vec_resource_identity(&[modifier]);
+                let parser_spec = ParserSpec::parser_spec(path_map, modifiers);
+
+                let parser = Parser {
+                    spec: RefCell::new(parser_spec),
+                };
+
+                {
+                    let mut spec = parser.spec.borrow_mut();
+                    for filter in ParserSettings::path_filters(modifier).iter() {
+                        spec.paths = spec.paths.filter(filter.clone()).into();
+                    }
+                }
+
+                let builder = Builder::new(parser);
+                builder.set_build_with_modifier_filter(true);
+
+                Ok(builder)
+            },
         }
     }
 }
@@ -195,6 +235,42 @@ impl Parse<reqwest::Url> for Generator<'_> {
                 if let Ok(resource_identity) = ResourceIdentity::from_str(modifier.as_str()) {
                     let mut spec = parser.spec.borrow_mut();
                     for filter in ParserSettings::path_filters(resource_identity).iter() {
+                        spec.paths = spec.paths.filter(filter.clone()).into();
+                    }
+                }
+
+                let builder = Builder::new(parser);
+                builder.set_build_with_modifier_filter(true);
+
+                Ok(builder)
+            },
+            ClientResource::MainResourceIdentity { modifier } => {
+                let parser = Parser::try_from(parse_from)?;
+                let modifiers = Modifier::build_modifier_vec_resource_identity(&[modifier]);
+                parser.set_modifiers(modifiers);
+
+                let builder = Builder::new(parser);
+                builder.set_build_with_modifier_filter(true);
+
+                Ok(builder)
+            },
+            ClientResource::SecondaryResourceIdentity {
+                start_filter,
+                modifier,
+            } => {
+                let path_map = PathMap::try_from(parse_from)?;
+                let mut path_map: PathMap = path_map.filter(start_filter).into();
+                let path_map = path_map.clean_secondary(&modifier.to_string());
+                let modifiers = Modifier::build_modifier_vec_resource_identity(&[modifier]);
+                let parser_spec = ParserSpec::parser_spec(path_map, modifiers);
+
+                let parser = Parser {
+                    spec: RefCell::new(parser_spec),
+                };
+
+                {
+                    let mut spec = parser.spec.borrow_mut();
+                    for filter in ParserSettings::path_filters(modifier).iter() {
                         spec.paths = spec.paths.filter(filter.clone()).into();
                     }
                 }
