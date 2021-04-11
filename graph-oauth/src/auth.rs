@@ -106,15 +106,18 @@ impl OAuthCredential {
     }
 
     fn is_debug_redacted(&self) -> bool {
-        matches!(self, OAuthCredential::ClientId |
-            OAuthCredential::ClientSecret |
-            OAuthCredential::AccessToken |
-            OAuthCredential::RefreshToken |
-            OAuthCredential::IdToken |
-            OAuthCredential::CodeVerifier |
-            OAuthCredential::CodeChallenge |
-            OAuthCredential::Password |
-            OAuthCredential::AccessCode)
+        matches!(
+            self,
+            OAuthCredential::ClientId |
+                OAuthCredential::ClientSecret |
+                OAuthCredential::AccessToken |
+                OAuthCredential::RefreshToken |
+                OAuthCredential::IdToken |
+                OAuthCredential::CodeVerifier |
+                OAuthCredential::CodeChallenge |
+                OAuthCredential::Password |
+                OAuthCredential::AccessCode
+        )
     }
 }
 
