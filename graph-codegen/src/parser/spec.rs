@@ -34,10 +34,35 @@ pub struct Modifier<'a> {
 
 impl<'a> Modifier<'a> {
     pub fn new(modifier_name: &str) -> Modifier<'a> {
+        let resource_identity = ResourceIdentity::from_str(modifier_name).unwrap();
+        Modifier::from(resource_identity)
+    }
+
+    pub fn build_modifier_vec(names: &[&str]) -> Vec<Modifier<'a>> {
+        let mut vec: Vec<Modifier> = Vec::new();
+        for name in names.iter() {
+            vec.push(Modifier::new(name));
+        }
+        vec
+    }
+
+    pub fn build_modifier_vec_resource_identity(
+        resource_identity_vec: &[ResourceIdentity],
+    ) -> Vec<Modifier<'a>> {
+        let mut vec: Vec<Modifier> = Vec::new();
+        for resource_identity in resource_identity_vec {
+            vec.push(Modifier::from(resource_identity.clone()));
+        }
+        vec
+    }
+}
+
+impl<'a> From<ResourceIdentity> for Modifier<'a> {
+    fn from(resource_identity: ResourceIdentity) -> Self {
+        let modifier_name = &resource_identity.to_string();
         let shorthand = &modifier_name[..modifier_name.len() - 1];
         let shorthand_name = format!("{}.{}", modifier_name, shorthand);
         let double_name = format!("{}.{}", modifier_name, modifier_name);
-        let resource_identity = ResourceIdentity::from_str(modifier_name).unwrap();
 
         let mut filters = ParserSettings::path_filters(resource_identity);
         let default_filters = ParserSettings::default_path_filters();
@@ -75,13 +100,11 @@ impl<'a> Modifier<'a> {
 
         modifier
     }
+}
 
-    pub fn build_modifier_vec(names: &[&str]) -> Vec<Modifier<'a>> {
-        let mut vec: Vec<Modifier> = Vec::new();
-        for name in names.iter() {
-            vec.push(Modifier::new(name));
-        }
-        vec
+impl<'a> From<&str> for Modifier<'a> {
+    fn from(value: &str) -> Self {
+        Modifier::from(ResourceIdentity::from_str(value).unwrap())
     }
 }
 
@@ -225,6 +248,12 @@ impl<'a> Parser<'a> {
 
                 if let Some(url_modifier) = modifier.resource_url_modifier.as_ref() {
                     if url_modifier.matches(&req_map) {
+                        url_modifier.modify(&mut req_map);
+                    }
+
+                    if url_modifier.modify_using_replacement() &&
+                        url_modifier.matches_replacement(&req_map)
+                    {
                         url_modifier.modify(&mut req_map);
                     }
                 }

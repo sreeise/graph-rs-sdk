@@ -11,6 +11,13 @@ pub enum ClientResource<'a> {
         start_filter: Filter<'a>,
         modifier: String,
     },
+    MainResourceIdentity {
+        modifier: ResourceIdentity,
+    },
+    SecondaryResourceIdentity {
+        start_filter: Filter<'a>,
+        modifier: ResourceIdentity,
+    },
 }
 
 impl Default for ClientResource<'_> {
@@ -50,9 +57,9 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                 modifier: "buckets".to_string(),
             }),
             ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
-                Ok(ClientResource::Secondary {
+                Ok(ClientResource::SecondaryResourceIdentity {
                     start_filter: Filter::PathStartsWith("/users/{user-id}/calendar"),
-                    modifier: "calendar".to_string(),
+                    modifier: ResourceIdentity::Calendar,
                 })
             },
             ResourceIdentity::CalendarGroups => Ok(ClientResource::Secondary {

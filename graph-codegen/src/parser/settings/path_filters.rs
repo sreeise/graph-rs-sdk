@@ -26,6 +26,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "calendarView",
                 "calendarPermissions",
                 "getSchedule",
+                "allowedCalendarSharingRoles",
             ]))]
         },
         ResourceIdentity::CalendarView => {

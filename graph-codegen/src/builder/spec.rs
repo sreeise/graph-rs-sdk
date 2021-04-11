@@ -190,10 +190,16 @@ impl<'a> Builder<'a> {
             }
 
             if let Some(url_modifier) = resource_map.modifier.resource_url_modifier.as_ref() {
-                if url_modifier.replacement().eq(name) {
+                if url_modifier.replacement().eq(name) &&
+                    resource_map.modifier.is_ident_client &&
+                    resource_map.modifier.name.eq(name.as_str())
+                {
+                    /*
                     let mut client_link = ClientLinkSettings::new(url_modifier.name().as_str());
                     client_link.as_id_method_link();
                     client.insert_client_link(client_link);
+                     */
+                    client.set_ident_client(true);
                 }
             }
 
