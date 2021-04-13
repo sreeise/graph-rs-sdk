@@ -213,6 +213,7 @@ impl ParserSettings {
             ResourceIdentity::Applications |
             ResourceIdentity::Attachments |
             ResourceIdentity::Buckets |
+            ResourceIdentity::Calendars |
             ResourceIdentity::CalendarGroups |
             ResourceIdentity::CalendarView |
             ResourceIdentity::CallRecords |
@@ -256,12 +257,15 @@ impl ParserSettings {
     }
 
     /// These are clients that will have {{RID}} in the path of requests
-    /// Ident clients are also those that have a ResourceUrlModifier. The
-    /// resource identity checks here are those that do not have a match
-    /// for a ResourceUrlModifier.
-    pub fn is_ident_client(resource_identity: ResourceIdentity) -> bool {
+    /// Ident clients are also those that have a ResourceUrlModifier.
+    pub fn is_registered_ident_client(resource_identity: ResourceIdentity) -> bool {
         match resource_identity {
-            ResourceIdentity::Drive | ResourceIdentity::Drives => true,
+            ResourceIdentity::Applications |
+            ResourceIdentity::Drive |
+            ResourceIdentity::Drives |
+            ResourceIdentity::Calendars |
+            ResourceIdentity::CalendarGroups |
+            ResourceIdentity::CalendarView => true,
             _ => false,
         }
     }

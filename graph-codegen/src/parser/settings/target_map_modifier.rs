@@ -127,9 +127,16 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
             modify_target.map.insert(
+                MatchTarget::OperationId("users.DeleteCalendar".to_string()),
+                vec![
+                    MatchTarget::OperationId("users.calendar.DeleteCalendar".to_string()),
+                    MatchTarget::OperationMap("users.calendar".to_string()),
+                ],
+            );
+            modify_target.map.insert(
                 MatchTarget::OperationId("users.DeleteCalendars".to_string()),
                 vec![
-                    MatchTarget::OperationId("users.calendars.DeleteCalendar".to_string()),
+                    MatchTarget::OperationId("users.calendars.DeleteCalendars".to_string()),
                     MatchTarget::OperationMap("users.calendars".to_string()),
                 ],
             );
