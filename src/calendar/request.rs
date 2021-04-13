@@ -70,7 +70,7 @@ where
         name: delete_calendar,
         response: NoContent,
         path: "/calendar",
-        params: 1,
+        params: 0,
         has_body: false
     });
     get!({
