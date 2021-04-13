@@ -183,7 +183,7 @@ fn drive_download_graph_error() {
         if let Ok(_path_buf) = req {
             panic!("Got successful request for a downloading a file that should not exist");
         } else if let Err(e) = req {
-            test_graph_error(e, get_error(404, "itemNotFound", "Item not found"));
+            test_graph_error(e, get_error(404, "itemNotFound", "The resource could not be found."));
         }
     }
 }
@@ -203,7 +203,7 @@ async fn async_drive_download_graph_error() {
         if let Ok(_path_buf) = req {
             panic!("Got successful request for a downloading a file that should not exist");
         } else if let Err(e) = req {
-            test_graph_error(e, get_error(404, "itemNotFound", "Item not found"));
+            test_graph_error(e, get_error(404, "itemNotFound", "The resource could not be found."));
         }
     }
 }
