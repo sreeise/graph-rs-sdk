@@ -372,6 +372,14 @@ impl PathMap {
         self.clean();
         map2.into()
     }
+
+    pub fn transform_paths(&mut self) {
+        let mut map: BTreeMap<String, Path> = BTreeMap::new();
+        for (p, path) in self.paths.iter_mut() {
+            map.insert(p.transform_path(), path.clone());
+        }
+        self.paths = map;
+    }
 }
 
 impl TryFrom<reqwest::Url> for PathMap {

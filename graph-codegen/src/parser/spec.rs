@@ -29,7 +29,6 @@ pub struct Modifier<'a> {
     pub(crate) imports: BTreeSet<String>,
     pub(crate) links_override: HashMap<String, Vec<String>>,
     pub(crate) directory_mod: Option<DirectoryModFile>,
-    pub(crate) is_ident_client: bool,
 }
 
 impl<'a> Modifier<'a> {
@@ -80,7 +79,6 @@ impl<'a> From<ResourceIdentity> for Modifier<'a> {
             imports: ParserSettings::imports(resource_identity),
             links_override: ParserSettings::links_override(resource_identity),
             directory_mod: ParserSettings::directory_mod(resource_identity),
-            is_ident_client: false,
         };
 
         modifier.modifier_map.operation_map("", modifier_name);
@@ -91,11 +89,11 @@ impl<'a> From<ResourceIdentity> for Modifier<'a> {
             .modifier_map
             .operation_map(double_name.as_str(), modifier_name);
 
-        if modifier.resource_url_modifier.is_some() ||
-            ParserSettings::is_ident_client(resource_identity)
-        {
-            modifier.is_ident_client = true;
-            modifier.imports.insert("handlebars::*".into());
+        for (name, _set) in modifier.client_links.iter() {
+            let ri = ResourceIdentity::from_str(name.as_str()).unwrap();
+            if ParserSettings::is_registered_ident_client(ri) {
+                modifier.imports.insert("handlebars::*".into());
+            }
         }
 
         modifier
@@ -235,6 +233,7 @@ impl<'a> Parser<'a> {
                 .filter(Filter::PathStartsWith(&format!("/{}", modifier.name)))
                 .into();
 
+            path_map.transform_paths();
             for filter in modifier.filters.iter() {
                 path_map = path_map.filter(filter.clone()).into();
             }
@@ -242,7 +241,6 @@ impl<'a> Parser<'a> {
             let mut requests: VecDeque<RequestMap> = VecDeque::new();
             for (path, path_spec) in path_map.paths.iter() {
                 let mut req_map = RequestMap::default();
-                let path = path.transform_path();
                 req_map.path = path.clone();
                 req_map.requests = path_spec.build_requests(&path, &modifier);
 
@@ -276,9 +274,11 @@ impl<'a> Parser<'a> {
             if let Some(url_modifier) = modifier.resource_url_modifier.as_ref() {
                 url_modifier.modify(&mut request_set);
             }
+
             resource_requests.push(ResourceRequestMap::new(modifier, request_set));
             requests.clear();
         }
+
         resource_requests
     }
 }

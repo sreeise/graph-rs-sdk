@@ -29,7 +29,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "allowedCalendarSharingRoles",
             ]))]
         },
-        ResourceIdentity::CalendarView => {
+        ResourceIdentity::CalendarView | ResourceIdentity::CalendarViews => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/calendar/calendarView",
                 "events",
@@ -37,6 +37,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "/calendar/getSchedule",
                 "instances",
                 "/attachments/",
+                "/calendar/allowedCalendarSharingRoles",
             ]))]
         },
         ResourceIdentity::CallRecords => {

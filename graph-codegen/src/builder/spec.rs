@@ -1,14 +1,17 @@
 use crate::builder::{Client, ClientBuilder, ClientLinkSettings};
 use crate::parser::filter::{Filter, ResourceUrlReplacement};
 use crate::parser::{
-    Modifier, Parser, PathMap, RequestMap, RequestSet, ResourceNames, ResourceRequestMap,
+    Modifier, Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames,
+    ResourceRequestMap,
 };
+use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
 use std::cell::{Ref, RefCell};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::str::FromStr;
 
 #[derive(Default, Debug, Clone)]
 pub struct SpecBuilder<'a> {
@@ -189,22 +192,8 @@ impl<'a> Builder<'a> {
                 client.extend_client_links(client_link_settings.clone());
             }
 
-            if let Some(url_modifier) = resource_map.modifier.resource_url_modifier.as_ref() {
-                if url_modifier.replacement().eq(name) &&
-                    resource_map.modifier.is_ident_client &&
-                    resource_map.modifier.name.eq(name.as_str())
-                {
-                    /*
-                    let mut client_link = ClientLinkSettings::new(url_modifier.name().as_str());
-                    client_link.as_id_method_link();
-                    client.insert_client_link(client_link);
-                     */
-                    client.set_ident_client(true);
-                }
-            }
-
-            if resource_map.modifier.is_ident_client && resource_map.modifier.name.eq(name.as_str())
-            {
+            let resource_identity = ResourceIdentity::from_str(name.as_str()).unwrap();
+            if ParserSettings::is_registered_ident_client(resource_identity) {
                 client.set_ident_client(true);
             }
 
