@@ -5,7 +5,7 @@ use crate::parser::filter::{
 use crate::parser::{
     DirectoryModFile, ParserSettings, PathMap, RequestMap, RequestSet, ResourceRequestMap,
 };
-use crate::traits::{Modify, RequestParser};
+use crate::traits::Modify;
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use reqwest::Url;

@@ -1,5 +1,5 @@
 use crate::builder::{Client, ClientBuilder, ClientLinkSettings};
-use crate::parser::filter::{Filter, ResourceUrlReplacement};
+use crate::parser::filter::Filter;
 use crate::parser::{
     Modifier, Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames,
     ResourceRequestMap,
