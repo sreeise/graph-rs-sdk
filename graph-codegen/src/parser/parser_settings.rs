@@ -93,7 +93,7 @@ impl ParserSettings {
                 map.insert_operation_map_and_id("users.calendarGroups", "calendarGroups");
             },
             ResourceIdentity::CalendarView => {
-                map.insert_operation_map_and_id("me.calendarView", "calendarViews");
+                map.insert_operation_map_and_id("me.calendarView", "calendarView");
             },
             ResourceIdentity::Calls => {
                 map.insert_operation_mapping("communications.calls", "calls");

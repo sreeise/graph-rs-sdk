@@ -210,6 +210,13 @@ pub fn get_client_link_settings(
                 settings, settings2, settings3, settings4, settings5, settings6,
             ]);
             map.insert("calendarView".to_string(), set);
+
+            let mut settings7 = ClientLinkSettings::new("calendarView");
+            settings7.as_id_method_link();
+
+            let mut set = BTreeSet::new();
+            set.extend(vec![settings7]);
+            map.insert("calendarViews".to_string(), set);
         },
         ResourceIdentity::Events => {
             let mut settings = ClientLinkSettings::new("calendar");
