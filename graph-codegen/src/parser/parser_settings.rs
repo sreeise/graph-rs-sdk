@@ -265,7 +265,8 @@ impl ParserSettings {
             ResourceIdentity::Drives |
             ResourceIdentity::Calendars |
             ResourceIdentity::CalendarGroups |
-            ResourceIdentity::CalendarView => true,
+            ResourceIdentity::CalendarView |
+            ResourceIdentity::CallRecords => true,
             _ => false,
         }
     }
