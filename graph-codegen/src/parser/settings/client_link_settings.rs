@@ -791,6 +791,13 @@ pub fn get_client_link_settings(
             let mut set = BTreeSet::new();
             set.extend(vec![settings, settings2]);
             map.insert("callRecords".to_string(), set);
+
+            let mut settings3 = ClientLinkSettings::new("callRecords");
+            settings3.as_id_method_link();
+
+            let mut set = BTreeSet::new();
+            set.extend(vec![settings3]);
+            map.insert("callRecord".to_string(), set);
         },
         ResourceIdentity::Communications => {
             let mut settings = ClientLinkSettings::new("callRecords");
