@@ -2,7 +2,7 @@ use crate::parser::{Request, RequestMap, RequestSet};
 use crate::traits::{Modify, INTERNAL_PATH_ID};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque};
 use std::convert::TryFrom;
 use std::io::{Read, Write};
 
