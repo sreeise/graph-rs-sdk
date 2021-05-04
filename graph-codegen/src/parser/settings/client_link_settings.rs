@@ -1,1423 +1,1195 @@
 use crate::builder::ClientLinkSettings;
+use crate::traits::VecExt;
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub fn get_client_link_settings(
     resource_identity: ResourceIdentity,
 ) -> BTreeMap<String, BTreeSet<ClientLinkSettings>> {
-    let mut map = BTreeMap::new();
+    let mut map: BTreeMap<String, Vec<ClientLinkSettings>> = BTreeMap::new();
+
     match resource_identity {
         ResourceIdentity::Buckets => {
-            let mut settings = ClientLinkSettings::new("tasks");
-            settings
-                .use_method_name("task")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("task");
-            settings2
-                .use_method_name("tasks")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2]);
-            map.insert("buckets".to_string(), set);
+            map.insert(
+                "buckets".into(),
+                vec![
+                    ClientLinkSettings::new("task")
+                        .use_method_name("tasks")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("tasks")
+                        .use_method_name("task")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
         ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
-            let mut settings = ClientLinkSettings::new("events");
-            settings
-                .use_method_name("event")
-                .with_extend_path_ident()
-                .with_set_resource_identity()
-                .with_id_param();
-
-            let mut settings2 = ClientLinkSettings::new("event");
-            settings2
-                .use_method_name("events")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("calendars");
-            settings3.as_id_method_link();
-
-            let mut settings4 = ClientLinkSettings::new("calendarView");
-            settings4
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings5 = ClientLinkSettings::new("calendarViews");
-            settings5
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4, settings5]);
-            map.insert("calendar".to_string(), set);
-
-            let mut settings4 = ClientLinkSettings::new("calendarView");
-            settings4
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings5 = ClientLinkSettings::new("calendarViews");
-            settings5
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings6 = ClientLinkSettings::new("events");
-            settings6
-                .use_method_name("event")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings7 = ClientLinkSettings::new("event");
-            settings7
-                .use_method_name("events")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings8 = ClientLinkSettings::new("extendedProperties");
-            settings8
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set2 = BTreeSet::new();
-            set2.extend(vec![settings4, settings5, settings6, settings7, settings8]);
-            map.insert("calendars".to_string(), set2);
+            map.insert(
+                "calendar".into(),
+                vec![
+                    ClientLinkSettings::new("calendarView")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarViews")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendars").as_id_method_link(),
+                    ClientLinkSettings::new("event")
+                        .use_method_name("events")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("events")
+                        .use_method_name("event")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+            map.insert(
+                "calendars".into(),
+                vec![
+                    ClientLinkSettings::new("calendarView")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarViews")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("event")
+                        .use_method_name("events")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("events")
+                        .use_method_name("event")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("extendedProperties")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
         ResourceIdentity::CalendarGroup | ResourceIdentity::CalendarGroups => {
-            let mut settings = ClientLinkSettings::new("calendars");
-            settings
-                .use_method_name("calendar")
-                .with_id_param()
-                .with_extend_path_id()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("calendar");
-            settings2
-                .use_method_name("calendars")
-                .with_extend_path_id()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("events");
-            settings3
-                .use_method_name("event")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings4 = ClientLinkSettings::new("event");
-            settings4
-                .use_method_name("events")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4]);
-            map.insert("calendarGroups".to_string(), set);
-
-            let mut settings5 = ClientLinkSettings::new("events");
-            settings5
-                .use_method_name("event")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings6 = ClientLinkSettings::new("event");
-            settings6
-                .use_method_name("events")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings7 = ClientLinkSettings::new("calendars");
-            settings7
-                .use_method_name("calendar")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings8 = ClientLinkSettings::new("calendar");
-            settings8
-                .use_method_name("calendars")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings9 = ClientLinkSettings::new("calendarGroups");
-            settings9.as_id_method_link();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings5, settings6, settings7, settings8, settings9]);
-            map.insert("calendarGroup".to_string(), set);
+            map.insert(
+                "calendarGroup".into(),
+                vec![
+                    ClientLinkSettings::new("calendar")
+                        .use_method_name("calendars")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarGroups").as_id_method_link(),
+                    ClientLinkSettings::new("calendars")
+                        .use_method_name("calendar")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("event")
+                        .use_method_name("events")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("events")
+                        .use_method_name("event")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+            map.insert(
+                "calendarGroups".into(),
+                vec![
+                    ClientLinkSettings::new("calendar")
+                        .use_method_name("calendars")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendars")
+                        .use_method_name("calendar")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("event")
+                        .use_method_name("events")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("events")
+                        .use_method_name("event")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
         ResourceIdentity::CalendarView | ResourceIdentity::CalendarViews => {
-            let mut settings = ClientLinkSettings::new("instances");
-            settings
-                .use_method_name("instance")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity()
-                .with_id_param();
-
-            let mut settings2 = ClientLinkSettings::new("instance");
-            settings2
-                .use_method_name("instances")
-                .with_extend_path_ident()
-                .with_extend_path_id();
-
-            let mut settings3 = ClientLinkSettings::new("calendar");
-            settings3
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings4 = ClientLinkSettings::new("extendedProperties");
-            settings4
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings5 = ClientLinkSettings::new("attachments");
-            settings5
-                .with_id_param()
-                .use_method_name("attachment")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings6 = ClientLinkSettings::new("attachment");
-            settings6
-                .use_method_name("attachments")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![
-                settings, settings2, settings3, settings4, settings5, settings6,
-            ]);
-            map.insert("calendarView".to_string(), set);
+            map.insert(
+                "calendarView".into(),
+                vec![
+                    ClientLinkSettings::new("attachment")
+                        .use_method_name("attachments")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("attachments")
+                        .use_method_name("attachment")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendar")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("extendedProperties")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("instance")
+                        .use_method_name("instances")
+                        .with_extend_path_id()
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("instances")
+                        .use_method_name("instance")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+            map.insert(
+                "calendarViews".into(),
+                vec![ClientLinkSettings::new("calendarView").as_id_method_link()].mem_take(),
+            );
         },
-        ResourceIdentity::Events => {
-            let mut settings = ClientLinkSettings::new("calendar");
-            settings
-                .with_extend_path_id()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("instances");
-            settings2
-                .use_method_name("instance")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity()
-                .with_id_param();
-
-            let mut settings3 = ClientLinkSettings::new("instance");
-            settings3
-                .use_method_name("instances")
-                .with_extend_path_ident()
-                .with_extend_path_id();
-
-            let mut settings4 = ClientLinkSettings::new("extendedProperties");
-            settings4
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings5 = ClientLinkSettings::new("attachments");
-            settings5
-                .with_id_param()
-                .use_method_name("attachment")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings6 = ClientLinkSettings::new("attachment");
-            settings6
-                .use_method_name("attachments")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![
-                settings, settings2, settings3, settings4, settings5, settings6,
-            ]);
-            map.insert("events".to_string(), set);
-        },
-        ResourceIdentity::Conversations => {
-            let mut settings = ClientLinkSettings::new("threads");
-            settings
-                .use_method_name("thread")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("thread");
-            settings2
-                .use_method_name("threads")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("extendedProperties");
-            settings3
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3]);
-            map.insert("conversations".to_string(), set);
-        },
-        ResourceIdentity::ContactFolders => {
-            let mut settings = ClientLinkSettings::new("extendedProperties");
-            settings
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("childFolders");
-            settings2
-                .use_method_name("childFolder")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("childFolder");
-            settings3
-                .use_method_name("childFolders")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings4 = ClientLinkSettings::new("contacts");
-            settings4
-                .use_method_name("contact")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings5 = ClientLinkSettings::new("contact");
-            settings5
-                .use_method_name("contacts")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4, settings5]);
-            map.insert("contactFolders".to_string(), set);
-        },
-        ResourceIdentity::Contacts => {
-            let mut settings = ClientLinkSettings::new("extendedProperties");
-            settings
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings]);
-            map.insert("contacts".to_string(), set);
-        },
-        ResourceIdentity::ChildFolders => {
-            let mut settings = ClientLinkSettings::new("messages");
-            settings
-                .use_method_name("message")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("message");
-            settings2
-                .use_method_name("messages")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2]);
-            map.insert("childFolders".to_string(), set);
-        },
-        ResourceIdentity::Drive | ResourceIdentity::Drives => {
-            let mut settings = ClientLinkSettings::new("items");
-            settings
-                .use_method_name("item")
-                .use_custom("self.transfer_identity();\n")
-                .with_id_param()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("item");
-            settings2
-                .use_method_name("items")
-                .use_custom("self.transfer_identity();\n");
-
-            let mut settings3 = ClientLinkSettings::new("list");
-            settings3
-                .use_method_name("lists")
-                .use_custom("self.transfer_identity();\n")
-                .with_set_resource_identity();
-
-            let mut settings4 = ClientLinkSettings::new("lists");
-            settings4
-                .use_method_name("list")
-                .use_custom("self.transfer_identity();\n")
-                .with_id_param()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4]);
-            map.insert("drives".to_string(), set);
-
-            let mut settings5 = ClientLinkSettings::new("item");
-            settings5.use_method_name("items").with_extend_path_ident();
-
-            let mut settings6 = ClientLinkSettings::new("list");
-            settings6.use_method_name("lists").with_extend_path_ident();
-
-            let mut set2 = BTreeSet::new();
-            set2.extend(vec![settings5, settings6]);
-            map.insert("drive".to_string(), set2);
-        },
-        ResourceIdentity::Lists => {
-            let mut settings = ClientLinkSettings::new("items");
-            settings
-                .use_method_name("item")
-                .with_id_param()
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings2 = ClientLinkSettings::new("item");
-            settings2
-                .use_method_name("items")
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings3 = ClientLinkSettings::new("contentTypes");
-            settings3
-                .use_method_name("contentType")
-                .with_id_param()
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings4 = ClientLinkSettings::new("contentType");
-            settings4
-                .use_method_name("contentTypes")
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4]);
-            map.insert("lists".to_string(), set);
-        },
-        ResourceIdentity::Onenote => {
-            let mut settings = ClientLinkSettings::new("pages");
-            settings
-                .use_method_name("page")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("page");
-            settings2
-                .use_method_name("pages")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("notebooks");
-            settings3
-                .use_method_name("notebook")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings4 = ClientLinkSettings::new("notebook");
-            settings4
-                .use_method_name("notebooks")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings5 = ClientLinkSettings::new("sectionGroups");
-            settings5
-                .use_method_name("sectionGroup")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings6 = ClientLinkSettings::new("sectionGroup");
-            settings6
-                .use_method_name("sectionGroups")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings7 = ClientLinkSettings::new("sections");
-            settings7
-                .use_method_name("section")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings8 = ClientLinkSettings::new("section");
-            settings8
-                .use_method_name("sections")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![
-                settings, settings2, settings3, settings4, settings5, settings6, settings7,
-                settings8,
-            ]);
-            map.insert("onenote".to_string(), set);
-        },
-        ResourceIdentity::MailFolders => {
-            let mut settings = ClientLinkSettings::new("extendedProperties");
-            settings
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("messages");
-            settings2
-                .use_method_name("message")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("message");
-            settings3
-                .use_method_name("messages")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings4 = ClientLinkSettings::new("childFolders");
-            settings4
-                .use_method_name("childFolder")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings5 = ClientLinkSettings::new("childFolder");
-            settings5
-                .use_method_name("childFolders")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4, settings5]);
-            map.insert("mailFolders".to_string(), set);
-        },
-        ResourceIdentity::Messages => {
-            let mut settings = ClientLinkSettings::new("extendedProperties");
-            settings
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("attachments");
-            settings2
-                .with_id_param()
-                .use_method_name("attachment")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("attachment");
-            settings3
-                .use_method_name("attachments")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3]);
-            map.insert("messages".to_string(), set);
-        },
-        ResourceIdentity::Notebooks => {
-            let mut settings = ClientLinkSettings::new("sectionGroups");
-            settings
-                .use_method_name("sectionGroup")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("sections");
-            settings2
-                .use_method_name("section")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2]);
-            map.insert("notebooks".to_string(), set);
-        },
-        ResourceIdentity::Sections => {
-            let mut settings = ClientLinkSettings::new("pages");
-            settings
-                .use_method_name("page")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("parentNotebook");
-            settings2
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("parentSectionGroup");
-            settings3
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3]);
-            map.insert("sections".to_string(), set);
-        },
-        ResourceIdentity::Pages => {
-            let mut settings = ClientLinkSettings::new("parentNotebook");
-            settings
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("parentSection");
-            settings2
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2]);
-            map.insert("pages".to_string(), set);
-        },
-        ResourceIdentity::ParentSection => {
-            let mut settings = ClientLinkSettings::new("pages");
-            settings
-                .use_method_name("page")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("parentSectionGroup");
-            settings2
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("parentNotebook");
-            settings3
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3]);
-            map.insert("parentSection".to_string(), set);
-        },
-        ResourceIdentity::SectionGroups => {
-            let mut settings = ClientLinkSettings::new("sections");
-            settings
-                .use_method_name("section")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings]);
-            map.insert("sectionGroups".to_string(), set);
-        },
-        ResourceIdentity::ParentNotebook => {
-            let mut settings = ClientLinkSettings::new("sections");
-            settings
-                .use_method_name("section")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("sectionGroups");
-            settings2
-                .use_method_name("sectionGroup")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2]);
-            map.insert("parentNotebook".to_string(), set);
-        },
-        ResourceIdentity::ParentSectionGroup => {
-            let mut settings = ClientLinkSettings::new("sections");
-            settings
-                .use_method_name("section")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("sectionGroups");
-            settings2
-                .use_method_name("sectionGroup")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("parentNotebook");
-            settings3
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            // Parent section group has requests that have the path /parentSectionGroup/parentSectionGroup
-            // and these requests have the same method name, such as get_parent_section_group, which
-            // is a conflict because parent section group already has that method name. So we remove
-            // those requests entirely and provide a link to the same parent section group which
-            // will extend the path correctly when calling these methods.
-            let mut settings4 = ClientLinkSettings::new("parentSectionGroup");
-            settings4.with_extend_path_ident();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4]);
-            map.insert("parentSectionGroup".to_string(), set);
-        },
-        ResourceIdentity::Plans => {
-            let mut settings = ClientLinkSettings::new("buckets");
-            settings
-                .use_method_name("bucket")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("bucket");
-            settings2
-                .use_method_name("buckets")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("tasks");
-            settings3
-                .use_method_name("task")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings4 = ClientLinkSettings::new("task");
-            settings4
-                .use_method_name("tasks")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4]);
-            map.insert("plans".to_string(), set);
-        },
-        ResourceIdentity::Posts => {
-            let mut settings = ClientLinkSettings::new("extendedProperties");
-            settings
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("attachments");
-            settings2
-                .with_id_param()
-                .use_method_name("attachment")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("attachment");
-            settings3
-                .use_method_name("attachments")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3]);
-            map.insert("posts".to_string(), set);
+        ResourceIdentity::Calendars => {
+            map.insert(
+                "calendar".into(),
+                vec![
+                    ClientLinkSettings::new("calendarView")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarViews")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendars").as_id_method_link(),
+                    ClientLinkSettings::new("event")
+                        .use_method_name("events")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("events")
+                        .use_method_name("event")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+            map.insert(
+                "calendars".into(),
+                vec![
+                    ClientLinkSettings::new("calendarView")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarViews")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("event")
+                        .use_method_name("events")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("events")
+                        .use_method_name("event")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("extendedProperties")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
         ResourceIdentity::CallRecords => {
-            let mut settings = ClientLinkSettings::new("sessions");
-            settings
-                .use_method_name("session")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("session");
-            settings2
-                .use_method_name("sessions")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2]);
-            map.insert("callRecords".to_string(), set);
+            map.insert(
+                "callRecord".into(),
+                vec![ClientLinkSettings::new("callRecords").as_id_method_link()].mem_take(),
+            );
+            map.insert(
+                "callRecords".into(),
+                vec![
+                    ClientLinkSettings::new("session")
+                        .use_method_name("sessions")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("sessions")
+                        .use_method_name("session")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::ChildFolders => {
+            map.insert(
+                "childFolders".into(),
+                vec![
+                    ClientLinkSettings::new("message")
+                        .use_method_name("messages")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("messages")
+                        .use_method_name("message")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
         ResourceIdentity::Communications => {
-            let mut settings = ClientLinkSettings::new("callRecords");
-            settings
-                .use_method_name("callRecord")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("callRecord");
-            settings2
-                .use_method_name("callRecords")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("calls");
-            settings3
-                .use_method_name("call")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings4 = ClientLinkSettings::new("call");
-            settings4
-                .use_method_name("calls")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2, settings3, settings4]);
-            map.insert("communications".to_string(), set);
+            map.insert(
+                "communications".into(),
+                vec![
+                    ClientLinkSettings::new("call")
+                        .use_method_name("calls")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("callRecord")
+                        .use_method_name("callRecords")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("callRecords")
+                        .use_method_name("callRecord")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calls")
+                        .use_method_name("call")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
-        ResourceIdentity::Planner => {
-            let mut settings = ClientLinkSettings::new("plans");
-            settings
-                .use_method_name("plan")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("plan");
-            settings2
-                .use_method_name("plans")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("buckets");
-            settings3
-                .use_method_name("bucket")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings4 = ClientLinkSettings::new("bucket");
-            settings4
-                .use_method_name("buckets")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings5 = ClientLinkSettings::new("tasks");
-            settings5
-                .use_method_name("task")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings6 = ClientLinkSettings::new("task");
-            settings6
-                .use_method_name("tasks")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![
-                settings, settings2, settings3, settings4, settings5, settings6,
-            ]);
-            map.insert("planner".to_string(), set);
+        ResourceIdentity::ContactFolders => {
+            map.insert(
+                "contactFolders".into(),
+                vec![
+                    ClientLinkSettings::new("childFolder")
+                        .use_method_name("childFolders")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("childFolders")
+                        .use_method_name("childFolder")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contact")
+                        .use_method_name("contacts")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contacts")
+                        .use_method_name("contact")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("extendedProperties")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
-        ResourceIdentity::Me => {
-            let mut settings = ClientLinkSettings::new("calendarGroups");
-            settings
-                .use_method_name("calendarGroup")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("calendarGroup");
-            settings2
-                .use_method_name("calendarGroups")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("calendars");
-            settings3
-                .use_method_name("calendar")
-                .with_id_param()
-                .with_set_resource_identity()
-                .with_extend_path_ident();
-
-            let mut settings4 = ClientLinkSettings::new("calendar");
-            settings4
-                .use_method_name("calendars")
-                .with_set_resource_identity()
-                .with_extend_path_ident();
-
-            let mut settings5 = ClientLinkSettings::new("event");
-            settings5
-                .use_method_name("events")
-                .with_set_resource_identity()
-                .with_extend_path_ident();
-
-            let mut settings6 = ClientLinkSettings::new("events");
-            settings6
-                .use_method_name("event")
-                .with_id_param()
-                .with_set_resource_identity()
-                .with_extend_path_ident();
-
-            let mut settings7 = ClientLinkSettings::new("calendarView");
-            settings7
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings8 = ClientLinkSettings::new("calendarViews");
-            settings8
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings9 = ClientLinkSettings::new("educationMe");
-            settings9.use_method_name("education");
-
-            let mut settings10 = ClientLinkSettings::new("insights");
-            settings10
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings11 = ClientLinkSettings::new("managedDevices");
-            settings11
-                .use_method_name("managed_device")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings12 = ClientLinkSettings::new("managedDevice");
-            settings12
-                .use_method_name("managed_devices")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings13 = ClientLinkSettings::new("inferenceClassification");
-            settings13
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings14 = ClientLinkSettings::new("contactFolders");
-            settings14
-                .use_method_name("contact_folder")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings15 = ClientLinkSettings::new("contactFolder");
-            settings15
-                .use_method_name("contact_folders")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings16 = ClientLinkSettings::new("activities");
-            settings16
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings17 = ClientLinkSettings::new("settings");
-            settings17
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings18 = ClientLinkSettings::new("outlook");
-            settings18
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings19 = ClientLinkSettings::new("drives");
-            settings19
-                .use_method_name("drive")
-                .with_extend_path_ident()
-                .with_new_method_empty_id()
-                .with_new_method_empty_id();
-
-            let mut settings20 = ClientLinkSettings::new("onenote");
-            settings20
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings21 = ClientLinkSettings::new("contacts");
-            settings21
-                .use_method_name("contact")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings22 = ClientLinkSettings::new("contact");
-            settings22
-                .use_method_name("contacts")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings23 = ClientLinkSettings::new("mailFolders");
-            settings23
-                .use_method_name("mailFolder")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings24 = ClientLinkSettings::new("mailFolder");
-            settings24
-                .use_method_name("mailFolders")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings25 = ClientLinkSettings::new("messages");
-            settings25
-                .use_method_name("message")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings26 = ClientLinkSettings::new("message");
-            settings26
-                .use_method_name("messages")
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings27 = ClientLinkSettings::new("planner");
-            settings27
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![
-                settings, settings2, settings3, settings4, settings5, settings6, settings7,
-                settings8, settings9, settings10, settings11, settings12, settings13, settings14,
-                settings15, settings16, settings17, settings18, settings19, settings20, settings21,
-                settings22, settings23, settings24, settings25, settings26, settings27,
-            ]);
-            map.insert("me".to_string(), set);
+        ResourceIdentity::Contacts => {
+            map.insert(
+                "contacts".into(),
+                vec![ClientLinkSettings::new("extendedProperties")
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity()]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Conversations => {
+            map.insert(
+                "conversations".into(),
+                vec![
+                    ClientLinkSettings::new("extendedProperties")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("thread")
+                        .use_method_name("threads")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("threads")
+                        .use_method_name("thread")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Drive | ResourceIdentity::Drives => {
+            map.insert(
+                "drive".into(),
+                vec![
+                    ClientLinkSettings::new("item")
+                        .use_method_name("items")
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("list")
+                        .use_method_name("lists")
+                        .with_extend_path_ident(),
+                ]
+                .mem_take(),
+            );
+            map.insert(
+                "drives".into(),
+                vec![
+                    ClientLinkSettings::new("item")
+                        .use_method_name("items")
+                        .use_custom("self.transfer_identity();\n"),
+                    ClientLinkSettings::new("items")
+                        .use_method_name("item")
+                        .use_custom("self.transfer_identity();\n")
+                        .with_id_param()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("list")
+                        .use_method_name("lists")
+                        .use_custom("self.transfer_identity();\n")
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("lists")
+                        .use_method_name("list")
+                        .use_custom("self.transfer_identity();\n")
+                        .with_id_param()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Events => {
+            map.insert(
+                "events".into(),
+                vec![
+                    ClientLinkSettings::new("attachment")
+                        .use_method_name("attachments")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("attachments")
+                        .use_method_name("attachment")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendar")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("extendedProperties")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("instance")
+                        .use_method_name("instances")
+                        .with_extend_path_id()
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("instances")
+                        .use_method_name("instance")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
         ResourceIdentity::Groups => {
-            let mut settings = ClientLinkSettings::new("calendarGroups");
-            settings
-                .use_method_name("calendarGroup")
-                .with_id_param()
-                .with_extend_path_id()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("calendarGroup");
-            settings2
-                .use_method_name("calendarGroups")
-                .with_extend_path_id()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("calendars");
-            settings3
-                .use_method_name("calendar")
-                .with_id_param()
-                .with_set_resource_identity()
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings4 = ClientLinkSettings::new("calendar");
-            settings4
-                .use_method_name("calendars")
-                .with_set_resource_identity()
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings5 = ClientLinkSettings::new("event");
-            settings5
-                .use_method_name("events")
-                .with_set_resource_identity()
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings6 = ClientLinkSettings::new("events");
-            settings6
-                .use_method_name("event")
-                .with_id_param()
-                .with_set_resource_identity()
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings7 = ClientLinkSettings::new("calendarView");
-            settings7
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings8 = ClientLinkSettings::new("calendarViews");
-            settings8
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings9 = ClientLinkSettings::new("drives");
-            settings9
-                .use_method_name("drive")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id();
-
-            let mut settings10 = ClientLinkSettings::new("onenote");
-            settings10
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings11 = ClientLinkSettings::new("thread");
-            settings11
-                .use_method_name("threads")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings12 = ClientLinkSettings::new("threads");
-            settings12
-                .use_method_name("thread")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings13 = ClientLinkSettings::new("conversations");
-            settings13
-                .use_method_name("conversation")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings14 = ClientLinkSettings::new("conversation");
-            settings14
-                .use_method_name("conversations")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings15 = ClientLinkSettings::new("planner");
-            settings15
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![
-                settings, settings2, settings3, settings4, settings5, settings6, settings7,
-                settings8, settings9, settings10, settings11, settings12, settings13, settings14,
-                settings15,
-            ]);
-            map.insert("groups".to_string(), set);
+            map.insert(
+                "groups".into(),
+                vec![
+                    ClientLinkSettings::new("calendar")
+                        .use_method_name("calendars")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarGroup")
+                        .use_method_name("calendarGroups")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarGroups")
+                        .use_method_name("calendarGroup")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarView")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarViews")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendars")
+                        .use_method_name("calendar")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("conversation")
+                        .use_method_name("conversations")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("conversations")
+                        .use_method_name("conversation")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("drives")
+                        .use_method_name("drive")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("event")
+                        .use_method_name("events")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("events")
+                        .use_method_name("event")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("onenote")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("planner")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("thread")
+                        .use_method_name("threads")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("threads")
+                        .use_method_name("thread")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Lists => {
+            map.insert(
+                "lists".into(),
+                vec![
+                    ClientLinkSettings::new("contentType")
+                        .use_method_name("contentTypes")
+                        .with_extend_path_id()
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("contentTypes")
+                        .use_method_name("contentType")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("item")
+                        .use_method_name("items")
+                        .with_extend_path_id()
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("items")
+                        .use_method_name("item")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::MailFolders => {
+            map.insert(
+                "mailFolders".into(),
+                vec![
+                    ClientLinkSettings::new("childFolder")
+                        .use_method_name("childFolders")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("childFolders")
+                        .use_method_name("childFolder")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("extendedProperties")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("message")
+                        .use_method_name("messages")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("messages")
+                        .use_method_name("message")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Me => {
+            map.insert(
+                "me".into(),
+                vec![
+                    ClientLinkSettings::new("activities")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendar")
+                        .use_method_name("calendars")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarGroup")
+                        .use_method_name("calendarGroups")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarGroups")
+                        .use_method_name("calendarGroup")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarView")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarViews")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendars")
+                        .use_method_name("calendar")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contact")
+                        .use_method_name("contacts")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contactFolder")
+                        .use_method_name("contact_folders")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contactFolders")
+                        .use_method_name("contact_folder")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contacts")
+                        .use_method_name("contact")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("drives")
+                        .use_method_name("drive")
+                        .with_extend_path_ident()
+                        .with_new_method_empty_id(),
+                    ClientLinkSettings::new("educationMe").use_method_name("education"),
+                    ClientLinkSettings::new("event")
+                        .use_method_name("events")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("events")
+                        .use_method_name("event")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("inferenceClassification")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("insights")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("mailFolder")
+                        .use_method_name("mailFolders")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("mailFolders")
+                        .use_method_name("mailFolder")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("managedDevice")
+                        .use_method_name("managed_devices")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("managedDevices")
+                        .use_method_name("managed_device")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("message")
+                        .use_method_name("messages")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("messages")
+                        .use_method_name("message")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("onenote")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("outlook")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("planner")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("settings")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Messages => {
+            map.insert(
+                "messages".into(),
+                vec![
+                    ClientLinkSettings::new("attachment")
+                        .use_method_name("attachments")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("attachments")
+                        .use_method_name("attachment")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("extendedProperties")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Notebooks => {
+            map.insert(
+                "notebooks".into(),
+                vec![
+                    ClientLinkSettings::new("sectionGroups")
+                        .use_method_name("sectionGroup")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("sections")
+                        .use_method_name("section")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Onenote => {
+            map.insert(
+                "onenote".into(),
+                vec![
+                    ClientLinkSettings::new("notebook")
+                        .use_method_name("notebooks")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("notebooks")
+                        .use_method_name("notebook")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("page")
+                        .use_method_name("pages")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("pages")
+                        .use_method_name("page")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("section")
+                        .use_method_name("sections")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("sectionGroup")
+                        .use_method_name("sectionGroups")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("sectionGroups")
+                        .use_method_name("sectionGroup")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("sections")
+                        .use_method_name("section")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Pages => {
+            map.insert(
+                "pages".into(),
+                vec![
+                    ClientLinkSettings::new("parentNotebook")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("parentSection")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::ParentNotebook => {
+            map.insert(
+                "parentNotebook".into(),
+                vec![
+                    ClientLinkSettings::new("sectionGroups")
+                        .use_method_name("sectionGroup")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("sections")
+                        .use_method_name("section")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::ParentSection => {
+            map.insert(
+                "parentSection".into(),
+                vec![
+                    ClientLinkSettings::new("pages")
+                        .use_method_name("page")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("parentNotebook")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("parentSectionGroup")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::ParentSectionGroup => {
+            map.insert(
+                "parentSectionGroup".into(),
+                vec![
+                    ClientLinkSettings::new("parentNotebook")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("parentSectionGroup").with_extend_path_ident(),
+                    ClientLinkSettings::new("sectionGroups")
+                        .use_method_name("sectionGroup")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("sections")
+                        .use_method_name("section")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Planner => {
+            map.insert(
+                "planner".into(),
+                vec![
+                    ClientLinkSettings::new("bucket")
+                        .use_method_name("buckets")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("buckets")
+                        .use_method_name("bucket")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("plan")
+                        .use_method_name("plans")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("plans")
+                        .use_method_name("plan")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("task")
+                        .use_method_name("tasks")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("tasks")
+                        .use_method_name("task")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Plans => {
+            map.insert(
+                "plans".into(),
+                vec![
+                    ClientLinkSettings::new("bucket")
+                        .use_method_name("buckets")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("buckets")
+                        .use_method_name("bucket")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("task")
+                        .use_method_name("tasks")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("tasks")
+                        .use_method_name("task")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Posts => {
+            map.insert(
+                "posts".into(),
+                vec![
+                    ClientLinkSettings::new("attachment")
+                        .use_method_name("attachments")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("attachments")
+                        .use_method_name("attachment")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("extendedProperties")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::SectionGroups => {
+            map.insert(
+                "sectionGroups".into(),
+                vec![ClientLinkSettings::new("sections")
+                    .use_method_name("section")
+                    .with_id_param()
+                    .with_extend_path_id()
+                    .with_extend_path_ident()
+                    .with_set_resource_identity()]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Sections => {
+            map.insert(
+                "sections".into(),
+                vec![
+                    ClientLinkSettings::new("pages")
+                        .use_method_name("page")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("parentNotebook")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("parentSectionGroup")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
         ResourceIdentity::Sites => {
-            let mut settings = ClientLinkSettings::new("contentTypes");
-            settings
-                .use_method_name("contentType")
-                .with_id_param()
-                .with_extend_path_id()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("contentType");
-            settings2
-                .use_method_name("contentTypes")
-                .with_extend_path_id()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("list");
-            settings3
-                .use_method_name("lists")
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings4 = ClientLinkSettings::new("lists");
-            settings4
-                .use_method_name("list")
-                .with_id_param()
-                .with_extend_path_id()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings5 = ClientLinkSettings::new("drives");
-            settings5
-                .use_method_name("drive")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_new_method_empty_id();
-
-            let mut settings6 = ClientLinkSettings::new("onenote");
-            settings6
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![
-                settings, settings2, settings3, settings4, settings5, settings6,
-            ]);
-            map.insert("sites".to_string(), set);
-        },
-        ResourceIdentity::Users => {
-            let mut settings = ClientLinkSettings::new("calendarGroups");
-            settings
-                .use_method_name("calendarGroup")
-                .with_id_param()
-                .with_extend_path_id()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("calendarGroup");
-            settings2
-                .use_method_name("calendarGroups")
-                .with_extend_path_id()
-                .with_extend_path_ident()
-                .with_set_resource_identity();
-
-            let mut settings3 = ClientLinkSettings::new("calendars");
-            settings3
-                .use_method_name("calendar")
-                .with_id_param()
-                .with_set_resource_identity()
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings4 = ClientLinkSettings::new("calendar");
-            settings4
-                .use_method_name("calendars")
-                .with_set_resource_identity()
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings5 = ClientLinkSettings::new("event");
-            settings5
-                .use_method_name("events")
-                .with_set_resource_identity()
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings6 = ClientLinkSettings::new("events");
-            settings6
-                .use_method_name("event")
-                .with_id_param()
-                .with_set_resource_identity()
-                .with_extend_path_id()
-                .with_extend_path_ident();
-
-            let mut settings7 = ClientLinkSettings::new("calendarView");
-            settings7
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings8 = ClientLinkSettings::new("calendarViews");
-            settings8
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings9 = ClientLinkSettings::new("insights");
-            settings9
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings10 = ClientLinkSettings::new("managedDevices");
-            settings10
-                .use_method_name("managed_device")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings11 = ClientLinkSettings::new("managedDevice");
-            settings11
-                .use_method_name("managed_devices")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings12 = ClientLinkSettings::new("inferenceClassification");
-            settings12
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings13 = ClientLinkSettings::new("contactFolders");
-            settings13
-                .use_method_name("contact_folder")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings14 = ClientLinkSettings::new("contactFolder");
-            settings14
-                .use_method_name("contact_folders")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings15 = ClientLinkSettings::new("activities");
-            settings15
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings16 = ClientLinkSettings::new("settings");
-            settings16
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings17 = ClientLinkSettings::new("outlook");
-            settings17
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings18 = ClientLinkSettings::new("drives");
-            settings18
-                .use_method_name("drive")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_new_method_empty_id();
-
-            let mut settings19 = ClientLinkSettings::new("onenote");
-            settings19
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings20 = ClientLinkSettings::new("messages");
-            settings20
-                .use_method_name("message")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings21 = ClientLinkSettings::new("message");
-            settings21
-                .use_method_name("messages")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings22 = ClientLinkSettings::new("contacts");
-            settings22
-                .use_method_name("contact")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings23 = ClientLinkSettings::new("contact");
-            settings23
-                .use_method_name("contacts")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings24 = ClientLinkSettings::new("mailFolders");
-            settings24
-                .use_method_name("mailFolder")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings25 = ClientLinkSettings::new("mailFolder");
-            settings25
-                .use_method_name("mailFolders")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings26 = ClientLinkSettings::new("planner");
-            settings26
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![
-                settings, settings2, settings3, settings4, settings5, settings6, settings7,
-                settings8, settings9, settings10, settings11, settings12, settings13, settings14,
-                settings15, settings16, settings17, settings18, settings19, settings20, settings21,
-                settings22, settings23, settings24, settings25, settings26,
-            ]);
-            map.insert("users".to_string(), set);
-
-            let mut user_setting = ClientLinkSettings::new("educationUsers");
-            user_setting.use_method_name("education");
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![user_setting]);
-            map.insert("user".to_string(), set);
+            map.insert(
+                "sites".into(),
+                vec![
+                    ClientLinkSettings::new("contentType")
+                        .use_method_name("contentTypes")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contentTypes")
+                        .use_method_name("contentType")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("drives")
+                        .use_method_name("drive")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_new_method_empty_id(),
+                    ClientLinkSettings::new("list")
+                        .use_method_name("lists")
+                        .with_extend_path_id()
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("lists")
+                        .use_method_name("list")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("onenote")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
         ResourceIdentity::Threads => {
-            let mut settings = ClientLinkSettings::new("posts");
-            settings
-                .use_method_name("post")
-                .with_id_param()
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut settings2 = ClientLinkSettings::new("post");
-            settings2
-                .use_method_name("posts")
-                .with_extend_path_ident()
-                .with_extend_path_id()
-                .with_set_resource_identity();
-
-            let mut set = BTreeSet::new();
-            set.extend(vec![settings, settings2]);
-            map.insert("threads".to_string(), set);
+            map.insert(
+                "threads".into(),
+                vec![
+                    ClientLinkSettings::new("post")
+                        .use_method_name("posts")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("posts")
+                        .use_method_name("post")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        },
+        ResourceIdentity::Users => {
+            map.insert(
+                "user".into(),
+                vec![ClientLinkSettings::new("educationUsers").use_method_name("education")]
+                    .mem_take(),
+            );
+            map.insert(
+                "users".into(),
+                vec![
+                    ClientLinkSettings::new("activities")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendar")
+                        .use_method_name("calendars")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarGroup")
+                        .use_method_name("calendarGroups")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarGroups")
+                        .use_method_name("calendarGroup")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarView")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendarViews")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("calendars")
+                        .use_method_name("calendar")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contact")
+                        .use_method_name("contacts")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contactFolder")
+                        .use_method_name("contact_folders")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contactFolders")
+                        .use_method_name("contact_folder")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("contacts")
+                        .use_method_name("contact")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("drives")
+                        .use_method_name("drive")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_new_method_empty_id(),
+                    ClientLinkSettings::new("event")
+                        .use_method_name("events")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("events")
+                        .use_method_name("event")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("inferenceClassification")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("insights")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("mailFolder")
+                        .use_method_name("mailFolders")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("mailFolders")
+                        .use_method_name("mailFolder")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("managedDevice")
+                        .use_method_name("managed_devices")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("managedDevices")
+                        .use_method_name("managed_device")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("message")
+                        .use_method_name("messages")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("messages")
+                        .use_method_name("message")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("onenote")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("outlook")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("planner")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("settings")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
         },
         _ => {},
     }
-
-    map
+    map.into_iter()
+        .map(|(name, vec)| {
+            let mut set = BTreeSet::new();
+            set.extend(vec);
+            (name, set)
+        })
+        .collect()
 }

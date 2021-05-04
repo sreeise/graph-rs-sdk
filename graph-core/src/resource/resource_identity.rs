@@ -30,6 +30,7 @@ pub enum ResourceIdentity {
     CalendarView,
     CalendarViews,
     Calendars,
+    CallRecord,
     CallRecords,
     Calls,
     CertificateBasedAuthConfiguration,
