@@ -1,8 +1,9 @@
 use from_as::*;
 use graph_http::{AsyncHttpClient, BlockingHttpClient};
 use graph_rs_sdk::client::Graph;
+use graph_rs_sdk::core::ResourceIdentity;
 use graph_rs_sdk::oauth::{AccessToken, OAuth};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryFrom;
 use std::env;
 use std::io::{Read, Write};
@@ -14,6 +15,31 @@ lazy_static! {
     pub static ref THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
     pub static ref DRIVE_THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
     pub static ref ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+pub enum TestEnv {
+    AppVeyor,
+    GitHub,
+    TravisCI,
+    Local,
+}
+
+impl TestEnv {
+    pub fn is_env_set(&self) -> bool {
+        match self {
+            TestEnv::AppVeyor => Environment::is_appveyor(),
+            TestEnv::GitHub => Environment::is_github(),
+            TestEnv::TravisCI => Environment::is_travis(),
+            TestEnv::Local => Environment::is_local(),
+        }
+    }
+}
+
+impl Default for TestEnv {
+    fn default() -> Self {
+        TestEnv::Local
+    }
 }
 
 /*
@@ -67,6 +93,25 @@ pub struct OAuthTestCredentials {
 }
 
 impl OAuthTestCredentials {
+    pub fn new(
+        client_id: &str,
+        client_secret: &str,
+        tenant: &str,
+        username: &str,
+        password: &str,
+        user_id: Option<&str>,
+    ) -> OAuthTestCredentials {
+        OAuthTestCredentials {
+            client_id: client_id.into(),
+            client_secret: client_secret.into(),
+            username: username.into(),
+            password: password.into(),
+            tenant: tenant.into(),
+            scope: vec!["https://graph.microsoft.com/.default".into()],
+            user_id: user_id.map(|t| t.to_string()),
+        }
+    }
+
     pub fn new_env() -> OAuthTestCredentials {
         OAuthTestCredentials {
             client_id: env::var("TEST_APP_ID").expect("Missing env TEST_APP_ID"),
@@ -185,6 +230,44 @@ impl OAuthTestClient {
         }
     }
 
+    fn get_app_registration() -> Option<AppRegistrationMap> {
+        if TestEnv::Local.is_env_set() {
+            AppRegistrationMap::from_file("./app_registrations.json").ok()
+        } else {
+            let app_reg: AppRegistrationMap =
+                serde_json::from_str(&env::var("APP_REGISTRATIONS").ok()?).ok()?;
+            Some(app_reg)
+        }
+    }
+
+    pub fn graph_by_rid(
+        resource_identity: ResourceIdentity,
+    ) -> Option<(String, Graph<BlockingHttpClient>)> {
+        let mut app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by(resource_identity)?;
+        let (test_client, credentials) = client.default_client()?;
+
+        if let Some((id, token)) = test_client.get_access_token(credentials) {
+            Some((id, Graph::new(token.bearer_token())))
+        } else {
+            None
+        }
+    }
+
+    pub async fn graph_by_rid_async(
+        resource_identity: ResourceIdentity,
+    ) -> Option<(String, Graph<BlockingHttpClient>)> {
+        let mut app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by(resource_identity)?;
+        let (test_client, credentials) = client.default_client()?;
+
+        if let Some((id, token)) = test_client.get_access_token_async(credentials).await {
+            Some((id, Graph::new(token.bearer_token())))
+        } else {
+            None
+        }
+    }
+
     pub fn graph(&self) -> Option<(String, Graph<BlockingHttpClient>)> {
         if let Some((id, token)) = self.request_access_token() {
             Some((id, Graph::new(token.bearer_token())))
@@ -221,6 +304,16 @@ impl OAuthTestClientMap {
     pub fn get(&self, client: &OAuthTestClient) -> Option<OAuthTestCredentials> {
         self.clients.get(client).cloned()
     }
+
+    pub fn get_any(&self) -> Option<(OAuthTestClient, OAuthTestCredentials)> {
+        let client = self.get(&OAuthTestClient::ClientCredentials);
+        if client.is_none() {
+            self.get(&OAuthTestClient::ROPC)
+                .map(|credentials| (OAuthTestClient::ROPC, credentials))
+        } else {
+            client.map(|credentials| (OAuthTestClient::ClientCredentials, credentials))
+        }
+    }
 }
 
 impl AsRef<HashMap<OAuthTestClient, OAuthTestCredentials>> for OAuthTestClientMap {
@@ -232,5 +325,74 @@ impl AsRef<HashMap<OAuthTestClient, OAuthTestCredentials>> for OAuthTestClientMa
 impl AsMut<HashMap<OAuthTestClient, OAuthTestCredentials>> for OAuthTestClientMap {
     fn as_mut(&mut self) -> &mut HashMap<OAuthTestClient, OAuthTestCredentials> {
         &mut self.clients
+    }
+}
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+pub struct AppRegistrationClient {
+    display_name: String,
+    permissions: Vec<String>,
+    test_envs: Vec<TestEnv>,
+    test_resources: Vec<ResourceIdentity>,
+    clients: OAuthTestClientMap,
+}
+
+impl AppRegistrationClient {
+    pub fn new(
+        display_name: &str,
+        permissions: Vec<String>,
+        test_resources: Vec<ResourceIdentity>,
+        test_envs: Vec<TestEnv>,
+    ) -> AppRegistrationClient {
+        AppRegistrationClient {
+            display_name: display_name.into(),
+            permissions,
+            test_envs,
+            test_resources,
+            clients: OAuthTestClientMap::new(),
+        }
+    }
+
+    pub fn insert(&mut self, client: OAuthTestClient, credentials: OAuthTestCredentials) {
+        self.clients.insert(client, credentials);
+    }
+
+    pub fn get(&self, client: &OAuthTestClient) -> Option<OAuthTestCredentials> {
+        self.clients.get(client)
+    }
+
+    pub fn default_client(&self) -> Option<(OAuthTestClient, OAuthTestCredentials)> {
+        self.clients.get_any()
+    }
+}
+
+pub trait GetBy<T, U> {
+    fn get_by(&mut self, value: T) -> U;
+}
+
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+pub struct AppRegistrationMap {
+    apps: BTreeMap<String, AppRegistrationClient>,
+}
+
+impl AppRegistrationMap {
+    pub fn insert(&mut self, app_registration: AppRegistrationClient) {
+        self.apps
+            .insert(app_registration.display_name.to_string(), app_registration);
+    }
+}
+
+impl GetBy<&str, Option<AppRegistrationClient>> for AppRegistrationMap {
+    fn get_by(&mut self, value: &str) -> Option<AppRegistrationClient> {
+        self.apps.get(value).cloned()
+    }
+}
+
+impl GetBy<ResourceIdentity, Option<AppRegistrationClient>> for AppRegistrationMap {
+    fn get_by(&mut self, value: ResourceIdentity) -> Option<AppRegistrationClient> {
+        self.apps
+            .iter()
+            .find(|(_, reg)| reg.test_resources.contains(&value))
+            .map(|(_, reg)| reg.clone())
     }
 }
