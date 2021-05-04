@@ -17,3 +17,4 @@ examples/test.rs
 env.toml
 env.json
 env.yaml
+app_registrations.json
