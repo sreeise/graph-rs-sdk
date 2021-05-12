@@ -3,7 +3,7 @@ use graph_http::{AsyncHttpClient, BlockingHttpClient};
 use graph_rs_sdk::client::Graph;
 use graph_rs_sdk::core::ResourceIdentity;
 use graph_rs_sdk::oauth::{AccessToken, OAuth};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
 use std::env;
 use std::io::{Read, Write};
