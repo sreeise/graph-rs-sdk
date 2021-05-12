@@ -21,4 +21,5 @@ jobs:
     - name: Run tests
       env:
         TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
+        APP_REGISTRATIONS: ${{ secrets.APP_REGISTRATIONS }}
       run: cargo test --verbose
