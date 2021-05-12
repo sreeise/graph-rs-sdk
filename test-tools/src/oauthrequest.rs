@@ -231,12 +231,14 @@ impl OAuthTestClient {
     }
 
     fn get_app_registration() -> Option<AppRegistrationMap> {
-        if TestEnv::Local.is_env_set() {
+        if Environment::is_local() {
             AppRegistrationMap::from_file("./app_registrations.json").ok()
-        } else {
+        } else if Environment::is_github() {
             let app_reg: AppRegistrationMap =
                 serde_json::from_str(&env::var("APP_REGISTRATIONS").ok()?).ok()?;
             Some(app_reg)
+        } else {
+            None
         }
     }
 
