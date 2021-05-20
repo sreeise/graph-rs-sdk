@@ -1,9 +1,12 @@
 use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::parser::{DirectoryModFile, ParserSettings, Request, RequestMap, RequestType};
 use bytes::{Buf, BufMut, BytesMut};
+use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet};
+use std::convert::TryFrom;
+use std::io::{Read, Write};
 use std::str::FromStr;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
@@ -62,11 +65,14 @@ impl Client {
     }
 }
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(
+    Debug, Default, Clone, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize, FromFile, AsFile,
+)]
 pub struct ClientBuilder {
     imports: BTreeSet<String>,
     directory_mods: BTreeSet<DirectoryModFile>,
     clients: BTreeMap<String, Client>,
+    #[serde(skip)]
     buf: BytesMut,
 }
 

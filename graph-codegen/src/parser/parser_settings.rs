@@ -26,10 +26,10 @@ impl ParserSettings {
         set
     }
 
-    pub fn default_path_filters() -> Vec<Filter<'static>> {
+    pub fn default_path_filters() -> Vec<Filter> {
         vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
-            "singleValueExtendedProperties",
-            "multiValueExtendedProperties",
+            "singleValueExtendedProperties".into(),
+            "multiValueExtendedProperties".into(),
         ]))]
     }
 
@@ -38,7 +38,7 @@ impl ParserSettings {
     // so we generate a separate module for calendars. In cases like these, Users and
     // Groups will use the same calendar module. This cuts down on the size of the crate
     // and makes it easier to generate clients that use the same resources.
-    pub fn path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'static>> {
+    pub fn path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
         get_path_filters(resource_identity)
     }
 
@@ -266,7 +266,8 @@ impl ParserSettings {
             ResourceIdentity::Calendars |
             ResourceIdentity::CalendarGroups |
             ResourceIdentity::CalendarView |
-            ResourceIdentity::CallRecords => true,
+            ResourceIdentity::CallRecords |
+            ResourceIdentity::Calls => true,
             _ => false,
         }
     }

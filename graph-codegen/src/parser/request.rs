@@ -596,13 +596,13 @@ impl From<HashMap<String, RequestSet>> for ApiImpl {
 }
 
 #[derive(Default, Debug, Clone)]
-pub struct ResourceRequestMap<'a> {
-    pub modifier: Modifier<'a>,
+pub struct ResourceRequestMap {
+    pub modifier: Modifier,
     pub request_set: RequestSet,
 }
 
-impl<'a> ResourceRequestMap<'a> {
-    pub fn new(modifier: Modifier<'a>, request_set: RequestSet) -> ResourceRequestMap<'a> {
+impl ResourceRequestMap {
+    pub fn new(modifier: Modifier, request_set: RequestSet) -> ResourceRequestMap {
         ResourceRequestMap {
             modifier,
             request_set,
