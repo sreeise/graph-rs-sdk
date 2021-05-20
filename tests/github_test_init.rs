@@ -1,5 +1,5 @@
-use test_tools::oauthrequest::{TestEnv, OAuthTestClient};
 use graph_rs_sdk::core::ResourceIdentity;
+use test_tools::oauthrequest::{OAuthTestClient, TestEnv};
 
 #[test]
 fn runs_on_correct_envs() {
