@@ -9,6 +9,12 @@ pub fn get_client_link_settings(
     let mut map: BTreeMap<String, Vec<ClientLinkSettings>> = BTreeMap::new();
 
     match resource_identity {
+        ResourceIdentity::Application | ResourceIdentity::Applications => {
+            map.insert(
+                "application".into(),
+                vec![ClientLinkSettings::new("applications").as_id_method_link()].mem_take(),
+            );
+        },
         ResourceIdentity::Buckets => {
             map.insert(
                 "buckets".into(),
@@ -175,61 +181,6 @@ pub fn get_client_link_settings(
             map.insert(
                 "calendarViews".into(),
                 vec![ClientLinkSettings::new("calendarView").as_id_method_link()].mem_take(),
-            );
-        },
-        ResourceIdentity::Calendars => {
-            map.insert(
-                "calendar".into(),
-                vec![
-                    ClientLinkSettings::new("calendarView")
-                        .with_id_param()
-                        .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("calendarViews")
-                        .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("calendars").as_id_method_link(),
-                    ClientLinkSettings::new("event")
-                        .use_method_name("events")
-                        .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("events")
-                        .use_method_name("event")
-                        .with_id_param()
-                        .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                ]
-                .mem_take(),
-            );
-            map.insert(
-                "calendars".into(),
-                vec![
-                    ClientLinkSettings::new("calendarView")
-                        .with_id_param()
-                        .with_extend_path_id()
-                        .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("calendarViews")
-                        .with_extend_path_id()
-                        .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("event")
-                        .use_method_name("events")
-                        .with_extend_path_id()
-                        .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("events")
-                        .use_method_name("event")
-                        .with_id_param()
-                        .with_extend_path_id()
-                        .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("extendedProperties")
-                        .with_extend_path_id()
-                        .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                ]
-                .mem_take(),
             );
         },
         ResourceIdentity::CallRecords => {

@@ -192,6 +192,7 @@ impl Builder {
                 client.extend_client_links(client_link_settings.clone());
             }
 
+            println!("Current Name: {:#?}", name);
             let resource_identity = ResourceIdentity::from_str(name.as_str()).unwrap();
             if ParserSettings::is_registered_ident_client(resource_identity) {
                 client.set_ident_client(true);

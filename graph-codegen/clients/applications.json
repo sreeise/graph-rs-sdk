@@ -1,0 +1,760 @@
+{
+  "resource_identity": "Applications",
+  "client_builder": {
+    "imports": [
+      "crate::client::Graph",
+      "crate::core::ResourceIdentity",
+      "graph_http::IntoResponse",
+      "graph_http::types::DeltaPhantom",
+      "graph_http::types::NoContent",
+      "handlebars::*",
+      "reqwest::Method"
+    ],
+    "directory_mods": [],
+    "clients": {
+      "application": {
+        "name": "application",
+        "client_links": [
+          {
+            "name": "applications",
+            "method_name": null,
+            "custom_calls": null,
+            "has_id_param": false,
+            "has_extend_path_id": false,
+            "has_extend_path_ident": false,
+            "has_set_resource_identity": false,
+            "has_new_method_empty_id": false,
+            "is_id_method_link": true
+          }
+        ],
+        "methods": [
+          {
+            "path": "/applications",
+            "requests": [
+              {
+                "path": "/applications",
+                "method": "GET",
+                "method_name": "list_application",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "Collection",
+                "tag": "applications.application",
+                "operation_id": "applications.application.ListApplication",
+                "operation_mapping": "application",
+                "doc": "# Get entities from applications"
+              },
+              {
+                "path": "/applications",
+                "method": "POST",
+                "method_name": "create_application",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "SerdeJson",
+                "tag": "applications.application",
+                "operation_id": "applications.application.CreateApplication",
+                "operation_mapping": "application",
+                "doc": "# Add new entity to applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/delta",
+            "requests": [
+              {
+                "path": "/applications/delta",
+                "method": "GET",
+                "method_name": "delta",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "Delta",
+                "tag": "applications.Functions",
+                "operation_id": "applications.delta",
+                "operation_mapping": "application",
+                "doc": "# Invoke function delta"
+              }
+            ]
+          },
+          {
+            "path": "/applications/getAvailableExtensionProperties",
+            "requests": [
+              {
+                "path": "/applications/getAvailableExtensionProperties",
+                "method": "POST",
+                "method_name": "get_available_extension_properties",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "Collection",
+                "tag": "applications.Actions",
+                "operation_id": "applications.getAvailableExtensionProperties",
+                "operation_mapping": "application",
+                "doc": "# Invoke action getAvailableExtensionProperties"
+              }
+            ]
+          },
+          {
+            "path": "/applications/getByIds",
+            "requests": [
+              {
+                "path": "/applications/getByIds",
+                "method": "POST",
+                "method_name": "get_by_ids",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "Collection",
+                "tag": "applications.Actions",
+                "operation_id": "applications.getByIds",
+                "operation_mapping": "application",
+                "doc": "# Invoke action getByIds"
+              }
+            ]
+          },
+          {
+            "path": "/applications/validateProperties",
+            "requests": [
+              {
+                "path": "/applications/validateProperties",
+                "method": "POST",
+                "method_name": "validate_properties",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "NoContent",
+                "tag": "applications.Actions",
+                "operation_id": "applications.validateProperties",
+                "operation_mapping": "application",
+                "doc": "# Invoke action validateProperties"
+              }
+            ]
+          }
+        ],
+        "is_ident_client": false
+      },
+      "applications": {
+        "name": "applications",
+        "client_links": [],
+        "methods": [
+          {
+            "path": "/applications/{{RID}}",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}",
+                "method": "GET",
+                "method_name": "get_application",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.application",
+                "operation_id": "applications.application.GetApplication",
+                "operation_mapping": "applications",
+                "doc": "# Get entity from applications by key"
+              },
+              {
+                "path": "/applications/{{RID}}",
+                "method": "PATCH",
+                "method_name": "update_application",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "NoContent",
+                "tag": "applications.application",
+                "operation_id": "applications.application.UpdateApplication",
+                "operation_mapping": "applications",
+                "doc": "# Update entity in applications"
+              },
+              {
+                "path": "/applications/{{RID}}",
+                "method": "DELETE",
+                "method_name": "delete_application",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "NoContent",
+                "tag": "applications.application",
+                "operation_id": "applications.application.DeleteApplication",
+                "operation_mapping": "applications",
+                "doc": "# Delete entity from applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/addKey",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/addKey",
+                "method": "POST",
+                "method_name": "add_key",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.Actions",
+                "operation_id": "applications.application.addKey",
+                "operation_mapping": "applications",
+                "doc": "# Invoke action addKey"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/addPassword",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/addPassword",
+                "method": "POST",
+                "method_name": "add_password",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.Actions",
+                "operation_id": "applications.application.addPassword",
+                "operation_mapping": "applications",
+                "doc": "# Invoke action addPassword"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/checkMemberGroups",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/checkMemberGroups",
+                "method": "POST",
+                "method_name": "check_member_groups",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.Actions",
+                "operation_id": "applications.application.checkMemberGroups",
+                "operation_mapping": "applications",
+                "doc": "# Invoke action checkMemberGroups"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/checkMemberObjects",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/checkMemberObjects",
+                "method": "POST",
+                "method_name": "check_member_objects",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.Actions",
+                "operation_id": "applications.application.checkMemberObjects",
+                "operation_mapping": "applications",
+                "doc": "# Invoke action checkMemberObjects"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/createdOnBehalfOf",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/createdOnBehalfOf",
+                "method": "GET",
+                "method_name": "get_created_on_behalf_of",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.directoryObject",
+                "operation_id": "applications.GetCreatedOnBehalfOf",
+                "operation_mapping": "applications",
+                "doc": "# Get createdOnBehalfOf from applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/createdOnBehalfOf/$ref",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/createdOnBehalfOf/$ref",
+                "method": "GET",
+                "method_name": "get_ref_created_on_behalf_of",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.directoryObject",
+                "operation_id": "applications.GetRefCreatedOnBehalfOf",
+                "operation_mapping": "applications",
+                "doc": "# Get ref of createdOnBehalfOf from applications"
+              },
+              {
+                "path": "/applications/{{RID}}/createdOnBehalfOf/$ref",
+                "method": "PUT",
+                "method_name": "update_ref_created_on_behalf_of",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "NoContent",
+                "tag": "applications.directoryObject",
+                "operation_id": "applications.UpdateRefCreatedOnBehalfOf",
+                "operation_mapping": "applications",
+                "doc": "# Update the ref of navigation property createdOnBehalfOf in applications"
+              },
+              {
+                "path": "/applications/{{RID}}/createdOnBehalfOf/$ref",
+                "method": "DELETE",
+                "method_name": "delete_ref_created_on_behalf_of",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "NoContent",
+                "tag": "applications.directoryObject",
+                "operation_id": "applications.DeleteRefCreatedOnBehalfOf",
+                "operation_mapping": "applications",
+                "doc": "# Delete ref of navigation property createdOnBehalfOf for applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/extensionProperties",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/extensionProperties",
+                "method": "GET",
+                "method_name": "list_extension_properties",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.extensionProperty",
+                "operation_id": "applications.ListExtensionProperties",
+                "operation_mapping": "applications",
+                "doc": "# Get extensionProperties from applications"
+              },
+              {
+                "path": "/applications/{{RID}}/extensionProperties",
+                "method": "POST",
+                "method_name": "create_extension_properties",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.extensionProperty",
+                "operation_id": "applications.CreateExtensionProperties",
+                "operation_mapping": "applications",
+                "doc": "# Create new navigation property to extensionProperties for applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/extensionProperties/{{id}}",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/extensionProperties/{{id}}",
+                "method": "GET",
+                "method_name": "get_extension_properties",
+                "param_size": 1,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.extensionProperty",
+                "operation_id": "applications.GetExtensionProperties",
+                "operation_mapping": "applications",
+                "doc": "# Get extensionProperties from applications"
+              },
+              {
+                "path": "/applications/{{RID}}/extensionProperties/{{id}}",
+                "method": "PATCH",
+                "method_name": "update_extension_properties",
+                "param_size": 1,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "NoContent",
+                "tag": "applications.extensionProperty",
+                "operation_id": "applications.UpdateExtensionProperties",
+                "operation_mapping": "applications",
+                "doc": "# Update the navigation property extensionProperties in applications"
+              },
+              {
+                "path": "/applications/{{RID}}/extensionProperties/{{id}}",
+                "method": "DELETE",
+                "method_name": "delete_extension_properties",
+                "param_size": 1,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "NoContent",
+                "tag": "applications.extensionProperty",
+                "operation_id": "applications.DeleteExtensionProperties",
+                "operation_mapping": "applications",
+                "doc": "# Delete navigation property extensionProperties for applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/getMemberGroups",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/getMemberGroups",
+                "method": "POST",
+                "method_name": "get_member_groups",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.Actions",
+                "operation_id": "applications.application.getMemberGroups",
+                "operation_mapping": "applications",
+                "doc": "# Invoke action getMemberGroups"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/getMemberObjects",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/getMemberObjects",
+                "method": "POST",
+                "method_name": "get_member_objects",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.Actions",
+                "operation_id": "applications.application.getMemberObjects",
+                "operation_mapping": "applications",
+                "doc": "# Invoke action getMemberObjects"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/homeRealmDiscoveryPolicies",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/homeRealmDiscoveryPolicies",
+                "method": "GET",
+                "method_name": "list_home_realm_discovery_policies",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.homeRealmDiscoveryPolicy",
+                "operation_id": "applications.ListHomeRealmDiscoveryPolicies",
+                "operation_mapping": "applications",
+                "doc": "# Get homeRealmDiscoveryPolicies from applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
+                "method": "GET",
+                "method_name": "list_ref_home_realm_discovery_policies",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.homeRealmDiscoveryPolicy",
+                "operation_id": "applications.ListRefHomeRealmDiscoveryPolicies",
+                "operation_mapping": "applications",
+                "doc": "# Get ref of homeRealmDiscoveryPolicies from applications"
+              },
+              {
+                "path": "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
+                "method": "POST",
+                "method_name": "create_ref_home_realm_discovery_policies",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.homeRealmDiscoveryPolicy",
+                "operation_id": "applications.CreateRefHomeRealmDiscoveryPolicies",
+                "operation_mapping": "applications",
+                "doc": "# Create new navigation property ref to homeRealmDiscoveryPolicies for applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/logo",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/logo",
+                "method": "GET",
+                "method_name": "get_logo",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.application",
+                "operation_id": "applications.application.GetLogo",
+                "operation_mapping": "applications",
+                "doc": "# Get media content for application from applications"
+              },
+              {
+                "path": "/applications/{{RID}}/logo",
+                "method": "PUT",
+                "method_name": "update_logo",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "NoContent",
+                "tag": "applications.application",
+                "operation_id": "applications.application.UpdateLogo",
+                "operation_mapping": "applications",
+                "doc": "# Update media content for application in applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/owners",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/owners",
+                "method": "GET",
+                "method_name": "list_owners",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.directoryObject",
+                "operation_id": "applications.ListOwners",
+                "operation_mapping": "applications",
+                "doc": "# Get owners from applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/owners/$ref",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/owners/$ref",
+                "method": "GET",
+                "method_name": "list_ref_owners",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.directoryObject",
+                "operation_id": "applications.ListRefOwners",
+                "operation_mapping": "applications",
+                "doc": "# Get ref of owners from applications"
+              },
+              {
+                "path": "/applications/{{RID}}/owners/$ref",
+                "method": "POST",
+                "method_name": "create_ref_owners",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.directoryObject",
+                "operation_id": "applications.CreateRefOwners",
+                "operation_mapping": "applications",
+                "doc": "# Create new navigation property ref to owners for applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/removeKey",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/removeKey",
+                "method": "POST",
+                "method_name": "remove_key",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "NoContent",
+                "tag": "applications.Actions",
+                "operation_id": "applications.application.removeKey",
+                "operation_mapping": "applications",
+                "doc": "# Invoke action removeKey"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/removePassword",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/removePassword",
+                "method": "POST",
+                "method_name": "remove_password",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "NoContent",
+                "tag": "applications.Actions",
+                "operation_id": "applications.application.removePassword",
+                "operation_mapping": "applications",
+                "doc": "# Invoke action removePassword"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/restore",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/restore",
+                "method": "POST",
+                "method_name": "restore",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.Actions",
+                "operation_id": "applications.application.restore",
+                "operation_mapping": "applications",
+                "doc": "# Invoke action restore"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/tokenIssuancePolicies",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/tokenIssuancePolicies",
+                "method": "GET",
+                "method_name": "list_token_issuance_policies",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.tokenIssuancePolicy",
+                "operation_id": "applications.ListTokenIssuancePolicies",
+                "operation_mapping": "applications",
+                "doc": "# Get tokenIssuancePolicies from applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/tokenIssuancePolicies/$ref",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/tokenIssuancePolicies/$ref",
+                "method": "GET",
+                "method_name": "list_ref_token_issuance_policies",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.tokenIssuancePolicy",
+                "operation_id": "applications.ListRefTokenIssuancePolicies",
+                "operation_mapping": "applications",
+                "doc": "# Get ref of tokenIssuancePolicies from applications"
+              },
+              {
+                "path": "/applications/{{RID}}/tokenIssuancePolicies/$ref",
+                "method": "POST",
+                "method_name": "create_ref_token_issuance_policies",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.tokenIssuancePolicy",
+                "operation_id": "applications.CreateRefTokenIssuancePolicies",
+                "operation_mapping": "applications",
+                "doc": "# Create new navigation property ref to tokenIssuancePolicies for applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/tokenLifetimePolicies",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/tokenLifetimePolicies",
+                "method": "GET",
+                "method_name": "list_token_lifetime_policies",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.tokenLifetimePolicy",
+                "operation_id": "applications.ListTokenLifetimePolicies",
+                "operation_mapping": "applications",
+                "doc": "# Get tokenLifetimePolicies from applications"
+              }
+            ]
+          },
+          {
+            "path": "/applications/{{RID}}/tokenLifetimePolicies/$ref",
+            "requests": [
+              {
+                "path": "/applications/{{RID}}/tokenLifetimePolicies/$ref",
+                "method": "GET",
+                "method_name": "list_ref_token_lifetime_policies",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "Collection",
+                "tag": "applications.tokenLifetimePolicy",
+                "operation_id": "applications.ListRefTokenLifetimePolicies",
+                "operation_mapping": "applications",
+                "doc": "# Get ref of tokenLifetimePolicies from applications"
+              },
+              {
+                "path": "/applications/{{RID}}/tokenLifetimePolicies/$ref",
+                "method": "POST",
+                "method_name": "create_ref_token_lifetime_policies",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": true,
+                "response": "SerdeJson",
+                "tag": "applications.tokenLifetimePolicy",
+                "operation_id": "applications.CreateRefTokenLifetimePolicies",
+                "operation_mapping": "applications",
+                "doc": "# Create new navigation property ref to tokenLifetimePolicies for applications"
+              }
+            ]
+          }
+        ],
+        "is_ident_client": true
+      }
+    }
+  },
+  "directory": "./src/applications",
+  "mod_file": "./src/applications/mod.rs",
+  "request_file": "./src/applications/request.rs"
+}

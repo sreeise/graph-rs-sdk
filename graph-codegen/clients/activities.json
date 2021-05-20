@@ -1,0 +1,288 @@
+{
+  "resource_identity": "Activities",
+  "client_builder": {
+    "imports": [
+      "crate::client::Graph",
+      "graph_http::IntoResponse",
+      "graph_http::types::NoContent",
+      "reqwest::Method"
+    ],
+    "directory_mods": [],
+    "clients": {
+      "activities": {
+        "name": "activities",
+        "client_links": [
+          {
+            "name": "historyItems",
+            "method_name": null,
+            "custom_calls": null,
+            "has_id_param": false,
+            "has_extend_path_id": false,
+            "has_extend_path_ident": false,
+            "has_set_resource_identity": false,
+            "has_new_method_empty_id": false,
+            "is_id_method_link": false
+          }
+        ],
+        "methods": [
+          {
+            "path": "/activities",
+            "requests": [
+              {
+                "path": "/activities",
+                "method": "GET",
+                "method_name": "list_activities",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "Collection",
+                "tag": "me.userActivity",
+                "operation_id": "activities.ListActivities",
+                "operation_mapping": "activities",
+                "doc": "# Get activities from me"
+              },
+              {
+                "path": "/activities",
+                "method": "POST",
+                "method_name": "create_activities",
+                "param_size": 0,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "SerdeJson",
+                "tag": "me.userActivity",
+                "operation_id": "activities.CreateActivities",
+                "operation_mapping": "activities",
+                "doc": "# Create new navigation property to activities for me"
+              }
+            ]
+          },
+          {
+            "path": "/activities/recent",
+            "requests": [
+              {
+                "path": "/activities/recent",
+                "method": "GET",
+                "method_name": "recent",
+                "param_size": 0,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "Collection",
+                "tag": "me.Functions",
+                "operation_id": "me.activities.recent",
+                "operation_mapping": "activities",
+                "doc": "# Invoke function recent"
+              }
+            ]
+          },
+          {
+            "path": "/activities/{{id}}",
+            "requests": [
+              {
+                "path": "/activities/{{id}}",
+                "method": "GET",
+                "method_name": "get_activities",
+                "param_size": 1,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "SerdeJson",
+                "tag": "me.userActivity",
+                "operation_id": "activities.GetActivities",
+                "operation_mapping": "activities",
+                "doc": "# Get activities from me"
+              },
+              {
+                "path": "/activities/{{id}}",
+                "method": "PATCH",
+                "method_name": "update_activities",
+                "param_size": 1,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "NoContent",
+                "tag": "me.userActivity",
+                "operation_id": "activities.UpdateActivities",
+                "operation_mapping": "activities",
+                "doc": "# Update the navigation property activities in me"
+              },
+              {
+                "path": "/activities/{{id}}",
+                "method": "DELETE",
+                "method_name": "delete_activities",
+                "param_size": 1,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "NoContent",
+                "tag": "me.userActivity",
+                "operation_id": "me.DeleteActivities",
+                "operation_mapping": "me",
+                "doc": "# Delete navigation property activities for me"
+              }
+            ]
+          },
+          {
+            "path": "/activities/{{id}}/historyItems",
+            "requests": [
+              {
+                "path": "/activities/{{id}}/historyItems",
+                "method": "GET",
+                "method_name": "list_history_items",
+                "param_size": 1,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "Collection",
+                "tag": "me.userActivity",
+                "operation_id": "me.activities.ListHistoryItems",
+                "operation_mapping": "activities",
+                "doc": "# Get historyItems from me"
+              },
+              {
+                "path": "/activities/{{id}}/historyItems",
+                "method": "POST",
+                "method_name": "create_history_items",
+                "param_size": 1,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "SerdeJson",
+                "tag": "me.userActivity",
+                "operation_id": "me.activities.CreateHistoryItems",
+                "operation_mapping": "activities",
+                "doc": "# Create new navigation property to historyItems for me"
+              }
+            ]
+          },
+          {
+            "path": "/activities/{{id}}/historyItems/{{id2}}",
+            "requests": [
+              {
+                "path": "/activities/{{id}}/historyItems/{{id2}}",
+                "method": "GET",
+                "method_name": "get_history_items",
+                "param_size": 2,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "SerdeJson",
+                "tag": "me.userActivity",
+                "operation_id": "me.activities.GetHistoryItems",
+                "operation_mapping": "activities",
+                "doc": "# Get historyItems from me"
+              },
+              {
+                "path": "/activities/{{id}}/historyItems/{{id2}}",
+                "method": "PATCH",
+                "method_name": "update_history_items",
+                "param_size": 2,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "NoContent",
+                "tag": "me.userActivity",
+                "operation_id": "me.activities.UpdateHistoryItems",
+                "operation_mapping": "activities",
+                "doc": "# Update the navigation property historyItems in me"
+              },
+              {
+                "path": "/activities/{{id}}/historyItems/{{id2}}",
+                "method": "DELETE",
+                "method_name": "delete_history_items",
+                "param_size": 2,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "NoContent",
+                "tag": "me.userActivity",
+                "operation_id": "me.activities.DeleteHistoryItems",
+                "operation_mapping": "activities",
+                "doc": "# Delete navigation property historyItems for me"
+              }
+            ]
+          }
+        ],
+        "is_ident_client": false
+      },
+      "historyItems": {
+        "name": "historyItems",
+        "client_links": [],
+        "methods": [
+          {
+            "path": "/activities/{{id}}/historyItems/{{id2}}/activity",
+            "requests": [
+              {
+                "path": "/activities/{{id}}/historyItems/{{id2}}/activity",
+                "method": "GET",
+                "method_name": "get_activity",
+                "param_size": 2,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "SerdeJson",
+                "tag": "me.userActivity",
+                "operation_id": "me.activities.historyItems.GetActivity",
+                "operation_mapping": "activities.historyItems",
+                "doc": "# Get activity from me"
+              }
+            ]
+          },
+          {
+            "path": "/activities/{{id}}/historyItems/{{id2}}/activity/$ref",
+            "requests": [
+              {
+                "path": "/activities/{{id}}/historyItems/{{id2}}/activity/$ref",
+                "method": "GET",
+                "method_name": "get_ref_activity",
+                "param_size": 2,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "SerdeJson",
+                "tag": "me.userActivity",
+                "operation_id": "me.activities.historyItems.GetRefActivity",
+                "operation_mapping": "activities.historyItems",
+                "doc": "# Get ref of activity from me"
+              },
+              {
+                "path": "/activities/{{id}}/historyItems/{{id2}}/activity/$ref",
+                "method": "PUT",
+                "method_name": "update_ref_activity",
+                "param_size": 2,
+                "has_body": true,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "NoContent",
+                "tag": "me.userActivity",
+                "operation_id": "me.activities.historyItems.UpdateRefActivity",
+                "operation_mapping": "activities.historyItems",
+                "doc": "# Update the ref of navigation property activity in me"
+              },
+              {
+                "path": "/activities/{{id}}/historyItems/{{id2}}/activity/$ref",
+                "method": "DELETE",
+                "method_name": "delete_ref_activity",
+                "param_size": 2,
+                "has_body": false,
+                "request_type": "Normal",
+                "has_rid": false,
+                "response": "NoContent",
+                "tag": "me.userActivity",
+                "operation_id": "me.activities.historyItems.DeleteRefActivity",
+                "operation_mapping": "activities.historyItems",
+                "doc": "# Delete ref of navigation property activity for me"
+              }
+            ]
+          }
+        ],
+        "is_ident_client": false
+      }
+    }
+  },
+  "directory": "./src/activities",
+  "mod_file": "./src/activities/mod.rs",
+  "request_file": "./src/activities/request.rs"
+}

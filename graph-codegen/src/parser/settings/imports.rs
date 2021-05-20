@@ -4,6 +4,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
     match resource_identity {
         ResourceIdentity::Applications => vec![
             "crate::core::ResourceIdentity",
+            "handlebars::*",
         ],
         ResourceIdentity::Attachments => vec![
             "crate::core::ResourceIdentity",

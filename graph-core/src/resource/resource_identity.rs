@@ -20,7 +20,10 @@ use std::convert::AsRef;
 pub enum ResourceIdentity {
     Activities,
     AppCatalogs,
+    AppDefinitions,
+    Application,
     Applications,
+    Attachment,
     Attachments,
     AuditLogs,
     Buckets,
@@ -105,6 +108,7 @@ pub enum ResourceIdentity {
     Subscriptions,
     Tasks,
     Teams,
+    TeamsApps,
     Teamwork,
     Threads,
     Users,

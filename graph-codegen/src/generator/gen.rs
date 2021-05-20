@@ -1,4 +1,4 @@
-use crate::builder::{Builder, StoredClient, StoredClientSet};
+use crate::builder::{Builder, StoredClientSet};
 use crate::parser::client_resource::ClientResource;
 use crate::parser::error::ParseError;
 use crate::parser::{Modifier, Parser, ParserSettings, ParserSpec, PathMap, ResourceRequestMap};
@@ -7,7 +7,6 @@ use from_as::FromFile;
 use graph_core::resource::ResourceIdentity;
 use rayon::prelude::*;
 use std::cell::RefCell;
-use std::collections::BTreeSet;
 use std::convert::TryFrom;
 use std::str::FromStr;
 

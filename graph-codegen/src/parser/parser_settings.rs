@@ -79,6 +79,7 @@ impl ParserSettings {
             ResourceIdentity::Activities => {
                 map.insert_operation_mapping("me.activities", "activities");
             },
+            ResourceIdentity::Applications => map.insert_operation_mapping("applications", ""),
             ResourceIdentity::Attachments => {
                 map.insert_operation_mapping("groups.calendar.events.attachments", "attachments");
             },
@@ -261,6 +262,7 @@ impl ParserSettings {
     pub fn is_registered_ident_client(resource_identity: ResourceIdentity) -> bool {
         match resource_identity {
             ResourceIdentity::Applications |
+            ResourceIdentity::Attachments |
             ResourceIdentity::Drive |
             ResourceIdentity::Drives |
             ResourceIdentity::Calendars |
