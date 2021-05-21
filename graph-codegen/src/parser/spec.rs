@@ -89,10 +89,20 @@ impl From<ResourceIdentity> for Modifier {
             .modifier_map
             .operation_map(double_name.as_str(), modifier_name);
 
-        for (name, _set) in modifier.client_links.iter() {
-            let ri = ResourceIdentity::from_str(name.as_str()).unwrap();
-            if ParserSettings::is_registered_ident_client(ri) {
-                modifier.imports.insert("handlebars::*".into());
+        let handlebars_import = "handlebars::*";
+        if ParserSettings::is_registered_ident_client(resource_identity) {
+            modifier.imports.insert(handlebars_import.into());
+        }
+
+        if !modifier.imports.contains(handlebars_import) {
+            for (name, _set) in modifier.client_links.iter() {
+                //let ri = ResourceIdentity::from_str(name.as_str()).unwrap();
+
+                if let Ok(ri) = ResourceIdentity::from_str(name.as_str()) {
+                    if ParserSettings::is_registered_ident_client(ri) {
+                        modifier.imports.insert(handlebars_import.into());
+                    }
+                }
             }
         }
 

@@ -23,6 +23,7 @@ pub enum ResourceIdentity {
     AppDefinitions,
     Application,
     Applications,
+    ApplicationTemplates,
     Attachment,
     Attachments,
     AuditLogs,

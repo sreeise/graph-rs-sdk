@@ -2,7 +2,7 @@
 //! graph-rs is an API client for Microsoft Graph V1.0 and Graph Beta.
 //!
 //! Installation and basic usage can be found below and there are extensive examples in the example's directory
-//! on GitHub](https://github.com/sreeise/graph-rs).
+//! on [GitHub](https://github.com/sreeise/graph-rs).
 //!
 //! ### What Api's are available
 //!

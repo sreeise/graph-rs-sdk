@@ -79,7 +79,6 @@ impl ParserSettings {
             ResourceIdentity::Activities => {
                 map.insert_operation_mapping("me.activities", "activities");
             },
-            ResourceIdentity::Applications => map.insert_operation_mapping("applications", ""),
             ResourceIdentity::Attachments => {
                 map.insert_operation_mapping("groups.calendar.events.attachments", "attachments");
             },

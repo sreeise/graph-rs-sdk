@@ -16,7 +16,6 @@ use std::str::FromStr;
 #[derive(Default, Debug, Clone)]
 pub struct SpecBuilder {
     pub(crate) parser: Parser,
-    ident_client_id_links: BTreeMap<String, String>,
     secondary_links: BTreeMap<String, Vec<String>>,
     build_with_modifier_filter: bool,
     dry_run: bool,
@@ -38,7 +37,6 @@ impl Builder {
         Builder {
             spec: RefCell::new(SpecBuilder {
                 parser,
-                ident_client_id_links: Default::default(),
                 secondary_links: Default::default(),
                 build_with_modifier_filter: false,
                 dry_run: false,

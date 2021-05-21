@@ -15,4 +15,5 @@ pub mod traits;
 pub mod builder;
 pub mod generator;
 pub mod macros;
+pub mod openapi;
 pub mod parser;
