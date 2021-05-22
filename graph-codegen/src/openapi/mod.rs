@@ -11,6 +11,7 @@ mod paths;
 mod reference;
 mod request_body;
 mod schema;
+mod security_requirement;
 mod server;
 mod server_variable;
 mod xml;
@@ -28,6 +29,7 @@ pub use paths::*;
 pub use reference::*;
 pub use request_body::*;
 pub use schema::*;
+pub use security_requirement::*;
 pub use server::*;
 pub use server_variable::*;
 pub use xml::*;
@@ -65,7 +67,6 @@ pub struct OpenAPI {
     pub servers: VecDeque<serde_json::Value>,
 
     /// The available paths and operations for the API.
-    //pub paths: BTreeMap<String, PathItem>,
     pub paths: Paths,
 
     /// The incoming webhooks that MAY be received as part of this API and that the API consumer

@@ -1,6 +1,6 @@
 use crate::openapi::{
     either_t_or_reference, either_vec_t_or_reference, ExternalDocumentation, Parameter, Reference,
-    RequestBody, Server,
+    RequestBody, SecurityRequirement, Server,
 };
 use either::Either;
 use from_as::*;
@@ -84,7 +84,7 @@ pub struct Operation {
     /// the array MAY contain a list of role names which are required for the execution, but are
     /// not otherwise defined or exchanged in-band.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub security: Option<VecDeque<HashMap<String, VecDeque<String>>>>,
+    pub security: Option<SecurityRequirement>,
 
     /// An alternative server array to service this operation. If an alternative server object is
     /// specified at the Path Item Object or Root level, it will be overridden by this value.
