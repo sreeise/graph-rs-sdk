@@ -1,4 +1,5 @@
-use crate::openapi::{Operation, Parameter};
+use crate::openapi::{either_vec_t_or_reference, Operation, Parameter, Reference, Server};
+use either::Either;
 use from_as::*;
 use std::collections::VecDeque;
 use std::convert::TryFrom;
@@ -58,7 +59,7 @@ pub struct PathItem {
     /// An alternative server array to service all operations in this path.
     #[serde(default)]
     #[serde(skip_serializing_if = "VecDeque::is_empty")]
-    pub servers: VecDeque<serde_json::Value>,
+    pub servers: VecDeque<Server>,
 
     /// A list of parameters that are applicable for all the operations described under this path.
     /// These parameters can be overridden at the operation level, but cannot be removed there.
@@ -67,5 +68,6 @@ pub struct PathItem {
     /// parameters that are defined at the OpenAPI Object's components/parameters.
     #[serde(default)]
     #[serde(skip_serializing_if = "VecDeque::is_empty")]
-    pub parameters: VecDeque<Parameter>,
+    #[serde(deserialize_with = "either_vec_t_or_reference")]
+    pub parameters: VecDeque<Either<Parameter, Reference>>,
 }

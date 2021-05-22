@@ -1,5 +1,9 @@
 mod discriminator;
+mod encoding;
+mod example;
 mod external_documentation;
+mod header;
+mod media_type;
 mod operation;
 mod parameter;
 mod path_item;
@@ -7,10 +11,16 @@ mod paths;
 mod reference;
 mod request_body;
 mod schema;
+mod server;
+mod server_variable;
 mod xml;
 
 pub use discriminator::*;
+pub use encoding::*;
+pub use example::*;
 pub use external_documentation::*;
+pub use header::*;
+pub use media_type::*;
 pub use operation::*;
 pub use parameter::*;
 pub use path_item::*;
@@ -18,9 +28,12 @@ pub use paths::*;
 pub use reference::*;
 pub use request_body::*;
 pub use schema::*;
+pub use server::*;
+pub use server_variable::*;
 pub use xml::*;
 
 use from_as::*;
+use graph_http::url::GraphUrl;
 use reqwest::Url;
 use std::collections::VecDeque;
 use std::convert::TryFrom;
@@ -94,6 +107,17 @@ impl TryFrom<reqwest::Url> for OpenAPI {
 
     fn try_from(value: Url) -> Result<Self, Self::Error> {
         let response = reqwest::blocking::get(value)?;
+        let open_api_raw_text = response.text().unwrap();
+        let open_api: OpenAPI = serde_yaml::from_str(open_api_raw_text.as_str()).unwrap();
+        Ok(open_api)
+    }
+}
+
+impl TryFrom<GraphUrl> for OpenAPI {
+    type Error = reqwest::Error;
+
+    fn try_from(value: GraphUrl) -> Result<Self, Self::Error> {
+        let response = reqwest::blocking::get(value.to_reqwest_url())?;
         let open_api_raw_text = response.text().unwrap();
         let open_api: OpenAPI = serde_yaml::from_str(open_api_raw_text.as_str()).unwrap();
         Ok(open_api)

@@ -1,5 +1,7 @@
-use crate::openapi::Reference;
+use crate::openapi::{either_t_map_right_or_reference, Example, Reference, Schema};
+use either::Either;
 use from_as::*;
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::io::{Read, Write};
 
@@ -44,7 +46,45 @@ pub struct Parameter {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_empty_value: Option<bool>,
 
-    #[serde(flatten)]
+    /// Describes how the parameter value will be serialized depending on the type of the parameter
+    /// value. Default values (based on value of in): for query - form; for path - simple; for
+    /// header - simple; for cookie - form.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reference: Option<Reference>,
+    pub style: Option<String>,
+
+    /// When this is true, parameter values of type array or object generate separate parameters
+    /// for each value of the array or key-value pair of the map. For other types of parameters
+    /// this property has no effect. When style is form, the default value is true. For all other
+    /// styles, the default value is false.
+    #[serde(default)]
+    pub explode: bool,
+
+    /// Determines whether the parameter value SHOULD allow reserved characters, as defined by
+    /// RFC3986 :/?#[]@!$&'()*+,;= to be included without percent-encoding. This property only
+    /// applies to parameters with an in value of query. The default value is false.
+    #[serde(default)]
+    #[serde(rename = "allowReserved")]
+    pub allow_reserved: bool,
+
+    /// The schema defining the type used for the parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub schema: Option<Schema>,
+
+    /// Example of the parameter's potential value. The example SHOULD match the specified
+    /// schema and encoding properties if present. The example field is mutually exclusive of
+    /// the examples field. Furthermore, if referencing a schema that contains an example, the
+    /// example value SHALL override the example provided by the schema. To represent examples
+    /// of media types that cannot naturally be represented in JSON or YAML, a string value can
+    /// contain the example with escaping where necessary.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub example: Option<serde_json::Value>,
+
+    /// Examples of the parameter's potential value. Each example SHOULD contain a value in the
+    /// correct format as specified in the parameter encoding. The examples field is mutually
+    /// exclusive of the example field. Furthermore, if referencing a schema that contains an
+    /// example, the examples value SHALL override the example provided by the schema.
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(deserialize_with = "either_t_map_right_or_reference")]
+    pub examples: Option<HashMap<String, Either<Example, Reference>>>,
 }

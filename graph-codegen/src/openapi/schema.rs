@@ -8,15 +8,18 @@ use std::io::{Read, Write};
 pub struct Schema {
     /// Adds support for polymorphism. The discriminator is an object name that is used
     /// to differentiate between other schemas which may satisfy the payload description.
-    discriminator: Discriminator,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    discriminator: Option<Discriminator>,
 
     /// This MAY be used only on properties schemas. It has no effect on root schemas.
     /// Adds additional metadata to describe the XML representation of this property.
-    xml: XML,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    xml: Option<XML>,
 
     /// Additional external documentation for this schema.
     #[serde(rename = "externalDocs")]
-    external_docs: ExternalDocumentation,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    external_docs: Option<ExternalDocumentation>,
 
     /// Deprecated: The example property has been deprecated in favor of the JSON
     /// Schema examples keyword. Use of example is discouraged, and later versions
