@@ -1,9 +1,6 @@
-use graph_rs_sdk::error::*;
-use graph_rs_sdk::prelude::*;
-use std::convert::TryFrom;
-use std::path::PathBuf;
-use test_tools::oauthrequest::OAuthTestClient;
-use test_tools::oauthrequest::{ASYNC_THROTTLE_MUTEX, DRIVE_THROTTLE_MUTEX};
+use graph_rs_sdk::{error::*, prelude::*};
+use std::{convert::TryFrom, path::PathBuf};
+use test_tools::oauthrequest::{OAuthTestClient, ASYNC_THROTTLE_MUTEX, DRIVE_THROTTLE_MUTEX};
 
 fn test_graph_error(err: GraphFailure, expect: GraphError) {
     match err {

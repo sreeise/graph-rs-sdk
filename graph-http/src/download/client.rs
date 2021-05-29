@@ -1,16 +1,15 @@
-use crate::async_client::AsyncClient;
-use crate::blocking_client::BlockingClient;
-use crate::iotools::IoTools;
-use crate::url::GraphUrl;
-use crate::{HttpClient, RequestAttribute, RequestClient, RequestType};
+use crate::{
+    async_client::AsyncClient, blocking_client::BlockingClient, iotools::IoTools, url::GraphUrl,
+    HttpClient, RequestAttribute, RequestClient, RequestType,
+};
 use graph_error::{AsRes, ErrorMessage, GraphError, GraphFailure, GraphResult, GraphRsError};
-use reqwest::header::HeaderMap;
-use reqwest::Method;
-use std::cell::RefCell;
-use std::convert::TryFrom;
-use std::ffi::OsString;
-use std::path::Path;
-use std::path::PathBuf;
+use reqwest::{header::HeaderMap, Method};
+use std::{
+    cell::RefCell,
+    convert::TryFrom,
+    ffi::OsString,
+    path::{Path, PathBuf},
+};
 
 pub struct DownloadRequest {
     path: PathBuf,

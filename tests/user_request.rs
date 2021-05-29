@@ -1,6 +1,5 @@
 use graph_http::traits::ODataLink;
-use test_tools::oauthrequest::THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
+use test_tools::oauthrequest::{Environment, OAuthTestClient, THROTTLE_MUTEX};
 
 #[test]
 fn user_request_test() {

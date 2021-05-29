@@ -1,5 +1,4 @@
-use crate::builder::ClientLinkSettings;
-use crate::traits::VecExt;
+use crate::{builder::ClientLinkSettings, traits::VecExt};
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet};
 

@@ -1,9 +1,7 @@
 // GENERATED CODE | DO NOT CHANGE
 
-use crate::client::Graph;
-use crate::core::ResourceIdentity;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use crate::{client::Graph, core::ResourceIdentity};
+use graph_http::{types::NoContent, IntoResponse};
 use handlebars::*;
 use reqwest::Method;
 
@@ -15,10 +13,6 @@ impl<'a, Client> CallRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> CallsRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Calls);
-        CallsRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get calls from communications",
         name: list_calls,
@@ -27,6 +21,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to calls for communications",
         name: create_calls,
@@ -35,6 +30,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action logTeleconferenceDeviceQuality",
         name: log_teleconference_device_quality,
@@ -43,15 +39,17 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> CallsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Calls);
+        CallsRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> CallsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn participants(&self) -> ParticipantsRequest<'a, Client> {
-        ParticipantsRequest::new(self.client)
-    }
     get!({
         doc: "# Get calls from communications",
         name: get_calls,
@@ -60,6 +58,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property calls in communications",
         name: update_calls,
@@ -68,6 +67,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action answer",
         name: answer,
@@ -76,6 +76,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action cancelMediaProcessing",
         name: cancel_media_processing,
@@ -84,6 +85,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action changeScreenSharingRole",
         name: change_screen_sharing_role,
@@ -92,6 +94,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action keepAlive",
         name: keep_alive,
@@ -100,6 +103,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action mute",
         name: mute,
@@ -108,6 +112,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get operations from communications",
         name: list_operations,
@@ -116,6 +121,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to operations for communications",
         name: create_operations,
@@ -124,6 +130,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get operations from communications",
         name: get_operations,
@@ -132,6 +139,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property operations in communications",
         name: update_operations,
@@ -140,6 +148,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get participants from communications",
         name: list_participants,
@@ -148,6 +157,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to participants for communications",
         name: create_participants,
@@ -156,6 +166,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get participants from communications",
         name: get_participants,
@@ -164,6 +175,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property participants in communications",
         name: update_participants,
@@ -172,6 +184,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action playPrompt",
         name: play_prompt,
@@ -180,6 +193,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action recordResponse",
         name: record_response,
@@ -188,6 +202,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action redirect",
         name: redirect,
@@ -196,6 +211,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action reject",
         name: reject,
@@ -204,6 +220,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action subscribeToTone",
         name: subscribe_to_tone,
@@ -212,6 +229,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action transfer",
         name: transfer,
@@ -220,6 +238,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action unmute",
         name: unmute,
@@ -228,6 +247,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action updateRecordingStatus",
         name: update_recording_status,
@@ -236,6 +256,10 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn participants(&self) -> ParticipantsRequest<'a, Client> {
+        ParticipantsRequest::new(self.client)
+    }
 }
 
 impl<'a, Client> ParticipantsRequest<'a, Client>
@@ -250,6 +274,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action mute",
         name: mute,

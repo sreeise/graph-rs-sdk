@@ -1,9 +1,11 @@
 use crate::builder::ClientBuilder;
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use std::collections::BTreeSet;
-use std::convert::TryFrom;
-use std::io::{Read, Write};
+use std::{
+    collections::BTreeSet,
+    convert::TryFrom,
+    io::{Read, Write},
+};
 
 #[derive(
     Debug, Default, Clone, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize, FromFile, AsFile,

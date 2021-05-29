@@ -11,8 +11,7 @@ use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 // Client Credentials Grant
 // If you have already given admin consent to a user you can skip

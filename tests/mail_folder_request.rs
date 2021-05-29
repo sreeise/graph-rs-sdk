@@ -1,5 +1,4 @@
-use test_tools::oauthrequest::THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
+use test_tools::oauthrequest::{Environment, OAuthTestClient, THROTTLE_MUTEX};
 
 #[test]
 fn get_drafts_mail_folder() {

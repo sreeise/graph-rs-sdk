@@ -10,10 +10,7 @@ use from_as::*;
 use graph_rs_sdk::oauth::{IdToken, OAuth};
 use rocket::Data;
 use rocket_codegen::routes;
-use std::convert::TryFrom;
-use std::io::Read;
-use std::thread;
-use std::time::Duration;
+use std::{convert::TryFrom, io::Read, thread, time::Duration};
 
 // Create an OAuth struct with the needed credentials.
 // See the following link for more info on open ID connect:
@@ -66,8 +63,8 @@ fn redirect(id_token: Data) -> String {
     let mut s = String::new();
     id_token.open().read_to_string(&mut s).unwrap();
 
-    // Print the string for debugging in case the attempt to deserialize the response
-    // in the TryFrom method below does not work..
+    // Print the string for debugging in case the attempt to deserialize the
+    // response in the TryFrom method below does not work..
     println!("Token response:\n{:#?}\n", s);
 
     // Use the TryFrom impl to get an IdToken from a string
@@ -84,7 +81,8 @@ pub fn access_token(oauth: &mut OAuth) {
     let mut request = oauth.build().code_flow();
     let access_token = request.access_token().send().unwrap();
     oauth.access_token(access_token);
-    // If all went well here we can print out the OAuth config with the Access Token.
+    // If all went well here we can print out the OAuth config with the Access
+    // Token.
     println!("OAuth:\n{:#?}\n", &oauth);
     oauth
         .as_file("./examples/example_files/web_oauth.json")

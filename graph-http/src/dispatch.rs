@@ -1,17 +1,16 @@
-use crate::async_client::AsyncHttpClient;
-use crate::blocking_client::BlockingHttpClient;
-use crate::traits::*;
-use crate::types::*;
-use crate::uploadsession::UploadSessionClient;
-use crate::url::GraphUrl;
-use crate::GraphResponse;
+use crate::{
+    async_client::AsyncHttpClient, blocking_client::BlockingHttpClient, traits::*, types::*,
+    uploadsession::UploadSessionClient, url::GraphUrl, GraphResponse,
+};
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use reqwest::header::CONTENT_TYPE;
-use std::convert::TryFrom;
-use std::marker::PhantomData;
-use std::path::PathBuf;
-use std::sync::mpsc::{channel, Receiver};
-use std::thread;
+use std::{
+    convert::TryFrom,
+    marker::PhantomData,
+    path::PathBuf,
+    sync::mpsc::{channel, Receiver},
+    thread,
+};
 
 pub struct DispatchRequest<T, Builder> {
     request: Builder,

@@ -1,6 +1,5 @@
 use graph_rs_sdk::prelude::*;
-use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
+use test_tools::oauthrequest::{Environment, OAuthTestClient, ASYNC_THROTTLE_MUTEX};
 
 #[tokio::test]
 async fn delta_req() {

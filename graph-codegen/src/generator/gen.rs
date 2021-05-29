@@ -1,14 +1,15 @@
-use crate::builder::{Builder, StoredClientSet};
-use crate::parser::client_resource::ClientResource;
-use crate::parser::error::ParseError;
-use crate::parser::{Modifier, Parser, ParserSettings, ParserSpec, PathMap, ResourceRequestMap};
-use crate::traits::Parse;
+use crate::{
+    builder::{Builder, StoredClientSet},
+    parser::{
+        client_resource::ClientResource, error::ParseError, Modifier, Parser, ParserSettings,
+        ParserSpec, PathMap, ResourceRequestMap,
+    },
+    traits::Parse,
+};
 use from_as::FromFile;
 use graph_core::resource::ResourceIdentity;
 use rayon::prelude::*;
-use std::cell::RefCell;
-use std::convert::TryFrom;
-use std::str::FromStr;
+use std::{cell::RefCell, convert::TryFrom, str::FromStr};
 
 static API_V1_METADATA_URL_STR: &str = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml";
 

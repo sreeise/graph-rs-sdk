@@ -3,7 +3,8 @@ use graph_rs_sdk::prelude::*;
 // You can get preview URLs for an item. Provide optional
 // properties with an EmbeddableUrl.
 
-// Note: The previews API currently only works for SharePoint and OneDrive business accounts.
+// Note: The previews API currently only works for SharePoint and OneDrive
+// business accounts.
 
 // For more info on previews see:
 // V1.0 API: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_preview?view=odsp-graph-online
@@ -12,8 +13,8 @@ use graph_rs_sdk::prelude::*;
 fn main() {
     // The following preview methods use the Graph Beta API.
 
-    // Provide the access token to query the API and the item id of the drive item you
-    // want to get a preview for.
+    // Provide the access token to query the API and the item id of the drive item
+    // you want to get a preview for.
     get_preview("<ACCESS_TOKEN>", "<ITEM_ID>");
 
     // Or add optional properties to the request.

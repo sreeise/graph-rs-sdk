@@ -1,13 +1,17 @@
-use crate::idtoken::IdToken;
-use crate::jwt::{Claim, JsonWebToken, JwtParser};
+use crate::{
+    idtoken::IdToken,
+    jwt::{Claim, JsonWebToken, JwtParser},
+};
 use chrono::{DateTime, Duration, TimeZone, Utc};
 use chrono_humanize::HumanTime;
 use from_as::*;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use serde_aux::prelude::*;
-use std::convert::TryFrom;
-use std::fmt;
-use std::io::{Read, Write};
+use std::{
+    convert::TryFrom,
+    fmt,
+    io::{Read, Write},
+};
 
 /// OAuth 2.0 Access Token
 ///

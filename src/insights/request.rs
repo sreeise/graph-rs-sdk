@@ -1,6 +1,5 @@
 use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{types::NoContent, IntoResponse};
 use reqwest::Method;
 
 register_client!(InsightsRequest,);
@@ -12,15 +11,6 @@ impl<'a, Client> InsightsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn shared(&self) -> SharedRequest<'a, Client> {
-        SharedRequest::new(self.client)
-    }
-    pub fn trending(&self) -> TrendingRequest<'a, Client> {
-        TrendingRequest::new(self.client)
-    }
-    pub fn used(&self) -> UsedRequest<'a, Client> {
-        UsedRequest::new(self.client)
-    }
     get!({
         doc: "# Get shared from me",
         name: list_shared,
@@ -29,6 +19,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to shared for me",
         name: create_shared,
@@ -37,6 +28,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get shared from me",
         name: get_shared,
@@ -45,6 +37,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property shared in me",
         name: update_shared,
@@ -53,6 +46,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get trending from me",
         name: list_trending,
@@ -61,6 +55,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to trending for me",
         name: create_trending,
@@ -69,6 +64,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get trending from me",
         name: get_trending,
@@ -77,6 +73,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property trending in me",
         name: update_trending,
@@ -85,6 +82,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get used from me",
         name: list_used,
@@ -93,6 +91,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to used for me",
         name: create_used,
@@ -101,6 +100,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get used from me",
         name: get_used,
@@ -109,6 +109,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property used in me",
         name: update_used,
@@ -117,6 +118,18 @@ where
         params: 1,
         has_body: true
     });
+
+    pub fn shared(&self) -> SharedRequest<'a, Client> {
+        SharedRequest::new(self.client)
+    }
+
+    pub fn trending(&self) -> TrendingRequest<'a, Client> {
+        TrendingRequest::new(self.client)
+    }
+
+    pub fn used(&self) -> UsedRequest<'a, Client> {
+        UsedRequest::new(self.client)
+    }
 }
 
 impl<'a, Client> SharedRequest<'a, Client>
@@ -131,6 +144,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get resource from me",
         name: get_resource,

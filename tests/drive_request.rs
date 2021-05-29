@@ -1,17 +1,19 @@
 use graph_error::{GraphError, GraphResult};
 use graph_http::NextSession;
-use std::collections::HashMap;
-use std::ffi::OsStr;
-use std::ffi::OsString;
-use std::fs::OpenOptions;
-use std::io::Write;
-use std::path::{Path, PathBuf};
-use std::thread;
-use std::time::Duration;
-use test_tools::common::TestTools;
-use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
-use test_tools::support::cleanup::CleanUp;
+use std::{
+    collections::HashMap,
+    ffi::{OsStr, OsString},
+    fs::OpenOptions,
+    io::Write,
+    path::{Path, PathBuf},
+    thread,
+    time::Duration,
+};
+use test_tools::{
+    common::TestTools,
+    oauthrequest::{Environment, OAuthTestClient, DRIVE_THROTTLE_MUTEX},
+    support::cleanup::CleanUp,
+};
 
 fn test_folder_create_delete(folder_name: &str) {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
@@ -37,9 +39,10 @@ fn test_folder_create_delete(folder_name: &str) {
 
             TestTools::assert_success(&result, "delete folder (conflict behavior: fail)");
         } else if let Err(e) = result {
-            panic!("Request error. Method: create folder with encoding. Path: root\nFolder Name: {:#?}\nError: {:#?}",
-                   folder_name,
-                   e
+            panic!(
+                "Request error. Method: create folder with encoding. Path: root\nFolder Name: \
+                 {:#?}\nError: {:#?}",
+                folder_name, e
             );
         }
     }

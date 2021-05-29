@@ -1,9 +1,11 @@
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
-use std::convert::TryFrom;
-use std::io::{Read, Write};
-use std::str::FromStr;
+use std::{
+    convert::TryFrom,
+    io::{Read, Write},
+    str::FromStr,
+};
 
 #[derive(
     Debug,

@@ -1,7 +1,5 @@
-use crate::client::Graph;
-use crate::core::ResourceIdentity;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use crate::{client::Graph, core::ResourceIdentity};
+use graph_http::{types::NoContent, IntoResponse};
 use handlebars::*;
 use reqwest::Method;
 
@@ -12,10 +10,6 @@ impl<'a, Client> TaskRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> TasksRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Tasks);
-        TasksRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get tasks from planner",
         name: list_tasks,
@@ -24,6 +18,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to tasks for planner",
         name: create_tasks,
@@ -32,6 +27,11 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> TasksRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Tasks);
+        TasksRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> TasksRequest<'a, Client>
@@ -46,6 +46,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property tasks in planner",
         name: update_tasks,
@@ -54,6 +55,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get assignedToTaskBoardFormat from planner",
         name: get_assigned_to_task_board_format,
@@ -62,6 +64,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property assignedToTaskBoardFormat in planner",
         name: update_assigned_to_task_board_format,
@@ -70,6 +73,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get bucketTaskBoardFormat from planner",
         name: get_bucket_task_board_format,
@@ -78,6 +82,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property bucketTaskBoardFormat in planner",
         name: update_bucket_task_board_format,
@@ -86,6 +91,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get details from planner",
         name: get_details,
@@ -94,6 +100,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property details in planner",
         name: update_details,
@@ -102,6 +109,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get progressTaskBoardFormat from planner",
         name: get_progress_task_board_format,
@@ -110,6 +118,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property progressTaskBoardFormat in planner",
         name: update_progress_task_board_format,

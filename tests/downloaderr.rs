@@ -1,7 +1,5 @@
-use graph_rs_sdk::error::*;
-use graph_rs_sdk::prelude::*;
-use test_tools::oauthrequest::OAuthTestClient;
-use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
+use graph_rs_sdk::{error::*, prelude::*};
+use test_tools::oauthrequest::{OAuthTestClient, DRIVE_THROTTLE_MUTEX};
 
 #[test]
 #[should_panic]
@@ -32,22 +30,32 @@ fn download_config_file_exists() {
 
         if let Err(err) = result {
             match err {
-                GraphFailure::GraphRsError(err) => {
-                    match err {
-                        GraphRsError::DownloadFileExists { name} => {
-                            if cfg!(target_os = "windows") {
-                                assert_eq!(name, "./test_files\\downloadtestdoc.txt".to_string());
-                            } else {
-                                assert_eq!(name, "./test_files/downloadtestdoc.txt".to_string());
-                            }
-                        },
-                        _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
-                    }
+                GraphFailure::GraphRsError(err) => match err {
+                    GraphRsError::DownloadFileExists { name } => {
+                        if cfg!(target_os = "windows") {
+                            assert_eq!(name, "./test_files\\downloadtestdoc.txt".to_string());
+                        } else {
+                            assert_eq!(name, "./test_files/downloadtestdoc.txt".to_string());
+                        }
+                    },
+                    _ => panic!(
+                        "Incorrect error thrown. Should have been \
+                         GraphRsError::DownloadFileExists. Got: {:#?}",
+                        err
+                    ),
                 },
-                _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
+                _ => panic!(
+                    "Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. \
+                     Got: {:#?}",
+                    err
+                ),
             }
         } else if let Ok(path) = result {
-            panic!("Download request should have thrown GraphRsError::DownloadFileExists. Instead got successful PathBuf: {:#?}", path);
+            panic!(
+                "Download request should have thrown GraphRsError::DownloadFileExists. Instead \
+                 got successful PathBuf: {:#?}",
+                path
+            );
         }
     }
 }
@@ -68,17 +76,27 @@ fn download_is_err_config_dir_no_exists() {
 
     if let Err(err) = result {
         match err {
-            GraphFailure::GraphRsError(err) => {
-                match err {
-                    GraphRsError::DownloadDirNoExists { dir } => {
-                        assert_eq!("./test_files/download_dir".to_string(), dir)
-                    },
-                    _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err)
-                }
+            GraphFailure::GraphRsError(err) => match err {
+                GraphRsError::DownloadDirNoExists { dir } => {
+                    assert_eq!("./test_files/download_dir".to_string(), dir)
+                },
+                _ => panic!(
+                    "Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. \
+                     Got: {:#?}",
+                    err
+                ),
             },
-            _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err)
+            _ => panic!(
+                "Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: \
+                 {:#?}",
+                err
+            ),
         }
     } else if let Ok(path) = result {
-        panic!("Download request should have thrown GraphRsError::DownloadDirNoExists. Instead got successful PathBuf: {:#?}", path);
+        panic!(
+            "Download request should have thrown GraphRsError::DownloadDirNoExists. Instead got \
+             successful PathBuf: {:#?}",
+            path
+        );
     }
 }

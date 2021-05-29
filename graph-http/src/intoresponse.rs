@@ -1,13 +1,14 @@
-use crate::async_client::AsyncHttpClient;
-use crate::blocking_client::BlockingHttpClient;
-use crate::traits::{AsyncTryFrom, ODataLink};
-use crate::types::{Delta, DeltaPhantom, NoContent};
-use crate::uploadsession::UploadSessionClient;
-use crate::{DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse, RequestClient};
+use crate::{
+    async_client::AsyncHttpClient,
+    blocking_client::BlockingHttpClient,
+    traits::{AsyncTryFrom, ODataLink},
+    types::{Delta, DeltaPhantom, NoContent},
+    uploadsession::UploadSessionClient,
+    DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse, RequestClient,
+};
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderValue, IntoHeaderName};
-use std::marker::PhantomData;
-use std::sync::mpsc::Receiver;
+use std::{marker::PhantomData, sync::mpsc::Receiver};
 
 pub struct IntoResponse<'a, T, Client>
 where

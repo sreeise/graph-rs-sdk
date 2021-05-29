@@ -2,8 +2,7 @@
 extern crate lazy_static;
 
 use graph_rs_sdk::prelude::*;
-use test_tools::assert_url_eq;
-use test_tools::common::TestTools;
+use test_tools::{assert_url_eq, common::TestTools};
 
 lazy_static! {
     static ref ID_VEC: Vec<String> = TestTools::random_strings(4, 20);

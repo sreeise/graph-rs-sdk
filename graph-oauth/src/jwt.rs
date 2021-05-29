@@ -1,11 +1,7 @@
-use crate::auth::OAuthReq;
-use crate::oautherror::OAuthError;
+use crate::{auth::OAuthReq, oautherror::OAuthError};
 use graph_error::GraphFailure;
-use serde_json::Map;
-use serde_json::Value;
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::str::FromStr;
+use serde_json::{Map, Value};
+use std::{collections::HashMap, convert::TryFrom, str::FromStr};
 
 /// Enum for the type of JSON web token (JWT).
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]

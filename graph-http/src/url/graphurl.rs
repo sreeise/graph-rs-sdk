@@ -1,10 +1,11 @@
 use graph_error::GraphFailure;
-use std::ffi::OsStr;
-use std::iter::Iterator;
-use std::ops::{Deref, Index, Range, RangeFrom, RangeFull, RangeTo};
-use std::str::FromStr;
-use url::form_urlencoded::Serializer;
-use url::{PathSegmentsMut, Position, Url, UrlQuery};
+use std::{
+    ffi::OsStr,
+    iter::Iterator,
+    ops::{Deref, Index, Range, RangeFrom, RangeFull, RangeTo},
+    str::FromStr,
+};
+use url::{form_urlencoded::Serializer, PathSegmentsMut, Position, Url, UrlQuery};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GraphUrl {

@@ -1,20 +1,24 @@
-use crate::download::AsyncDownload;
-use crate::download::DownloadClient;
-use crate::traits::*;
-use crate::uploadsession::UploadSessionClient;
-use crate::url::GraphUrl;
 use crate::{
-    GraphRequest, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient, RequestType,
+    download::{AsyncDownload, DownloadClient},
+    traits::*,
+    uploadsession::UploadSessionClient,
+    url::GraphUrl,
+    GraphRequest, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient,
+    RequestType,
 };
 use graph_core::resource::ResourceIdentity;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use handlebars::Handlebars;
-use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
-use reqwest::redirect::Policy;
-use reqwest::Method;
-use std::convert::TryFrom;
-use std::fmt::{Debug, Formatter};
-use std::path::PathBuf;
+use reqwest::{
+    header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE},
+    redirect::Policy,
+    Method,
+};
+use std::{
+    convert::TryFrom,
+    fmt::{Debug, Formatter},
+    path::PathBuf,
+};
 use url::Url;
 
 pub(crate) type AsyncClient =

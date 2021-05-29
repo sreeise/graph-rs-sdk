@@ -1,11 +1,16 @@
-use crate::builder::ClientLinkSettings;
-use crate::parser::filter::ResourceIdentityModifier;
-use crate::parser::filter::{Filter, FilterIgnore, ModifierMap, SecondaryModifierMap};
-use crate::parser::settings::{
-    get_client_link_settings, get_custom_requests, get_imports, get_path_filters,
-    get_target_map_modifier,
+use crate::{
+    builder::ClientLinkSettings,
+    parser::{
+        filter::{
+            Filter, FilterIgnore, ModifierMap, ResourceIdentityModifier, SecondaryModifierMap,
+        },
+        settings::{
+            get_client_link_settings, get_custom_requests, get_imports, get_path_filters,
+            get_target_map_modifier,
+        },
+        DirectoryModFile, RequestSet,
+    },
 };
-use crate::parser::{DirectoryModFile, RequestSet};
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
@@ -35,9 +40,10 @@ impl ParserSettings {
 
     // Filters for clients when the parsing and generation happens. Some clients,
     // such as Users and Groups use the same path for resources like calendars, and
-    // so we generate a separate module for calendars. In cases like these, Users and
-    // Groups will use the same calendar module. This cuts down on the size of the crate
-    // and makes it easier to generate clients that use the same resources.
+    // so we generate a separate module for calendars. In cases like these, Users
+    // and Groups will use the same calendar module. This cuts down on the size
+    // of the crate and makes it easier to generate clients that use the same
+    // resources.
     pub fn path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
         get_path_filters(resource_identity)
     }

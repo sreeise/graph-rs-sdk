@@ -1,7 +1,6 @@
 use graph_error::GraphFailure;
 use graph_rs_sdk::prelude::*;
-use std::ffi::OsString;
-use std::path::PathBuf;
+use std::{ffi::OsString, path::PathBuf};
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static USER_ID: &str = "USER_ID";

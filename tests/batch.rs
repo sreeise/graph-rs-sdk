@@ -1,5 +1,4 @@
-use graph_rs_sdk::prelude::*;
-use graph_rs_sdk::{GRAPH_URL, GRAPH_URL_BETA};
+use graph_rs_sdk::{prelude::*, GRAPH_URL, GRAPH_URL_BETA};
 use test_tools::oauthrequest::OAuthTestClient;
 
 #[test]
@@ -88,7 +87,11 @@ pub fn batch_request() {
                     },
                     Delta::Done(err) => {
                         if let Some(err) = err {
-                            panic!("Request Error. Method: drive batch - received error on Delta::Done. Error: {:#?}", err);
+                            panic!(
+                                "Request Error. Method: drive batch - received error on \
+                                 Delta::Done. Error: {:#?}",
+                                err
+                            );
                         } else {
                             break;
                         }

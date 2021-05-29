@@ -1,6 +1,5 @@
 use graph_http::{BlockingHttpClient, Session};
-use graph_rs_sdk::prelude::*;
-use graph_rs_sdk::GRAPH_URL;
+use graph_rs_sdk::{prelude::*, GRAPH_URL};
 use test_tools::assert_url_eq;
 
 static RID: &str = "T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x";
@@ -63,7 +62,8 @@ pub fn drive_upload_session() {
     );
     assert_url_eq(
         &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/complete_drive_item.json:/createUploadSession",
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/complete_drive_item.json:/\
+         createUploadSession",
     );
 }
 
@@ -278,7 +278,11 @@ fn drive_create_folder() {
         .me()
         .drive()
         .create_folder(ID, &serde_json::json!({}));
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
+    assert_url_eq(
+        &client,
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+         children",
+    );
 
     let _ = client
         .v1()
@@ -346,11 +350,16 @@ fn drive_delete() {
     let _ = client.v1().drive(RID).delete_items(ID);
     assert_url_eq(
         &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
     );
 
     let _ = client.v1().site(RID).drive().delete_items(ID);
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI");
+    assert_url_eq(
+        &client,
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+    );
 }
 
 #[test]
@@ -382,11 +391,16 @@ fn drive_get_item() {
     let _ = client.v1().drive(RID).get_items(ID);
     assert_url_eq(
         &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
     );
 
     let _ = client.v1().site(RID).drive().get_items(ID);
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI");
+    assert_url_eq(
+        &client,
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
+    );
 }
 
 #[test]
@@ -436,15 +450,24 @@ fn drive_thumbnails() {
 fn drive_single_thumbnail() {
     let client = get_drive();
     let _ = client.v1().me().drive().get_thumbnail(ID, "4", "100");
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100");
+    assert_url_eq(
+        &client,
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+         thumbnails/4/100",
+    );
 
     let _ = client.v1().drive(RID).get_thumbnail(ID, "4", "100");
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100");
+    assert_url_eq(
+        &client,
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100",
+    );
 
     let _ = client.v1().site(RID).drive().get_thumbnail(ID, "4", "100");
     assert_url_eq(
         &client,
-        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100",
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100",
     );
 }
 
@@ -456,7 +479,11 @@ fn drive_thumbnail_binary() {
         .me()
         .drive()
         .get_thumbnail_binary(ID, "4", "100");
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100/content");
+    assert_url_eq(
+        &client,
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+         thumbnails/4/100/content",
+    );
     let _ = client.v1().drive(RID).get_thumbnail_binary(ID, "4", "100");
     assert_url_eq(
         &client,
@@ -472,7 +499,11 @@ pub fn drive_upload_new() {
         .me()
         .drive()
         .upload_new(ID, "./test_files/item_test/drive_info.json");
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content");
+    assert_url_eq(
+        &client,
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/\
+         drive_info.json:/content",
+    );
 
     let _ = client
         .v1()
@@ -480,7 +511,9 @@ pub fn drive_upload_new() {
         .upload_new(ID, "./test_files/item_test/drive_info.json");
     assert_url_eq(
         &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content",
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/\
+         content",
     );
 
     let _ = client
@@ -490,7 +523,9 @@ pub fn drive_upload_new() {
         .upload_new(ID, "./test_files/item_test/drive_info.json");
     assert_url_eq(
         &client,
-        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content",
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/\
+         content",
     );
 }
 
@@ -504,7 +539,8 @@ pub fn drive_upload_replace() {
         .upload_replace(ID, "./test_files/item_test/drive_info.json");
     assert_url_eq(
         &client,
-        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content",
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+         content",
     );
 
     let _ = client
@@ -525,7 +561,11 @@ pub fn drive_upload_replace() {
 pub fn drive_list_versions() {
     let client = get_drive();
     let _ = client.v1().me().drive().list_item_versions(ID);
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions");
+    assert_url_eq(
+        &client,
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+         versions",
+    );
 
     let _ = client.v1().drive(RID).list_item_versions(ID);
     assert_url_eq(&client, id_path("drives", "items", Some("versions")));
@@ -568,13 +608,25 @@ pub fn drive_list_versions_path() {
 pub fn drive_list_children() {
     let client = get_drive();
     let _ = client.v1().me().drive().list_children(ID);
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
+    assert_url_eq(
+        &client,
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+         children",
+    );
 
     let _ = client.v1().drive(RID).list_children(ID);
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
+    assert_url_eq(
+        &client,
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children",
+    );
 
     let _ = client.v1().site(RID).drive().list_children(ID);
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
+    assert_url_eq(
+        &client,
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children",
+    );
 
     let _ = client
         .v1()
@@ -614,7 +666,8 @@ pub fn drive_restore_version() {
         .restore_item_versions(ID, "34492566a");
     assert_url_eq(
         &client,
-        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion",
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+         versions/34492566a/restoreVersion",
     );
 
     let _ = client
@@ -623,7 +676,9 @@ pub fn drive_restore_version() {
         .restore_item_versions(ID, "34492566a");
     assert_url_eq(
         &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion",
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/\
+         restoreVersion",
     );
 
     let _ = client
@@ -633,7 +688,9 @@ pub fn drive_restore_version() {
         .restore_item_versions(ID, "34492566a");
     assert_url_eq(
         &client,
-        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion",
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/\
+         restoreVersion",
     );
 }
 
@@ -656,7 +713,8 @@ pub fn drive_restore_version_path() {
         .restore_item_versions(":/Documents/item.txt:", "34492566a");
     assert_url_eq(
         &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/item.txt:/versions/34492566a/restoreVersion",
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/item.txt:/versions/34492566a/\
+         restoreVersion",
     );
 
     let _ = client
@@ -666,7 +724,8 @@ pub fn drive_restore_version_path() {
         .restore_item_versions(":/Documents/item.txt:", "34492566a");
     assert_url_eq(
         &client,
-        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/item.txt:/versions/34492566a/restoreVersion",
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/item.txt:/versions/\
+         34492566a/restoreVersion",
     );
 }
 
@@ -674,18 +733,36 @@ pub fn drive_restore_version_path() {
 pub fn drive_download() {
     let client = get_drive();
     let download_client = client.v1().me().drive().download(ID, "./test_files");
-    assert_eq!(download_client.url().to_string(), format!("{}/{}", GRAPH_URL, "me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content"));
+    assert_eq!(
+        download_client.url().to_string(),
+        format!(
+            "{}/{}",
+            GRAPH_URL,
+            "me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+             content"
+        )
+    );
 
     let download_client = client.v1().drive(RID).download(ID, "./test_files");
     assert_eq!(
         download_client.url().to_string(),
-        format!("{}/{}", GRAPH_URL, "drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content")
+        format!(
+            "{}/{}",
+            GRAPH_URL,
+            "drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!\
+             CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content"
+        )
     );
 
     let download_client = client.v1().site(RID).drive().download(ID, "./test_files");
     assert_eq!(
         download_client.url().to_string(),
-        format!("{}/{}", GRAPH_URL, "sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content")
+        format!(
+            "{}/{}",
+            GRAPH_URL,
+            "sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!\
+             CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content"
+        )
     );
 }
 
@@ -732,13 +809,25 @@ pub fn drive_download_path() {
 pub fn drive_check_out() {
     let client = get_drive();
     let _ = client.v1().me().drive().check_out_item(ID);
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout");
+    assert_url_eq(
+        &client,
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+         checkout",
+    );
 
     let _ = client.v1().drive(RID).check_out_item(ID);
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout");
+    assert_url_eq(
+        &client,
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout",
+    );
 
     let _ = client.v1().site(RID).drive().check_out_item(ID);
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout");
+    assert_url_eq(
+        &client,
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout",
+    );
 }
 
 #[test]
@@ -749,20 +838,32 @@ pub fn drive_check_in() {
         .me()
         .drive()
         .check_in_item(ID, &serde_json::json!({}));
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
+    assert_url_eq(
+        &client,
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+         checkin",
+    );
 
     let _ = client
         .v1()
         .drive(RID)
         .check_in_item(ID, &serde_json::json!({}));
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
+    assert_url_eq(
+        &client,
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin",
+    );
 
     let _ = client
         .v1()
         .site(RID)
         .drive()
         .check_in_item(ID, &serde_json::json!({}));
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
+    assert_url_eq(
+        &client,
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin",
+    );
 }
 
 #[test]
@@ -788,13 +889,25 @@ pub fn drive_activities() {
 pub fn drive_item_activities() {
     let client = get_drive();
     let _ = client.v1().me().drive().get_item_activities(ID);
-    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities");
+    assert_url_eq(
+        &client,
+        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/\
+         activities",
+    );
 
     let _ = client.v1().drive(RID).get_item_activities(ID);
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities");
+    assert_url_eq(
+        &client,
+        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities",
+    );
 
     let _ = client.v1().site(RID).drive().get_item_activities(ID);
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities");
+    assert_url_eq(
+        &client,
+        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!\
+         CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities",
+    );
 
     let _ = client
         .v1()

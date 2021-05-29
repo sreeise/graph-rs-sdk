@@ -1,8 +1,7 @@
 // GENERATED CODE
 
 use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{types::NoContent, IntoResponse};
 use reqwest::Method;
 
 register_client!(ActivitiesRequest,);
@@ -12,9 +11,6 @@ impl<'a, Client> ActivitiesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn history_items(&self) -> HistoryItemsRequest<'a, Client> {
-        HistoryItemsRequest::new(self.client)
-    }
     get!({
         doc: "# Get activities from me",
         name: list_activities,
@@ -23,6 +19,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to activities for me",
         name: create_activities,
@@ -31,6 +28,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function recent",
         name: recent,
@@ -39,6 +37,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get activities from me",
         name: get_activities,
@@ -47,6 +46,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property activities in me",
         name: update_activities,
@@ -55,6 +55,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property activities for me",
         name: delete_activities,
@@ -63,6 +64,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get historyItems from me",
         name: list_history_items,
@@ -71,6 +73,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to historyItems for me",
         name: create_history_items,
@@ -79,6 +82,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get historyItems from me",
         name: get_history_items,
@@ -87,6 +91,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property historyItems in me",
         name: update_history_items,
@@ -95,6 +100,7 @@ where
         params: 2,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property historyItems for me",
         name: delete_history_items,
@@ -103,6 +109,10 @@ where
         params: 2,
         has_body: false
     });
+
+    pub fn history_items(&self) -> HistoryItemsRequest<'a, Client> {
+        HistoryItemsRequest::new(self.client)
+    }
 }
 
 impl<'a, Client> HistoryItemsRequest<'a, Client>
@@ -117,6 +127,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get ref of activity from me",
         name: get_ref_activity,
@@ -125,6 +136,7 @@ where
         params: 2,
         has_body: false
     });
+
     put!({
         doc: "# Update the ref of navigation property activity in me",
         name: update_ref_activity,
@@ -133,6 +145,7 @@ where
         params: 2,
         has_body: true
     });
+
     delete!({
         doc: "# Delete ref of navigation property activity for me",
         name: delete_ref_activity,

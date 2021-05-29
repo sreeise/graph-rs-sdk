@@ -1,8 +1,9 @@
-use crate::oauth::wellknown::WellKnown;
-use crate::oauth::{OAuth, OAuthError};
+use crate::oauth::{wellknown::WellKnown, OAuth, OAuthError};
 use from_as::*;
-use std::convert::TryFrom;
-use std::io::{Read, Write};
+use std::{
+    convert::TryFrom,
+    io::{Read, Write},
+};
 
 static LOGIN_LIVE_HOST: &str = "https://login.live.com";
 static MICROSOFT_ONLINE_HOST: &str = "https://login.microsoftonline.com";
@@ -116,9 +117,10 @@ impl GraphDiscovery {
         Ok(t)
     }
 
-    /// Automatically convert the public keys used by the Microsoft identity platform
-    /// to sign security tokens into an OAuth object. This will get the common urls
-    /// for authorization and access tokens and insert them into OAuth.
+    /// Automatically convert the public keys used by the Microsoft identity
+    /// platform to sign security tokens into an OAuth object. This will get
+    /// the common urls for authorization and access tokens and insert them
+    /// into OAuth.
     ///
     /// # Example
     /// ```
@@ -150,9 +152,10 @@ impl GraphDiscovery {
         }
     }
 
-    /// Automatically convert the public keys used by the Microsoft identity platform
-    /// to sign security tokens into an OAuth object. This will get the common urls
-    /// for authorization and access tokens and insert them into OAuth.
+    /// Automatically convert the public keys used by the Microsoft identity
+    /// platform to sign security tokens into an OAuth object. This will get
+    /// the common urls for authorization and access tokens and insert them
+    /// into OAuth.
     ///
     /// # Example
     /// ```rust,ignore

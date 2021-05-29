@@ -1,10 +1,13 @@
-use crate::error::{AsRes, GraphRsError};
-use crate::pages::PageRequest;
+use crate::{
+    error::{AsRes, GraphRsError},
+    pages::PageRequest,
+};
 use graph_http::IntoResponse;
-use reqwest::header::{HeaderValue, CONTENT_TYPE};
-use reqwest::Method;
-use std::ffi::OsStr;
-use std::path::Path;
+use reqwest::{
+    header::{HeaderValue, CONTENT_TYPE},
+    Method,
+};
+use std::{ffi::OsStr, path::Path};
 
 impl<'a, Client> PageRequest<'a, Client>
 where

@@ -1,48 +1,50 @@
-use crate::activities::ActivitiesRequest;
-use crate::app_catalogs::AppCatalogsRequest;
-use crate::applications::{ApplicationRequest, ApplicationsRequest};
-use crate::audit_logs::AuditLogsRequest;
-use crate::certificate_based_auth_configuration::CertificateBasedAuthConfigurationRequest;
-use crate::communications::CommunicationsRequest;
-use crate::contracts::ContractsRequest;
-use crate::data_policy_operations::DataPolicyOperationsRequest;
-use crate::device_app_management::DeviceAppManagementRequest;
-use crate::device_management::DeviceManagementRequest;
-use crate::directory::DirectoryRequest;
-use crate::domain_dns_records::DomainDnsRecordsRequest;
-use crate::domains::{DomainRequest, DomainsRequest};
-use crate::drive::{DriveRequest, DrivesRequest};
-use crate::education::EducationRequest;
-use crate::group_lifecycle_policies::GroupLifecyclePoliciesRequest;
-use crate::groups::{GroupRequest, GroupsRequest};
-use crate::identity::IdentityRequest;
-use crate::invitations::InvitationsRequest;
-use crate::me::MeRequest;
-use crate::org_contact::{OrgContactRequest, OrgContactsRequest};
-use crate::places::PlacesRequest;
-use crate::planner::PlannerRequest;
-use crate::policies::PoliciesRequest;
-use crate::schema_extensions::SchemaExtensionsRequest;
-use crate::service_principals::ServicePrincipalsRequest;
-use crate::sites::{SiteRequest, SitesRequest};
-use crate::subscribed_skus::SubscribedSkusRequest;
-use crate::subscriptions::SubscriptionsRequest;
-use crate::teams::{TeamRequest, TeamsRequest};
-use crate::teamwork::TeamworkRequest;
-use crate::users::{UserRequest, UsersRequest};
-use crate::{GRAPH_URL, GRAPH_URL_BETA};
+use crate::{
+    activities::ActivitiesRequest,
+    app_catalogs::AppCatalogsRequest,
+    applications::{ApplicationRequest, ApplicationsRequest},
+    audit_logs::AuditLogsRequest,
+    certificate_based_auth_configuration::CertificateBasedAuthConfigurationRequest,
+    communications::CommunicationsRequest,
+    contracts::ContractsRequest,
+    data_policy_operations::DataPolicyOperationsRequest,
+    device_app_management::DeviceAppManagementRequest,
+    device_management::DeviceManagementRequest,
+    directory::DirectoryRequest,
+    domain_dns_records::DomainDnsRecordsRequest,
+    domains::{DomainRequest, DomainsRequest},
+    drive::{DriveRequest, DrivesRequest},
+    education::EducationRequest,
+    group_lifecycle_policies::GroupLifecyclePoliciesRequest,
+    groups::{GroupRequest, GroupsRequest},
+    identity::IdentityRequest,
+    invitations::InvitationsRequest,
+    me::MeRequest,
+    org_contact::{OrgContactRequest, OrgContactsRequest},
+    places::PlacesRequest,
+    planner::PlannerRequest,
+    policies::PoliciesRequest,
+    schema_extensions::SchemaExtensionsRequest,
+    service_principals::ServicePrincipalsRequest,
+    sites::{SiteRequest, SitesRequest},
+    subscribed_skus::SubscribedSkusRequest,
+    subscriptions::SubscriptionsRequest,
+    teams::{TeamRequest, TeamsRequest},
+    teamwork::TeamworkRequest,
+    users::{UserRequest, UsersRequest},
+    GRAPH_URL, GRAPH_URL_BETA,
+};
 use graph_core::resource::ResourceIdentity;
 use graph_error::GraphFailure;
-use graph_http::url::GraphUrl;
 use graph_http::{
-    types::DeltaPhantom, AsyncHttpClient, BlockingHttpClient, IntoResponse, RequestClient,
+    types::DeltaPhantom, url::GraphUrl, AsyncHttpClient, BlockingHttpClient, IntoResponse,
+    RequestClient,
 };
 use graph_oauth::oauth::{AccessToken, OAuth};
-use reqwest::header::{HeaderValue, ACCEPT};
-use reqwest::Method;
-use std::convert::TryFrom;
-use std::fmt::Debug;
-use std::str::FromStr;
+use reqwest::{
+    header::{HeaderValue, ACCEPT},
+    Method,
+};
+use std::{convert::TryFrom, fmt::Debug, str::FromStr};
 
 /// The graph client.
 ///
@@ -189,7 +191,8 @@ impl TryFrom<&OAuth> for GraphBlocking {
     type Error = GraphFailure;
 
     fn try_from(oauth: &OAuth) -> Result<Self, Self::Error> {
-        let access_token = oauth.get_access_token()
+        let access_token = oauth
+            .get_access_token()
             .ok_or_else(|| GraphFailure::not_found("AccessToken (NoneError)"))?;
         Ok(Graph::from(&access_token))
     }
@@ -265,7 +268,8 @@ impl TryFrom<&OAuth> for GraphAsync {
     type Error = GraphFailure;
 
     fn try_from(oauth: &OAuth) -> Result<Self, Self::Error> {
-        let access_token = oauth.get_access_token()
+        let access_token = oauth
+            .get_access_token()
             .ok_or_else(|| GraphFailure::not_found("AccessToken (NoneError)"))?;
         Ok(Graph::from(&access_token))
     }

@@ -1,6 +1,5 @@
 use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{types::NoContent, IntoResponse};
 use reqwest::Method;
 
 register_client!(DeviceManagementRequest,);
@@ -24,45 +23,6 @@ impl<'a, Client> DeviceManagementRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn detected_apps(&self) -> DetectedAppsRequest<'a, Client> {
-        DetectedAppsRequest::new(&self.client)
-    }
-    pub fn device_compliance_policies(&self) -> DeviceCompliancePoliciesRequest<'a, Client> {
-        DeviceCompliancePoliciesRequest::new(&self.client)
-    }
-    pub fn device_compliance_policy_setting_state_summaries(
-        &self,
-    ) -> DeviceCompliancePolicySettingStateSummariesRequest<'a, Client> {
-        DeviceCompliancePolicySettingStateSummariesRequest::new(&self.client)
-    }
-    pub fn device_configurations(&self) -> DeviceConfigurationsRequest<'a, Client> {
-        DeviceConfigurationsRequest::new(&self.client)
-    }
-    pub fn device_enrollment_configurations(
-        &self,
-    ) -> DeviceEnrollmentConfigurationsRequest<'a, Client> {
-        DeviceEnrollmentConfigurationsRequest::new(&self.client)
-    }
-    pub fn exchange_connectors(&self) -> ExchangeConnectorsRequest<'a, Client> {
-        ExchangeConnectorsRequest::new(&self.client)
-    }
-    pub fn managed_devices(&self) -> ManagedDevicesRequest<'a, Client> {
-        ManagedDevicesRequest::new(&self.client)
-    }
-    pub fn notification_message_templates(
-        &self,
-    ) -> NotificationMessageTemplatesRequest<'a, Client> {
-        NotificationMessageTemplatesRequest::new(&self.client)
-    }
-    pub fn remote_assistance_partners(&self) -> RemoteAssistancePartnersRequest<'a, Client> {
-        RemoteAssistancePartnersRequest::new(&self.client)
-    }
-    pub fn role_definitions(&self) -> RoleDefinitionsRequest<'a, Client> {
-        RoleDefinitionsRequest::new(&self.client)
-    }
-    pub fn terms_and_conditions(&self) -> TermsAndConditionsRequest<'a, Client> {
-        TermsAndConditionsRequest::new(&self.client)
-    }
     get!({
         doc: "# Get deviceConfigurationDeviceStateSummaries from deviceManagement",
         name: get_device_configuration_device_state_summaries,
@@ -71,6 +31,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceConfigurationDeviceStateSummaries in deviceManagement",
         name: update_device_configuration_device_state_summaries,
@@ -79,6 +40,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get resourceOperations from deviceManagement",
         name: list_resource_operations,
@@ -87,6 +49,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to resourceOperations for deviceManagement",
         name: create_resource_operations,
@@ -95,6 +58,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get applePushNotificationCertificate from deviceManagement",
         name: get_apple_push_notification_certificate,
@@ -103,6 +67,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property applePushNotificationCertificate in deviceManagement",
         name: update_apple_push_notification_certificate,
@@ -111,6 +76,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get complianceManagementPartners from deviceManagement",
         name: get_compliance_management_partners,
@@ -119,6 +85,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property complianceManagementPartners in deviceManagement",
         name: update_compliance_management_partners,
@@ -127,6 +94,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get telecomExpenseManagementPartners from deviceManagement",
         name: get_telecom_expense_management_partners,
@@ -135,6 +103,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property telecomExpenseManagementPartners in deviceManagement",
         name: update_telecom_expense_management_partners,
@@ -143,6 +112,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get exchangeConnectors from deviceManagement",
         name: list_exchange_connectors,
@@ -151,6 +121,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to exchangeConnectors for deviceManagement",
         name: create_exchange_connectors,
@@ -159,6 +130,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get iosUpdateStatuses from deviceManagement",
         name: list_ios_update_statuses,
@@ -167,6 +139,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to iosUpdateStatuses for deviceManagement",
         name: create_ios_update_statuses,
@@ -175,6 +148,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceCategories from deviceManagement",
         name: get_device_categories,
@@ -183,6 +157,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceCategories in deviceManagement",
         name: update_device_categories,
@@ -191,6 +166,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceManagementPartners from deviceManagement",
         name: list_device_management_partners,
@@ -199,6 +175,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceManagementPartners for deviceManagement",
         name: create_device_management_partners,
@@ -207,6 +184,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get exchangeConnectors from deviceManagement",
         name: get_exchange_connectors,
@@ -215,6 +193,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property exchangeConnectors in deviceManagement",
         name: update_exchange_connectors,
@@ -223,6 +202,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get managedDevices from deviceManagement",
         name: get_managed_devices,
@@ -231,6 +211,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property managedDevices in deviceManagement",
         name: update_managed_devices,
@@ -239,6 +220,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get notificationMessageTemplates from deviceManagement",
         name: list_notification_message_templates,
@@ -247,6 +229,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to notificationMessageTemplates for deviceManagement",
         name: create_notification_message_templates,
@@ -255,6 +238,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceCompliancePolicySettingStateSummaries from deviceManagement",
         name: list_device_compliance_policy_setting_state_summaries,
@@ -263,6 +247,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceCompliancePolicySettingStateSummaries for deviceManagement",
         name: create_device_compliance_policy_setting_state_summaries,
@@ -271,6 +256,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceCompliancePolicySettingStateSummaries from deviceManagement",
         name: get_device_compliance_policy_setting_state_summaries,
@@ -279,6 +265,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceCompliancePolicySettingStateSummaries in deviceManagement",
         name: update_device_compliance_policy_setting_state_summaries,
@@ -287,6 +274,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get remoteAssistancePartners from deviceManagement",
         name: get_remote_assistance_partners,
@@ -295,6 +283,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property remoteAssistancePartners in deviceManagement",
         name: update_remote_assistance_partners,
@@ -303,6 +292,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get iosUpdateStatuses from deviceManagement",
         name: get_ios_update_statuses,
@@ -311,6 +301,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property iosUpdateStatuses in deviceManagement",
         name: update_ios_update_statuses,
@@ -319,6 +310,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get telecomExpenseManagementPartners from deviceManagement",
         name: list_telecom_expense_management_partners,
@@ -327,6 +319,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to telecomExpenseManagementPartners for deviceManagement",
         name: create_telecom_expense_management_partners,
@@ -335,6 +328,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get termsAndConditions from deviceManagement",
         name: list_terms_and_conditions,
@@ -343,6 +337,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to termsAndConditions for deviceManagement",
         name: create_terms_and_conditions,
@@ -351,6 +346,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function downloadApplePushNotificationCertificateSigningRequest",
         name: download_apple_push_notification_certificate_signing_request,
@@ -359,6 +355,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get deviceCategories from deviceManagement",
         name: list_device_categories,
@@ -367,6 +364,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceCategories for deviceManagement",
         name: create_device_categories,
@@ -375,6 +373,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get managedDeviceOverview from deviceManagement",
         name: get_managed_device_overview,
@@ -383,6 +382,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get roleDefinitions from deviceManagement",
         name: get_role_definitions,
@@ -391,6 +391,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property roleDefinitions in deviceManagement",
         name: update_role_definitions,
@@ -399,6 +400,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get mobileThreatDefenseConnectors from deviceManagement",
         name: list_mobile_threat_defense_connectors,
@@ -407,6 +409,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to mobileThreatDefenseConnectors for deviceManagement",
         name: create_mobile_threat_defense_connectors,
@@ -415,6 +418,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get detectedApps from deviceManagement",
         name: list_detected_apps,
@@ -423,6 +427,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to detectedApps for deviceManagement",
         name: create_detected_apps,
@@ -431,6 +436,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceEnrollmentConfigurations from deviceManagement",
         name: get_device_enrollment_configurations,
@@ -439,6 +445,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceEnrollmentConfigurations in deviceManagement",
         name: update_device_enrollment_configurations,
@@ -447,6 +454,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get complianceManagementPartners from deviceManagement",
         name: list_compliance_management_partners,
@@ -455,6 +463,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to complianceManagementPartners for deviceManagement",
         name: create_compliance_management_partners,
@@ -463,6 +472,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get roleAssignments from deviceManagement",
         name: list_role_assignments,
@@ -471,6 +481,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to roleAssignments for deviceManagement",
         name: create_role_assignments,
@@ -479,6 +490,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get termsAndConditions from deviceManagement",
         name: get_terms_and_conditions,
@@ -487,6 +499,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property termsAndConditions in deviceManagement",
         name: update_terms_and_conditions,
@@ -495,6 +508,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceManagementPartners from deviceManagement",
         name: get_device_management_partners,
@@ -503,6 +517,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceManagementPartners in deviceManagement",
         name: update_device_management_partners,
@@ -511,6 +526,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceCompliancePolicies from deviceManagement",
         name: get_device_compliance_policies,
@@ -519,6 +535,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceCompliancePolicies in deviceManagement",
         name: update_device_compliance_policies,
@@ -527,6 +544,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get troubleshootingEvents from deviceManagement",
         name: get_troubleshooting_events,
@@ -535,6 +553,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property troubleshootingEvents in deviceManagement",
         name: update_troubleshooting_events,
@@ -543,6 +562,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get windowsInformationProtectionAppLearningSummaries from deviceManagement",
         name: list_windows_information_protection_app_learning_summaries,
@@ -551,6 +571,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to windowsInformationProtectionAppLearningSummaries for deviceManagement",
         name: create_windows_information_protection_app_learning_summaries,
@@ -559,6 +580,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get windowsInformationProtectionNetworkLearningSummaries from deviceManagement",
         name: get_windows_information_protection_network_learning_summaries,
@@ -567,6 +589,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property windowsInformationProtectionNetworkLearningSummaries in deviceManagement",
         name: update_windows_information_protection_network_learning_summaries,
@@ -575,6 +598,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get troubleshootingEvents from deviceManagement",
         name: list_troubleshooting_events,
@@ -583,6 +607,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to troubleshootingEvents for deviceManagement",
         name: create_troubleshooting_events,
@@ -591,6 +616,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceConfigurations from deviceManagement",
         name: get_device_configurations,
@@ -599,6 +625,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceConfigurations in deviceManagement",
         name: update_device_configurations,
@@ -607,6 +634,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get detectedApps from deviceManagement",
         name: get_detected_apps,
@@ -615,6 +643,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property detectedApps in deviceManagement",
         name: update_detected_apps,
@@ -623,6 +652,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get windowsInformationProtectionNetworkLearningSummaries from deviceManagement",
         name: list_windows_information_protection_network_learning_summaries,
@@ -631,6 +661,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to windowsInformationProtectionNetworkLearningSummaries for deviceManagement",
         name: create_windows_information_protection_network_learning_summaries,
@@ -639,6 +670,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get remoteAssistancePartners from deviceManagement",
         name: list_remote_assistance_partners,
@@ -647,6 +679,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to remoteAssistancePartners for deviceManagement",
         name: create_remote_assistance_partners,
@@ -655,6 +688,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceCompliancePolicies from deviceManagement",
         name: list_device_compliance_policies,
@@ -663,6 +697,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceCompliancePolicies for deviceManagement",
         name: create_device_compliance_policies,
@@ -671,6 +706,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get roleDefinitions from deviceManagement",
         name: list_role_definitions,
@@ -679,6 +715,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to roleDefinitions for deviceManagement",
         name: create_role_definitions,
@@ -687,6 +724,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get resourceOperations from deviceManagement",
         name: get_resource_operations,
@@ -695,6 +733,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property resourceOperations in deviceManagement",
         name: update_resource_operations,
@@ -703,6 +742,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceEnrollmentConfigurations from deviceManagement",
         name: list_device_enrollment_configurations,
@@ -711,6 +751,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceEnrollmentConfigurations for deviceManagement",
         name: create_device_enrollment_configurations,
@@ -719,6 +760,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get conditionalAccessSettings from deviceManagement",
         name: get_conditional_access_settings,
@@ -727,6 +769,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property conditionalAccessSettings in deviceManagement",
         name: update_conditional_access_settings,
@@ -735,6 +778,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get softwareUpdateStatusSummary from deviceManagement",
         name: get_software_update_status_summary,
@@ -743,6 +787,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get mobileThreatDefenseConnectors from deviceManagement",
         name: get_mobile_threat_defense_connectors,
@@ -751,6 +796,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property mobileThreatDefenseConnectors in deviceManagement",
         name: update_mobile_threat_defense_connectors,
@@ -759,6 +805,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceManagement",
         name: get_device_management,
@@ -767,6 +814,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update deviceManagement",
         name: update_device_management,
@@ -775,6 +823,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceCompliancePolicyDeviceStateSummary from deviceManagement",
         name: get_device_compliance_policy_device_state_summary,
@@ -783,6 +832,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceCompliancePolicyDeviceStateSummary in deviceManagement",
         name: update_device_compliance_policy_device_state_summary,
@@ -791,6 +841,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get windowsInformationProtectionAppLearningSummaries from deviceManagement",
         name: get_windows_information_protection_app_learning_summaries,
@@ -799,6 +850,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property windowsInformationProtectionAppLearningSummaries in deviceManagement",
         name: update_windows_information_protection_app_learning_summaries,
@@ -807,6 +859,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get notificationMessageTemplates from deviceManagement",
         name: get_notification_message_templates,
@@ -815,6 +868,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property notificationMessageTemplates in deviceManagement",
         name: update_notification_message_templates,
@@ -823,6 +877,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get managedDevices from deviceManagement",
         name: list_managed_devices,
@@ -831,6 +886,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to managedDevices for deviceManagement",
         name: create_managed_devices,
@@ -839,6 +895,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceConfigurations from deviceManagement",
         name: list_device_configurations,
@@ -847,6 +904,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceConfigurations for deviceManagement",
         name: create_device_configurations,
@@ -855,6 +913,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get roleAssignments from deviceManagement",
         name: get_role_assignments,
@@ -863,6 +922,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property roleAssignments in deviceManagement",
         name: update_role_assignments,
@@ -871,15 +931,62 @@ where
         params: 1,
         has_body: true
     });
+
+    pub fn detected_apps(&self) -> DetectedAppsRequest<'a, Client> {
+        DetectedAppsRequest::new(&self.client)
+    }
+
+    pub fn device_compliance_policies(&self) -> DeviceCompliancePoliciesRequest<'a, Client> {
+        DeviceCompliancePoliciesRequest::new(&self.client)
+    }
+
+    pub fn device_compliance_policy_setting_state_summaries(
+        &self,
+    ) -> DeviceCompliancePolicySettingStateSummariesRequest<'a, Client> {
+        DeviceCompliancePolicySettingStateSummariesRequest::new(&self.client)
+    }
+
+    pub fn device_configurations(&self) -> DeviceConfigurationsRequest<'a, Client> {
+        DeviceConfigurationsRequest::new(&self.client)
+    }
+
+    pub fn device_enrollment_configurations(
+        &self,
+    ) -> DeviceEnrollmentConfigurationsRequest<'a, Client> {
+        DeviceEnrollmentConfigurationsRequest::new(&self.client)
+    }
+
+    pub fn exchange_connectors(&self) -> ExchangeConnectorsRequest<'a, Client> {
+        ExchangeConnectorsRequest::new(&self.client)
+    }
+
+    pub fn managed_devices(&self) -> ManagedDevicesRequest<'a, Client> {
+        ManagedDevicesRequest::new(&self.client)
+    }
+
+    pub fn notification_message_templates(
+        &self,
+    ) -> NotificationMessageTemplatesRequest<'a, Client> {
+        NotificationMessageTemplatesRequest::new(&self.client)
+    }
+
+    pub fn remote_assistance_partners(&self) -> RemoteAssistancePartnersRequest<'a, Client> {
+        RemoteAssistancePartnersRequest::new(&self.client)
+    }
+
+    pub fn role_definitions(&self) -> RoleDefinitionsRequest<'a, Client> {
+        RoleDefinitionsRequest::new(&self.client)
+    }
+
+    pub fn terms_and_conditions(&self) -> TermsAndConditionsRequest<'a, Client> {
+        TermsAndConditionsRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> DetectedAppsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn app_managed_devices(&self) -> AppManagedDevicesRequest<'a, Client> {
-        AppManagedDevicesRequest::new(&self.client)
-    }
     get!({
         doc: "# Get managedDevices from deviceManagement",
         name: get_managed_devices,
@@ -888,6 +995,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get managedDevices from deviceManagement",
         name: list_managed_devices,
@@ -896,6 +1004,10 @@ where
         params: 1,
         has_body: false
     });
+
+    pub fn app_managed_devices(&self) -> AppManagedDevicesRequest<'a, Client> {
+        AppManagedDevicesRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> AppManagedDevicesRequest<'a, Client>
@@ -910,6 +1022,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action rebootNow",
         name: reboot_now,
@@ -918,6 +1031,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action cleanWindowsDevice",
         name: clean_windows_device,
@@ -926,6 +1040,7 @@ where
         params: 2,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action deleteUserFromSharedAppleDevice",
         name: delete_user_from_shared_apple_device,
@@ -934,6 +1049,7 @@ where
         params: 2,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action disableLostMode",
         name: disable_lost_mode,
@@ -942,6 +1058,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action syncDevice",
         name: sync_device,
@@ -950,6 +1067,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action wipe",
         name: wipe,
@@ -958,6 +1076,7 @@ where
         params: 2,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action updateWindowsDeviceAccount",
         name: update_windows_device_account,
@@ -966,6 +1085,7 @@ where
         params: 2,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action windowsDefenderUpdateSignatures",
         name: windows_defender_update_signatures,
@@ -974,6 +1094,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action retire",
         name: retire,
@@ -982,6 +1103,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action locateDevice",
         name: locate_device,
@@ -990,6 +1112,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action resetPasscode",
         name: reset_passcode,
@@ -998,6 +1121,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action logoutSharedAppleDeviceActiveUser",
         name: logout_shared_apple_device_active_user,
@@ -1006,6 +1130,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action windowsDefenderScan",
         name: windows_defender_scan,
@@ -1014,6 +1139,7 @@ where
         params: 2,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action bypassActivationLock",
         name: bypass_activation_lock,
@@ -1022,6 +1148,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action shutDown",
         name: shut_down,
@@ -1030,6 +1157,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action remoteLock",
         name: remote_lock,
@@ -1038,6 +1166,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action recoverPasscode",
         name: recover_passcode,
@@ -1052,9 +1181,6 @@ impl<'a, Client> DeviceCompliancePoliciesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn scheduled_actions_for_rule(&self) -> ScheduledActionsForRuleRequest<'a, Client> {
-        ScheduledActionsForRuleRequest::new(&self.client)
-    }
     get!({
         doc: "# Get deviceSettingStateSummaries from deviceManagement",
         name: get_device_setting_state_summaries,
@@ -1063,6 +1189,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceSettingStateSummaries in deviceManagement",
         name: update_device_setting_state_summaries,
@@ -1071,6 +1198,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceStatuses from deviceManagement",
         name: list_device_statuses,
@@ -1079,6 +1207,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceStatuses for deviceManagement",
         name: create_device_statuses,
@@ -1087,6 +1216,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action assign",
         name: assign,
@@ -1095,6 +1225,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceSettingStateSummaries from deviceManagement",
         name: list_device_setting_state_summaries,
@@ -1103,6 +1234,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceSettingStateSummaries for deviceManagement",
         name: create_device_setting_state_summaries,
@@ -1111,6 +1243,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get assignments from deviceManagement",
         name: get_assignments,
@@ -1119,6 +1252,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property assignments in deviceManagement",
         name: update_assignments,
@@ -1127,6 +1261,7 @@ where
         params: 2,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action scheduleActionsForRules",
         name: schedule_actions_for_rules,
@@ -1135,6 +1270,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get scheduledActionsForRule from deviceManagement",
         name: get_scheduled_actions_for_rule,
@@ -1143,6 +1279,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property scheduledActionsForRule in deviceManagement",
         name: update_scheduled_actions_for_rule,
@@ -1151,6 +1288,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceStatusOverview from deviceManagement",
         name: get_device_status_overview,
@@ -1159,6 +1297,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceStatusOverview in deviceManagement",
         name: update_device_status_overview,
@@ -1167,6 +1306,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get scheduledActionsForRule from deviceManagement",
         name: list_scheduled_actions_for_rule,
@@ -1175,6 +1315,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to scheduledActionsForRule for deviceManagement",
         name: create_scheduled_actions_for_rule,
@@ -1183,6 +1324,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceStatuses from deviceManagement",
         name: get_device_statuses,
@@ -1191,6 +1333,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceStatuses in deviceManagement",
         name: update_device_statuses,
@@ -1199,6 +1342,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get assignments from deviceManagement",
         name: list_assignments,
@@ -1207,6 +1351,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to assignments for deviceManagement",
         name: create_assignments,
@@ -1215,6 +1360,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get userStatusOverview from deviceManagement",
         name: get_user_status_overview,
@@ -1223,6 +1369,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property userStatusOverview in deviceManagement",
         name: update_user_status_overview,
@@ -1231,6 +1378,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get userStatuses from deviceManagement",
         name: get_user_statuses,
@@ -1239,6 +1387,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property userStatuses in deviceManagement",
         name: update_user_statuses,
@@ -1247,6 +1396,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get userStatuses from deviceManagement",
         name: list_user_statuses,
@@ -1255,6 +1405,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to userStatuses for deviceManagement",
         name: create_user_statuses,
@@ -1263,6 +1414,10 @@ where
         params: 1,
         has_body: true
     });
+
+    pub fn scheduled_actions_for_rule(&self) -> ScheduledActionsForRuleRequest<'a, Client> {
+        ScheduledActionsForRuleRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> ScheduledActionsForRuleRequest<'a, Client>
@@ -1277,6 +1432,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to scheduledActionConfigurations for deviceManagement",
         name: create_scheduled_action_configurations,
@@ -1285,6 +1441,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get scheduledActionConfigurations from deviceManagement",
         name: get_scheduled_action_configurations,
@@ -1293,6 +1450,7 @@ where
         params: 3,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property scheduledActionConfigurations in deviceManagement",
         name: update_scheduled_action_configurations,
@@ -1315,6 +1473,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceComplianceSettingStates in deviceManagement",
         name: update_device_compliance_setting_states,
@@ -1323,6 +1482,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceComplianceSettingStates from deviceManagement",
         name: list_device_compliance_setting_states,
@@ -1331,6 +1491,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceComplianceSettingStates for deviceManagement",
         name: create_device_compliance_setting_states,
@@ -1353,6 +1514,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property userStatuses in deviceManagement",
         name: update_user_statuses,
@@ -1361,6 +1523,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceStatuses from deviceManagement",
         name: list_device_statuses,
@@ -1369,6 +1532,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceStatuses for deviceManagement",
         name: create_device_statuses,
@@ -1377,6 +1541,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get userStatusOverview from deviceManagement",
         name: get_user_status_overview,
@@ -1385,6 +1550,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property userStatusOverview in deviceManagement",
         name: update_user_status_overview,
@@ -1393,6 +1559,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get assignments from deviceManagement",
         name: get_assignments,
@@ -1401,6 +1568,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property assignments in deviceManagement",
         name: update_assignments,
@@ -1409,6 +1577,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceSettingStateSummaries from deviceManagement",
         name: list_device_setting_state_summaries,
@@ -1417,6 +1586,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceSettingStateSummaries for deviceManagement",
         name: create_device_setting_state_summaries,
@@ -1425,6 +1595,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get assignments from deviceManagement",
         name: list_assignments,
@@ -1433,6 +1604,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to assignments for deviceManagement",
         name: create_assignments,
@@ -1441,6 +1613,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get userStatuses from deviceManagement",
         name: list_user_statuses,
@@ -1449,6 +1622,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to userStatuses for deviceManagement",
         name: create_user_statuses,
@@ -1457,6 +1631,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action assign",
         name: assign,
@@ -1465,6 +1640,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceSettingStateSummaries from deviceManagement",
         name: get_device_setting_state_summaries,
@@ -1473,6 +1649,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceSettingStateSummaries in deviceManagement",
         name: update_device_setting_state_summaries,
@@ -1481,6 +1658,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceStatusOverview from deviceManagement",
         name: get_device_status_overview,
@@ -1489,6 +1667,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceStatusOverview in deviceManagement",
         name: update_device_status_overview,
@@ -1497,6 +1676,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceStatuses from deviceManagement",
         name: get_device_statuses,
@@ -1505,6 +1685,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceStatuses in deviceManagement",
         name: update_device_statuses,
@@ -1527,6 +1708,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action assign",
         name: assign,
@@ -1535,6 +1717,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get assignments from deviceManagement",
         name: get_assignments,
@@ -1543,6 +1726,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property assignments in deviceManagement",
         name: update_assignments,
@@ -1551,6 +1735,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get assignments from deviceManagement",
         name: list_assignments,
@@ -1559,6 +1744,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to assignments for deviceManagement",
         name: create_assignments,
@@ -1595,6 +1781,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action bypassActivationLock",
         name: bypass_activation_lock,
@@ -1603,6 +1790,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action retire",
         name: retire,
@@ -1611,6 +1799,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action deleteUserFromSharedAppleDevice",
         name: delete_user_from_shared_apple_device,
@@ -1619,6 +1808,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceCompliancePolicyStates from deviceManagement",
         name: list_device_compliance_policy_states,
@@ -1627,6 +1817,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceCompliancePolicyStates for deviceManagement",
         name: create_device_compliance_policy_states,
@@ -1635,6 +1826,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceConfigurationStates from deviceManagement",
         name: list_device_configuration_states,
@@ -1643,6 +1835,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceConfigurationStates for deviceManagement",
         name: create_device_configuration_states,
@@ -1651,6 +1844,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action wipe",
         name: wipe,
@@ -1659,6 +1853,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceConfigurationStates from deviceManagement",
         name: get_device_configuration_states,
@@ -1667,6 +1862,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceConfigurationStates in deviceManagement",
         name: update_device_configuration_states,
@@ -1675,6 +1871,7 @@ where
         params: 2,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action remoteLock",
         name: remote_lock,
@@ -1683,6 +1880,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action recoverPasscode",
         name: recover_passcode,
@@ -1691,6 +1889,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action disableLostMode",
         name: disable_lost_mode,
@@ -1699,6 +1898,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get deviceCategory from deviceManagement",
         name: get_device_category,
@@ -1707,6 +1907,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceCategory in deviceManagement",
         name: update_device_category,
@@ -1715,6 +1916,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action locateDevice",
         name: locate_device,
@@ -1723,6 +1925,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action logoutSharedAppleDeviceActiveUser",
         name: logout_shared_apple_device_active_user,
@@ -1731,6 +1934,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action windowsDefenderUpdateSignatures",
         name: windows_defender_update_signatures,
@@ -1739,6 +1943,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action rebootNow",
         name: reboot_now,
@@ -1747,6 +1952,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action requestRemoteAssistance",
         name: request_remote_assistance,
@@ -1755,6 +1961,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action updateWindowsDeviceAccount",
         name: update_windows_device_account,
@@ -1763,6 +1970,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action cleanWindowsDevice",
         name: clean_windows_device,
@@ -1771,6 +1979,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action windowsDefenderScan",
         name: windows_defender_scan,
@@ -1779,6 +1988,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action resetPasscode",
         name: reset_passcode,
@@ -1787,6 +1997,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action syncDevice",
         name: sync_device,
@@ -1795,6 +2006,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get deviceCompliancePolicyStates from deviceManagement",
         name: get_device_compliance_policy_states,
@@ -1803,6 +2015,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceCompliancePolicyStates in deviceManagement",
         name: update_device_compliance_policy_states,
@@ -1825,6 +2038,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property localizedNotificationMessages in deviceManagement",
         name: update_localized_notification_messages,
@@ -1833,6 +2047,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get localizedNotificationMessages from deviceManagement",
         name: list_localized_notification_messages,
@@ -1841,6 +2056,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to localizedNotificationMessages for deviceManagement",
         name: create_localized_notification_messages,
@@ -1849,6 +2065,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action sendTestMessage",
         name: send_test_message,
@@ -1871,6 +2088,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action beginOnboarding",
         name: begin_onboarding,
@@ -1885,9 +2103,6 @@ impl<'a, Client> RoleDefinitionsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn role_assignments(&self) -> RoleAssignmentsRequest<'a, Client> {
-        RoleAssignmentsRequest::new(&self.client)
-    }
     get!({
         doc: "# Get roleAssignments from deviceManagement",
         name: list_role_assignments,
@@ -1896,6 +2111,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to roleAssignments for deviceManagement",
         name: create_role_assignments,
@@ -1904,6 +2120,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get roleAssignments from deviceManagement",
         name: get_role_assignments,
@@ -1912,6 +2129,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property roleAssignments in deviceManagement",
         name: update_role_assignments,
@@ -1920,6 +2138,10 @@ where
         params: 2,
         has_body: true
     });
+
+    pub fn role_assignments(&self) -> RoleAssignmentsRequest<'a, Client> {
+        RoleAssignmentsRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> RoleAssignmentsRequest<'a, Client>
@@ -1940,9 +2162,6 @@ impl<'a, Client> TermsAndConditionsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn acceptance_statuses(&self) -> AcceptanceStatusesRequest<'a, Client> {
-        AcceptanceStatusesRequest::new(&self.client)
-    }
     get!({
         doc: "# Get assignments from deviceManagement",
         name: get_assignments,
@@ -1951,6 +2170,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property assignments in deviceManagement",
         name: update_assignments,
@@ -1959,6 +2179,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get assignments from deviceManagement",
         name: list_assignments,
@@ -1967,6 +2188,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to assignments for deviceManagement",
         name: create_assignments,
@@ -1975,6 +2197,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get acceptanceStatuses from deviceManagement",
         name: list_acceptance_statuses,
@@ -1983,6 +2206,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to acceptanceStatuses for deviceManagement",
         name: create_acceptance_statuses,
@@ -1991,6 +2215,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get acceptanceStatuses from deviceManagement",
         name: get_acceptance_statuses,
@@ -1999,6 +2224,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property acceptanceStatuses in deviceManagement",
         name: update_acceptance_statuses,
@@ -2007,6 +2233,10 @@ where
         params: 2,
         has_body: true
     });
+
+    pub fn acceptance_statuses(&self) -> AcceptanceStatusesRequest<'a, Client> {
+        AcceptanceStatusesRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> AcceptanceStatusesRequest<'a, Client>

@@ -1,8 +1,6 @@
-use crate::traits::*;
-use crate::url::GraphUrl;
+use crate::{traits::*, url::GraphUrl};
 use async_trait::async_trait;
-use graph_error::{AsyncResponseErrorExt, ResponseErrorExt};
-use graph_error::{GraphFailure, GraphResult};
+use graph_error::{AsyncResponseErrorExt, GraphFailure, GraphResult, ResponseErrorExt};
 use serde::de::DeserializeOwned;
 use std::convert::TryFrom;
 

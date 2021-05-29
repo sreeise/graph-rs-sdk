@@ -11,8 +11,7 @@ use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 /*
 This example shows using Rocket to authenticate with Microsoft OneDrive that
@@ -104,7 +103,8 @@ pub fn set_and_req_access_code(access_code: &str, state: &str) {
     let access_token = request.access_token().send().unwrap();
     oauth.access_token(access_token);
 
-    // If all went well here we can print out the OAuth config with the Access Token.
+    // If all went well here we can print out the OAuth config with the Access
+    // Token.
     println!("{:#?}", &oauth);
 
     // Save our configuration to a file so we can retrieve it for other requests.

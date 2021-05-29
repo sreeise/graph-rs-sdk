@@ -1,7 +1,8 @@
 use crate::client::Graph;
-use graph_http::types::DeltaPhantom;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{
+    types::{DeltaPhantom, NoContent},
+    IntoResponse,
+};
 use reqwest::Method;
 
 register_client!(DirectoryRequest,);
@@ -14,18 +15,6 @@ impl<'a, Client> DirectoryRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn administrative_units(&self) -> AdministrativeUnitsRequest<'a, Client> {
-        AdministrativeUnitsRequest::new(&self.client)
-    }
-    pub fn directory_roles(&self) -> DirectoryRolesRequest<'a, Client> {
-        DirectoryRolesRequest::new(&self.client)
-    }
-    pub fn directory_objects(&self) -> DirectoryObjectsRequest<'a, Client> {
-        DirectoryObjectsRequest::new(&self.client)
-    }
-    pub fn directory_role_templates(&self) -> DirectoryRoleTemplatesRequest<'a, Client> {
-        DirectoryRoleTemplatesRequest::new(&self.client)
-    }
     get!({
         doc: "# Get administrativeUnits from directory",
         name: list_administrative_units,
@@ -34,6 +23,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to administrativeUnits for directory",
         name: create_administrative_units,
@@ -42,6 +32,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get deletedItems from directory",
         name: get_deleted_items,
@@ -50,6 +41,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deletedItems in directory",
         name: update_deleted_items,
@@ -58,6 +50,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get directory",
         name: get_directory,
@@ -66,6 +59,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update directory",
         name: update_directory,
@@ -74,6 +68,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get administrativeUnits from directory",
         name: get_administrative_units,
@@ -82,6 +77,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property administrativeUnits in directory",
         name: update_administrative_units,
@@ -90,6 +86,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get deletedItems from directory",
         name: list_deleted_items,
@@ -98,6 +95,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deletedItems for directory",
         name: create_deleted_items,
@@ -106,6 +104,22 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn administrative_units(&self) -> AdministrativeUnitsRequest<'a, Client> {
+        AdministrativeUnitsRequest::new(&self.client)
+    }
+
+    pub fn directory_roles(&self) -> DirectoryRolesRequest<'a, Client> {
+        DirectoryRolesRequest::new(&self.client)
+    }
+
+    pub fn directory_objects(&self) -> DirectoryObjectsRequest<'a, Client> {
+        DirectoryObjectsRequest::new(&self.client)
+    }
+
+    pub fn directory_role_templates(&self) -> DirectoryRoleTemplatesRequest<'a, Client> {
+        DirectoryRoleTemplatesRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> AdministrativeUnitsRequest<'a, Client>
@@ -120,6 +134,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get scopedRoleMembers from directory",
         name: get_scoped_role_members,
@@ -128,6 +143,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property scopedRoleMembers in directory",
         name: update_scoped_role_members,
@@ -136,6 +152,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get extensions from directory",
         name: get_extensions,
@@ -144,6 +161,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property extensions in directory",
         name: update_extensions,
@@ -152,6 +170,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get members from directory",
         name: get_members,
@@ -160,6 +179,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get scopedRoleMembers from directory",
         name: list_scoped_role_members,
@@ -168,6 +188,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to scopedRoleMembers for directory",
         name: create_scoped_role_members,
@@ -176,6 +197,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get extensions from directory",
         name: list_extensions,
@@ -184,6 +206,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to extensions for directory",
         name: create_extensions,
@@ -198,9 +221,6 @@ impl<'a, Client> DirectoryObjectsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn administrative_units(&self) -> AdministrativeUnitsRequest<'a, Client> {
-        AdministrativeUnitsRequest::new(&self.client)
-    }
     get!({
         doc: "# Get entities from directoryObjects",
         name: list_directory_object,
@@ -209,6 +229,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to directoryObjects",
         name: create_directory_object,
@@ -217,6 +238,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get entity from directoryObjects by key",
         name: get_directory_object,
@@ -225,6 +247,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in directoryObjects",
         name: update_directory_object,
@@ -233,6 +256,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from directoryObjects",
         name: delete_directory_object,
@@ -241,6 +265,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action checkMemberGroups",
         name: check_member_groups,
@@ -249,6 +274,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action getMemberObjects",
         name: get_member_objects,
@@ -257,6 +283,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action validateProperties",
         name: validate_properties,
@@ -265,6 +292,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action checkMemberObjects",
         name: check_member_objects,
@@ -273,6 +301,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action restore",
         name: restore,
@@ -281,6 +310,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action getByIds",
         name: get_by_ids,
@@ -289,6 +319,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action getMemberGroups",
         name: get_member_groups,
@@ -297,6 +328,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action getAvailableExtensionProperties",
         name: get_available_extension_properties,
@@ -305,6 +337,10 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn administrative_units(&self) -> AdministrativeUnitsRequest<'a, Client> {
+        AdministrativeUnitsRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> AdministrativeUnitsRequest<'a, Client>
@@ -333,6 +369,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to directoryRoleTemplates",
         name: create_directory_role_template,
@@ -341,6 +378,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get entity from directoryRoleTemplates by key",
         name: get_directory_role_template,
@@ -349,6 +387,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in directoryRoleTemplates",
         name: update_directory_role_template,
@@ -357,6 +396,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from directoryRoleTemplates",
         name: delete_directory_role_template,
@@ -379,6 +419,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to directoryRoles",
         name: create_directory_role,
@@ -387,6 +428,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get scopedMembers from directoryRoles",
         name: get_scoped_members,
@@ -395,6 +437,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property scopedMembers in directoryRoles",
         name: update_scoped_members,
@@ -403,6 +446,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function delta",
         name: delta,
@@ -411,6 +455,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get members from directoryRoles",
         name: list_members,
@@ -419,6 +464,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get scopedMembers from directoryRoles",
         name: list_scoped_members,
@@ -427,6 +473,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to scopedMembers for directoryRoles",
         name: create_scoped_members,
@@ -435,6 +482,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get entity from directoryRoles by key",
         name: get_directory_role,
@@ -443,6 +491,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in directoryRoles",
         name: update_directory_role,
@@ -451,6 +500,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from directoryRoles",
         name: delete_directory_role,
@@ -459,6 +509,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get members from directoryRoles",
         name: get_members,

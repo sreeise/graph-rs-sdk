@@ -1,7 +1,8 @@
 use crate::client::Graph;
-use graph_http::types::DeltaPhantom;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{
+    types::{DeltaPhantom, NoContent},
+    IntoResponse,
+};
 use handlebars::*;
 use reqwest::Method;
 
@@ -12,9 +13,6 @@ impl<'a, Client> InstanceRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> InstancesRequest<'a, Client> {
-        InstancesRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get instances from me",
         name: list_instances,
@@ -23,6 +21,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to instances for me",
         name: create_instances,
@@ -31,6 +30,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function delta",
         name: delta,
@@ -39,6 +39,10 @@ where
         params: 0,
         has_body: false
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> InstancesRequest<'a, Client> {
+        InstancesRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> InstancesRequest<'a, Client>
@@ -53,6 +57,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property instances in me",
         name: update_instances,
@@ -61,6 +66,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action accept",
         name: accept,
@@ -69,6 +75,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action decline",
         name: decline,
@@ -77,6 +84,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action dismissReminder",
         name: dismiss_reminder,
@@ -85,6 +93,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action snoozeReminder",
         name: snooze_reminder,
@@ -93,6 +102,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action tentativelyAccept",
         name: tentatively_accept,

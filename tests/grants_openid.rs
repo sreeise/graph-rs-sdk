@@ -42,6 +42,8 @@ pub fn test_access_token_uri() {
     let url_access_token = oauth
         .encode_uri(GrantType::OpenId, GrantRequest::AccessToken)
         .unwrap();
-    let test_url_access_token = "client_id=6731de76-14a6-49ae-97bc-6eba6914391e&redirect_uri=http%3A%2F%2Flocalhost%3A8080&grant_type=authorization_code&scope=openid";
+    let test_url_access_token = "client_id=6731de76-14a6-49ae-97bc-6eba6914391e&redirect_uri=http%\
+                                 3A%2F%2Flocalhost%3A8080&grant_type=authorization_code&\
+                                 scope=openid";
     assert_eq!(test_url_access_token, url_access_token);
 }

@@ -1,15 +1,17 @@
-use crate::error::GraphError;
-use crate::internal::GraphRsError;
-use crate::GraphResult;
+use crate::{error::GraphError, internal::GraphRsError, GraphResult};
 use handlebars::{RenderError, TemplateRenderError};
-use std::cell::BorrowMutError;
-use std::convert::TryFrom;
-use std::error::Error;
-use std::io::ErrorKind;
-use std::str::Utf8Error;
-use std::sync::mpsc;
-use std::sync::mpsc::RecvError;
-use std::{error, fmt, io, num, string};
+use std::{
+    cell::BorrowMutError,
+    convert::TryFrom,
+    error,
+    error::Error,
+    fmt, io,
+    io::ErrorKind,
+    num,
+    str::Utf8Error,
+    string,
+    sync::{mpsc, mpsc::RecvError},
+};
 
 pub trait AsRes<RHS = Self> {
     fn err_res<T>(self) -> GraphResult<T>;

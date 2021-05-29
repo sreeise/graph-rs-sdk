@@ -11,8 +11,7 @@ use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 fn main() {
     let handle = thread::spawn(|| {
@@ -62,16 +61,17 @@ fn redirect(code: &RawStr) -> String {
 
 pub fn set_and_req_access_code(access_code: &str) {
     let mut oauth = oauth_web_client();
-    // The response type is automatically set to token and the grant type is automatically
-    // set to authorization_code if either of these were not previously set.
-    // This is done here as an example.
+    // The response type is automatically set to token and the grant type is
+    // automatically set to authorization_code if either of these were not
+    // previously set. This is done here as an example.
     oauth.access_code(access_code);
     let mut request = oauth.build().authorization_code_grant();
 
     let access_token = request.access_token().send().unwrap();
     oauth.access_token(access_token);
 
-    // If all went well here we can print out the OAuth config with the Access Token.
+    // If all went well here we can print out the OAuth config with the Access
+    // Token.
     println!("{:#?}", &oauth);
 
     // Save our configuration to a file so we can retrieve it from other requests.

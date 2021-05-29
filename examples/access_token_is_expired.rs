@@ -1,6 +1,5 @@
 use graph_rs_sdk::oauth::AccessToken;
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 fn main() {
     let mut access_token = AccessToken::default();

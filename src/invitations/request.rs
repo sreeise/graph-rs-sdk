@@ -1,6 +1,5 @@
 use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{types::NoContent, IntoResponse};
 use reqwest::Method;
 
 register_client!(InvitationsRequest,);
@@ -17,6 +16,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in invitations",
         name: update_invitation,
@@ -25,6 +25,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from invitations",
         name: delete_invitation,
@@ -33,6 +34,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get entities from invitations",
         name: list_invitation,
@@ -41,6 +43,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to invitations",
         name: create_invitation,
@@ -49,6 +52,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get invitedUser from invitations",
         name: get_invited_user,

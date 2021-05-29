@@ -1,12 +1,18 @@
-use crate::parser::{Modifier, ResourceNameMapping, ResourceNames};
-use crate::traits::{HashMapExt, RequestParser};
+use crate::{
+    parser::{Modifier, ResourceNameMapping, ResourceNames},
+    traits::{HashMapExt, RequestParser},
+};
 use from_as::*;
 use inflector::Inflector;
-use std::collections::hash_set::{Difference, Iter};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
-use std::convert::TryFrom;
-use std::hash::{Hash, Hasher};
-use std::io::{Read, Write};
+use std::{
+    collections::{
+        hash_set::{Difference, Iter},
+        BTreeMap, BTreeSet, HashMap, HashSet, VecDeque,
+    },
+    convert::TryFrom,
+    hash::{Hash, Hasher},
+    io::{Read, Write},
+};
 
 #[derive(
     Debug,
@@ -268,8 +274,8 @@ impl Hash for RequestMap {
 }
 
 impl IntoIterator for RequestMap {
-    type Item = Request;
     type IntoIter = std::collections::vec_deque::IntoIter<Self::Item>;
+    type Item = Request;
 
     fn into_iter(self) -> Self::IntoIter {
         self.requests.into_iter()
@@ -574,8 +580,8 @@ impl RequestSet {
 }
 
 impl IntoIterator for RequestSet {
-    type Item = RequestMap;
     type IntoIter = std::collections::hash_set::IntoIter<Self::Item>;
+    type Item = RequestMap;
 
     fn into_iter(self) -> Self::IntoIter {
         self.set.into_iter()

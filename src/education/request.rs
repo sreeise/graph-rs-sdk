@@ -1,7 +1,6 @@
 use crate::client::Graph;
 
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{types::NoContent, IntoResponse};
 use reqwest::Method;
 
 register_client!(ClassesRequest,);
@@ -23,6 +22,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get members from education",
         name: list_members,
@@ -31,6 +31,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get members from education",
         name: get_members,
@@ -39,6 +40,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get schools from education",
         name: list_schools,
@@ -47,6 +49,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get schools from education",
         name: get_schools,
@@ -55,6 +58,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get teachers from education",
         name: list_teachers,
@@ -63,6 +67,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get teachers from education",
         name: get_teachers,
@@ -77,21 +82,6 @@ impl<'a, Client> EducationRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn classes(&self) -> ClassesRequest<'a, Client> {
-        ClassesRequest::new(self.client)
-    }
-    pub fn education_root(&self) -> EducationRootRequest<'a, Client> {
-        EducationRootRequest::new(self.client)
-    }
-    pub fn me(&self) -> MeRequest<'a, Client> {
-        MeRequest::new(self.client)
-    }
-    pub fn schools(&self) -> SchoolsRequest<'a, Client> {
-        SchoolsRequest::new(self.client)
-    }
-    pub fn users(&self) -> UsersRequest<'a, Client> {
-        UsersRequest::new(self.client)
-    }
     get!({
         doc: "# Get classes from education",
         name: list_classes,
@@ -100,6 +90,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to classes for education",
         name: create_classes,
@@ -108,6 +99,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get classes from education",
         name: get_classes,
@@ -116,6 +108,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property classes in education",
         name: update_classes,
@@ -124,6 +117,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get me from education",
         name: get_me,
@@ -132,6 +126,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property me in education",
         name: update_me,
@@ -140,6 +135,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get schools from education",
         name: list_schools,
@@ -148,6 +144,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to schools for education",
         name: create_schools,
@@ -156,6 +153,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get schools from education",
         name: get_schools,
@@ -164,6 +162,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property schools in education",
         name: update_schools,
@@ -172,6 +171,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get users from education",
         name: list_users,
@@ -180,6 +180,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to users for education",
         name: create_users,
@@ -188,6 +189,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get users from education",
         name: get_users,
@@ -196,6 +198,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property users in education",
         name: update_users,
@@ -204,6 +207,26 @@ where
         params: 1,
         has_body: true
     });
+
+    pub fn classes(&self) -> ClassesRequest<'a, Client> {
+        ClassesRequest::new(self.client)
+    }
+
+    pub fn education_root(&self) -> EducationRootRequest<'a, Client> {
+        EducationRootRequest::new(self.client)
+    }
+
+    pub fn me(&self) -> MeRequest<'a, Client> {
+        MeRequest::new(self.client)
+    }
+
+    pub fn schools(&self) -> SchoolsRequest<'a, Client> {
+        SchoolsRequest::new(self.client)
+    }
+
+    pub fn users(&self) -> UsersRequest<'a, Client> {
+        UsersRequest::new(self.client)
+    }
 }
 
 impl<'a, Client> EducationRootRequest<'a, Client>
@@ -218,6 +241,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update education",
         name: update_education_root,
@@ -240,6 +264,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get classes from education",
         name: get_classes,
@@ -248,6 +273,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get schools from education",
         name: list_schools,
@@ -256,6 +282,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get schools from education",
         name: get_schools,
@@ -264,6 +291,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get user from education",
         name: get_user,
@@ -286,6 +314,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get classes from education",
         name: get_classes,
@@ -294,6 +323,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get users from education",
         name: list_users,
@@ -302,6 +332,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get users from education",
         name: get_users,
@@ -324,6 +355,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get classes from education",
         name: get_classes,
@@ -332,6 +364,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get schools from education",
         name: list_schools,
@@ -340,6 +373,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get schools from education",
         name: get_schools,
@@ -348,6 +382,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get user from education",
         name: get_user,

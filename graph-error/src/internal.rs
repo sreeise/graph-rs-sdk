@@ -5,8 +5,8 @@ pub enum GraphRsError {
     #[snafu(display("Download directory does not exist: {}", dir))]
     DownloadDirNoExists { dir: String },
     #[snafu(display(
-        "Download file already exists: {}. \
-         If you want to over write this file then use overwrite_existing_file(true)",
+        "Download file already exists: {}. If you want to over write this file then use \
+         overwrite_existing_file(true)",
         name
     ))]
     DownloadFileExists { name: String },

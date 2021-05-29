@@ -1,14 +1,16 @@
-use crate::core::ResourceIdentity;
-use crate::drive::DrivesRequest;
-use crate::error::{GraphFailure, GraphRsError};
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use graph_http::{
-    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, RequestAttribute,
-    RequestClient, RequestType, UploadSessionClient,
+use crate::{
+    core::ResourceIdentity,
+    drive::DrivesRequest,
+    error::{GraphFailure, GraphRsError},
 };
-use reqwest::header::{HeaderValue, CONTENT_LENGTH};
-use reqwest::Method;
+use graph_http::{
+    types::NoContent, AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient,
+    IntoResponse, RequestAttribute, RequestClient, RequestType, UploadSessionClient,
+};
+use reqwest::{
+    header::{HeaderValue, CONTENT_LENGTH},
+    Method,
+};
 use serde_json::json;
 use std::path::Path;
 

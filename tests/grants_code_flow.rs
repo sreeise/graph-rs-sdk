@@ -57,7 +57,13 @@ fn access_token() {
     let code_body = oauth
         .encode_uri(GrantType::CodeFlow, GrantRequest::AccessToken)
         .unwrap();
-    assert_eq!(code_body, "client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&response_type=token&grant_type=authorization_code&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL".to_string());
+    assert_eq!(
+        code_body,
+        "client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%\
+         2Flocalhost%3A8888%2Fredirect&response_type=token&grant_type=authorization_code&\
+         code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL"
+            .to_string()
+    );
 }
 
 #[test]
@@ -77,7 +83,13 @@ fn refresh_token() {
     let body = oauth
         .encode_uri(GrantType::CodeFlow, GrantRequest::RefreshToken)
         .unwrap();
-    assert_eq!(body, "refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&grant_type=refresh_token&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL".to_string());
+    assert_eq!(
+        body,
+        "refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&\
+         redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&grant_type=refresh_token&\
+         code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL"
+            .to_string()
+    );
 }
 
 #[test]

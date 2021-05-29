@@ -1,20 +1,22 @@
-use crate::accesstoken::AccessToken;
-use crate::grants::{GrantRequest, GrantType};
-use crate::idtoken::IdToken;
-use crate::oautherror::OAuthError;
-use crate::strum::IntoEnumIterator;
+use crate::{
+    accesstoken::AccessToken,
+    grants::{GrantRequest, GrantType},
+    idtoken::IdToken,
+    oautherror::OAuthError,
+    strum::IntoEnumIterator,
+};
 use from_as::*;
 use graph_error::GraphFailure;
 use ring::rand::SecureRandom;
-use std::collections::btree_map::BTreeMap;
-use std::collections::{BTreeSet, HashMap};
-use std::convert::TryFrom;
-use std::fmt;
-use std::io::{Read, Write};
-use std::marker::PhantomData;
-use std::process::Output;
-use url::form_urlencoded::Serializer;
-use url::Url;
+use std::{
+    collections::{btree_map::BTreeMap, BTreeSet, HashMap},
+    convert::TryFrom,
+    fmt,
+    io::{Read, Write},
+    marker::PhantomData,
+    process::Output,
+};
+use url::{form_urlencoded::Serializer, Url};
 
 pub type OAuthReq<T> = Result<T, GraphFailure>;
 
@@ -165,7 +167,7 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// use graph_oauth::oauth::{OAuth, GrantType};
+    /// use graph_oauth::oauth::{GrantType, OAuth};
     ///
     /// let mut oauth = OAuth::new();
     /// ```
@@ -551,8 +553,8 @@ impl OAuth {
     /// This method automatically sets the code_verifier,
     /// code_challenge, and code_challenge_method fields.
     ///
-    /// For authorization, the code_challenge_method parameter in the request body
-    /// is automatically set to 'S256'.
+    /// For authorization, the code_challenge_method parameter in the request
+    /// body is automatically set to 'S256'.
     ///
     /// Internally this method uses the Rust ring cyrpto library to
     /// generate a secure random 32-octet sequence that is base64 URL
@@ -582,7 +584,7 @@ impl OAuth {
     /// # context.update(oauth.get(OAuthCredential::CodeVerifier).unwrap().as_bytes());
     /// # let verifier = base64::encode_config(context.finish().as_ref(), base64::URL_SAFE_NO_PAD);
     /// # assert_eq!(challenge, verifier);
-    ///```
+    /// ```
     pub fn generate_sha256_challenge_and_verifier(&mut self) -> Result<(), GraphFailure> {
         let mut buf = [0; 32];
         let rng = ring::rand::SystemRandom::new();
@@ -691,10 +693,14 @@ impl OAuth {
     /// # use graph_oauth::oauth::OAuth;
     /// # let mut oauth = OAuth::new();
     ///
-    /// oauth.add_scope("Sites.Read")
+    /// oauth
+    ///     .add_scope("Sites.Read")
     ///     .add_scope("Sites.ReadWrite")
     ///     .add_scope("Sites.ReadWrite.All");
-    /// assert_eq!(oauth.join_scopes(" "), "Sites.Read Sites.ReadWrite Sites.ReadWrite.All");
+    /// assert_eq!(
+    ///     oauth.join_scopes(" "),
+    ///     "Sites.Read Sites.ReadWrite Sites.ReadWrite.All"
+    /// );
     /// ```
     pub fn add_scope<T: ToString>(&mut self, scope: T) -> &mut OAuth {
         self.scopes.insert(scope.to_string());
@@ -726,7 +732,7 @@ impl OAuth {
     /// # let mut oauth = OAuth::new();
     ///
     /// // the scopes take a separator just like Vec join.
-    ///  let s = oauth.join_scopes(" ");
+    /// let s = oauth.join_scopes(" ");
     /// println!("{:#?}", s);
     /// ```
     pub fn join_scopes(&self, sep: &str) -> String {
@@ -783,7 +789,7 @@ impl OAuth {
     /// oauth.add_scope("scope");
     /// # assert!(oauth.contains_scope("scope"));
     /// oauth.remove_scope("scope");
-    ///# assert!(!oauth.contains_scope("scope"));
+    /// # assert!(!oauth.contains_scope("scope"));
     /// ```
     pub fn remove_scope<T: AsRef<str>>(&mut self, scope: T) {
         self.scopes.remove(scope.as_ref());
@@ -810,8 +816,7 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// use graph_oauth::oauth::OAuth;
-    /// use graph_oauth::oauth::AccessToken;
+    /// use graph_oauth::oauth::{AccessToken, OAuth};
     /// let mut oauth = OAuth::new();
     /// let access_token = AccessToken::default();
     /// oauth.access_token(access_token);
@@ -845,7 +850,7 @@ impl OAuth {
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::AccessToken;
     /// # let mut oauth = OAuth::new();
-    /// let mut  access_token = AccessToken::default();
+    /// let mut access_token = AccessToken::default();
     /// access_token.set_refresh_token("refresh_token");
     /// oauth.access_token(access_token);
     ///
@@ -985,13 +990,12 @@ impl OAuth {
                     url.push_str(encoder.finish().as_str());
                     Ok(url)
                 },
-                GrantRequest::AccessToken | GrantRequest::RefreshToken => {
-                    OAuthError::grant_error(
-                        GrantType::TokenFlow,
-                        GrantRequest::AccessToken,
-                        "Grant type does not use request type. Please use OAuth::request_authorization() for browser requests"
-                    )
-                },
+                GrantRequest::AccessToken | GrantRequest::RefreshToken => OAuthError::grant_error(
+                    GrantType::TokenFlow,
+                    GrantRequest::AccessToken,
+                    "Grant type does not use request type. Please use \
+                     OAuth::request_authorization() for browser requests",
+                ),
             },
             GrantType::CodeFlow => match request_type {
                 GrantRequest::Authorization => {
@@ -1034,7 +1038,8 @@ impl OAuth {
                     let _ = self.entry(OAuthCredential::ResponseType, "code");
                     let _ = self.entry(OAuthCredential::ResponseMode, "query");
                     self.form_encode_credentials(
-                        GrantType::AuthorizationCode.available_credentials(GrantRequest::Authorization),
+                        GrantType::AuthorizationCode
+                            .available_credentials(GrantRequest::Authorization),
                         &mut encoder,
                     );
                     let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
@@ -1074,13 +1079,12 @@ impl OAuth {
                     url.push_str(encoder.finish().as_str());
                     Ok(url)
                 },
-                GrantRequest::AccessToken | GrantRequest::RefreshToken => {
-                    OAuthError::grant_error(
-                        GrantType::Implicit,
-                        GrantRequest::AccessToken,
-                        "Grant type does not use request type. Please use OAuth::request_authorization() for browser requests"
-                    )
-                },
+                GrantRequest::AccessToken | GrantRequest::RefreshToken => OAuthError::grant_error(
+                    GrantType::Implicit,
+                    GrantRequest::AccessToken,
+                    "Grant type does not use request type. Please use \
+                     OAuth::request_authorization() for browser requests",
+                ),
             },
             GrantType::OpenId => match request_type {
                 GrantRequest::Authorization => {
@@ -1118,7 +1122,8 @@ impl OAuth {
             GrantType::ClientCredentials => match request_type {
                 GrantRequest::Authorization => {
                     self.form_encode_credentials(
-                        GrantType::ClientCredentials.available_credentials(GrantRequest::Authorization),
+                        GrantType::ClientCredentials
+                            .available_credentials(GrantRequest::Authorization),
                         &mut encoder,
                     );
                     let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
@@ -1144,7 +1149,7 @@ impl OAuth {
                     &mut encoder,
                 );
                 Ok(encoder.finish())
-            }
+            },
         }
     }
 

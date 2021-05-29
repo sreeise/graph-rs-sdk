@@ -3,8 +3,9 @@
 //! See the project on [GitHub](https://github.com/sreeise/graph-rs).
 //!
 //! # OAuth
-//! An authorization and access token client for Microsoft Graph and the OAuth 2.0 authorization
-//! framework. This project is specifically meant to be used for the Microsoft Graph Api.
+//! An authorization and access token client for Microsoft Graph and the OAuth
+//! 2.0 authorization framework. This project is specifically meant to be used
+//! for the Microsoft Graph Api.
 //!
 //! # Disclaimer
 //! Using this API for other resource owners besides Microsoft may work but
@@ -56,7 +57,6 @@
 //! let access_token = request.access_token().send().unwrap();
 //! println!("{:#?}", access_token);
 //! ```
-//!
 
 #[macro_use]
 extern crate serde_derive;
@@ -73,16 +73,13 @@ pub mod jwt;
 mod oautherror;
 
 pub mod oauth {
-    pub use crate::accesstoken::AccessToken;
-    pub use crate::auth::GrantSelector;
-    pub use crate::auth::OAuth;
-    pub use crate::auth::OAuthCredential;
-    pub use crate::discovery::graphdiscovery;
-    pub use crate::discovery::jwtkeys;
-    pub use crate::discovery::wellknown;
-    pub use crate::grants::GrantRequest;
-    pub use crate::grants::GrantType;
-    pub use crate::idtoken::IdToken;
-    pub use crate::oautherror::OAuthError;
-    pub use crate::strum::IntoEnumIterator;
+    pub use crate::{
+        accesstoken::AccessToken,
+        auth::{GrantSelector, OAuth, OAuthCredential},
+        discovery::{graphdiscovery, jwtkeys, wellknown},
+        grants::{GrantRequest, GrantType},
+        idtoken::IdToken,
+        oautherror::OAuthError,
+        strum::IntoEnumIterator,
+    };
 }

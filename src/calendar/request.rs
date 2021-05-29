@@ -1,12 +1,13 @@
 // GENERATED CODE
 
-use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
-use crate::client::Graph;
-use crate::core::ResourceIdentity;
-use crate::events::{EventRequest, EventsRequest};
-use crate::extended_properties::ExtendedPropertiesRequest;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use crate::{
+    calendar_view::{CalendarViewRequest, CalendarViewsRequest},
+    client::Graph,
+    core::ResourceIdentity,
+    events::{EventRequest, EventsRequest},
+    extended_properties::ExtendedPropertiesRequest,
+};
+use graph_http::{types::NoContent, IntoResponse};
 use handlebars::*;
 use reqwest::Method;
 
@@ -17,38 +18,6 @@ impl<'a, Client> CalendarRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::CalendarView);
-        CalendarViewRequest::new(id.as_ref(), self.client)
-    }
-    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::CalendarViews);
-        CalendarViewsRequest::new(self.client)
-    }
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Calendars);
-        CalendarsRequest::new(id.as_ref(), self.client)
-    }
-    pub fn events(&self) -> EventRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Event);
-        EventRequest::new(self.client)
-    }
-    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Events);
-        EventsRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get calendar from users",
         name: get_calendar,
@@ -57,6 +26,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property calendar in users",
         name: update_calendar,
@@ -65,6 +35,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property calendar for users",
         name: delete_calendar,
@@ -73,6 +44,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Invoke function allowedCalendarSharingRoles",
         name: allowed_calendar_sharing_roles,
@@ -81,6 +53,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get calendarPermissions from users",
         name: list_calendar_permissions,
@@ -89,6 +62,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to calendarPermissions for users",
         name: create_calendar_permissions,
@@ -97,6 +71,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get calendarPermissions from users",
         name: get_calendar_permissions,
@@ -105,6 +80,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property calendarPermissions in users",
         name: update_calendar_permissions,
@@ -113,6 +89,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property calendarPermissions for users",
         name: delete_calendar_permissions,
@@ -121,6 +98,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action getSchedule",
         name: get_schedule,
@@ -129,6 +107,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get calendars from users",
         name: list_calendars,
@@ -137,6 +116,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to calendars for users",
         name: create_calendars,
@@ -145,47 +125,49 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::CalendarView);
+        CalendarViewRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::CalendarViews);
+        CalendarViewsRequest::new(self.client)
+    }
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Calendars);
+        CalendarsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn events(&self) -> EventRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Event);
+        EventRequest::new(self.client)
+    }
+
+    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Events);
+        EventsRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> CalendarsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::CalendarView);
-        CalendarViewRequest::new(id.as_ref(), self.client)
-    }
-    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::CalendarViews);
-        CalendarViewsRequest::new(self.client)
-    }
-    pub fn events(&self) -> EventRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Event);
-        EventRequest::new(self.client)
-    }
-    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Events);
-        EventsRequest::new(id.as_ref(), self.client)
-    }
-    pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::ExtendedProperties);
-        ExtendedPropertiesRequest::new(self.client)
-    }
     get!({
         doc: "# Get calendars from users",
         name: get_calendars,
@@ -194,6 +176,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property calendars in users",
         name: update_calendars,
@@ -202,6 +185,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property calendars for users",
         name: delete_calendars,
@@ -210,6 +194,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Invoke function allowedCalendarSharingRoles",
         name: allowed_calendar_sharing_roles,
@@ -218,6 +203,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get calendarPermissions from users",
         name: list_calendar_permissions,
@@ -226,6 +212,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to calendarPermissions for users",
         name: create_calendar_permissions,
@@ -234,6 +221,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get calendarPermissions from users",
         name: get_calendar_permissions,
@@ -242,6 +230,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property calendarPermissions in users",
         name: update_calendar_permissions,
@@ -250,6 +239,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property calendarPermissions for users",
         name: delete_calendar_permissions,
@@ -258,6 +248,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action getSchedule",
         name: get_schedule,
@@ -266,4 +257,44 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::CalendarView);
+        CalendarViewRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::CalendarViews);
+        CalendarViewsRequest::new(self.client)
+    }
+
+    pub fn events(&self) -> EventRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Event);
+        EventRequest::new(self.client)
+    }
+
+    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Events);
+        EventsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ExtendedProperties);
+        ExtendedPropertiesRequest::new(self.client)
+    }
 }

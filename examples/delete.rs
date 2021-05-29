@@ -3,8 +3,9 @@ use graph_rs_sdk::prelude::*;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 // Delete items in OneDrive. This will move deleted items to the recycle bin.
-// It is recommended to create a new file that can be used for demonstration purposes here.
-// Deleting an item can be done in 2 different ways shown in the methods below.
+// It is recommended to create a new file that can be used for demonstration
+// purposes here. Deleting an item can be done in 2 different ways shown in the
+// methods below.
 fn main() {
     delete_by_id("DRIVE_ITEM_ID");
     delete_by_path(":/PATH_FROM_ROOT:");

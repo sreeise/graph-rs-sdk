@@ -187,7 +187,7 @@ macro_rules! render_path {
         });
     };
 
-    ($client:expr, $template:expr, $json:expr, $last:expr ) => {
+    ($client:expr, $template:expr, $json:expr, $last:expr) => {
         let path = $client.request().render_template($template, $json);
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
@@ -957,7 +957,6 @@ macro_rules! register_upload {
     };
 }
 
-
 macro_rules! register_download {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 0 } ) => {
       pub fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
@@ -996,7 +995,6 @@ macro_rules! register_download {
     };
 }
 
-
 macro_rules! register_async_download {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 0 } ) => {
       pub async fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
@@ -1034,7 +1032,6 @@ macro_rules! register_async_download {
       }
     };
 }
-
 
 macro_rules! get {
     ( $name:ident, $T:ty => $template:expr ) => {
@@ -1193,7 +1190,6 @@ macro_rules! get {
     };
 
 }
-
 
 macro_rules! post {
     ( $name:ident, $T:ty => $template:expr ) => {
@@ -1429,7 +1425,6 @@ macro_rules! post {
         );
   };
 }
-
 
 macro_rules! patch {
     ( $name:ident, $T:ty => $template:expr ) => {
@@ -1899,7 +1894,6 @@ macro_rules! put {
   };
 }
 
-
 macro_rules! delete {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::DELETE );
@@ -2059,7 +2053,6 @@ macro_rules! delete {
     };
 }
 
-
 macro_rules! download {
     ( { name: $name:ident, response: $response:ty, path: $template:expr, params: 0 } ) => {
         register_download!( { name: $name, response: $response, path: $template, params: 0  }  );
@@ -2069,7 +2062,6 @@ macro_rules! download {
         register_download!( { name: $name, response: $response, path: $template, params: 1  }  );
     };
 }
-
 
 macro_rules! async_download {
     ( { name: $name:ident, response: $response:ty, path: $template:expr, params: 0 } ) => {

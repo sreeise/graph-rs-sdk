@@ -1,10 +1,11 @@
 use crate::url::GraphUrl;
 use graph_core::resource::ResourceIdentity;
 use handlebars::Handlebars;
-use reqwest::header::{HeaderMap, HeaderValue};
-use reqwest::Method;
-use std::fmt::Debug;
-use std::path::PathBuf;
+use reqwest::{
+    header::{HeaderMap, HeaderValue},
+    Method,
+};
+use std::{fmt::Debug, path::PathBuf};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum RequestType {

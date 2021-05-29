@@ -1,13 +1,17 @@
-use crate::builder::{ClientLinkSettings, RegisterClient};
-use crate::parser::{DirectoryModFile, ParserSettings, Request, RequestMap, RequestType};
+use crate::{
+    builder::{ClientLinkSettings, RegisterClient},
+    parser::{DirectoryModFile, ParserSettings, Request, RequestMap, RequestType},
+};
 use bytes::{Buf, BufMut, BytesMut};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
-use std::collections::{BTreeMap, BTreeSet};
-use std::convert::TryFrom;
-use std::io::{Read, Write};
-use std::str::FromStr;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    convert::TryFrom,
+    io::{Read, Write},
+    str::FromStr,
+};
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
 pub struct Client {
@@ -26,6 +30,7 @@ impl Client {
             is_ident_client: false,
         }
     }
+
     pub fn insert_client_link(&mut self, client_link: ClientLinkSettings) {
         self.client_links.insert(client_link);
     }
@@ -144,7 +149,8 @@ impl ClientBuilder {
             match request.request_type {
                 RequestType::Normal => {
                     format!(
-                        "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {}\n\t}});",
+                        "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: \
+                         {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {}\n\t}});",
                         request.method.as_ref(),
                         doc_comment,
                         request.method_name.as_str(),
@@ -156,7 +162,8 @@ impl ClientBuilder {
                 },
                 RequestType::Upload => {
                     format!(
-                        "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\tupload: true\n\t}});",
+                        "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: \
+                         {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\tupload: true\n\t}});",
                         request.method.as_ref(),
                         doc_comment,
                         request.method_name.as_str(),
@@ -167,7 +174,9 @@ impl ClientBuilder {
                 },
                 RequestType::UploadSession => {
                     format!(
-                        "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {},\n\t\tupload_session: true\n\t}});",
+                        "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tpath: \
+                         \"{}\",\n\t\tparams: {},\n\t\thas_body: {},\n\t\tupload_session: \
+                         true\n\t}});",
                         request.method.as_ref(),
                         doc_comment,
                         request.method_name.as_str(),
@@ -178,7 +187,8 @@ impl ClientBuilder {
                 },
                 RequestType::Download => {
                     format!(
-                        "\n\tdownload!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: BlockingDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
+                        "\n\tdownload!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: \
+                         BlockingDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
                         doc_comment,
                         request.method_name.as_str(),
                         request.path.as_str(),
@@ -187,7 +197,8 @@ impl ClientBuilder {
                 },
                 RequestType::AsyncDownload => {
                     format!(
-                        "\n\tasync_download!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: AsyncDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
+                        "\n\tasync_download!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: \
+                         AsyncDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
                         doc_comment,
                         request.method_name.as_str(),
                         request.path.as_str(),
@@ -199,7 +210,8 @@ impl ClientBuilder {
             match request.request_type {
                 RequestType::Normal => {
                     format!(
-                        "\n\t{}!({{\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {}\n\t}});",
+                        "\n\t{}!({{\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \
+                         \"{}\",\n\t\tparams: {},\n\t\thas_body: {}\n\t}});",
                         request.method.as_ref(),
                         request.method_name.as_str(),
                         request.response.as_str(),
@@ -210,7 +222,8 @@ impl ClientBuilder {
                 },
                 RequestType::Upload => {
                     format!(
-                        "\n\t{}!({{\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\tupload: true\n\t}});",
+                        "\n\t{}!({{\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \
+                         \"{}\",\n\t\tparams: {},\n\t\tupload: true\n\t}});",
                         request.method.as_ref(),
                         request.method_name.as_str(),
                         request.response.as_str(),
@@ -220,7 +233,8 @@ impl ClientBuilder {
                 },
                 RequestType::UploadSession => {
                     format!(
-                        "\n\t{}!({{\n\t\tname: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {},\n\t\tupload_session: true\n\t}});",
+                        "\n\t{}!({{\n\t\tname: {},\n\t\tpath: \"{}\",\n\t\tparams: \
+                         {},\n\t\thas_body: {},\n\t\tupload_session: true\n\t}});",
                         request.method.as_ref(),
                         request.method_name.as_str(),
                         request.path.as_str(),
@@ -230,7 +244,8 @@ impl ClientBuilder {
                 },
                 RequestType::Download => {
                     format!(
-                        "\n\tdownload!({{\n\t\tname: {},\n\t\tresponse: BlockingDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
+                        "\n\tdownload!({{\n\t\tname: {},\n\t\tresponse: \
+                         BlockingDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
                         request.method_name.as_str(),
                         request.path.as_str(),
                         request.param_size
@@ -238,7 +253,8 @@ impl ClientBuilder {
                 },
                 RequestType::AsyncDownload => {
                     format!(
-                        "\n\tasync_download!({{\n\t\tname: {},\n\t\tresponse: AsyncDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
+                        "\n\tasync_download!({{\n\t\tname: {},\n\t\tresponse: \
+                         AsyncDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
                         request.method_name.as_str(),
                         request.path.as_str(),
                         request.param_size

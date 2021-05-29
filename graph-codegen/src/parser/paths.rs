@@ -1,13 +1,16 @@
-use crate::parser::filter::*;
-use crate::parser::{HttpMethod, Modifier, Request, RequestType, ResponseType};
-use crate::traits::{RequestParser, RequestParserBuilder};
+use crate::{
+    parser::{filter::*, HttpMethod, Modifier, Request, RequestType, ResponseType},
+    traits::{RequestParser, RequestParserBuilder},
+};
 use from_as::*;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use regex::Regex;
 use reqwest::Url;
-use std::collections::{BTreeMap, HashSet, VecDeque};
-use std::convert::TryFrom;
-use std::io::{Read, Write};
+use std::{
+    collections::{BTreeMap, HashSet, VecDeque},
+    convert::TryFrom,
+    io::{Read, Write},
+};
 
 pub trait IsInPath {
     fn retain_is_in_path(&mut self);
@@ -496,8 +499,8 @@ impl PathMap {
 }
 
 impl IntoIterator for PathMap {
-    type Item = (String, Path);
     type IntoIter = std::collections::btree_map::IntoIter<String, Path>;
+    type Item = (String, Path);
 
     fn into_iter(self) -> Self::IntoIter {
         self.paths.into_iter()

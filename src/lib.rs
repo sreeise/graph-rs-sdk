@@ -1,14 +1,15 @@
 //! ### Microsoft Graph API Client in Rust
 //! graph-rs is an API client for Microsoft Graph V1.0 and Graph Beta.
 //!
-//! Installation and basic usage can be found below and there are extensive examples in the example's directory
-//! on [GitHub](https://github.com/sreeise/graph-rs).
+//! Installation and basic usage can be found below and there are extensive
+//! examples in the example's directory on [GitHub](https://github.com/sreeise/graph-rs).
 //!
 //! ### What Api's are available
 //!
-//! The Api's available are generated from Microsoft's msgraph-metadata repository which stores OpenApi configs for the
-//! Graph Api. There may be some requests and/or Api's not yet included in this project but in general most of them are
-//! implemented.
+//! The Api's available are generated from Microsoft's msgraph-metadata
+//! repository which stores OpenApi configs for the Graph Api. There may be some
+//! requests and/or Api's not yet included in this project but in general most
+//! of them are implemented.
 //!
 //! ### Feature requests or Bug reports.
 //!
@@ -26,8 +27,8 @@
 //!```rust
 //! use graph_rs_sdk::prelude::*;
 //!
-//! let client =  Graph::new("ACCESS_TOKEN");
-//!```
+//! let client = Graph::new("ACCESS_TOKEN");
+//! ```
 //!
 //! ### Async Client
 //!
@@ -35,12 +36,12 @@
 //!```rust
 //! use graph_rs_sdk::prelude::*;
 //!
-//! let client =  Graph::new_async("ACCESS_TOKEN");
-//!```
+//! let client = Graph::new_async("ACCESS_TOKEN");
+//! ```
 //!
 //! #### The send method and Graph types
-//! The send() method is the main method for sending a request. The return value will be wrapped
-//! in a response object and the body will be one of:
+//! The send() method is the main method for sending a request. The return value
+//! will be wrapped in a response object and the body will be one of:
 //!
 //! 1. serde_json::Value
 //!
@@ -84,8 +85,9 @@
 //! ```
 //!
 //! ### Use the Graph version one or beta Api
-//! v1() refers to the endpoint for version 1 of the Microsoft graph Api. You can also
-//! use the beta() method which uses the Microsoft graph beta Api endpoint.
+//! v1() refers to the endpoint for version 1 of the Microsoft graph Api. You
+//! can also use the beta() method which uses the Microsoft graph beta Api
+//! endpoint.
 //!
 //! ```rust,ignore
 //! use graph_rs_sdk::prelude::*;
@@ -266,14 +268,12 @@ pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 /// Common structs and traits.
 pub mod prelude {
     pub use crate::client::*;
-    pub use graph_http::types::Delta;
-    pub use graph_http::GraphResponse;
+    pub use graph_http::{types::Delta, GraphResponse};
 }
 
 /// Reexport of graph-oauth crate.
 pub mod oauth {
-    pub use graph_oauth::jwt;
-    pub use graph_oauth::oauth::*;
+    pub use graph_oauth::{jwt, oauth::*};
 }
 
 /// Reexport of graph-error crate.

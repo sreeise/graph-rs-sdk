@@ -12,8 +12,7 @@ extern crate lazy_static;
 use graph_rs_sdk::oauth::OAuth;
 use rocket::http::RawStr;
 use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 /*
 This example shows how to use a code_challenge and code_verifier

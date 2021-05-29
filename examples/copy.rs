@@ -1,6 +1,5 @@
 use graph_rs_sdk::prelude::*;
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 // Set the name of the file you want to copy
 // and a name for the copy of the file.
@@ -19,11 +18,12 @@ fn main() {
 fn copy_item() {
     let graph = Graph::new(ACCESS_TOKEN);
 
-    // The DriveItem copy request uses a ItemReference (parent reference) which contains
-    // the metadata for the drive id and path specifying where the new copy should be placed.
-    // The path below in the ItemReference is typically the same path as the drive item
-    // requested above so the copy of the item will be placed in the same folder. This can
-    // be changed to wherever you would like the copy placed.
+    // The DriveItem copy request uses a ItemReference (parent reference) which
+    // contains the metadata for the drive id and path specifying where the new
+    // copy should be placed. The path below in the ItemReference is typically
+    // the same path as the drive item requested above so the copy of the item
+    // will be placed in the same folder. This can be changed to wherever you
+    // would like the copy placed.
 
     let mut response = graph
         .v1()
@@ -42,11 +42,11 @@ fn copy_item() {
         .unwrap();
 
     // When an item is copied the response returns a URL in the location header
-    // that can be used to monitor the progress. For events that may take longer to finish
-    // such as copying an item, the GraphResponse async_job_status() method can be used
-    // to get the metadata returned from the monitor URL. This request returns an
-    // AsyncJobStatus struct. Note, it is important to remember that AsyncJobStatus
-    // is only used for specific API requests.
+    // that can be used to monitor the progress. For events that may take longer to
+    // finish such as copying an item, the GraphResponse async_job_status()
+    // method can be used to get the metadata returned from the monitor URL.
+    // This request returns an AsyncJobStatus struct. Note, it is important to
+    // remember that AsyncJobStatus is only used for specific API requests.
     //
     // The GraphResponse success() method will return true if the status of the
     // request returns 202 which means the request for copying an item is approved.

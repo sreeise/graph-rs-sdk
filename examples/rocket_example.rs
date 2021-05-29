@@ -7,13 +7,10 @@ extern crate rocket;
 extern crate serde_json;
 
 use from_as::*;
-use graph_rs_sdk::oauth::OAuth;
-use graph_rs_sdk::prelude::*;
-use rocket::http::RawStr;
-use rocket::response::Responder;
+use graph_rs_sdk::{oauth::OAuth, prelude::*};
+use rocket::{http::RawStr, response::Responder};
 use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 /*
 This example shows using Rocket to authenticate with Microsoft OneDrive,
@@ -158,15 +155,16 @@ fn redirect(code: &RawStr) -> String {
 
 pub fn set_and_req_access_code(access_code: &str) {
     let mut oauth = oauth_web_client();
-    // The response type is automatically set to token and the grant type is automatically
-    // set to authorization_code if either of these were not previously set.
-    // This is done here as an example.
+    // The response type is automatically set to token and the grant type is
+    // automatically set to authorization_code if either of these were not
+    // previously set. This is done here as an example.
     oauth.access_code(access_code);
     let mut request = oauth.build().code_flow();
     let access_token = request.access_token().send().unwrap();
     oauth.access_token(access_token);
 
-    // If all went well here we can print out the OAuth config with the Access Token.
+    // If all went well here we can print out the OAuth config with the Access
+    // Token.
     println!("{:#?}", &oauth);
 
     // Save our configuration to a file so we can retrieve it from other requests.
@@ -185,9 +183,9 @@ struct MyResponder {
 
 // This method gets the root drive for the user.
 //
-// If there is an error, then a GraphFailure will be returned. GraphFailure will also store
-// an error from the Graph API if error originated from there. Errors for the Graph API
-// can be found here: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/errors?view=odsp-graph-online
+// If there is an error, then a GraphFailure will be returned. GraphFailure will
+// also store an error from the Graph API if error originated from there. Errors
+// for the Graph API can be found here: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/errors?view=odsp-graph-online
 //
 // Curl: curl http://localhost:8000/drive/recent
 #[get("/drive/get", format = "application/json")]

@@ -17,6 +17,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         name: create_multi_value_extended_properties,
         response: serde_json::Value,
@@ -24,6 +25,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         name: get_single_value_extended_properties,
         response: serde_json::Value,
@@ -31,6 +33,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         name: create_single_value_extended_properties,
         response: serde_json::Value,

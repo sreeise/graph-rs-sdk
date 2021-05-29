@@ -1,10 +1,14 @@
-use crate::parser::{Request, RequestMap, RequestSet};
-use crate::traits::{Modify, INTERNAL_PATH_ID};
+use crate::{
+    parser::{Request, RequestMap, RequestSet},
+    traits::{Modify, INTERNAL_PATH_ID},
+};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use std::collections::{HashMap, VecDeque};
-use std::convert::TryFrom;
-use std::io::{Read, Write};
+use std::{
+    collections::{HashMap, VecDeque},
+    convert::TryFrom,
+    io::{Read, Write},
+};
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
 pub enum FilterIgnore {

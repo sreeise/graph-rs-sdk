@@ -1,6 +1,5 @@
 use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{types::NoContent, IntoResponse};
 use reqwest::Method;
 
 register_client!(SettingsRequest,);
@@ -17,6 +16,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property settings in me",
         name: update_settings,
@@ -25,6 +25,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get shiftPreferences from me",
         name: get_shift_preferences,
@@ -33,6 +34,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property shiftPreferences in me",
         name: update_shift_preferences,

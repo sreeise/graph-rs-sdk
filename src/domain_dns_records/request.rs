@@ -1,6 +1,5 @@
 use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{types::NoContent, IntoResponse};
 use reqwest::Method;
 
 register_client!(DomainDnsRecordsRequest,);
@@ -17,6 +16,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in domainDnsRecords",
         name: update_domain_dns_record,
@@ -25,6 +25,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from domainDnsRecords",
         name: delete_domain_dns_record,
@@ -33,6 +34,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get entities from domainDnsRecords",
         name: list_domain_dns_record,
@@ -41,6 +43,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to domainDnsRecords",
         name: create_domain_dns_record,

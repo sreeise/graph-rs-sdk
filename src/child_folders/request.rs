@@ -1,11 +1,14 @@
 // GENERATED CODE
 
-use crate::client::Graph;
-use crate::core::ResourceIdentity;
-use crate::messages::{MessageRequest, MessagesRequest};
-use graph_http::types::DeltaPhantom;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use crate::{
+    client::Graph,
+    core::ResourceIdentity,
+    messages::{MessageRequest, MessagesRequest},
+};
+use graph_http::{
+    types::{DeltaPhantom, NoContent},
+    IntoResponse,
+};
 use handlebars::*;
 use reqwest::Method;
 
@@ -16,10 +19,6 @@ impl<'a, Client> ChildFolderRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> ChildFoldersRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::ChildFolders);
-        ChildFoldersRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get childFolders from me",
         name: list_child_folders,
@@ -28,6 +27,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to childFolders for me",
         name: create_child_folders,
@@ -36,6 +36,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function delta",
         name: delta,
@@ -44,25 +45,17 @@ where
         params: 0,
         has_body: false
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> ChildFoldersRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::ChildFolders);
+        ChildFoldersRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> ChildFoldersRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn messages(&self) -> MessageRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        MessageRequest::new(self.client)
-    }
-    pub fn message<ID: AsRef<str>>(&self, id: ID) -> MessagesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Messages);
-        MessagesRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get childFolders from me",
         name: get_child_folders,
@@ -71,6 +64,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property childFolders in me",
         name: update_child_folders,
@@ -79,6 +73,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action copy",
         name: copy,
@@ -87,6 +82,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         name: move_child_folders,
         response: serde_json::Value,
@@ -94,4 +90,19 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn messages(&self) -> MessageRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        MessageRequest::new(self.client)
+    }
+
+    pub fn message<ID: AsRef<str>>(&self, id: ID) -> MessagesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Messages);
+        MessagesRequest::new(id.as_ref(), self.client)
+    }
 }

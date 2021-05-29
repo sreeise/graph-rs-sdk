@@ -1,11 +1,13 @@
 use crate::traits::{AsyncByteRangeRead, AsyncTryFrom, ByteRangeMultiple, ByteRangeRead};
 use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult};
-use std::collections::VecDeque;
-use std::convert::TryFrom;
-use std::fmt::{Debug, Formatter};
-use std::io::{ErrorKind, Read, Seek, SeekFrom};
-use std::path::{Path, PathBuf};
+use std::{
+    collections::VecDeque,
+    convert::TryFrom,
+    fmt::{Debug, Formatter},
+    io::{ErrorKind, Read, Seek, SeekFrom},
+    path::{Path, PathBuf},
+};
 use tokio::io::AsyncReadExt;
 
 pub struct ByteRanges<F> {

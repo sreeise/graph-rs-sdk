@@ -1,8 +1,7 @@
 // GENERATED CODE
 
 use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{types::NoContent, IntoResponse};
 use reqwest::Method;
 
 register_client!(AuditLogsRequest,);
@@ -19,6 +18,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update auditLogs",
         name: update_audit_log_root,
@@ -27,6 +27,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get directoryAudits from auditLogs",
         name: list_directory_audits,
@@ -35,6 +36,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to directoryAudits for auditLogs",
         name: create_directory_audits,
@@ -43,6 +45,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get directoryAudits from auditLogs",
         name: get_directory_audits,
@@ -51,6 +54,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property directoryAudits in auditLogs",
         name: update_directory_audits,
@@ -59,6 +63,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property directoryAudits for auditLogs",
         name: delete_directory_audits,
@@ -67,6 +72,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get provisioning from auditLogs",
         name: list_provisioning,
@@ -75,6 +81,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to provisioning for auditLogs",
         name: create_provisioning,
@@ -83,6 +90,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get provisioning from auditLogs",
         name: get_provisioning,
@@ -91,6 +99,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property provisioning in auditLogs",
         name: update_provisioning,
@@ -99,6 +108,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property provisioning for auditLogs",
         name: delete_provisioning,
@@ -107,6 +117,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get restrictedSignIns from auditLogs",
         name: list_restricted_sign_ins,
@@ -115,6 +126,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to restrictedSignIns for auditLogs",
         name: create_restricted_sign_ins,
@@ -123,6 +135,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get restrictedSignIns from auditLogs",
         name: get_restricted_sign_ins,
@@ -131,6 +144,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property restrictedSignIns in auditLogs",
         name: update_restricted_sign_ins,
@@ -139,6 +153,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property restrictedSignIns for auditLogs",
         name: delete_restricted_sign_ins,
@@ -147,6 +162,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get signIns from auditLogs",
         name: list_sign_ins,
@@ -155,6 +171,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to signIns for auditLogs",
         name: create_sign_ins,
@@ -163,6 +180,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get signIns from auditLogs",
         name: get_sign_ins,
@@ -171,6 +189,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property signIns in auditLogs",
         name: update_sign_ins,
@@ -179,6 +198,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property signIns for auditLogs",
         name: delete_sign_ins,

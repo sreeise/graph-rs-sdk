@@ -1,10 +1,14 @@
-use crate::request::{RequestAttribute, RequestType};
-use crate::url::GraphUrl;
+use crate::{
+    request::{RequestAttribute, RequestType},
+    url::GraphUrl,
+};
 use graph_core::resource::ResourceIdentity;
 use graph_error::{GraphFailure, GraphResult};
 use handlebars::Handlebars;
-use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName};
-use reqwest::Method;
+use reqwest::{
+    header::{HeaderMap, HeaderValue, IntoHeaderName},
+    Method,
+};
 use std::path::PathBuf;
 use url::Url;
 

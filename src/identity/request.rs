@@ -1,6 +1,5 @@
 use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use graph_http::{types::NoContent, IntoResponse};
 use reqwest::Method;
 
 register_client!(IdentityRequest,);
@@ -21,6 +20,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property policies in identity",
         name: update_policies,
@@ -29,6 +29,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property policies for identity",
         name: delete_policies,
@@ -37,6 +38,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get policies from identity",
         name: list_policies,
@@ -45,6 +47,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to policies for identity",
         name: create_policies,
@@ -53,6 +56,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get namedLocations from identity",
         name: get_named_locations,
@@ -61,6 +65,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property namedLocations in identity",
         name: update_named_locations,
@@ -69,6 +74,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property namedLocations for identity",
         name: delete_named_locations,
@@ -77,6 +83,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get namedLocations from identity",
         name: list_named_locations,
@@ -85,6 +92,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to namedLocations for identity",
         name: create_named_locations,
@@ -108,6 +116,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to identityProviders",
         name: create_identity_provider,
@@ -116,6 +125,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get entity from identityProviders by key",
         name: get_identity_provider,
@@ -124,6 +134,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in identityProviders",
         name: update_identity_provider,
@@ -132,6 +143,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from identityProviders",
         name: delete_identity_provider,
@@ -155,6 +167,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update identity",
         name: update_identity_container,
@@ -170,15 +183,6 @@ impl<'a, Client> IdentityRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn conditional_access(&self) -> ConditionalAccessRequest<'a, Client> {
-        ConditionalAccessRequest::new(&self.client)
-    }
-    pub fn identity_container(&self) -> IdentityContainerRequest<'a, Client> {
-        IdentityContainerRequest::new(&self.client)
-    }
-    pub fn identity_provider(&self) -> IdentityProviderRequest<'a, Client> {
-        IdentityProviderRequest::new(&self.client)
-    }
     get!({
         doc: "# Get conditionalAccess from identity",
         name: get_conditional_access,
@@ -187,6 +191,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property conditionalAccess in identity",
         name: update_conditional_access,
@@ -195,6 +200,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property conditionalAccess for identity",
         name: delete_conditional_access,
@@ -203,4 +209,16 @@ where
         params: 0,
         has_body: false
     });
+
+    pub fn conditional_access(&self) -> ConditionalAccessRequest<'a, Client> {
+        ConditionalAccessRequest::new(&self.client)
+    }
+
+    pub fn identity_container(&self) -> IdentityContainerRequest<'a, Client> {
+        IdentityContainerRequest::new(&self.client)
+    }
+
+    pub fn identity_provider(&self) -> IdentityProviderRequest<'a, Client> {
+        IdentityProviderRequest::new(&self.client)
+    }
 }

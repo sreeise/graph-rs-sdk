@@ -1,6 +1,8 @@
 use from_as::*;
-use std::convert::TryFrom;
-use std::io::{Read, Write};
+use std::{
+    convert::TryFrom,
+    io::{Read, Write},
+};
 
 /// [Example Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#example-object)
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -10,19 +12,22 @@ pub struct Example {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<String>,
 
-    /// Long description for the example. CommonMark syntax MAY be used for rich text representation.
+    /// Long description for the example. CommonMark syntax MAY be used for rich
+    /// text representation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 
-    /// Embedded literal example. The value field and externalValue field are mutually exclusive.
-    /// To represent examples of media types that cannot naturally represented in JSON or YAML,
-    /// use a string value to contain the example, escaping where necessary.
+    /// Embedded literal example. The value field and externalValue field are
+    /// mutually exclusive. To represent examples of media types that cannot
+    /// naturally represented in JSON or YAML, use a string value to contain
+    /// the example, escaping where necessary.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<serde_json::Value>,
 
-    /// A URI that points to the literal example. This provides the capability to reference
-    /// examples that cannot easily be included in JSON or YAML documents. The value field and
-    /// externalValue field are mutually exclusive. See the rules for resolving Relative References.
+    /// A URI that points to the literal example. This provides the capability
+    /// to reference examples that cannot easily be included in JSON or YAML
+    /// documents. The value field and externalValue field are mutually
+    /// exclusive. See the rules for resolving Relative References.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub external_value: Option<String>,
 }

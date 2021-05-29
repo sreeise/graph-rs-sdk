@@ -1,15 +1,14 @@
-use graph_rs_sdk::error::{GraphFailure, GraphRsError};
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::{
+    error::{GraphFailure, GraphRsError},
+    prelude::*,
+};
 // use std::fs::OpenOptions;
 // use std::io::Read;
-use std::ffi::OsString;
-use std::fs;
-use std::path::Path;
-use std::thread;
-use std::time::Duration;
-use test_tools::oauthrequest::THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
-use test_tools::support::cleanup::CleanUp;
+use std::{ffi::OsString, fs, path::Path, thread, time::Duration};
+use test_tools::{
+    oauthrequest::{Environment, OAuthTestClient, THROTTLE_MUTEX},
+    support::cleanup::CleanUp,
+};
 
 #[test]
 fn list_get_notebooks_and_sections() {
@@ -186,7 +185,8 @@ fn download_page() {
 
             if let Err(e) = delete_res {
                 panic!(
-                    "Request error. Method onenote pages delete page (download page test): Error: {:#?}",
+                    "Request error. Method onenote pages delete page (download page test): Error: \
+                     {:#?}",
                     e
                 );
             }

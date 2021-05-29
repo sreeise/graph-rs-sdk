@@ -1,10 +1,11 @@
-use graph_rs_sdk::oauth::graphdiscovery::{
-    GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
+use graph_rs_sdk::oauth::{
+    graphdiscovery::{GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2},
+    OAuth,
 };
-use graph_rs_sdk::oauth::OAuth;
 
 fn main() {
-    // Lists info such as the authorization and token urls, jwks uri, and response types supported.
+    // Lists info such as the authorization and token urls, jwks uri, and response
+    // types supported.
     let signing_keys: MicrosoftSigningKeysV1 = GraphDiscovery::V1.signing_keys().unwrap();
     println!("{:#?}", signing_keys);
 
@@ -13,9 +14,9 @@ fn main() {
 
     // You can also create an OAuth instance from the signing keys. OAuth will use
     // parameters such as the authorization and token urls. This can save some
-    // configuration time when setting values for OAuth. However, this will disregard
-    // all other parameters for the MicrosoftSigningKeys. Use this if you do not
-    // need the other values.
+    // configuration time when setting values for OAuth. However, this will
+    // disregard all other parameters for the MicrosoftSigningKeys. Use this if
+    // you do not need the other values.
     let _oauth: OAuth = GraphDiscovery::V1.oauth().unwrap();
 }
 

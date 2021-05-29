@@ -1,9 +1,7 @@
 // GENERATED CODE
 
-use crate::client::Graph;
-use crate::core::ResourceIdentity;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
+use crate::{client::Graph, core::ResourceIdentity};
+use graph_http::{types::NoContent, IntoResponse};
 use handlebars::*;
 use reqwest::Method;
 
@@ -14,10 +12,6 @@ impl<'a, Client> SessionRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> SessionsRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Sessions);
-        SessionsRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get sessions from communications",
         name: list_sessions,
@@ -26,6 +20,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to sessions for communications",
         name: create_sessions,
@@ -34,6 +29,11 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> SessionsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Sessions);
+        SessionsRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> SessionsRequest<'a, Client>
@@ -48,6 +48,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property sessions in communications",
         name: update_sessions,
@@ -56,6 +57,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get segments from communications",
         name: list_segments,
@@ -64,6 +66,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to segments for communications",
         name: create_segments,
@@ -72,6 +75,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get segments from communications",
         name: get_segments,
@@ -80,6 +84,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property segments in communications",
         name: update_segments,

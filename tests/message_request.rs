@@ -1,7 +1,5 @@
-use std::thread;
-use std::time::Duration;
-use test_tools::oauthrequest::THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
+use std::{thread, time::Duration};
+use test_tools::oauthrequest::{Environment, OAuthTestClient, THROTTLE_MUTEX};
 
 #[test]
 fn list_and_get_messages() {

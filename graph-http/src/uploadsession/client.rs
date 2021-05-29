@@ -1,16 +1,19 @@
-use crate::async_client::{AsyncClient, AsyncHttpClient};
-use crate::blocking_client::{BlockingClient, BlockingHttpClient};
-use crate::byterange::ByteRangeIterator;
-use crate::traits::*;
-use crate::url::GraphUrl;
-use crate::{GraphResponse, RequestAttribute, RequestClient};
+use crate::{
+    async_client::{AsyncClient, AsyncHttpClient},
+    blocking_client::{BlockingClient, BlockingHttpClient},
+    byterange::ByteRangeIterator,
+    traits::*,
+    url::GraphUrl,
+    GraphResponse, RequestAttribute, RequestClient,
+};
 use async_trait::async_trait;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
-use std::convert::TryFrom;
-use std::fmt::Debug;
-use std::fmt::Formatter;
-use std::path::Path;
+use std::{
+    convert::TryFrom,
+    fmt::{Debug, Formatter},
+    path::Path,
+};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Session {
@@ -110,7 +113,9 @@ impl UploadSessionClient<BlockingHttpClient> {
     pub fn new(
         upload_session: serde_json::Value,
     ) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
-        let url = upload_session["uploadUrl"].as_str().ok_or_else(|| GraphFailure::serde_parsing_error("Missing JSON field `uploadUrl`"))?;
+        let url = upload_session["uploadUrl"]
+            .as_str()
+            .ok_or_else(|| GraphFailure::serde_parsing_error("Missing JSON field `uploadUrl`"))?;
         Ok(UploadSessionClient {
             upload_session_url: url.to_string(),
             byte_ranges: Default::default(),
@@ -165,7 +170,9 @@ impl UploadSessionClient<AsyncHttpClient> {
     pub fn new_async(
         upload_session: serde_json::Value,
     ) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
-        let url = upload_session["uploadUrl"].as_str().ok_or_else(|| GraphFailure::serde_parsing_error("Missing JSON field `uploadUrl`"))?;
+        let url = upload_session["uploadUrl"]
+            .as_str()
+            .ok_or_else(|| GraphFailure::serde_parsing_error("Missing JSON field `uploadUrl`"))?;
         Ok(UploadSessionClient {
             upload_session_url: url.to_string(),
             byte_ranges: Default::default(),

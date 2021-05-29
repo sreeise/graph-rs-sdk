@@ -1,17 +1,20 @@
-use crate::builder::{Client, ClientBuilder, ClientLinkSettings, StoredClient, StoredClientSet};
-use crate::parser::filter::Filter;
-use crate::parser::{
-    Modifier, Parser, ParserSettings, PathMap, RequestMap, RequestSet, ResourceNames,
-    ResourceRequestMap,
+use crate::{
+    builder::{Client, ClientBuilder, ClientLinkSettings, StoredClient, StoredClientSet},
+    parser::{
+        filter::Filter, Modifier, Parser, ParserSettings, PathMap, RequestMap, RequestSet,
+        ResourceNames, ResourceRequestMap,
+    },
 };
 use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::IoTools;
 use inflector::Inflector;
-use std::cell::{Ref, RefCell};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::fs::OpenOptions;
-use std::io::Write;
-use std::str::FromStr;
+use std::{
+    cell::{Ref, RefCell},
+    collections::{BTreeMap, BTreeSet, HashMap},
+    fs::OpenOptions,
+    io::Write,
+    str::FromStr,
+};
 
 #[derive(Default, Debug, Clone)]
 pub struct SpecBuilder {

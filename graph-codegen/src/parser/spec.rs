@@ -1,20 +1,25 @@
-use crate::builder::ClientLinkSettings;
-use crate::parser::filter::{
-    Filter, ModifierMap, ResourceIdentityModifier, ResourceUrlReplacement, SecondaryModifierMap,
+use crate::{
+    builder::ClientLinkSettings,
+    parser::{
+        filter::{
+            Filter, ModifierMap, ResourceIdentityModifier, ResourceUrlReplacement,
+            SecondaryModifierMap,
+        },
+        DirectoryModFile, ParserSettings, PathMap, RequestMap, RequestSet, ResourceRequestMap,
+    },
+    traits::Modify,
 };
-use crate::parser::{
-    DirectoryModFile, ParserSettings, PathMap, RequestMap, RequestSet, ResourceRequestMap,
-};
-use crate::traits::Modify;
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use reqwest::Url;
-use std::cell::{RefCell, RefMut};
-use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
-use std::convert::TryFrom;
-use std::fmt::Debug;
-use std::path::Path;
-use std::str::FromStr;
+use std::{
+    cell::{RefCell, RefMut},
+    collections::{BTreeMap, BTreeSet, HashMap, VecDeque},
+    convert::TryFrom,
+    fmt::Debug,
+    path::Path,
+    str::FromStr,
+};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Modifier {

@@ -2,9 +2,9 @@ use graph_rs_sdk::prelude::*;
 
 // For more info on users see: https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0
 
-// Work or school accounts must have the following permissions: User.ReadBasic.All,
-// User.Read.All, User.ReadWrite.All, Directory.Read.All, Directory.ReadWrite.All,
-// Directory.AccessAsUser.All
+// Work or school accounts must have the following permissions:
+// User.ReadBasic.All, User.Read.All, User.ReadWrite.All, Directory.Read.All,
+// Directory.ReadWrite.All, Directory.AccessAsUser.All
 
 // Applications must have the following permissions: User.Read.All,
 // User.ReadWrite.All, Directory.Read.All, Directory.ReadWrite.All

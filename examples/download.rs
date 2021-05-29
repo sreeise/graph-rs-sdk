@@ -1,6 +1,5 @@
 use graph_rs_sdk::prelude::*;
-use std::ffi::OsString;
-use std::path::PathBuf;
+use std::{ffi::OsString, path::PathBuf};
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static ITEM_ID: &str = "ITEM_ID";
@@ -27,10 +26,11 @@ pub fn download() {
     println!("{:#?}", path_buf);
 }
 
-// You can convert a file to a different format using the download_format() method.
-// There are 4 formats: glb, html, jpg, and pdf that an item can be converted to.
-// This uses the PDF conversion which can be converted from: doc, docx, epub,
-// eml, htm, html, md, msg, odp, ods, odt, pps, ppsx, ppt, pptx, rtf, tif, tiff, xls, xlsm, and xlsx.
+// You can convert a file to a different format using the download_format()
+// method. There are 4 formats: glb, html, jpg, and pdf that an item can be
+// converted to. This uses the PDF conversion which can be converted from: doc,
+// docx, epub, eml, htm, html, md, msg, odp, ods, odt, pps, ppsx, ppt, pptx,
+// rtf, tif, tiff, xls, xlsm, and xlsx.
 //
 // For more info on download formats see:
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content_format?view=odsp-graph-online

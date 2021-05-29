@@ -1,7 +1,9 @@
 use from_as::*;
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::io::{Read, Write};
+use std::{
+    collections::HashMap,
+    convert::TryFrom,
+    io::{Read, Write},
+};
 
 /// [Discriminator Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#discriminatorObject)
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]

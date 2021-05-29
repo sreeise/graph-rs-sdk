@@ -1,10 +1,12 @@
 use crate::oautherror::OAuthError;
 use from_as::*;
 use graph_error::{AsRes, GraphFailure};
-use std::borrow::Cow;
-use std::convert::TryFrom;
-use std::io::{Read, Write};
-use std::str::FromStr;
+use std::{
+    borrow::Cow,
+    convert::TryFrom,
+    io::{Read, Write},
+    str::FromStr,
+};
 use url::form_urlencoded;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, AsFile, FromFile)]
@@ -91,9 +93,7 @@ impl FromStr for IdToken {
                 b"id_token" => id_token.id_token(value.as_ref()),
                 b"state" => id_token.state(value.as_ref()),
                 b"session_state" => id_token.session_state(value.as_ref()),
-                _ => {
-                    return GraphFailure::invalid("Invalid key value pair in string.").err_res()
-                },
+                _ => return GraphFailure::invalid("Invalid key value pair in string.").err_res(),
             }
         }
         Ok(id_token)

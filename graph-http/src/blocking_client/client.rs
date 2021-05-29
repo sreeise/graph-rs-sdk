@@ -1,21 +1,26 @@
-use crate::download::{BlockingDownload, DownloadClient};
-use crate::uploadsession::UploadSessionClient;
-use crate::url::GraphUrl;
 use crate::{
-    GraphRequest, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient, RequestType,
+    download::{BlockingDownload, DownloadClient},
+    uploadsession::UploadSessionClient,
+    url::GraphUrl,
+    GraphRequest, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient,
+    RequestType,
 };
 use graph_core::resource::ResourceIdentity;
 use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
 use handlebars::Handlebars;
-use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
-use reqwest::redirect::Policy;
-use reqwest::Method;
-use std::cell::RefCell;
-use std::convert::TryFrom;
-use std::fmt::{Debug, Formatter};
-use std::fs::File;
-use std::io::Read;
-use std::path::PathBuf;
+use reqwest::{
+    header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE},
+    redirect::Policy,
+    Method,
+};
+use std::{
+    cell::RefCell,
+    convert::TryFrom,
+    fmt::{Debug, Formatter},
+    fs::File,
+    io::Read,
+    path::PathBuf,
+};
 use url::Url;
 
 pub type BlockingClient = GraphRequest<

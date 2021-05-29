@@ -1,10 +1,9 @@
-use crate::auth::{OAuthCredential, OAuthReq};
-use crate::grants::{GrantRequest, GrantType};
+use crate::{
+    auth::{OAuthCredential, OAuthReq},
+    grants::{GrantRequest, GrantType},
+};
 use graph_error::GraphFailure;
-use std::error;
-use std::error::Error;
-use std::fmt;
-use std::io::ErrorKind;
+use std::{error, error::Error, fmt, io::ErrorKind};
 
 /// Error implementation for OAuth
 #[derive(Debug)]
@@ -38,7 +37,11 @@ impl OAuthError {
     }
 
     pub fn grant_error<T>(grant: GrantType, grant_request: GrantRequest, msg: &str) -> OAuthReq<T> {
-        let error_str = format!("There was an error for the grant: {:#?} when executing a request for: {:#?}\nError: {:#?}", grant, grant_request, msg);
+        let error_str = format!(
+            "There was an error for the grant: {:#?} when executing a request for: {:#?}\nError: \
+             {:#?}",
+            grant, grant_request, msg
+        );
         OAuthError::invalid_data(error_str.as_str())
     }
 }

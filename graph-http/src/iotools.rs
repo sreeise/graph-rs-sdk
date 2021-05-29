@@ -1,10 +1,13 @@
 use async_std::prelude::*;
 use graph_error::{GraphFailure, GraphResult};
-use std::fs::OpenOptions;
-use std::io::copy;
-use std::path::{Path, PathBuf};
-use std::sync::mpsc;
-use std::{fs, thread};
+use std::{
+    fs,
+    fs::OpenOptions,
+    io::copy,
+    path::{Path, PathBuf},
+    sync::mpsc,
+    thread,
+};
 use tokio::prelude::*;
 
 pub struct IoTools;

@@ -1,15 +1,12 @@
 use graph_error::GraphError;
-use graph_http::traits::AsyncIterator;
-use graph_http::NextSession;
-use std::collections::HashMap;
-use std::path::PathBuf;
-use std::time::Duration;
-use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
-use test_tools::support::cleanup::AsyncCleanUp;
-use test_tools::FileUtils;
-use tokio::fs::OpenOptions;
-use tokio::io::AsyncWriteExt;
+use graph_http::{traits::AsyncIterator, NextSession};
+use std::{collections::HashMap, path::PathBuf, time::Duration};
+use test_tools::{
+    oauthrequest::{Environment, OAuthTestClient, ASYNC_THROTTLE_MUTEX},
+    support::cleanup::AsyncCleanUp,
+    FileUtils,
+};
+use tokio::{fs::OpenOptions, io::AsyncWriteExt};
 
 #[tokio::test]
 async fn async_download() {

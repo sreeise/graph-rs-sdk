@@ -1,13 +1,17 @@
 use from_as::*;
 use graph_http::{AsyncHttpClient, BlockingHttpClient};
-use graph_rs_sdk::client::Graph;
-use graph_rs_sdk::core::ResourceIdentity;
-use graph_rs_sdk::oauth::{AccessToken, OAuth};
-use std::collections::{BTreeMap, HashMap};
-use std::convert::TryFrom;
-use std::env;
-use std::io::{Read, Write};
-use std::sync::Mutex;
+use graph_rs_sdk::{
+    client::Graph,
+    core::ResourceIdentity,
+    oauth::{AccessToken, OAuth},
+};
+use std::{
+    collections::{BTreeMap, HashMap},
+    convert::TryFrom,
+    env,
+    io::{Read, Write},
+    sync::Mutex,
+};
 
 // static mutex's that are used for preventing test failures
 // due to too many concurrent requests for Microsoft Graph.
