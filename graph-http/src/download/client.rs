@@ -74,7 +74,7 @@ impl<Client, Request> DownloadClient<Client, Request> {
 
     fn check_file_name_length(&self, name: &OsString) -> GraphResult<()> {
         if name.len() > 255 {
-            return GraphRsError::DownloadFileName.as_err_res();
+            return GraphRsError::DownloadFileName.err_res();
         }
         Ok(())
     }
@@ -143,12 +143,12 @@ impl BlockingDownload {
         self.client.url_mut(|url| url.format(format));
     }
 
-    fn check_existing_file(&self, path: &PathBuf) -> GraphResult<()> {
+    fn check_existing_file(&self, path: &Path) -> GraphResult<()> {
         if path.exists() && !self.is_overwrite_existing_file() {
             return GraphRsError::DownloadFileExists {
                 name: path.to_string_lossy().to_string(),
             }
-            .as_err_res();
+            .err_res();
         }
         Ok(())
     }
@@ -165,7 +165,7 @@ impl BlockingDownload {
             IoTools::create_dir(request.path.as_path())?;
         } else if !request.path.exists() {
             let dir = request.path.to_string_lossy().to_string();
-            return GraphRsError::DownloadDirNoExists { dir }.as_err_res();
+            return GraphRsError::DownloadDirNoExists { dir }.err_res();
         }
 
         if self.client.request_type().eq(&RequestType::Redirect) {
@@ -206,7 +206,7 @@ impl BlockingDownload {
                 self.check_file_name_length(&name)?;
                 request.path.join(name)
             } else {
-                return GraphRsError::DownloadFileName.as_err_res();
+                return GraphRsError::DownloadFileName.err_res();
             }
         };
 
@@ -284,12 +284,12 @@ impl AsyncDownload {
         });
     }
 
-    async fn check_existing_file(&self, path: &PathBuf) -> GraphResult<()> {
+    async fn check_existing_file(&self, path: &Path) -> GraphResult<()> {
         if path.exists() && !self.is_overwrite_existing_file().await {
             return GraphRsError::DownloadFileExists {
                 name: path.to_string_lossy().to_string(),
             }
-            .as_err_res();
+            .err_res();
         }
         Ok(())
     }
@@ -305,7 +305,7 @@ impl AsyncDownload {
             IoTools::create_dir_async(request.path.as_path()).await?;
         } else if !request.path.exists() {
             let dir = request.path.to_string_lossy().to_string();
-            return GraphRsError::DownloadDirNoExists { dir }.as_err_res();
+            return GraphRsError::DownloadDirNoExists { dir }.err_res();
         }
 
         if self.client.request_type().eq(&RequestType::Redirect) {
@@ -345,7 +345,7 @@ impl AsyncDownload {
                 self.check_file_name_length(&name)?;
                 request.path.join(name)
             } else {
-                return GraphRsError::DownloadFileName.as_err_res();
+                return GraphRsError::DownloadFileName.err_res();
             }
         };
 

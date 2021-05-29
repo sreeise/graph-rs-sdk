@@ -855,7 +855,7 @@ impl OAuth {
     pub fn get_refresh_token(&self) -> OAuthReq<String> {
         match self.get_access_token() {
             Some(token) => match token.refresh_token() {
-                Some(t) => Ok(t),
+                Some(t) => Ok(t.to_string()),
                 None => OAuthError::error_from::<String>(OAuthCredential::RefreshToken),
             },
             None => OAuthError::error_from::<String>(OAuthCredential::AccessToken),

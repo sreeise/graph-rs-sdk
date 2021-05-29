@@ -286,8 +286,8 @@ impl AccessToken {
     /// let mut access_token = AccessToken::default();
     /// println!("{:#?}", access_token.user_id());
     /// ```
-    pub fn user_id(&self) -> Option<String> {
-        self.user_id.clone()
+    pub fn user_id(&self) -> Option<&String> {
+        self.user_id.as_ref()
     }
 
     /// Get the refresh token.
@@ -299,11 +299,8 @@ impl AccessToken {
     /// let mut access_token = AccessToken::default();
     /// println!("{:#?}", access_token.refresh_token());
     /// ```
-    pub fn refresh_token(self) -> Option<String> {
-        match self.refresh_token {
-            Some(t) => Some(t),
-            None => None,
-        }
+    pub fn refresh_token(&self) -> Option<&String> {
+        self.refresh_token.as_ref()
     }
 
     /// Get the id token.
@@ -315,8 +312,8 @@ impl AccessToken {
     /// let mut access_token = AccessToken::default();
     /// println!("{:#?}", access_token.id_token());
     /// ```
-    pub fn id_token(&self) -> Option<String> {
-        self.id_token.clone()
+    pub fn id_token(&self) -> Option<&String> {
+        self.id_token.as_ref()
     }
 
     /// Get the state.
@@ -328,8 +325,8 @@ impl AccessToken {
     /// let mut access_token = AccessToken::default();
     /// println!("{:#?}", access_token.state());
     /// ```
-    pub fn state(&self) -> Option<String> {
-        self.state.clone()
+    pub fn state(&self) -> Option<&String> {
+        self.state.as_ref()
     }
 
     /// Get the timestamp.

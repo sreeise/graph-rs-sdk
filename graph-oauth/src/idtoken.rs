@@ -92,7 +92,7 @@ impl FromStr for IdToken {
                 b"state" => id_token.state(value.as_ref()),
                 b"session_state" => id_token.session_state(value.as_ref()),
                 _ => {
-                    return GraphFailure::invalid("Invalid key value pair in string.").as_err_res()
+                    return GraphFailure::invalid("Invalid key value pair in string.").err_res()
                 },
             }
         }

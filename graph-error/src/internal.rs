@@ -21,11 +21,11 @@ pub enum GraphRsError {
 }
 
 impl AsRes for GraphRsError {
-    fn as_err_res<T>(self) -> GraphResult<T> {
-        GraphFailure::internal(self).as_err_res()
+    fn err_res<T>(self) -> GraphResult<T> {
+        GraphFailure::internal(self).err_res()
     }
 
-    fn as_failure(self) -> GraphFailure {
+    fn graph_failure(self) -> GraphFailure {
         GraphFailure::internal(self)
     }
 }

@@ -13,9 +13,9 @@ use std::sync::mpsc::RecvError;
 use std::{error, fmt, io, num, string};
 
 pub trait AsRes<RHS = Self> {
-    fn as_err_res<T>(self) -> GraphResult<T>;
+    fn err_res<T>(self) -> GraphResult<T>;
 
-    fn as_failure(self) -> GraphFailure;
+    fn graph_failure(self) -> GraphFailure;
 }
 
 #[derive(Debug)]
@@ -71,11 +71,11 @@ impl GraphFailure {
 }
 
 impl AsRes for GraphFailure {
-    fn as_err_res<T>(self) -> Result<T, GraphFailure> {
+    fn err_res<T>(self) -> Result<T, GraphFailure> {
         Err(self)
     }
 
-    fn as_failure(self) -> GraphFailure {
+    fn graph_failure(self) -> GraphFailure {
         self
     }
 }

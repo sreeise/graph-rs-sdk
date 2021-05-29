@@ -28,7 +28,7 @@ where
                         .to_string_lossy()
                         .to_string(),
                 }
-                .as_failure(),
+                .graph_failure(),
             );
         }
 

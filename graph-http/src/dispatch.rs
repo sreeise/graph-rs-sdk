@@ -60,7 +60,7 @@ where
             return Err(self.error.unwrap_or_default());
         }
         let response = self.request.send()?;
-        Ok(std::convert::TryFrom::try_from(response)?)
+        std::convert::TryFrom::try_from(response)
     }
 }
 
