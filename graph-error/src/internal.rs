@@ -16,6 +16,10 @@ pub enum GraphRsError {
     FileNameInvalidUTF8,
     #[snafu(display("Missing or invalid: Error: {}", msg))]
     InvalidOrMissing { msg: String },
+    #[snafu(display("Unknown error. Possibly a NoneError: Message:\n{}", msg))]
+    UnknownError { msg: String },
+    #[snafu(display("SerdeParsingError. Message:\n\t{}", msg))]
+    SerdeParsingError { msg: String },
     #[snafu(display("Invalid file extension. Requires {} but found {}", requires, found))]
     InvalidFileExtension { requires: String, found: String },
 }

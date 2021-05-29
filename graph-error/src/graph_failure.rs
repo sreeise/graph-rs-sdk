@@ -6,7 +6,6 @@ use std::cell::BorrowMutError;
 use std::convert::TryFrom;
 use std::error::Error;
 use std::io::ErrorKind;
-use std::option::NoneError;
 use std::str::Utf8Error;
 use std::sync::mpsc;
 use std::sync::mpsc::RecvError;
@@ -59,6 +58,14 @@ impl GraphFailure {
 
     pub fn invalid(msg: &str) -> Self {
         GraphFailure::internal(GraphRsError::InvalidOrMissing { msg: msg.into() })
+    }
+
+    pub fn unknown(msg: &str) -> Self {
+        GraphFailure::internal(GraphRsError::UnknownError { msg: msg.into() })
+    }
+
+    pub fn serde_parsing_error(msg: &str) -> Self {
+        GraphFailure::internal(GraphRsError::SerdeParsingError { msg: msg.into() })
     }
 
     pub fn from_response(r: &reqwest::blocking::Response) -> Option<GraphFailure> {
@@ -215,12 +222,6 @@ impl From<RecvError> for GraphFailure {
 impl From<BorrowMutError> for GraphFailure {
     fn from(err: BorrowMutError) -> Self {
         GraphFailure::BorrowMutError(err)
-    }
-}
-
-impl From<NoneError> for GraphFailure {
-    fn from(_: NoneError) -> Self {
-        GraphFailure::not_found("NoneError")
     }
 }
 

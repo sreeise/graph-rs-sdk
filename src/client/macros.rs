@@ -1,4 +1,3 @@
-#[macro_use]
 macro_rules! register_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ) => {
         $( register_helper!($helper, $value); )*
@@ -167,7 +166,6 @@ macro_rules! register_client {
     };
 }
 
-#[macro_use]
 macro_rules! render_path {
     ($client:expr, $template:expr) => {
         let path = $client
@@ -200,7 +198,6 @@ macro_rules! render_path {
     };
 }
 
-#[macro_use]
 macro_rules! register_method {
     ( $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name(&'a self) -> IntoResponse<'a, $T, Client>
@@ -716,7 +713,6 @@ macro_rules! register_method {
     };
 }
 
-#[macro_use]
 macro_rules! register_upload {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: 0  } ) => {
       pub fn $name<P: AsRef<Path>>(&'a self, file: P) -> IntoResponse<'a, $T, Client>
@@ -961,7 +957,7 @@ macro_rules! register_upload {
     };
 }
 
-#[macro_use]
+
 macro_rules! register_download {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 0 } ) => {
       pub fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
@@ -1000,7 +996,7 @@ macro_rules! register_download {
     };
 }
 
-#[macro_use]
+
 macro_rules! register_async_download {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 0 } ) => {
       pub async fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
@@ -1039,7 +1035,7 @@ macro_rules! register_async_download {
     };
 }
 
-#[macro_use]
+
 macro_rules! get {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::GET );
@@ -1198,7 +1194,7 @@ macro_rules! get {
 
 }
 
-#[macro_use]
+
 macro_rules! post {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::POST );
@@ -1434,7 +1430,7 @@ macro_rules! post {
   };
 }
 
-#[macro_use]
+
 macro_rules! patch {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::PATCH );
@@ -1669,7 +1665,7 @@ macro_rules! patch {
 }
 
 #[allow(unused_macros)]
-#[macro_use]
+
 macro_rules! put {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::PUT );
@@ -1903,7 +1899,7 @@ macro_rules! put {
   };
 }
 
-#[macro_use]
+
 macro_rules! delete {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::DELETE );
@@ -2063,7 +2059,7 @@ macro_rules! delete {
     };
 }
 
-#[macro_use]
+
 macro_rules! download {
     ( { name: $name:ident, response: $response:ty, path: $template:expr, params: 0 } ) => {
         register_download!( { name: $name, response: $response, path: $template, params: 0  }  );
@@ -2074,7 +2070,7 @@ macro_rules! download {
     };
 }
 
-#[macro_use]
+
 macro_rules! async_download {
     ( { name: $name:ident, response: $response:ty, path: $template:expr, params: 0 } ) => {
         register_async_download!( { name: $name, response: $response, path: $template, params: 0  } );

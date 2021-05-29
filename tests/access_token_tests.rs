@@ -17,7 +17,7 @@ fn get_method() {
     assert_eq!(access_token.scopes(), Some(&"offline".into()));
     assert_eq!(
         access_token.refresh_token(),
-        Some("eyJh...9323".to_string())
+        Some(&"eyJh...9323".to_string())
     );
 }
 
