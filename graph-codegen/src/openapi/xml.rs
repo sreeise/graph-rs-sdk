@@ -13,14 +13,17 @@ pub struct XML {
     /// being array (outside the items), it will affect the wrapping element
     /// and only if wrapped is true. If wrapped is false, it will be
     /// ignored.
-    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
 
     /// The URI of the namespace definition. This MUST be in the form of an
     /// absolute URI.
-    namespace: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    namespace: Option<String>,
 
     /// The prefix to be used for the name.
-    prefix: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    prefix: Option<String>,
 
     /// Declares whether the property definition translates to an attribute
     /// instead of an element. Default value is false.

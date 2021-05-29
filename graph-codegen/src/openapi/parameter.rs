@@ -104,3 +104,21 @@ pub struct Parameter {
     #[serde(deserialize_with = "either_t_map_right_or_reference")]
     pub examples: Option<HashMap<String, Either<Example, Reference>>>,
 }
+
+impl Parameter {
+    pub fn is_in_path(&self) -> bool {
+        self.in_.eq(&Some("path".to_string()))
+    }
+
+    pub fn is_in_query(&self) -> bool {
+        self.in_.eq(&Some("query".to_string()))
+    }
+
+    pub fn is_in_header(&self) -> bool {
+        self.in_.eq(&Some("header".to_string()))
+    }
+
+    pub fn is_in_cookie(&self) -> bool {
+        self.in_.eq(&Some("cookie".to_string()))
+    }
+}

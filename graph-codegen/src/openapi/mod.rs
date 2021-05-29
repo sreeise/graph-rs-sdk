@@ -7,7 +7,6 @@ mod media_type;
 mod operation;
 mod parameter;
 mod path_item;
-mod paths;
 mod reference;
 mod request_body;
 mod schema;
@@ -25,7 +24,6 @@ pub use media_type::*;
 pub use operation::*;
 pub use parameter::*;
 pub use path_item::*;
-pub use paths::*;
 pub use reference::*;
 pub use request_body::*;
 pub use schema::*;
@@ -38,7 +36,7 @@ use from_as::*;
 use graph_http::url::GraphUrl;
 use reqwest::Url;
 use std::{
-    collections::VecDeque,
+    collections::{BTreeMap, VecDeque},
     convert::TryFrom,
     io::{Read, Write},
 };
@@ -73,7 +71,8 @@ pub struct OpenAPI {
     pub servers: VecDeque<serde_json::Value>,
 
     /// The available paths and operations for the API.
-    pub paths: Paths,
+    /// [Paths Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#pathsObject)
+    pub paths: BTreeMap<String, PathItem>,
 
     /// The incoming webhooks that MAY be received as part of this API and that
     /// the API consumer MAY choose to implement. Closely related to the
@@ -113,6 +112,24 @@ pub struct OpenAPI {
     pub external_docs: Option<ExternalDocumentation>,
 }
 
+impl OpenAPI {
+    pub fn find_paths_matching(&self, pat: &str) -> Vec<(String, PathItem)> {
+        self.paths
+            .iter()
+            .filter(|(path, _path_item)| path.starts_with(pat))
+            .map(|(path, path_item)| (path.clone(), path_item.clone()))
+            .collect()
+    }
+
+    pub fn path_contains(&self, pat: &str) -> Vec<(String, PathItem)> {
+        self.paths
+            .iter()
+            .filter(|(path, _path_item)| path.contains(pat))
+            .map(|(path, path_item)| (path.clone(), path_item.clone()))
+            .collect()
+    }
+}
+
 impl TryFrom<reqwest::Url> for OpenAPI {
     type Error = reqwest::Error;
 
@@ -128,9 +145,15 @@ impl TryFrom<GraphUrl> for OpenAPI {
     type Error = reqwest::Error;
 
     fn try_from(value: GraphUrl) -> Result<Self, Self::Error> {
-        let response = reqwest::blocking::get(value.to_reqwest_url())?;
-        let open_api_raw_text = response.text().unwrap();
-        let open_api: OpenAPI = serde_yaml::from_str(open_api_raw_text.as_str()).unwrap();
-        Ok(open_api)
+        OpenAPI::try_from(value.to_reqwest_url())
+    }
+}
+
+impl IntoIterator for OpenAPI {
+    type IntoIter = std::collections::btree_map::IntoIter<String, PathItem>;
+    type Item = (String, PathItem);
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.paths.into_iter()
     }
 }
