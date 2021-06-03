@@ -72,13 +72,13 @@ async fn async_upload_session() {
                 match next {
                     Ok(NextSession::Next(response)) => {
                         assert!(!GraphError::is_error(response.status()));
-                    },
+                    }
                     Ok(NextSession::Done(response)) => {
                         assert!(!GraphError::is_error(response.status()));
                         let drive_item = response.body();
                         let drive_item_id =
                             drive_item["id"].as_str().unwrap_or_default().to_string();
-                        tokio::time::delay_for(Duration::from_secs(3)).await;
+                        tokio::time::sleep(Duration::from_secs(3)).await;
 
                         let delete_res = client
                             .v1()
@@ -90,19 +90,19 @@ async fn async_upload_session() {
 
                         if let Ok(response) = delete_res {
                             assert!(
-                                response.status() == 200 ||
-                                    response.status() == 201 ||
-                                    response.status() == 204
+                                response.status() == 200
+                                    || response.status() == 201
+                                    || response.status() == 204
                             );
                         } else if let Err(e) = delete_res {
                             panic!("Request error. Upload session new. Error: {:#?}", e);
                         }
                         break;
-                    },
+                    }
                     Err(e) => {
                         let _ = cancel_request.send().await.unwrap();
                         panic!("Request error. Upload session new. Error: {:#?}", e);
-                    },
+                    }
                 }
             }
         }
@@ -147,13 +147,13 @@ async fn async_upload_session_standalone_request() {
                 match next {
                     Ok(NextSession::Next(response)) => {
                         assert!(!GraphError::is_error(response.status()));
-                    },
+                    }
                     Ok(NextSession::Done(response)) => {
                         assert!(!GraphError::is_error(response.status()));
                         let drive_item = response.body();
                         let drive_item_id =
                             drive_item["id"].as_str().unwrap_or_default().to_string();
-                        tokio::time::delay_for(Duration::from_secs(3)).await;
+                        tokio::time::sleep(Duration::from_secs(3)).await;
 
                         let delete_res = client
                             .v1()
@@ -165,19 +165,19 @@ async fn async_upload_session_standalone_request() {
 
                         if let Ok(response) = delete_res {
                             assert!(
-                                response.status() == 200 ||
-                                    response.status() == 201 ||
-                                    response.status() == 204
+                                response.status() == 200
+                                    || response.status() == 201
+                                    || response.status() == 204
                             );
                         } else if let Err(e) = delete_res {
                             panic!("Request error. Upload session new. Error: {:#?}", e);
                         }
                         break;
-                    },
+                    }
                     Err(e) => {
                         let _ = cancel_request.send().await.unwrap();
                         panic!("Request error. Upload session new. Error: {:#?}", e);
-                    },
+                    }
                 }
             }
         }
@@ -206,15 +206,15 @@ async fn create_delete_folder_async() {
 
         if let Ok(response) = create_folder_res {
             let item_id = response.body()["id"].as_str().unwrap();
-            tokio::time::delay_for(Duration::from_secs(2)).await;
+            tokio::time::sleep(Duration::from_secs(2)).await;
 
             let req = client.v1().drive(id).delete_items(item_id).send().await;
 
             if let Ok(response) = req {
                 assert!(
-                    response.status() == 200 ||
-                        response.status() == 201 ||
-                        response.status() == 204
+                    response.status() == 200
+                        || response.status() == 201
+                        || response.status() == 204
                 );
             } else if let Err(e) = req {
                 panic!("Request error. Method: drive delete. Error: {:#?}", e);
@@ -256,7 +256,7 @@ async fn drive_upload_new_and_replace_and_delete() {
             file.write_all("Test Update File".as_bytes()).await.unwrap();
             file.sync_all().await.unwrap();
 
-            tokio::time::delay_for(Duration::from_secs(2)).await;
+            tokio::time::sleep(Duration::from_secs(2)).await;
             let upload_replace = client
                 .v1()
                 .drive(id.as_str())
@@ -274,7 +274,7 @@ async fn drive_upload_new_and_replace_and_delete() {
                 );
             }
 
-            tokio::time::delay_for(Duration::from_secs(2)).await;
+            tokio::time::sleep(Duration::from_secs(2)).await;
             let delete_res = client
                 .v1()
                 .drive(id.as_str())
@@ -284,9 +284,9 @@ async fn drive_upload_new_and_replace_and_delete() {
 
             if let Ok(response) = delete_res {
                 assert!(
-                    response.status() == 200 ||
-                        response.status() == 201 ||
-                        response.status() == 204
+                    response.status() == 200
+                        || response.status() == 201
+                        || response.status() == 204
                 );
             } else if let Err(e) = delete_res {
                 panic!("Request Error. Method: drive delete. Error: {:#?}", e);

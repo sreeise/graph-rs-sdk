@@ -189,7 +189,13 @@ impl TryFrom<&OAuth> for GraphBlocking {
     type Error = GraphFailure;
 
     fn try_from(oauth: &OAuth) -> Result<Self, Self::Error> {
+        #[cfg(nightly)]
         let access_token = oauth.get_access_token()?;
+        #[cfg(not(nightly))]
+        let access_token = oauth
+            .get_access_token()
+            .ok_or(GraphFailure::not_found("NoneError"))?;
+
         Ok(Graph::from(&access_token))
     }
 }
@@ -264,7 +270,12 @@ impl TryFrom<&OAuth> for GraphAsync {
     type Error = GraphFailure;
 
     fn try_from(oauth: &OAuth) -> Result<Self, Self::Error> {
+        #[cfg(nightly)]
         let access_token = oauth.get_access_token()?;
+        #[cfg(not(nightly))]
+        let access_token = oauth
+            .get_access_token()
+            .ok_or(GraphFailure::not_found("NoneError"))?;
         Ok(Graph::from(&access_token))
     }
 }

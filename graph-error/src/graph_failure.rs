@@ -6,11 +6,13 @@ use std::cell::BorrowMutError;
 use std::convert::TryFrom;
 use std::error::Error;
 use std::io::ErrorKind;
-use std::option::NoneError;
 use std::str::Utf8Error;
 use std::sync::mpsc;
 use std::sync::mpsc::RecvError;
 use std::{error, fmt, io, num, string};
+
+#[cfg(nightly)]
+use std::option::NoneError;
 
 pub trait AsRes<RHS = Self> {
     fn as_err_res<T>(self) -> GraphResult<T>;
@@ -102,7 +104,7 @@ impl fmt::Display for GraphFailure {
             GraphFailure::RecvError(ref err) => write!(f, "Recv error:\n{:#?}", err),
             GraphFailure::BorrowMutError(ref err) => {
                 write!(f, "Borrow Mut Error error:\n{:#?}", err)
-            },
+            }
             GraphFailure::UrlParseError(ref err) => write!(f, "Url parse error:\n{:#?}", err),
             GraphFailure::HyperError(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
             GraphFailure::HyperHttpError(ref err) => write!(f, "Hyper http error:\n{:#?}", err),
@@ -110,10 +112,10 @@ impl fmt::Display for GraphFailure {
             GraphFailure::GraphRsError(ref err) => write!(f, "Internal error:\n{:#?}", err),
             GraphFailure::HandlebarsRenderError(ref err) => {
                 write!(f, "Handlebars render error:\n{:#?}", err)
-            },
+            }
             GraphFailure::HandlebarsTemplateRenderError(ref err) => {
                 write!(f, "Handlebars template render error:\n{:#?}", err)
-            },
+            }
             GraphFailure::CryptoError => write!(f, "Crypto Error (Unknown)"),
         }
     }
@@ -218,6 +220,7 @@ impl From<BorrowMutError> for GraphFailure {
     }
 }
 
+#[cfg(nightly)]
 impl From<NoneError> for GraphFailure {
     fn from(_: NoneError) -> Self {
         GraphFailure::not_found("NoneError")
