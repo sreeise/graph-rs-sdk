@@ -15,7 +15,7 @@ static API_V1_METADATA_URL_STR: &str = "https://raw.githubusercontent.com/micros
 
 lazy_static! {
     static ref API_V1_METADATA_URL: reqwest::Url =
-        reqwest::Url::parse(API_V1_METADATA_URL_STR.as_ref()).unwrap();
+        reqwest::Url::parse(API_V1_METADATA_URL_STR).unwrap();
 }
 
 pub trait Generate<Clients> {
@@ -91,7 +91,7 @@ impl Generator {
         })
     }
 
-    pub fn get_client_resource<'b>(resource_identity: ResourceIdentity) -> Option<ClientResource> {
+    pub fn get_client_resource(resource_identity: ResourceIdentity) -> Option<ClientResource> {
         ClientResource::try_from(resource_identity).ok()
     }
 
@@ -316,14 +316,14 @@ impl Generate<ResourceIdentity> for Generator {
 impl Generate<Vec<ResourceIdentity>> for Generator {
     fn generate(vec: Vec<ResourceIdentity>) -> Result<(), ParseError> {
         vec.par_iter().for_each(|resource_identity| {
-            Generator::generate(resource_identity.clone()).unwrap();
+            Generator::generate(*resource_identity).unwrap();
         });
         Ok(())
     }
 
     fn dry_run(vec: Vec<ResourceIdentity>) -> Result<(), ParseError> {
         vec.par_iter().for_each(|resource_identity| {
-            Generator::dry_run(resource_identity.clone()).unwrap();
+            Generator::dry_run(*resource_identity).unwrap();
         });
         Ok(())
     }

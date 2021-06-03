@@ -335,7 +335,7 @@ impl RequestSet {
         if self.set.contains(&request_map) {
             let mut req_map = self.set.get(&request_map).cloned().unwrap();
             for request in request_map.requests.iter() {
-                if req_map.requests.iter().find(|r| r.eq(&request)).is_none() {
+                if !req_map.requests.iter().any(|r| r.eq(&request)) {
                     req_map.requests.push_back(request.clone());
                 }
             }
@@ -455,7 +455,7 @@ impl RequestSet {
 
         let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
-        vec.sort();
+        vec.sort_unstable();
 
         for link in vec.iter() {
             if link.contains('.') {
@@ -523,7 +523,7 @@ impl RequestSet {
     fn struct_links(links: &HashSet<String>) -> HashMap<String, Vec<String>> {
         let mut map: HashMap<String, Vec<String>> = HashMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
-        vec.sort();
+        vec.sort_unstable();
 
         for link in vec.iter() {
             if link.contains('.') {

@@ -198,15 +198,17 @@ impl RequestParserBuilder for Operation {
     /// The build method is where each individual request
     /// is parsed.
     fn build(&self, path: String, modifier: &Modifier, http_method: HttpMethod) -> Request {
-        let mut request = Request::default();
-        request.path = path;
-        request.operation_id = self.operation_id.to_string();
-        request.operation_mapping = self.operation_id.operation_mapping();
-        request.method_name = self.method_name();
-        request.param_size = self.param_size();
-        request.has_body = self.has_body();
-        request.response = self.response_type();
-        request.doc = self.summary.clone().map(|s| format!("# {}", s));
+        let mut request = Request {
+            path,
+            operation_id: self.operation_id.to_string(),
+            operation_mapping: self.operation_id.operation_mapping(),
+            method_name: self.method_name(),
+            param_size: self.param_size(),
+            has_body: self.has_body(),
+            response: self.response_type(),
+            doc: self.summary.clone().map(|s| format!("# {}", s)),
+            ..Default::default()
+        };
 
         if request.method.eq(&HttpMethod::DELETE) {
             request.response = ResponseType::NoContent;
@@ -269,7 +271,7 @@ pub struct Path {
 }
 
 impl Path {
-    pub fn build_requests(&self, path: &String, modifier: &Modifier) -> VecDeque<Request> {
+    pub fn build_requests(&self, path: &str, modifier: &Modifier) -> VecDeque<Request> {
         let mut requests = VecDeque::new();
 
         if let Some(request) =
@@ -305,16 +307,14 @@ impl Path {
     }
 
     fn build_request(
-        path: &String,
+        path: &str,
         modifier: &Modifier,
         operation: Option<&Operation>,
         http_method: HttpMethod,
     ) -> Option<Request> {
-        if let Some(operation) = operation.as_ref() {
-            Some(operation.build(path.clone(), &modifier, http_method))
-        } else {
-            None
-        }
+        operation
+            .as_ref()
+            .map(|operation| operation.build(path.to_string(), &modifier, http_method))
     }
 }
 

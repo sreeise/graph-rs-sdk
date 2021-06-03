@@ -129,14 +129,14 @@ impl ClientBuilder {
         }
     }
 
-    fn impl_start(&self, name: &String) -> String {
+    fn impl_start(&self, name: &str) -> String {
         format!(
             "\nimpl<'a, Client> {}<'a, Client> where Client: graph_http::RequestClient {{",
             name
         )
     }
 
-    fn download_impl_start(&self, name: &String, is_async: bool) -> String {
+    fn download_impl_start(&self, name: &str, is_async: bool) -> String {
         if is_async {
             format!("\nimpl<'a> {}<'a, AsyncHttpClient> {{", name)
         } else {

@@ -1,5 +1,4 @@
-use crate::openapi::{either_vec_t_or_reference, Operation, Parameter, Reference, Server};
-use either::Either;
+use crate::openapi::{EitherT, Operation, Parameter, Reference, Server};
 use from_as::*;
 use std::{
     collections::VecDeque,
@@ -75,6 +74,5 @@ pub struct PathItem {
     /// Object's components/parameters.
     #[serde(default)]
     #[serde(skip_serializing_if = "VecDeque::is_empty")]
-    #[serde(deserialize_with = "either_vec_t_or_reference")]
-    pub parameters: VecDeque<Either<Parameter, Reference>>,
+    pub parameters: VecDeque<EitherT<Parameter, Reference>>,
 }

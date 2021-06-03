@@ -76,7 +76,7 @@ impl ResourceUrlReplacement for ResourceIdentityModifier {
             let replacement = &name[..name.len() - 1];
             replacement.into()
         } else {
-            let mut replacement = String::from(name);
+            let mut replacement = name;
             replacement.push('s');
             replacement
         }

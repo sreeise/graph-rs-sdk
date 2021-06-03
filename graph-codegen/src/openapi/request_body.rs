@@ -1,3 +1,4 @@
+use crate::openapi::MediaType;
 use from_as::*;
 use std::{
     collections::HashMap,
@@ -17,11 +18,10 @@ pub struct RequestBody {
     /// media type range and the value describes it. For requests that match
     /// multiple keys, only the most specific key is applicable. e.g.
     /// text/plain overrides text/*
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub content: Option<HashMap<String, serde_json::Value>>,
+    pub content: HashMap<String, MediaType>,
 
     /// Determines if the request body is required in the request. Defaults to
     /// false.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub required: Option<bool>,
+    #[serde(default)]
+    pub required: bool,
 }

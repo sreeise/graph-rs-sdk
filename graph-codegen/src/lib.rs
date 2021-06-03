@@ -1,3 +1,4 @@
+#![recursion_limit = "1024"]
 #![feature(trace_macros)]
 
 pub extern crate inflector;
@@ -9,10 +10,10 @@ extern crate serde_json;
 extern crate lazy_static;
 extern crate strum;
 
-pub mod traits;
-
 pub mod builder;
+pub mod error;
 pub mod generator;
 pub mod macros;
 pub mod openapi;
 pub mod parser;
+pub mod traits;

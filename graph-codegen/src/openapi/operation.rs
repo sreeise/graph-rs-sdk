@@ -1,8 +1,7 @@
 use crate::openapi::{
-    either_t_or_reference, either_vec_t_or_reference, ExternalDocumentation, Parameter, Reference,
-    RequestBody, SecurityRequirement, Server,
+    EitherT, ExternalDocumentation, Parameter, Reference, RequestBody, Responses,
+    SecurityRequirement, Server,
 };
-use either::Either;
 use from_as::*;
 use std::{
     collections::{HashMap, VecDeque},
@@ -52,8 +51,8 @@ pub struct Operation {
     //pub parameters: VecDeque<Parameter>,
     #[serde(default)]
     #[serde(skip_serializing_if = "VecDeque::is_empty")]
-    #[serde(deserialize_with = "either_vec_t_or_reference")]
-    pub parameters: VecDeque<Either<Parameter, Reference>>,
+    //#[serde(deserialize_with = "either_vec_t_or_reference")]
+    pub parameters: VecDeque<EitherT<Parameter, Reference>>,
 
     /// The request body applicable for this operation. The requestBody is fully
     /// supported in HTTP methods where the HTTP 1.1 specification RFC7231
@@ -64,13 +63,13 @@ pub struct Operation {
     #[serde(default)]
     #[serde(rename = "requestBody")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(deserialize_with = "either_t_or_reference")]
-    pub request_body: Option<Either<RequestBody, Reference>>,
+    //#[serde(deserialize_with = "either_t_or_reference")]
+    pub request_body: Option<EitherT<RequestBody, Reference>>,
 
     /// The list of possible responses as they are returned from executing this
     /// operation.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub responses: Option<serde_json::Value>,
+    pub responses: Option<Responses>,
 
     /// A map of possible out-of band callbacks related to the parent operation.
     /// The key is a unique identifier for the Callback Object. Each value

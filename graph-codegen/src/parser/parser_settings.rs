@@ -25,7 +25,7 @@ impl ParserSettings {
             "reqwest::Method",
         ];
         vec.extend(get_imports(resource_identity));
-        vec.sort();
+        vec.sort_unstable();
         let mut set: BTreeSet<String> = BTreeSet::new();
         set.extend(vec.into_iter().map(|s| s.to_string()));
         set
@@ -265,18 +265,18 @@ impl ParserSettings {
     /// These are clients that will have {{RID}} in the path of requests
     /// Ident clients are also those that have a ResourceUrlModifier.
     pub fn is_registered_ident_client(resource_identity: ResourceIdentity) -> bool {
-        match resource_identity {
+        matches!(
+            resource_identity,
             ResourceIdentity::Applications |
-            ResourceIdentity::Attachments |
-            ResourceIdentity::Drive |
-            ResourceIdentity::Drives |
-            ResourceIdentity::Calendars |
-            ResourceIdentity::CalendarGroups |
-            ResourceIdentity::CalendarView |
-            ResourceIdentity::CallRecords |
-            ResourceIdentity::Calls => true,
-            _ => false,
-        }
+                ResourceIdentity::Attachments |
+                ResourceIdentity::Drive |
+                ResourceIdentity::Drives |
+                ResourceIdentity::Calendars |
+                ResourceIdentity::CalendarGroups |
+                ResourceIdentity::CalendarView |
+                ResourceIdentity::CallRecords |
+                ResourceIdentity::Calls
+        )
     }
 
     pub fn client_link_settings(
@@ -295,21 +295,18 @@ impl ParserSettings {
 
     pub fn links_override(resource_identity: ResourceIdentity) -> HashMap<String, Vec<String>> {
         let mut links_override = HashMap::new();
-        match resource_identity {
-            ResourceIdentity::Directory => {
-                links_override.insert(
-                    "directory".to_string(),
-                    [
-                        "directoryRoles",
-                        "directoryObjects",
-                        "directoryRoleTemplates",
-                    ]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
-                );
-            },
-            _ => {},
+        if resource_identity == ResourceIdentity::Directory {
+            links_override.insert(
+                "directory".to_string(),
+                [
+                    "directoryRoles",
+                    "directoryObjects",
+                    "directoryRoleTemplates",
+                ]
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
+            );
         }
 
         links_override

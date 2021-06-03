@@ -1,5 +1,4 @@
-use crate::openapi::{either_t_map_right_or_reference, Example, Reference, Schema};
-use either::Either;
+use crate::openapi::{EitherT, Example, Reference, Schema};
 use from_as::*;
 use std::{
     collections::HashMap,
@@ -9,6 +8,7 @@ use std::{
 
 /// [Parameter Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#parameter-object)
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[serde(rename_all = "camelCase")]
 pub struct Parameter {
     /// REQUIRED. The name of the parameter. Parameter names are case sensitive.
     /// * If in is "path", the name field MUST correspond to a template
@@ -52,7 +52,6 @@ pub struct Parameter {
     /// (cannot be serialized), the value of allowEmptyValue SHALL be ignored.
     /// Use of this property is NOT RECOMMENDED, as it is likely to be removed
     /// in a later revision.
-    #[serde(rename = "allowEmptyValue")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_empty_value: Option<bool>,
 
@@ -76,13 +75,12 @@ pub struct Parameter {
     /// percent-encoding. This property only applies to parameters with an
     /// in value of query. The default value is false.
     #[serde(default)]
-    #[serde(rename = "allowReserved")]
     pub allow_reserved: bool,
 
     /// The schema defining the type used for the parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schema: Option<Schema>,
-
+    //pub schema: Option<serde_json::Value>,
     /// Example of the parameter's potential value. The example SHOULD match the
     /// specified schema and encoding properties if present. The example
     /// field is mutually exclusive of the examples field. Furthermore, if
@@ -100,25 +98,30 @@ pub struct Parameter {
     /// example, the examples value SHALL override the example provided by the
     /// schema.
     #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(deserialize_with = "either_t_map_right_or_reference")]
-    pub examples: Option<HashMap<String, Either<Example, Reference>>>,
+    //#[serde(deserialize_with = "either_t_map_right_or_reference")]
+    pub examples: HashMap<String, EitherT<Example, Reference>>,
+
+    /// A map containing the representations for the parameter. The key is the
+    /// media type and the value describes it. The map MUST only contain one
+    /// entry.
+    #[serde(default)]
+    pub content: HashMap<String, serde_json::Value>,
 }
 
 impl Parameter {
-    pub fn is_in_path(&self) -> bool {
+    pub fn is_path(&self) -> bool {
         self.in_.eq(&Some("path".to_string()))
     }
 
-    pub fn is_in_query(&self) -> bool {
+    pub fn is_query(&self) -> bool {
         self.in_.eq(&Some("query".to_string()))
     }
 
-    pub fn is_in_header(&self) -> bool {
+    pub fn is_header(&self) -> bool {
         self.in_.eq(&Some("header".to_string()))
     }
 
-    pub fn is_in_cookie(&self) -> bool {
+    pub fn is_cookie(&self) -> bool {
         self.in_.eq(&Some("cookie".to_string()))
     }
 }
