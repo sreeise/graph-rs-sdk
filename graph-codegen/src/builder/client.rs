@@ -1,6 +1,6 @@
 use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::parser::{DirectoryModFile, ParserSettings, Request, RequestMap, RequestType};
-use bytes::{Buf, BufMut, BytesMut};
+use bytes::{BufMut, BytesMut};
 use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet};
@@ -147,7 +147,7 @@ impl ClientBuilder {
                         request.param_size,
                         request.has_body
                     )
-                },
+                }
                 RequestType::Upload => {
                     format!(
                         "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\tupload: true\n\t}});",
@@ -158,7 +158,7 @@ impl ClientBuilder {
                         request.path.as_str(),
                         request.param_size,
                     )
-                },
+                }
                 RequestType::UploadSession => {
                     format!(
                         "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {},\n\t\tupload_session: true\n\t}});",
@@ -169,7 +169,7 @@ impl ClientBuilder {
                         request.param_size,
                         request.has_body
                     )
-                },
+                }
                 RequestType::Download => {
                     format!(
                         "\n\tdownload!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: BlockingDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
@@ -178,7 +178,7 @@ impl ClientBuilder {
                         request.path.as_str(),
                         request.param_size
                     )
-                },
+                }
                 RequestType::AsyncDownload => {
                     format!(
                         "\n\tasync_download!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: AsyncDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
@@ -187,7 +187,7 @@ impl ClientBuilder {
                         request.path.as_str(),
                         request.param_size
                     )
-                },
+                }
             }
         } else {
             match request.request_type {
@@ -201,7 +201,7 @@ impl ClientBuilder {
                         request.param_size,
                         request.has_body
                     )
-                },
+                }
                 RequestType::Upload => {
                     format!(
                         "\n\t{}!({{\n\t\tname: {},\n\t\tresponse: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\tupload: true\n\t}});",
@@ -211,7 +211,7 @@ impl ClientBuilder {
                         request.path.as_str(),
                         request.param_size,
                     )
-                },
+                }
                 RequestType::UploadSession => {
                     format!(
                         "\n\t{}!({{\n\t\tname: {},\n\t\tpath: \"{}\",\n\t\tparams: {},\n\t\thas_body: {},\n\t\tupload_session: true\n\t}});",
@@ -221,7 +221,7 @@ impl ClientBuilder {
                         request.param_size,
                         request.has_body
                     )
-                },
+                }
                 RequestType::Download => {
                     format!(
                         "\n\tdownload!({{\n\t\tname: {},\n\t\tresponse: BlockingDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
@@ -229,7 +229,7 @@ impl ClientBuilder {
                         request.path.as_str(),
                         request.param_size
                     )
-                },
+                }
                 RequestType::AsyncDownload => {
                     format!(
                         "\n\tasync_download!({{\n\t\tname: {},\n\t\tresponse: AsyncDownload,\n\t\tpath: \"{}\",\n\t\tparams: {}\n\t}});",
@@ -237,7 +237,7 @@ impl ClientBuilder {
                         request.path.as_str(),
                         request.param_size
                     )
-                },
+                }
             }
         }
     }
@@ -256,8 +256,8 @@ impl ClientBuilder {
 
             for request_map in client.methods.iter() {
                 for request in request_map.iter() {
-                    if request.request_type.ne(&RequestType::Download) &&
-                        request.request_type.ne(&RequestType::AsyncDownload)
+                    if request.request_type.ne(&RequestType::Download)
+                        && request.request_type.ne(&RequestType::AsyncDownload)
                     {
                         let r = self.request(request);
                         self.buf.put(r.as_bytes());
@@ -281,15 +281,15 @@ impl ClientBuilder {
                             let r = self.request(request);
                             self.buf.put(r.as_bytes());
                             self.buf.put_slice(b"\n}\n");
-                        },
+                        }
                         RequestType::AsyncDownload => {
                             let impl_start = self.download_impl_start(&name_pascal_casing, true);
                             self.buf.put(impl_start.as_bytes());
                             let r = self.request(request);
                             self.buf.put(r.as_bytes());
                             self.buf.put_slice(b"\n}\n");
-                        },
-                        _ => {},
+                        }
+                        _ => {}
                     }
                 }
             }
@@ -313,7 +313,7 @@ impl ClientBuilder {
             }
 
             buf.put_u8(b'\n');
-            buf.put(uses_buf.bytes());
+            buf.put(uses_buf);
         }
 
         buf
