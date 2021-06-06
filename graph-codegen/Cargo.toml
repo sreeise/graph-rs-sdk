@@ -18,6 +18,7 @@ Inflector = "0.11.4"
 reqwest = { version = "0.10", features = ["json", "blocking", "stream"] }
 graph-http = { version = "0.0.2", path = "../graph-http" }
 graph-core = { version = "0.0.1", path = "../graph-core" }
+graph-error = { version = "0.0.1", path = "../graph-error" }
 # graph-http = "0.0.2"
 # graph-core = "0.0.1"
 bytes = "0.5.6"

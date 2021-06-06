@@ -11,7 +11,6 @@ extern crate lazy_static;
 extern crate strum;
 
 pub mod builder;
-pub mod error;
 pub mod generator;
 pub mod macros;
 pub mod openapi;

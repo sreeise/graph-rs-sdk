@@ -1,3 +1,4 @@
+mod components;
 mod discriminator;
 mod either_t;
 mod encoding;
@@ -6,6 +7,9 @@ mod external_documentation;
 mod header;
 mod link;
 mod media_type;
+mod oauth_flow;
+mod oauth_flows;
+mod openapi_parser;
 mod operation;
 mod parameter;
 mod path_item;
@@ -15,10 +19,12 @@ mod response;
 mod responses;
 mod schema;
 mod security_requirement;
+mod security_scheme;
 mod server;
 mod server_variable;
 mod xml;
 
+pub use components::*;
 pub use discriminator::*;
 pub use either_t::*;
 pub use encoding::*;
@@ -27,6 +33,9 @@ pub use external_documentation::*;
 pub use header::*;
 pub use link::*;
 pub use media_type::*;
+pub use oauth_flow::*;
+pub use oauth_flows::*;
+pub use openapi_parser::*;
 pub use operation::*;
 pub use parameter::*;
 pub use path_item::*;
@@ -36,11 +45,13 @@ pub use response::*;
 pub use responses::*;
 pub use schema::*;
 pub use security_requirement::*;
+pub use security_scheme::*;
 pub use server::*;
 pub use server_variable::*;
 pub use xml::*;
 
 use from_as::*;
+use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
 use reqwest::Url;
 use std::{
@@ -94,8 +105,8 @@ pub struct OpenAPI {
     pub webhooks: Option<serde_json::Value>,
 
     /// An element to hold various schemas for the document.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub components: Option<serde_json::Value>,
+    ///#[serde(skip_serializing_if = "Option::is_none")]
+    pub components: Components,
 
     /// A declaration of which security mechanisms can be used across the API.
     /// The list of values includes alternative security requirement objects
@@ -136,21 +147,29 @@ impl OpenAPI {
             .map(|(path, path_item)| (path.clone(), path_item.clone()))
             .collect()
     }
+
+    pub fn path_starts_with(&self, pat: &str) -> Vec<(String, PathItem)> {
+        self.paths
+            .iter()
+            .filter(|(path, _path_item)| path.starts_with(pat))
+            .map(|(path, path_item)| (path.clone(), path_item.clone()))
+            .collect()
+    }
 }
 
 impl TryFrom<reqwest::Url> for OpenAPI {
-    type Error = reqwest::Error;
+    type Error = GraphFailure;
 
     fn try_from(value: Url) -> Result<Self, Self::Error> {
         let response = reqwest::blocking::get(value)?;
-        let open_api_raw_text = response.text().unwrap();
-        let open_api: OpenAPI = serde_yaml::from_str(open_api_raw_text.as_str()).unwrap();
+        let open_api_raw_text = response.text()?;
+        let open_api: OpenAPI = serde_yaml::from_str(open_api_raw_text.as_str())?;
         Ok(open_api)
     }
 }
 
 impl TryFrom<GraphUrl> for OpenAPI {
-    type Error = reqwest::Error;
+    type Error = GraphFailure;
 
     fn try_from(value: GraphUrl) -> Result<Self, Self::Error> {
         OpenAPI::try_from(value.to_reqwest_url())

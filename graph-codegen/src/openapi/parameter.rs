@@ -26,8 +26,8 @@ pub struct Parameter {
     /// REQUIRED. The location of the parameter. Possible values are "query",
     /// "header", "path" or "cookie".
     #[serde(rename = "in")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub in_: Option<String>,
+    #[serde(default)]
+    pub in_: String,
 
     /// A brief description of the parameter. This could contain examples of
     /// use. CommonMark syntax MAY be used for rich text representation.
@@ -38,13 +38,13 @@ pub struct Parameter {
     /// location is "path", this property is REQUIRED and its value MUST be
     /// true. Otherwise, the property MAY be included and its default value
     /// is false.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub required: Option<bool>,
+    #[serde(default)]
+    pub required: bool,
 
     /// Specifies that a parameter is deprecated and SHOULD be transitioned out
     /// of usage. Default value is false
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub deprecated: Option<bool>,
+    #[serde(default)]
+    pub deprecated: bool,
 
     /// Sets the ability to pass empty-valued parameters. This is valid only for
     /// query parameters and allows sending a parameter with an empty value.
@@ -106,22 +106,25 @@ pub struct Parameter {
     /// entry.
     #[serde(default)]
     pub content: HashMap<String, serde_json::Value>,
+
+    #[serde(flatten)]
+    pub extra: HashMap<String, serde_json::Value>,
 }
 
 impl Parameter {
     pub fn is_path(&self) -> bool {
-        self.in_.eq(&Some("path".to_string()))
+        self.in_.eq("path")
     }
 
     pub fn is_query(&self) -> bool {
-        self.in_.eq(&Some("query".to_string()))
+        self.in_.eq("query")
     }
 
     pub fn is_header(&self) -> bool {
-        self.in_.eq(&Some("header".to_string()))
+        self.in_.eq("header")
     }
 
     pub fn is_cookie(&self) -> bool {
-        self.in_.eq(&Some("cookie".to_string()))
+        self.in_.eq("cookie")
     }
 }

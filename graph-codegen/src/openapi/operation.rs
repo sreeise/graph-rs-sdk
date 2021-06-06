@@ -1,6 +1,9 @@
-use crate::openapi::{
-    EitherT, ExternalDocumentation, Parameter, Reference, RequestBody, Responses,
-    SecurityRequirement, Server,
+use crate::{
+    openapi::{
+        EitherT, ExternalDocumentation, Parameter, Reference, RequestBody, Responses,
+        SecurityRequirement, Server,
+    },
+    traits::RequestParser,
 };
 use from_as::*;
 use std::{
@@ -11,6 +14,7 @@ use std::{
 
 /// [Operation Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#operation-object)
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[serde(rename_all = "camelCase")]
 pub struct Operation {
     /// A list of tags for API documentation control. Tags can be used for
     /// logical grouping of operations by resources or any other qualifier.
@@ -28,7 +32,6 @@ pub struct Operation {
 
     /// Additional external documentation for this operation.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(rename = "externalDocs")]
     pub external_docs: Option<ExternalDocumentation>,
 
     /// Unique string used to identify the operation. The id MUST be unique
@@ -46,12 +49,8 @@ pub struct Operation {
     /// combination of a name and location. The list can use the Reference
     /// Object to link to parameters that are defined at the OpenAPI Object's
     /// components/parameters.
-    //pub parameters: VecDeque<serde_json::Value>,
-    //pub parameters: VecDeque<Either<Parameter, Reference>>,
-    //pub parameters: VecDeque<Parameter>,
     #[serde(default)]
     #[serde(skip_serializing_if = "VecDeque::is_empty")]
-    //#[serde(deserialize_with = "either_vec_t_or_reference")]
     pub parameters: VecDeque<EitherT<Parameter, Reference>>,
 
     /// The request body applicable for this operation. The requestBody is fully
@@ -61,15 +60,12 @@ pub struct Operation {
     /// DELETE), requestBody is permitted but does not have well-defined
     /// semantics and SHOULD be avoided if possible.
     #[serde(default)]
-    #[serde(rename = "requestBody")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    //#[serde(deserialize_with = "either_t_or_reference")]
     pub request_body: Option<EitherT<RequestBody, Reference>>,
 
     /// The list of possible responses as they are returned from executing this
     /// operation.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub responses: Option<Responses>,
+    pub responses: Responses,
 
     /// A map of possible out-of band callbacks related to the parent operation.
     /// The key is a unique identifier for the Callback Object. Each value
@@ -100,4 +96,27 @@ pub struct Operation {
     /// will be overridden by this value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub servers: Option<VecDeque<Server>>,
+}
+
+impl Operation {
+    pub fn fn_name(&self) -> String {
+        self.operation_id.method_name()
+    }
+
+    pub fn parameters(&self) -> VecDeque<Parameter> {
+        self.parameters
+            .iter()
+            .filter(|either| either.is_left())
+            .map(|either| either.either_as_ref().left())
+            .flatten()
+            .cloned()
+            .collect()
+    }
+
+    pub fn path_parameter_size(&self) -> usize {
+        self.parameters()
+            .iter()
+            .filter(|parameter| parameter.is_path())
+            .count()
+    }
 }

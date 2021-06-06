@@ -12,7 +12,7 @@ pub struct RequestBody {
     /// A brief description of the request body. This could contain examples of
     /// use. CommonMark syntax MAY be used for rich text representation.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
+    pub description: Option<serde_json::Value>,
 
     /// REQUIRED. The content of the request body. The key is a media type or
     /// media type range and the value describes it. For requests that match
