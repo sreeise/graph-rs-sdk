@@ -3,7 +3,7 @@ use crate::blocking_client::BlockingClient;
 use crate::iotools::IoTools;
 use crate::url::GraphUrl;
 use crate::{HttpClient, RequestAttribute, RequestClient, RequestType};
-use graph_error::{AsRes, ErrorMessage, GraphError, GraphFailure, GraphResult, GraphRsError};
+use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult, GraphRsError};
 use reqwest::header::HeaderMap;
 use reqwest::Method;
 use std::cell::RefCell;
@@ -74,7 +74,7 @@ impl<Client, Request> DownloadClient<Client, Request> {
 
     fn check_file_name_length(&self, name: &OsString) -> GraphResult<()> {
         if name.len() > 255 {
-            return GraphRsError::DownloadFileName.as_err_res();
+            return Err(GraphRsError::DownloadFileName.into());
         }
         Ok(())
     }
@@ -145,10 +145,10 @@ impl BlockingDownload {
 
     fn check_existing_file(&self, path: &PathBuf) -> GraphResult<()> {
         if path.exists() && !self.is_overwrite_existing_file() {
-            return GraphRsError::DownloadFileExists {
+            return Err(GraphRsError::DownloadFileExists {
                 name: path.to_string_lossy().to_string(),
             }
-            .as_err_res();
+            .into());
         }
         Ok(())
     }
@@ -165,7 +165,7 @@ impl BlockingDownload {
             IoTools::create_dir(request.path.as_path())?;
         } else if !request.path.exists() {
             let dir = request.path.to_string_lossy().to_string();
-            return GraphRsError::DownloadDirNoExists { dir }.as_err_res();
+            return Err(GraphRsError::DownloadDirNoExists { dir }.into());
         }
 
         if self.client.request_type().eq(&RequestType::Redirect) {
@@ -206,7 +206,7 @@ impl BlockingDownload {
                 self.check_file_name_length(&name)?;
                 request.path.join(name)
             } else {
-                return GraphRsError::DownloadFileName.as_err_res();
+                return Err(GraphRsError::DownloadFileName.into());
             }
         };
 
@@ -286,10 +286,10 @@ impl AsyncDownload {
 
     async fn check_existing_file(&self, path: &PathBuf) -> GraphResult<()> {
         if path.exists() && !self.is_overwrite_existing_file().await {
-            return GraphRsError::DownloadFileExists {
+            return Err(GraphRsError::DownloadFileExists {
                 name: path.to_string_lossy().to_string(),
             }
-            .as_err_res();
+            .into());
         }
         Ok(())
     }
@@ -305,7 +305,7 @@ impl AsyncDownload {
             IoTools::create_dir_async(request.path.as_path()).await?;
         } else if !request.path.exists() {
             let dir = request.path.to_string_lossy().to_string();
-            return GraphRsError::DownloadDirNoExists { dir }.as_err_res();
+            return Err(GraphRsError::DownloadDirNoExists { dir }.into());
         }
 
         if self.client.request_type().eq(&RequestType::Redirect) {
@@ -345,7 +345,7 @@ impl AsyncDownload {
                 self.check_file_name_length(&name)?;
                 request.path.join(name)
             } else {
-                return GraphRsError::DownloadFileName.as_err_res();
+                return Err(GraphRsError::DownloadFileName.into());
             }
         };
 
