@@ -115,7 +115,6 @@ pub extern crate serde;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 extern crate strum;
-extern crate strum_macros;
 
 // mod client needs to stay on top of all other
 // client mod declarations for macro use.

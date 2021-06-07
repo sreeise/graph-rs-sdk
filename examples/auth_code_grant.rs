@@ -1,36 +1,18 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-#![feature(plugin)]
-#[macro_use]
-extern crate rocket;
-#[allow(unused_imports)]
-#[macro_use]
-extern crate serde_json;
-extern crate reqwest;
-
+use examples_common::TestServer;
 use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
-use rocket::http::RawStr;
-use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+use std::sync::{mpsc, Arc, Mutex};
+use warp::{Filter, Reply};
 
-fn main() {
-    let handle = thread::spawn(|| {
-        thread::sleep(Duration::from_secs(2));
-        let mut oauth = oauth_web_client();
-        let mut request = oauth.build().authorization_code_grant();
-        request.browser_authorization().open().unwrap();
-    });
+static CLIENT_ID: &str = "<CLIENT_ID>";
+static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
 
-    rocket::ignite().mount("/", routes![redirect]).launch();
-    handle.join().unwrap();
-}
-
-fn oauth_web_client() -> OAuth {
+#[tokio::main]
+async fn main() {
     let mut oauth = OAuth::new();
     oauth
-        .client_id("<YOUR_CLIENT_ID>")
-        .client_secret("<YOUR_CLIENT_SECRET>")
+        .client_id(CLIENT_ID)
+        .client_secret(CLIENT_SECRET)
         .add_scope("files.read")
         .add_scope("files.readwrite")
         .add_scope("files.read.all")
@@ -45,30 +27,60 @@ fn oauth_web_client() -> OAuth {
         // If this is not set, the redirect_url given above will be used for the logout redirect.
         // See logout.rs for an example.
         .post_logout_redirect_uri("http://localhost:8000/redirect");
+
+    // Make sure the server gets the same oauth configuration as the client
+    let server_oauth = oauth.clone();
+    let (tx, rx) = mpsc::channel();
+    let tx = Arc::new(Mutex::new(tx));
+    let server = TestServer::serve(
+        warp::get()
+            .and(warp::path("redirect"))
+            .and(warp::query::raw())
+            .and(warp::any().map(move || tx.clone()))
+            .and(warp::any().map(move || server_oauth.clone()))
+            .and_then(handle),
+        ([127, 0, 0, 1], 8000),
+    );
+
     oauth
+        .build()
+        .authorization_code_grant()
+        .browser_authorization()
+        .open()
+        .expect("Failed to open browser");
+
+    // Wait for the server to get the redirect, then shut it down
+    rx.recv().expect("Failed to receive");
+    server.shutdown().await;
 }
 
-#[get("/redirect?<code>")]
-fn redirect(code: &RawStr) -> String {
+async fn handle(
+    access_code: String,
+    tx: Arc<Mutex<mpsc::Sender<()>>>,
+    mut oauth: OAuth,
+) -> Result<impl Reply, std::convert::Infallible> {
     // Print out the code for debugging purposes.
-    println!("{:#?}", code);
-    // Set the access code and request an access token.
-    // Callers should handle the Result from requesting an access token
-    // in case of an error here.
-    set_and_req_access_code(code);
-    // Generic login page response. Note
-    String::from("Successfully Logged In! You can close your browser.")
-}
+    println!("{:#?}", access_code);
 
-pub fn set_and_req_access_code(access_code: &str) {
-    let mut oauth = oauth_web_client();
+    // Let the main thread know we've received a response and can
+    // shut down (the server will stop listening, but will complete
+    // requests in progress)
+    tx.clone()
+        .lock()
+        .expect("poisoned!")
+        .send(())
+        .expect("failed to send");
     // The response type is automatically set to token and the grant type is automatically
     // set to authorization_code if either of these were not previously set.
     // This is done here as an example.
-    oauth.access_code(access_code);
-    let mut request = oauth.build().authorization_code_grant();
+    oauth.access_code(&access_code);
+    let mut request = oauth.build_async().authorization_code_grant();
 
-    let access_token = request.access_token().send().unwrap();
+    let access_token = request
+        .access_token()
+        .send()
+        .await
+        .expect("failed to send access token");
     oauth.access_token(access_token);
 
     // If all went well here we can print out the OAuth config with the Access Token.
@@ -78,4 +90,9 @@ pub fn set_and_req_access_code(access_code: &str) {
     oauth
         .as_file("./examples/example_files/web_oauth.json")
         .unwrap();
+
+    // Generic login page response.
+    Ok(warp::reply::html(
+        "Successfully Logged In! You can close your browser.",
+    ))
 }

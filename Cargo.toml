@@ -25,6 +25,8 @@ members = [
     "graph-codegen",
     "graph-http",
     "graph-core",
+
+    "examples/common"
 ]
 
 [dependencies]
@@ -51,12 +53,11 @@ graph-core = { path = "./graph-core", version = "0.0.1" }
 from_as = "0.1"
 lazy_static = "1.4"
 regex = "1"
-rocket = "0.4"
-rocket_codegen = "0.4"
-rocket_contrib = { version = "0.4", default-features = false, features = ["json"] }
+warp = "0.3"
 
 graph-codegen = { path = "./graph-codegen", version = "0.0.1" }
 test-tools = { path = "./test-tools", version = "0.0.1" }
+examples-common = { path = "./examples/common" }
 
 [badges]
 travis-ci = { repository = "https://github.com/sreeise/graph-rs", branch = "master" }
