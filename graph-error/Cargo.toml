@@ -8,17 +8,16 @@ repository = "https://github.com/sreeise/graph-rs"
 description = "Graph Api error types and handling for the graph-rs project"
 
 [dependencies]
-reqwest = { version = "0.10", features = ["json", "blocking"] }
-serde = { version = "1.0.110", features = ["derive"] }
-serde_json = "^1.0"
-serde_yaml = "0.8.9"
-serde_derive = "^1.0"
-base64 = "0.10.1"
-url = "2.1.1"
-hyper = "0.12.33"
-snafu = "0.5.0"
-tokio = { version = "0.2.21", features = ["full"] }
-ring = "0.16.15"
+async-trait = "0.1"
+base64 = "0.13"
+futures = "0.3"
 handlebars = "2.0.2"
-futures = "0.3.5"
-async-trait = "0.1.35"
+hyper = "0.14"
+reqwest = { version = "0.11", features = ["json", "blocking"] }
+ring = "0.16.15"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.8"
+thiserror = "1"
+tokio = { version = "1", features = ["full"] }
+url = "2"

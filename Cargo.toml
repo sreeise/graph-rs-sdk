@@ -28,59 +28,38 @@ members = [
 ]
 
 [dependencies]
-url = "2.1.1"
-serde = { version = "1.0.110", features = ["derive"] }
-serde_json = "1.0.53"
-serde_yaml = "0.8.9"
-reqwest = { version = "0.10", features = ["json", "blocking", "stream"] }
-strum_macros = "0.14.0"
-strum = "0.14.0"
-rayon = "1.0.3"
-base64 = "0.10.1"
-handlebars = "2.0.2"
+async-std = "1"
+async-trait = "0.1"
+base64 = "0.13"
+futures = "0.3"
+handlebars = "2.0.2" # TODO: Update to 4
+reqwest = { version = "0.11", features = ["json", "blocking", "stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.8"
+strum = { version = "0.21", features = ["derive"] }
+rayon = "1"
+tokio = { version = "1", features = ["full"] }
+url = "2"
+
 graph-oauth = { path = "./graph-oauth", version = "0.0.2" }
 graph-http = { path = "graph-http", version = "0.0.2" }
 graph-error = { path = "./graph-error", version = "0.0.1" }
 graph-core = { path = "./graph-core", version = "0.0.1" }
-# graph-oauth = "0.0.2"
-# graph-http = "0.0.2"
-# graph-error = "0.0.1"
-# graph-core = "0.0.1"
-tokio = { version = "0.2.21", features = ["full"] }
-async-std = "1.6.0"
-async-trait = "0.1.35"
-futures = "0.3.5"
-
-[dev-dependencies.rocket_contrib]
-version = "0.4.2"
-default-features = false
-features = ["json"]
 
 [dev-dependencies]
-rocket = "0.4.2"
-rocket_codegen = "0.4.2"
-serde = { version = "1.0.110", features = ["derive"] }
-serde_json = "1.0.53"
-lazy_static = "1.4.0"
-graph-oauth = { path = "./graph-oauth", version = "0.0.2" }
-graph-http = { path = "graph-http", version = "0.0.2" }
-graph-error = { path = "./graph-error", version = "0.0.1" }
-graph-core = { path = "./graph-core", version = "0.0.1" }
-# graph-oauth = "0.0.2"
-# graph-http = "0.0.2"
-# graph-error = "0.0.1"
-# graph-core = "0.0.1"
-test-tools = { path = "./test-tools", version = "0.0.1" }
-tokio = { version = "0.2", features = ["full"] }
-futures = "0.3.5"
-# from_as = { git = "https://github.com/sreeise/from_as", version = "0.1.0" }
-from_as = "0.1.0"
-graph-codegen = { path = "./graph-codegen", version = "0.0.1" }
+from_as = "0.1"
+lazy_static = "1.4"
 regex = "1"
+rocket = "0.4"
+rocket_codegen = "0.4"
+rocket_contrib = { version = "0.4", default-features = false, features = ["json"] }
+
+graph-codegen = { path = "./graph-codegen", version = "0.0.1" }
+test-tools = { path = "./test-tools", version = "0.0.1" }
 
 [badges]
 travis-ci = { repository = "https://github.com/sreeise/graph-rs", branch = "master" }
 
 [profile.release]
 debug = false
-
