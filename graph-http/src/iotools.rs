@@ -26,18 +26,18 @@ impl IoTools {
 
     pub fn copy(path: PathBuf, mut response: reqwest::blocking::Response) -> GraphResult<PathBuf> {
         let (sender, receiver) = mpsc::channel();
-        let handle = thread::spawn(move || {
+        let handle = thread::spawn::<_, Result<(), GraphFailure>>(move || {
             let mut file_writer = OpenOptions::new()
                 .create(true)
                 .write(true)
                 .read(true)
-                .open(&path)
-                .expect("Error creating file");
-            copy(&mut response, &mut file_writer).expect("Error copying file contents");
-            sender.send(Some(path)).unwrap();
+                .open(&path)?;
+            copy(&mut response, &mut file_writer)?;
+            sender.send(Some(path))?;
+            Ok(())
         });
 
-        handle.join().expect("Thread could not be joined");
+        handle.join().map_err(GraphFailure::ThreadJoinError)??;
         match receiver.recv() {
             Ok(t) => {
                 Ok(t.ok_or_else(|| GraphFailure::not_found("Unknown error downloading file"))?)

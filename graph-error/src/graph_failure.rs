@@ -69,6 +69,12 @@ pub enum GraphFailure {
 
     #[error("Crypto Error (Unknown)")]
     CryptoError,
+
+    // TODO: maybe leave these errors in IoTools?
+    #[error("Failed to send on mpsc channel: {0}")]
+    ChannelSend(#[from] std::sync::mpsc::SendError<Option<std::path::PathBuf>>),
+    #[error("Failed to join a spawned thread")]
+    ThreadJoinError(Box<dyn std::any::Any + std::marker::Send>),
 }
 
 impl GraphFailure {
