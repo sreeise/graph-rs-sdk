@@ -50,9 +50,11 @@ pub use server::*;
 pub use server_variable::*;
 pub use xml::*;
 
+use crate::traits::RequestParser;
 use from_as::*;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reqwest::Url;
 use std::{
     collections::{BTreeMap, VecDeque},
@@ -132,14 +134,6 @@ pub struct OpenAPI {
 }
 
 impl OpenAPI {
-    pub fn find_paths_matching(&self, pat: &str) -> Vec<(String, PathItem)> {
-        self.paths
-            .iter()
-            .filter(|(path, _path_item)| path.starts_with(pat))
-            .map(|(path, path_item)| (path.clone(), path_item.clone()))
-            .collect()
-    }
-
     pub fn path_contains(&self, pat: &str) -> Vec<(String, PathItem)> {
         self.paths
             .iter()
@@ -154,6 +148,31 @@ impl OpenAPI {
             .filter(|(path, _path_item)| path.starts_with(pat))
             .map(|(path, path_item)| (path.clone(), path_item.clone()))
             .collect()
+    }
+
+    pub fn filter_path(&mut self, pat: &str) -> BTreeMap<String, PathItem> {
+        self.paths
+            .clone()
+            .into_par_iter()
+            .filter(|(path, _path_item)| path.starts_with(pat))
+            .collect()
+    }
+
+    pub fn filter_replace_path(&mut self, pat: &str) {
+        self.paths = self.filter_path(pat);
+    }
+
+    pub fn transform_paths(&mut self) {
+        let paths = self.paths.clone();
+        let vec: Vec<(String, PathItem)> = paths
+            .into_iter()
+            .map(|(path, path_item)| (path.transform_path(), path_item.clone()))
+            .collect();
+
+        self.paths.clear();
+        for (path, path_item) in vec.iter() {
+            self.paths.insert(path.clone(), path_item.clone());
+        }
     }
 }
 
@@ -182,5 +201,17 @@ impl IntoIterator for OpenAPI {
 
     fn into_iter(self) -> Self::IntoIter {
         self.paths.into_iter()
+    }
+}
+
+impl AsRef<BTreeMap<String, PathItem>> for OpenAPI {
+    fn as_ref(&self) -> &BTreeMap<String, PathItem> {
+        &self.paths
+    }
+}
+
+impl AsMut<BTreeMap<String, PathItem>> for OpenAPI {
+    fn as_mut(&mut self) -> &mut BTreeMap<String, PathItem> {
+        &mut self.paths
     }
 }

@@ -1,7 +1,7 @@
 use crate::openapi::{Discriminator, EitherT, ExternalDocumentation, Reference, XML};
 use from_as::*;
 use std::{
-    collections::{HashMap, VecDeque},
+    collections::{HashMap, HashSet, VecDeque},
     convert::TryFrom,
     io::{Read, Write},
 };
@@ -10,36 +10,53 @@ use std::{
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(rename_all = "camelCase")]
 pub struct Schema {
-    #[serde(default)]
-    pub nullable: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<serde_json::Value>,
+
+    #[serde(rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub type_: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    //pub format: Option<serde_json::Value>,
+    pub format: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<serde_json::Value>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maximum: Option<i64>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exclusive_maximum: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minimum: Option<i64>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exclusive_minimum: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_length: Option<i64>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_length: Option<i64>,
+
+    /// Regex pattern.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pattern: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub multiple_of: Option<u64>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default: Option<serde_json::Value>,
 
     #[serde(default)]
     pub read_only: bool,
 
     #[serde(default)]
     pub write_only: bool,
-
-    #[serde(default)]
-    pub deprecated: bool,
-
-    /// Deprecated: The example property has been deprecated in favor of the
-    /// JSON Schema examples keyword. Use of example is discouraged, and
-    /// later versions of this specification may remove it.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub example: Option<serde_json::Value>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub title: Option<serde_json::Value>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub schema: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<serde_json::Value>,
-
-    #[serde(rename = "type")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub all_of: Option<VecDeque<EitherT<Box<Schema>, Reference>>>,
@@ -51,36 +68,37 @@ pub struct Schema {
     pub any_of: Option<VecDeque<EitherT<Box<Schema>, Reference>>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub items: Option<serde_json::Value>,
+    pub not: Option<Box<Schema>>,
+
+    #[serde(default)]
+    pub required: HashSet<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub items: Option<Box<Schema>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_items: Option<i64>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_items: Option<i64>,
+
+    #[serde(default)]
+    pub unique_items: bool,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub properties: Option<Box<HashMap<String, Schema>>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_properties: Option<i64>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_properties: Option<i64>,
+
+    #[serde(default)]
+    pub additional_properties_allowed: bool,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub additional_properties: Option<Box<EitherT<bool, Schema>>>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub property_names: Option<Box<Schema>>,
-
-    /// Regex pattern.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub pattern: Option<String>,
-
-    /// The value of "patternProperties" MUST be an object.  Each property name
-    /// of this object SHOULD be a valid regular expression, according to the
-    /// ECMA-262 regular expression dialect.  Each property value of this object
-    /// MUST be a valid JSON Schema.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub pattern_properties: Option<serde_json::Value>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<serde_json::Value>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub format: Option<serde_json::Value>,
-    //pub format: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub default: Option<serde_json::Value>,
 
     /// Adds support for polymorphism. The discriminator is an object name that
     /// is used to differentiate between other schemas which may satisfy the
@@ -88,15 +106,55 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub discriminator: Option<Discriminator>,
 
+    /// Deprecated: The example property has been deprecated in favor of the
+    /// JSON Schema examples keyword. Use of example is discouraged, and
+    /// later versions of this specification may remove it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub example: Option<serde_json::Value>,
+
+    #[serde(default)]
+    pub enum_: VecDeque<serde_json::Value>,
+
+    #[serde(default)]
+    pub nullable: bool,
+
+    /// Additional external documentation for this schema.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_docs: Option<ExternalDocumentation>,
+
+    #[serde(default)]
+    pub deprecated: bool,
+
     /// This MAY be used only on properties schemas. It has no effect on root
     /// schemas. Adds additional metadata to describe the XML representation
     /// of this property.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub xml: Option<XML>,
 
-    /// Additional external documentation for this schema.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub external_docs: Option<ExternalDocumentation>,
+    pub extensions: Option<serde_json::Value>,
+
+    #[serde(default)]
+    pub unresolved_reference: bool,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference: Option<Reference>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub schema: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<serde_json::Value>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub property_names: Option<Box<Schema>>,
+
+    /// The value of "patternProperties" MUST be an object.  Each property name
+    /// of this object SHOULD be a valid regular expression, according to the
+    /// ECMA-262 regular expression dialect.  Each property value of this object
+    /// MUST be a valid JSON Schema.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pattern_properties: Option<serde_json::Value>,
 
     /// [Schema Re-Use With "$defs"](https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-00#section-8.2.4)
     #[serde(rename = "$defs")]
@@ -129,12 +187,6 @@ pub struct Schema {
     /// readers or maintainers of the schema. [Comments with $comment](https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-00#section-8.3)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
-
-    #[serde(default)]
-    pub unique_items: bool,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub not: Option<Box<Schema>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "if")]

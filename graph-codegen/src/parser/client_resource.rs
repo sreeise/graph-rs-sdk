@@ -48,7 +48,7 @@ impl TryFrom<ResourceIdentity> for ClientResource {
             }),
             ResourceIdentity::Attachments => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith(
-                    "/groups/{group-id}/calendar/events/{event-id}/attachments".into(),
+                    "/me/calendar/events/{event-id}/attachments".into(),
                 ),
                 modifier: "attachments".to_string(),
             }),
