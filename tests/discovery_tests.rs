@@ -22,7 +22,7 @@ fn graph_discovery_oauth_v1() {
     );
     assert_eq!(
         oauth.get(OAuthCredential::LogoutURL),
-        Some(keys.end_session_endpoint.to_string())
+        Some(keys.end_session_endpoint)
     );
 }
 
@@ -44,7 +44,7 @@ fn graph_discovery_oauth_v2() {
     );
     assert_eq!(
         oauth.get(OAuthCredential::LogoutURL),
-        Some(keys.end_session_endpoint.to_string())
+        Some(keys.end_session_endpoint)
     );
 }
 
@@ -66,14 +66,14 @@ async fn async_graph_discovery_oauth_v2() {
     );
     assert_eq!(
         oauth.get(OAuthCredential::LogoutURL),
-        Some(keys.end_session_endpoint.to_string())
+        Some(keys.end_session_endpoint)
     );
 }
 
 #[test]
 fn jwt_keys() {
     let keys = JWTKeys::discovery().unwrap();
-    assert!(keys.keys().len() > 0);
+    assert!(!keys.keys().is_empty());
 
     for key in keys.into_iter() {
         assert!(key.kty.is_some());
@@ -83,7 +83,7 @@ fn jwt_keys() {
 #[tokio::test]
 async fn async_jwt_keys() {
     let keys = JWTKeys::async_discovery().await.unwrap();
-    assert!(keys.keys().len() > 0);
+    assert!(!keys.keys().is_empty());
 
     for key in keys.into_iter() {
         assert!(key.kty.is_some());

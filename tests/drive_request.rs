@@ -305,9 +305,7 @@ fn drive_upload_session() {
 
         if let Ok(mut session) = session {
             let cancel_request = session.cancel();
-            let mut iter = session.into_iter();
-
-            while let Some(next) = iter.next() {
+            for next in session.into_iter() {
                 match next {
                     Ok(NextSession::Next(response)) => {
                         assert!(!GraphError::is_error(response.status()));

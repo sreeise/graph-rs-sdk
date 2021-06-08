@@ -276,7 +276,7 @@ fn onenote_create_page_invalid_ext() {
                 panic!("Unexpected error thrown: {}", err);
             },
         }
-    } else if let Ok(_) = response {
+    } else if response.is_ok() {
         panic!(
             "Unexpected successful response. GraphRsError::InvalidFileExtension should have thrown"
         );
@@ -311,7 +311,7 @@ fn onenote_sections_create_page_invalid_ext() {
                 panic!("Unexpected error thrown: {}", err);
             },
         }
-    } else if let Ok(_) = response {
+    } else if response.is_ok() {
         panic!(
             "Unexpected successful response. GraphRsError::InvalidFileExtension should have thrown"
         );
