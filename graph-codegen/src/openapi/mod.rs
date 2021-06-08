@@ -50,7 +50,7 @@ pub use server::*;
 pub use server_variable::*;
 pub use xml::*;
 
-use crate::traits::RequestParser;
+use crate::traits::{RequestParser, FilterPath};
 use from_as::*;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
@@ -134,7 +134,7 @@ pub struct OpenAPI {
 }
 
 impl OpenAPI {
-    pub fn path_contains(&self, pat: &str) -> Vec<(String, PathItem)> {
+    pub fn contains_path(&self, pat: &str) -> Vec<(String, PathItem)> {
         self.paths
             .iter()
             .filter(|(path, _path_item)| path.contains(pat))
@@ -163,16 +163,11 @@ impl OpenAPI {
     }
 
     pub fn transform_paths(&mut self) {
-        let paths = self.paths.clone();
-        let vec: Vec<(String, PathItem)> = paths
-            .into_iter()
+        self.paths = self.paths
+            .clone()
+            .into_par_iter()
             .map(|(path, path_item)| (path.transform_path(), path_item.clone()))
             .collect();
-
-        self.paths.clear();
-        for (path, path_item) in vec.iter() {
-            self.paths.insert(path.clone(), path_item.clone());
-        }
     }
 }
 
@@ -213,5 +208,11 @@ impl AsRef<BTreeMap<String, PathItem>> for OpenAPI {
 impl AsMut<BTreeMap<String, PathItem>> for OpenAPI {
     fn as_mut(&mut self) -> &mut BTreeMap<String, PathItem> {
         &mut self.paths
+    }
+}
+
+impl FilterPath for OpenAPI {
+    fn paths(&self) -> BTreeMap<String, PathItem> {
+        self.paths.clone()
     }
 }
