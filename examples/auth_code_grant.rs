@@ -1,7 +1,6 @@
-use examples_common::TestServer;
+use examples_common::{RedirectQuery, TestServer};
 use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
-use std::sync::{mpsc, Arc, Mutex};
 use warp::{Filter, Reply};
 
 static CLIENT_ID: &str = "<CLIENT_ID>";
@@ -30,10 +29,10 @@ async fn main() {
 
     // Make sure the server gets the same oauth configuration as the client
     let server_oauth = oauth.clone();
-    let server = TestServer::serve_once(
+    let server_handle = TestServer::serve_once(
         warp::get()
             .and(warp::path("redirect"))
-            .and(warp::query::raw())
+            .and(warp::query::<RedirectQuery>())
             .and(warp::any().map(move || server_oauth.clone()))
             .and_then(handle)
             .boxed(),
@@ -47,22 +46,21 @@ async fn main() {
         .open()
         .expect("Failed to open browser");
 
-    // Wait for the server to get the redirect, then shut it down
-    rx.recv().expect("Failed to receive");
-    server.shutdown().await;
+    // Wait for the server to get the redirect and shut down
+    server_handle.await.expect("Failed to join");
 }
 
 async fn handle(
-    access_code: String,
+    query: RedirectQuery,
     mut oauth: OAuth,
 ) -> Result<impl Reply, std::convert::Infallible> {
     // Print out the code for debugging purposes.
-    println!("{:#?}", access_code);
+    println!("{:#?}", query);
 
     // The response type is automatically set to token and the grant type is automatically
     // set to authorization_code if either of these were not previously set.
     // This is done here as an example.
-    oauth.access_code(&access_code);
+    oauth.access_code(&query.code);
     let mut request = oauth.build_async().authorization_code_grant();
 
     let access_token = request
@@ -76,9 +74,9 @@ async fn handle(
     println!("{:#?}", &oauth);
 
     // Save our configuration to a file so we can retrieve it from other requests.
-    oauth
-        .as_file("./examples/example_files/web_oauth.json")
-        .unwrap();
+    // oauth
+    //     .as_file("./examples/example_files/web_oauth.json")
+    //     .unwrap();
 
     // Generic login page response.
     Ok(warp::reply::html(

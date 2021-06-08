@@ -1,6 +1,6 @@
-use examples_common::TestServer;
+use examples_common::{RedirectQuery, TestServer};
 use graph_rs_sdk::oauth::OAuth;
-use warp::{Filter, Reply};
+use warp::Filter;
 
 /*
 This example shows how to use a code_challenge and code_verifier
@@ -36,9 +36,9 @@ async fn main() {
     let server = TestServer::serve_once(
         warp::get()
             .and(warp::path("redirect"))
-            .and(warp::query::raw())
+            .and(warp::query::<RedirectQuery>())
             .and(warp::any().map(move || server_oauth.clone()))
-            .and_then(handle),
+            .and_then(handle_redirect),
         ([127, 0, 0, 1], 8000),
     );
 
@@ -49,22 +49,21 @@ async fn main() {
         .open()
         .expect("failed to open browser");
 
-    // Wait for the server to get the redirect, then shut it down
-    rx.recv().expect("Failed to receive");
-    server.shutdown().await;
+    // Wait for the server to get the request and shut down
+    server.await.expect("failed to join server thread");
 }
 
-async fn handle(
-    access_code: String,
+async fn handle_redirect(
+    query: RedirectQuery,
     mut oauth: OAuth,
-) -> Result<impl Reply, std::convert::Infallible> {
+) -> Result<&'static str, std::convert::Infallible> {
     // Print out the code for debugging purposes.
-    println!("{:#?}", access_code);
+    println!("{:#?}", query);
     // Set the access code and request an access token.
     // Callers should handle the Result from requesting an access token
     // in case of an error here.
     let access_token = oauth
-        .access_code(&access_code)
+        .access_code(&query.code)
         .build_async()
         .authorization_code_grant()
         .access_token()
@@ -75,17 +74,6 @@ async fn handle(
     oauth.access_token(access_token);
     println!("{:#?}", oauth);
 
-    // Let the main thread know we've received a response and can
-    // shut down (the server will stop listening, but will complete
-    // requests in progress)
-    tx.clone()
-        .lock()
-        .expect("poisoned!")
-        .send(())
-        .expect("failed to send");
-
     // Generic login page response.
-    Ok(warp::reply::html(
-        "Successfully Logged In! You can close your browser.",
-    ))
+    Ok("Successfully Logged In! You can close your browser.")
 }

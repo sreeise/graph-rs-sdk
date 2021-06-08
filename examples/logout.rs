@@ -1,28 +1,26 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-#![feature(plugin)]
-#[macro_use]
-extern crate rocket;
-#[allow(unused_imports)]
-#[macro_use]
-extern crate serde_json;
-extern crate reqwest;
+use examples_common::TestServer;
 use graph_rs_sdk::oauth::OAuth;
-use rocket::http::RawStr;
-use rocket_codegen::routes;
+use warp::Filter;
 
-fn main() {
-    // First run the example: rocket_example.rs
+// First run the example: rocket_example.rs
+#[tokio::main]
+async fn main() {
+    let server = TestServer::serve(
+        warp::get()
+            .and(warp::path("redirect"))
+            .and(warp::query::raw())
+            .map(|code: String| {
+                println!("{:#?}", code);
+                Ok("Successfully logged out! You can close your browser.")
+            }),
+        ([127, 0, 0, 1], 8001),
+    );
+
     let mut oauth: OAuth = OAuth::new();
     oauth
         .logout_url("https:://localhost:8000/logout")
         .post_logout_redirect_uri("https:://localhost:8000/redirect");
     oauth.v1_logout().unwrap();
 
-    rocket::ignite().mount("/", routes![redirect]).launch();
-}
-
-#[get("/redirect?<lc>")]
-fn redirect(lc: &RawStr) -> String {
-    println!("{:#?}", lc);
-    String::from("Successfully logged out! You can close your browser.")
+    server.await.expect("Failed to await server");
 }

@@ -1,4 +1,4 @@
-use std::{convert::Infallible, sync::mpsc};
+use std::sync::mpsc;
 use tokio::{sync::oneshot, task::JoinHandle};
 
 /// A `warp` test server that spawns on another thread and can be manually shut
@@ -13,7 +13,7 @@ impl TestServer {
     pub fn serve<F, A>(filter: F, addr: A) -> Self
     where
         A: Into<std::net::SocketAddr> + 'static,
-        F: warp::Filter<Error = Infallible> + Clone + Send + Sync + 'static,
+        F: warp::Filter + Clone + Send + Sync + 'static,
         F::Extract: warp::Reply,
     {
         let (tx, rx) = oneshot::channel();
@@ -29,7 +29,7 @@ impl TestServer {
     pub fn serve_once<F, R, A>(filter: F, addr: A) -> JoinHandle<()>
     where
         A: Into<std::net::SocketAddr> + 'static,
-        F: warp::Filter<Extract = (R,), Error = Infallible> + Clone + Send + Sync + 'static,
+        F: warp::Filter<Extract = (R,)> + Clone + Send + Sync + 'static,
         F::Extract: warp::Reply,
     {
         let (tx, rx) = mpsc::sync_channel::<()>(1);
@@ -54,5 +54,18 @@ impl TestServer {
         let Self { handle, close } = self;
         close.send(()).expect("failed to command server shutdown");
         handle.await.expect("failed to close server thread");
+    }
+}
+
+// Allow server.await to await the join handle
+use std::{
+    future::Future,
+    pin::Pin,
+    task::{Context, Poll},
+};
+impl Future for TestServer {
+    type Output = Result<(), tokio::task::JoinError>;
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        Pin::new(&mut self.handle).poll(cx)
     }
 }

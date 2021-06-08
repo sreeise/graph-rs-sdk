@@ -1,24 +1,15 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-#![feature(plugin)]
-#[macro_use]
-extern crate rocket;
-#[allow(unused_imports)]
-#[macro_use]
-extern crate serde_json;
-extern crate reqwest;
+use examples_common::TestServer;
 use from_as::*;
 use graph_rs_sdk::oauth::{IdToken, OAuth};
-use rocket::Data;
-use rocket_codegen::routes;
+use serde::Deserialize;
 use std::convert::TryFrom;
-use std::io::Read;
-use std::thread;
-use std::time::Duration;
+use warp::Filter;
 
-// Create an OAuth struct with the needed credentials.
-// See the following link for more info on open ID connect:
-// https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
-fn oauth_open_id() -> OAuth {
+#[tokio::main]
+async fn main() {
+    // Create an OAuth struct with the needed credentials.
+    // See the following link for more info on open ID connect:
+    // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
     let mut oauth = OAuth::new();
     oauth
         .client_id("<YOUR_CLIENT_ID>")
@@ -38,55 +29,68 @@ fn oauth_open_id() -> OAuth {
         .nonce("7362CAEA-9CA5")
         .prompt("login")
         .state("12345");
+
+    let server_oauth = oauth.clone();
+    let server = TestServer::serve_once(
+        warp::post()
+            .and(warp::path("redirect"))
+            .and(warp::body::form())
+            .and(warp::any().map(move || server_oauth.clone()))
+            .and_then(handle_redirect),
+        ([127, 0, 0, 1], 8000),
+    );
+
+    // Use the OpenId trait from OAuth to request an access code.
+    // The full name syntax is used here so it does not clash with methods
+    // in the other grant types.
     oauth
+        .build()
+        .open_id_connect()
+        .browser_authorization()
+        .open()
+        .unwrap();
+
+    // Wait for server to receive the response and close
+    server.await.expect("failed to join server thread")
 }
 
-fn main() {
-    // Spawn the browser to sign in within a different thread that waits until
-    // rocket has started. Otherwise, the redirect from sign in may happen
-    // before rocket has started.
-    let handle = thread::spawn(|| {
-        // Block the new thread and give enough time for rocket to completely start.
-        thread::sleep(Duration::from_secs(2));
-        // Use the OpenId trait from OAuth to request an access code.
-        // The full name syntax is used here so it does not clash with methods
-        // in the other grant types.
-        let mut oauth = oauth_open_id();
-        let mut request = oauth.build().open_id_connect();
-        request.browser_authorization().open().unwrap();
-    });
-
-    rocket::ignite().mount("/", routes![redirect]).launch();
-    handle.join().unwrap();
+#[derive(Debug, Deserialize)]
+struct FormData {
+    id_token: String,
 }
 
-#[post("/redirect", data = "<id_token>")]
-fn redirect(id_token: Data) -> String {
-    // Read in the response body to a String
-    let mut s = String::new();
-    id_token.open().read_to_string(&mut s).unwrap();
+async fn handle_redirect(
+    form_data: FormData,
+    mut oauth: OAuth,
+) -> Result<&'static str, std::convert::Infallible> {
+    let id_token = form_data.id_token;
 
     // Print the string for debugging in case the attempt to deserialize the response
     // in the TryFrom method below does not work..
-    println!("Token response:\n{:#?}\n", s);
+    println!("Token response:\n{:#?}\n", id_token);
 
     // Use the TryFrom impl to get an IdToken from a string
     // and pass the IdToken to OAuth.
-    let token: IdToken = IdToken::try_from(s).unwrap();
+    let token: IdToken = IdToken::try_from(id_token).unwrap();
     println!("IdToken:\n{:#?}\n", token);
-    let mut oauth = oauth_open_id();
-    oauth.id_token(token);
-    access_token(&mut oauth);
-    String::from("Successfully Logged In! You can close your browser.")
-}
 
-pub fn access_token(oauth: &mut OAuth) {
-    let mut request = oauth.build().code_flow();
-    let access_token = request.access_token().send().unwrap();
+    let access_token = oauth
+        .id_token(token)
+        .build_async()
+        .code_flow()
+        .access_token()
+        .send()
+        .await
+        .unwrap();
+
     oauth.access_token(access_token);
+
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("OAuth:\n{:#?}\n", &oauth);
-    oauth
-        .as_file("./examples/example_files/web_oauth.json")
-        .unwrap();
+
+    // oauth
+    //     .as_file("./examples/example_files/web_oauth.json")
+    //     .unwrap();
+
+    Ok("Successfully Logged In! You can close your browser.")
 }

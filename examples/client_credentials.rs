@@ -1,36 +1,14 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-#![feature(plugin)]
-#[macro_use]
-extern crate rocket;
-#[allow(unused_imports)]
-#[macro_use]
-extern crate serde_json;
-extern crate reqwest;
-
+use examples_common::TestServer;
 use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
-use rocket::http::RawStr;
-use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+use serde::Deserialize;
+use warp::Filter;
 
 // Client Credentials Grant
 // If you have already given admin consent to a user you can skip
 // browser authorization step and go strait to requesting an access token.
-
-fn main() {
-    let handle = thread::spawn(|| {
-        thread::sleep(Duration::from_secs(2));
-        let mut oauth = oauth_web_client();
-        let mut request = oauth.build().client_credentials();
-        request.browser_authorization().open().unwrap();
-    });
-
-    rocket::ignite().mount("/", routes![redirect]).launch();
-    handle.join().unwrap();
-}
-
-fn oauth_web_client() -> OAuth {
+#[tokio::main]
+async fn main() {
     let mut oauth = OAuth::new();
     oauth
         .client_id("<YOUR_CLIENT_ID>")
@@ -39,28 +17,57 @@ fn oauth_web_client() -> OAuth {
         .redirect_uri("http://localhost:8000/redirect")
         .authorize_url("https://login.microsoftonline.com/common/adminconsent")
         .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token");
+
+    let server_oauth = oauth.clone();
+    let server = TestServer::serve_once(
+        warp::get()
+            .and(warp::path("redirect"))
+            .and(warp::query::<Query>())
+            .and(warp::any().map(move || server_oauth.clone()))
+            .and_then(handle_redirect),
+        ([127, 0, 0, 1], 8000),
+    );
+
     oauth
+        .build_async()
+        .client_credentials()
+        .browser_authorization()
+        .open()
+        .unwrap();
+
+    // Wait for server to receive request and close
+    server.await.expect("Failed to join server")
 }
 
-#[get("/redirect?<admin_consent>&<tenant>")]
-fn redirect(admin_consent: &RawStr, tenant: &RawStr) -> String {
-    println!("Admin consent: {:#?}", admin_consent);
-    println!("Tenant: {:#?}", tenant);
-    set_and_req_access_code();
-    // Generic login page response.
-    String::from("Successfully Logged In! You can close your browser.")
+#[derive(Debug, Deserialize)]
+struct Query {
+    admin_consent: String,
+    tenant: String,
 }
 
-pub fn set_and_req_access_code() {
-    let mut oauth = oauth_web_client();
+async fn handle_redirect(
+    query: Query,
+    mut oauth: OAuth,
+) -> Result<&'static str, std::convert::Infallible> {
+    println!("Admin consent: {:#?}", query.admin_consent);
+    println!("Tenant: {:#?}", query.tenant);
 
-    let mut request = oauth.build().client_credentials();
-    let access_token = request.access_token().send().unwrap();
+    let access_token = oauth
+        .build_async()
+        .client_credentials()
+        .access_token()
+        .send()
+        .await
+        .unwrap();
+
     oauth.access_token(access_token);
 
     println!("{:#?}", &oauth);
 
-    oauth
-        .as_file("./examples/example_files/client_credentials.json")
-        .unwrap();
+    // oauth
+    //     .as_file("./examples/example_files/client_credentials.json")
+    //     .unwrap();
+
+    // Generic login page response.
+    Ok("Successfully Logged In! You can close your browser.")
 }
