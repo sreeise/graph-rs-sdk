@@ -1,6 +1,5 @@
 use examples_common::TestServer;
 use graph_rs_sdk::oauth::OAuth;
-use std::sync::{mpsc, Arc, Mutex};
 use warp::{Filter, Reply};
 
 /*
@@ -34,13 +33,10 @@ async fn main() {
 
     // Make sure the server gets the same oauth configuration as the client
     let server_oauth = oauth.clone();
-    let (tx, rx) = mpsc::channel();
-    let tx = Arc::new(Mutex::new(tx));
-    let server = TestServer::serve(
+    let server = TestServer::serve_once(
         warp::get()
             .and(warp::path("redirect"))
             .and(warp::query::raw())
-            .and(warp::any().map(move || tx.clone()))
             .and(warp::any().map(move || server_oauth.clone()))
             .and_then(handle),
         ([127, 0, 0, 1], 8000),
@@ -60,7 +56,6 @@ async fn main() {
 
 async fn handle(
     access_code: String,
-    tx: Arc<Mutex<mpsc::Sender<()>>>,
     mut oauth: OAuth,
 ) -> Result<impl Reply, std::convert::Infallible> {
     // Print out the code for debugging purposes.

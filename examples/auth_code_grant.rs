@@ -30,15 +30,13 @@ async fn main() {
 
     // Make sure the server gets the same oauth configuration as the client
     let server_oauth = oauth.clone();
-    let (tx, rx) = mpsc::channel();
-    let tx = Arc::new(Mutex::new(tx));
-    let server = TestServer::serve(
+    let server = TestServer::serve_once(
         warp::get()
             .and(warp::path("redirect"))
             .and(warp::query::raw())
-            .and(warp::any().map(move || tx.clone()))
             .and(warp::any().map(move || server_oauth.clone()))
-            .and_then(handle),
+            .and_then(handle)
+            .boxed(),
         ([127, 0, 0, 1], 8000),
     );
 
@@ -56,20 +54,11 @@ async fn main() {
 
 async fn handle(
     access_code: String,
-    tx: Arc<Mutex<mpsc::Sender<()>>>,
     mut oauth: OAuth,
 ) -> Result<impl Reply, std::convert::Infallible> {
     // Print out the code for debugging purposes.
     println!("{:#?}", access_code);
 
-    // Let the main thread know we've received a response and can
-    // shut down (the server will stop listening, but will complete
-    // requests in progress)
-    tx.clone()
-        .lock()
-        .expect("poisoned!")
-        .send(())
-        .expect("failed to send");
     // The response type is automatically set to token and the grant type is automatically
     // set to authorization_code if either of these were not previously set.
     // This is done here as an example.
