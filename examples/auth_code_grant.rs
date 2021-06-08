@@ -1,5 +1,4 @@
 use examples_common::{RedirectQuery, TestServer};
-use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
 use warp::{Filter, Reply};
 
