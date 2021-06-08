@@ -42,12 +42,10 @@ impl Default for TestEnv {
     }
 }
 
-/*
-For local testing create a env.toml file in the root of the
-repository and set the oauth credentials with the same names as the
-OAuth2 struct. The file will be read into OAuth2 so the names must
-be the same.
-*/
+// For local testing create a env.toml file in the root of the
+// repository and set the oauth credentials with the same names as the
+// OAuth2 struct. The file will be read into OAuth2 so the names must
+// be the same.
 
 pub struct Environment;
 

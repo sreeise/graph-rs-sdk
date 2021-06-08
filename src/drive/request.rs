@@ -20,18 +20,6 @@ impl<'a, Client> DriveRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn items(&self) -> ItemRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        ItemRequest::new(self.client)
-    }
-    pub fn lists(&self) -> ListRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        ListRequest::new(self.client)
-    }
     get!({
         doc: "# Get drive",
         name: get_drive,
@@ -40,6 +28,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update drive",
         name: update_drive,
@@ -48,6 +37,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get following from drive",
         name: list_following,
@@ -56,6 +46,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to following for drive",
         name: create_following,
@@ -64,6 +55,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get following from drive",
         name: get_following,
@@ -72,6 +64,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property following in drive",
         name: update_following,
@@ -80,6 +73,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get list from drive",
         name: get_list,
@@ -88,6 +82,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property list in drive",
         name: update_list,
@@ -96,6 +91,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function recent",
         name: recent,
@@ -104,6 +100,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get root from drive",
         name: get_root,
@@ -112,6 +109,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property root in drive",
         name: update_root,
@@ -120,6 +118,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function sharedWithMe",
         name: shared_with_me,
@@ -128,6 +127,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get special from drive",
         name: list_special,
@@ -136,6 +136,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to special for drive",
         name: create_special,
@@ -144,6 +145,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get special from drive",
         name: get_special,
@@ -152,6 +154,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property special in drive",
         name: update_special,
@@ -160,31 +163,26 @@ where
         params: 1,
         has_body: true
     });
+
+    pub fn items(&self) -> ItemRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        ItemRequest::new(self.client)
+    }
+
+    pub fn lists(&self) -> ListRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        ListRequest::new(self.client)
+    }
 }
 
 impl<'a, Client> DrivesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn items(&self) -> ItemRequest<'a, Client> {
-        self.transfer_identity();
-        ItemRequest::new(self.client)
-    }
-    pub fn item<ID: AsRef<str>>(&self, id: ID) -> ItemsRequest<'a, Client> {
-        self.transfer_identity();
-        self.client.set_ident(ResourceIdentity::Items);
-        ItemsRequest::new(id.as_ref(), self.client)
-    }
-    pub fn lists(&self) -> ListRequest<'a, Client> {
-        self.transfer_identity();
-        self.client.set_ident(ResourceIdentity::List);
-        ListRequest::new(self.client)
-    }
-    pub fn list<ID: AsRef<str>>(&self, id: ID) -> ListsRequest<'a, Client> {
-        self.transfer_identity();
-        self.client.set_ident(ResourceIdentity::Lists);
-        ListsRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get entities from drives",
         name: list_drive,
@@ -193,6 +191,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to drives",
         name: create_drive,
@@ -201,6 +200,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         name: get_items,
         response: serde_json::Value,
@@ -208,6 +208,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         name: move_items,
         response: serde_json::Value,
@@ -215,6 +216,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         name: delete_items,
         response: NoContent,
@@ -222,6 +224,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         name: update_items,
         response: serde_json::Value,
@@ -229,6 +232,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         name: get_item_activities,
         response: serde_json::Value,
@@ -236,6 +240,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         name: check_in_item,
         response: NoContent,
@@ -243,6 +248,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         name: list_children,
         response: serde_json::Value,
@@ -250,6 +256,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         name: create_folder,
         response: serde_json::Value,
@@ -257,6 +264,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         name: get_item_content,
         response: serde_json::Value,
@@ -264,6 +272,7 @@ where
         params: 1,
         has_body: false
     });
+
     put!({
         name: upload_replace,
         response: serde_json::Value,
@@ -271,6 +280,7 @@ where
         params: 1,
         upload: true
     });
+
     post!({
         name: copy_item,
         response: NoContent,
@@ -278,6 +288,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         name: get_thumbnail_binary,
         response: NoContent,
@@ -285,6 +296,7 @@ where
         params: 3,
         has_body: false
     });
+
     get!({
         name: get_thumbnail,
         response: NoContent,
@@ -292,6 +304,7 @@ where
         params: 3,
         has_body: false
     });
+
     get!({
         name: list_item_versions,
         response: serde_json::Value,
@@ -299,6 +312,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         name: restore_item_versions,
         response: NoContent,
@@ -306,6 +320,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         name: list_thumbnails,
         response: NoContent,
@@ -313,6 +328,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         name: list_root_children,
         response: serde_json::Value,
@@ -320,6 +336,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         name: create_root_folder,
         response: serde_json::Value,
@@ -327,6 +344,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         name: list_root_activities,
         response: serde_json::Value,
@@ -334,6 +352,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         name: delta,
         response: DeltaPhantom<serde_json::Value>,
@@ -341,6 +360,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get entity from drives by key",
         name: get_drive,
@@ -349,6 +369,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in drives",
         name: update_drive,
@@ -357,6 +378,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from drives",
         name: delete_drive,
@@ -365,6 +387,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get following from drives",
         name: list_following,
@@ -373,6 +396,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to following for drives",
         name: create_following,
@@ -381,6 +405,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get following from drives",
         name: get_following,
@@ -389,6 +414,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property following in drives",
         name: update_following,
@@ -397,6 +423,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get list from drives",
         name: get_list,
@@ -405,6 +432,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property list in drives",
         name: update_list,
@@ -413,6 +441,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function recent",
         name: recent,
@@ -421,6 +450,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get root from drives",
         name: get_root,
@@ -429,6 +459,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property root in drives",
         name: update_root,
@@ -437,6 +468,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function sharedWithMe",
         name: shared_with_me,
@@ -445,6 +477,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get special from drives",
         name: list_special,
@@ -453,6 +486,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to special for drives",
         name: create_special,
@@ -461,6 +495,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get special from drives",
         name: get_special,
@@ -469,6 +504,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property special in drives",
         name: update_special,
@@ -477,4 +513,27 @@ where
         params: 1,
         has_body: true
     });
+
+    pub fn items(&self) -> ItemRequest<'a, Client> {
+        self.transfer_identity();
+        ItemRequest::new(self.client)
+    }
+
+    pub fn item<ID: AsRef<str>>(&self, id: ID) -> ItemsRequest<'a, Client> {
+        self.transfer_identity();
+        self.client.set_ident(ResourceIdentity::Items);
+        ItemsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn lists(&self) -> ListRequest<'a, Client> {
+        self.transfer_identity();
+        self.client.set_ident(ResourceIdentity::List);
+        ListRequest::new(self.client)
+    }
+
+    pub fn list<ID: AsRef<str>>(&self, id: ID) -> ListsRequest<'a, Client> {
+        self.transfer_identity();
+        self.client.set_ident(ResourceIdentity::Lists);
+        ListsRequest::new(id.as_ref(), self.client)
+    }
 }

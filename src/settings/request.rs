@@ -17,6 +17,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property settings in me",
         name: update_settings,
@@ -25,6 +26,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get shiftPreferences from me",
         name: get_shift_preferences,
@@ -33,6 +35,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property shiftPreferences in me",
         name: update_shift_preferences,

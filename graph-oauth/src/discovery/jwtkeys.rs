@@ -76,8 +76,8 @@ impl JWTKeys {
 }
 
 impl IntoIterator for JWTKeys {
-    type Item = Keys;
     type IntoIter = std::vec::IntoIter<Self::Item>;
+    type Item = Keys;
 
     fn into_iter(self) -> Self::IntoIter {
         self.keys.into_iter()

@@ -17,6 +17,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in contracts",
         name: update_contract,
@@ -25,6 +26,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from contracts",
         name: delete_contract,
@@ -33,6 +35,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get entities from contracts",
         name: list_contract,
@@ -41,6 +44,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to contracts",
         name: create_contract,

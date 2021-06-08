@@ -17,6 +17,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property workforceIntegrations in teamwork",
         name: update_workforce_integrations,
@@ -25,6 +26,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get workforceIntegrations from teamwork",
         name: list_workforce_integrations,
@@ -33,6 +35,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to workforceIntegrations for teamwork",
         name: create_workforce_integrations,
@@ -41,6 +44,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get teamwork",
         name: get_teamwork,
@@ -49,6 +53,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update teamwork",
         name: update_teamwork,

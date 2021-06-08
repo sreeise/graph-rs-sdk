@@ -19,9 +19,6 @@ impl<'a, Client> TeamRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> TeamsRequest<'a, Client> {
-        TeamsRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get entity from teamsTemplates by key",
         name: get_teams_template,
@@ -30,6 +27,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in teamsTemplates",
         name: update_teams_template,
@@ -38,6 +36,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from teamsTemplates",
         name: delete_teams_template,
@@ -46,6 +45,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get entities from teamsTemplates",
         name: list_teams_template,
@@ -54,6 +54,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to teamsTemplates",
         name: create_teams_template,
@@ -62,6 +63,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get entities from teams",
         name: list_team,
@@ -70,6 +72,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to teams",
         name: create_team,
@@ -78,6 +81,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function getAllMessages",
         name: get_all_messages,
@@ -86,24 +90,16 @@ where
         params: 0,
         has_body: false
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> TeamsRequest<'a, Client> {
+        TeamsRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> TeamsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn channels(&self) -> ChannelsRequest<'a, Client> {
-        ChannelsRequest::new(&self.client)
-    }
-    pub fn installed_apps(&self) -> InstalledAppsRequest<'a, Client> {
-        InstalledAppsRequest::new(&self.client)
-    }
-    pub fn primary_channel(&self) -> PrimaryChannelRequest<'a, Client> {
-        PrimaryChannelRequest::new(&self.client)
-    }
-    pub fn schedule(&self) -> ScheduleRequest<'a, Client> {
-        ScheduleRequest::new(&self.client)
-    }
     get!({
         doc: "# Get members from teams",
         name: get_members,
@@ -112,6 +108,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property members in teams",
         name: update_members,
@@ -120,6 +117,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get primaryChannel from teams",
         name: get_primary_channel,
@@ -128,6 +126,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property primaryChannel in teams",
         name: update_primary_channel,
@@ -136,6 +135,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get group from teams",
         name: get_group,
@@ -144,6 +144,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action archive",
         name: archive,
@@ -152,6 +153,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get schedule from teams",
         name: get_schedule,
@@ -160,6 +162,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property schedule in teams",
         name: update_schedule,
@@ -168,6 +171,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action unarchive",
         name: unarchive,
@@ -176,6 +180,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get channels from teams",
         name: get_channels,
@@ -184,6 +189,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property channels in teams",
         name: update_channels,
@@ -192,6 +198,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get operations from teams",
         name: list_operations,
@@ -200,6 +207,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to operations for teams",
         name: create_operations,
@@ -208,6 +216,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get members from teams",
         name: list_members,
@@ -216,6 +225,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to members for teams",
         name: create_members,
@@ -224,6 +234,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get installedApps from teams",
         name: get_installed_apps,
@@ -232,6 +243,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property installedApps in teams",
         name: update_installed_apps,
@@ -240,6 +252,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get entity from teams by key",
         name: get_team,
@@ -248,6 +261,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in teams",
         name: update_team,
@@ -256,6 +270,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from teams",
         name: delete_team,
@@ -264,6 +279,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get channels from teams",
         name: list_channels,
@@ -272,6 +288,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to channels for teams",
         name: create_channels,
@@ -280,6 +297,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get operations from teams",
         name: get_operations,
@@ -288,6 +306,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property operations in teams",
         name: update_operations,
@@ -296,6 +315,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get template from teams",
         name: get_template,
@@ -304,6 +324,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get installedApps from teams",
         name: list_installed_apps,
@@ -312,6 +333,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to installedApps for teams",
         name: create_installed_apps,
@@ -320,6 +342,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action clone",
         name: clone,
@@ -328,18 +351,28 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn channels(&self) -> ChannelsRequest<'a, Client> {
+        ChannelsRequest::new(&self.client)
+    }
+
+    pub fn installed_apps(&self) -> InstalledAppsRequest<'a, Client> {
+        InstalledAppsRequest::new(&self.client)
+    }
+
+    pub fn primary_channel(&self) -> PrimaryChannelRequest<'a, Client> {
+        PrimaryChannelRequest::new(&self.client)
+    }
+
+    pub fn schedule(&self) -> ScheduleRequest<'a, Client> {
+        ScheduleRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> ChannelsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn messages(&self) -> MessagesRequest<'a, Client> {
-        MessagesRequest::new(&self.client)
-    }
-    pub fn tabs(&self) -> TabsRequest<'a, Client> {
-        TabsRequest::new(&self.client)
-    }
     get!({
         doc: "# Get members from teams",
         name: list_members,
@@ -348,6 +381,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to members for teams",
         name: create_members,
@@ -356,6 +390,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get members from teams",
         name: get_members,
@@ -364,6 +399,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property members in teams",
         name: update_members,
@@ -372,6 +408,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get messages from teams",
         name: get_messages,
@@ -380,6 +417,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property messages in teams",
         name: update_messages,
@@ -388,6 +426,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get messages from teams",
         name: list_messages,
@@ -396,6 +435,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to messages for teams",
         name: create_messages,
@@ -404,6 +444,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get filesFolder from teams",
         name: get_files_folder,
@@ -412,6 +453,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property filesFolder in teams",
         name: update_files_folder,
@@ -420,6 +462,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get tabs from teams",
         name: get_tabs,
@@ -428,6 +471,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property tabs in teams",
         name: update_tabs,
@@ -436,6 +480,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get tabs from teams",
         name: list_tabs,
@@ -444,6 +489,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to tabs for teams",
         name: create_tabs,
@@ -452,6 +498,14 @@ where
         params: 1,
         has_body: true
     });
+
+    pub fn messages(&self) -> MessagesRequest<'a, Client> {
+        MessagesRequest::new(&self.client)
+    }
+
+    pub fn tabs(&self) -> TabsRequest<'a, Client> {
+        TabsRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> MessagesRequest<'a, Client>
@@ -466,6 +520,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to hostedContents for teams",
         name: create_hosted_contents,
@@ -474,6 +529,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get replies from teams",
         name: get_replies,
@@ -482,6 +538,7 @@ where
         params: 3,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property replies in teams",
         name: update_replies,
@@ -490,6 +547,7 @@ where
         params: 3,
         has_body: true
     });
+
     get!({
         doc: "# Get replies from teams",
         name: list_replies,
@@ -498,6 +556,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to replies for teams",
         name: create_replies,
@@ -506,6 +565,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get hostedContents from teams",
         name: get_hosted_contents,
@@ -514,6 +574,7 @@ where
         params: 3,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property hostedContents in teams",
         name: update_hosted_contents,
@@ -550,6 +611,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action upgrade",
         name: upgrade,
@@ -558,6 +620,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get teamsApp from teams",
         name: get_teams_app,
@@ -572,12 +635,6 @@ impl<'a, Client> PrimaryChannelRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn primary_channel_messages(&self) -> PrimaryChannelMessagesRequest<'a, Client> {
-        PrimaryChannelMessagesRequest::new(&self.client)
-    }
-    pub fn primary_channel_tabs(&self) -> PrimaryChannelTabsRequest<'a, Client> {
-        PrimaryChannelTabsRequest::new(&self.client)
-    }
     get!({
         doc: "# Get members from teams",
         name: get_members,
@@ -586,6 +643,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property members in teams",
         name: update_members,
@@ -594,6 +652,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get filesFolder from teams",
         name: get_files_folder,
@@ -602,6 +661,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property filesFolder in teams",
         name: update_files_folder,
@@ -610,6 +670,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get messages from teams",
         name: get_messages,
@@ -618,6 +679,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property messages in teams",
         name: update_messages,
@@ -626,6 +688,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get tabs from teams",
         name: get_tabs,
@@ -634,6 +697,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property tabs in teams",
         name: update_tabs,
@@ -642,6 +706,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get members from teams",
         name: list_members,
@@ -650,6 +715,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to members for teams",
         name: create_members,
@@ -658,6 +724,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get messages from teams",
         name: list_messages,
@@ -666,6 +733,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to messages for teams",
         name: create_messages,
@@ -674,6 +742,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get tabs from teams",
         name: list_tabs,
@@ -682,6 +751,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to tabs for teams",
         name: create_tabs,
@@ -690,6 +760,14 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn primary_channel_messages(&self) -> PrimaryChannelMessagesRequest<'a, Client> {
+        PrimaryChannelMessagesRequest::new(&self.client)
+    }
+
+    pub fn primary_channel_tabs(&self) -> PrimaryChannelTabsRequest<'a, Client> {
+        PrimaryChannelTabsRequest::new(&self.client)
+    }
 }
 
 impl<'a, Client> PrimaryChannelMessagesRequest<'a, Client>
@@ -704,6 +782,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property hostedContents in teams",
         name: update_hosted_contents,
@@ -712,6 +791,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get hostedContents from teams",
         name: list_hosted_contents,
@@ -720,6 +800,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to hostedContents for teams",
         name: create_hosted_contents,
@@ -728,6 +809,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get replies from teams",
         name: get_replies,
@@ -736,6 +818,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property replies in teams",
         name: update_replies,
@@ -744,6 +827,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get replies from teams",
         name: list_replies,
@@ -752,6 +836,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to replies for teams",
         name: create_replies,
@@ -788,6 +873,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property swapShiftsChangeRequests in teams",
         name: update_swap_shifts_change_requests,
@@ -796,6 +882,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get openShifts from teams",
         name: list_open_shifts,
@@ -804,6 +891,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to openShifts for teams",
         name: create_open_shifts,
@@ -812,6 +900,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get shifts from teams",
         name: list_shifts,
@@ -820,6 +909,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to shifts for teams",
         name: create_shifts,
@@ -828,6 +918,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get timeOffReasons from teams",
         name: list_time_off_reasons,
@@ -836,6 +927,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to timeOffReasons for teams",
         name: create_time_off_reasons,
@@ -844,6 +936,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get timeOffRequests from teams",
         name: get_time_off_requests,
@@ -852,6 +945,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property timeOffRequests in teams",
         name: update_time_off_requests,
@@ -860,6 +954,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get shifts from teams",
         name: get_shifts,
@@ -868,6 +963,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property shifts in teams",
         name: update_shifts,
@@ -876,6 +972,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get offerShiftRequests from teams",
         name: get_offer_shift_requests,
@@ -884,6 +981,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property offerShiftRequests in teams",
         name: update_offer_shift_requests,
@@ -892,6 +990,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get timeOffRequests from teams",
         name: list_time_off_requests,
@@ -900,6 +999,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to timeOffRequests for teams",
         name: create_time_off_requests,
@@ -908,6 +1008,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get schedulingGroups from teams",
         name: get_scheduling_groups,
@@ -916,6 +1017,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property schedulingGroups in teams",
         name: update_scheduling_groups,
@@ -924,6 +1026,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get schedulingGroups from teams",
         name: list_scheduling_groups,
@@ -932,6 +1035,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to schedulingGroups for teams",
         name: create_scheduling_groups,
@@ -940,6 +1044,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get swapShiftsChangeRequests from teams",
         name: list_swap_shifts_change_requests,
@@ -948,6 +1053,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to swapShiftsChangeRequests for teams",
         name: create_swap_shifts_change_requests,
@@ -956,6 +1062,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get openShifts from teams",
         name: get_open_shifts,
@@ -964,6 +1071,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property openShifts in teams",
         name: update_open_shifts,
@@ -972,6 +1080,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get timeOffReasons from teams",
         name: get_time_off_reasons,
@@ -980,6 +1089,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property timeOffReasons in teams",
         name: update_time_off_reasons,
@@ -988,6 +1098,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get timesOff from teams",
         name: get_times_off,
@@ -996,6 +1107,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property timesOff in teams",
         name: update_times_off,
@@ -1004,6 +1116,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get openShiftChangeRequests from teams",
         name: get_open_shift_change_requests,
@@ -1012,6 +1125,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property openShiftChangeRequests in teams",
         name: update_open_shift_change_requests,
@@ -1020,6 +1134,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get openShiftChangeRequests from teams",
         name: list_open_shift_change_requests,
@@ -1028,6 +1143,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to openShiftChangeRequests for teams",
         name: create_open_shift_change_requests,
@@ -1036,6 +1152,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get offerShiftRequests from teams",
         name: list_offer_shift_requests,
@@ -1044,6 +1161,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to offerShiftRequests for teams",
         name: create_offer_shift_requests,
@@ -1052,6 +1170,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get timesOff from teams",
         name: list_times_off,
@@ -1060,6 +1179,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to timesOff for teams",
         name: create_times_off,
@@ -1068,6 +1188,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action share",
         name: share,

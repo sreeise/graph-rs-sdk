@@ -14,10 +14,6 @@ impl<'a, Client> NotebookRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> NotebooksRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Notebooks);
-        NotebooksRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get notebooks from me",
         name: list_notebooks,
@@ -26,6 +22,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to notebooks for me",
         name: create_notebooks,
@@ -34,6 +31,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action getNotebookFromWebUrl",
         name: get_notebook_from_web_url,
@@ -42,26 +40,17 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> NotebooksRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Notebooks);
+        NotebooksRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> NotebooksRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn section_group<ID: AsRef<str>>(&self, id: ID) -> SectionGroupsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::SectionGroups);
-        SectionGroupsRequest::new(id.as_ref(), self.client)
-    }
-    pub fn section<ID: AsRef<str>>(&self, id: ID) -> SectionsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Sections);
-        SectionsRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get notebooks from me",
         name: get_notebooks,
@@ -70,6 +59,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property notebooks in me",
         name: update_notebooks,
@@ -78,6 +68,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action copyNotebook",
         name: copy_notebook,
@@ -86,6 +77,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get sectionGroups from me",
         name: list_section_groups,
@@ -94,6 +86,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to sectionGroups for me",
         name: create_section_groups,
@@ -102,6 +95,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get sections from me",
         name: list_sections,
@@ -110,6 +104,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to sections for me",
         name: create_sections,
@@ -118,4 +113,20 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn section_group<ID: AsRef<str>>(&self, id: ID) -> SectionGroupsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::SectionGroups);
+        SectionGroupsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn section<ID: AsRef<str>>(&self, id: ID) -> SectionsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Sections);
+        SectionsRequest::new(id.as_ref(), self.client)
+    }
 }

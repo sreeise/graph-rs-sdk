@@ -13,7 +13,7 @@ fn main() {
     create_list_item();
     get_list_item();
     update_list_item();
-    //delete_list_item();
+    // delete_list_item();
 }
 
 pub fn create_list() {
@@ -118,19 +118,17 @@ fn get_list_item() {
 }
 
 // TODO: Add back delete list item
-/*
-fn delete_list_item() {
-    let client = Graph::new(ACCESS_TOKEN);
-
-    let sites = client
-        .v1()
-        .site(SITE_ID)
-        .list(LIST_ID)
-        .item(LIST_ITEM_ID)
-        .delete_items()
-        .send();
-
-    println!("{:#?}", sites);
-}
-
- */
+// fn delete_list_item() {
+// let client = Graph::new(ACCESS_TOKEN);
+//
+// let sites = client
+// .v1()
+// .site(SITE_ID)
+// .list(LIST_ID)
+// .item(LIST_ITEM_ID)
+// .delete_items()
+// .send();
+//
+// println!("{:#?}", sites);
+// }
+//

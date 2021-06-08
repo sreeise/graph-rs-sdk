@@ -48,32 +48,30 @@ fn education_schools() {
     });
 
     // TODO: Add back create delete school
-    /*
-       client.v1().education().schools().delete_school(ID);
-
-       client.url_ref(|url| {
-           assert_eq!(
-               &format!("https://graph.microsoft.com/v1.0/education/schools/{}", ID),
-               url.as_str()
-           );
-       });
-
-           client
-           .v1()
-           .education()
-           .schools()
-           .create_users(ID, &serde_json::json!({}));
-
-       client.url_ref(|url| {
-           assert_eq!(
-               &format!(
-                   "https://graph.microsoft.com/v1.0/education/schools/{}/users/$ref",
-                   ID
-               ),
-               url.as_str()
-           );
-       });
-    */
+    // client.v1().education().schools().delete_school(ID);
+    //
+    // client.url_ref(|url| {
+    // assert_eq!(
+    // &format!("https://graph.microsoft.com/v1.0/education/schools/{}", ID),
+    // url.as_str()
+    // );
+    // });
+    //
+    // client
+    // .v1()
+    // .education()
+    // .schools()
+    // .create_users(ID, &serde_json::json!({}));
+    //
+    // client.url_ref(|url| {
+    // assert_eq!(
+    // &format!(
+    // "https://graph.microsoft.com/v1.0/education/schools/{}/users/$ref",
+    // ID
+    // ),
+    // url.as_str()
+    // );
+    // });
 }
 
 #[test]
@@ -124,48 +122,44 @@ fn education_classes() {
 
     // TODO: Add back delete classes
 
-    /*
-        client.v1().education().classes().delete_class(ID);
-
-    client.url_ref(|url| {
-        assert_eq!(
-            &format!("https://graph.microsoft.com/v1.0/education/classes/{}", ID),
-            url.as_str()
-        );
-    });
-     */
+    // client.v1().education().classes().delete_class(ID);
+    //
+    // client.url_ref(|url| {
+    // assert_eq!(
+    // &format!("https://graph.microsoft.com/v1.0/education/classes/{}", ID),
+    // url.as_str()
+    // );
+    // });
 
     // TODO: Add back create and teachers
 
-    /*
-        client
-        .v1()
-        .education()
-        .classes()
-        .add_teacher(ID, &serde_json::json!({}));
-
-    client.url_ref(|url| {
-        assert_eq!(
-            &format!(
-                "https://graph.microsoft.com/v1.0/education/classes/{}/teachers/$ref",
-                ID
-            ),
-            url.as_str()
-        );
-    });
-
-        client.v1().education().classes().remove_teacher(ID, "2");
-
-    client.url_ref(|url| {
-        assert_eq!(
-            &format!(
-                "https://graph.microsoft.com/v1.0/education/classes/{}/teachers/{}/$ref",
-                ID, "2"
-            ),
-            url.as_str()
-        );
-    });
-     */
+    // client
+    // .v1()
+    // .education()
+    // .classes()
+    // .add_teacher(ID, &serde_json::json!({}));
+    //
+    // client.url_ref(|url| {
+    // assert_eq!(
+    // &format!(
+    // "https://graph.microsoft.com/v1.0/education/classes/{}/teachers/$ref",
+    // ID
+    // ),
+    // url.as_str()
+    // );
+    // });
+    //
+    // client.v1().education().classes().remove_teacher(ID, "2");
+    //
+    // client.url_ref(|url| {
+    // assert_eq!(
+    // &format!(
+    // "https://graph.microsoft.com/v1.0/education/classes/{}/teachers/{}/$ref",
+    // ID, "2"
+    // ),
+    // url.as_str()
+    // );
+    // });
 
     client.v1().education().classes().list_members(ID);
 
@@ -181,33 +175,31 @@ fn education_classes() {
 
     // TODO: Add back create and delete member
 
-    /*
-        client
-        .v1()
-        .education()
-        .classes()
-        .add_member(ID, &serde_json::json!({}));
-
-    client.url_ref(|url| {
-        assert_eq!(
-            &format!(
-                "https://graph.microsoft.com/v1.0/education/classes/{}/members/$ref",
-                ID
-            ),
-            url.as_str()
-        );
-    });
-
-    client.v1().education().classes().remove_member(ID, "2");
-
-    client.url_ref(|url| {
-        assert_eq!(
-            &format!(
-                "https://graph.microsoft.com/v1.0/education/classes/{}/members/{}/$ref",
-                ID, "2"
-            ),
-            url.as_str()
-        );
-    });
-     */
+    // client
+    // .v1()
+    // .education()
+    // .classes()
+    // .add_member(ID, &serde_json::json!({}));
+    //
+    // client.url_ref(|url| {
+    // assert_eq!(
+    // &format!(
+    // "https://graph.microsoft.com/v1.0/education/classes/{}/members/$ref",
+    // ID
+    // ),
+    // url.as_str()
+    // );
+    // });
+    //
+    // client.v1().education().classes().remove_member(ID, "2");
+    //
+    // client.url_ref(|url| {
+    // assert_eq!(
+    // &format!(
+    // "https://graph.microsoft.com/v1.0/education/classes/{}/members/{}/$ref",
+    // ID, "2"
+    // ),
+    // url.as_str()
+    // );
+    // });
 }
