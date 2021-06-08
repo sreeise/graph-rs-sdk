@@ -496,8 +496,8 @@ impl PathMap {
 }
 
 impl IntoIterator for PathMap {
-    type Item = (String, Path);
     type IntoIter = std::collections::btree_map::IntoIter<String, Path>;
+    type Item = (String, Path);
 
     fn into_iter(self) -> Self::IntoIter {
         self.paths.into_iter()

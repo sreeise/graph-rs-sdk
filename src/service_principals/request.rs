@@ -18,6 +18,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property appRoleAssignedTo in servicePrincipals",
         name: update_app_role_assigned_to,
@@ -26,6 +27,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get claimsMappingPolicies from servicePrincipals",
         name: get_claims_mapping_policies,
@@ -34,6 +36,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get appRoleAssignments from servicePrincipals",
         name: list_app_role_assignments,
@@ -42,6 +45,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to appRoleAssignments for servicePrincipals",
         name: create_app_role_assignments,
@@ -50,6 +54,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get endpoints from servicePrincipals",
         name: get_endpoints,
@@ -58,6 +63,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property endpoints in servicePrincipals",
         name: update_endpoints,
@@ -66,6 +72,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get createdObjects from servicePrincipals",
         name: list_created_objects,
@@ -74,6 +81,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get entity from servicePrincipals by key",
         name: get_service_principal,
@@ -82,6 +90,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in servicePrincipals",
         name: update_service_principal,
@@ -90,6 +99,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from servicePrincipals",
         name: delete_service_principal,
@@ -98,6 +108,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get endpoints from servicePrincipals",
         name: list_endpoints,
@@ -106,6 +117,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to endpoints for servicePrincipals",
         name: create_endpoints,
@@ -114,6 +126,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get homeRealmDiscoveryPolicies from servicePrincipals",
         name: get_home_realm_discovery_policies,
@@ -122,6 +135,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get ownedObjects from servicePrincipals",
         name: get_owned_objects,
@@ -130,6 +144,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action addPassword",
         name: add_password,
@@ -138,6 +153,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get transitiveMemberOf from servicePrincipals",
         name: get_transitive_member_of,
@@ -146,6 +162,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get owners from servicePrincipals",
         name: list_owners,
@@ -154,6 +171,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get entities from servicePrincipals",
         name: list_service_principal,
@@ -162,6 +180,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to servicePrincipals",
         name: create_service_principal,
@@ -170,6 +189,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get appRoleAssignedTo from servicePrincipals",
         name: list_app_role_assigned_to,
@@ -178,6 +198,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to appRoleAssignedTo for servicePrincipals",
         name: create_app_role_assigned_to,
@@ -186,6 +207,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get memberOf from servicePrincipals",
         name: list_member_of,
@@ -194,6 +216,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Invoke function delta",
         name: delta,
@@ -202,6 +225,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action removePassword",
         name: remove_password,
@@ -210,6 +234,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get memberOf from servicePrincipals",
         name: get_member_of,
@@ -218,6 +243,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get oauth2PermissionGrants from servicePrincipals",
         name: service_principals_list_oauth_2_permission_grants,
@@ -226,6 +252,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get tokenIssuancePolicies from servicePrincipals",
         name: list_token_issuance_policies,
@@ -234,6 +261,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get owners from servicePrincipals",
         name: get_owners,
@@ -242,6 +270,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get tokenLifetimePolicies from servicePrincipals",
         name: list_token_lifetime_policies,
@@ -250,6 +279,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get appRoleAssignments from servicePrincipals",
         name: get_app_role_assignments,
@@ -258,6 +288,7 @@ where
         params: 2,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property appRoleAssignments in servicePrincipals",
         name: update_app_role_assignments,
@@ -266,6 +297,7 @@ where
         params: 2,
         has_body: true
     });
+
     get!({
         doc: "# Get oauth2PermissionGrants from servicePrincipals",
         name: service_principals_get_oauth_2_permission_grants,
@@ -274,6 +306,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get transitiveMemberOf from servicePrincipals",
         name: list_transitive_member_of,
@@ -282,6 +315,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get tokenIssuancePolicies from servicePrincipals",
         name: get_token_issuance_policies,
@@ -290,6 +324,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get ownedObjects from servicePrincipals",
         name: list_owned_objects,
@@ -298,6 +333,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get createdObjects from servicePrincipals",
         name: get_created_objects,
@@ -306,6 +342,7 @@ where
         params: 2,
         has_body: false
     });
+
     get!({
         doc: "# Get homeRealmDiscoveryPolicies from servicePrincipals",
         name: list_home_realm_discovery_policies,
@@ -314,6 +351,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get claimsMappingPolicies from servicePrincipals",
         name: list_claims_mapping_policies,
@@ -322,6 +360,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get tokenLifetimePolicies from servicePrincipals",
         name: get_token_lifetime_policies,
@@ -330,6 +369,7 @@ where
         params: 2,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action addKey",
         name: add_key,
@@ -338,6 +378,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action removeKey",
         name: remove_key,

@@ -17,6 +17,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in subscriptions",
         name: update_subscription,
@@ -25,6 +26,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from subscriptions",
         name: delete_subscription,
@@ -33,6 +35,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get entities from subscriptions",
         name: list_subscription,
@@ -41,6 +44,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to subscriptions",
         name: create_subscription,

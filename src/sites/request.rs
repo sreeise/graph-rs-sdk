@@ -16,10 +16,6 @@ impl<'a, Client> SiteRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> SitesRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Sites);
-        SitesRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get entities from sites",
         name: list_site,
@@ -28,6 +24,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to sites",
         name: create_site,
@@ -36,6 +33,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action add",
         name: add,
@@ -44,6 +42,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action remove",
         name: remove,
@@ -52,51 +51,17 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> SitesRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Sites);
+        SitesRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> SitesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn content_types(&self) -> ContentTypeRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        ContentTypeRequest::new(self.client)
-    }
-    pub fn content_type<ID: AsRef<str>>(&self, id: ID) -> ContentTypesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::ContentTypes);
-        ContentTypesRequest::new(id.as_ref(), self.client)
-    }
-    pub fn drive(&self) -> DrivesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        DrivesRequest::new("", self.client)
-    }
-    pub fn lists(&self) -> ListRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        ListRequest::new(self.client)
-    }
-    pub fn list<ID: AsRef<str>>(&self, id: ID) -> ListsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Lists);
-        ListsRequest::new(id.as_ref(), self.client)
-    }
-    pub fn onenote(&self) -> OnenoteRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Onenote);
-        OnenoteRequest::new(self.client)
-    }
     get!({
         doc: "# Get entity from sites by key",
         name: get_site,
@@ -105,6 +70,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in sites",
         name: update_site,
@@ -113,6 +79,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from sites",
         name: delete_site,
@@ -121,6 +88,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get analytics from sites",
         name: get_analytics,
@@ -129,6 +97,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get columns from sites",
         name: list_columns,
@@ -137,6 +106,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to columns for sites",
         name: create_columns,
@@ -145,6 +115,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get columns from sites",
         name: get_columns,
@@ -153,6 +124,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property columns in sites",
         name: update_columns,
@@ -161,6 +133,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get drive from sites",
         name: get_drive,
@@ -169,6 +142,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property drive in sites",
         name: update_drive,
@@ -177,6 +151,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get drives from sites",
         name: list_drives,
@@ -185,6 +160,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to drives for sites",
         name: create_drives,
@@ -193,6 +169,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get drives from sites",
         name: get_drives,
@@ -201,6 +178,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property drives in sites",
         name: update_drives,
@@ -209,6 +187,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get items from sites",
         name: list_items,
@@ -217,6 +196,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to items for sites",
         name: create_items,
@@ -225,6 +205,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get items from sites",
         name: get_items,
@@ -233,6 +214,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property items in sites",
         name: update_items,
@@ -241,6 +223,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get sites from sites",
         name: list_sites,
@@ -249,6 +232,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to sites for sites",
         name: create_sites,
@@ -257,6 +241,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get sites from sites",
         name: get_sites,
@@ -265,6 +250,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property sites in sites",
         name: update_sites,
@@ -273,4 +259,49 @@ where
         params: 1,
         has_body: true
     });
+
+    pub fn content_types(&self) -> ContentTypeRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        ContentTypeRequest::new(self.client)
+    }
+
+    pub fn content_type<ID: AsRef<str>>(&self, id: ID) -> ContentTypesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ContentTypes);
+        ContentTypesRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn drive(&self) -> DrivesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        DrivesRequest::new("", self.client)
+    }
+
+    pub fn lists(&self) -> ListRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        ListRequest::new(self.client)
+    }
+
+    pub fn list<ID: AsRef<str>>(&self, id: ID) -> ListsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Lists);
+        ListsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn onenote(&self) -> OnenoteRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Onenote);
+        OnenoteRequest::new(self.client)
+    }
 }

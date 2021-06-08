@@ -17,6 +17,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property outlook in me",
         name: update_outlook,
@@ -25,6 +26,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get masterCategories from me",
         name: list_master_categories,
@@ -33,6 +35,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to masterCategories for me",
         name: create_master_categories,
@@ -41,6 +44,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get masterCategories from me",
         name: get_master_categories,
@@ -49,6 +53,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property masterCategories in me",
         name: update_master_categories,
@@ -57,6 +62,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function supportedLanguages",
         name: supported_languages,
@@ -65,6 +71,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Invoke function supportedTimeZones",
         name: supported_time_zones,

@@ -17,6 +17,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property inferenceClassification in me",
         name: update_inference_classification,
@@ -25,6 +26,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get overrides from me",
         name: list_overrides,
@@ -33,6 +35,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to overrides for me",
         name: create_overrides,
@@ -41,6 +44,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get overrides from me",
         name: get_overrides,
@@ -49,6 +53,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property overrides in me",
         name: update_overrides,

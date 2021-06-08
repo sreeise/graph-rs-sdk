@@ -15,14 +15,12 @@ use rocket_codegen::routes;
 use std::thread;
 use std::time::Duration;
 
-/*
-This example shows how to use a code_challenge and code_verifier
-to perform the authorization code grant flow with proof key for
-code exchange (PKCE).
-
-For more info see: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
-And the PKCE RFC: https://tools.ietf.org/html/rfc7636
-*/
+// This example shows how to use a code_challenge and code_verifier
+// to perform the authorization code grant flow with proof key for
+// code exchange (PKCE).
+//
+// For more info see: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
+// And the PKCE RFC: https://tools.ietf.org/html/rfc7636
 
 // Store and initialize OAuth within another struct so that we can
 // use it in lazy_static since OAuth requires being mutable to

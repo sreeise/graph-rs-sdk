@@ -18,10 +18,6 @@ impl<'a, Client> PageRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> PagesRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Pages);
-        PagesRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get pages from me",
         name: list_pages,
@@ -30,6 +26,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to pages for me",
         name: create_pages,
@@ -38,26 +35,17 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> PagesRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Pages);
+        PagesRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> PagesRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn parent_notebook(&self) -> ParentNotebookRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::ParentNotebook);
-        ParentNotebookRequest::new(self.client)
-    }
-    pub fn parent_section(&self) -> ParentSectionRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::ParentSection);
-        ParentSectionRequest::new(self.client)
-    }
     get!({
         doc: "# Get pages from me",
         name: get_pages,
@@ -66,6 +54,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property pages in me",
         name: update_pages,
@@ -74,6 +63,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         name: delete_pages,
         response: NoContent,
@@ -81,6 +71,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         name: update_page_content,
         response: serde_json::Value,
@@ -88,6 +79,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action copyToSection",
         name: copy_to_section,
@@ -96,6 +88,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action onenotePatchContent",
         name: onenote_patch_content,
@@ -104,6 +97,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get parentNotebook from me",
         name: get_parent_notebook,
@@ -112,6 +106,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property parentNotebook in me",
         name: update_parent_notebook,
@@ -120,6 +115,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get parentSection from me",
         name: get_parent_section,
@@ -128,6 +124,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property parentSection in me",
         name: update_parent_section,
@@ -136,6 +133,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function preview",
         name: preview,
@@ -144,6 +142,22 @@ where
         params: 0,
         has_body: false
     });
+
+    pub fn parent_notebook(&self) -> ParentNotebookRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ParentNotebook);
+        ParentNotebookRequest::new(self.client)
+    }
+
+    pub fn parent_section(&self) -> ParentSectionRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ParentSection);
+        ParentSectionRequest::new(self.client)
+    }
 }
 
 impl<'a> PagesRequest<'a, BlockingHttpClient> {

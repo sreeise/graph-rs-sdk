@@ -15,10 +15,6 @@ impl<'a, Client> ApplicationRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> ApplicationsRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Applications);
-        ApplicationsRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get entities from applications",
         name: list_application,
@@ -27,6 +23,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to applications",
         name: create_application,
@@ -35,6 +32,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function delta",
         name: delta,
@@ -43,6 +41,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action getAvailableExtensionProperties",
         name: get_available_extension_properties,
@@ -51,6 +50,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action getByIds",
         name: get_by_ids,
@@ -59,6 +59,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action validateProperties",
         name: validate_properties,
@@ -67,6 +68,11 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> ApplicationsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Applications);
+        ApplicationsRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> ApplicationsRequest<'a, Client>
@@ -81,6 +87,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in applications",
         name: update_application,
@@ -89,6 +96,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from applications",
         name: delete_application,
@@ -97,6 +105,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action addKey",
         name: add_key,
@@ -105,6 +114,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action addPassword",
         name: add_password,
@@ -113,6 +123,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action checkMemberGroups",
         name: check_member_groups,
@@ -121,6 +132,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action checkMemberObjects",
         name: check_member_objects,
@@ -129,6 +141,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get createdOnBehalfOf from applications",
         name: get_created_on_behalf_of,
@@ -137,6 +150,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get ref of createdOnBehalfOf from applications",
         name: get_ref_created_on_behalf_of,
@@ -145,6 +159,7 @@ where
         params: 0,
         has_body: false
     });
+
     put!({
         doc: "# Update the ref of navigation property createdOnBehalfOf in applications",
         name: update_ref_created_on_behalf_of,
@@ -153,6 +168,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         doc: "# Delete ref of navigation property createdOnBehalfOf for applications",
         name: delete_ref_created_on_behalf_of,
@@ -161,6 +177,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get extensionProperties from applications",
         name: list_extension_properties,
@@ -169,6 +186,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to extensionProperties for applications",
         name: create_extension_properties,
@@ -177,6 +195,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get extensionProperties from applications",
         name: get_extension_properties,
@@ -185,6 +204,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property extensionProperties in applications",
         name: update_extension_properties,
@@ -193,6 +213,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete navigation property extensionProperties for applications",
         name: delete_extension_properties,
@@ -201,6 +222,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action getMemberGroups",
         name: get_member_groups,
@@ -209,6 +231,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action getMemberObjects",
         name: get_member_objects,
@@ -217,6 +240,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get homeRealmDiscoveryPolicies from applications",
         name: list_home_realm_discovery_policies,
@@ -225,6 +249,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get ref of homeRealmDiscoveryPolicies from applications",
         name: list_ref_home_realm_discovery_policies,
@@ -233,6 +258,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property ref to homeRealmDiscoveryPolicies for applications",
         name: create_ref_home_realm_discovery_policies,
@@ -241,6 +267,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get media content for application from applications",
         name: get_logo,
@@ -249,6 +276,7 @@ where
         params: 0,
         has_body: false
     });
+
     put!({
         doc: "# Update media content for application in applications",
         name: update_logo,
@@ -257,6 +285,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get owners from applications",
         name: list_owners,
@@ -265,6 +294,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get ref of owners from applications",
         name: list_ref_owners,
@@ -273,6 +303,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property ref to owners for applications",
         name: create_ref_owners,
@@ -281,6 +312,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action removeKey",
         name: remove_key,
@@ -289,6 +321,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action removePassword",
         name: remove_password,
@@ -297,6 +330,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action restore",
         name: restore,
@@ -305,6 +339,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get tokenIssuancePolicies from applications",
         name: list_token_issuance_policies,
@@ -313,6 +348,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get ref of tokenIssuancePolicies from applications",
         name: list_ref_token_issuance_policies,
@@ -321,6 +357,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property ref to tokenIssuancePolicies for applications",
         name: create_ref_token_issuance_policies,
@@ -329,6 +366,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get tokenLifetimePolicies from applications",
         name: list_token_lifetime_policies,
@@ -337,6 +375,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get ref of tokenLifetimePolicies from applications",
         name: list_ref_token_lifetime_policies,
@@ -345,6 +384,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property ref to tokenLifetimePolicies for applications",
         name: create_ref_token_lifetime_policies,

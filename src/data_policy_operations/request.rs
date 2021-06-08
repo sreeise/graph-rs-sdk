@@ -19,6 +19,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to dataPolicyOperations",
         name: create_data_policy_operation,
@@ -27,6 +28,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get entity from dataPolicyOperations by key",
         name: get_data_policy_operation,
@@ -35,6 +37,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in dataPolicyOperations",
         name: update_data_policy_operation,
@@ -43,6 +46,7 @@ where
         params: 1,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from dataPolicyOperations",
         name: delete_data_policy_operation,

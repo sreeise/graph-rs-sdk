@@ -23,6 +23,7 @@ impl Client {
             is_ident_client: false,
         }
     }
+
     pub fn insert_client_link(&mut self, client_link: ClientLinkSettings) {
         self.client_links.insert(client_link);
     }
