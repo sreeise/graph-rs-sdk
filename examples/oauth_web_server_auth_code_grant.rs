@@ -1,29 +1,49 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-#![feature(plugin)]
 #[macro_use]
-extern crate rocket;
-#[allow(unused_imports)]
-#[macro_use]
-extern crate serde_json;
+extern crate serde;
 extern crate reqwest;
+extern crate serde_json;
 
 use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
-use rocket::http::RawStr;
-use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+use warp::{http::Response, Filter};
 
-fn main() {
-    let handle = thread::spawn(|| {
-        thread::sleep(Duration::from_secs(2));
-        let mut oauth = oauth_web_client();
-        let mut request = oauth.build().authorization_code_grant();
-        request.browser_authorization().open().unwrap();
-    });
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct AccessCode {
+    code: String,
+}
 
-    rocket::ignite().mount("/", routes![redirect]).launch();
-    handle.join().unwrap();
+#[tokio::main]
+async fn main() {
+    let query = warp::query::<AccessCode>()
+        .map(Some)
+        .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
+
+    let routes = warp::get().and(warp::path("redirect")).and(query).map(
+        |code_option: Option<AccessCode>| match code_option {
+            Some(code) => {
+                // Print out the code for debugging purposes.
+                println!("{:#?}", code);
+
+                // Set the access code and request an access token.
+                // Callers should handle the Result from requesting an access token
+                // in case of an error here.
+                set_and_req_access_code(code);
+
+                // Generic login page response.
+                Response::builder().body(String::from(
+                    "Successfully Logged In! You can close your browser.",
+                ))
+            },
+            None => Response::builder()
+                .body(String::from("There was an issue getting the access code.")),
+        },
+    );
+
+    let mut oauth = oauth_web_client();
+    let mut request = oauth.build().authorization_code_grant();
+    request.browser_authorization().open().unwrap();
+
+    warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
 }
 
 fn oauth_web_client() -> OAuth {
@@ -48,24 +68,12 @@ fn oauth_web_client() -> OAuth {
     oauth
 }
 
-#[get("/redirect?<code>")]
-fn redirect(code: &RawStr) -> String {
-    // Print out the code for debugging purposes.
-    println!("{:#?}", code);
-    // Set the access code and request an access token.
-    // Callers should handle the Result from requesting an access token
-    // in case of an error here.
-    set_and_req_access_code(code);
-    // Generic login page response. Note
-    String::from("Successfully Logged In! You can close your browser.")
-}
-
-pub fn set_and_req_access_code(access_code: &str) {
+pub fn set_and_req_access_code(access_code: AccessCode) {
     let mut oauth = oauth_web_client();
     // The response type is automatically set to token and the grant type is automatically
     // set to authorization_code if either of these were not previously set.
     // This is done here as an example.
-    oauth.access_code(access_code);
+    oauth.access_code(access_code.code.as_str());
     let mut request = oauth.build().authorization_code_grant();
 
     let access_token = request.access_token().send().unwrap();

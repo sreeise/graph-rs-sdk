@@ -1,25 +1,23 @@
 use graph_rs_sdk::oauth::OAuth;
 
-/*
-The following example shows authenticating an application to use the OneDrive REST API
-for a native client. Native clients typically use the implicit OAuth flow. This requires
-using the browser to log in. To get an access token, set the response type to 'token'
-which will return an access token in the URL. The implicit flow does not make POST requests
-for access tokens like other flows do.
-
-There are two versions of the implicit flow. The first, called token flow is used
-for Microsoft V1.0 OneDrive authentication. The second is Microsoft's implementation
-of the OAuth V2.0 implicit flow.
-
-Implicit flows are typically performed when requesting access tokens directly from
-the user agent such as from a browser using JavaScript.
-
-For more information on the implicit flows see:
-1. Token flow for v1.0: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online
-2. Implicit grant flow for v2.0: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow
-
-To better understand OAuth V2.0 and the implicit flow see: https://tools.ietf.org/html/rfc6749#section-1.3.2
-*/
+// The following example shows authenticating an application to use the OneDrive REST API
+// for a native client. Native clients typically use the implicit OAuth flow. This requires
+// using the browser to log in. To get an access token, set the response type to 'token'
+// which will return an access token in the URL. The implicit flow does not make POST requests
+// for access tokens like other flows do.
+//
+// There are two versions of the implicit flow. The first, called token flow is used
+// for Microsoft V1.0 OneDrive authentication. The second is Microsoft's implementation
+// of the OAuth V2.0 implicit flow.
+//
+// Implicit flows are typically performed when requesting access tokens directly from
+// the user agent such as from a browser using JavaScript.
+//
+// For more information on the implicit flows see:
+// 1. Token flow for v1.0: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online
+// 2. Implicit grant flow for v2.0: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow
+//
+// To better understand OAuth V2.0 and the implicit flow see: https://tools.ietf.org/html/rfc6749#section-1.3.2
 
 fn main() {
     // Opens the default browser to the Microsoft login page.

@@ -582,7 +582,7 @@ impl OAuth {
     /// # context.update(oauth.get(OAuthCredential::CodeVerifier).unwrap().as_bytes());
     /// # let verifier = base64::encode_config(context.finish().as_ref(), base64::URL_SAFE_NO_PAD);
     /// # assert_eq!(challenge, verifier);
-    ///```
+    /// ```
     pub fn generate_sha256_challenge_and_verifier(&mut self) -> Result<(), GraphFailure> {
         let mut buf = [0; 32];
         let rng = ring::rand::SystemRandom::new();
@@ -783,7 +783,7 @@ impl OAuth {
     /// oauth.add_scope("scope");
     /// # assert!(oauth.contains_scope("scope"));
     /// oauth.remove_scope("scope");
-    ///# assert!(!oauth.contains_scope("scope"));
+    /// # assert!(!oauth.contains_scope("scope"));
     /// ```
     pub fn remove_scope<T: AsRef<str>>(&mut self, scope: T) {
         self.scopes.remove(scope.as_ref());

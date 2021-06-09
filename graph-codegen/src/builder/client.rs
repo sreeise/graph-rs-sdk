@@ -1,6 +1,6 @@
 use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::parser::{DirectoryModFile, ParserSettings, Request, RequestMap, RequestType};
-use bytes::{Buf, BufMut, BytesMut};
+use bytes::{BufMut, BytesMut};
 use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet};
@@ -23,6 +23,7 @@ impl Client {
             is_ident_client: false,
         }
     }
+
     pub fn insert_client_link(&mut self, client_link: ClientLinkSettings) {
         self.client_links.insert(client_link);
     }
@@ -118,14 +119,14 @@ impl ClientBuilder {
         }
     }
 
-    fn impl_start(&self, name: &String) -> String {
+    fn impl_start(&self, name: &str) -> String {
         format!(
             "\nimpl<'a, Client> {}<'a, Client> where Client: graph_http::RequestClient {{",
             name
         )
     }
 
-    fn download_impl_start(&self, name: &String, is_async: bool) -> String {
+    fn download_impl_start(&self, name: &str, is_async: bool) -> String {
         if is_async {
             format!("\nimpl<'a> {}<'a, AsyncHttpClient> {{", name)
         } else {
@@ -313,7 +314,7 @@ impl ClientBuilder {
             }
 
             buf.put_u8(b'\n');
-            buf.put(uses_buf.bytes());
+            buf.put(uses_buf);
         }
 
         buf

@@ -27,9 +27,11 @@ fn main() {
 fn upload_session_replace() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let mut upload = Session::default();
-    upload.name = Some(FILE_NAME.into());
-    upload.microsoft_graph_conflict_behavior = Some(CONFLICT_BEHAVIOR.into());
+    let upload = Session {
+        name: Some(FILE_NAME.into()),
+        microsoft_graph_conflict_behavior: Some(CONFLICT_BEHAVIOR.into()),
+        ..Default::default()
+    };
 
     let session = client
         .v1()
@@ -39,9 +41,7 @@ fn upload_session_replace() {
         .send();
 
     if let Ok(session) = session {
-        let mut iter = session.into_iter();
-
-        while let Some(next) = iter.next() {
+        for next in session {
             match next {
                 Ok(NextSession::Next(response)) => {
                     println!("Response: {:#?}", response);

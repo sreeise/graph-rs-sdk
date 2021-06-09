@@ -14,10 +14,6 @@ impl<'a, Client> DomainRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> DomainsRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Domains);
-        DomainsRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get entities from domains",
         name: list_domain,
@@ -26,6 +22,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to domains",
         name: create_domain,
@@ -34,6 +31,11 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> DomainsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Domains);
+        DomainsRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> DomainsRequest<'a, Client>
@@ -48,6 +50,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in domains",
         name: update_domain,
@@ -56,6 +59,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from domains",
         name: delete_domain,
@@ -64,6 +68,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get domainNameReferences from domains",
         name: list_domain_name_references,
@@ -72,6 +77,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get domainNameReferences from domains",
         name: get_domain_name_references,
@@ -80,6 +86,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action forceDelete",
         name: force_delete,
@@ -88,6 +95,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get serviceConfigurationRecords from domains",
         name: list_service_configuration_records,
@@ -96,6 +104,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to serviceConfigurationRecords for domains",
         name: create_service_configuration_records,
@@ -104,6 +113,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get serviceConfigurationRecords from domains",
         name: get_service_configuration_records,
@@ -112,6 +122,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property serviceConfigurationRecords in domains",
         name: update_service_configuration_records,
@@ -120,6 +131,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get verificationDnsRecords from domains",
         name: list_verification_dns_records,
@@ -128,6 +140,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to verificationDnsRecords for domains",
         name: create_verification_dns_records,
@@ -136,6 +149,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get verificationDnsRecords from domains",
         name: get_verification_dns_records,
@@ -144,6 +158,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property verificationDnsRecords in domains",
         name: update_verification_dns_records,
@@ -152,6 +167,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action verify",
         name: verify,

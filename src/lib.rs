@@ -23,20 +23,20 @@
 //! ### Blocking Client
 //!
 //! To use the blocking client
-//!```rust
+//! ```rust
 //! use graph_rs_sdk::prelude::*;
 //!
 //! let client =  Graph::new("ACCESS_TOKEN");
-//!```
+//! ```
 //!
 //! ### Async Client
 //!
 //! To use the async client
-//!```rust
+//! ```rust
 //! use graph_rs_sdk::prelude::*;
 //!
 //! let client =  Graph::new_async("ACCESS_TOKEN");
-//!```
+//! ```
 //!
 //! #### The send method and Graph types
 //! The send() method is the main method for sending a request. The return value will be wrapped
@@ -115,7 +115,6 @@ pub extern crate serde;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 extern crate strum;
-extern crate strum_macros;
 
 // mod client needs to stay on top of all other
 // client mod declarations for macro use.

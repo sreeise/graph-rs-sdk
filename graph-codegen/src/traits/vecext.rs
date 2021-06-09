@@ -1,4 +1,3 @@
-use crate::builder::ClientLinkSettings;
 use std::mem;
 
 pub trait VecExt<T: Default, RHS = Self> {

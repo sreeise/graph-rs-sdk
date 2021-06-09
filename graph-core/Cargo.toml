@@ -8,7 +8,7 @@ repository = "https://github.com/sreeise/graph-rs"
 description = "Common types for the graph-rs project"
 
 [dependencies]
-strum = { version = "0.19", features = ["derive"] }
 Inflector = "0.11.4"
-serde = { version = "1.0.110", features = ["derive"] }
-serde_json = "1.0.53"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+strum = { version = "0.21", features = ["derive"] }

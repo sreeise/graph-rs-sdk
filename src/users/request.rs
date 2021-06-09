@@ -48,13 +48,6 @@ impl<'a, Client> UserRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn education(&self) -> EducationUsersRequest<'a, Client> {
-        EducationUsersRequest::new(self.client)
-    }
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> UsersRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Users);
-        UsersRequest::new(id.as_ref(), self.client)
-    }
     get!({
         doc: "# Get entities from users",
         name: list_user,
@@ -63,6 +56,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Add new entity to users",
         name: create_user,
@@ -71,6 +65,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function delta",
         name: delta,
@@ -79,192 +74,21 @@ where
         params: 0,
         has_body: false
     });
+
+    pub fn education(&self) -> EducationUsersRequest<'a, Client> {
+        EducationUsersRequest::new(self.client)
+    }
+
+    pub fn id<ID: AsRef<str>>(&self, id: ID) -> UsersRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Users);
+        UsersRequest::new(id.as_ref(), self.client)
+    }
 }
 
 impl<'a, Client> UsersRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Activities);
-        ActivitiesRequest::new(self.client)
-    }
-    pub fn calendars(&self) -> CalendarRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Calendar);
-        CalendarRequest::new(self.client)
-    }
-    pub fn calendar_groups(&self) -> CalendarGroupRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::CalendarGroup);
-        CalendarGroupRequest::new(self.client)
-    }
-    pub fn calendar_group<ID: AsRef<str>>(&self, id: ID) -> CalendarGroupsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::CalendarGroups);
-        CalendarGroupsRequest::new(id.as_ref(), self.client)
-    }
-    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::CalendarView);
-        CalendarViewRequest::new(id.as_ref(), self.client)
-    }
-    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::CalendarViews);
-        CalendarViewsRequest::new(self.client)
-    }
-    pub fn calendar<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Calendars);
-        CalendarsRequest::new(id.as_ref(), self.client)
-    }
-    pub fn contacts(&self) -> ContactRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        ContactRequest::new(self.client)
-    }
-    pub fn contact_folders(&self) -> ContactFolderRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        ContactFolderRequest::new(self.client)
-    }
-    pub fn contact_folder<ID: AsRef<str>>(&self, id: ID) -> ContactFoldersRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::ContactFolders);
-        ContactFoldersRequest::new(id.as_ref(), self.client)
-    }
-    pub fn contact<ID: AsRef<str>>(&self, id: ID) -> ContactsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Contacts);
-        ContactsRequest::new(id.as_ref(), self.client)
-    }
-    pub fn drive(&self) -> DrivesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        DrivesRequest::new("", self.client)
-    }
-    pub fn events(&self) -> EventRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Event);
-        EventRequest::new(self.client)
-    }
-    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Events);
-        EventsRequest::new(id.as_ref(), self.client)
-    }
-    pub fn inference_classification(&self) -> InferenceClassificationRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client
-            .set_ident(ResourceIdentity::InferenceClassification);
-        InferenceClassificationRequest::new(self.client)
-    }
-    pub fn insights(&self) -> InsightsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Insights);
-        InsightsRequest::new(self.client)
-    }
-    pub fn mail_folders(&self) -> MailFolderRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        MailFolderRequest::new(self.client)
-    }
-    pub fn mail_folder<ID: AsRef<str>>(&self, id: ID) -> MailFoldersRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::MailFolders);
-        MailFoldersRequest::new(id.as_ref(), self.client)
-    }
-    pub fn managed_app_registrations(&self) -> ManagedAppRegistrationsRequest<'a, Client> {
-        ManagedAppRegistrationsRequest::new(self.client)
-    }
-    pub fn managed_devices(&self) -> ManagedDeviceRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        ManagedDeviceRequest::new(self.client)
-    }
-    pub fn managed_device<ID: AsRef<str>>(&self, id: ID) -> ManagedDevicesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::ManagedDevices);
-        ManagedDevicesRequest::new(id.as_ref(), self.client)
-    }
-    pub fn messages(&self) -> MessageRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        MessageRequest::new(self.client)
-    }
-    pub fn message<ID: AsRef<str>>(&self, id: ID) -> MessagesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Messages);
-        MessagesRequest::new(id.as_ref(), self.client)
-    }
-    pub fn onenote(&self) -> OnenoteRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Onenote);
-        OnenoteRequest::new(self.client)
-    }
-    pub fn outlook(&self) -> OutlookRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Outlook);
-        OutlookRequest::new(self.client)
-    }
-    pub fn planner(&self) -> PlannerRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Planner);
-        PlannerRequest::new(self.client)
-    }
-    pub fn settings(&self) -> SettingsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Settings);
-        SettingsRequest::new(self.client)
-    }
     get!({
         doc: "# Get entity from users by key",
         name: get_user,
@@ -273,6 +97,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update entity in users",
         name: update_user,
@@ -281,6 +106,7 @@ where
         params: 0,
         has_body: true
     });
+
     delete!({
         doc: "# Delete entity from users",
         name: delete_user,
@@ -289,6 +115,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get appRoleAssignments from users",
         name: list_app_role_assignments,
@@ -297,6 +124,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to appRoleAssignments for users",
         name: create_app_role_assignments,
@@ -305,6 +133,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get appRoleAssignments from users",
         name: get_app_role_assignments,
@@ -313,6 +142,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property appRoleAssignments in users",
         name: update_app_role_assignments,
@@ -321,6 +151,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action assignLicense",
         name: assign_license,
@@ -329,6 +160,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action changePassword",
         name: change_password,
@@ -337,6 +169,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get createdObjects from users",
         name: list_created_objects,
@@ -345,6 +178,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get createdObjects from users",
         name: get_created_objects,
@@ -353,6 +187,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get deviceManagementTroubleshootingEvents from users",
         name: list_device_management_troubleshooting_events,
@@ -361,6 +196,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to deviceManagementTroubleshootingEvents for users",
         name: create_device_management_troubleshooting_events,
@@ -369,6 +205,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get deviceManagementTroubleshootingEvents from users",
         name: get_device_management_troubleshooting_events,
@@ -377,6 +214,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property deviceManagementTroubleshootingEvents in users",
         name: update_device_management_troubleshooting_events,
@@ -385,6 +223,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get directReports from users",
         name: list_direct_reports,
@@ -393,6 +232,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get directReports from users",
         name: get_direct_reports,
@@ -401,6 +241,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get drive from users",
         name: get_drive,
@@ -409,6 +250,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property drive in users",
         name: update_drive,
@@ -417,6 +259,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get drives from users",
         name: list_drives,
@@ -425,6 +268,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to drives for users",
         name: create_drives,
@@ -433,6 +277,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get drives from users",
         name: get_drives,
@@ -441,6 +286,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property drives in users",
         name: update_drives,
@@ -449,6 +295,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action exportPersonalData",
         name: export_personal_data,
@@ -457,6 +304,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get extensions from users",
         name: list_extensions,
@@ -465,6 +313,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to extensions for users",
         name: create_extensions,
@@ -473,6 +322,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get extensions from users",
         name: get_extensions,
@@ -481,6 +331,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property extensions in users",
         name: update_extensions,
@@ -489,6 +340,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action findMeetingTimes",
         name: find_meeting_times,
@@ -497,6 +349,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get followedSites from users",
         name: list_followed_sites,
@@ -505,6 +358,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get followedSites from users",
         name: get_followed_sites,
@@ -513,6 +367,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action getMailTips",
         name: get_mail_tips,
@@ -521,6 +376,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Invoke function getManagedAppDiagnosticStatuses",
         name: get_managed_app_diagnostic_statuses,
@@ -529,6 +385,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Invoke function getManagedAppPolicies",
         name: get_managed_app_policies,
@@ -537,6 +394,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get joinedTeams from users",
         name: list_joined_teams,
@@ -545,6 +403,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to joinedTeams for users",
         name: create_joined_teams,
@@ -553,6 +412,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get joinedTeams from users",
         name: get_joined_teams,
@@ -561,6 +421,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property joinedTeams in users",
         name: update_joined_teams,
@@ -569,6 +430,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get licenseDetails from users",
         name: list_license_details,
@@ -577,6 +439,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to licenseDetails for users",
         name: create_license_details,
@@ -585,6 +448,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get licenseDetails from users",
         name: get_license_details,
@@ -593,6 +457,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property licenseDetails in users",
         name: update_license_details,
@@ -601,6 +466,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get managedAppRegistrations from users",
         name: list_managed_app_registrations,
@@ -609,6 +475,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get managedAppRegistrations from users",
         name: get_managed_app_registrations,
@@ -617,6 +484,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get manager from users",
         name: get_manager,
@@ -625,6 +493,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get memberOf from users",
         name: list_member_of,
@@ -633,6 +502,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get memberOf from users",
         name: get_member_of,
@@ -641,6 +511,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get oauth2PermissionGrants from users",
         name: users_list_oauth_2_permission_grants,
@@ -649,6 +520,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get oauth2PermissionGrants from users",
         name: users_get_oauth_2_permission_grants,
@@ -657,6 +529,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get ownedDevices from users",
         name: list_owned_devices,
@@ -665,6 +538,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get ownedDevices from users",
         name: get_owned_devices,
@@ -673,6 +547,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get ownedObjects from users",
         name: list_owned_objects,
@@ -681,6 +556,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get ownedObjects from users",
         name: get_owned_objects,
@@ -689,6 +565,7 @@ where
         params: 1,
         has_body: false
     });
+
     get!({
         doc: "# Get people from users",
         name: list_people,
@@ -697,6 +574,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to people for users",
         name: create_people,
@@ -705,6 +583,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get people from users",
         name: get_people,
@@ -713,6 +592,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property people in users",
         name: update_people,
@@ -721,6 +601,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get photo from users",
         name: get_photo,
@@ -729,6 +610,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property photo in users",
         name: update_photo,
@@ -737,6 +619,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get photos from users",
         name: list_photos,
@@ -745,6 +628,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to photos for users",
         name: create_photos,
@@ -753,6 +637,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get photos from users",
         name: get_photos,
@@ -761,6 +646,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property photos in users",
         name: update_photos,
@@ -769,6 +655,7 @@ where
         params: 1,
         has_body: true
     });
+
     get!({
         doc: "# Get registeredDevices from users",
         name: list_registered_devices,
@@ -777,6 +664,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get registeredDevices from users",
         name: get_registered_devices,
@@ -785,6 +673,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action removeAllDevicesFromManagement",
         name: remove_all_devices_from_management,
@@ -793,6 +682,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action reprocessLicenseAssignment",
         name: reprocess_license_assignment,
@@ -801,6 +691,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action revokeSignInSessions",
         name: revoke_sign_in_sessions,
@@ -809,6 +700,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get scopedRoleMemberOf from users",
         name: list_scoped_role_member_of,
@@ -817,6 +709,7 @@ where
         params: 0,
         has_body: false
     });
+
     post!({
         doc: "# Create new navigation property to scopedRoleMemberOf for users",
         name: create_scoped_role_member_of,
@@ -825,6 +718,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get scopedRoleMemberOf from users",
         name: get_scoped_role_member_of,
@@ -833,6 +727,7 @@ where
         params: 1,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property scopedRoleMemberOf in users",
         name: update_scoped_role_member_of,
@@ -841,6 +736,7 @@ where
         params: 1,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action sendMail",
         name: send_mail,
@@ -849,6 +745,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get settings from users",
         name: get_settings,
@@ -857,6 +754,7 @@ where
         params: 0,
         has_body: false
     });
+
     patch!({
         doc: "# Update the navigation property settings in users",
         name: update_settings,
@@ -865,6 +763,7 @@ where
         params: 0,
         has_body: true
     });
+
     get!({
         doc: "# Get transitiveMemberOf from users",
         name: list_transitive_member_of,
@@ -873,6 +772,7 @@ where
         params: 0,
         has_body: false
     });
+
     get!({
         doc: "# Get transitiveMemberOf from users",
         name: get_transitive_member_of,
@@ -881,6 +781,7 @@ where
         params: 1,
         has_body: false
     });
+
     post!({
         doc: "# Invoke action translateExchangeIds",
         name: translate_exchange_ids,
@@ -889,6 +790,7 @@ where
         params: 0,
         has_body: true
     });
+
     post!({
         doc: "# Invoke action wipeManagedAppRegistrationsByDeviceTag",
         name: wipe_managed_app_registrations_by_device_tag,
@@ -897,4 +799,211 @@ where
         params: 0,
         has_body: true
     });
+
+    pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Activities);
+        ActivitiesRequest::new(self.client)
+    }
+
+    pub fn calendars(&self) -> CalendarRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Calendar);
+        CalendarRequest::new(self.client)
+    }
+
+    pub fn calendar_groups(&self) -> CalendarGroupRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::CalendarGroup);
+        CalendarGroupRequest::new(self.client)
+    }
+
+    pub fn calendar_group<ID: AsRef<str>>(&self, id: ID) -> CalendarGroupsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::CalendarGroups);
+        CalendarGroupsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::CalendarView);
+        CalendarViewRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::CalendarViews);
+        CalendarViewsRequest::new(self.client)
+    }
+
+    pub fn calendar<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Calendars);
+        CalendarsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn contacts(&self) -> ContactRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        ContactRequest::new(self.client)
+    }
+
+    pub fn contact_folders(&self) -> ContactFolderRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        ContactFolderRequest::new(self.client)
+    }
+
+    pub fn contact_folder<ID: AsRef<str>>(&self, id: ID) -> ContactFoldersRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ContactFolders);
+        ContactFoldersRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn contact<ID: AsRef<str>>(&self, id: ID) -> ContactsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Contacts);
+        ContactsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn drive(&self) -> DrivesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        DrivesRequest::new("", self.client)
+    }
+
+    pub fn events(&self) -> EventRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Event);
+        EventRequest::new(self.client)
+    }
+
+    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Events);
+        EventsRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn inference_classification(&self) -> InferenceClassificationRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client
+            .set_ident(ResourceIdentity::InferenceClassification);
+        InferenceClassificationRequest::new(self.client)
+    }
+
+    pub fn insights(&self) -> InsightsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Insights);
+        InsightsRequest::new(self.client)
+    }
+
+    pub fn mail_folders(&self) -> MailFolderRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        MailFolderRequest::new(self.client)
+    }
+
+    pub fn mail_folder<ID: AsRef<str>>(&self, id: ID) -> MailFoldersRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::MailFolders);
+        MailFoldersRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn managed_app_registrations(&self) -> ManagedAppRegistrationsRequest<'a, Client> {
+        ManagedAppRegistrationsRequest::new(self.client)
+    }
+
+    pub fn managed_devices(&self) -> ManagedDeviceRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        ManagedDeviceRequest::new(self.client)
+    }
+
+    pub fn managed_device<ID: AsRef<str>>(&self, id: ID) -> ManagedDevicesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::ManagedDevices);
+        ManagedDevicesRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn messages(&self) -> MessageRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        MessageRequest::new(self.client)
+    }
+
+    pub fn message<ID: AsRef<str>>(&self, id: ID) -> MessagesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Messages);
+        MessagesRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn onenote(&self) -> OnenoteRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Onenote);
+        OnenoteRequest::new(self.client)
+    }
+
+    pub fn outlook(&self) -> OutlookRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Outlook);
+        OutlookRequest::new(self.client)
+    }
+
+    pub fn planner(&self) -> PlannerRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Planner);
+        PlannerRequest::new(self.client)
+    }
+
+    pub fn settings(&self) -> SettingsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Settings);
+        SettingsRequest::new(self.client)
+    }
 }

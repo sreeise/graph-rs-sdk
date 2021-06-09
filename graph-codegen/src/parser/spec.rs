@@ -50,7 +50,7 @@ impl<'a> Modifier<'a> {
     ) -> Vec<Modifier<'a>> {
         let mut vec: Vec<Modifier> = Vec::new();
         for resource_identity in resource_identity_vec {
-            vec.push(Modifier::from(resource_identity.clone()));
+            vec.push(Modifier::from(*resource_identity));
         }
         vec
     }
@@ -240,9 +240,10 @@ impl<'a> Parser<'a> {
 
             let mut requests: VecDeque<RequestMap> = VecDeque::new();
             for (path, path_spec) in path_map.paths.iter() {
-                let mut req_map = RequestMap::default();
-                req_map.path = path.clone();
-                req_map.requests = path_spec.build_requests(&path, &modifier);
+                let mut req_map = RequestMap {
+                    path: path.clone(),
+                    requests: path_spec.build_requests(&path, &modifier),
+                };
 
                 if let Some(url_modifier) = modifier.resource_url_modifier.as_ref() {
                     if url_modifier.matches(&req_map) {

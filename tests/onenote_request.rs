@@ -199,55 +199,53 @@ fn download_page() {
     }
 }
 
-/*
-#[test]
-fn create_delete_page() {
-    if Environment::is_appveyor() {
-        return;
-    }
-
-    let _lock = THROTTLE_MUTEX.lock().unwrap();
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let mut file = OpenOptions::new()
-            .read(true)
-            .open("./test_files/onenotepage.html")
-            .unwrap();
-
-        let mut page = String::new();
-        file.read_to_string(&mut page).unwrap();
-
-        let res = client
-            .v1()
-            .user(&id)
-            .onenote()
-            .pages()
-            .create_pages(&page)
-            .send();
-
-        if let Ok(page) = res {
-            let page_id = page.body()["id"].as_str().unwrap();
-
-            thread::sleep(Duration::from_secs(5));
-            let delete_res = client
-                .v1()
-                .user(&id)
-                .onenote()
-                .page(page_id)
-                .delete_pages()
-                .send();
-
-            if let Err(e) = delete_res {
-                panic!(
-                    "Request error. Method onenote pages delete page: Error: {:#?}",
-                    e
-                );
-            }
-        } else if let Err(e) = res {
-            panic!("Request error. Method onenote create page. Error: {:#?}", e);
-        }
-    }
-}
- */
+// #[test]
+// fn create_delete_page() {
+// if Environment::is_appveyor() {
+// return;
+// }
+//
+// let _lock = THROTTLE_MUTEX.lock().unwrap();
+// if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+// let mut file = OpenOptions::new()
+// .read(true)
+// .open("./test_files/onenotepage.html")
+// .unwrap();
+//
+// let mut page = String::new();
+// file.read_to_string(&mut page).unwrap();
+//
+// let res = client
+// .v1()
+// .user(&id)
+// .onenote()
+// .pages()
+// .create_pages(&page)
+// .send();
+//
+// if let Ok(page) = res {
+// let page_id = page.body()["id"].as_str().unwrap();
+//
+// thread::sleep(Duration::from_secs(5));
+// let delete_res = client
+// .v1()
+// .user(&id)
+// .onenote()
+// .page(page_id)
+// .delete_pages()
+// .send();
+//
+// if let Err(e) = delete_res {
+// panic!(
+// "Request error. Method onenote pages delete page: Error: {:#?}",
+// e
+// );
+// }
+// } else if let Err(e) = res {
+// panic!("Request error. Method onenote create page. Error: {:#?}", e);
+// }
+// }
+// }
 
 #[test]
 fn onenote_create_page_invalid_ext() {
@@ -276,7 +274,7 @@ fn onenote_create_page_invalid_ext() {
                 panic!("Unexpected error thrown: {}", err);
             },
         }
-    } else if let Ok(_) = response {
+    } else if response.is_ok() {
         panic!(
             "Unexpected successful response. GraphRsError::InvalidFileExtension should have thrown"
         );
@@ -311,7 +309,7 @@ fn onenote_sections_create_page_invalid_ext() {
                 panic!("Unexpected error thrown: {}", err);
             },
         }
-    } else if let Ok(_) = response {
+    } else if response.is_ok() {
         panic!(
             "Unexpected successful response. GraphRsError::InvalidFileExtension should have thrown"
         );

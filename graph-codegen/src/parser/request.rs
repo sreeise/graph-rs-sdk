@@ -268,8 +268,8 @@ impl Hash for RequestMap {
 }
 
 impl IntoIterator for RequestMap {
-    type Item = Request;
     type IntoIter = std::collections::vec_deque::IntoIter<Self::Item>;
+    type Item = Request;
 
     fn into_iter(self) -> Self::IntoIter {
         self.requests.into_iter()
@@ -449,7 +449,7 @@ impl RequestSet {
 
         let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
-        vec.sort();
+        vec.sort_unstable();
 
         for link in vec.iter() {
             if link.contains('.') {
@@ -517,7 +517,7 @@ impl RequestSet {
     fn struct_links(links: &HashSet<String>) -> HashMap<String, Vec<String>> {
         let mut map: HashMap<String, Vec<String>> = HashMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
-        vec.sort();
+        vec.sort_unstable();
 
         for link in vec.iter() {
             if link.contains('.') {
@@ -574,8 +574,8 @@ impl RequestSet {
 }
 
 impl IntoIterator for RequestSet {
-    type Item = RequestMap;
     type IntoIter = std::collections::hash_set::IntoIter<Self::Item>;
+    type Item = RequestMap;
 
     fn into_iter(self) -> Self::IntoIter {
         self.set.into_iter()

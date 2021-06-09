@@ -5,7 +5,7 @@ use std::io::copy;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
 use std::{fs, thread};
-use tokio::prelude::*;
+use tokio::io::AsyncWriteExt;
 
 pub struct IoTools;
 
