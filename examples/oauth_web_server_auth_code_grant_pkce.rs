@@ -1,19 +1,28 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-#![feature(plugin)]
 #[macro_use]
-extern crate rocket;
-#[allow(unused_imports)]
-#[macro_use]
+extern crate serde;
 extern crate serde_json;
 extern crate reqwest;
-#[macro_use]
-extern crate lazy_static;
+
+use warp::{
+    http::Response,
+    Filter,
+};
 
 use graph_rs_sdk::oauth::OAuth;
-use rocket::http::RawStr;
-use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+use lazy_static::lazy_static;
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct AccessCode {
+    code: String,
+}
+
+static CLIENT_ID: &str = "<CLIENT_ID>";
+static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
+
+lazy_static! {
+    static ref OAUTH_CLIENT: OAuthClient = OAuthClient::new(CLIENT_ID, CLIENT_SECRET);
+}
+
 
 // This example shows how to use a code_challenge and code_verifier
 // to perform the authorization code grant flow with proof key for
@@ -58,44 +67,42 @@ impl OAuthClient {
     }
 }
 
-static CLIENT_ID: &str = "<CLIENT_ID>";
-static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
+#[tokio::main]
+async fn main() {
+    let query = warp::query::<AccessCode>()
+        .map(Some)
+        .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
 
-lazy_static! {
-    static ref OAUTH_CLIENT: OAuthClient = OAuthClient::new(CLIENT_ID, CLIENT_SECRET);
-}
+    let routes = warp::get()
+        .and(warp::path("redirect"))
+        .and(query)
+        .map(|code_option: Option<AccessCode>| match code_option {
+            Some(access_code) => {
+                // Print out the code for debugging purposes.
+                println!("{:#?}", access_code.code);
 
-fn main() {
-    let handle = thread::spawn(|| {
-        thread::sleep(Duration::from_secs(2));
-        let mut oauth = OAUTH_CLIENT.oauth();
-        let mut request = oauth.build().authorization_code_grant();
-        request.browser_authorization().open().unwrap();
-    });
+                // Set the access code and request an access token.
+                // Callers should handle the Result from requesting an access token
+                // in case of an error here.
+                let mut oauth = OAUTH_CLIENT.oauth();
 
-    rocket::ignite().mount("/", routes![redirect]).launch();
-    handle.join().unwrap();
-}
+                oauth.access_code(access_code.code.as_str());
+                let mut request = oauth.build().authorization_code_grant();
 
-#[get("/redirect?<code>")]
-fn redirect(code: &RawStr) -> String {
-    // Print out the code for debugging purposes.
-    println!("{:#?}", code);
-    // Set the access code and request an access token.
-    // Callers should handle the Result from requesting an access token
-    // in case of an error here.
-    set_and_req_access_code(code);
-    // Generic login page response. Note
-    String::from("Successfully Logged In! You can close your browser.")
-}
+                let access_token = request.access_token().send().unwrap();
+                oauth.access_token(access_token);
+                println!("{:#?}", oauth);
 
-pub fn set_and_req_access_code(access_code: &str) {
+                // Generic login page response.
+                Response::builder().body(String::from("Successfully Logged In! You can close your browser."))
+            },
+            None => Response::builder().body(String::from("There was an issue getting the access code."))
+        });
+
+
     let mut oauth = OAUTH_CLIENT.oauth();
-
-    oauth.access_code(access_code);
     let mut request = oauth.build().authorization_code_grant();
+    request.browser_authorization().open().unwrap();
 
-    let access_token = request.access_token().send().unwrap();
-    oauth.access_token(access_token);
-    println!("{:#?}", oauth);
+    warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
 }

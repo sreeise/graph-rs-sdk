@@ -6,10 +6,9 @@ under the examples directory:
     ./examples/example_files
      
 The examples have various places where the response metadata from requests
-is stored in in JSON files to make it easier to use across multiple examples.
+is stored in JSON files to make it easier to use across multiple examples.
 
-A good place to start is the rocket example: rocket_example.rs for authorization
-and access tokens.
+For using OAuth to get access tokens, a good place to start is the web server example: oauth_web_server.rs
 
 ### Using the Graph API
 
