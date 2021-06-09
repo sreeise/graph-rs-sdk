@@ -66,15 +66,14 @@ impl ResourceUrlReplacement for ResourceIdentityModifier {
     }
 
     fn replacement(&self) -> String {
-        let name = self.name();
+        let mut name = self.name();
 
         if name.ends_with('s') {
             let replacement = &name[..name.len() - 1];
             replacement.into()
         } else {
-            let mut replacement = String::from(name);
-            replacement.push('s');
-            replacement
+            name.push('s');
+            name
         }
     }
 

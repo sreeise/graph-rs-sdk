@@ -1,6 +1,6 @@
 use graph_rs_sdk::core::ResourceIdentity;
 use test_tools::common::TestTools;
-use test_tools::oauthrequest::{AppRegistrationMap, OAuthTestClient, TestEnv};
+use test_tools::oauthrequest::OAuthTestClient;
 
 #[test]
 fn list_applications() {

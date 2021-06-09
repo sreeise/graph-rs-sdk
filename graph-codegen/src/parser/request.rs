@@ -449,7 +449,7 @@ impl RequestSet {
 
         let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
-        vec.sort();
+        vec.sort_unstable();
 
         for link in vec.iter() {
             if link.contains('.') {
@@ -517,7 +517,7 @@ impl RequestSet {
     fn struct_links(links: &HashSet<String>) -> HashMap<String, Vec<String>> {
         let mut map: HashMap<String, Vec<String>> = HashMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
-        vec.sort();
+        vec.sort_unstable();
 
         for link in vec.iter() {
             if link.contains('.') {
