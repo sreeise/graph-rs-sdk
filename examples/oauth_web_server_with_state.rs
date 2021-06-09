@@ -1,18 +1,25 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-#![feature(plugin)]
 #[macro_use]
-extern crate rocket;
-#[allow(unused_imports)]
-#[macro_use]
+extern crate serde;
 extern crate serde_json;
 extern crate reqwest;
 
+use warp::{
+    http::{Response, StatusCode},
+    Filter,
+};
+
 use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
-use rocket::http::RawStr;
-use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+
+// The client_id and client_secret must be changed before running this example.
+static CLIENT_ID: &str = "<YOUR_CLIENT_ID>";
+static CLIENT_SECRET: &str = "<YOUR_CLIENT_SECRET>";
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct AccessCode {
+    code: String,
+    state: String,
+}
 
 // This example shows using Rocket to authenticate with Microsoft OneDrive that
 // includes authorization with a state parameter in the request query.
@@ -33,8 +40,8 @@ use std::time::Duration;
 fn oauth_web_client() -> OAuth {
     let mut oauth = OAuth::new();
     oauth
-        .client_id("<YOUR_CLIENT_ID>")
-        .client_secret("<YOUR_CLIENT_SECRET>")
+        .client_id(CLIENT_ID)
+        .client_secret(CLIENT_SECRET)
         .add_scope("Files.Read")
         .add_scope("Files.ReadWrite")
         .add_scope("Files.Read.All")
@@ -53,49 +60,46 @@ fn oauth_web_client() -> OAuth {
     oauth
 }
 
-fn main() {
-    // The client_id and client_secret must be changed in the oauth_web_client()
-    // method before running this example.
+#[tokio::main]
+async fn main() {
+    let query = warp::query::<AccessCode>()
+        .map(Some)
+        .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
 
-    // Spawn the browser to sign in within a different thread that waits until
-    // rocket has started. Otherwise, the redirect from sign in may happen
-    // before rocket has started.
-    let handle = thread::spawn(|| {
-        // Block the new thread and give enough time for rocket to completely start.
-        thread::sleep(Duration::from_secs(2));
-        // Get the oauth client and request a browser sign in
-        // The url used is the same url given in method: OAuth::authorize_url()
-        let mut oauth = oauth_web_client();
-        let mut request = oauth.build().code_flow();
-        request.browser_authorization().open().unwrap();
-    });
+    let routes = warp::get()
+        .and(warp::path("redirect"))
+        .and(query)
+        .map(|code_option: Option<AccessCode>| match code_option {
+            Some(access_code) => {
+                // Print out the code for debugging purposes.
+                println!("{:#?}", access_code);
 
-    rocket::ignite().mount("/", routes![redirect]).launch();
-    handle.join().unwrap();
+                // Assert that the state is the same as the one given in the original request.
+                assert_eq!("13534298", access_code.state.as_str());
+
+                // Set the access code and request an access token.
+                // Callers should handle the Result from requesting an access token
+                // in case of an error here.
+                set_and_req_access_code(access_code);
+
+                // Generic login page response.
+                Response::builder().body(String::from("Successfully Logged In! You can close your browser."))
+            },
+            None => Response::builder().body(String::from("There was an issue getting the access code."))
+        });
+
+    let mut oauth = oauth_web_client();
+    let mut request = oauth.build().code_flow();
+    request.browser_authorization().open().unwrap();
+
+    warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
 }
 
-#[get("/redirect?<code>&<state>")]
-fn redirect(code: &RawStr, state: &RawStr) -> String {
-    // Print out the code and state for debugging purposes.
-    println!("{:#?}", code);
-    println!("{:#?}", state);
-
-    // Assert that the state is the same as the one given in the original request.
-    assert_eq!("13534298", state.to_string());
-
-    // Set the access code and request an access token.
-    // Callers should handle the Result from requesting an access token
-    // in case of an error here.
-    set_and_req_access_code(code, state);
-    // Generic login page response.
-    String::from("Successfully Logged In! You can close your browser.")
-}
-
-pub fn set_and_req_access_code(access_code: &str, state: &str) {
+pub fn set_and_req_access_code(access_code: AccessCode) {
     let mut oauth = oauth_web_client();
     oauth.response_type("token");
-    oauth.state(state);
-    oauth.access_code(access_code);
+    oauth.state(access_code.code.as_str());
+    oauth.access_code(access_code.code.as_str());
 
     // Request the access token.
     let mut request = oauth.build().code_flow();

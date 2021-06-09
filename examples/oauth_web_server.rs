@@ -1,19 +1,24 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-#![feature(plugin)]
 #[macro_use]
-extern crate rocket;
-#[allow(unused_imports)]
-#[macro_use]
+extern crate serde;
 extern crate serde_json;
+extern crate reqwest;
+
+use warp::{
+    http::{Response, StatusCode},
+    Filter,
+};
 
 use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
-use graph_rs_sdk::prelude::*;
-use rocket::http::RawStr;
-use rocket::response::Responder;
-use rocket_codegen::routes;
-use std::thread;
-use std::time::Duration;
+
+// The client_id and client_secret must be changed before running this example.
+static CLIENT_ID: &str = "<CLIENT_ID>";
+static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct AccessCode {
+    code: String,
+}
 
 // This example shows using Rocket to authenticate with Microsoft OneDrive,
 // and then requesting drive resources from the Graph API.
@@ -48,37 +53,44 @@ use std::time::Duration;
 //
 // Overview:
 //
-// Rocket will listen for the redirect url when the user has signed in: fn redirect() below.
-// When this happens, the access code that is given in the redirect will be used to automatically
-// call the access token endpoint and receive an access token and/or refresh token.
+// After signing in, you will be redirected, and the access code that is given in the redirect
+// will be used to automatically call the access token endpoint and receive an access token
+// and/or refresh token.
 //
 // Disclaimer/Important Info:
 //
 // This example is meant for testing and is not meant to be production ready or complete.
-fn main() {
-    // The client_id and client_secret must be changed in the oauth_web_client()
-    // method before running this example.
+#[tokio::main]
+async fn main() {
+    let query = warp::query::<AccessCode>()
+        .map(Some)
+        .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
 
-    // Spawn the browser to sign in within a different thread that waits until
-    // rocket has started. Otherwise, the redirect from sign in may happen
-    // before rocket has started.
-    let handle = thread::spawn(|| {
-        // Block the new thread and give enough time for rocket to completely start.
-        thread::sleep(Duration::from_secs(2));
-        // Get the oauth client and request a browser sign in
-        // The url used is the same url given in method: OAuth::authorize_url()
-        // You can optionally use oauth.browser_sign_in() which uses the
-        // same URL mentioned above. The query is built from the values passed to
-        // OAuth such as client_id.
-        let mut oauth = oauth_web_client();
-        let mut request = oauth.build().code_flow();
-        request.browser_authorization().open().unwrap();
-    });
+    let routes = warp::get()
+        .and(warp::path("redirect"))
+        .and(query)
+        .map(|code_option: Option<AccessCode>| match code_option {
+            Some(code) => {
+                // Print out the code for debugging purposes.
+                println!("{:#?}", code);
 
-    rocket::ignite()
-        .mount("/", routes![redirect, drive])
-        .launch();
-    handle.join().unwrap();
+                // Set the access code and request an access token.
+                // Callers should handle the Result from requesting an access token
+                // in case of an error here.
+                set_and_req_access_code(code);
+
+                // Generic login page response.
+                Response::builder().body(String::from("Successfully Logged In! You can close your browser."))
+            },
+            None => Response::builder().body(String::from("There was an issue getting the access code."))
+        });
+
+    // Get the oauth client and request a browser sign in
+    let mut oauth = oauth_web_client();
+    let mut request = oauth.build().code_flow();
+    request.browser_authorization().open().unwrap();
+
+    warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
 }
 
 // Methods for authenticating with the Graph API
@@ -123,8 +135,8 @@ fn main() {
 fn oauth_web_client() -> OAuth {
     let mut oauth = OAuth::new();
     oauth
-        .client_id("<YOUR_CLIENT_ID>")
-        .client_secret("<YOUR_CLIENT_SECRET>")
+        .client_id(CLIENT_ID)
+        .client_secret(CLIENT_SECRET)
         .add_scope("Files.Read")
         .add_scope("Files.ReadWrite")
         .add_scope("Files.Read.All")
@@ -140,24 +152,13 @@ fn oauth_web_client() -> OAuth {
     oauth
 }
 
-#[get("/redirect?<code>")]
-fn redirect(code: &RawStr) -> String {
-    // Print out the code for debugging purposes.
-    println!("{:#?}", code);
-    // Set the access code and request an access token.
-    // Callers should handle the Result from requesting an access token
-    // in case of an error here.
-    set_and_req_access_code(code);
-    // Generic login page response. Note
-    String::from("Successfully Logged In! You can close your browser.")
-}
-
-pub fn set_and_req_access_code(access_code: &str) {
+pub fn set_and_req_access_code(access_code: AccessCode) {
     let mut oauth = oauth_web_client();
     // The response type is automatically set to token and the grant type is automatically
     // set to authorization_code if either of these were not previously set.
     // This is done here as an example.
-    oauth.access_code(access_code);
+    oauth.access_code(access_code.code.as_str());
+
     let mut request = oauth.build().code_flow();
     let access_token = request.access_token().send().unwrap();
     oauth.access_token(access_token);
@@ -169,33 +170,4 @@ pub fn set_and_req_access_code(access_code: &str) {
     oauth
         .as_file("./examples/example_files/web_oauth.json")
         .unwrap();
-}
-
-#[derive(Responder)]
-#[response(status = 200, content_type = "json")]
-struct MyResponder {
-    inner: String,
-}
-
-// Methods for calling the Graph API.
-
-// This method gets the root drive for the user.
-//
-// If there is an error, then a GraphFailure will be returned. GraphFailure will also store
-// an error from the Graph API if error originated from there. Errors for the Graph API
-// can be found here: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/errors?view=odsp-graph-online
-//
-// Curl: curl http://localhost:8000/drive/recent
-#[get("/drive/get", format = "application/json")]
-fn drive() -> rocket::response::content::Json<MyResponder> {
-    let oauth: OAuth = OAuth::from_file("./examples/example_files/web_oauth.json").unwrap();
-    let access_token = oauth.get_access_token().unwrap();
-    let token = access_token.bearer_token();
-    let drive = Graph::new(token);
-
-    let response = drive.v1().me().drive().get_drive().send().unwrap();
-    let drive = response.into_body();
-    rocket::response::content::Json(MyResponder {
-        inner: drive.to_string(),
-    })
 }
