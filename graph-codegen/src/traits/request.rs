@@ -26,7 +26,7 @@ lazy_static! {
 }
 
 pub trait RequestParserBuilder<RHS: ?Sized = Self> {
-    fn build(&self, path: String, modifier: &Modifier, http_method: HttpMethod) -> Request;
+    fn build(&self, path: &str, modifier: &Modifier, http_method: HttpMethod) -> Request;
 }
 
 pub trait RequestParser<RHS = Self> {

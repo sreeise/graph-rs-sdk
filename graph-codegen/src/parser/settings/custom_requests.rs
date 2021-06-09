@@ -531,8 +531,10 @@ pub fn get_custom_requests(
         let mut request_set = RequestSet::default();
 
         for request in vec {
-            let mut request_map = RequestMap::default();
-            request_map.path = request.path.clone();
+            let mut request_map = RequestMap {
+                path: request.path.clone(),
+                ..Default::default()
+            };
             request_map.requests.push_back(request);
             request_set.join_inner_insert(request_map);
         }

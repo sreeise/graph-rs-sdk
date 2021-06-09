@@ -75,7 +75,7 @@ impl<'a> Builder<'a> {
 
                 for (_name, methods) in methods.iter() {
                     let client_methods: BTreeSet<RequestMap> =
-                        methods.into_iter().cloned().collect();
+                        methods.iter().cloned().collect();
                     client.extend_methods(client_methods);
                 }
             }
@@ -86,7 +86,7 @@ impl<'a> Builder<'a> {
             let methods = request_set.methods();
 
             for (name, methods) in methods.iter() {
-                let client_methods: BTreeSet<RequestMap> = methods.into_iter().cloned().collect();
+                let client_methods: BTreeSet<RequestMap> = methods.iter().cloned().collect();
 
                 client_map
                     .entry(name.to_string())
@@ -168,10 +168,8 @@ impl<'a> Builder<'a> {
                         request.path = empty_root.into();
                     }
 
-                    if reduce_param_count {
-                        if request.param_size > 0 {
-                            request.param_size -= 1;
-                        }
+                    if reduce_param_count && request.param_size > 0 {
+                        request.param_size -= 1;
                     }
                 }
             }
@@ -185,7 +183,7 @@ impl<'a> Builder<'a> {
         let mut clients: BTreeMap<String, Client> = BTreeMap::new();
 
         for (name, methods) in methods.iter() {
-            let client_methods: BTreeSet<RequestMap> = methods.into_iter().cloned().collect();
+            let client_methods: BTreeSet<RequestMap> = methods.iter().cloned().collect();
             let mut client = Client::new(name.as_str(), client_methods);
 
             if let Some(client_link_settings) = resource_map.modifier.client_links.get(name) {
@@ -203,7 +201,7 @@ impl<'a> Builder<'a> {
         for (name, links) in struct_links.iter() {
             clients.entry(name.to_string()).and_modify(|client| {
                 for link in links.iter() {
-                    if !client.get_client_link_setting(link).is_some() && name.ne(link.as_str()) {
+                    if client.get_client_link_setting(link).is_none() && name.ne(link.as_str()) {
                         let link_settings = ClientLinkSettings::new(link.as_str());
                         client.insert_client_link(link_settings);
                     }
