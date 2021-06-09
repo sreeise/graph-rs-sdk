@@ -1,4 +1,4 @@
-use graph_rs_sdk::error::*;
+use graph_http::BlockingDownloadError;
 use graph_rs_sdk::prelude::*;
 use test_tools::oauthrequest::OAuthTestClient;
 use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
@@ -23,32 +23,23 @@ fn download_config_dir_no_exists() {
 fn download_config_file_exists() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock();
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let download_client = client
+        match client
             .v1()
             .user(id.as_str())
             .drive()
-            .download(":/downloadtestdoc.txt:", "./test_files");
-        let result = download_client.send();
+            .download(":/downloadtestdoc.txt:", "./test_files").send() {
+                Ok(path) => panic!("Download request should have thrown BlockingDownloadError::FileExists. Instead got successful PathBuf: {:#?}", path),
 
-        if let Err(err) = result {
-            match err {
-                GraphFailure::GraphRsError(err) => {
-                    match err {
-                        GraphRsError::DownloadFileExists { name} => {
-                            if cfg!(target_os = "windows") {
-                                assert_eq!(name, "./test_files\\downloadtestdoc.txt".to_string());
-                            } else {
-                                assert_eq!(name, "./test_files/downloadtestdoc.txt".to_string());
-                            }
-                        },
-                        _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
+                Err(BlockingDownloadError::FileExists(name)) => {
+                    if cfg!(target_os = "windows") {
+                        assert_eq!(name, "./test_files\\downloadtestdoc.txt".to_string());
+                    } else {
+                        assert_eq!(name, "./test_files/downloadtestdoc.txt".to_string());
                     }
-                },
-                _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadFileExists. Got: {:#?}", err)
+                }
+
+                Err(err) => panic!("Incorrect error thrown. Should have been BlockingDownloadError::FileExists. Got: {:#?}", err)
             }
-        } else if let Ok(path) = result {
-            panic!("Download request should have thrown GraphRsError::DownloadFileExists. Instead got successful PathBuf: {:#?}", path);
-        }
     }
 }
 
@@ -56,29 +47,17 @@ fn download_config_file_exists() {
 fn download_is_err_config_dir_no_exists() {
     let client = Graph::new("");
 
-    let download_client = client
+    let request = client
         .v1()
         .me()
         .drive()
         .download("", "./test_files/download_dir");
 
-    download_client.create_dir_all(false);
+    request.create_dir_all(false);
 
-    let result = download_client.send();
-
-    if let Err(err) = result {
-        match err {
-            GraphFailure::GraphRsError(err) => {
-                match err {
-                    GraphRsError::DownloadDirNoExists { dir } => {
-                        assert_eq!("./test_files/download_dir".to_string(), dir)
-                    },
-                    _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err)
-                }
-            },
-            _ => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err)
+    match request.send() {
+            Ok(path) => panic!("Download request should have thrown GraphRsError::DownloadDirNoExists. Instead got successful PathBuf: {:#?}", path),
+            Err(BlockingDownloadError::TargetDoesNotExist(dir)) => assert_eq!("./test_files/download_dir".to_string(), dir),
+            Err(err) => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err)
         }
-    } else if let Ok(path) = result {
-        panic!("Download request should have thrown GraphRsError::DownloadDirNoExists. Instead got successful PathBuf: {:#?}", path);
-    }
 }

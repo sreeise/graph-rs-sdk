@@ -1,21 +1,14 @@
+use graph_http::AsyncDownloadError;
+use graph_http::BlockingDownloadError;
 use graph_rs_sdk::error::*;
 use graph_rs_sdk::prelude::*;
-use std::convert::TryFrom;
-use std::path::PathBuf;
+use reqwest::StatusCode;
 use test_tools::oauthrequest::OAuthTestClient;
 use test_tools::oauthrequest::{ASYNC_THROTTLE_MUTEX, DRIVE_THROTTLE_MUTEX};
 
-fn test_graph_error(err: GraphFailure, expect: GraphError) {
+fn test_graph_failure(err: GraphFailure, expect: GraphError) {
     match err {
-        GraphFailure::GraphError(error) => {
-            assert_eq!(error.code, expect.code);
-            assert_eq!(error.error_info, expect.error_info);
-            assert_eq!(error.error_type, expect.error_type);
-            assert_eq!(error.code_property(), expect.code_property());
-            assert_eq!(error.message(), expect.message());
-            assert!(error.request_id().is_some());
-            assert!(error.date().is_some());
-        },
+        GraphFailure::GraphError(error) => test_graph_error(error, expect),
         GraphFailure::Io(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::ParseString(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::Utf8Error(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
@@ -44,17 +37,26 @@ fn test_graph_error(err: GraphFailure, expect: GraphError) {
     }
 }
 
-fn get_error(code: u16, status_code: &str, message: &str) -> GraphError {
-    let mut error = GraphError::try_from(code).unwrap();
-    let message = ErrorMessage {
-        error: Some(ErrorStatus {
-            code: Some(status_code.to_string()),
-            message: Some(message.to_string()),
-            inner_error: None,
-        }),
-    };
-    error.set_error_message(message);
-    error
+fn test_graph_error(error: GraphError, expect: GraphError) {
+    assert_eq!(error.code, expect.code);
+    assert_eq!(error.code_property(), expect.code_property());
+    assert_eq!(error.message(), expect.message());
+    assert!(error.request_id().is_some());
+    assert!(error.date().is_some());
+}
+
+fn new_error(status_code: StatusCode, error_code: &str, message: &str) -> GraphError {
+    GraphError {
+        code: status_code,
+        headers: None,
+        error_message: ErrorMessage {
+            error: Some(ErrorStatus {
+                code: Some(error_code.to_string()),
+                message: Some(message.to_string()),
+                inner_error: None,
+            }),
+        },
+    }
 }
 
 // Use a bad access token so we can test that the GraphError parses
@@ -65,17 +67,16 @@ fn auth_graph_error() {
 
     let response = client.v1().me().get_user().send();
 
-    if let Ok(_res) = response {
-        panic!("Got successful request for an invalid access token");
-    } else if let Err(err) = response {
-        test_graph_error(
+    match response {
+        Ok(_) => panic!("Got successful request for an invalid access token"),
+        Err(err) => test_graph_failure(
             err,
-            get_error(
-                401,
+            new_error(
+                StatusCode::UNAUTHORIZED,
                 "InvalidAuthenticationToken",
                 "CompactToken parsing failed with error code: 80049217",
             ),
-        );
+        ),
     }
 }
 
@@ -88,10 +89,10 @@ async fn async_auth_graph_error() {
     if let Ok(_res) = response {
         panic!("Got successful request for an invalid access token");
     } else if let Err(err) = response {
-        test_graph_error(
+        test_graph_failure(
             err,
-            get_error(
-                401,
+            new_error(
+                StatusCode::UNAUTHORIZED,
                 "InvalidAuthenticationToken",
                 "CompactToken parsing failed with error code: 80049217",
             ),
@@ -121,10 +122,10 @@ fn upload_session_graph_error() {
     if let Ok(_res) = response {
         panic!("Got successful request for an invalid access token");
     } else if let Err(err) = response {
-        test_graph_error(
+        test_graph_failure(
             err,
-            get_error(
-                401,
+            new_error(
+                StatusCode::UNAUTHORIZED,
                 "InvalidAuthenticationToken",
                 "CompactToken parsing failed with error code: 80049217",
             ),
@@ -155,10 +156,10 @@ async fn async_upload_session_graph_error() {
     if let Ok(_res) = response {
         panic!("Got successful request for an invalid access token");
     } else if let Err(err) = response {
-        test_graph_error(
+        test_graph_failure(
             err,
-            get_error(
-                401,
+            new_error(
+                StatusCode::UNAUTHORIZED,
                 "InvalidAuthenticationToken",
                 "CompactToken parsing failed with error code: 80049217",
             ),
@@ -178,15 +179,22 @@ fn drive_download_graph_error() {
             .drive(id.as_str())
             .download(":/non_existent_file.docx:", "./test_files");
 
-        let req: GraphResult<PathBuf> = download.send();
-
-        if let Ok(_path_buf) = req {
-            panic!("Got successful request for a downloading a file that should not exist");
-        } else if let Err(e) = req {
-            test_graph_error(
+        match download.send() {
+            Ok(_) => {
+                panic!("Got successful request for a downloading a file that should not exist")
+            },
+            Err(BlockingDownloadError::Graph(e)) => test_graph_error(
                 e,
-                get_error(404, "itemNotFound", "The resource could not be found."),
-            );
+                new_error(
+                    StatusCode::NOT_FOUND,
+                    "itemNotFound",
+                    "The resource could not be found.",
+                ),
+            ),
+            Err(e) => panic!(
+                "Expected BlockingDownloadError::Graph(GraphError..), but got a different variant: {}",
+                e
+            ),
         }
     }
 }
@@ -201,15 +209,22 @@ async fn async_drive_download_graph_error() {
             .drive()
             .download(":/non_existent_file.docx:", "./test_files");
 
-        let req: GraphResult<PathBuf> = download.send().await;
-
-        if let Ok(_path_buf) = req {
-            panic!("Got successful request for a downloading a file that should not exist");
-        } else if let Err(e) = req {
-            test_graph_error(
+        match download.send().await {
+            Ok(_) => {
+                panic!("Got successful request for a downloading a file that should not exist")
+            },
+            Err(AsyncDownloadError::Graph(e)) => test_graph_error(
                 e,
-                get_error(404, "itemNotFound", "The resource could not be found."),
-            );
+                new_error(
+                    StatusCode::NOT_FOUND,
+                    "itemNotFound",
+                    "The resource could not be found.",
+                ),
+            ),
+            Err(e) => panic!(
+                "Expected AsyncDownloadError::Graph(GraphError..), but got a different variant: {}",
+                e
+            ),
         }
     }
 }

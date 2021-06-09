@@ -1,11 +1,10 @@
-use graph_error::{GraphError, GraphResult};
 use graph_http::NextSession;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::ffi::OsString;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::thread;
 use std::time::Duration;
 use test_tools::common::TestTools;
@@ -135,13 +134,11 @@ fn drive_download() {
             .drive(id.as_str())
             .download(":/test_document.docx:", "./test_files");
 
-        let req: GraphResult<PathBuf> = download.send();
+        let path_buf = download
+            .send()
+            .expect("Request Error. Method: drive check_out.");
 
-        if let Ok(path_buf) = req {
-            assert!(path_buf.exists());
-        } else if let Err(e) = req {
-            panic!("Request Error. Method: drive check_out. Error: {:#?}", e);
-        }
+        assert!(path_buf.exists())
     }
 }
 
@@ -167,15 +164,13 @@ fn drive_download_format() {
 
             download.format("pdf");
             download.rename(OsString::from("test_document.pdf"));
-            let req: GraphResult<PathBuf> = download.send();
+            let path_buf = download
+                .send()
+                .expect("Request Error. Method: drive check_out.");
 
-            if let Ok(path_buf) = req {
-                assert!(path_buf.exists());
-                assert_eq!(path_buf.extension(), Some(OsStr::new("pdf")));
-                assert_eq!(path_buf.file_name(), Some(OsStr::new("test_document.pdf")));
-            } else if let Err(e) = req {
-                panic!("Request Error. Method: drive check_out. Error: {:#?}", e);
-            }
+            assert!(path_buf.exists());
+            assert_eq!(path_buf.extension(), Some(OsStr::new("pdf")));
+            assert_eq!(path_buf.file_name(), Some(OsStr::new("test_document.pdf")));
         }
     }
 }
@@ -309,10 +304,10 @@ fn drive_upload_session() {
             for next in session.into_iter() {
                 match next {
                     Ok(NextSession::Next(response)) => {
-                        assert!(!GraphError::is_error(response.status()));
+                        assert!(response.status().is_success());
                     },
                     Ok(NextSession::Done(response)) => {
-                        assert!(!GraphError::is_error(response.status()));
+                        assert!(response.status().is_success());
                         let drive_item = response.body();
                         let drive_item_id =
                             drive_item["id"].as_str().unwrap_or_default().to_string();
