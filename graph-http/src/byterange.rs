@@ -1,7 +1,6 @@
 use crate::traits::{AsyncByteRangeRead, AsyncTryFrom, ByteRangeMultiple, ByteRangeRead};
 use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult};
-use tokio::io::AsyncSeekExt;
 use std::collections::VecDeque;
 use std::convert::TryFrom;
 use std::fmt::{Debug, Formatter};

@@ -10,5 +10,4 @@ description = "Common types for the graph-rs project"
 [dependencies]
 Inflector = "0.11.4"
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
 strum = { version = "0.21", features = ["derive"] }

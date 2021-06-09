@@ -10,7 +10,6 @@ description = "Graph Api error types and handling for the graph-rs project"
 [dependencies]
 async-trait = "0.1"
 base64 = "0.13"
-futures = "0.3"
 handlebars = "2.0.2"
 hyper = "0.14"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
