@@ -10,26 +10,16 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  check:
-    name: Graph-rs
+  build:
+
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly-2021-05-27
-          override: true
-          components: rustfmt, clippy
-
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      env:
-        TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
-        APP_REGISTRATIONS: ${{ secrets.APP_REGISTRATIONS }}
-      run: cargo test --verbose
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        env:
+          TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
+          APP_REGISTRATIONS: ${{ secrets.APP_REGISTRATIONS }}
+        run: cargo test --verbose

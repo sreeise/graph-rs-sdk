@@ -1,11 +1,7 @@
 match_block_trailing_comma = true
 binop_separator = "Back"
 reorder_imports = true
-imports_granularity = "Crate"
-reorder_modules = true
-wrap_comments = true
-format_code_in_doc_comments = true
-format_macro_matchers  = true
-format_macro_bodies = true
-format_strings = true
 reorder_impl_items = true
+merge_derives = true
+normalize_comments = true
+imports_granularity = "Crate"
