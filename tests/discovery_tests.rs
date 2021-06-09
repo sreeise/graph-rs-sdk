@@ -32,7 +32,7 @@ fn graph_discovery_oauth_v2() {
     let keys: MicrosoftSigningKeysV2 = GraphDiscovery::V2.signing_keys().unwrap();
     assert_eq!(
         oauth.get(OAuthCredential::AuthorizeURL),
-        Some(keys.authorization_endpoint.to_string())
+        Some(keys.authorization_endpoint)
     );
     assert_eq!(
         oauth.get(OAuthCredential::AccessTokenURL),
@@ -40,11 +40,11 @@ fn graph_discovery_oauth_v2() {
     );
     assert_eq!(
         oauth.get(OAuthCredential::RefreshTokenURL),
-        Some(keys.token_endpoint.to_string())
+        Some(String::from(keys.token_endpoint))
     );
     assert_eq!(
         oauth.get(OAuthCredential::LogoutURL),
-        Some(keys.end_session_endpoint.to_string())
+        Some(keys.end_session_endpoint)
     );
 }
 
@@ -54,7 +54,7 @@ async fn async_graph_discovery_oauth_v2() {
     let keys: MicrosoftSigningKeysV2 = GraphDiscovery::V2.async_signing_keys().await.unwrap();
     assert_eq!(
         oauth.get(OAuthCredential::AuthorizeURL),
-        Some(keys.authorization_endpoint.to_string())
+        Some(keys.authorization_endpoint)
     );
     assert_eq!(
         oauth.get(OAuthCredential::AccessTokenURL),
@@ -62,18 +62,18 @@ async fn async_graph_discovery_oauth_v2() {
     );
     assert_eq!(
         oauth.get(OAuthCredential::RefreshTokenURL),
-        Some(keys.token_endpoint.to_string())
+        Some(keys.token_endpoint)
     );
     assert_eq!(
         oauth.get(OAuthCredential::LogoutURL),
-        Some(keys.end_session_endpoint.to_string())
+        Some(keys.end_session_endpoint)
     );
 }
 
 #[test]
 fn jwt_keys() {
     let keys = JWTKeys::discovery().unwrap();
-    assert!(keys.keys().len() > 0);
+    assert!(!keys.keys().is_empty());
 
     for key in keys.into_iter() {
         assert!(key.kty.is_some());
@@ -83,7 +83,7 @@ fn jwt_keys() {
 #[tokio::test]
 async fn async_jwt_keys() {
     let keys = JWTKeys::async_discovery().await.unwrap();
-    assert!(keys.keys().len() > 0);
+    assert!(!keys.keys().is_empty());
 
     for key in keys.into_iter() {
         assert!(key.kty.is_some());

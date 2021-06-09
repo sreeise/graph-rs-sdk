@@ -74,8 +74,7 @@ impl<'a> Builder<'a> {
                 let methods = request_set.methods();
 
                 for (_name, methods) in methods.iter() {
-                    let client_methods: BTreeSet<RequestMap> =
-                        methods.iter().cloned().collect();
+                    let client_methods: BTreeSet<RequestMap> = methods.iter().cloned().collect();
                     client.extend_methods(client_methods);
                 }
             }

@@ -1,6 +1,6 @@
 use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::parser::{DirectoryModFile, ParserSettings, Request, RequestMap, RequestType};
-use bytes::{Buf, BufMut, BytesMut};
+use bytes::{BufMut, BytesMut};
 use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
 use std::collections::{BTreeMap, BTreeSet};
@@ -314,7 +314,7 @@ impl ClientBuilder {
             }
 
             buf.put_u8(b'\n');
-            buf.put(uses_buf.bytes());
+            buf.put(uses_buf);
         }
 
         buf

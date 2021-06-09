@@ -1,12 +1,9 @@
 #[macro_use]
 extern crate serde;
-extern crate serde_json;
 extern crate reqwest;
+extern crate serde_json;
 
-use warp::{
-    http::Response,
-    Filter,
-};
+use warp::{http::Response, Filter};
 
 use graph_rs_sdk::oauth::OAuth;
 use lazy_static::lazy_static;
@@ -22,7 +19,6 @@ static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
 lazy_static! {
     static ref OAUTH_CLIENT: OAuthClient = OAuthClient::new(CLIENT_ID, CLIENT_SECRET);
 }
-
 
 // This example shows how to use a code_challenge and code_verifier
 // to perform the authorization code grant flow with proof key for
@@ -73,10 +69,8 @@ async fn main() {
         .map(Some)
         .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
 
-    let routes = warp::get()
-        .and(warp::path("redirect"))
-        .and(query)
-        .map(|code_option: Option<AccessCode>| match code_option {
+    let routes = warp::get().and(warp::path("redirect")).and(query).map(
+        |code_option: Option<AccessCode>| match code_option {
             Some(access_code) => {
                 // Print out the code for debugging purposes.
                 println!("{:#?}", access_code.code);
@@ -94,11 +88,14 @@ async fn main() {
                 println!("{:#?}", oauth);
 
                 // Generic login page response.
-                Response::builder().body(String::from("Successfully Logged In! You can close your browser."))
+                Response::builder().body(String::from(
+                    "Successfully Logged In! You can close your browser.",
+                ))
             },
-            None => Response::builder().body(String::from("There was an issue getting the access code."))
-        });
-
+            None => Response::builder()
+                .body(String::from("There was an issue getting the access code.")),
+        },
+    );
 
     let mut oauth = OAUTH_CLIENT.oauth();
     let mut request = oauth.build().authorization_code_grant();

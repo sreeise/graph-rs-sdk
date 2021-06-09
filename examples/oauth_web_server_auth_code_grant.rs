@@ -1,17 +1,11 @@
 #[macro_use]
 extern crate serde;
-extern crate serde_json;
 extern crate reqwest;
-
-use warp::{
-    http::{Response, StatusCode},
-    Filter,
-};
+extern crate serde_json;
 
 use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
-use std::time::Duration;
-use futures::TryStreamExt;
+use warp::{http::Response, Filter};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct AccessCode {
@@ -24,10 +18,8 @@ async fn main() {
         .map(Some)
         .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
 
-    let routes = warp::get()
-        .and(warp::path("redirect"))
-        .and(query)
-        .map(|code_option: Option<AccessCode>| match code_option {
+    let routes = warp::get().and(warp::path("redirect")).and(query).map(
+        |code_option: Option<AccessCode>| match code_option {
             Some(code) => {
                 // Print out the code for debugging purposes.
                 println!("{:#?}", code);
@@ -38,10 +30,14 @@ async fn main() {
                 set_and_req_access_code(code);
 
                 // Generic login page response.
-                Response::builder().body(String::from("Successfully Logged In! You can close your browser."))
+                Response::builder().body(String::from(
+                    "Successfully Logged In! You can close your browser.",
+                ))
             },
-            None => Response::builder().body(String::from("There was an issue getting the access code."))
-        });
+            None => Response::builder()
+                .body(String::from("There was an issue getting the access code.")),
+        },
+    );
 
     let mut oauth = oauth_web_client();
     let mut request = oauth.build().authorization_code_grant();

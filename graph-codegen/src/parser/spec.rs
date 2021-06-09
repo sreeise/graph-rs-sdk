@@ -242,7 +242,7 @@ impl<'a> Parser<'a> {
             for (path, path_spec) in path_map.paths.iter() {
                 let mut req_map = RequestMap {
                     path: path.clone(),
-                    requests: path_spec.build_requests(&path, &modifier)
+                    requests: path_spec.build_requests(&path, &modifier),
                 };
 
                 if let Some(url_modifier) = modifier.resource_url_modifier.as_ref() {

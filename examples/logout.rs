@@ -8,4 +8,3 @@ fn main() {
         .post_logout_redirect_uri("https:://localhost:8000/redirect");
     oauth.v1_logout().unwrap();
 }
-
