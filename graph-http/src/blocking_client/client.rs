@@ -5,13 +5,12 @@ use crate::{
     GraphRequest, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient, RequestType,
 };
 use graph_core::resource::ResourceIdentity;
-use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
+use graph_error::{GraphFailure, GraphResult, WithGraphError};
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::redirect::Policy;
 use reqwest::Method;
 use std::cell::RefCell;
-use std::convert::TryFrom;
 use std::fmt::{Debug, Formatter};
 use std::fs::File;
 use std::io::Read;
@@ -64,16 +63,7 @@ impl BlockingClient {
             .take()
             .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
 
-        let response = self.response()?;
-        if let Ok(mut error) = GraphError::try_from(&response) {
-            let error_message: GraphResult<ErrorMessage> =
-                response.json().map_err(GraphFailure::from);
-            if let Ok(message) = error_message {
-                error.set_error_message(message);
-            }
-            return Err(GraphFailure::GraphError(error));
-        }
-
+        let response = self.response()?.with_graph_error()?;
         let upload_session: serde_json::Value = response.json()?;
         let mut session = UploadSessionClient::new(upload_session)?;
         session.set_file(file)?;

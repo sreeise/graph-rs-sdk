@@ -5,8 +5,9 @@ use crate::traits::*;
 use crate::url::GraphUrl;
 use crate::{GraphResponse, RequestAttribute, RequestClient};
 use async_trait::async_trait;
-use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
+use graph_error::{GraphFailure, GraphResult, WithGraphError, WithGraphErrorAsync};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
+use reqwest::StatusCode;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::fmt::Formatter;
@@ -37,7 +38,7 @@ pub enum NextSession {
 
 impl NextSession {
     fn from_response(
-        res: (u16, GraphResult<GraphResponse<serde_json::Value>>),
+        res: (StatusCode, GraphResult<GraphResponse<serde_json::Value>>),
     ) -> Option<GraphResult<NextSession>> {
         if let Ok(value) = res.1 {
             return if res.0.eq(&200) || res.0.eq(&201) {
@@ -141,25 +142,17 @@ impl Iterator for UploadSessionClient<BlockingHttpClient> {
     fn next(&mut self) -> Option<Self::Item> {
         let (body, content_length, content_range) = self.byte_ranges.pop_front()?;
         self.build_next_request(body, content_length, content_range);
-        let response = self.client.response();
-
-        if let Ok(response) = response {
-            if let Ok(mut error) = GraphError::try_from(&response) {
-                let error_message: GraphResult<ErrorMessage> =
-                    response.json().map_err(GraphFailure::from);
-                if let Ok(message) = error_message {
-                    error.set_error_message(message);
-                }
-                return Some(Err(GraphFailure::from(error)));
-            }
-
-            let status = response.status().as_u16();
-            let result = std::convert::TryFrom::try_from(response);
-            return NextSession::from_response((status, result));
-        } else if let Err(e) = response {
-            return Some(Err(e));
+        match self.client.response() {
+            Ok(response) => match response.with_graph_error() {
+                Ok(response) => {
+                    let status = response.status();
+                    let result = std::convert::TryFrom::try_from(response);
+                    NextSession::from_response((status, result))
+                },
+                Err(e) => Some(Err(e.into())),
+            },
+            Err(e) => Some(Err(e)),
         }
-        None
     }
 }
 
@@ -199,24 +192,16 @@ impl AsyncIterator for UploadSessionClient<AsyncHttpClient> {
     async fn next(&mut self) -> Option<Self::Item> {
         let (body, content_length, content_range) = self.byte_ranges.pop_front()?;
         self.build_next_request(body, content_length, content_range);
-        let response = self.client.response().await;
-
-        if let Err(e) = response {
-            return Some(Err(e));
-        } else if let Ok(response) = response {
-            if let Ok(mut error) = GraphError::try_from(&response) {
-                let error_message: GraphResult<ErrorMessage> =
-                    response.json().await.map_err(GraphFailure::from);
-                if let Ok(message) = error_message {
-                    error.set_error_message(message);
-                }
-                return Some(Err(GraphFailure::from(error)));
-            }
-
-            let status = response.status().as_u16();
-            let result = AsyncTryFrom::<reqwest::Response>::async_try_from(response).await;
-            return NextSession::from_response((status, result));
+        match self.client.response().await {
+            Ok(response) => match response.with_graph_error().await {
+                Ok(response) => {
+                    let status = response.status();
+                    let result = AsyncTryFrom::<reqwest::Response>::async_try_from(response).await;
+                    NextSession::from_response((status, result))
+                },
+                Err(e) => Some(Err(e.into())),
+            },
+            Err(e) => Some(Err(e)),
         }
-        None
     }
 }

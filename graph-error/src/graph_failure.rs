@@ -1,7 +1,6 @@
 use crate::error::GraphError;
 use crate::internal::GraphRsError;
 use std::cell::BorrowMutError;
-use std::convert::TryFrom;
 use std::io::ErrorKind;
 use std::str::Utf8Error;
 use std::sync::mpsc;
@@ -69,12 +68,6 @@ pub enum GraphFailure {
 
     #[error("Crypto Error (Unknown)")]
     CryptoError,
-
-    // TODO: maybe leave these errors in IoTools?
-    #[error("Failed to send on mpsc channel: {0}")]
-    ChannelSend(#[from] std::sync::mpsc::SendError<Option<std::path::PathBuf>>),
-    #[error("Failed to join a spawned thread")]
-    ThreadJoinError(Box<dyn std::any::Any + std::marker::Send>),
 }
 
 impl GraphFailure {
@@ -95,13 +88,13 @@ impl GraphFailure {
         GraphFailure::internal(GraphRsError::InvalidOrMissing { msg: msg.into() })
     }
 
-    pub fn from_response(r: &reqwest::blocking::Response) -> Option<GraphFailure> {
-        GraphFailure::try_from(r).ok()
-    }
+    // pub fn from_response(r: &reqwest::blocking::Response) -> Option<GraphFailure> {
+    //     GraphFailure::try_from(r).ok()
+    // }
 
-    pub fn from_async_response(r: &reqwest::Response) -> Option<GraphFailure> {
-        GraphFailure::try_from(r).ok()
-    }
+    // pub fn from_async_response(r: &reqwest::Response) -> Option<GraphFailure> {
+    //     GraphFailure::try_from(r).ok()
+    // }
 }
 
 impl Default for GraphFailure {
@@ -116,18 +109,14 @@ impl From<ring::error::Unspecified> for GraphFailure {
     }
 }
 
-impl TryFrom<&reqwest::blocking::Response> for GraphFailure {
-    type Error = std::io::Error;
+// impl From<&reqwest::blocking::Response> for GraphFailure {
+//     fn from(value: &reqwest::blocking::Response) -> Self {
+//         GraphFailure::GraphError(GraphError::from(value))
+//     }
+// }
 
-    fn try_from(value: &reqwest::blocking::Response) -> Result<Self, Self::Error> {
-        Ok(GraphFailure::GraphError(GraphError::try_from(value)?))
-    }
-}
-
-impl TryFrom<&reqwest::Response> for GraphFailure {
-    type Error = std::io::Error;
-
-    fn try_from(value: &reqwest::Response) -> Result<Self, Self::Error> {
-        Ok(GraphFailure::GraphError(GraphError::try_from(value)?))
-    }
-}
+// impl From<&reqwest::Response> for GraphFailure {
+//     fn from(value: &reqwest::Response) -> Self {
+//         GraphFailure::GraphError(GraphError::from(value))
+//     }
+// }

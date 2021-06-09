@@ -1,8 +1,10 @@
 use crate::traits::*;
 use crate::url::GraphUrl;
 use async_trait::async_trait;
-use graph_error::{AsyncResponseErrorExt, ResponseErrorExt};
+use graph_error::WithGraphError;
+use graph_error::WithGraphErrorAsync;
 use graph_error::{GraphFailure, GraphResult};
+use reqwest::{header::HeaderMap, StatusCode};
 use serde::de::DeserializeOwned;
 use std::convert::TryFrom;
 
@@ -10,17 +12,12 @@ use std::convert::TryFrom;
 pub struct GraphResponse<T> {
     url: GraphUrl,
     body: T,
-    status: u16,
-    headers: reqwest::header::HeaderMap,
+    status: StatusCode,
+    headers: HeaderMap,
 }
 
 impl<T> GraphResponse<T> {
-    pub fn new(
-        url: GraphUrl,
-        body: T,
-        status: u16,
-        headers: reqwest::header::HeaderMap,
-    ) -> GraphResponse<T> {
+    pub fn new(url: GraphUrl, body: T, status: StatusCode, headers: HeaderMap) -> GraphResponse<T> {
         GraphResponse {
             url,
             body,
@@ -41,61 +38,61 @@ impl<T> GraphResponse<T> {
         self.body
     }
 
-    pub fn status(&self) -> u16 {
+    pub fn status(&self) -> StatusCode {
         self.status
     }
 
-    pub fn headers(&self) -> &reqwest::header::HeaderMap {
+    pub fn headers(&self) -> &HeaderMap {
         &self.headers
     }
 
-    async fn inner_async_job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
-        // The location header contains the URL for monitoring progress.
-        let location: &reqwest::header::HeaderValue =
-            self.headers.get(reqwest::header::LOCATION)?;
-        let location_str = location.to_str().ok()?;
-        let response = reqwest::Client::new()
-            .get(location_str)
-            .send()
-            .await
-            .map_err(GraphFailure::from);
-        if let Ok(response) = response {
-            if let Some(err) = GraphFailure::from_async_response(&response) {
-                return Some(Err(err));
-            }
-            Some(response.json().await.map_err(GraphFailure::from))
-        } else if let Err(e) = response {
-            Some(Err(e))
-        } else {
-            None
-        }
-    }
-
     pub fn async_job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
-        futures::executor::block_on(self.inner_async_job_status())
+        // The location header contains the URL for monitoring progress.
+        self.headers
+            .get(reqwest::header::LOCATION)?
+            .to_str()
+            .ok()
+            .map(|location| {
+                futures::executor::block_on(async {
+                    Ok(reqwest::Client::new()
+                        .get(location)
+                        .send()
+                        .await?
+                        .with_graph_error()
+                        .await?
+                        .json()
+                        .await?)
+                })
+            })
     }
 
     pub(crate) fn from_no_content(
         response: reqwest::blocking::Response,
     ) -> GraphResult<GraphResponse<serde_json::Value>> {
-        let (url, status, headers, response) = response.map_err_msg()?;
+        let response = response.with_graph_error()?;
+        let url = GraphUrl::from(response.url());
+        let status = response.status();
+        let headers = response.headers().to_owned();
         response
             .text()
             .map(|s| serde_json::from_str(s.as_str()).unwrap_or(serde_json::Value::String(s)))
             .or_else(|_| Ok(serde_json::Value::String(String::new())))
-            .map(|body| GraphResponse::new(GraphUrl::from(url), body, status, headers))
+            .map(|body| GraphResponse::new(url, body, status, headers))
     }
 
     pub(crate) async fn async_from_no_content(
         response: reqwest::Response,
     ) -> GraphResult<GraphResponse<serde_json::Value>> {
-        let (url, status, headers, response) = response.async_map_err_msg().await?;
+        let response = response.with_graph_error().await?;
+        let url = GraphUrl::from(response.url());
+        let status = response.status();
+        let headers = response.headers().to_owned();
         response
             .text()
             .await
             .map(|s| serde_json::from_str(s.as_str()).unwrap_or(serde_json::Value::String(s)))
             .or_else(|_| Ok(serde_json::Value::String(String::new())))
-            .map(|body| GraphResponse::new(GraphUrl::from(url), body, status, headers))
+            .map(|body| GraphResponse::new(url, body, status, headers))
     }
 }
 
@@ -115,11 +112,11 @@ impl<T: DeserializeOwned> TryFrom<reqwest::blocking::Response> for GraphResponse
     type Error = GraphFailure;
 
     fn try_from(response: reqwest::blocking::Response) -> GraphResult<GraphResponse<T>> {
-        let (url, status, headers, response) = response.map_err_msg()?;
-        response
-            .json()
-            .map(|body| GraphResponse::new(GraphUrl::from(url), body, status, headers))
-            .map_err(GraphFailure::from)
+        let response = response.with_graph_error()?;
+        let url = GraphUrl::from(response.url());
+        let status = response.status();
+        let headers = response.headers().to_owned();
+        Ok(GraphResponse::new(url, response.json()?, status, headers))
     }
 }
 
@@ -136,12 +133,17 @@ impl<T: DeserializeOwned> AsyncTryFrom<reqwest::Response> for GraphResponse<T> {
     type Error = GraphFailure;
 
     async fn async_try_from(response: reqwest::Response) -> Result<Self, Self::Error> {
-        let (url, status, headers, response) = response.async_map_err_msg().await?;
-        response
-            .json()
-            .await
-            .map(|body| GraphResponse::new(GraphUrl::from(url), body, status, headers))
-            .map_err(GraphFailure::from)
+        let response = response.with_graph_error().await?;
+        let url = GraphUrl::from(response.url());
+        let status = response.status();
+        let headers = response.headers().to_owned();
+
+        Ok(GraphResponse::new(
+            url,
+            response.json().await?,
+            status,
+            headers,
+        ))
     }
 }
 

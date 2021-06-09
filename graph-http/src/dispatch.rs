@@ -5,9 +5,8 @@ use crate::types::*;
 use crate::uploadsession::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::GraphResponse;
-use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
+use graph_error::{GraphFailure, GraphResult, WithGraphError, WithGraphErrorAsync};
 use reqwest::header::CONTENT_TYPE;
-use std::convert::TryFrom;
 use std::marker::PhantomData;
 use std::path::PathBuf;
 use std::sync::mpsc::{channel, Receiver};
@@ -84,16 +83,7 @@ impl DispatchBlocking<UploadSessionClient<BlockingHttpClient>> {
             .file
             .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
 
-        let response = self.request.send()?;
-        if let Ok(mut error) = GraphError::try_from(&response) {
-            let error_message: GraphResult<ErrorMessage> =
-                response.json().map_err(GraphFailure::from);
-            if let Ok(message) = error_message {
-                error.set_error_message(message);
-            }
-            return Err(GraphFailure::GraphError(error));
-        }
-
+        let response = self.request.send()?.with_graph_error()?;
         let upload_session: serde_json::Value = response.json()?;
         let mut session = UploadSessionClient::new(upload_session)?;
         session.set_file(file)?;
@@ -164,16 +154,7 @@ impl DispatchAsync<UploadSessionClient<AsyncHttpClient>> {
             .file
             .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
 
-        let response = self.request.send().await?;
-        if let Ok(mut error) = GraphError::try_from(&response) {
-            let error_message: GraphResult<ErrorMessage> =
-                response.json().await.map_err(GraphFailure::from);
-            if let Ok(message) = error_message {
-                error.set_error_message(message);
-            }
-            return Err(GraphFailure::GraphError(error));
-        }
-
+        let response = self.request.send().await?.with_graph_error().await?;
         let upload_session: serde_json::Value = response.json().await?;
         let mut session = UploadSessionClient::new_async(upload_session)?;
         session.set_file(file).await?;
@@ -245,31 +226,32 @@ where
                     sender.send(Delta::Done(Some(err))).unwrap();
                     is_done = true;
                 } else {
-                    let response = res.unwrap();
-                    if let Some(err) = GraphFailure::from_response(&response) {
-                        next_link = None;
-                        sender.send(Delta::Done(Some(err))).unwrap();
-                        is_done = true;
-                    } else {
-                        let url = GraphUrl::from(response.url());
-                        let headers = response.headers().clone();
-                        let status = response.status().as_u16();
-                        let value_res: GraphResult<T> = response.json().map_err(GraphFailure::from);
-                        match value_res {
-                            Ok(value) => {
-                                next_link = value.next_link();
-                                sender
-                                    .send(Delta::Next(GraphResponse::new(
-                                        url, value, status, headers,
-                                    )))
-                                    .unwrap();
-                            },
-                            Err(err) => {
-                                next_link = None;
-                                sender.send(Delta::Done(Some(err))).unwrap();
-                                is_done = true;
-                            },
-                        }
+                    match res.unwrap().with_graph_error() {
+                        Ok(response) => {
+                            let url = GraphUrl::from(response.url());
+                            let headers = response.headers().clone();
+                            let status = response.status();
+                            match response.json::<T>() {
+                                Ok(value) => {
+                                    next_link = value.next_link();
+                                    sender
+                                        .send(Delta::Next(GraphResponse::new(
+                                            url, value, status, headers,
+                                        )))
+                                        .unwrap();
+                                },
+                                Err(err) => {
+                                    next_link = None;
+                                    sender.send(Delta::Done(Some(err.into()))).unwrap();
+                                    is_done = true;
+                                },
+                            }
+                        },
+                        Err(err) => {
+                            next_link = None;
+                            sender.send(Delta::Done(Some(err.into()))).unwrap();
+                            is_done = true;
+                        },
                     }
                 }
             }
@@ -328,33 +310,34 @@ where
                     sender.send(Delta::Done(Some(err))).await.unwrap();
                     is_done = true;
                 } else {
-                    let response = res.unwrap();
-                    if let Some(err) = GraphFailure::from_async_response(&response) {
-                        next_link = None;
-                        sender.send(Delta::Done(Some(err))).await.unwrap();
-                        is_done = true;
-                    } else {
-                        let url = GraphUrl::from(response.url());
-                        let headers = response.headers().clone();
-                        let status = response.status().as_u16();
-                        let value_res: GraphResult<T> =
-                            response.json().await.map_err(GraphFailure::from);
-                        match value_res {
-                            Ok(value) => {
-                                next_link = value.next_link();
-                                sender
-                                    .send(Delta::Next(GraphResponse::new(
-                                        url, value, status, headers,
-                                    )))
-                                    .await
-                                    .unwrap();
-                            },
-                            Err(err) => {
-                                next_link = None;
-                                sender.send(Delta::Done(Some(err))).await.unwrap();
-                                is_done = true;
-                            },
-                        }
+                    match res.unwrap().with_graph_error().await {
+                        Ok(response) => {
+                            let url = GraphUrl::from(response.url());
+                            let headers = response.headers().clone();
+                            let status = response.status();
+                            match response.json::<T>().await {
+                                Ok(value) => {
+                                    next_link = value.next_link();
+                                    sender
+                                        .send(Delta::Next(GraphResponse::new(
+                                            url, value, status, headers,
+                                        )))
+                                        .await
+                                        .unwrap();
+                                },
+                                Err(err) => {
+                                    next_link = None;
+                                    sender.send(Delta::Done(Some(err.into()))).await.unwrap();
+                                    is_done = true;
+                                },
+                            }
+                        },
+
+                        Err(err) => {
+                            next_link = None;
+                            sender.send(Delta::Done(Some(err.into()))).await.unwrap();
+                            is_done = true;
+                        },
                     }
                 }
             }
