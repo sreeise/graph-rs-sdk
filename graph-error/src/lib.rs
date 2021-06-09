@@ -3,7 +3,7 @@
 
 #![feature(try_trait)]
 #[macro_use]
-extern crate serde_derive;
+extern crate serde;
 #[macro_use]
 pub extern crate snafu;
 

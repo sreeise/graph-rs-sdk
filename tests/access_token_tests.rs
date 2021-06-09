@@ -44,7 +44,7 @@ fn is_expired_test() {
     assert_eq!(access_token.is_expired(), false);
 }
 
-pub const ACCESS_TOKEN_INT: &'static str = r#"{
+pub const ACCESS_TOKEN_INT: &str = r#"{
     "access_token": "fasdfasdfasfdasdfasfsdf",
     "token_type": "Bearer",
     "expires_in": 65874,
@@ -56,7 +56,7 @@ pub const ACCESS_TOKEN_INT: &'static str = r#"{
     "timestamp": "2020-10-27T16:31:38.788098400Z"
 }"#;
 
-pub const ACCESS_TOKEN_STRING: &'static str = r#"{
+pub const ACCESS_TOKEN_STRING: &str = r#"{
     "access_token": "fasdfasdfasfdasdfasfsdf",
     "token_type": "Bearer",
     "expires_in": "65874",

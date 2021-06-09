@@ -287,7 +287,7 @@ where
     for<'de> T: serde::Deserialize<'de>,
 {
     pub async fn send(self) -> tokio::sync::mpsc::Receiver<Delta<T>> {
-        let (mut sender, receiver) = tokio::sync::mpsc::channel(100);
+        let (sender, receiver) = tokio::sync::mpsc::channel(100);
 
         if self.error.is_some() {
             sender

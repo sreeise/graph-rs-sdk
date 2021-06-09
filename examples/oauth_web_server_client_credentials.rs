@@ -1,12 +1,10 @@
 #[macro_use]
 extern crate serde;
-extern crate serde_json;
 extern crate reqwest;
+extern crate serde_json;
 
-use warp::{http::{Response, StatusCode}, Filter, Future};
-
-use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
+use warp::{http::Response, Filter};
 
 // The client_id and client_secret must be changed before running this example.
 static CLIENT_ID: &str = "<CLIENT_ID>";
@@ -29,12 +27,12 @@ async fn main() {
     // what is below.
     let query = warp::query::<ClientCredentialsResponse>()
         .map(Some)
-        .or_else(|_| async { Ok::<(Option<ClientCredentialsResponse>,), std::convert::Infallible>((None,)) });
+        .or_else(|_| async {
+            Ok::<(Option<ClientCredentialsResponse>,), std::convert::Infallible>((None,))
+        });
 
-    let routes = warp::get()
-        .and(warp::path("redirect"))
-        .and(query)
-        .map(|cc: Option<ClientCredentialsResponse>| match cc {
+    let routes = warp::get().and(warp::path("redirect")).and(query).map(
+        |cc: Option<ClientCredentialsResponse>| match cc {
             Some(code) => {
                 // Print out for debugging purposes.
                 println!("{:#?}", code);
@@ -43,10 +41,14 @@ async fn main() {
                 request_access_token();
 
                 // Generic login page response.
-                Response::builder().body(String::from("Successfully Logged In! You can close your browser."))
+                Response::builder().body(String::from(
+                    "Successfully Logged In! You can close your browser.",
+                ))
             },
-            None => Response::builder().body(String::from("There was an issue getting the access code."))
-        });
+            None => Response::builder()
+                .body(String::from("There was an issue getting the access code.")),
+        },
+    );
 
     // Get the oauth client and request a browser sign in
     let mut oauth = get_oauth_client();
@@ -76,5 +78,3 @@ fn request_access_token() {
     println!("{:#?}", access_token);
     oauth.access_token(access_token);
 }
-
-

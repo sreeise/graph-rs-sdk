@@ -1,7 +1,6 @@
 extern crate reqwest;
-pub extern crate serde;
 #[macro_use]
-pub extern crate serde_derive;
+pub extern crate serde;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 

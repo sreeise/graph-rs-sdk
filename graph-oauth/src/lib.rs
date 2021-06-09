@@ -58,10 +58,9 @@
 //! ```
 
 #[macro_use]
-extern crate serde_derive;
-extern crate strum;
+extern crate serde;
 #[macro_use]
-extern crate strum_macros;
+extern crate strum;
 
 mod accesstoken;
 mod auth;

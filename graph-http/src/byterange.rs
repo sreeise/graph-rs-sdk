@@ -6,7 +6,7 @@ use std::convert::TryFrom;
 use std::fmt::{Debug, Formatter};
 use std::io::{ErrorKind, Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
-use tokio::io::AsyncReadExt;
+use tokio::io::{AsyncReadExt, AsyncSeekExt};
 
 pub struct ByteRanges<F> {
     file: F,

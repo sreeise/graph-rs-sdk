@@ -32,7 +32,7 @@ fn list_and_get_messages() {
                 let value = response.body().clone();
                 let m_id = value["id"].as_str().unwrap();
                 assert_eq!(m_id, message_id);
-            } else if let Err(_) = get_req {
+            } else if get_req.is_err() {
                 panic!("Request error. Method: mail messages get");
             }
         } else {

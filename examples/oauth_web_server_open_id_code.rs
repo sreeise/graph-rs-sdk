@@ -1,18 +1,10 @@
-#[macro_use]
+extern crate reqwest;
 extern crate serde;
 extern crate serde_json;
-extern crate reqwest;
 
-use warp::{
-    http::{Response, StatusCode},
-    Filter,
-};
+use warp::{http::Response, Filter};
 
-use from_as::*;
-use graph_rs_sdk::oauth::{OAuth, IdToken, AccessToken};
-use std::time::Duration;
-use futures::TryStreamExt;
-use std::convert::TryFrom;
+use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuth};
 
 // The client_id and client_secret must be changed before running this example.
 static CLIENT_ID: &str = "<YOUR_CLIENT_ID>";
@@ -72,7 +64,9 @@ async fn main() {
             println!("OAuth:\n{:#?}\n", &oauth);
 
             // Generic login page response.
-            Response::builder().body(String::from("Successfully Logged In! You can close your browser."))
+            Response::builder().body(String::from(
+                "Successfully Logged In! You can close your browser.",
+            ))
         });
 
     // Get the oauth client and request a browser sign in.
