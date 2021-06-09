@@ -72,7 +72,7 @@ async fn async_upload_session() {
                 match next {
                     Ok(NextSession::Next(response)) => {
                         assert!(!GraphError::is_error(response.status()));
-                    },
+                    }
                     Ok(NextSession::Done(response)) => {
                         assert!(!GraphError::is_error(response.status()));
                         let drive_item = response.body();
@@ -90,19 +90,19 @@ async fn async_upload_session() {
 
                         if let Ok(response) = delete_res {
                             assert!(
-                                response.status() == 200 ||
-                                    response.status() == 201 ||
-                                    response.status() == 204
+                                response.status() == 200
+                                    || response.status() == 201
+                                    || response.status() == 204
                             );
                         } else if let Err(e) = delete_res {
                             panic!("Request error. Upload session new. Error: {:#?}", e);
                         }
                         break;
-                    },
+                    }
                     Err(e) => {
                         let _ = cancel_request.send().await.unwrap();
                         panic!("Request error. Upload session new. Error: {:#?}", e);
-                    },
+                    }
                 }
             }
         }
@@ -147,7 +147,7 @@ async fn async_upload_session_standalone_request() {
                 match next {
                     Ok(NextSession::Next(response)) => {
                         assert!(!GraphError::is_error(response.status()));
-                    },
+                    }
                     Ok(NextSession::Done(response)) => {
                         assert!(!GraphError::is_error(response.status()));
                         let drive_item = response.body();
@@ -165,19 +165,19 @@ async fn async_upload_session_standalone_request() {
 
                         if let Ok(response) = delete_res {
                             assert!(
-                                response.status() == 200 ||
-                                    response.status() == 201 ||
-                                    response.status() == 204
+                                response.status() == 200
+                                    || response.status() == 201
+                                    || response.status() == 204
                             );
                         } else if let Err(e) = delete_res {
                             panic!("Request error. Upload session new. Error: {:#?}", e);
                         }
                         break;
-                    },
+                    }
                     Err(e) => {
                         let _ = cancel_request.send().await.unwrap();
                         panic!("Request error. Upload session new. Error: {:#?}", e);
-                    },
+                    }
                 }
             }
         }
@@ -212,9 +212,9 @@ async fn create_delete_folder_async() {
 
             if let Ok(response) = req {
                 assert!(
-                    response.status() == 200 ||
-                        response.status() == 201 ||
-                        response.status() == 204
+                    response.status() == 200
+                        || response.status() == 201
+                        || response.status() == 204
                 );
             } else if let Err(e) = req {
                 panic!("Request error. Method: drive delete. Error: {:#?}", e);
@@ -284,9 +284,9 @@ async fn drive_upload_new_and_replace_and_delete() {
 
             if let Ok(response) = delete_res {
                 assert!(
-                    response.status() == 200 ||
-                        response.status() == 201 ||
-                        response.status() == 204
+                    response.status() == 200
+                        || response.status() == 201
+                        || response.status() == 204
                 );
             } else if let Err(e) = delete_res {
                 panic!("Request Error. Method: drive delete. Error: {:#?}", e);

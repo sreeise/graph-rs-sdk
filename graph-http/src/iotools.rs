@@ -1,4 +1,5 @@
 use async_std::prelude::*;
+use futures::StreamExt;
 use graph_error::{GraphFailure, GraphResult};
 use std::fs::OpenOptions;
 use std::io::copy;
@@ -41,7 +42,7 @@ impl IoTools {
         match receiver.recv() {
             Ok(t) => {
                 Ok(t.ok_or_else(|| GraphFailure::not_found("Unknown error downloading file"))?)
-            },
+            }
             Err(e) => Err(GraphFailure::from(e)),
         }
     }

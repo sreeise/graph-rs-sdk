@@ -1,4 +1,4 @@
-use crate::error::{AsRes, GraphRsError};
+use crate::error::GraphRsError;
 use crate::pages::PageRequest;
 use graph_http::IntoResponse;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
@@ -28,7 +28,7 @@ where
                         .to_string_lossy()
                         .to_string(),
                 }
-                .as_failure(),
+                .into(),
             );
         }
 

@@ -2,7 +2,7 @@ use crate::accesstoken::AccessToken;
 use crate::grants::{GrantRequest, GrantType};
 use crate::idtoken::IdToken;
 use crate::oautherror::OAuthError;
-use crate::strum::IntoEnumIterator;
+use crate::strum::{EnumIter, IntoEnumIterator};
 use from_as::*;
 use graph_error::GraphFailure;
 use ring::rand::SecureRandom;
@@ -108,15 +108,15 @@ impl OAuthCredential {
     fn is_debug_redacted(&self) -> bool {
         matches!(
             self,
-            OAuthCredential::ClientId |
-                OAuthCredential::ClientSecret |
-                OAuthCredential::AccessToken |
-                OAuthCredential::RefreshToken |
-                OAuthCredential::IdToken |
-                OAuthCredential::CodeVerifier |
-                OAuthCredential::CodeChallenge |
-                OAuthCredential::Password |
-                OAuthCredential::AccessCode
+            OAuthCredential::ClientId
+                | OAuthCredential::ClientSecret
+                | OAuthCredential::AccessToken
+                | OAuthCredential::RefreshToken
+                | OAuthCredential::IdToken
+                | OAuthCredential::CodeVerifier
+                | OAuthCredential::CodeChallenge
+                | OAuthCredential::Password
+                | OAuthCredential::AccessCode
         )
     }
 }
@@ -194,14 +194,14 @@ impl OAuth {
     pub fn insert<V: ToString>(&mut self, oac: OAuthCredential, value: V) -> &mut OAuth {
         let v = value.to_string();
         match oac {
-            OAuthCredential::RefreshTokenURL |
-            OAuthCredential::PostLogoutRedirectURI |
-            OAuthCredential::AccessTokenURL |
-            OAuthCredential::AuthorizeURL |
-            OAuthCredential::LogoutURL => {
+            OAuthCredential::RefreshTokenURL
+            | OAuthCredential::PostLogoutRedirectURI
+            | OAuthCredential::AccessTokenURL
+            | OAuthCredential::AuthorizeURL
+            | OAuthCredential::LogoutURL => {
                 Url::parse(v.as_ref()).unwrap();
-            },
-            _ => {},
+            }
+            _ => {}
         }
 
         self.credentials.insert(oac.to_string(), v);
@@ -223,14 +223,14 @@ impl OAuth {
     pub fn entry<V: ToString>(&mut self, oac: OAuthCredential, value: V) -> &mut String {
         let v = value.to_string();
         match oac {
-            OAuthCredential::RefreshTokenURL |
-            OAuthCredential::PostLogoutRedirectURI |
-            OAuthCredential::AccessTokenURL |
-            OAuthCredential::AuthorizeURL |
-            OAuthCredential::LogoutURL => {
+            OAuthCredential::RefreshTokenURL
+            | OAuthCredential::PostLogoutRedirectURI
+            | OAuthCredential::AccessTokenURL
+            | OAuthCredential::AuthorizeURL
+            | OAuthCredential::LogoutURL => {
                 Url::parse(v.as_ref()).unwrap();
-            },
-            _ => {},
+            }
+            _ => {}
         }
 
         self.credentials
@@ -1154,59 +1154,59 @@ impl OAuth {
                 if request_type.eq(&GrantRequest::Authorization) {
                     let _ = self.entry(OAuthCredential::ResponseType, "token");
                 }
-            },
+            }
             GrantType::CodeFlow => match request_type {
                 GrantRequest::Authorization => {
                     let _ = self.entry(OAuthCredential::ResponseType, "code");
                     let _ = self.entry(OAuthCredential::ResponseMode, "query");
-                },
+                }
                 GrantRequest::AccessToken => {
                     let _ = self.entry(OAuthCredential::ResponseType, "token");
                     let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
-                },
+                }
                 GrantRequest::RefreshToken => {
                     let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
-                },
+                }
             },
             GrantType::AuthorizationCode => match request_type {
                 GrantRequest::Authorization => {
                     let _ = self.entry(OAuthCredential::ResponseType, "code");
                     let _ = self.entry(OAuthCredential::ResponseMode, "query");
-                },
+                }
                 GrantRequest::AccessToken | GrantRequest::RefreshToken => {
                     if request_type == GrantRequest::AccessToken {
                         let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
                     } else {
                         let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
                     }
-                },
+                }
             },
             GrantType::Implicit => {
                 if request_type.eq(&GrantRequest::Authorization) && !self.scopes.is_empty() {
                     let _ = self.entry(OAuthCredential::ResponseType, "token");
                 }
-            },
+            }
             GrantType::OpenId => {
                 if request_type.eq(&GrantRequest::AccessToken) {
                     let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
                 } else if request_type.eq(&GrantRequest::RefreshToken) {
                     let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
                 }
-            },
+            }
             GrantType::ClientCredentials => {
-                if request_type.eq(&GrantRequest::AccessToken) ||
-                    request_type.eq(&GrantRequest::RefreshToken)
+                if request_type.eq(&GrantRequest::AccessToken)
+                    || request_type.eq(&GrantRequest::RefreshToken)
                 {
                     let _ = self.entry(OAuthCredential::GrantType, "client_credentials");
                 }
-            },
+            }
             GrantType::ResourceOwnerPasswordCredentials => {
                 if request_type.eq(&GrantRequest::RefreshToken) {
                     let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
                 } else {
                     let _ = self.entry(OAuthCredential::GrantType, "password");
                 }
-            },
+            }
         }
     }
 }

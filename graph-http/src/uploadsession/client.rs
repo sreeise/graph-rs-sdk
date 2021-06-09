@@ -110,7 +110,13 @@ impl UploadSessionClient<BlockingHttpClient> {
     pub fn new(
         upload_session: serde_json::Value,
     ) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
+        #[cfg(nightly)]
         let url = upload_session["uploadUrl"].as_str()?;
+        #[cfg(not(nightly))]
+        let url = upload_session["uploadUrl"]
+            .as_str()
+            .ok_or(GraphFailure::not_found("NoneError"))?;
+
         Ok(UploadSessionClient {
             upload_session_url: url.to_string(),
             byte_ranges: Default::default(),
@@ -165,7 +171,13 @@ impl UploadSessionClient<AsyncHttpClient> {
     pub fn new_async(
         upload_session: serde_json::Value,
     ) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
+        #[cfg(nightly)]
         let url = upload_session["uploadUrl"].as_str()?;
+        #[cfg(not(nightly))]
+        let url = upload_session["uploadUrl"]
+            .as_str()
+            .ok_or(GraphFailure::not_found("NoneError"))?;
+
         Ok(UploadSessionClient {
             upload_session_url: url.to_string(),
             byte_ranges: Default::default(),

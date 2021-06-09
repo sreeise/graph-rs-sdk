@@ -2,7 +2,7 @@
 
 pub extern crate inflector;
 #[macro_use]
-extern crate serde;
+pub extern crate serde;
 extern crate from_as;
 extern crate serde_json;
 #[macro_use]
