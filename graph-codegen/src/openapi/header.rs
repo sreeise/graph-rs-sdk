@@ -16,21 +16,19 @@ use std::{
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(rename_all = "camelCase")]
 pub struct Header {
-    /*
-       /// REQUIRED. The name of the parameter. Parameter names are case sensitive.
-       /// * If in is "path", the name field MUST correspond to a template expression occurring
-       /// within the path field in the Paths Object. See Path Templating for further information.
-       /// * If in is "header" and the name field is "Accept", "Content-Type" or "Authorization",
-       /// the parameter definition SHALL be ignored.
-       /// * For all other cases, the name corresponds to the parameter name used by the in property.
-       #[serde(skip_serializing_if = "Option::is_none")]
-       pub name: Option<String>,
-
-       /// REQUIRED. The location of the parameter. Possible values are "query", "header", "path" or "cookie".
-       #[serde(rename = "in")]
-       #[serde(skip_serializing_if = "Option::is_none")]
-       pub in_: Option<String>,
-    */
+    // REQUIRED. The name of the parameter. Parameter names are case sensitive.
+    // * If in is "path", the name field MUST correspond to a template expression occurring
+    // within the path field in the Paths Object. See Path Templating for further information.
+    // * If in is "header" and the name field is "Accept", "Content-Type" or "Authorization",
+    // the parameter definition SHALL be ignored.
+    // * For all other cases, the name corresponds to the parameter name used by the in property.
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // pub name: Option<String>,
+    //
+    // REQUIRED. The location of the parameter. Possible values are "query", "header", "path" or "cookie".
+    // #[serde(rename = "in")]
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // pub in_: Option<String>,
     /// A brief description of the parameter. This could contain examples of
     /// use. CommonMark syntax MAY be used for rich text representation.
     #[serde(skip_serializing_if = "Option::is_none")]

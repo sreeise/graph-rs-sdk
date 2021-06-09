@@ -80,7 +80,7 @@ pub struct Parameter {
     /// The schema defining the type used for the parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schema: Option<Schema>,
-    //pub schema: Option<serde_json::Value>,
+    // pub schema: Option<serde_json::Value>,
     /// Example of the parameter's potential value. The example SHOULD match the
     /// specified schema and encoding properties if present. The example
     /// field is mutually exclusive of the examples field. Furthermore, if

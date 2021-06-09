@@ -18,7 +18,7 @@ pub struct Schema {
     pub type_: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    //pub format: Option<serde_json::Value>,
+    // pub format: Option<serde_json::Value>,
     pub format: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]

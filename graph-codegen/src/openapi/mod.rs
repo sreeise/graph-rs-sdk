@@ -50,7 +50,7 @@ pub use server::*;
 pub use server_variable::*;
 pub use xml::*;
 
-use crate::traits::{RequestParser, FilterPath};
+use crate::traits::{FilterPath, RequestParser};
 use from_as::*;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
@@ -107,7 +107,7 @@ pub struct OpenAPI {
     pub webhooks: Option<serde_json::Value>,
 
     /// An element to hold various schemas for the document.
-    ///#[serde(skip_serializing_if = "Option::is_none")]
+    /// #[serde(skip_serializing_if = "Option::is_none")]
     pub components: Components,
 
     /// A declaration of which security mechanisms can be used across the API.
@@ -163,7 +163,8 @@ impl OpenAPI {
     }
 
     pub fn transform_paths(&mut self) {
-        self.paths = self.paths
+        self.paths = self
+            .paths
             .clone()
             .into_par_iter()
             .map(|(path, path_item)| (path.transform_path(), path_item.clone()))

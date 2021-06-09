@@ -101,7 +101,7 @@ impl From<ResourceIdentity> for Modifier {
 
         if !modifier.imports.contains(handlebars_import) {
             for (name, _set) in modifier.client_links.iter() {
-                //let ri = ResourceIdentity::from_str(name.as_str()).unwrap();
+                // let ri = ResourceIdentity::from_str(name.as_str()).unwrap();
 
                 if let Ok(ri) = ResourceIdentity::from_str(name.as_str()) {
                     if ParserSettings::is_registered_ident_client(ri) {

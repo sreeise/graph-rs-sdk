@@ -1,8 +1,6 @@
 use graph_rs_sdk::prelude::*;
 
-/*
-This example shows how to call delta links and delta requests.
-*/
+// This example shows how to call delta links and delta requests.
 
 static ACCESS_TOKEN: &str = "<ACCESS_TOKEN>";
 

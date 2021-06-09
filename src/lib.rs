@@ -24,7 +24,7 @@
 //! ### Blocking Client
 //!
 //! To use the blocking client
-//!```rust
+//! ```rust
 //! use graph_rs_sdk::prelude::*;
 //!
 //! let client = Graph::new("ACCESS_TOKEN");
@@ -33,7 +33,7 @@
 //! ### Async Client
 //!
 //! To use the async client
-//!```rust
+//! ```rust
 //! use graph_rs_sdk::prelude::*;
 //!
 //! let client = Graph::new_async("ACCESS_TOKEN");

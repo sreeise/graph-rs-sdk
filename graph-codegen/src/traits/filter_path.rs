@@ -1,8 +1,8 @@
-use crate::parser::filter::{Filter, FilterIgnore};
-use std::collections::BTreeMap;
-use regex::Regex;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use crate::openapi::PathItem;
+use crate::parser::filter::{Filter, FilterIgnore};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use regex::Regex;
+use std::collections::BTreeMap;
 
 pub trait FilterPath {
     fn filter_path(&self, filter: Filter) -> BTreeMap<String, PathItem> {

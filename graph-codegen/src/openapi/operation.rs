@@ -74,7 +74,7 @@ pub struct Operation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub callbacks: Option<HashMap<String, serde_json::Value>>,
 
-    //pub callbacks: Option<HashMap<String, Either<Either<PathItem, Reference>, Reference>>>,
+    // pub callbacks: Option<HashMap<String, Either<Either<PathItem, Reference>, Reference>>>,
     /// Declares this operation to be deprecated. Consumers SHOULD refrain from
     /// usage of the declared operation. Default value is false.
     #[serde(default)]

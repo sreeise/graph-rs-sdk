@@ -13,22 +13,20 @@ use rocket::http::RawStr;
 use rocket_codegen::routes;
 use std::{thread, time::Duration};
 
-/*
-This example shows using Rocket to authenticate with Microsoft OneDrive that
-includes authorization with a state parameter in the request query.
-
-This example uses the code flow: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online
-
-If you have not set up an application to call the Graph API for OneDrive
-API then you will want to first read through the information in rocket_example.rs
-before moving forward. A client id and client secret are needed to
-call the overdrive API in order to authenticate users. This is done
-through the Microsoft application portal or through Azure. Creating an
-application will create an application ID which is the client id. Then,
-under application secrets, a new password will need to be generated. This
-password is the client secret. The rocket_example.rs file has more information
-on how to set up an application.
-*/
+// This example shows using Rocket to authenticate with Microsoft OneDrive that
+// includes authorization with a state parameter in the request query.
+//
+// This example uses the code flow: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online
+//
+// If you have not set up an application to call the Graph API for OneDrive
+// API then you will want to first read through the information in rocket_example.rs
+// before moving forward. A client id and client secret are needed to
+// call the overdrive API in order to authenticate users. This is done
+// through the Microsoft application portal or through Azure. Creating an
+// application will create an application ID which is the client id. Then,
+// under application secrets, a new password will need to be generated. This
+// password is the client secret. The rocket_example.rs file has more information
+// on how to set up an application.
 
 // Create an OAuth struct with the needed credentials.
 fn oauth_web_client() -> OAuth {
