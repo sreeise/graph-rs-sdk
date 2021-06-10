@@ -1,9 +1,10 @@
+use super::{AsyncDownloadError, BlockingDownloadError};
 use crate::async_client::AsyncClient;
 use crate::blocking_client::BlockingClient;
 use crate::iotools;
 use crate::url::GraphUrl;
 use crate::{HttpClient, RequestClient, RequestType};
-use graph_error::{GraphError, WithGraphError, WithGraphErrorAsync};
+use graph_error::{WithGraphError, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
 use reqwest::Method;
 use std::cell::RefCell;
@@ -44,7 +45,7 @@ pub type AsyncDownload = DownloadClient<
     std::sync::Arc<tokio::sync::Mutex<DownloadRequest>>,
 >;
 
-const MAX_FILE_NAME_LEN: usize = 255;
+pub const MAX_FILE_NAME_LEN: usize = 255;
 
 impl<Client, Request> DownloadClient<Client, Request> {
     fn parse_content_disposition(&self, headers: &HeaderMap) -> Option<OsString> {
@@ -193,39 +194,6 @@ impl BlockingDownload {
     }
 }
 
-#[derive(Debug, thiserror::Error)]
-pub enum BlockingDownloadError {
-    #[error(transparent)]
-    Io(#[from] iotools::ThreadedIoError),
-
-    #[error("target directory does not exist {0}")]
-    TargetDoesNotExist(String),
-
-    #[error("request error: {0}")]
-    Request(#[from] reqwest::Error),
-
-    #[error("graph error: {0}")]
-    Graph(#[from] GraphError),
-
-    #[error("file name is too long (max {} chars)", MAX_FILE_NAME_LEN)]
-    FileNameTooLong,
-
-    #[error("could not determine file name")]
-    NoFileName,
-
-    #[error(
-        "Download file already exists: {0}. \
-        If you want to over write this file then use overwrite_existing_file(true)"
-    )]
-    FileExists(String),
-}
-
-impl From<std::io::Error> for BlockingDownloadError {
-    fn from(err: std::io::Error) -> Self {
-        Self::Io(iotools::ThreadedIoError::Std(err))
-    }
-}
-
 impl AsyncDownload {
     pub fn new_async(client: AsyncClient) -> AsyncDownload {
         let path = client.download_dir.clone().unwrap();
@@ -359,38 +327,5 @@ impl AsyncDownload {
         }
 
         Ok(iotools::copy_async(path, response).await?)
-    }
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum AsyncDownloadError {
-    #[error(transparent)]
-    Io(#[from] iotools::AsyncIoError),
-
-    #[error("target directory does not exist {0}")]
-    TargetDoesNotExist(String),
-
-    #[error("request error: {0}")]
-    Request(#[from] reqwest::Error),
-
-    #[error("graph error: {0}")]
-    Graph(#[from] GraphError),
-
-    #[error("file name is too long (max {} chars)", MAX_FILE_NAME_LEN)]
-    FileNameTooLong,
-
-    #[error("could not determine file name")]
-    NoFileName,
-
-    #[error(
-        "Download file already exists: {0}. \
-        If you want to over write this file then use overwrite_existing_file(true)"
-    )]
-    FileExists(String),
-}
-
-impl From<std::io::Error> for AsyncDownloadError {
-    fn from(err: std::io::Error) -> Self {
-        Self::Io(iotools::AsyncIoError::Std(err))
     }
 }
