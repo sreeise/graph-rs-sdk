@@ -1,6 +1,6 @@
 # graph-rs
 
-[![Build Status](https://travis-ci.com/sreeise/graph-rs.svg?branch=master)](https://travis-ci.com/sreeise/graph-rs)
+![example workflow](https://github.com/sreeise/graph-rs/actions/workflows/rust.yml/badge.svg)
 [![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
 
 ### Now available on [crates.io](https://crates.io/crates/graph-rs-sdk)

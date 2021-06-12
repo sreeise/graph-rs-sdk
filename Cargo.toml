@@ -57,9 +57,6 @@ warp = "0.3"
 graph-codegen = { path = "./graph-codegen", version = "0.0.1" }
 test-tools = { path = "./test-tools", version = "0.0.1" }
 
-[badges]
-travis-ci = { repository = "https://github.com/sreeise/graph-rs", branch = "master" }
-
 [profile.release]
 debug = false
 
