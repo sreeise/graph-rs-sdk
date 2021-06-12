@@ -33,7 +33,7 @@ async fn main() {
                 Response::builder().body(String::from(
                     "Successfully Logged In! You can close your browser.",
                 ))
-            },
+            }
             None => Response::builder()
                 .body(String::from("There was an issue getting the access code.")),
         },

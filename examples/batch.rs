@@ -52,7 +52,7 @@ fn main() {
                 match delta {
                     Delta::Next(response) => {
                         println!("{:#?}", response);
-                    },
+                    }
                     Delta::Done(err) => {
                         println!("All Done");
 
@@ -65,14 +65,14 @@ fn main() {
 
                         // Break here. The channel has been closed.
                         break;
-                    },
+                    }
                 }
-            },
+            }
             Err(e) => {
                 println!("Error {:#?}", e);
                 println!("Description: {:#?}", e);
                 break;
-            },
+            }
         }
     }
 }

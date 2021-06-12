@@ -25,7 +25,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
             map.insert(
                 "calendar".into(),
@@ -80,7 +80,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::CalendarGroup | ResourceIdentity::CalendarGroups => {
             map.insert(
                 "calendarGroup".into(),
@@ -135,7 +135,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::CalendarView | ResourceIdentity::CalendarViews => {
             map.insert(
                 "calendarView".into(),
@@ -176,7 +176,7 @@ pub fn get_client_link_settings(
                 "calendarViews".into(),
                 vec![ClientLinkSettings::new("calendarView").as_id_method_link()].mem_take(),
             );
-        },
+        }
         ResourceIdentity::CallRecords => {
             map.insert(
                 "callRecord".into(),
@@ -199,7 +199,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::ChildFolders => {
             map.insert(
                 "childFolders".into(),
@@ -218,7 +218,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Communications => {
             map.insert(
                 "communications".into(),
@@ -244,7 +244,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::ContactFolders => {
             map.insert(
                 "contactFolders".into(),
@@ -278,7 +278,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Contacts => {
             map.insert(
                 "contacts".into(),
@@ -288,7 +288,7 @@ pub fn get_client_link_settings(
                     .with_set_resource_identity()]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Conversations => {
             map.insert(
                 "conversations".into(),
@@ -311,7 +311,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Drive | ResourceIdentity::Drives => {
             map.insert(
                 "drive".into(),
@@ -348,7 +348,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Events => {
             map.insert(
                 "events".into(),
@@ -385,7 +385,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Groups => {
             map.insert(
                 "groups".into(),
@@ -470,7 +470,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Lists => {
             map.insert(
                 "lists".into(),
@@ -496,7 +496,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::MailFolders => {
             map.insert(
                 "mailFolders".into(),
@@ -530,7 +530,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Me => {
             map.insert(
                 "me".into(),
@@ -643,7 +643,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Messages => {
             map.insert(
                 "messages".into(),
@@ -666,7 +666,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Notebooks => {
             map.insert(
                 "notebooks".into(),
@@ -686,7 +686,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Onenote => {
             map.insert(
                 "onenote".into(),
@@ -730,7 +730,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Pages => {
             map.insert(
                 "pages".into(),
@@ -746,7 +746,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::ParentNotebook => {
             map.insert(
                 "parentNotebook".into(),
@@ -764,7 +764,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::ParentSection => {
             map.insert(
                 "parentSection".into(),
@@ -783,7 +783,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::ParentSectionGroup => {
             map.insert(
                 "parentSectionGroup".into(),
@@ -805,7 +805,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Planner => {
             map.insert(
                 "planner".into(),
@@ -840,7 +840,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Plans => {
             map.insert(
                 "plans".into(),
@@ -870,7 +870,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Posts => {
             map.insert(
                 "posts".into(),
@@ -893,7 +893,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::SectionGroups => {
             map.insert(
                 "sectionGroups".into(),
@@ -905,7 +905,7 @@ pub fn get_client_link_settings(
                     .with_set_resource_identity()]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Sections => {
             map.insert(
                 "sections".into(),
@@ -927,7 +927,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Sites => {
             map.insert(
                 "sites".into(),
@@ -965,7 +965,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Threads => {
             map.insert(
                 "threads".into(),
@@ -984,7 +984,7 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
+        }
         ResourceIdentity::Users => {
             map.insert(
                 "user".into(),
@@ -1127,8 +1127,8 @@ pub fn get_client_link_settings(
                 ]
                 .mem_take(),
             );
-        },
-        _ => {},
+        }
+        _ => {}
     }
     map.into_iter()
         .map(|(name, vec)| {

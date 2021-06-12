@@ -266,9 +266,9 @@ fn drive_upload_new_and_replace_and_delete() {
 
             if let Ok(response) = delete_res {
                 assert!(
-                    response.status() == 200 ||
-                        response.status() == 201 ||
-                        response.status() == 204
+                    response.status() == 200
+                        || response.status() == 201
+                        || response.status() == 204
                 );
             } else if let Err(e) = delete_res {
                 panic!("Request Error. Method: drive delete. Error: {:#?}", e);
@@ -305,7 +305,7 @@ fn drive_upload_session() {
                 match next {
                     Ok(NextSession::Next(response)) => {
                         assert!(response.status().is_success());
-                    },
+                    }
                     Ok(NextSession::Done(response)) => {
                         assert!(response.status().is_success());
                         let drive_item = response.body();
@@ -322,19 +322,19 @@ fn drive_upload_session() {
 
                         if let Ok(response) = delete_res {
                             assert!(
-                                response.status() == 200 ||
-                                    response.status() == 201 ||
-                                    response.status() == 204
+                                response.status() == 200
+                                    || response.status() == 201
+                                    || response.status() == 204
                             );
                         } else if let Err(e) = delete_res {
                             panic!("Request error. Upload session new. Error: {:#?}", e);
                         }
                         break;
-                    },
+                    }
                     Err(e) => {
                         let _ = cancel_request.send().unwrap();
                         panic!("Request error. Upload session new. Error: {:#?}", e);
-                    },
+                    }
                 }
             }
         } else if let Err(e) = session {

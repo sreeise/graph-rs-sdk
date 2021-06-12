@@ -92,7 +92,7 @@ impl AsyncClient {
                 } else {
                     builder
                 }
-            },
+            }
             RequestType::Multipart => builder.multipart(self.form.take().unwrap()),
         }
     }
@@ -298,7 +298,7 @@ impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
                 RequestAttribute::BodyFile(path) => {
                     let buffer = futures::executor::block_on(tokio::fs::read_to_string(path))?;
                     client.body = Some(buffer.into());
-                },
+                }
                 RequestAttribute::Headers(headers) => client.headers = headers,
                 RequestAttribute::ClearHeaders => client.headers.clear(),
                 RequestAttribute::Download(path) => client.download_dir = Some(path),

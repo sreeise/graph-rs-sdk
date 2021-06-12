@@ -449,7 +449,7 @@ impl PathMap {
                     .into_iter()
                     .filter(|(path, _path_spec)| regex.is_match(path.as_ref()))
                     .collect()
-            },
+            }
             Filter::IgnoreIf(filter_ignore) => match filter_ignore {
                 FilterIgnore::PathContains(s) => self
                     .paths
@@ -472,7 +472,7 @@ impl PathMap {
                             .collect();
                     }
                     paths
-                },
+                }
                 FilterIgnore::PathEquals(s) => self
                     .paths
                     .clone()
@@ -492,7 +492,7 @@ impl PathMap {
                     }
                 }
                 map
-            },
+            }
         }
     }
 }

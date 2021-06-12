@@ -26,9 +26,9 @@ impl GrantType {
     pub fn available_credentials(self, grant_request: GrantRequest) -> Vec<OAuthCredential> {
         match self {
             GrantType::TokenFlow => match grant_request {
-                GrantRequest::Authorization |
-                GrantRequest::AccessToken |
-                GrantRequest::RefreshToken => vec![
+                GrantRequest::Authorization
+                | GrantRequest::AccessToken
+                | GrantRequest::RefreshToken => vec![
                     OAuthCredential::ClientId,
                     OAuthCredential::RedirectURI,
                     OAuthCredential::ResponseType,
@@ -92,9 +92,9 @@ impl GrantType {
                 ],
             },
             GrantType::Implicit => match grant_request {
-                GrantRequest::Authorization |
-                GrantRequest::AccessToken |
-                GrantRequest::RefreshToken => vec![
+                GrantRequest::Authorization
+                | GrantRequest::AccessToken
+                | GrantRequest::RefreshToken => vec![
                     OAuthCredential::ClientId,
                     OAuthCredential::RedirectURI,
                     OAuthCredential::Scopes,
@@ -154,9 +154,9 @@ impl GrantType {
                 ],
             },
             GrantType::ResourceOwnerPasswordCredentials => match grant_request {
-                GrantRequest::Authorization |
-                GrantRequest::AccessToken |
-                GrantRequest::RefreshToken => vec![
+                GrantRequest::Authorization
+                | GrantRequest::AccessToken
+                | GrantRequest::RefreshToken => vec![
                     OAuthCredential::ClientId,
                     OAuthCredential::ClientSecret,
                     OAuthCredential::GrantType,

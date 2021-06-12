@@ -42,8 +42,8 @@ fn main() {
                 println!("Message: {:#?}", err.message());
                 println!("Date: {:#?}", err.date());
                 println!("Detailed Error Code: {:#?}", err.detailed_error_code());
-            },
-            _ => {},
+            }
+            _ => {}
         }
     }
 }

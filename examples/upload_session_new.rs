@@ -52,14 +52,14 @@ fn upload_session_new() {
                         "Next expected ranges: {:#?}",
                         response.body()["nextExpectedRanges"]
                     );
-                },
+                }
                 Ok(NextSession::Done(response)) => {
                     // When the upload session is done the drive item metadata
                     // for the uploaded file and the last response is returned.
                     println!("\nResponse: {:#?}\n", response);
                     println!("Session finished. DriveItem: {:#?}", response.body());
                     break;
-                },
+                }
                 Err(e) => {
                     println!("Error: {:#?}", e);
                     let response = cancel_request.send().unwrap();
@@ -67,7 +67,7 @@ fn upload_session_new() {
                     // should be 204 No Content
                     println!("Response from canceled upload session: {:#?}", response);
                     break;
-                },
+                }
             }
         }
     } else if let Err(e) = session {

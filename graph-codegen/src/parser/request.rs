@@ -107,26 +107,26 @@ impl ResponseType {
         match self {
             ResponseType::Delta => {
                 set.insert("graph_http::types::DeltaPhantom".into());
-            },
+            }
             ResponseType::NoContent => {
                 set.insert("graph_http::types::NoContent".into());
-            },
+            }
             ResponseType::UploadSession => {
                 set.insert("graph_http::UploadSessionClient".into());
                 set.insert("std::path::Path".into());
                 set.insert("graph_error::GraphFailure".into());
-            },
+            }
             ResponseType::Download => {
                 set.insert("graph_http::{BlockingDownload, BlockingHttpClient}".into());
                 set.insert("std::path::Path".into());
                 set.insert("graph_error::GraphFailure".into());
-            },
+            }
             ResponseType::AsyncDownload => {
                 set.insert("graph_http::{AsyncDownload, AsyncHttpClient}".into());
                 set.insert("std::path::Path".into());
                 set.insert("graph_error::GraphFailure".into());
-            },
-            _ => {},
+            }
+            _ => {}
         }
         set
     }

@@ -239,19 +239,19 @@ where
                                             url, value, status, headers,
                                         )))
                                         .unwrap();
-                                },
+                                }
                                 Err(err) => {
                                     next_link = None;
                                     sender.send(Delta::Done(Some(err.into()))).unwrap();
                                     is_done = true;
-                                },
+                                }
                             }
-                        },
+                        }
                         Err(err) => {
                             next_link = None;
                             sender.send(Delta::Done(Some(err.into()))).unwrap();
                             is_done = true;
-                        },
+                        }
                     }
                 }
             }
@@ -324,20 +324,20 @@ where
                                         )))
                                         .await
                                         .unwrap();
-                                },
+                                }
                                 Err(err) => {
                                     next_link = None;
                                     sender.send(Delta::Done(Some(err.into()))).await.unwrap();
                                     is_done = true;
-                                },
+                                }
                             }
-                        },
+                        }
 
                         Err(err) => {
                             next_link = None;
                             sender.send(Delta::Done(Some(err.into()))).await.unwrap();
                             is_done = true;
-                        },
+                        }
                     }
                 }
             }

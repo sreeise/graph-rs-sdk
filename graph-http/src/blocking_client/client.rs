@@ -95,7 +95,7 @@ impl BlockingClient {
                 } else {
                     builder
                 }
-            },
+            }
             RequestType::Multipart => builder.multipart(self.form.take().unwrap()),
         }
     }
@@ -337,7 +337,7 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>> {
                     let mut buffer = String::new();
                     file.read_to_string(&mut buffer)?;
                     client.body = Some(buffer.into());
-                },
+                }
                 RequestAttribute::Headers(headers) => client.headers = headers,
                 RequestAttribute::ClearHeaders => client.headers.clear(),
                 RequestAttribute::Download(path) => client.download_dir = Some(path),

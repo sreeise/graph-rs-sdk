@@ -35,10 +35,10 @@ fn oauth_parameters_from_credential() {
             match credential {
                 OAuthCredential::ClientId => {
                     assert_eq!(oauth.get(credential), Some("client_id".into()))
-                },
+                }
                 OAuthCredential::ClientSecret => {
                     assert_eq!(oauth.get(credential), Some("client_secret".into()))
-                },
+                }
                 OAuthCredential::AuthorizeURL => assert_eq!(
                     oauth.get(credential),
                     Some("https://example.com/authorize?".into())
@@ -57,17 +57,17 @@ fn oauth_parameters_from_credential() {
                 ),
                 OAuthCredential::AccessCode => {
                     assert_eq!(oauth.get(credential), Some("ADSLFJL4L3".into()))
-                },
+                }
                 OAuthCredential::ResponseMode => {
                     assert_eq!(oauth.get(credential), Some("response_mode".into()))
-                },
+                }
                 OAuthCredential::ResponseType => {
                     assert_eq!(oauth.get(credential), Some("response_type".into()))
-                },
+                }
                 OAuthCredential::State => assert_eq!(oauth.get(credential), Some("state".into())),
                 OAuthCredential::GrantType => {
                     assert_eq!(oauth.get(credential), Some("grant_type".into()))
-                },
+                }
                 OAuthCredential::Nonce => assert_eq!(oauth.get(credential), Some("nonce".into())),
                 OAuthCredential::LogoutURL => assert_eq!(
                     oauth.get(credential),
@@ -80,20 +80,20 @@ fn oauth_parameters_from_credential() {
                 OAuthCredential::Prompt => assert_eq!(oauth.get(credential), Some("login".into())),
                 OAuthCredential::SessionState => {
                     assert_eq!(oauth.get(credential), Some("session_state".into()))
-                },
+                }
                 OAuthCredential::ClientAssertion => {
                     assert_eq!(oauth.get(credential), Some("client_assertion".into()))
-                },
+                }
                 OAuthCredential::ClientAssertionType => {
                     assert_eq!(oauth.get(credential), Some("client_assertion_type".into()))
-                },
+                }
                 OAuthCredential::CodeVerifier => {
                     assert_eq!(oauth.get(credential), Some("code_verifier".into()))
-                },
+                }
                 OAuthCredential::Resource => {
                     assert_eq!(oauth.get(credential), Some("resource".into()))
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
     });

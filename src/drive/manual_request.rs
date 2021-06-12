@@ -27,10 +27,10 @@ where
 {
     pub(crate) fn transfer_identity(&self) {
         let ident = self.client.ident();
-        if ident.eq(&ResourceIdentity::Users) ||
-            ident.eq(&ResourceIdentity::Me) ||
-            ident.eq(&ResourceIdentity::Sites) ||
-            ident.eq(&ResourceIdentity::Groups)
+        if ident.eq(&ResourceIdentity::Users)
+            || ident.eq(&ResourceIdentity::Me)
+            || ident.eq(&ResourceIdentity::Sites)
+            || ident.eq(&ResourceIdentity::Groups)
         {
             self.client
                 .request

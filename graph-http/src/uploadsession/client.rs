@@ -148,7 +148,7 @@ impl Iterator for UploadSessionClient<BlockingHttpClient> {
                     let status = response.status();
                     let result = std::convert::TryFrom::try_from(response);
                     NextSession::from_response((status, result))
-                },
+                }
                 Err(e) => Some(Err(e.into())),
             },
             Err(e) => Some(Err(e)),
@@ -198,7 +198,7 @@ impl AsyncIterator for UploadSessionClient<AsyncHttpClient> {
                     let status = response.status();
                     let result = AsyncTryFrom::<reqwest::Response>::async_try_from(response).await;
                     NextSession::from_response((status, result))
-                },
+                }
                 Err(e) => Some(Err(e.into())),
             },
             Err(e) => Some(Err(e)),

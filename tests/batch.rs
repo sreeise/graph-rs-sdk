@@ -69,34 +69,34 @@ pub fn batch_request() {
                             match v["id"].as_str().unwrap().as_bytes() {
                                 b"1" => {
                                     one = true;
-                                },
+                                }
                                 b"2" => {
                                     two = true;
-                                },
+                                }
                                 b"3" => {
                                     three = true;
-                                },
+                                }
                                 b"4" => {
                                     four = true;
-                                },
+                                }
                                 b"5" => {
                                     five = true;
-                                },
-                                _ => {},
+                                }
+                                _ => {}
                             }
                         }
-                    },
+                    }
                     Delta::Done(err) => {
                         if let Some(err) = err {
                             panic!("Request Error. Method: drive batch - received error on Delta::Done. Error: {:#?}", err);
                         } else {
                             break;
                         }
-                    },
+                    }
                 },
                 Err(e) => {
                     panic!("Request error. Method: batch. Error: {:#?}", e);
-                },
+                }
             }
         }
 

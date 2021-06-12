@@ -33,10 +33,10 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("activities.CreateActivities".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::AuditLogs => {
             modify_target.operation_map("auditLogs.auditLogRoot", "auditLogs");
-        },
+        }
         ResourceIdentity::Attachments => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.calendar.events.ListAttachments".to_string()),
@@ -66,7 +66,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("attachments.UpdateAttachments".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Buckets => {
             modify_target.map.insert(
                 MatchTarget::OperationId("planner.GetBuckets".to_string()),
@@ -103,7 +103,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("planner.buckets.ListBuckets".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Calendar => {
             modify_target.map.insert(
                 MatchTarget::OperationId("users.ListCalendars".to_string()),
@@ -184,7 +184,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationMap("users.calendar.events".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::CalendarGroups => {
             modify_target.map.insert(
                 MatchTarget::OperationId("users.GetCalendarGroups".to_string()),
@@ -229,7 +229,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationMap("users.calendarGroups.calendars.events".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::CalendarView => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.ListCalendarView".to_string()),
@@ -266,7 +266,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("calendarViews.delta".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Calls => {
             modify_target.map.insert(
                 MatchTarget::OperationId("communications.GetCalls".to_string()),
@@ -296,7 +296,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("calls.CreateCalls".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::CallRecords => {
             modify_target.map.insert(
                 MatchTarget::OperationId("communications.GetCallRecords".to_string()),
@@ -340,7 +340,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("callRecords.CreateCallRecords".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::ContactFolders => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetContactFolders".to_string()),
@@ -356,7 +356,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("contactFolders.UpdateContactFolders".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Contacts => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetContacts".to_string()),
@@ -386,7 +386,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("contacts.CreateContacts".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::ContentTypes => {
             modify_target.map.insert(
                 MatchTarget::OperationId("sites.ListContentTypes".to_string()),
@@ -416,7 +416,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("sites.contentTypes.CreateContentTypes".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Conversations => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.ListConversations".to_string()),
@@ -450,7 +450,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     ),
                 ],
             );
-        },
+        }
         ResourceIdentity::ChildFolders => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.mailFolders.UpdateChildFolders".to_string()),
@@ -487,13 +487,13 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("childFolders.MoveChildFolders".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::DeviceManagement => {
             modify_target.operation_map(
                 "deviceManagement.detectedApps.managedDevices",
                 "deviceManagement.detectedApps.appManagedDevices",
             );
-        },
+        }
         ResourceIdentity::Directory => {
             modify_target.operation_map(
                 "directoryObjects.microsoft.graph.administrativeUnit",
@@ -515,7 +515,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationMap("directoryRoles".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Events => {
             modify_target.map.insert(
                 MatchTarget::OperationId("calendar.events.UpdateInstances".to_string()),
@@ -587,7 +587,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     "users.events.calendar".to_string(),
                 )],
             );
-        },
+        }
         ResourceIdentity::GroupLifecyclePolicies => {
             modify_target.map.insert(
                 MatchTarget::OperationMap(
@@ -597,7 +597,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     "groupLifecyclePolicies".to_string(),
                 )],
             );
-        },
+        }
         ResourceIdentity::Instances => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.calendarView.ListInstances".to_string()),
@@ -627,7 +627,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("instances.UpdateInstances".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::InferenceClassification => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetInferenceClassification".to_string()),
@@ -647,7 +647,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     ),
                 ],
             );
-        },
+        }
         ResourceIdentity::Insights => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetInsights".to_string()),
@@ -663,7 +663,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("insights.UpdateInsights".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Items => {
             modify_target.map.insert(
                 MatchTarget::OperationId("sites.lists.ListItems".to_string()),
@@ -693,7 +693,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("items.UpdateItems".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Lists => {
             modify_target.map.insert(
                 MatchTarget::OperationId("sites.GetLists".to_string()),
@@ -709,7 +709,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("lists.UpdateLists".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::ManagedDevices => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetManagedDevices".to_string()),
@@ -739,7 +739,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("managedDevices.UpdateManagedDevices".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Messages => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.ListMessages".to_string()),
@@ -769,7 +769,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("messages.UpdateMessages".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::MailFolders => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.ListMailFolders".to_string()),
@@ -799,7 +799,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("mailFolders.UpdateMailFolders".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Me => {
             // me.user.GetUser
             modify_target.map.insert(
@@ -820,7 +820,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 MatchTarget::OperationMap("me.user".to_string()),
                 vec![MatchTarget::OperationMap("me".to_string())],
             );
-        },
+        }
         ResourceIdentity::Notebooks => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.ListNotebooks".to_string()),
@@ -843,7 +843,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("notebooks.CreateNotebooks".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Onenote => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetOnenote".to_string()),
@@ -859,7 +859,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("onenote.UpdateOnenote".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::SectionGroups => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.CreateSectionGroups".to_string()),
@@ -889,7 +889,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("sectionGroups.UpdateSectionGroup".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Pages => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.GetPages".to_string()),
@@ -919,7 +919,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("pages.CreatePages".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Sections => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.ListSections".to_string()),
@@ -949,7 +949,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("sections.GetSections".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::ParentSection => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.pages.GetParentSection".to_string()),
@@ -969,7 +969,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     ),
                 ],
             );
-        },
+        }
         ResourceIdentity::ParentNotebook => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.sections.GetParentNotebook".to_string()),
@@ -989,7 +989,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     ),
                 ],
             );
-        },
+        }
         ResourceIdentity::ParentSectionGroup => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.sections.GetParentSectionGroup".to_string()),
@@ -1012,7 +1012,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     ),
                 ],
             );
-        },
+        }
         ResourceIdentity::Outlook => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetOutlook".to_string()),
@@ -1028,7 +1028,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("outlook.UpdateOutlook".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Planner => {
             modify_target.map.insert(
                 MatchTarget::OperationMap("users.planner.plans.tasks".to_string()),
@@ -1042,10 +1042,10 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     "users.planner.plans.buckets.bucketTasks".to_string(),
                 )],
             );
-        },
+        }
         ResourceIdentity::Policies => {
             modify_target.operation_map("policies.policyRoot", "policies");
-        },
+        }
         ResourceIdentity::Posts => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.threads.UpdatePosts".to_string()),
@@ -1075,7 +1075,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("groups.threads.posts.CreatePosts".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Plans => {
             modify_target.map.insert(
                 MatchTarget::OperationId("planner.GetPlans".to_string()),
@@ -1091,7 +1091,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("planner.plans.UpdatePlans".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Settings => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetSettings".to_string()),
@@ -1108,7 +1108,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("settings.UpdateSettings".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Sessions => {
             modify_target.map.insert(
                 MatchTarget::OperationId("communications.callRecords.GetSessions".to_string()),
@@ -1138,7 +1138,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("sessions.CreateSessions".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Teams => {
             modify_target.map.insert(
                 MatchTarget::OperationMap("teams.primaryChannel.messages".to_string()),
@@ -1152,7 +1152,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     "teams.primaryChannel.primaryChannelTabs".to_string(),
                 )],
             );
-        },
+        }
         ResourceIdentity::Tasks => {
             modify_target.map.insert(
                 MatchTarget::OperationId("planner.ListTasks".to_string()),
@@ -1175,7 +1175,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("planner.tasks.GetTasks".to_string()),
                 ],
             );
-        },
+        }
         ResourceIdentity::Threads => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.UpdateThreads".to_string()),
@@ -1191,8 +1191,8 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("groups.threads.GetThreads".to_string()),
                 ],
             );
-        },
-        _ => {},
+        }
+        _ => {}
     }
     modify_target
 }

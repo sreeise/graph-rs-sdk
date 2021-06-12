@@ -1,5 +1,3 @@
-#![feature(trace_macros)]
-
 pub extern crate inflector;
 #[macro_use]
 extern crate serde;

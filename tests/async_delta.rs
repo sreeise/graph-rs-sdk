@@ -20,18 +20,18 @@ async fn delta_req() {
                     Delta::Next(response) => {
                         assert!(!is_done);
                         assert!(
-                            response.status() == 200 ||
-                                response.status() == 201 ||
-                                response.status() == 204
+                            response.status() == 200
+                                || response.status() == 201
+                                || response.status() == 204
                         );
-                    },
+                    }
                     Delta::Done(err) => {
                         if let Some(err) = err {
                             panic!("Request Error. Method: Users delta. Error: {:#?}", err);
                         }
                         is_done = true;
                         break;
-                    },
+                    }
                 },
                 None => assert!(is_done),
             }

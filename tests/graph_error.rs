@@ -15,7 +15,7 @@ fn test_graph_failure(err: GraphFailure, expect: GraphError) {
         GraphFailure::ReqwestError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::ReqwestHeaderToStr(e) => {
             panic!("Expected GraphFailure::GraphError, got {}", e)
-        },
+        }
         GraphFailure::SerdeError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::SerdeYamlError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
         GraphFailure::DecodeError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
@@ -30,10 +30,10 @@ fn test_graph_failure(err: GraphFailure, expect: GraphError) {
         GraphFailure::CryptoError => panic!("Expected GraphFailure::GraphError, got CryptoError"),
         GraphFailure::HandlebarsRenderError(e) => {
             panic!("Expected GraphFailure::GraphError, got {}", e)
-        },
+        }
         GraphFailure::HandlebarsTemplateRenderError(e) => {
             panic!("Expected GraphFailure::GraphError, got {}", e)
-        },
+        }
     }
 }
 
@@ -212,7 +212,7 @@ async fn async_drive_download_graph_error() {
         match download.send().await {
             Ok(_) => {
                 panic!("Got successful request for a downloading a file that should not exist")
-            },
+            }
             Err(AsyncDownloadError::Graph(e)) => test_graph_error(
                 e,
                 new_error(

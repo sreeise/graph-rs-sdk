@@ -250,8 +250,8 @@ impl<'a> Parser<'a> {
                         url_modifier.modify(&mut req_map);
                     }
 
-                    if url_modifier.modify_using_replacement() &&
-                        url_modifier.matches_replacement(&req_map)
+                    if url_modifier.modify_using_replacement()
+                        && url_modifier.matches_replacement(&req_map)
                     {
                         url_modifier.modify(&mut req_map);
                     }

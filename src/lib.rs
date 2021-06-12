@@ -103,9 +103,6 @@
 //! - If you run into issues related to graph-rs specifically please
 //! file an issue on [GitHub](https://github.com/sreeise/graph-rs)
 
-#![feature(type_alias_impl_trait)]
-#![feature(async_closure)]
-
 extern crate graph_core;
 extern crate graph_error;
 extern crate graph_oauth;

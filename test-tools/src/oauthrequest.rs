@@ -55,9 +55,9 @@ impl Environment {
     }
 
     pub fn is_travis() -> bool {
-        Environment::is_test_env_set() &&
-            env::var("TRAVIS") == Ok("true".to_string()) &&
-            env::var("TRAVIS_SECURE_ENV_VARS").is_ok()
+        Environment::is_test_env_set()
+            && env::var("TRAVIS") == Ok("true".to_string())
+            && env::var("TRAVIS_SECURE_ENV_VARS").is_ok()
     }
 
     pub fn is_appveyor() -> bool {
@@ -69,12 +69,12 @@ impl Environment {
     }
 
     pub fn is_test_env_set() -> bool {
-        env::var("TEST_APP_TENANT").is_ok() &&
-            env::var("TEST_APP_ID").is_ok() &&
-            env::var("TEST_APP_SECRET").is_ok() &&
-            env::var("TEST_APP_USER_NAME").is_ok() &&
-            env::var("TEST_APP_PASSWORD").is_ok() &&
-            env::var("TEST_APP_USER_ID").is_ok()
+        env::var("TEST_APP_TENANT").is_ok()
+            && env::var("TEST_APP_ID").is_ok()
+            && env::var("TEST_APP_SECRET").is_ok()
+            && env::var("TEST_APP_USER_NAME").is_ok()
+            && env::var("TEST_APP_PASSWORD").is_ok()
+            && env::var("TEST_APP_USER_ID").is_ok()
     }
 }
 
