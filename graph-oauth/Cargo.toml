@@ -1,6 +1,6 @@
 [package]
 name = "graph-oauth"
-version = "0.0.2"
+version = "0.1.0"
 authors = ["sreeise"]
 edition = "2018"
 license = "MIT"

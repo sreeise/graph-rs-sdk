@@ -1,6 +1,6 @@
 [package]
 name = "graph-http"
-version = "0.0.2"
+version = "0.1.0"
 authors = ["sreeise"]
 edition = "2018"
 license = "MIT"
@@ -22,5 +22,5 @@ thiserror = "1"
 tokio = { version = "1", features = ["full"] }
 url = { version = "2", features = ["serde"] }
 
-graph-error = { version = "0.0.1", path = "../graph-error" }
-graph-core = { version = "0.0.1", path = "../graph-core" }
+graph-error = { version = "0.1.0", path = "../graph-error" }
+graph-core = { version = "0.1.0", path = "../graph-core" }

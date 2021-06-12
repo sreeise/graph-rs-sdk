@@ -5,7 +5,7 @@ authors = ["sreeise"]
 edition = "2018"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs"
-description = "Microsoft Graph Api Client"
+description = "Microsoft Graph Api Client - Codegen"
 publish = false
 
 [dependencies]
