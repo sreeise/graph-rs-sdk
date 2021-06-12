@@ -7,7 +7,7 @@
 
     graph-rs-sdk = "0.0.2"
 
-Requires Rust nightly.
+Versions 0.0.2 and before require rust nightly. Anything after 0.0.2 will be on stable rust.
 
 ### Microsoft Graph API Client in Rust
 
