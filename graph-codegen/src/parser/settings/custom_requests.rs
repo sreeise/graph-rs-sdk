@@ -546,10 +546,10 @@ pub fn get_custom_requests(
                     ResourceIdentity::Drives.to_string().to_camel_case(),
                     request_set,
                 );
-            },
+            }
             _ => {
                 map.insert(resource_identity.to_string().to_camel_case(), request_set);
-            },
+            }
         }
 
         Some(map)

@@ -13,18 +13,18 @@ async fn main() -> Result<(), GraphFailure> {
             Some(delta) => match delta {
                 Delta::Next(response) => {
                     println!("response: {:#?}", response);
-                },
+                }
                 Delta::Done(err) => {
                     if let Some(err) = err {
                         panic!("Error: {:#?}", err);
                     }
                     break;
-                },
+                }
             },
             None => {
                 println!("Got None");
                 break;
-            },
+            }
         }
     }
     Ok(())

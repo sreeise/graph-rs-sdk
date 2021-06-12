@@ -54,14 +54,14 @@ async fn main() -> Result<(), GraphFailure> {
                         "Next expected ranges: {:#?}",
                         response.body()["nextExpectedRanges"]
                     );
-                },
+                }
                 Ok(NextSession::Done(response)) => {
                     // When the upload session is done the drive item metadata
                     // for the uploaded file and the last response is returned.
                     println!("\nResponse: {:#?}\n", response);
                     println!("Session finished. Body: {:#?}", response.body());
                     break;
-                },
+                }
                 Err(e) => {
                     println!("Error: {:#?}", e);
                     let response = cancel_request.send().await?;
@@ -69,7 +69,7 @@ async fn main() -> Result<(), GraphFailure> {
                     // should be 204 No Content
                     println!("Response from canceled upload session: {:#?}", response);
                     break;
-                },
+                }
             }
         }
     }

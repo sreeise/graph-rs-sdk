@@ -22,14 +22,14 @@ impl RegisterClient {
                 } else {
                     format!("register_client!({}Request,);\n", client_pascal_casing)
                 }
-            },
+            }
             RegisterClient::IdentClient => {
                 if ends_with {
                     format!("register_client!({}, ());\n", client_pascal_casing)
                 } else {
                     format!("register_client!({}Request, ());\n", client_pascal_casing)
                 }
-            },
+            }
         }
     }
 }

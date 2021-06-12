@@ -198,8 +198,8 @@ impl JwtParser {
 
         // Step 7.
         match jwt_type {
-            JwtType::JWS => {},
-            JwtType::JWE => {},
+            JwtType::JWS => {}
+            JwtType::JWE => {}
         }
 
         // Step 8.

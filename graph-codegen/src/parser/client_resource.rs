@@ -61,7 +61,7 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                     start_filter: Filter::PathStartsWith("/users/{user-id}/calendar"),
                     modifier: ResourceIdentity::Calendar,
                 })
-            },
+            }
             ResourceIdentity::CalendarGroups => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/users"),
                 modifier: "calendarGroups".to_string(),
@@ -71,7 +71,7 @@ impl TryFrom<ResourceIdentity> for ClientResource<'_> {
                     start_filter: Filter::PathStartsWith("/me/calendarView"),
                     modifier: "calendarView".to_string(),
                 })
-            },
+            }
             ResourceIdentity::CallRecords => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/communications/callRecords"),
                 modifier: "callRecords".to_string(),

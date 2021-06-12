@@ -7,7 +7,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "buckets/{plannerBucket-id}/tasks/",
             ]))]
-        },
+        }
         ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "calendarGroup",
@@ -16,7 +16,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "events",
                 "/attachments/",
             ]))]
-        },
+        }
         ResourceIdentity::CalendarGroups => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/calendar/",
@@ -28,7 +28,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "getSchedule",
                 "allowedCalendarSharingRoles",
             ]))]
-        },
+        }
         ResourceIdentity::CalendarView | ResourceIdentity::CalendarViews => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/calendar/calendarView",
@@ -39,40 +39,40 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "/attachments/",
                 "/calendar/allowedCalendarSharingRoles",
             ]))]
-        },
+        }
         ResourceIdentity::CallRecords => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "sessions/{session-id}",
             ]))]
-        },
+        }
         ResourceIdentity::Communications => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "callRecords/{callRecord-id}/",
                 "calls/{call-id}/",
                 "calls/logTeleconferenceDeviceQuality",
             ]))]
-        },
+        }
         ResourceIdentity::Conversations => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/threads/",
             ]))]
-        },
+        }
         ResourceIdentity::ChildFolders => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/move",
             ]))]
-        },
+        }
         ResourceIdentity::ContactFolders => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "childFolders",
                 "contactFolders/{contactFolder-id}/contacts/",
             ]))]
-        },
+        }
         ResourceIdentity::Drives | ResourceIdentity::Drive => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/list/", "versions", "items",
             ]))]
-        },
+        }
         ResourceIdentity::Events => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/calendar/calendarView",
@@ -82,26 +82,26 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "calendarPermissions",
                 "/attachments/",
             ]))]
-        },
+        }
         ResourceIdentity::Lists => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "contentTypes",
                 "items",
             ]))]
-        },
+        }
         ResourceIdentity::MailFolders => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/move",
                 "messages",
                 "childFolders",
             ]))]
-        },
+        }
         ResourceIdentity::Messages => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/move",
                 "/attachments/",
             ]))]
-        },
+        }
         ResourceIdentity::Onenote => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "sections/{onenoteSection-id}",
@@ -110,7 +110,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "notebooks/{notebook-id}",
                 "getNotebookFromWebUrl",
             ]))]
-        },
+        }
         ResourceIdentity::Pages => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "sections/{onenoteSection-id}",
@@ -119,14 +119,14 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "/parentNotebook/",
                 "/parentSection/",
             ]))]
-        },
+        }
         ResourceIdentity::Notebooks => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "sections/{onenoteSection-id}",
                 "sectionGroups/{sectionGroup-id}",
                 "pages/{onenotePage-id}",
             ]))]
-        },
+        }
         ResourceIdentity::SectionGroups => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "sections/{onenoteSection-id}",
@@ -134,7 +134,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "notebooks/{notebook-id}",
                 "/sectionGroups/{sectionGroup-id}/sectionGroups/{sectionGroup-id}",
             ]))]
-        },
+        }
         ResourceIdentity::Sections => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "pages/{onenotePage-id}",
@@ -143,13 +143,13 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "/parentSectionGroup/",
                 "/parentNotebook/",
             ]))]
-        },
+        }
         ResourceIdentity::ParentNotebook => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/parentNotebook/sectionGroups/{sectionGroup-id}",
                 "/parentNotebook/sections/{onenoteSection-id}",
             ]))]
-        },
+        }
         ResourceIdentity::ParentSectionGroup => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/parentSectionGroup/parentNotebook/",
@@ -157,20 +157,20 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "/parentSectionGroup/sections/",
                 "/parentSectionGroup/parentSectionGroup",
             ]))]
-        },
+        }
         ResourceIdentity::ParentSection => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/parentSection/pages/",
                 "/parentSectionGroup/",
                 "/parentNotebook/",
             ]))]
-        },
+        }
         ResourceIdentity::Plans => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/buckets/",
                 "/tasks/",
             ]))]
-        },
+        }
         ResourceIdentity::Planner => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
             "plans/{plannerPlan-id}/",
             "buckets/{plannerBucket-id}/",
@@ -180,7 +180,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/attachments/",
             ]))]
-        },
+        }
         ResourceIdentity::Me => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
             "activities",
             "historyItems",
@@ -209,7 +209,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "contentTypes",
                 "lists",
             ]))]
-        },
+        }
         ResourceIdentity::Users => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "activities",
@@ -233,7 +233,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "onenote",
                 "planner",
             ]))]
-        },
+        }
         ResourceIdentity::Groups => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/calendarGroup/",
@@ -247,12 +247,12 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'stat
                 "/threads/",
                 "/conversations/",
             ]))]
-        },
+        }
         ResourceIdentity::Threads => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
                 "/posts/",
             ]))]
-        },
+        }
         _ => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
             "singleValueExtendedProperties",
             "multiValueExtendedProperties",

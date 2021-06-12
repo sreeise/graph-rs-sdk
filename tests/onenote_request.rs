@@ -265,14 +265,14 @@ fn onenote_create_page_invalid_ext() {
                 GraphRsError::InvalidFileExtension { requires, found } => {
                     assert_eq!("html", requires);
                     assert_eq!("txt", found);
-                },
+                }
                 _ => {
                     panic!("Unexpected error thrown: {}", err);
-                },
+                }
             },
             _ => {
                 panic!("Unexpected error thrown: {}", err);
-            },
+            }
         }
     } else if response.is_ok() {
         panic!(
@@ -300,14 +300,14 @@ fn onenote_sections_create_page_invalid_ext() {
                 GraphRsError::InvalidFileExtension { requires, found } => {
                     assert_eq!("html", requires);
                     assert_eq!("txt", found);
-                },
+                }
                 _ => {
                     panic!("Unexpected error thrown: {}", err);
-                },
+                }
             },
             _ => {
                 panic!("Unexpected error thrown: {}", err);
-            },
+            }
         }
     } else if response.is_ok() {
         panic!(

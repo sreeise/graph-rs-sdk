@@ -10,12 +10,12 @@ impl Registry {
         registry: &mut Handlebars,
     ) {
         match resource_identity {
-            ResourceIdentity::Drive |
-            ResourceIdentity::Drives |
-            ResourceIdentity::Me |
-            ResourceIdentity::Users |
-            ResourceIdentity::Sites |
-            ResourceIdentity::Groups => {
+            ResourceIdentity::Drive
+            | ResourceIdentity::Drives
+            | ResourceIdentity::Me
+            | ResourceIdentity::Users
+            | ResourceIdentity::Sites
+            | ResourceIdentity::Groups => {
                 registry.register_helper(
                     "drive_item_id",
                     Box::new(
@@ -30,13 +30,13 @@ impl Registry {
                                     if name.eq("id") {
                                         if let Some(id_str) = value.as_str() {
                                             match resource_identity {
-                                                ResourceIdentity::Me |
-                                                ResourceIdentity::Users |
-                                                ResourceIdentity::Sites |
-                                                ResourceIdentity::Groups => {
+                                                ResourceIdentity::Me
+                                                | ResourceIdentity::Users
+                                                | ResourceIdentity::Sites
+                                                | ResourceIdentity::Groups => {
                                                     out.write("drive/")?;
-                                                },
-                                                _ => {},
+                                                }
+                                                _ => {}
                                             }
 
                                             if id_str.starts_with(':') && id_str.ends_with(':') {
@@ -65,20 +65,20 @@ impl Registry {
                               out: &mut dyn Output|
                               -> HelperResult {
                             match resource_identity {
-                                ResourceIdentity::Me |
-                                ResourceIdentity::Users |
-                                ResourceIdentity::Sites |
-                                ResourceIdentity::Groups => {
+                                ResourceIdentity::Me
+                                | ResourceIdentity::Users
+                                | ResourceIdentity::Sites
+                                | ResourceIdentity::Groups => {
                                     out.write("drive")?;
-                                },
-                                _ => {},
+                                }
+                                _ => {}
                             }
                             Ok(())
                         },
                     ),
                 );
-            },
-            _ => {},
+            }
+            _ => {}
         }
     }
 }

@@ -242,27 +242,27 @@ impl MatchTarget {
                 if request.operation_mapping.eq(s.as_str()) {
                     return true;
                 }
-            },
+            }
             MatchTarget::Tag(s) => {
                 if request.tag.eq(s.as_str()) {
                     return true;
                 }
-            },
+            }
             MatchTarget::TagAndOperationMap(s) => {
                 if request.tag.eq(s.as_str()) && request.operation_mapping.eq(s.as_str()) {
                     return true;
                 }
-            },
+            }
             MatchTarget::TagOrOperationMap(s) => {
                 if request.tag.eq(s.as_str()) || request.operation_mapping.eq(s.as_str()) {
                     return true;
                 }
-            },
+            }
             MatchTarget::OperationId(s) => {
                 if request.operation_id.eq(s.as_str()) {
                     return true;
                 }
-            },
+            }
         }
         false
     }
@@ -271,21 +271,21 @@ impl MatchTarget {
         match self {
             MatchTarget::OperationMap(s) => {
                 request.operation_mapping = s.to_string();
-            },
+            }
             MatchTarget::Tag(s) => {
                 request.tag = s.to_string();
-            },
+            }
             MatchTarget::TagAndOperationMap(s) => {
                 request.tag = s.to_string();
                 request.operation_mapping = s.to_string();
-            },
+            }
             MatchTarget::TagOrOperationMap(s) => {
                 request.tag = s.to_string();
                 request.operation_mapping = s.to_string();
-            },
+            }
             MatchTarget::OperationId(s) => {
                 request.operation_id = s.to_string();
-            },
+            }
         }
     }
 
@@ -296,10 +296,10 @@ impl MatchTarget {
             MatchTarget::OperationMap(s) => request.operation_mapping.contains(s.as_str()),
             MatchTarget::TagAndOperationMap(s) => {
                 request.tag.contains(s.as_str()) && request.operation_mapping.contains(s.as_str())
-            },
+            }
             MatchTarget::TagOrOperationMap(s) => {
                 request.tag.contains(s.as_str()) || request.operation_mapping.contains(s.as_str())
-            },
+            }
         }
     }
 
@@ -307,21 +307,21 @@ impl MatchTarget {
         match self {
             MatchTarget::OperationMap(s) => {
                 request.operation_mapping = request.operation_mapping.replace(pat, s);
-            },
+            }
             MatchTarget::Tag(s) => {
                 request.tag = request.tag.replace(pat, s);
-            },
+            }
             MatchTarget::TagAndOperationMap(s) => {
                 request.tag = request.tag.replace(pat, s);
                 request.operation_mapping = request.operation_mapping.replace(pat, s);
-            },
+            }
             MatchTarget::TagOrOperationMap(s) => {
                 request.tag = request.tag.replace(pat, s);
                 request.operation_mapping = request.operation_mapping.replace(pat, s);
-            },
+            }
             MatchTarget::OperationId(s) => {
                 request.operation_id = request.operation_id.replace(pat, s);
-            },
+            }
         }
         request.param_size = INTERNAL_PATH_ID.captures_iter(&request.path).count();
         if request.path.contains("RID") && request.param_size > 0 {

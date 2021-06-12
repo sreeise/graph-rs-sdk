@@ -23,7 +23,7 @@ impl<T> std::fmt::Debug for Delta<T> {
                 } else {
                     f.write_str("Error: None")
                 }
-            },
+            }
         }
     }
 }

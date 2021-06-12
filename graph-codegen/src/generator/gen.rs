@@ -130,7 +130,7 @@ impl Parse<&std::path::Path> for Generator<'_> {
                 builder.set_build_with_modifier_filter(true);
 
                 Ok(builder)
-            },
+            }
             ClientResource::Secondary {
                 start_filter,
                 modifier,
@@ -155,7 +155,7 @@ impl Parse<&std::path::Path> for Generator<'_> {
                 builder.set_build_with_modifier_filter(true);
 
                 Ok(builder)
-            },
+            }
             ClientResource::MainResourceIdentity { modifier } => {
                 let mut path_map: PathMap = PathMap::from_file(parse_from)?;
                 path_map.clean();
@@ -169,7 +169,7 @@ impl Parse<&std::path::Path> for Generator<'_> {
                 builder.set_build_with_modifier_filter(true);
 
                 Ok(builder)
-            },
+            }
             ClientResource::SecondaryResourceIdentity {
                 start_filter,
                 modifier,
@@ -195,7 +195,7 @@ impl Parse<&std::path::Path> for Generator<'_> {
                 builder.set_build_with_modifier_filter(true);
 
                 Ok(builder)
-            },
+            }
         }
     }
 }
@@ -217,7 +217,7 @@ impl Parse<reqwest::Url> for Generator<'_> {
                 builder.set_build_with_modifier_filter(true);
 
                 Ok(builder)
-            },
+            }
             ClientResource::Secondary {
                 start_filter,
                 modifier,
@@ -243,7 +243,7 @@ impl Parse<reqwest::Url> for Generator<'_> {
                 builder.set_build_with_modifier_filter(true);
 
                 Ok(builder)
-            },
+            }
             ClientResource::MainResourceIdentity { modifier } => {
                 let parser = Parser::try_from(parse_from)?;
                 let modifiers = Modifier::build_modifier_vec_resource_identity(&[modifier]);
@@ -253,7 +253,7 @@ impl Parse<reqwest::Url> for Generator<'_> {
                 builder.set_build_with_modifier_filter(true);
 
                 Ok(builder)
-            },
+            }
             ClientResource::SecondaryResourceIdentity {
                 start_filter,
                 modifier,
@@ -279,7 +279,7 @@ impl Parse<reqwest::Url> for Generator<'_> {
                 builder.set_build_with_modifier_filter(true);
 
                 Ok(builder)
-            },
+            }
         }
     }
 }

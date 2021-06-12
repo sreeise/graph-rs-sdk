@@ -14,7 +14,7 @@ impl std::fmt::Display for ParseError {
         match self {
             ParseError::DeserializeMatchTarget => {
                 write!(f, "Failed to parse MatchTarget. String is in wrong format.")
-            },
+            }
             ParseError::ReqwestError(err) => err.fmt(f),
             ParseError::FromAsError(err) => err.fmt(f),
             ParseError::Unknown => write!(f, "Either the error is unknown or is irrelevant"),

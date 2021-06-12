@@ -137,7 +137,7 @@ impl GraphDiscovery {
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
                 Ok(oauth)
-            },
+            }
             GraphDiscovery::V2 | GraphDiscovery::Tenant(_) => {
                 let k: MicrosoftSigningKeysV2 = self.signing_keys()?;
                 oauth
@@ -146,7 +146,7 @@ impl GraphDiscovery {
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
                 Ok(oauth)
-            },
+            }
         }
     }
 
@@ -171,7 +171,7 @@ impl GraphDiscovery {
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
                 Ok(oauth)
-            },
+            }
             GraphDiscovery::V2 | GraphDiscovery::Tenant(_) => {
                 let k: MicrosoftSigningKeysV2 = self.async_signing_keys().await?;
                 oauth
@@ -180,7 +180,7 @@ impl GraphDiscovery {
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
                 Ok(oauth)
-            },
+            }
         }
     }
 }

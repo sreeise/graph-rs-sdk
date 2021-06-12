@@ -53,15 +53,15 @@ fn upload_session_replace() {
                         "Next expected ranges: {:#?}",
                         response.body()["nextExpectedRanges"]
                     );
-                },
+                }
                 Ok(NextSession::Done(response)) => {
                     println!("Session finished. DriveItem: {:#?}", response.body());
                     break;
-                },
+                }
                 Err(e) => {
                     println!("Error: {:#?}", e);
                     break;
-                },
+                }
             }
         }
     } else if let Err(e) = session {
