@@ -5,7 +5,7 @@ use crate::parser::{
     ResourceRequestMap,
 };
 use graph_core::resource::ResourceIdentity;
-use graph_http::iotools::IoTools;
+use graph_http::iotools;
 use inflector::Inflector;
 use std::cell::{Ref, RefCell};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -268,7 +268,7 @@ impl<'a> Builder<'a> {
     }
 
     fn write(client_builder: ClientBuilder, dir: String, mod_file: String, request_file: String) {
-        IoTools::create_dir(dir).unwrap();
+        iotools::create_dir(dir).unwrap();
 
         let mut mod_file_buf = client_builder.build_mod_file();
         let mut file1 = OpenOptions::new()

@@ -30,8 +30,10 @@ fn main() {
         match e {
             GraphFailure::GraphError(err) => {
                 // Basic error information from the HTTP Response
-                println!("Description: {:#?}", err.error_info);
-                println!("Error Type: {:#?}", err.error_type);
+                println!(
+                    "Description: {:#?}",
+                    err.code.canonical_reason().unwrap_or_default()
+                );
                 println!("Code: {:#?}\n", err.code);
 
                 // Graph error information:

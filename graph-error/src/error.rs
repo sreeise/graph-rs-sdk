@@ -1,11 +1,9 @@
-use crate::{GraphFailure, GraphHeaders, GraphResult};
+use crate::{GraphHeaders, GraphResult};
 use async_trait::async_trait;
-use reqwest::header::HeaderMap;
-use std::any::Any;
-use std::convert::TryFrom;
+use reqwest::StatusCode;
+use serde::Serialize;
 use std::error::Error;
 use std::fmt;
-use std::io::ErrorKind;
 use std::string::ToString;
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -39,41 +37,31 @@ pub struct ErrorMessage {
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GraphError {
     pub headers: Option<GraphHeaders>,
-    pub error_info: String,
-    pub error_type: ErrorType,
-    pub code: u16,
+
+    #[serde(with = "http_serde::status_code")]
+    pub code: StatusCode,
+
     pub error_message: ErrorMessage,
 }
 
 impl GraphError {
     pub fn new(
         headers: Option<GraphHeaders>,
-        error_info: &str,
-        error_type: ErrorType,
-        code: u16,
+        code: StatusCode,
         error_message: ErrorMessage,
     ) -> GraphError {
         GraphError {
             headers,
-            error_info: error_info.to_string(),
-            error_type,
             code,
             error_message,
         }
-    }
-
-    pub fn is_error(status: u16) -> bool {
-        ErrorType::from_u16(status).is_some()
     }
 
     pub fn set_headers(&mut self, headers: GraphHeaders) {
         self.headers = Some(headers);
     }
 
-    pub fn set_error(&mut self, code: u16) -> Result<(), GraphError> {
-        let error_type = ErrorType::from_u16(code).unwrap();
-        self.error_info = error_type.to_string();
-        self.error_type = error_type;
+    pub fn set_error(&mut self, code: StatusCode) -> Result<(), GraphError> {
         self.code = code;
         Ok(())
     }
@@ -142,7 +130,7 @@ impl Error for GraphError {
                 return message.as_str();
             }
         }
-        self.error_info.as_str()
+        self.code.canonical_reason().unwrap_or_default()
     }
 }
 
@@ -151,20 +139,15 @@ impl std::fmt::Display for GraphError {
         write!(
             f,
             "\nError Code: {:#?}\nError Message: {:#?}",
-            &self.code, &self.error_info
+            &self.code,
+            self.code.canonical_reason().unwrap_or_default()
         )
     }
 }
 
 impl Default for GraphError {
     fn default() -> Self {
-        GraphError::new(
-            None,
-            ErrorType::BadRequest.as_str(),
-            ErrorType::BadRequest,
-            400,
-            Default::default(),
-        )
+        GraphError::new(None, StatusCode::BAD_REQUEST, Default::default())
     }
 }
 
@@ -259,124 +242,45 @@ impl ToString for ErrorType {
     }
 }
 
-/// Returns the matching GraphError for a u16.
-/// This method will panic with a NoneError if there is no corresponding u16 to match.
-/// Only use this method if you are sure the u16 given will match
-/// or you if the method results with a panic.
-
-impl TryFrom<u16> for GraphError {
-    type Error = std::io::Error;
-
-    fn try_from(value: u16) -> Result<Self, Self::Error> {
-        if !GraphError::is_error(value) {
-            return Err(std::io::Error::new(
-                ErrorKind::InvalidInput,
-                "u16 given is not a graph error.",
-            ));
-        }
-
-        let error_type = ErrorType::from_u16(value).unwrap();
-        Ok(GraphError {
-            headers: None,
-            error_info: error_type.to_string(),
-            error_type,
-            code: value,
-            error_message: Default::default(),
-        })
-    }
+pub trait WithGraphError: Sized {
+    fn with_graph_error(self) -> Result<Self, GraphError>;
 }
 
-impl TryFrom<reqwest::blocking::Response> for GraphError {
-    type Error = std::io::Error;
-
-    fn try_from(value: reqwest::blocking::Response) -> Result<Self, Self::Error> {
-        let status = value.status().as_u16();
-        let mut graph_error = GraphError::try_from(status)?;
-        graph_error.set_headers(GraphHeaders::from(&value));
-
-        let error_message: GraphResult<ErrorMessage> = value.json().map_err(GraphFailure::from);
-        if let Ok(error_message) = error_message {
-            graph_error.error_message = error_message;
-        }
-
-        Ok(graph_error)
-    }
-}
-
-impl TryFrom<&reqwest::blocking::Response> for GraphError {
-    type Error = std::io::Error;
-
-    fn try_from(value: &reqwest::blocking::Response) -> Result<Self, Self::Error> {
-        let status = value.status().as_u16();
-        let mut graph_error = GraphError::try_from(status)?;
-        graph_error.set_headers(GraphHeaders::from(value));
-        Ok(graph_error)
-    }
-}
-
-impl TryFrom<&reqwest::Response> for GraphError {
-    type Error = std::io::Error;
-
-    fn try_from(value: &reqwest::Response) -> Result<Self, Self::Error> {
-        let status = value.status().as_u16();
-        let mut graph_error = GraphError::try_from(status)?;
-        graph_error.set_headers(GraphHeaders::from(value));
-        Ok(graph_error)
-    }
-}
-
-pub trait ResponseErrorExt<R> {
-    fn map_err_msg(self) -> GraphResult<(reqwest::Url, u16, HeaderMap, R)>;
-}
-
-impl<R: Any> ResponseErrorExt<R> for GraphError {
-    fn map_err_msg(self) -> GraphResult<(reqwest::Url, u16, HeaderMap, R)> {
-        Err(GraphFailure::from(self))
-    }
-}
-
-impl ResponseErrorExt<reqwest::blocking::Response> for reqwest::blocking::Response {
-    fn map_err_msg(
-        self,
-    ) -> GraphResult<(reqwest::Url, u16, HeaderMap, reqwest::blocking::Response)> {
-        if let Ok(mut error) = GraphError::try_from(&self) {
-            error.try_set_error_message(self.json().map_err(GraphFailure::from));
-            error.map_err_msg()
+impl WithGraphError for reqwest::blocking::Response {
+    fn with_graph_error(self) -> Result<Self, GraphError> {
+        let code = self.status();
+        if code.is_client_error() || code.is_server_error() {
+            let headers = Some(GraphHeaders::from(&self));
+            let error_message = self.json().unwrap_or_default();
+            Err(GraphError {
+                code,
+                headers,
+                error_message,
+            })
         } else {
-            let url = self.url().clone();
-            let status = self.status().as_u16();
-            let headers = self.headers().to_owned();
-            Ok((url, status, headers, self))
+            Ok(self)
         }
     }
 }
-
 #[async_trait]
-pub trait AsyncResponseErrorExt<R> {
-    async fn async_map_err_msg(self) -> GraphResult<(reqwest::Url, u16, HeaderMap, R)>;
+pub trait WithGraphErrorAsync: Sized {
+    async fn with_graph_error(self) -> Result<Self, GraphError>;
 }
 
 #[async_trait]
-impl<R: Any> AsyncResponseErrorExt<R> for GraphError {
-    async fn async_map_err_msg(self) -> GraphResult<(reqwest::Url, u16, HeaderMap, R)> {
-        Err(GraphFailure::from(self))
-    }
-}
-
-#[async_trait]
-impl AsyncResponseErrorExt<reqwest::Response> for reqwest::Response {
-    async fn async_map_err_msg(
-        self,
-    ) -> GraphResult<(reqwest::Url, u16, HeaderMap, reqwest::Response)> {
-        if let Ok(mut error) = GraphError::try_from(&self) {
-            let result: GraphResult<ErrorMessage> = self.json().await.map_err(GraphFailure::from);
-            error.try_set_error_message(result);
-            error.map_err_msg()
+impl WithGraphErrorAsync for reqwest::Response {
+    async fn with_graph_error(self) -> Result<Self, GraphError> {
+        let code = self.status();
+        if code.is_client_error() || code.is_server_error() {
+            let headers = Some(GraphHeaders::from(&self));
+            let error_message = self.json().await.unwrap_or_default();
+            Err(GraphError {
+                code,
+                headers,
+                error_message,
+            })
         } else {
-            let url = self.url().clone();
-            let status = self.status().as_u16();
-            let headers = self.headers().to_owned();
-            Ok((url, status, headers, self))
+            Ok(self)
         }
     }
 }

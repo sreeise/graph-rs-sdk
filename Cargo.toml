@@ -51,6 +51,7 @@ graph-core = { path = "./graph-core", version = "0.0.1" }
 from_as = "0.1"
 lazy_static = "1.4"
 regex = "1"
+thiserror = "1"
 warp = "0.3"
 
 graph-codegen = { path = "./graph-codegen", version = "0.0.1" }

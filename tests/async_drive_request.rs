@@ -1,4 +1,3 @@
-use graph_error::GraphError;
 use graph_http::traits::AsyncIterator;
 use graph_http::NextSession;
 use std::collections::HashMap;
@@ -48,7 +47,7 @@ async fn async_upload_session() {
             "@microsoft.graph.conflictBehavior": Some("fail".to_string())
         });
 
-        let response = client
+        let mut session = client
             .v1()
             .user(id.as_str())
             .drive()
@@ -58,52 +57,45 @@ async fn async_upload_session() {
                 &upload,
             )
             .send()
-            .await;
+            .await
+            .expect("Request error. Upload session new on initial request.");
 
-        if let Err(e) = response {
-            panic!(
-                "Request error. Upload session new on initial request. Error: {:#?}",
-                e
-            );
-        } else if let Ok(mut session) = response {
-            let cancel_request = session.cancel().await;
+        let cancel_request = session.cancel().await;
+        while let Some(next) = session.next().await {
+            match next {
+                Ok(NextSession::Next(response)) => {
+                    assert!(response.status().is_success());
+                },
+                Ok(NextSession::Done(response)) => {
+                    assert!(response.status().is_success());
 
-            while let Some(next) = session.next().await {
-                match next {
-                    Ok(NextSession::Next(response)) => {
-                        assert!(!GraphError::is_error(response.status()));
-                    },
-                    Ok(NextSession::Done(response)) => {
-                        assert!(!GraphError::is_error(response.status()));
-                        let drive_item = response.body();
-                        let drive_item_id =
-                            drive_item["id"].as_str().unwrap_or_default().to_string();
-                        tokio::time::sleep(Duration::from_secs(3)).await;
+                    let drive_item = response.body();
+                    let drive_item_id = drive_item["id"].as_str().unwrap_or_default().to_string();
+                    tokio::time::sleep(Duration::from_secs(3)).await;
 
-                        let delete_res = client
-                            .v1()
-                            .user(id.as_str())
-                            .drive()
-                            .delete_items(drive_item_id.as_str())
-                            .send()
-                            .await;
+                    let delete_res = client
+                        .v1()
+                        .user(id.as_str())
+                        .drive()
+                        .delete_items(drive_item_id.as_str())
+                        .send()
+                        .await;
 
-                        if let Ok(response) = delete_res {
-                            assert!(
-                                response.status() == 200 ||
-                                    response.status() == 201 ||
-                                    response.status() == 204
-                            );
-                        } else if let Err(e) = delete_res {
-                            panic!("Request error. Upload session new. Error: {:#?}", e);
-                        }
-                        break;
-                    },
-                    Err(e) => {
-                        let _ = cancel_request.send().await.unwrap();
+                    if let Ok(response) = delete_res {
+                        assert!(
+                            response.status() == 200 ||
+                                response.status() == 201 ||
+                                response.status() == 204
+                        );
+                    } else if let Err(e) = delete_res {
                         panic!("Request error. Upload session new. Error: {:#?}", e);
-                    },
-                }
+                    }
+                    break;
+                },
+                Err(e) => {
+                    let _ = cancel_request.send().await.unwrap();
+                    panic!("Request error. Upload session new. Error: {:#?}", e);
+                },
             }
         }
     }
@@ -121,7 +113,7 @@ async fn async_upload_session_standalone_request() {
             "@microsoft.graph.conflictBehavior": Some("fail".to_string())
         });
 
-        let request = client
+        let mut session = client
             .v1()
             .user(id.as_str())
             .drive()
@@ -131,54 +123,47 @@ async fn async_upload_session_standalone_request() {
                 &upload,
             )
             .build()
-            .await;
+            .await
+            .send()
+            .await
+            .expect("Request error. Upload session new on initial request.");
 
-        let response = request.send().await;
+        let cancel_request = session.cancel().await;
 
-        if let Err(e) = response {
-            panic!(
-                "Request error. Upload session new on initial request. Error: {:#?}",
-                e
-            );
-        } else if let Ok(mut session) = response {
-            let cancel_request = session.cancel().await;
+        while let Some(next) = session.next().await {
+            match next {
+                Ok(NextSession::Next(response)) => {
+                    assert!(response.status().is_success());
+                },
+                Ok(NextSession::Done(response)) => {
+                    assert!(response.status().is_success());
+                    let drive_item = response.body();
+                    let drive_item_id = drive_item["id"].as_str().unwrap_or_default().to_string();
+                    tokio::time::sleep(Duration::from_secs(3)).await;
 
-            while let Some(next) = session.next().await {
-                match next {
-                    Ok(NextSession::Next(response)) => {
-                        assert!(!GraphError::is_error(response.status()));
-                    },
-                    Ok(NextSession::Done(response)) => {
-                        assert!(!GraphError::is_error(response.status()));
-                        let drive_item = response.body();
-                        let drive_item_id =
-                            drive_item["id"].as_str().unwrap_or_default().to_string();
-                        tokio::time::sleep(Duration::from_secs(3)).await;
+                    let delete_res = client
+                        .v1()
+                        .user(id.as_str())
+                        .drive()
+                        .delete_items(drive_item_id.as_str())
+                        .send()
+                        .await;
 
-                        let delete_res = client
-                            .v1()
-                            .user(id.as_str())
-                            .drive()
-                            .delete_items(drive_item_id.as_str())
-                            .send()
-                            .await;
-
-                        if let Ok(response) = delete_res {
-                            assert!(
-                                response.status() == 200 ||
-                                    response.status() == 201 ||
-                                    response.status() == 204
-                            );
-                        } else if let Err(e) = delete_res {
-                            panic!("Request error. Upload session new. Error: {:#?}", e);
-                        }
-                        break;
-                    },
-                    Err(e) => {
-                        let _ = cancel_request.send().await.unwrap();
+                    if let Ok(response) = delete_res {
+                        assert!(
+                            response.status() == 200 ||
+                                response.status() == 201 ||
+                                response.status() == 204
+                        );
+                    } else if let Err(e) = delete_res {
                         panic!("Request error. Upload session new. Error: {:#?}", e);
-                    },
-                }
+                    }
+                    break;
+                },
+                Err(e) => {
+                    let _ = cancel_request.send().await.unwrap();
+                    panic!("Request error. Upload session new. Error: {:#?}", e);
+                },
             }
         }
     }

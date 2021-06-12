@@ -3,7 +3,7 @@ use crate::jwt::{Claim, JsonWebToken, JwtParser};
 use chrono::{DateTime, Duration, TimeZone, Utc};
 use chrono_humanize::HumanTime;
 use from_as::*;
-use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
+use graph_error::{GraphFailure, WithGraphError, WithGraphErrorAsync};
 use serde_aux::prelude::*;
 use std::convert::TryFrom;
 use std::fmt;
@@ -418,19 +418,16 @@ impl AccessToken {
     pub(crate) async fn try_from_async(
         builder: reqwest::RequestBuilder,
     ) -> Result<AccessToken, GraphFailure> {
-        let value = builder.send().await?;
-        if let Ok(mut error) = GraphError::try_from(&value) {
-            let error_message: GraphResult<ErrorMessage> =
-                value.json().await.map_err(GraphFailure::from);
-            if let Ok(message) = error_message {
-                error.set_error_message(message);
-            }
-            Err(GraphFailure::from(error))
-        } else {
-            let mut access_token: AccessToken = value.json().await?;
-            access_token.parse_jwt();
-            Ok(access_token)
-        }
+        let mut access_token = builder
+            .send()
+            .await?
+            .with_graph_error()
+            .await?
+            .json::<AccessToken>()
+            .await?;
+
+        access_token.parse_jwt();
+        Ok(access_token)
     }
 }
 
@@ -489,17 +486,9 @@ impl TryFrom<reqwest::blocking::Response> for AccessToken {
     where
         Self: for<'de> serde::Deserialize<'de>,
     {
-        if let Ok(mut error) = GraphError::try_from(&value) {
-            let error_message: GraphResult<ErrorMessage> = value.json().map_err(GraphFailure::from);
-            if let Ok(message) = error_message {
-                error.set_error_message(message);
-            }
-            Err(GraphFailure::from(error))
-        } else {
-            let mut access_token: AccessToken = value.json()?;
-            access_token.parse_jwt();
-            Ok(access_token)
-        }
+        let mut access_token = value.with_graph_error()?.json::<AccessToken>()?;
+        access_token.parse_jwt();
+        Ok(access_token)
     }
 }
 

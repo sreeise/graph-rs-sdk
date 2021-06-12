@@ -1,13 +1,13 @@
+use super::{AsyncDownloadError, BlockingDownloadError};
 use crate::async_client::AsyncClient;
 use crate::blocking_client::BlockingClient;
-use crate::iotools::IoTools;
+use crate::iotools;
 use crate::url::GraphUrl;
-use crate::{HttpClient, RequestAttribute, RequestClient, RequestType};
-use graph_error::{AsRes, ErrorMessage, GraphError, GraphFailure, GraphResult, GraphRsError};
+use crate::{HttpClient, RequestClient, RequestType};
+use graph_error::{WithGraphError, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
 use reqwest::Method;
 use std::cell::RefCell;
-use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
@@ -45,6 +45,8 @@ pub type AsyncDownload = DownloadClient<
     std::sync::Arc<tokio::sync::Mutex<DownloadRequest>>,
 >;
 
+pub const MAX_FILE_NAME_LEN: usize = 255;
+
 impl<Client, Request> DownloadClient<Client, Request> {
     fn parse_content_disposition(&self, headers: &HeaderMap) -> Option<OsString> {
         if let Some(value) = headers.get("content-disposition") {
@@ -70,13 +72,6 @@ impl<Client, Request> DownloadClient<Client, Request> {
             }
         }
         None
-    }
-
-    fn check_file_name_length(&self, name: &OsString) -> GraphResult<()> {
-        if name.len() > 255 {
-            return GraphRsError::DownloadFileName.as_err_res();
-        }
-        Ok(())
     }
 }
 
@@ -143,70 +138,45 @@ impl BlockingDownload {
         self.client.url_mut(|url| url.format(format));
     }
 
-    fn check_existing_file(&self, path: &PathBuf) -> GraphResult<()> {
-        if path.exists() && !self.is_overwrite_existing_file() {
-            return GraphRsError::DownloadFileExists {
-                name: path.to_string_lossy().to_string(),
-            }
-            .as_err_res();
-        }
-        Ok(())
-    }
-
-    pub fn send(self) -> GraphResult<PathBuf> {
+    pub fn send(self) -> Result<PathBuf, BlockingDownloadError> {
         self.download()
     }
 
-    fn download(self) -> GraphResult<PathBuf> {
+    fn download(self) -> Result<PathBuf, BlockingDownloadError> {
         let request = self.request.borrow();
 
         // Create the directory if it does not exist.
-        if request.create_dir_all.eq(&true) {
-            IoTools::create_dir(request.path.as_path())?;
+        if request.create_dir_all {
+            iotools::create_dir(request.path.as_path())?;
         } else if !request.path.exists() {
-            let dir = request.path.to_string_lossy().to_string();
-            return GraphRsError::DownloadDirNoExists { dir }.as_err_res();
+            return Err(BlockingDownloadError::TargetDoesNotExist(
+                request.path.to_string_lossy().to_string(),
+            ));
         }
 
-        if self.client.request_type().eq(&RequestType::Redirect) {
-            let response = self.client.build().send()?;
-
-            if let Ok(mut error) = GraphError::try_from(&response) {
-                let error_message: GraphResult<ErrorMessage> =
-                    response.json().map_err(GraphFailure::from);
-                if let Ok(message) = error_message {
-                    error.set_error_message(message);
-                }
-                return Err(GraphFailure::from(error));
-            }
-
-            self.client.set_request(vec![
-                RequestAttribute::ClearHeaders,
-                RequestAttribute::Method(Method::GET),
-                RequestAttribute::RequestType(RequestType::Basic),
-                RequestAttribute::Url(GraphUrl::from(response.url().clone())),
-            ])?;
+        if self.client.request_type() == RequestType::Redirect {
+            let response = self.client.build().send()?.with_graph_error()?;
+            let mut client = self.client.client.borrow_mut();
+            client.headers.clear();
+            client.method = Method::GET;
+            client.req_type = RequestType::Basic;
+            client.url = GraphUrl::from(response.url().clone());
         }
 
-        let response = self.client.build().send()?;
-        if let Ok(mut error) = GraphError::try_from(&response) {
-            let error_message: GraphResult<ErrorMessage> =
-                response.json().map_err(GraphFailure::from);
-            if let Ok(message) = error_message {
-                error.set_error_message(message);
-            }
-            return Err(GraphFailure::from(error));
-        }
+        let response = self.client.build().send()?.with_graph_error()?;
 
         let path = {
-            if let Some(name) = request.file_name.as_ref() {
-                self.check_file_name_length(name)?;
-                request.path.join(name)
-            } else if let Some(name) = self.parse_content_disposition(response.headers()) {
-                self.check_file_name_length(&name)?;
+            if let Some(name) = request
+                .file_name
+                .clone()
+                .or_else(|| self.parse_content_disposition(response.headers()))
+            {
+                if name.len() > MAX_FILE_NAME_LEN {
+                    return Err(BlockingDownloadError::FileNameTooLong);
+                }
                 request.path.join(name)
             } else {
-                return GraphRsError::DownloadFileName.as_err_res();
+                return Err(BlockingDownloadError::NoFileName);
             }
         };
 
@@ -214,8 +184,13 @@ impl BlockingDownload {
             path.with_extension(ext.as_str());
         }
 
-        self.check_existing_file(&path)?;
-        IoTools::copy(path, response)
+        if path.exists() && !self.is_overwrite_existing_file() {
+            return Err(BlockingDownloadError::FileExists(
+                path.to_string_lossy().to_string(),
+            ));
+        }
+
+        Ok(iotools::copy(path, response)?)
     }
 }
 
@@ -284,68 +259,60 @@ impl AsyncDownload {
         });
     }
 
-    async fn check_existing_file(&self, path: &PathBuf) -> GraphResult<()> {
-        if path.exists() && !self.is_overwrite_existing_file().await {
-            return GraphRsError::DownloadFileExists {
-                name: path.to_string_lossy().to_string(),
-            }
-            .as_err_res();
-        }
-        Ok(())
-    }
-
-    pub async fn send(self) -> GraphResult<PathBuf> {
+    pub async fn send(self) -> Result<PathBuf, AsyncDownloadError> {
         self.download_async().await
     }
 
-    async fn download_async(self) -> GraphResult<PathBuf> {
+    async fn download_async(self) -> Result<PathBuf, AsyncDownloadError> {
         let request = self.request.lock().await;
+
         // Create the directory if it does not exist.
-        if request.create_dir_all.eq(&true) {
-            IoTools::create_dir_async(request.path.as_path()).await?;
+        if request.create_dir_all {
+            iotools::create_dir_async(request.path.as_path()).await?;
         } else if !request.path.exists() {
-            let dir = request.path.to_string_lossy().to_string();
-            return GraphRsError::DownloadDirNoExists { dir }.as_err_res();
+            return Err(AsyncDownloadError::TargetDoesNotExist(
+                request.path.to_string_lossy().to_string(),
+            ));
         }
 
-        if self.client.request_type().eq(&RequestType::Redirect) {
-            let response = self.client.build().await.send().await?;
-            if let Ok(mut error) = GraphError::try_from(&response) {
-                let error_message: GraphResult<ErrorMessage> =
-                    response.json().await.map_err(GraphFailure::from);
-                if let Ok(message) = error_message {
-                    error.set_error_message(message);
-                }
-                return Err(GraphFailure::from(error));
-            }
+        if self.client.request_type() == RequestType::Redirect {
+            let response = self
+                .client
+                .build()
+                .await
+                .send()
+                .await?
+                .with_graph_error()
+                .await?;
 
-            self.client.set_request(vec![
-                RequestAttribute::ClearHeaders,
-                RequestAttribute::Method(Method::GET),
-                RequestAttribute::RequestType(RequestType::Basic),
-                RequestAttribute::Url(GraphUrl::from(response.url().clone())),
-            ])?;
+            let mut client = self.client.client.lock().await;
+            (*client).headers.clear();
+            (*client).method = Method::GET;
+            (*client).req_type = RequestType::Basic;
+            (*client).url = GraphUrl::from(response.url().clone());
         }
 
-        let response = self.client.build().await.send().await?;
-        if let Ok(mut error) = GraphError::try_from(&response) {
-            let error_message: GraphResult<ErrorMessage> =
-                response.json().await.map_err(GraphFailure::from);
-            if let Ok(message) = error_message {
-                error.set_error_message(message);
-            }
-            return Err(GraphFailure::from(error));
-        }
+        let response = self
+            .client
+            .build()
+            .await
+            .send()
+            .await?
+            .with_graph_error()
+            .await?;
 
         let path = {
-            if let Some(name) = request.file_name.as_ref() {
-                self.check_file_name_length(name)?;
-                request.path.join(name)
-            } else if let Some(name) = self.parse_content_disposition(response.headers()) {
-                self.check_file_name_length(&name)?;
+            if let Some(name) = request
+                .file_name
+                .clone()
+                .or_else(|| self.parse_content_disposition(response.headers()))
+            {
+                if name.len() > MAX_FILE_NAME_LEN {
+                    return Err(AsyncDownloadError::FileNameTooLong);
+                }
                 request.path.join(name)
             } else {
-                return GraphRsError::DownloadFileName.as_err_res();
+                return Err(AsyncDownloadError::NoFileName);
             }
         };
 
@@ -353,7 +320,12 @@ impl AsyncDownload {
             path.with_extension(ext.as_str());
         }
 
-        self.check_existing_file(&path).await?;
-        IoTools::copy_async(path, response).await
+        if path.exists() && !self.is_overwrite_existing_file().await {
+            return Err(AsyncDownloadError::FileExists(
+                path.to_string_lossy().to_string(),
+            ));
+        }
+
+        Ok(iotools::copy_async(path, response).await?)
     }
 }

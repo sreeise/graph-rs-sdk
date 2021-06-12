@@ -7,12 +7,12 @@ use crate::{
     GraphRequest, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient, RequestType,
 };
 use graph_core::resource::ResourceIdentity;
-use graph_error::{ErrorMessage, GraphError, GraphFailure, GraphResult};
+use graph_error::WithGraphErrorAsync;
+use graph_error::{GraphFailure, GraphResult};
 use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::redirect::Policy;
 use reqwest::Method;
-use std::convert::TryFrom;
 use std::fmt::{Debug, Formatter};
 use std::path::PathBuf;
 use url::Url;
@@ -60,16 +60,7 @@ impl AsyncClient {
             .take()
             .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
 
-        let response = self.response().await?;
-        if let Ok(mut error) = GraphError::try_from(&response) {
-            let error_message: GraphResult<ErrorMessage> =
-                response.json().await.map_err(GraphFailure::from);
-            if let Ok(message) = error_message {
-                error.set_error_message(message);
-            }
-            return Err(GraphFailure::GraphError(error));
-        }
-
+        let response = self.response().await?.with_graph_error().await?;
         let upload_session: serde_json::Value = response.json().await?;
         let mut session = UploadSessionClient::new_async(upload_session)?;
         session.set_file(file).await?;
