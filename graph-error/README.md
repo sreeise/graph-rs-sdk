@@ -1,5 +1,12 @@
 # graph-error
 
-Various errors used to implement the Graph API and OAuth clients.
+Various errors used to for interacting with the Microsoft Graph API and OAuth clients.
 
-See the project on [GitHub](https://github.com/sreeise/graph-rs).
+Part of the graph-rs-sdk project.
+
+- See the project on [Crates.io](https://crates.io/crates/graph-rs-sdk)
+- See the project on [GitHub](https://github.com/sreeise/graph-rs)
+
+
+
+
