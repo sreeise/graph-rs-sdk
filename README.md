@@ -3,11 +3,11 @@
 ![Build](https://github.com/sreeise/graph-rs/actions/workflows/build.yml/badge.svg)
 [![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
 
-### Now available on [crates.io](https://crates.io/crates/graph-rs-sdk)
+### Now available on stable Rust at [crates.io](https://crates.io/crates/graph-rs-sdk)
 
-    graph-rs-sdk = "0.0.2"
+    graph-rs-sdk = "0.1.0"
 
-Versions 0.0.2 and before require rust nightly. Anything after 0.0.2 will be on stable rust.
+0.1.0 and above use stable Rust. Anything before 0.1.0 uses nightly Rust.
 
 ### Microsoft Graph API Client in Rust
 
@@ -472,9 +472,9 @@ loop {
 
 ## For those interested in the code itself
 
-### Build - Requires Rust nightly
+### Build
 
-Normal Rust build using cargo. The nightly version is set in the rust-toolchain file.
+Normal Rust build using cargo.
 
     $ cargo build
 
