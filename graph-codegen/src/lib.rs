@@ -1,3 +1,5 @@
+#![recursion_limit = "1024"]
+
 pub extern crate inflector;
 #[macro_use]
 extern crate serde;
@@ -12,4 +14,5 @@ pub mod traits;
 pub mod builder;
 pub mod generator;
 pub mod macros;
+pub mod openapi;
 pub mod parser;

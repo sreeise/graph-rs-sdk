@@ -17,10 +17,15 @@ impl MacroWriter {
             }
         };
 
-        format!("({{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: {}, has_body: {} }}) => {{
+        format!(
+            "({{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, \
+             params: {}, has_body: {} }}) => {{
             register_method!(
-                {{ doc: $doc, name: $name, response: $T, path: $template, method: {}, params: {}, has_body: {} }}
+                {{ doc: $doc, name: $name, response: $T, path: $template, method: {}, params: {}, \
+             has_body: {} }}
             );
-        }};", params, has_body, method_str, params, has_body)
+        }};",
+            params, has_body, method_str, params, has_body
+        )
     }
 }
