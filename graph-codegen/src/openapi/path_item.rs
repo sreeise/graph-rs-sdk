@@ -1,5 +1,8 @@
+use crate::api_types::{RequestMetadata, RequestPathItem};
 use crate::openapi::{EitherT, Operation, Parameter, Reference, Server};
+use crate::parser::HttpMethod;
 use from_as::*;
+use std::collections::HashMap;
 use std::{
     collections::VecDeque,
     convert::TryFrom,
@@ -75,4 +78,70 @@ pub struct PathItem {
     #[serde(default)]
     #[serde(skip_serializing_if = "VecDeque::is_empty")]
     pub parameters: VecDeque<EitherT<Parameter, Reference>>,
+}
+
+impl PathItem {
+    pub fn operations(&self) -> VecDeque<Operation> {
+        vec![
+            self.get.as_ref(),
+            self.put.as_ref(),
+            self.post.as_ref(),
+            self.patch.as_ref(),
+            self.delete.as_ref(),
+        ]
+        .iter()
+        .cloned()
+        .flatten()
+        .cloned()
+        .collect()
+    }
+
+    pub fn operation_http_map(&self) -> HashMap<HttpMethod, Operation> {
+        let mut map: HashMap<HttpMethod, Operation> = HashMap::new();
+        if let Some(get) = self.get.as_ref() {
+            map.insert(HttpMethod::GET, get.clone());
+        }
+
+        if let Some(put) = self.put.as_ref() {
+            map.insert(HttpMethod::PUT, put.clone());
+        }
+
+        if let Some(post) = self.post.as_ref() {
+            map.insert(HttpMethod::POST, post.clone());
+        }
+
+        if let Some(patch) = self.patch.as_ref() {
+            map.insert(HttpMethod::PATCH, patch.clone());
+        }
+
+        if let Some(delete) = self.delete.as_ref() {
+            map.insert(HttpMethod::DELETE, delete.clone());
+        }
+
+        map
+    }
+
+    pub fn request_metadata(&self, path: &str) -> RequestPathItem {
+        let operations = self.operations();
+        let mut request_path_item = RequestPathItem {
+            path: path.to_string(),
+            ..Default::default()
+        };
+
+        if let Some(operation) = operations.front() {
+            request_path_item.parameters = operation.path_parameters();
+            request_path_item.param_size = operation.path_parameter_size();
+        }
+
+        if request_path_item.param_size > 0 {
+            request_path_item.format_path_parameters();
+        }
+        request_path_item.metadata = self
+            .operation_http_map()
+            .iter()
+            .map(|(http_method, operation)| operation.request_metadata(*http_method))
+            .collect();
+
+        request_path_item
+    }
 }

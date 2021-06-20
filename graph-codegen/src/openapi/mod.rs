@@ -1,15 +1,17 @@
 mod components;
+mod contact;
 mod discriminator;
 mod either_t;
 mod encoding;
 mod example;
 mod external_documentation;
 mod header;
+mod info;
+mod license;
 mod link;
 mod media_type;
 mod oauth_flow;
 mod oauth_flows;
-mod openapi_parser;
 mod operation;
 mod parameter;
 mod path_item;
@@ -22,20 +24,23 @@ mod security_requirement;
 mod security_scheme;
 mod server;
 mod server_variable;
+mod tag;
 mod xml;
 
 pub use components::*;
+pub use contact::*;
 pub use discriminator::*;
 pub use either_t::*;
 pub use encoding::*;
 pub use example::*;
 pub use external_documentation::*;
 pub use header::*;
+pub use info::*;
+pub use license::*;
 pub use link::*;
 pub use media_type::*;
 pub use oauth_flow::*;
 pub use oauth_flows::*;
-pub use openapi_parser::*;
 pub use operation::*;
 pub use parameter::*;
 pub use path_item::*;
@@ -48,23 +53,29 @@ pub use security_requirement::*;
 pub use security_scheme::*;
 pub use server::*;
 pub use server_variable::*;
+pub use tag::*;
 pub use xml::*;
 
+use crate::api_types::RequestPathItem;
 use crate::traits::{FilterPath, RequestParser};
 use from_as::*;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reqwest::Url;
+use std::collections::HashMap;
 use std::{
     collections::{BTreeMap, VecDeque},
     convert::TryFrom,
     io::{Read, Write},
 };
 
+static MS_GRAPH_METADATA_URL: &str = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml";
+
 /// [OpenAPI Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#oasObject)
-#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
-pub struct OpenAPI {
+#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[serde(rename_all = "camelCase")]
+pub struct OpenApi {
     /// REQUIRED. This string MUST be the version number of the OpenAPI
     /// Specification that the OpenAPI document uses. The openapi field
     /// SHOULD be used by tooling to interpret the OpenAPI document. This is
@@ -73,14 +84,13 @@ pub struct OpenAPI {
 
     /// REQUIRED. Provides metadata about the API. The metadata MAY be used by
     /// tooling as required.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub info: Option<serde_json::Value>,
+    //#[serde(skip_serializing_if = "Option::is_none")]
+    pub info: Info,
 
     /// The default value for the $schema keyword within Schema Objects
     /// contained within this OAS document. This MUST be in the form of a
     /// URI.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(rename = "jsonSchemaDialect")]
     pub json_schema_dialect: Option<String>,
 
     /// An array of Server Objects, which provide connectivity information to a
@@ -89,7 +99,7 @@ pub struct OpenAPI {
     /// value of /.
     #[serde(default)]
     #[serde(skip_serializing_if = "VecDeque::is_empty")]
-    pub servers: VecDeque<serde_json::Value>,
+    pub servers: VecDeque<Server>,
 
     /// The available paths and operations for the API.
     /// [Paths Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#pathsObject)
@@ -103,8 +113,8 @@ pub struct OpenAPI {
     /// (optionally referenced) Path Item Object describes a request that
     /// may be initiated by the API provider and the expected responses. An
     /// example is available.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub webhooks: Option<serde_json::Value>,
+    #[serde(default)]
+    pub webhooks: HashMap<String, EitherT<PathItem, Reference>>,
 
     /// An element to hold various schemas for the document.
     /// #[serde(skip_serializing_if = "Option::is_none")]
@@ -116,8 +126,9 @@ pub struct OpenAPI {
     /// to be satisfied to authorize a request. Individual operations can
     /// override this definition. To make security optional, an empty security
     /// requirement ({}) can be included in the array.
+    #[serde(flatten)]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub security: Option<serde_json::Value>,
+    pub security: Option<SecurityRequirement>,
 
     /// A list of tags used by the document with additional metadata. The order
     /// of the tags can be used to reflect on their order by the parsing
@@ -125,31 +136,14 @@ pub struct OpenAPI {
     /// declared. The tags that are not declared MAY be organized randomly
     /// or based on the tools' logic. Each tag name in the list MUST be unique.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tags: Option<serde_json::Value>,
+    pub tags: Option<Tag>,
 
     /// Additional external documentation.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(rename = "externalDocs")]
     pub external_docs: Option<ExternalDocumentation>,
 }
 
-impl OpenAPI {
-    pub fn contains_path(&self, pat: &str) -> Vec<(String, PathItem)> {
-        self.paths
-            .iter()
-            .filter(|(path, _path_item)| path.contains(pat))
-            .map(|(path, path_item)| (path.clone(), path_item.clone()))
-            .collect()
-    }
-
-    pub fn path_starts_with(&self, pat: &str) -> Vec<(String, PathItem)> {
-        self.paths
-            .iter()
-            .filter(|(path, _path_item)| path.starts_with(pat))
-            .map(|(path, path_item)| (path.clone(), path_item.clone()))
-            .collect()
-    }
-
+impl OpenApi {
     pub fn filter_path(&mut self, pat: &str) -> BTreeMap<String, PathItem> {
         self.paths
             .clone()
@@ -170,49 +164,62 @@ impl OpenAPI {
             .map(|(path, path_item)| (path.transform_path(), path_item.clone()))
             .collect();
     }
+
+    pub fn requests(&self) -> VecDeque<RequestPathItem> {
+        self.paths
+            .iter()
+            .map(|(path, path_item)| path_item.request_metadata(path.as_str()))
+            .collect()
+    }
 }
 
-impl TryFrom<reqwest::Url> for OpenAPI {
+impl Default for OpenApi {
+    fn default() -> Self {
+        OpenApi::try_from(GraphUrl::parse(MS_GRAPH_METADATA_URL).unwrap()).unwrap()
+    }
+}
+
+impl TryFrom<reqwest::Url> for OpenApi {
     type Error = GraphFailure;
 
     fn try_from(value: Url) -> Result<Self, Self::Error> {
         let response = reqwest::blocking::get(value)?;
         let open_api_raw_text = response.text()?;
-        let open_api: OpenAPI = serde_yaml::from_str(open_api_raw_text.as_str())?;
+        let open_api: OpenApi = serde_yaml::from_str(open_api_raw_text.as_str())?;
         Ok(open_api)
     }
 }
 
-impl TryFrom<GraphUrl> for OpenAPI {
+impl TryFrom<GraphUrl> for OpenApi {
     type Error = GraphFailure;
 
     fn try_from(value: GraphUrl) -> Result<Self, Self::Error> {
-        OpenAPI::try_from(value.to_reqwest_url())
+        OpenApi::try_from(value.to_reqwest_url())
     }
 }
 
-impl IntoIterator for OpenAPI {
-    type IntoIter = std::collections::btree_map::IntoIter<String, PathItem>;
+impl IntoIterator for OpenApi {
     type Item = (String, PathItem);
+    type IntoIter = std::collections::btree_map::IntoIter<String, PathItem>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.paths.into_iter()
     }
 }
 
-impl AsRef<BTreeMap<String, PathItem>> for OpenAPI {
+impl AsRef<BTreeMap<String, PathItem>> for OpenApi {
     fn as_ref(&self) -> &BTreeMap<String, PathItem> {
         &self.paths
     }
 }
 
-impl AsMut<BTreeMap<String, PathItem>> for OpenAPI {
+impl AsMut<BTreeMap<String, PathItem>> for OpenApi {
     fn as_mut(&mut self) -> &mut BTreeMap<String, PathItem> {
         &mut self.paths
     }
 }
 
-impl FilterPath for OpenAPI {
+impl FilterPath for OpenApi {
     fn paths(&self) -> BTreeMap<String, PathItem> {
         self.paths.clone()
     }

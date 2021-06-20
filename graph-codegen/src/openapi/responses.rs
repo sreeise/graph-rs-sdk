@@ -1,4 +1,6 @@
+use crate::api_types::{RequestFunction, ResponseBody};
 use crate::openapi::{EitherT, Reference, Response};
+use crate::traits::RequestParser;
 use from_as::*;
 use std::{
     collections::HashMap,
@@ -30,4 +32,26 @@ pub struct Responses {
     #[serde(flatten)]
     #[serde(default)]
     pub status_codes: HashMap<String, EitherT<Response, Reference>>,
+}
+
+impl Responses {
+    pub fn response_body(&self, operation_id: &str) -> ResponseBody {
+        if self.status_codes.contains_key("204") {
+            return ResponseBody::NoContent;
+        }
+
+        if let Some(either_t) = self.status_codes.get("200") {
+            if let Some(response) = either_t.clone().into_left() {
+                if response.is_upload_session() {
+                    return ResponseBody::UploadSession;
+                }
+            }
+        }
+
+        if operation_id.method_name().eq("delta") {
+            return ResponseBody::Delta;
+        }
+
+        Default::default()
+    }
 }

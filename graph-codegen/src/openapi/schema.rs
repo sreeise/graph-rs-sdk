@@ -205,3 +205,19 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prefix_items: Option<Box<VecDeque<Schema>>>,
 }
+
+impl Schema {
+    pub fn is_upload_session(&self) -> bool {
+        if let Some(any_of) = self.any_of.as_ref() {
+            for either_t in any_of.iter() {
+                if let Some(reference) = either_t.clone().into_right() {
+                    if reference.is_upload_session() {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        false
+    }
+}

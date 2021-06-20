@@ -25,3 +25,11 @@ pub struct Reference {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 }
+
+impl Reference {
+    pub fn is_upload_session(&self) -> bool {
+        self.ref_.eq(&Some(
+            "#/components/schemas/microsoft.graph.uploadSession".into(),
+        ))
+    }
+}

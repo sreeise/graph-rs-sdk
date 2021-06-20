@@ -47,5 +47,21 @@ pub trait FilterPath {
         }
     }
 
+    fn contains(&self, pat: &str) -> Vec<(String, PathItem)> {
+        self.paths()
+            .into_par_iter()
+            .filter(|(path, _path_item)| path.contains(pat))
+            .map(|(path, path_item)| (path.clone(), path_item.clone()))
+            .collect()
+    }
+
+    fn starts_with(&self, pat: &str) -> Vec<(String, PathItem)> {
+        self.paths()
+            .iter()
+            .filter(|(path, _path_item)| path.starts_with(pat))
+            .map(|(path, path_item)| (path.clone(), path_item.clone()))
+            .collect()
+    }
+
     fn paths(&self) -> BTreeMap<String, PathItem>;
 }

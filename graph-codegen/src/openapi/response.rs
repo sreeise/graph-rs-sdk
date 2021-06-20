@@ -1,3 +1,4 @@
+use crate::api_types::{RequestFunction, ResponseBody};
 use crate::openapi::{EitherT, Header, Link, MediaType, Reference};
 use from_as::*;
 use std::{
@@ -28,4 +29,23 @@ pub struct Response {
     #[serde(default)]
     #[serde(skip_serializing_if = "HashMap::is_empty")]
     pub links: HashMap<String, EitherT<Link, Reference>>,
+}
+
+impl Response {
+    pub fn response_body(&self) -> ResponseBody {
+        println!("{:#?}", self.content);
+        if self.content.contains_key("application/json") {
+            return ResponseBody::Json;
+        }
+
+        Default::default()
+    }
+
+    pub fn is_upload_session(&self) -> bool {
+        if let Some(media_type) = self.content.get("application/json") {
+            return media_type.is_upload_session();
+        }
+
+        false
+    }
 }

@@ -38,3 +38,15 @@ pub struct MediaType {
     #[serde(skip_serializing_if = "HashMap::is_empty")]
     pub encoding: HashMap<String, Encoding>,
 }
+
+impl MediaType {
+    pub fn is_upload_session(&self) -> bool {
+        if let Some(either_t) = self.schema.as_ref() {
+            if let Some(schema) = either_t.clone().into_left() {
+                return schema.is_upload_session();
+            }
+        }
+
+        false
+    }
+}

@@ -1,3 +1,5 @@
+use crate::api_types::RequestMetadata;
+use crate::parser::{HttpMethod, RequestType, ResponseType};
 use crate::{
     openapi::{
         EitherT, ExternalDocumentation, Parameter, Reference, RequestBody, Responses,
@@ -119,4 +121,53 @@ impl Operation {
             .filter(|parameter| parameter.is_path())
             .count()
     }
+
+    pub fn path_parameters(&self) -> VecDeque<String> {
+        self.parameters()
+            .iter()
+            .filter(|p| p.is_path())
+            .map(|p| p.name.clone())
+            .flatten()
+            .collect()
+    }
+
+    pub fn has_body(&self) -> bool {
+        self.request_body.is_some()
+    }
+
+    pub fn request_metadata(&self, http_method: HttpMethod) -> RequestMetadata {
+        RequestMetadata {
+            has_body: self.has_body(),
+            request_function: Default::default(),
+            response_body: self.responses.response_body(self.operation_id.as_str()),
+            operation_id: self.operation_id.to_string(),
+            operation_mapping: self.operation_id.operation_mapping(),
+            http_method,
+            doc: self.description.clone(),
+        }
+    }
 }
+
+/*
+impl From<Operation> for RequestMetadata {
+    fn from(operation: Operation) -> Self {
+        RequestMetadata::from(&operation)
+    }
+}
+
+impl From<(HttpMethod, Operation)> for RequestMetadata {
+    fn from(value: (HttpMethod, Operation)) -> Self {
+        let (http_method, operation) = value;
+        RequestMetadata {
+            has_body: operation.has_body(),
+            request_function: Default::default(),
+            response_body: operation.responses.response_body(),
+            operation_id: operation.operation_id.to_string(),
+            operation_mapping: operation.operation_id.operation_mapping(),
+            http_method,
+            doc: operation.description.clone(),
+        }
+    }
+}
+
+ */

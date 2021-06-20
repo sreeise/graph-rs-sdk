@@ -1,5 +1,4 @@
-use crate::openapi::{Header, Reference};
-use either::Either;
+use crate::openapi::{EitherT, Header, Reference};
 use from_as::*;
 use std::{
     collections::HashMap,
@@ -25,7 +24,7 @@ pub struct Encoding {
     /// and SHALL be ignored in this section. This property SHALL be ignored
     /// if the request body media type is not a multipart.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub headers: Option<HashMap<String, Either<Header, Reference>>>,
+    pub headers: Option<HashMap<String, EitherT<Header, Reference>>>,
 
     /// Describes how a specific property value will be serialized depending on
     /// its type. See Parameter Object for details on the style property.
