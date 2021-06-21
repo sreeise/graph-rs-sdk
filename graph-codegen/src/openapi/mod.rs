@@ -56,7 +56,7 @@ pub use server_variable::*;
 pub use tag::*;
 pub use xml::*;
 
-use crate::api_types::RequestPathItem;
+use crate::api_types::PathMetadata;
 use crate::traits::{FilterPath, RequestParser};
 use from_as::*;
 use graph_error::GraphFailure;
@@ -84,7 +84,6 @@ pub struct OpenApi {
 
     /// REQUIRED. Provides metadata about the API. The metadata MAY be used by
     /// tooling as required.
-    //#[serde(skip_serializing_if = "Option::is_none")]
     pub info: Info,
 
     /// The default value for the $schema keyword within Schema Objects
@@ -117,7 +116,6 @@ pub struct OpenApi {
     pub webhooks: HashMap<String, EitherT<PathItem, Reference>>,
 
     /// An element to hold various schemas for the document.
-    /// #[serde(skip_serializing_if = "Option::is_none")]
     pub components: Components,
 
     /// A declaration of which security mechanisms can be used across the API.
@@ -165,10 +163,18 @@ impl OpenApi {
             .collect();
     }
 
-    pub fn requests(&self) -> VecDeque<RequestPathItem> {
+    pub fn requests(&self) -> VecDeque<PathMetadata> {
         self.paths
             .iter()
             .map(|(path, path_item)| path_item.request_metadata(path.as_str()))
+            .collect()
+    }
+
+    pub fn operations(&self) -> VecDeque<Operation> {
+        self.paths
+            .iter()
+            .map(|(_path, path_item)| path_item.operations())
+            .flatten()
             .collect()
     }
 }

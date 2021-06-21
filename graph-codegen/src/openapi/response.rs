@@ -1,4 +1,4 @@
-use crate::api_types::{RequestFunction, ResponseBody};
+use crate::api_types::RequestTask;
 use crate::openapi::{EitherT, Header, Link, MediaType, Reference};
 use from_as::*;
 use std::{
@@ -32,10 +32,10 @@ pub struct Response {
 }
 
 impl Response {
-    pub fn response_body(&self) -> ResponseBody {
+    pub fn response_body(&self) -> RequestTask {
         println!("{:#?}", self.content);
         if self.content.contains_key("application/json") {
-            return ResponseBody::Json;
+            return RequestTask::Json;
         }
 
         Default::default()

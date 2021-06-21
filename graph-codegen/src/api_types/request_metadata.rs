@@ -1,4 +1,4 @@
-use crate::api_types::{RequestFunction, ResponseBody};
+use crate::api_types::RequestTask;
 use crate::inflector::Inflector;
 use crate::parser::HttpMethod;
 use crate::traits::RequestParser;
@@ -10,8 +10,7 @@ use std::io::{Read, Write};
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct RequestMetadata {
     pub has_body: bool,
-    pub request_function: RequestFunction,
-    pub response_body: ResponseBody,
+    pub request_task: RequestTask,
     pub operation_id: String,
     pub operation_mapping: String,
     pub http_method: HttpMethod,
@@ -25,14 +24,14 @@ impl RequestMetadata {
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
-pub struct RequestPathItem {
+pub struct PathMetadata {
     pub path: String,
     pub param_size: usize,
     pub parameters: VecDeque<String>,
     pub metadata: VecDeque<RequestMetadata>,
 }
 
-impl RequestPathItem {
+impl PathMetadata {
     pub fn replace_brackets(&mut self) {
         self.path = self.path.replace('{', "{{").replace('}', "}}");
     }

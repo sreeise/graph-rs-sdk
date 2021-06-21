@@ -1,4 +1,4 @@
-use crate::api_types::{RequestMetadata, RequestPathItem};
+use crate::api_types::{PathMetadata, RequestMetadata};
 use crate::openapi::{EitherT, Operation, Parameter, Reference, Server};
 use crate::parser::HttpMethod;
 use from_as::*;
@@ -121,9 +121,9 @@ impl PathItem {
         map
     }
 
-    pub fn request_metadata(&self, path: &str) -> RequestPathItem {
+    pub fn request_metadata(&self, path: &str) -> PathMetadata {
         let operations = self.operations();
-        let mut request_path_item = RequestPathItem {
+        let mut request_path_item = PathMetadata {
             path: path.to_string(),
             ..Default::default()
         };

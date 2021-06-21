@@ -1,7 +1,5 @@
-mod request_function;
-mod requests;
-mod response_body;
+mod request_metadata;
+mod request_task;
 
-pub use request_function::*;
-pub use requests::*;
-pub use response_body::*;
+pub use request_metadata::*;
+pub use request_task::*;

@@ -1,4 +1,4 @@
-use crate::api_types::{RequestFunction, ResponseBody};
+use crate::api_types::RequestTask;
 use crate::openapi::{EitherT, Reference, Response};
 use crate::traits::RequestParser;
 use from_as::*;
@@ -35,21 +35,29 @@ pub struct Responses {
 }
 
 impl Responses {
-    pub fn response_body(&self, operation_id: &str) -> ResponseBody {
+    pub fn response_body(&self, operation_id: &str) -> RequestTask {
         if self.status_codes.contains_key("204") {
-            return ResponseBody::NoContent;
+            return RequestTask::NoContent;
+        }
+
+        // The method name parsed from the operation id is useful
+        // for figuring out the RequestTask thanks to naming conventions.
+        let method_name = operation_id.method_name();
+
+        if method_name.eq("delta") {
+            return RequestTask::Delta;
+        }
+
+        if method_name.eq("create_upload_session") {
+            return RequestTask::UploadSession;
         }
 
         if let Some(either_t) = self.status_codes.get("200") {
             if let Some(response) = either_t.clone().into_left() {
                 if response.is_upload_session() {
-                    return ResponseBody::UploadSession;
+                    return RequestTask::UploadSession;
                 }
             }
-        }
-
-        if operation_id.method_name().eq("delta") {
-            return ResponseBody::Delta;
         }
 
         Default::default()
