@@ -14,17 +14,21 @@ use std::io::{Read, Write};
 /// specific macro that is used to generate the method for the api clients.
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub enum RequestTask {
-    /// A successful request will return a 204 no-content response.
+    /// 204 no-content response.
     NoContent,
 
-    /// A successful request will return relevant json.
+    /// JSON in the response body.
     Json,
+
+    /// The request is an upload of an item such as uploading
+    /// a file to OneDrive.
+    Upload,
 
     /// The request is an upload session and will perform a series
     /// of requests to upload an item.
     UploadSession,
 
-    /// A successful request will return relevant bytes or Vec<u8>
+    /// Bytes or [`Vec<u8>`] in the response body.
     Bytes,
 
     /// The request is a download of an item from the graph api
@@ -42,9 +46,13 @@ pub enum RequestTask {
 }
 
 impl RequestTask {
-    pub fn type_name(&self) -> &str {
+    /// Each RequestTask can be represented as a return type in the sdk client methods:
+    /// [`IntoResponse<'a, T, Client>`](graph_http::IntoResponse) is the same as
+    /// [`IntoResponse<'a, NoContent, Client>`](graph_http::IntoResponse)
+    pub fn type_name(&self) -> &'static str {
         match self {
-            RequestTask::NoContent => "NoContent",
+            RequestTask::NoContent
+            | RequestTask::Upload => "NoContent",
             RequestTask::Json => "serde_json::Value",
             RequestTask::UploadSession => "UploadSessionClient<Client>",
             RequestTask::Bytes => "Vec<u8>",
@@ -58,14 +66,15 @@ impl RequestTask {
     /// Not all request tasks will have required imports.
     pub fn imports(&self) -> Vec<&str> {
         match self {
-            RequestTask::NoContent => vec!["graph_http::types::NoContent"],
-            RequestTask::Json => vec![],
+            RequestTask::Json
+            | RequestTask::Bytes => vec![],
+            RequestTask::NoContent
+            | RequestTask::Upload => vec!["graph_http::types::NoContent"],
             RequestTask::UploadSession => vec![
                 "std::path::Path",
                 "graph_error::GraphFailure",
                 "graph_http::UploadSessionClient",
             ],
-            RequestTask::Bytes => vec![],
             RequestTask::Download => vec![
                 "std::path::Path",
                 "graph_error::GraphFailure",

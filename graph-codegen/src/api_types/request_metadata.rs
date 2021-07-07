@@ -6,6 +6,7 @@ use from_as::*;
 use std::collections::VecDeque;
 use std::convert::TryFrom;
 use std::io::{Read, Write};
+use crate::macros::writer::MacroFormatter;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct RequestMetadata {
@@ -20,6 +21,10 @@ pub struct RequestMetadata {
 impl RequestMetadata {
     pub fn fn_name(&self) -> String {
         self.operation_id.method_name()
+    }
+
+    pub fn type_name(&self) -> &'static str {
+        self.request_task.type_name()
     }
 }
 
@@ -59,5 +64,43 @@ impl PathMetadata {
 
         self.path = path;
         self.parameters = self.snake_case_parameters();
+    }
+
+    pub fn generate_request_impl(&self) -> VecDeque<String> {
+        let mut parameter_str_list = String::new();
+        for param in self.parameters.iter() {
+            parameter_str_list.push_str(&format!(" {} ", param));
+        }
+
+        self.metadata
+            .iter()
+            .map(|m| {
+                format!(
+                    "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: \
+                         {},\n\t\tpath: \"{}\",\n\t\tparams: [{}],\n\t\thas_body: {}\n\t}});",
+                    m.http_method.as_ref(),
+                    m.doc.clone().unwrap_or_default(),
+                    m.fn_name(),
+                    m.type_name(),
+                    self.path.as_str(),
+                    parameter_str_list,
+                    m.has_body
+                )
+            })
+            .collect()
+    }
+}
+
+pub struct PathMetadataQueue(VecDeque<PathMetadata>);
+
+impl PathMetadataQueue {
+    pub fn new() -> PathMetadataQueue {
+        PathMetadataQueue(VecDeque::new())
+    }
+}
+
+impl From<VecDeque<PathMetadata>> for PathMetadataQueue {
+    fn from(queue: VecDeque<PathMetadata>) -> Self {
+        PathMetadataQueue(queue)
     }
 }

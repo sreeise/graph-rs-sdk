@@ -1,4 +1,9 @@
 use crate::parser::HttpMethod;
+use std::collections::{VecDeque, HashSet};
+use crate::api_types::{RequestTask, RequestMetadata};
+use bytes::{BytesMut, BufMut};
+use graph_http::RequestAttribute::RequestType;
+use core::slice::SlicePattern;
 
 /*
 TODO:
@@ -49,6 +54,137 @@ TODO:
  When syntax highlighting takes place the user will see the parameter names
  instead of id and id1.
  */
+
+pub trait MacroWriter {
+    fn write(&self, path: std::path::Path);
+
+    fn parameter_bounds(param_size: usize, has_body: bool) -> &'static str {
+        if param_size > 0 {
+            match has_body {
+                false => "<S: AsRef<str>>",
+                true => "<S: AsRef<str>, B: serde::Serialize>",
+            }
+        } else if has_body {
+            "<B: serde::Serialize>"
+        } else {
+            ""
+        }
+    }
+
+    fn parameters(param_size: usize, has_body: bool) -> String {
+        let mut s = String::from("(&'a self");
+
+        for i in 0..param_size {
+            if i == 0 {
+                s.push_str(", $p: S");
+            } else {
+                s.push_str(&format!(", $p{}: S", i));
+            }
+        }
+
+        if has_body {
+            s.push_str(", body: &B");
+        }
+        s.push(')');
+        s
+    }
+}
+
+/// Writes the macro used for describing requests. This is the outer
+/// most macro and is used to describe all requests.
+///
+/// # Example Macro
+/// ```rust,ignore
+/// get!({
+///     doc: "# Get historyItems from me",
+///     name: get_activity_history,
+///     response: serde_json::Value,
+///     path: "/activities/{{id}}/historyItems/{{id1}}}",
+///     params: [ user_activity_id history_items_id ],
+///     has_body: false
+/// });
+/// ```
+pub trait ApiMacroWriter {
+    /// A description of what the request is doing.
+    fn doc(&self) -> Option<String>;
+
+    /// The HTTP method for the request. Must be one of GET, PUT, POST, PATCH, DELETE
+    /// Macro type: expr
+    fn http_method(&self) -> HttpMethod;
+
+    /// The method name that is used to call this request.
+    /// Macro type: ident
+    fn fn_name(&self) -> String;
+
+    /// The request task describes the type of action this request will perform.
+    fn request_task(&self) -> RequestTask;
+
+    /// The URL path.
+    /// Macro type: expr
+    fn path(&self) -> String;
+
+    /// A list of parameter names that will be used for the request method.
+    fn params(&self) -> &VecDeque<String>;
+
+    /// Does the request require a body.
+    fn has_body(&self) -> bool;
+
+    fn request_metadata(&self) -> &VecDeque<RequestMetadata>;
+
+    /// The macro call name such as `vec!`
+    fn macro_fn_name(&self) -> &str {
+        let http_method = self.http_method();
+        match self.request_task() {
+            RequestTask::NoContent
+            | RequestTask::Json
+            | RequestTask::Bytes
+            | RequestTask::Upload
+            | RequestTask::UploadSession
+            | RequestTask::Delta => http_method.as_ref(),
+            RequestTask::Download => "download",
+            RequestTask::AsyncDownload => "async_download"
+        }
+    }
+
+    fn macro_params(&self) -> String {
+        let mut parameter_str = String::new();
+        for param in self.params().iter() {
+            parameter_str.push_str(&format!(" {} ", param));
+        }
+        parameter_str
+    }
+
+    fn write(&self) {
+        let mut doc = String::new();
+        if let Some(doc_string) = self.doc() {
+            doc = format!("\n\t\tdoc: \"{}\", ", doc_string);
+        }
+
+        let mut buf = BytesMut::new();
+        let name = self.fn_name();
+        let path = self.path();
+        let params = self.macro_params();
+        let has_body = self.has_body();
+        let request_task = self.request_task();
+        let is_upload = request_task == RequestTask::Upload;
+        let is_upload_session = request_task == RequestTask::UploadSession;
+        let type_name = request_task.type_name();
+
+        buf.put(&format!("\n\t{}!({{", self.macro_fn_name()));
+        buf.put(doc);
+        buf.put(&format!("\n\t\tname: {}", name));
+        buf.put(&format!(",\n\t\tresponse: {}", type_name));
+        buf.put(&format!(",\n\t\tpath: {}", path));
+        buf.put(&format!(",\n\t\tparams: [{}]", params));
+        if has_body { buf.put(&format!(",\n\t\thas_body: {}\n\t", has_body)); }
+        if is_upload { buf.put(",\n\t\tupload: true\n\t"); }
+        if is_upload_session { buf.put(",\n\t\tupload_session: true\n\t"); }
+        buf.put("}});");
+
+        let s = std::str::from_utf8(buf.as_slice()).unwrap();
+        println!("{}", s);
+    }
+}
 
 /// Helper struct to write out the macros that create the request methods.
 /// The macros are located at ./src/client/macros.rs
@@ -171,8 +307,7 @@ impl MacroFormatter {
             }
         };
 
-        format!(
-            "{} => {{
+        format!("{} => {{
     {}
     pub fn $name{}{}-> IntoResponse<'a, $T, Client>
     {{
