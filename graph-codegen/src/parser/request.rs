@@ -37,6 +37,19 @@ pub enum HttpMethod {
     TRACE,
 }
 
+impl HttpMethod {
+    pub fn enum_name(&self) -> String {
+        match self {
+            HttpMethod::GET => "Method::GET".into(),
+            HttpMethod::PUT => "Method::PUT".into(),
+            HttpMethod::POST => "Method::POST".into(),
+            HttpMethod::DELETE => "Method::DELETE".into(),
+            HttpMethod::PATCH => "Method::PATCH".into(),
+            HttpMethod::TRACE => "Method::TRACE".into(),
+        }
+    }
+}
+
 impl Default for HttpMethod {
     fn default() -> Self {
         HttpMethod::GET
@@ -66,6 +79,12 @@ impl From<HttpMethod> for reqwest::Method {
             HttpMethod::PATCH => reqwest::Method::PATCH,
             HttpMethod::TRACE => reqwest::Method::TRACE,
         }
+    }
+}
+
+impl ToString for HttpMethod {
+    fn to_string(&self) -> String {
+        self.as_ref().to_string()
     }
 }
 

@@ -1,12 +1,12 @@
-use crate::api_types::RequestTask;
+use crate::api_types::{Metadata, RequestTask};
 use crate::inflector::Inflector;
+use crate::macros::{MacroFormatter, MacroQueueWriter};
 use crate::parser::HttpMethod;
 use crate::traits::RequestParser;
 use from_as::*;
 use std::collections::VecDeque;
 use std::convert::TryFrom;
 use std::io::{Read, Write};
-use crate::macros::writer::MacroFormatter;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct RequestMetadata {
@@ -19,12 +19,30 @@ pub struct RequestMetadata {
 }
 
 impl RequestMetadata {
-    pub fn fn_name(&self) -> String {
+    pub fn type_name(&self) -> &'static str {
+        self.request_task.type_name()
+    }
+}
+
+impl Metadata for RequestMetadata {
+    fn doc(&self) -> Option<String> {
+        self.doc.clone()
+    }
+
+    fn http_method(&self) -> HttpMethod {
+        self.http_method.clone()
+    }
+
+    fn fn_name(&self) -> String {
         self.operation_id.method_name()
     }
 
-    pub fn type_name(&self) -> &'static str {
-        self.request_task.type_name()
+    fn request_task(&self) -> RequestTask {
+        self.request_task.clone()
+    }
+
+    fn has_body(&self) -> bool {
+        self.has_body
     }
 }
 
@@ -65,29 +83,21 @@ impl PathMetadata {
         self.path = path;
         self.parameters = self.snake_case_parameters();
     }
+}
 
-    pub fn generate_request_impl(&self) -> VecDeque<String> {
-        let mut parameter_str_list = String::new();
-        for param in self.parameters.iter() {
-            parameter_str_list.push_str(&format!(" {} ", param));
-        }
+impl MacroQueueWriter for PathMetadata {
+    type Metadata = RequestMetadata;
 
-        self.metadata
-            .iter()
-            .map(|m| {
-                format!(
-                    "\n\t{}!({{\n\t\tdoc: \"{}\",\n\t\tname: {},\n\t\tresponse: \
-                         {},\n\t\tpath: \"{}\",\n\t\tparams: [{}],\n\t\thas_body: {}\n\t}});",
-                    m.http_method.as_ref(),
-                    m.doc.clone().unwrap_or_default(),
-                    m.fn_name(),
-                    m.type_name(),
-                    self.path.as_str(),
-                    parameter_str_list,
-                    m.has_body
-                )
-            })
-            .collect()
+    fn request_metadata(&self) -> VecDeque<Self::Metadata> {
+        self.metadata.clone()
+    }
+
+    fn path(&self) -> String {
+        self.path.clone()
+    }
+
+    fn params(&self) -> &VecDeque<String> {
+        &self.parameters
     }
 }
 

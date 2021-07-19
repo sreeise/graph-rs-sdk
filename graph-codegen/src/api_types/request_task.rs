@@ -12,7 +12,9 @@ use std::io::{Read, Write};
 /// reading a file from a drive while a simple GET request just returns json.
 /// Both the upload session and GET request will have a separate and
 /// specific macro that is used to generate the method for the api clients.
-#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[derive(
+    Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Ord, PartialOrd, Eq, PartialEq, Hash,
+)]
 pub enum RequestTask {
     /// 204 no-content response.
     NoContent,
@@ -51,8 +53,7 @@ impl RequestTask {
     /// [`IntoResponse<'a, NoContent, Client>`](graph_http::IntoResponse)
     pub fn type_name(&self) -> &'static str {
         match self {
-            RequestTask::NoContent
-            | RequestTask::Upload => "NoContent",
+            RequestTask::NoContent | RequestTask::Upload => "NoContent",
             RequestTask::Json => "serde_json::Value",
             RequestTask::UploadSession => "UploadSessionClient<Client>",
             RequestTask::Bytes => "Vec<u8>",
@@ -66,10 +67,8 @@ impl RequestTask {
     /// Not all request tasks will have required imports.
     pub fn imports(&self) -> Vec<&str> {
         match self {
-            RequestTask::Json
-            | RequestTask::Bytes => vec![],
-            RequestTask::NoContent
-            | RequestTask::Upload => vec!["graph_http::types::NoContent"],
+            RequestTask::Json | RequestTask::Bytes => vec![],
+            RequestTask::NoContent | RequestTask::Upload => vec!["graph_http::types::NoContent"],
             RequestTask::UploadSession => vec![
                 "std::path::Path",
                 "graph_error::GraphFailure",
