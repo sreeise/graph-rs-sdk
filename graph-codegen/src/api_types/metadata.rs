@@ -19,6 +19,9 @@ pub trait Metadata {
     /// Does the request require a body.
     fn has_body(&self) -> bool;
 
+    /// The struct that the method is implemented for.
+    fn parent(&self) -> String;
+
     /// The macro call name such as `vec!`
     fn macro_fn_name(&self) -> String {
         let http_method = self.http_method();

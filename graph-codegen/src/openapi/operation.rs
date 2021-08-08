@@ -13,6 +13,7 @@ use std::{
     convert::TryFrom,
     io::{Read, Write},
 };
+use crate::inflector::Inflector;
 
 /// [Operation Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#operation-object)
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -136,13 +137,24 @@ impl Operation {
     }
 
     pub fn request_metadata(&self, http_method: HttpMethod) -> RequestMetadata {
+        let operation_mapping = self.operation_id.operation_mapping();
+        let mut parent = String::new();
+
+        if operation_mapping.contains('.') {
+            let v: Vec<&str> = operation_mapping.split('.').collect();
+            parent = v.last().map(|s| s.to_pascal_case()).unwrap_or_default();
+        } else {
+            parent = operation_mapping.to_pascal_case();
+        }
+
         RequestMetadata {
             has_body: self.has_body(),
             request_task: self.responses.response_body(self.operation_id.as_str()),
             operation_id: self.operation_id.to_string(),
-            operation_mapping: self.operation_id.operation_mapping(),
+            operation_mapping,
             http_method,
             doc: self.summary.clone(),
+            parent,
         }
     }
 }

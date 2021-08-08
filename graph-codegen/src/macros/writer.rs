@@ -159,7 +159,7 @@ impl MacroFormatter {
         }
     }
 
-    fn register_method_call(param_size: usize, method: HttpMethod, has_body: bool) -> String {
+    fn register_method_call(macro_name: &str, param_size: usize, method: HttpMethod, has_body: bool) -> String {
         let mut inner_params = String::new();
         for i in 0..param_size {
             if i == 0 {
@@ -171,20 +171,21 @@ impl MacroFormatter {
 
         if param_size > 0 {
             format!(
-                "api_method!(
+                "{}!(
                         {{ doc: $doc, name: $name, response: $T, path: $template, method: {}, params: [{}], has_body: {} }}
-                    );", method.enum_name(), inner_params, has_body
+                    );", macro_name, method.enum_name(), inner_params, has_body
             )
         } else {
             format!(
-                "api_method!(
+                "{}!(
                     {{ doc: $doc, name: $name, response: $T, path: $template, method: {}, has_body: {} }}
-                );", method.enum_name(), has_body
+                );", macro_name, method.enum_name(), has_body
             )
         }
     }
 
     fn http_method_macro(
+        macro_name: &str,
         param_size: usize,
         method: HttpMethod,
         doc: bool,
@@ -192,7 +193,7 @@ impl MacroFormatter {
     ) -> String {
         let params = MacroFormatter::http_method_params(param_size, doc, has_body);
         let register_method_call =
-            MacroFormatter::register_method_call(param_size, method, has_body);
+            MacroFormatter::register_method_call(macro_name, param_size, method, has_body);
         format!(
             "{} => {{
                 {}
@@ -230,10 +231,10 @@ impl MacroFormatter {
         let mut buf = BytesMut::new();
 
         for i in 0..param_size {
-            let r1 = MacroFormatter::http_method_macro(i, method, true, false);
-            let r2 = MacroFormatter::http_method_macro(i, method, true, true);
-            let r3 = MacroFormatter::http_method_macro(i, method, false, true);
-            let r4 = MacroFormatter::http_method_macro(i, method, false, false);
+            let r1 = MacroFormatter::http_method_macro("api_method", i, method, true, false);
+            let r2 = MacroFormatter::http_method_macro("api_method", i, method, true, true);
+            let r3 = MacroFormatter::http_method_macro("api_method", i, method, false, true);
+            let r4 = MacroFormatter::http_method_macro("api_method", i, method, false, false);
 
             buf.put(r1.as_bytes());
             buf.put("\n\n".as_bytes());

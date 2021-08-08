@@ -1,7 +1,8 @@
 use crate::parser::{HttpMethod, Modifier, Request};
 use inflector::Inflector;
 use regex::Regex;
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashSet, VecDeque, HashMap};
+use crate::traits::HashMapExt;
 
 lazy_static! {
     /// Matches any number. Some of the graph request data has
@@ -36,6 +37,7 @@ pub trait RequestParser<RHS = Self> {
     fn links(&self) -> HashSet<String> {
         Default::default()
     }
+    fn struct_links(&self) -> HashMap<String, Vec<String>>;
 }
 
 pub trait Modify<T> {
@@ -190,6 +192,47 @@ impl RequestParser for &str {
 
         links
     }
+
+    /// Creates a hash map of each struct and the client structs
+    /// it links too.
+    ///
+    /// # Example
+    ///
+    /// Say we have the following operation id's or operation mappings:
+    ///     groups.calendar.calendarView
+    ///     groups.calendarView
+    ///     groups.drive
+    ///
+    /// {
+    ///     "groups": [
+    ///         "calendar",
+    ///         "calendarView",
+    ///         "drive"
+    ///     ],
+    ///     "calendar": [
+    ///         "calendarView"
+    ///     ]
+    /// }
+    fn struct_links(&self) -> HashMap<String, Vec<String>> {
+        let mut links = self.links();
+        let mut map: HashMap<String, Vec<String>> = HashMap::new();
+        let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
+        vec.sort_unstable();
+
+        for link in vec.iter() {
+            if link.contains('.') {
+                let mut vec: VecDeque<&str> = link.split('.').collect();
+                vec.retain(|l| !l.is_empty());
+                let first = vec.pop_front().unwrap();
+                let last = vec.pop_front().unwrap();
+                map.entry_modify_insert(first.to_string(), last.to_string());
+            } else {
+                map.insert(link.to_string(), vec![]);
+            }
+        }
+
+        map
+    }
 }
 
 impl RequestParser for String {
@@ -207,5 +250,9 @@ impl RequestParser for String {
 
     fn links(&self) -> HashSet<String> {
         self.as_str().links()
+    }
+
+    fn struct_links(&self) -> HashMap<String, Vec<String>> {
+        self.as_str().struct_links()
     }
 }

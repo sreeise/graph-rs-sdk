@@ -255,6 +255,10 @@ impl RequestParser for Request {
     fn links(&self) -> HashSet<String> {
         self.operation_mapping.links()
     }
+
+    fn struct_links(&self) -> HashMap<String, Vec<String>> {
+        self.operation_mapping.struct_links()
+    }
 }
 
 pub struct ReqSet {

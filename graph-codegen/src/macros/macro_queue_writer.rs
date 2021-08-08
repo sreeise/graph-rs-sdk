@@ -1,6 +1,8 @@
-use crate::api_types::{Metadata, RequestTask};
+use crate::api_types::{Metadata, RequestTask, RequestClientList, PathMetadata, RequestMetadata};
 use bytes::{BufMut, BytesMut};
-use std::collections::VecDeque;
+use std::collections::{VecDeque, BTreeMap, HashSet, HashMap};
+use crate::inflector::Inflector;
+use crate::traits::RequestParser;
 
 /// Writes the macro used for describing requests. This is the outer
 /// most macro and is used to describe all requests.
@@ -21,6 +23,8 @@ pub trait MacroQueueWriter {
 
     fn request_metadata(&self) -> VecDeque<Self::Metadata>;
 
+    fn request_clients(&self) -> RequestClientList;
+
     /// The URL path.
     /// Macro type: expr
     fn path(&self) -> String;
@@ -28,36 +32,7 @@ pub trait MacroQueueWriter {
     /// A list of parameter names that will be used for the request method.
     fn params(&self) -> &VecDeque<String>;
 
-    fn parameter_bounds(param_size: usize, has_body: bool) -> &'static str {
-        if param_size > 0 {
-            match has_body {
-                false => "<S: AsRef<str>>",
-                true => "<S: AsRef<str>, B: serde::Serialize>",
-            }
-        } else if has_body {
-            "<B: serde::Serialize>"
-        } else {
-            ""
-        }
-    }
-
-    fn parameters(param_size: usize, has_body: bool) -> String {
-        let mut s = String::from("(&'a self");
-
-        for i in 0..param_size {
-            if i == 0 {
-                s.push_str(", $p: S");
-            } else {
-                s.push_str(&format!(", $p{}: S", i));
-            }
-        }
-
-        if has_body {
-            s.push_str(", body: &B");
-        }
-        s.push(')');
-        s
-    }
+    fn param_size(&self) -> usize;
 
     fn macro_params(&self) -> String {
         let mut parameter_str = String::new();
@@ -93,19 +68,46 @@ pub trait MacroQueueWriter {
             buf.put(format!("\n\t\tname: {}", name).as_bytes());
             buf.put(format!(",\n\t\tresponse: {}", type_name).as_bytes());
             buf.put(format!(",\n\t\tpath: {}", path).as_bytes());
-            buf.put(format!(",\n\t\tparams: [{}]", params).as_bytes());
-            if has_body {
-                buf.put(format!(",\n\t\thas_body: {}", has_body).as_bytes());
+
+            if self.param_size() > 0 {
+                buf.put(format!(",\n\t\tparams: [{}]", params).as_bytes());
             }
+
+            buf.put(format!(",\n\t\thas_body: {}", has_body).as_bytes());
             if is_upload {
                 buf.put(",\n\t\tupload: true".as_bytes());
             }
             if is_upload_session {
                 buf.put(",\n\t\tupload_session: true".as_bytes());
             }
-            buf.put("\n\t}});".as_bytes());
+            buf.put("\n\t});".as_bytes());
         }
         let s = std::str::from_utf8(buf.as_ref()).unwrap();
         s.to_string()
+    }
+}
+
+pub trait MacroImplWriter {
+    type Metadata: MacroQueueWriter;
+
+    fn path_metadata_queue(&self) -> VecDeque<Self::Metadata>;
+
+    fn request_metadata_queue(&self) -> VecDeque<RequestMetadata>;
+
+    /// Writes the rust file for a single resource. Resources can contain
+    /// multiple secondary resources.
+    // TODO
+    fn write_impl(&self) {
+        let metadata = self.request_metadata_queue();
+        let client_list = RequestClientList::from(metadata);
+        println!("Client List:\n\n{:#?}", client_list);
+
+        let mut links_map: HashMap<String, Vec<String>> = HashMap::new();
+        for (_name, metadata) in client_list.clients.iter() {
+            if let Some(m) = metadata.get(0) {
+                let links = m.operation_mapping.struct_links();
+                links_map.extend(links);
+            }
+        }
     }
 }

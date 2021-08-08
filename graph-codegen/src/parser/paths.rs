@@ -11,6 +11,7 @@ use std::{
     convert::TryFrom,
     io::{Read, Write},
 };
+use std::collections::HashMap;
 
 pub trait IsInPath {
     fn retain_is_in_path(&mut self);
@@ -191,6 +192,10 @@ impl RequestParser for Operation {
 
     fn links(&self) -> HashSet<String> {
         self.operation_mapping().links()
+    }
+
+    fn struct_links(&self) -> HashMap<String, Vec<String>> {
+        self.operation_mapping().struct_links()
     }
 }
 
