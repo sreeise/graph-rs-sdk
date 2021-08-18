@@ -225,9 +225,9 @@ impl RequestParser for &str {
                 vec.retain(|l| !l.is_empty());
                 let first = vec.pop_front().unwrap();
                 let last = vec.pop_front().unwrap();
-                map.entry_modify_insert(first.to_string(), last.to_string());
+                map.entry_modify_insert(first.to_pascal_case(), last.to_pascal_case());
             } else {
-                map.insert(link.to_string(), vec![]);
+                map.insert(link.to_pascal_case(), vec![]);
             }
         }
 

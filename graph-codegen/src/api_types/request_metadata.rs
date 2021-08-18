@@ -4,7 +4,7 @@ use crate::macros::{MacroFormatter, MacroQueueWriter, MacroImplWriter};
 use crate::parser::HttpMethod;
 use crate::traits::{RequestParser, HashMapExt};
 use from_as::*;
-use std::collections::{VecDeque, HashSet, BTreeSet, HashMap};
+use std::collections::{VecDeque, HashSet, BTreeSet, HashMap, BTreeMap};
 use std::convert::TryFrom;
 use std::io::{Read, Write};
 
@@ -107,6 +107,10 @@ impl PathMetadata {
             .iter()
             .find(|metadata| metadata.operation_id.starts_with(operation_id_start))
             .is_some()
+    }
+
+    pub fn path_starts_with(&self, path: &str) -> bool {
+        self.path.starts_with(path)
     }
 
     pub fn trim_operation_id_start(&mut self, operation_id_start_name: &str) {
@@ -251,6 +255,12 @@ impl MacroQueueWriter for PathMetadata {
 
     fn param_size(&self) -> usize {
         self.param_size
+    }
+
+    fn parent(&self) -> String {
+        self.metadata.get(0)
+            .map(|m| m.parent.clone())
+            .unwrap_or_default()
     }
 }
 

@@ -1,8 +1,12 @@
-use crate::api_types::{Metadata, RequestTask, RequestClientList, PathMetadata, RequestMetadata};
+use crate::api_types::{Metadata, RequestTask, RequestClientList, PathMetadata, RequestMetadata, PathMetadataQueue};
 use bytes::{BufMut, BytesMut};
 use std::collections::{VecDeque, BTreeMap, HashSet, HashMap};
 use crate::inflector::Inflector;
 use crate::traits::RequestParser;
+use std::fmt::Debug;
+use crate::builder::RegisterClient;
+use graph_core::resource::ResourceIdentity;
+use std::str::FromStr;
 
 /// Writes the macro used for describing requests. This is the outer
 /// most macro and is used to describe all requests.
@@ -34,6 +38,8 @@ pub trait MacroQueueWriter {
 
     fn param_size(&self) -> usize;
 
+    fn parent(&self) -> String;
+
     fn macro_params(&self) -> String {
         let mut parameter_str = String::new();
         for param in self.params().iter() {
@@ -42,7 +48,7 @@ pub trait MacroQueueWriter {
         parameter_str
     }
 
-    fn write(&self) -> String {
+    fn write_method_macros(&self) -> String {
         let metadata = self.request_metadata();
         let mut buf = BytesMut::new();
 
@@ -85,29 +91,72 @@ pub trait MacroQueueWriter {
         let s = std::str::from_utf8(buf.as_ref()).unwrap();
         s.to_string()
     }
+
+    fn write_impl_macros(&self) {
+
+    }
 }
 
 pub trait MacroImplWriter {
-    type Metadata: MacroQueueWriter;
+    type Metadata: Debug + Clone + MacroQueueWriter;
 
     fn path_metadata_queue(&self) -> VecDeque<Self::Metadata>;
 
     fn request_metadata_queue(&self) -> VecDeque<RequestMetadata>;
 
+    fn path_metadata_map(&self) -> BTreeMap<String, VecDeque<Self::Metadata>> {
+        let metadata = self.path_metadata_queue();
+        let mut path_metadata_map: BTreeMap<String, VecDeque<Self::Metadata>> = BTreeMap::new();
+
+        for m in metadata {
+            path_metadata_map.entry(m.parent())
+                .and_modify(|vec| {
+                    vec.push_back(m.clone());
+                })
+                .or_insert_with(|| {
+                    let mut v = VecDeque::new();
+                    v.push_back(m.clone());
+                    v
+                });
+        }
+        path_metadata_map
+    }
+
     /// Writes the rust file for a single resource. Resources can contain
     /// multiple secondary resources.
     // TODO
     fn write_impl(&self) {
-        let metadata = self.request_metadata_queue();
-        let client_list = RequestClientList::from(metadata);
-        println!("Client List:\n\n{:#?}", client_list);
 
-        let mut links_map: HashMap<String, Vec<String>> = HashMap::new();
-        for (_name, metadata) in client_list.clients.iter() {
-            if let Some(m) = metadata.get(0) {
-                let links = m.operation_mapping.struct_links();
-                links_map.extend(links);
+        let mut path_metadata_map = self.path_metadata_map();
+        println!("{:#?}", path_metadata_map);
+
+        let mut buf = BytesMut::new();
+
+        for (name, path_metadata_queue) in path_metadata_map.iter() {
+            /*
+            let resource_identity: ResourceIdentity = ResourceIdentity::from_str(name.to_camel_case().as_str()).unwrap();
+            let client_struct = RegisterClient::from_resource_identity(resource_identity);
+            buf.put(client_struct.as_bytes());
+             */
+            let client_struct = RegisterClient::BaseClient.format(name.as_str());
+            buf.put(client_struct);
+
+            let impl_start = format!(
+                "\nimpl<'a, Client> {}Request<'a, Client> where Client: graph_http::RequestClient {{",
+                name
+            );
+
+            buf.put(impl_start.as_bytes());
+
+            for path_metadata in path_metadata_queue.iter() {
+                let method_macros = path_metadata.write_method_macros();
+                buf.put(method_macros.as_bytes());
             }
+
+            buf.put("\n}".as_bytes());
         }
+        let s = std::str::from_utf8(buf.as_ref()).unwrap();
+        println!("{}", s);
+
     }
 }
