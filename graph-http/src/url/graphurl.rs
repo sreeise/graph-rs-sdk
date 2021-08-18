@@ -96,43 +96,43 @@ impl GraphUrl {
     }
 
     pub fn count(&mut self, value: &str) {
-        self.append_query_pair("count", value);
+        self.append_query_pair("$count", value);
     }
 
     pub fn select(&mut self, value: &[&str]) {
         let s = value.join(",");
-        self.append_query_pair("select", &s);
+        self.append_query_pair("$select", &s);
     }
 
     pub fn expand(&mut self, value: &[&str]) {
         let s = value.join(" ");
-        self.append_query_pair("expand", &s);
+        self.append_query_pair("$expand", &s);
     }
 
     pub fn filter(&mut self, value: &[&str]) {
         let s = value.join(",");
-        self.append_query_pair("filter", &s);
+        self.append_query_pair("$filter", &s);
     }
 
     pub fn order_by(&mut self, value: &[&str]) {
         let s = value.join(" ");
-        self.append_query_pair("orderby", &s);
+        self.append_query_pair("$orderby", &s);
     }
 
     pub fn search(&mut self, value: &str) {
-        self.append_query_pair("search", value);
+        self.append_query_pair("$search", value);
     }
 
     pub fn format(&mut self, value: &str) {
-        self.append_query_pair("format", value);
+        self.append_query_pair("$format", value);
     }
 
     pub fn skip(&mut self, value: &str) {
-        self.append_query_pair("skip", value.as_ref());
+        self.append_query_pair("$skip", value.as_ref());
     }
 
     pub fn top(&mut self, value: &str) {
-        self.append_query_pair("top", value.as_ref());
+        self.append_query_pair("$top", value.as_ref());
     }
 }
 

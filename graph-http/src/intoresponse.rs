@@ -104,6 +104,13 @@ where
         self
     }
 
+    pub fn count(self, value: &str) -> Self {
+        self.client.url_mut(|url| {
+            url.count(value);
+        });
+        self
+    }
+
     pub fn header<H: IntoHeaderName>(self, name: H, value: HeaderValue) -> Self {
         self.client.header(name, value);
         self
