@@ -43,7 +43,7 @@ tokio = { version = "1", features = ["full"] }
 url = "2"
 
 graph-oauth = { path = "./graph-oauth", version = "0.1.0" }
-graph-http = { path = "graph-http", version = "0.1.0" }
+graph-http = { path = "graph-http", version = "0.1.1" }
 graph-error = { path = "./graph-error", version = "0.1.0" }
 graph-core = { path = "./graph-core", version = "0.1.0" }
 
