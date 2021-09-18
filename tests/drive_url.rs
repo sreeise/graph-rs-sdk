@@ -29,7 +29,7 @@ fn query_mutate() {
         .top("3");
     client.url_ref(|url| {
         assert_eq!(
-            "https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x?select=name&top=3",
+            "https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x?%24select=name&%24top=3",
             url.as_str()
         );
     });
@@ -37,7 +37,7 @@ fn query_mutate() {
     let _ = client.v1().drive(RID).get_root().expand(&["children"]);
     client.url_ref(|url| {
         assert_eq!(
-            "https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root?expand=children",
+            "https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root?%24expand=children",
             url.as_str()
         );
     });
