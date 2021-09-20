@@ -286,3 +286,11 @@ pub mod header {
 pub mod core {
     pub use graph_core::resource::*;
 }
+
+pub(crate) mod api_default_imports {
+    pub use crate::client::Graph;
+    pub use crate::core::ResourceIdentity;
+    pub use graph_http::IntoResponse;
+    pub use handlebars::*;
+    pub use reqwest::Method;
+}
