@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
@@ -25,10 +26,12 @@ pub struct ClientLinkSettings {
     name: String,
     method_name: Option<String>,
     custom_calls: Option<String>,
+    id_method_link_param: Option<String>,
     has_id_param: bool,
     has_extend_path_id: bool,
     has_extend_path_ident: bool,
     has_set_resource_identity: bool,
+    has_resource_identity: Option<ResourceIdentity>,
     has_new_method_empty_id: bool,
     is_id_method_link: bool,
 }
@@ -39,10 +42,12 @@ impl ClientLinkSettings {
             name: name.to_string(),
             method_name: None,
             custom_calls: None,
+            id_method_link_param: None,
             has_id_param: false,
             has_extend_path_id: false,
             has_extend_path_ident: false,
             has_set_resource_identity: false,
+            has_resource_identity: None,
             has_new_method_empty_id: false,
             is_id_method_link: false,
         }
@@ -68,6 +73,15 @@ impl ClientLinkSettings {
         self
     }
 
+    pub fn with_resource_identity(
+        &mut self,
+        resource_identity: ResourceIdentity,
+    ) -> &mut ClientLinkSettings {
+        self.has_set_resource_identity = true;
+        self.has_resource_identity = Some(resource_identity);
+        self
+    }
+
     pub fn with_new_method_empty_id(&mut self) -> &mut ClientLinkSettings {
         self.has_new_method_empty_id = true;
         self
@@ -75,6 +89,8 @@ impl ClientLinkSettings {
 
     pub fn as_id_method_link(&mut self) -> &mut ClientLinkSettings {
         self.is_id_method_link = true;
+        let snake_case_param = self.name.to_snake_case();
+        self.id_method_link_param = Some(snake_case_param);
         self
     }
 
@@ -108,15 +124,17 @@ impl ClientLinkSettings {
         let pascal_casing = self.base_struct_name();
         let snake_casing = self.method_link();
 
+        let param_name = self.id_param_name();
+
         if self.is_id_method_link {
             format!(
-                "\n\tpub fn id<ID: AsRef<str>>(&self, id: ID) -> {}<'a, Client> {{",
-                pascal_casing
+                "\n\tpub fn id<ID: AsRef<str>>(&self, {}: ID) -> {}<'a, Client> {{",
+                param_name, pascal_casing
             )
         } else if self.has_id_param {
             format!(
-                "\n\tpub fn {}<ID: AsRef<str>>(&self, id: ID) -> {}<'a, Client> {{",
-                snake_casing, pascal_casing
+                "\n\tpub fn {}<ID: AsRef<str>>(&self, {}: ID) -> {}<'a, Client> {{",
+                snake_casing, param_name, pascal_casing
             )
         } else {
             format!(
@@ -139,17 +157,32 @@ impl ClientLinkSettings {
     }
 
     fn resource_identity_str(&self) -> String {
-        let camel_casing = self.name.to_camel_case();
         if self.has_set_resource_identity {
-            if let Ok(resource_identity) = ResourceIdentity::from_str(camel_casing.as_str()) {
+            if let Some(resource_identity) = self.has_resource_identity.as_ref() {
                 return format!(
                     "self.client.set_ident({});",
                     resource_identity.enum_string()
                 );
+            } else {
+                let camel_casing = self.name.to_camel_case();
+                if let Ok(resource_identity) = ResourceIdentity::from_str(camel_casing.as_str()) {
+                    return format!(
+                        "self.client.set_ident({});",
+                        resource_identity.enum_string()
+                    );
+                }
             }
         }
 
         Default::default()
+    }
+
+    fn id_param_name(&self) -> String {
+        if let Some(param) = self.id_method_link_param.as_ref() {
+            param.to_string()
+        } else {
+            "id".to_string()
+        }
     }
 
     fn client_new_string(&self) -> String {
@@ -159,20 +192,37 @@ impl ClientLinkSettings {
             return format!("{}::new(\"\", self.client)\n}}", pascal_casing);
         }
 
+        let param_name = self.id_param_name();
+
         if self.has_id_param || self.is_id_method_link {
             if self.is_id_method_link {
-                let camel_casing = self.name.to_camel_case();
-                if let Ok(resource_identity) = ResourceIdentity::from_str(camel_casing.as_str()) {
+                if let Some(resource_identity) = self.has_resource_identity.as_ref() {
                     return format!(
                         "self.client.set_ident({});
-                        {}::new(id.as_ref(), self.client)\n}}",
+                        {}::new({}.as_ref(), self.client)\n}}",
                         resource_identity.enum_string(),
-                        pascal_casing
+                        pascal_casing,
+                        param_name
                     );
+                } else {
+                    let camel_casing = self.name.to_camel_case();
+                    if let Ok(resource_identity) = ResourceIdentity::from_str(camel_casing.as_str())
+                    {
+                        return format!(
+                            "self.client.set_ident({});
+                            {}::new({}.as_ref(), self.client)\n}}",
+                            resource_identity.enum_string(),
+                            pascal_casing,
+                            param_name
+                        );
+                    }
                 }
             }
 
-            format!("{}::new(id.as_ref(), self.client)\n}}", pascal_casing)
+            format!(
+                "{}::new({}.as_ref(), self.client)\n}}",
+                pascal_casing, param_name
+            )
         } else {
             format!("{}::new(self.client)\n}}", pascal_casing)
         }

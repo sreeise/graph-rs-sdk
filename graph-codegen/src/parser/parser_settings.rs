@@ -1,3 +1,4 @@
+use crate::parser::settings::get_doc_comment_replace_filter;
 use crate::{
     builder::ClientLinkSettings,
     parser::{
@@ -19,11 +20,7 @@ pub struct ParserSettings;
 impl ParserSettings {
     /// Imports that won't be added from parsing and need to be manually added.
     pub fn imports(resource_identity: ResourceIdentity) -> BTreeSet<String> {
-        let mut vec: Vec<&'static str> = vec![
-            "crate::client::Graph",
-            "graph_http::IntoResponse",
-            "reqwest::Method",
-        ];
+        let mut vec: Vec<&'static str> = Vec::new();
         vec.extend(get_imports(resource_identity));
         vec.sort_unstable();
         let mut set: BTreeSet<String> = BTreeSet::new();
@@ -310,5 +307,9 @@ impl ParserSettings {
         }
 
         links_override
+    }
+
+    pub fn doc_comment_filters(resource_identity: ResourceIdentity) -> Vec<String> {
+        get_doc_comment_replace_filter(resource_identity)
     }
 }

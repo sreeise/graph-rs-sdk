@@ -6,12 +6,12 @@ use from_as::*;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use regex::Regex;
 use reqwest::Url;
+use std::collections::HashMap;
 use std::{
     collections::{BTreeMap, HashSet, VecDeque},
     convert::TryFrom,
     io::{Read, Write},
 };
-use std::collections::HashMap;
 
 pub trait IsInPath {
     fn retain_is_in_path(&mut self);

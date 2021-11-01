@@ -159,7 +159,12 @@ impl MacroFormatter {
         }
     }
 
-    fn register_method_call(macro_name: &str, param_size: usize, method: HttpMethod, has_body: bool) -> String {
+    fn register_method_call(
+        macro_name: &str,
+        param_size: usize,
+        method: HttpMethod,
+        has_body: bool,
+    ) -> String {
         let mut inner_params = String::new();
         for i in 0..param_size {
             if i == 0 {

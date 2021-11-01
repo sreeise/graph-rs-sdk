@@ -1,7 +1,7 @@
 use crate::{builder::ClientLinkSettings, traits::VecExt};
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet};
-
+// attachments
 pub fn get_client_link_settings(
     resource_identity: ResourceIdentity,
 ) -> BTreeMap<String, BTreeSet<ClientLinkSettings>> {
@@ -10,23 +10,35 @@ pub fn get_client_link_settings(
     match resource_identity {
         ResourceIdentity::Application | ResourceIdentity::Applications => {
             map.insert(
-                "application".into(),
-                vec![ClientLinkSettings::new("applications").as_id_method_link()].mem_take(),
+                "applications".into(),
+                vec![ClientLinkSettings::new("applicationsId").as_id_method_link()].mem_take(),
+            );
+        }
+        ResourceIdentity::Attachments => {
+            map.insert(
+                "attachments".into(),
+                vec![ClientLinkSettings::new("attachmentsId").as_id_method_link()].mem_take(),
             );
         }
         ResourceIdentity::Buckets => {
             map.insert(
                 "buckets".into(),
+                vec![ClientLinkSettings::new("bucketsId").as_id_method_link()].mem_take(),
+            );
+
+            map.insert(
+                "bucketsId".into(),
                 vec![
-                    ClientLinkSettings::new("task")
+                    ClientLinkSettings::new("tasks")
                         .use_method_name("tasks")
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("tasks")
+                        .with_resource_identity(ResourceIdentity::Buckets),
+                    ClientLinkSettings::new("tasksId")
                         .use_method_name("task")
                         .with_id_param()
+                        .with_extend_path_id()
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
+                        .with_resource_identity(ResourceIdentity::Buckets),
                 ]
                 .mem_take(),
             );
@@ -815,63 +827,63 @@ pub fn get_client_link_settings(
             map.insert(
                 "planner".into(),
                 vec![
-                    ClientLinkSettings::new("bucket")
+                    ClientLinkSettings::new("buckets")
                         .use_method_name("buckets")
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("buckets")
+                        .with_resource_identity(ResourceIdentity::Buckets),
+                    ClientLinkSettings::new("bucketsId")
                         .use_method_name("bucket")
                         .with_id_param()
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("plan")
+                        .with_resource_identity(ResourceIdentity::Buckets),
+                    ClientLinkSettings::new("plans")
                         .use_method_name("plans")
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("plans")
+                        .with_resource_identity(ResourceIdentity::Plans),
+                    ClientLinkSettings::new("plansId")
                         .use_method_name("plan")
                         .with_id_param()
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("task")
+                        .with_resource_identity(ResourceIdentity::Plans),
+                    ClientLinkSettings::new("tasks")
                         .use_method_name("tasks")
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("tasks")
+                        .with_resource_identity(ResourceIdentity::Tasks),
+                    ClientLinkSettings::new("tasksId")
                         .use_method_name("task")
                         .with_id_param()
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
+                        .with_resource_identity(ResourceIdentity::Tasks),
                 ]
                 .mem_take(),
             );
         }
         ResourceIdentity::Plans => {
             map.insert(
-                "plans".into(),
+                "plansId".into(),
                 vec![
-                    ClientLinkSettings::new("bucket")
+                    ClientLinkSettings::new("buckets")
                         .use_method_name("buckets")
                         .with_extend_path_id()
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("buckets")
+                        .with_resource_identity(ResourceIdentity::Buckets),
+                    ClientLinkSettings::new("bucketsId")
                         .use_method_name("bucket")
                         .with_id_param()
                         .with_extend_path_id()
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("task")
+                        .with_resource_identity(ResourceIdentity::Buckets),
+                    ClientLinkSettings::new("tasks")
                         .use_method_name("tasks")
                         .with_extend_path_id()
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
-                    ClientLinkSettings::new("tasks")
+                        .with_resource_identity(ResourceIdentity::Tasks),
+                    ClientLinkSettings::new("tasksId")
                         .use_method_name("task")
                         .with_id_param()
                         .with_extend_path_id()
                         .with_extend_path_ident()
-                        .with_set_resource_identity(),
+                        .with_resource_identity(ResourceIdentity::Tasks),
                 ]
                 .mem_take(),
             );

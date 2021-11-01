@@ -4,10 +4,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
     match resource_identity {
         ResourceIdentity::Applications => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::Attachments => vec!["crate::core::ResourceIdentity"],
-        ResourceIdentity::Buckets => vec![
-            "crate::tasks::{TaskRequest, TasksRequest}",
-            "crate::core::ResourceIdentity",
-        ],
+        ResourceIdentity::Buckets => vec!["crate::tasks::{TasksRequest, TasksIdRequest}"],
         ResourceIdentity::Calendar | ResourceIdentity::Calendars => vec![
             "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
             "crate::events::{EventsRequest, EventRequest}",
@@ -96,10 +93,9 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "std::path::Path",
         ],
         ResourceIdentity::Planner => vec![
-            "crate::core::ResourceIdentity",
-            "crate::plans::{PlanRequest, PlansRequest}",
-            "crate::buckets::{BucketRequest, BucketsRequest}",
-            "crate::tasks::{TaskRequest, TasksRequest}",
+            "crate::plans::{PlansRequest, PlansIdRequest}",
+            "crate::buckets::{BucketsRequest, BucketsIdRequest}",
+            "crate::tasks::{TasksRequest, TasksIdRequest}",
         ],
         ResourceIdentity::Notebooks => vec![
             "crate::core::ResourceIdentity",
@@ -135,9 +131,8 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::parent_notebook::ParentNotebookRequest",
         ],
         ResourceIdentity::Plans => vec![
-            "crate::buckets::{BucketRequest, BucketsRequest}",
-            "crate::tasks::{TaskRequest, TasksRequest}",
-            "crate::core::ResourceIdentity",
+            "crate::buckets::{BucketsRequest, BucketsIdRequest}",
+            "crate::tasks::{TasksRequest, TasksIdRequest}",
         ],
         ResourceIdentity::Posts => vec![
             "crate::core::ResourceIdentity",

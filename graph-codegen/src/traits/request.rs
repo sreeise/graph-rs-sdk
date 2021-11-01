@@ -1,8 +1,8 @@
 use crate::parser::{HttpMethod, Modifier, Request};
+use crate::traits::HashMapExt;
 use inflector::Inflector;
 use regex::Regex;
-use std::collections::{HashSet, VecDeque, HashMap};
-use crate::traits::HashMapExt;
+use std::collections::{HashMap, HashSet, VecDeque};
 
 lazy_static! {
     /// Matches any number. Some of the graph request data has

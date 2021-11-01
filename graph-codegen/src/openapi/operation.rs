@@ -1,4 +1,5 @@
 use crate::api_types::RequestMetadata;
+use crate::inflector::Inflector;
 use crate::parser::HttpMethod;
 use crate::{
     openapi::{
@@ -8,12 +9,13 @@ use crate::{
     traits::RequestParser,
 };
 use from_as::*;
+use graph_core::resource::ResourceIdentity;
+use std::str::FromStr;
 use std::{
     collections::{HashMap, VecDeque},
     convert::TryFrom,
     io::{Read, Write},
 };
-use crate::inflector::Inflector;
 
 /// [Operation Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#operation-object)
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -147,6 +149,9 @@ impl Operation {
             parent = operation_mapping.to_pascal_case();
         }
 
+        let original_parent = parent.clone();
+        let resource_identity = ResourceIdentity::from_str(&original_parent.to_camel_case()).ok();
+
         RequestMetadata {
             has_body: self.has_body(),
             request_task: self.responses.response_body(self.operation_id.as_str()),
@@ -155,6 +160,8 @@ impl Operation {
             http_method,
             doc: self.summary.clone(),
             parent,
+            original_parent,
+            resource_identity,
         }
     }
 }

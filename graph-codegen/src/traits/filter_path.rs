@@ -40,9 +40,12 @@ pub trait FilterPath {
                     .filter(|(path, _path_item)| path.ne(s.as_str()))
                     .collect(),
             },
-            Filter::MultiFilter(_vec) => {
-                // TODO: Fix MultiFilter
-                Default::default()
+            Filter::MultiFilter(vec) => {
+                let mut paths = self.paths();
+                for filter in vec {
+                    paths = self.filter_path(filter);
+                }
+                paths
             }
         }
     }

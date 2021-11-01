@@ -1,6 +1,6 @@
 use bytes::Bytes;
-use inflector::Inflector;
 use graph_core::resource::ResourceIdentity;
+use inflector::Inflector;
 
 #[derive(Debug, Clone, Copy)]
 pub enum RegisterClient {
@@ -36,7 +36,9 @@ impl RegisterClient {
 
     pub fn from_resource_identity(resource_identity: ResourceIdentity) -> String {
         match resource_identity {
-            ResourceIdentity::Activities => RegisterClient::BaseClient.register_client(&resource_identity.to_string()),
+            ResourceIdentity::Activities => {
+                RegisterClient::BaseClient.register_client(&resource_identity.to_string())
+            }
             _ => RegisterClient::BaseClient.register_client(&resource_identity.to_string()),
             /*
             ResourceIdentity::AppCatalogs => {}

@@ -1,12 +1,15 @@
-use crate::api_types::{Metadata, RequestTask, RequestClientList};
+use crate::api_types::{Metadata, RequestClientList, RequestTask};
 use crate::inflector::Inflector;
-use crate::macros::{MacroFormatter, MacroQueueWriter, MacroImplWriter};
-use crate::parser::HttpMethod;
-use crate::traits::{RequestParser, HashMapExt};
+use crate::macros::{MacroFormatter, MacroImplWriter, MacroQueueWriter};
+use crate::parser::filter::Filter;
+use crate::parser::{HttpMethod, ParserSettings};
+use crate::traits::{FilterMetadata, HashMapExt, RequestParser, INTERNAL_PATH_ID};
 use from_as::*;
-use std::collections::{VecDeque, HashSet, BTreeSet, HashMap, BTreeMap};
+use graph_core::resource::ResourceIdentity;
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::convert::TryFrom;
 use std::io::{Read, Write};
+use std::str::FromStr;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct RequestMetadata {
@@ -17,6 +20,8 @@ pub struct RequestMetadata {
     pub http_method: HttpMethod,
     pub doc: Option<String>,
     pub parent: String,
+    pub original_parent: String,
+    pub resource_identity: Option<ResourceIdentity>,
 }
 
 impl RequestMetadata {
@@ -28,21 +33,66 @@ impl RequestMetadata {
         self.operation_mapping.links()
     }
 
-    pub fn operation_str_replacen(&mut self, pat: &str, to: &str ) {
+    pub fn operation_str_replacen(&mut self, pat: &str, to: &str) {
         self.operation_mapping = self.operation_mapping.replacen(pat, to, 1);
         self.operation_id = self.operation_id.replacen(pat, to, 1);
     }
 
     pub fn trim_operation_id_start(&mut self, operation_id_start_name: &str) {
         if self.operation_id.starts_with(operation_id_start_name) {
-            self.operation_id = self.operation_id.trim_start_matches(operation_id_start_name).to_string();
+            self.operation_id = self
+                .operation_id
+                .trim_start_matches(operation_id_start_name)
+                .to_string();
             self.operation_id = self.operation_id.trim_start_matches('.').to_string();
         }
 
         if self.operation_mapping.starts_with(operation_id_start_name) {
-            self.operation_mapping = self.operation_mapping.trim_start_matches(operation_id_start_name).to_string();
+            self.operation_mapping = self
+                .operation_mapping
+                .trim_start_matches(operation_id_start_name)
+                .to_string();
             self.operation_mapping = self.operation_mapping.trim_start_matches('.').to_string();
         }
+    }
+
+    pub fn transform_id_request(&mut self) {
+        self.operation_mapping = format!("{}Id", &self.operation_mapping);
+        self.parent = format!("{}Id", &self.original_parent);
+    }
+
+    pub fn transform_secondary_id_request(
+        &mut self,
+        operation_mapping: &str,
+        original_parent: &str,
+    ) {
+        self.operation_mapping = format!("{}Id", operation_mapping);
+        self.parent = format!("{}Id", original_parent.to_pascal_case());
+        self.original_parent = original_parent.to_pascal_case();
+        self.resource_identity = ResourceIdentity::from_str(&self.original_parent).ok();
+    }
+
+    pub fn transform_secondary_request(&mut self, operation_mapping: &str, original_parent: &str) {
+        self.operation_mapping = format!("{}", operation_mapping);
+        self.parent = original_parent.to_pascal_case();
+        self.original_parent = original_parent.to_pascal_case();
+        self.resource_identity = ResourceIdentity::from_str(&self.original_parent).ok();
+    }
+
+    // Replace parts of a doc comment to prevent confusion on apis that are used by
+    // multiple resources.
+    pub fn filter_doc_comments(&mut self, resource_identity: ResourceIdentity) {
+        let filters = ParserSettings::doc_comment_filters(resource_identity);
+        for filter in filters.iter() {
+            if self.doc.is_some() {
+                let doc = self.doc.as_ref().unwrap();
+                self.doc.replace(doc.replacen(filter.as_str(), "", 1));
+            }
+        }
+    }
+
+    pub fn resource_identity(&self) -> Option<ResourceIdentity> {
+        ResourceIdentity::from_str(&self.original_parent).ok()
     }
 }
 
@@ -82,9 +132,8 @@ pub struct PathMetadata {
 
 impl From<VecDeque<PathMetadata>> for RequestClientList {
     fn from(vec: VecDeque<PathMetadata>) -> Self {
-        let metadata: VecDeque<RequestMetadata> = vec.iter().map(|p| p.metadata.clone())
-            .flatten()
-            .collect();
+        let metadata: VecDeque<RequestMetadata> =
+            vec.iter().map(|p| p.metadata.clone()).flatten().collect();
 
         RequestClientList::from(metadata)
     }
@@ -113,6 +162,10 @@ impl PathMetadata {
         self.path.starts_with(path)
     }
 
+    pub fn path_contains(&self, pat: &str) -> bool {
+        self.path.contains(pat)
+    }
+
     pub fn trim_operation_id_start(&mut self, operation_id_start_name: &str) {
         self.metadata
             .iter_mut()
@@ -132,7 +185,8 @@ impl PathMetadata {
             to = pat.to_string();
         }
 
-        let mut metadata: VecDeque<RequestMetadata> = self.metadata
+        let mut metadata: VecDeque<RequestMetadata> = self
+            .metadata
             .iter()
             .filter(|r| r.operation_id.starts_with(pat))
             .cloned()
@@ -144,6 +198,12 @@ impl PathMetadata {
         }
 
         self.metadata = metadata;
+    }
+
+    pub fn filter_doc_comments(&mut self, resource_identity: ResourceIdentity) {
+        for m in self.metadata.iter_mut() {
+            m.filter_doc_comments(resource_identity);
+        }
     }
 
     pub fn format_named_path_parameters(&mut self) {
@@ -169,8 +229,46 @@ impl PathMetadata {
         self.parameters = self.snake_case_parameters();
     }
 
+    pub fn transform_id_metadata(&mut self) {
+        self.path = self.path.replacen("{{id}}", "{{RID}}", 1);
+        let _ = self.parameters.pop_front();
+        self.param_size = self.param_size - 1;
+        for m in self.metadata.iter_mut() {
+            m.transform_id_request();
+        }
+    }
+
+    pub fn transform_secondary_id_metadata(
+        &mut self,
+        id_name: &str,
+        operation_mapping: &str,
+        original_parent: &str,
+    ) {
+        self.path = self.path.replacen(id_name, "{{RID}}", 1);
+        if self.path.contains("{{RID}}") {
+            self.param_size = INTERNAL_PATH_ID.captures_iter(&self.path).count() - 1;
+            while self.parameters.len() > self.param_size {
+                self.parameters.pop_front();
+            }
+        }
+
+        for m in self.metadata.iter_mut() {
+            m.transform_secondary_id_request(operation_mapping, original_parent);
+        }
+    }
+
+    pub fn transform_secondary_metadata(&mut self, operation_mapping: &str, original_parent: &str) {
+        self.param_size = INTERNAL_PATH_ID.captures_iter(&self.path).count();
+        while self.parameters.len() > self.param_size {
+            self.parameters.pop_front();
+        }
+        for m in self.metadata.iter_mut() {
+            m.transform_secondary_request(operation_mapping, original_parent);
+        }
+    }
+
     pub fn request_client_list(&self) -> RequestClientList {
-       self.metadata.clone().into()
+        self.metadata.clone().into()
     }
 
     pub fn operation_map_set(&self) -> BTreeSet<String> {
@@ -258,11 +356,29 @@ impl MacroQueueWriter for PathMetadata {
     }
 
     fn parent(&self) -> String {
-        self.metadata.get(0)
+        self.metadata
+            .get(0)
             .map(|m| m.parent.clone())
             .unwrap_or_default()
     }
+
+    fn imports(&self) -> Vec<String> {
+        self.metadata
+            .iter()
+            .map(|m| m.request_task.imports())
+            .flatten()
+            .map(|s| s.to_string())
+            .collect()
+    }
 }
+
+pub struct PathMetadataHash {
+    name: String,
+    id_method_impl: bool,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub struct PathMetadataMap(BTreeMap<String, VecDeque<PathMetadata>>);
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct PathMetadataQueue(VecDeque<PathMetadata>);
@@ -282,6 +398,73 @@ impl PathMetadataQueue {
         self.0
             .iter_mut()
             .for_each(|m| m.trim_path_start(path_start));
+    }
+
+    pub fn filter_metadata_path(&mut self, filter: Filter) {
+        let metadata = self.filter_path(filter);
+        self.0 = metadata;
+    }
+
+    pub fn filter_doc_comments(&mut self, resource_identity: ResourceIdentity) {
+        for m in self.0.iter_mut() {
+            m.filter_doc_comments(resource_identity);
+        }
+    }
+
+    pub fn transform_id_metadata(&mut self, path_start: &str) {
+        for path_metadata in self.0.iter_mut() {
+            if path_metadata.path_starts_with(&format!("{}/{{{{id}}}}", path_start)) {
+                path_metadata.transform_id_metadata();
+            }
+        }
+    }
+
+    pub fn transform_secondary_id_metadata(
+        &mut self,
+        path_start: &str,
+        id_name: &str,
+        operation_mapping: &str,
+        original_parent: &str,
+    ) {
+        for path_metadata in self.0.iter_mut() {
+            println!("{:#?}", path_metadata.path);
+            println!("Starts with: {:#?}", path_start);
+            if path_metadata.path_starts_with(&format!("{}/{}", path_start, id_name)) {
+                path_metadata.transform_secondary_id_metadata(
+                    id_name,
+                    operation_mapping,
+                    original_parent,
+                );
+            } else if path_metadata.path_starts_with(path_start) {
+                path_metadata.transform_secondary_metadata(operation_mapping, original_parent);
+            }
+        }
+    }
+
+    pub fn sort_by_parent(&self) -> PathMetadataMap {
+        let mut set: BTreeMap<String, VecDeque<PathMetadata>> = BTreeMap::new();
+
+        for path_metadata in self.0.iter() {
+            let path_metadata_clone = path_metadata.clone();
+            let parent = path_metadata.parent();
+            set.entry(parent)
+                .and_modify(|vec| {
+                    vec.push_back(path_metadata_clone);
+                })
+                .or_insert_with(|| {
+                    let mut vec = VecDeque::new();
+                    vec.push_back(path_metadata.clone());
+                    vec
+                });
+        }
+
+        PathMetadataMap(set)
+    }
+
+    pub fn debug_print(&self) {
+        for path_metadata in self.0.iter() {
+            println!("{:#?}", path_metadata);
+        }
     }
 }
 
@@ -304,5 +487,22 @@ impl MacroImplWriter for PathMetadataQueue {
             .map(|p| p.metadata.clone())
             .flatten()
             .collect()
+    }
+
+    fn path_metadata_map(&self) -> BTreeMap<String, VecDeque<Self::Metadata>> {
+        self.sort_by_parent().0
+    }
+
+    fn default_imports(&self) -> Vec<String> {
+        vec!["crate::client::Graph".to_string()]
+    }
+}
+
+impl FilterMetadata for PathMetadataQueue {
+    type Metadata = PathMetadata;
+
+    fn metadata_iter(&self) -> std::collections::vec_deque::IntoIter<Self::Metadata> {
+        let vec_dequeue = self.0.clone();
+        vec_dequeue.into_iter()
     }
 }

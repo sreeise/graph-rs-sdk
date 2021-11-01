@@ -5,10 +5,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
     match resource_identity {
         ResourceIdentity::Buckets => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["buckets/{plannerBucket-id}/tasks/"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
+                vec!["/tasks/"].iter().map(|s| s.to_string()).collect(),
             ))]
         }
         ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
@@ -258,14 +255,10 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
             ))]
         }
         ResourceIdentity::Planner => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-            vec![
-                "plans/{plannerPlan-id}/",
-                "buckets/{plannerBucket-id}/",
-                "tasks/{plannerTask-id}/",
-            ]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
+            vec!["plans/", "buckets/", "tasks/"]
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
         ))],
         ResourceIdentity::Posts => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
