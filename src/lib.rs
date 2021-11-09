@@ -227,6 +227,8 @@ pub mod plans;
 pub mod policies;
 /// Groups threads posts request client.
 pub mod posts;
+/// Reports request client.
+pub mod reports;
 /// Schema extensions request client.
 pub mod schema_extensions;
 /// Onenote section group request client.

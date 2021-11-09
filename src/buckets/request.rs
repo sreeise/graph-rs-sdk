@@ -1,105 +1,89 @@
 // GENERATED CODE
 
-use crate::client::Graph;
-use crate::core::ResourceIdentity;
-use crate::tasks::{TaskRequest, TasksRequest};
+use crate::api_default_imports::*;
+use crate::tasks::{TasksIdRequest, TasksRequest};
 use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use handlebars::*;
-use reqwest::Method;
 
-register_client!(BucketRequest,);
-register_client!(BucketsRequest, ());
-
-impl<'a, Client> BucketRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get buckets from planner",
-        name: list_buckets,
-        response: serde_json::Value,
-        path: "/buckets",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to buckets for planner",
-        name: create_buckets,
-        response: serde_json::Value,
-        path: "/buckets",
-        params: 0,
-        has_body: true
-    });
-
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> BucketsRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Buckets);
-        BucketsRequest::new(id.as_ref(), self.client)
-    }
-}
+register_client!(BucketsRequest,);
+register_client!(BucketsIdRequest, ());
 
 impl<'a, Client> BucketsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    pub fn id<ID: AsRef<str>>(&self, buckets_id: ID) -> BucketsIdRequest<'a, Client> {
+        BucketsIdRequest::new(buckets_id.as_ref(), self.client)
+    }
+
     get!({
-        doc: "# Get buckets from planner",
-        name: get_buckets,
+        doc: "Get buckets",
+        name: list_buckets,
         response: serde_json::Value,
-        path: "/buckets/{{RID}}",
-        params: 0,
+        path: "buckets",
         has_body: false
     });
+    post!({
+        doc: "Create new navigation property to buckets",
+        name: create_buckets,
+        response: serde_json::Value,
+        path: "buckets",
+        has_body: true
+    });
+}
+
+impl<'a, Client> BucketsIdRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    pub fn tasks(&self) -> TasksRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Buckets);
+        TasksRequest::new(self.client)
+    }
+
+    pub fn task<ID: AsRef<str>>(&self, id: ID) -> TasksIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Buckets);
+        TasksIdRequest::new(id.as_ref(), self.client)
+    }
 
     patch!({
-        doc: "# Update the navigation property buckets in planner",
+        doc: "Update the navigation property buckets",
         name: update_buckets,
         response: NoContent,
-        path: "/buckets/{{RID}}",
-        params: 0,
+        path: "buckets/{{RID}}",
         has_body: true
     });
-
     delete!({
-        doc: "# Delete navigation property buckets for planner",
+        doc: "Delete navigation property buckets",
         name: delete_buckets,
         response: NoContent,
-        path: "/buckets/{{RID}}",
-        params: 0,
+        path: "buckets/{{RID}}",
         has_body: false
     });
-
     get!({
-        doc: "# Get tasks from planner",
+        doc: "Get buckets",
+        name: get_buckets,
+        response: serde_json::Value,
+        path: "buckets/{{RID}}",
+        has_body: false
+    });
+    get!({
+        doc: "Get tasks",
         name: list_tasks,
         response: serde_json::Value,
-        path: "/buckets/{{RID}}/tasks",
-        params: 0,
+        path: "buckets/{{RID}}/tasks",
         has_body: false
     });
-
     post!({
-        doc: "# Create new navigation property to tasks for planner",
+        doc: "Create new navigation property to tasks",
         name: create_tasks,
         response: serde_json::Value,
-        path: "/buckets/{{RID}}/tasks",
-        params: 0,
+        path: "buckets/{{RID}}/tasks",
         has_body: true
     });
-
-    pub fn tasks(&self) -> TaskRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        TaskRequest::new(self.client)
-    }
-
-    pub fn task<ID: AsRef<str>>(&self, id: ID) -> TasksRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Tasks);
-        TasksRequest::new(id.as_ref(), self.client)
-    }
 }

@@ -1,13 +1,10 @@
 // GENERATED CODE
 
-use crate::buckets::{BucketRequest, BucketsRequest};
-use crate::client::Graph;
-use crate::core::ResourceIdentity;
-use crate::plans::{PlanRequest, PlansRequest};
-use crate::tasks::{TaskRequest, TasksRequest};
+use crate::api_default_imports::*;
+use crate::buckets::{BucketsIdRequest, BucketsRequest};
+use crate::plans::{PlansIdRequest, PlansRequest};
+use crate::tasks::{TasksIdRequest, TasksRequest};
 use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
 
 register_client!(PlannerRequest,);
 
@@ -15,174 +12,108 @@ impl<'a, Client> PlannerRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    get!({
-        doc: "# Get planner",
-        name: get_planner,
-        response: serde_json::Value,
-        path: "/planner",
-        params: 0,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update planner",
-        name: update_planner,
-        response: NoContent,
-        path: "/planner",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get buckets from planner",
-        name: list_buckets,
-        response: serde_json::Value,
-        path: "/planner/buckets",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to buckets for planner",
-        name: create_buckets,
-        response: serde_json::Value,
-        path: "/planner/buckets",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get buckets from planner",
-        name: get_buckets,
-        response: serde_json::Value,
-        path: "/planner/buckets/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property buckets in planner",
-        name: update_buckets,
-        response: NoContent,
-        path: "/planner/buckets/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get plans from planner",
-        name: list_plans,
-        response: serde_json::Value,
-        path: "/planner/plans",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to plans for planner",
-        name: create_plans,
-        response: serde_json::Value,
-        path: "/planner/plans",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get plans from planner",
-        name: get_plans,
-        response: serde_json::Value,
-        path: "/planner/plans/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property plans in planner",
-        name: update_plans,
-        response: NoContent,
-        path: "/planner/plans/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get tasks from planner",
-        name: list_tasks,
-        response: serde_json::Value,
-        path: "/planner/tasks",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to tasks for planner",
-        name: create_tasks,
-        response: serde_json::Value,
-        path: "/planner/tasks",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get tasks from planner",
-        name: get_tasks,
-        response: serde_json::Value,
-        path: "/planner/tasks/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property tasks in planner",
-        name: update_tasks,
-        response: NoContent,
-        path: "/planner/tasks/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    pub fn buckets(&self) -> BucketRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        BucketRequest::new(self.client)
-    }
-
-    pub fn bucket<ID: AsRef<str>>(&self, id: ID) -> BucketsRequest<'a, Client> {
+    pub fn buckets(&self) -> BucketsRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref()]);
         self.client.set_ident(ResourceIdentity::Buckets);
-        BucketsRequest::new(id.as_ref(), self.client)
+        BucketsRequest::new(self.client)
     }
 
-    pub fn plans(&self) -> PlanRequest<'a, Client> {
+    pub fn bucket<ID: AsRef<str>>(&self, id: ID) -> BucketsIdRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref()]);
-        PlanRequest::new(self.client)
+        self.client.set_ident(ResourceIdentity::Buckets);
+        BucketsIdRequest::new(id.as_ref(), self.client)
     }
 
-    pub fn plan<ID: AsRef<str>>(&self, id: ID) -> PlansRequest<'a, Client> {
+    pub fn plans(&self) -> PlansRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref()]);
         self.client.set_ident(ResourceIdentity::Plans);
-        PlansRequest::new(id.as_ref(), self.client)
+        PlansRequest::new(self.client)
     }
 
-    pub fn tasks(&self) -> TaskRequest<'a, Client> {
+    pub fn plan<ID: AsRef<str>>(&self, id: ID) -> PlansIdRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref()]);
-        TaskRequest::new(self.client)
+        self.client.set_ident(ResourceIdentity::Plans);
+        PlansIdRequest::new(id.as_ref(), self.client)
     }
 
-    pub fn task<ID: AsRef<str>>(&self, id: ID) -> TasksRequest<'a, Client> {
+    pub fn tasks(&self) -> TasksRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref()]);
         self.client.set_ident(ResourceIdentity::Tasks);
-        TasksRequest::new(id.as_ref(), self.client)
+        TasksRequest::new(self.client)
     }
+
+    pub fn task<ID: AsRef<str>>(&self, id: ID) -> TasksIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Tasks);
+        TasksIdRequest::new(id.as_ref(), self.client)
+    }
+
+    get!({
+        doc: "Get planner",
+        name: get_planner,
+        response: serde_json::Value,
+        path: "/planner",
+        has_body: false
+    });
+    patch!({
+        doc: "Update planner",
+        name: update_planner,
+        response: NoContent,
+        path: "/planner",
+        has_body: true
+    });
+    get!({
+        doc: "Get buckets from planner",
+        name: list_buckets,
+        response: serde_json::Value,
+        path: "/planner/buckets",
+        has_body: false
+    });
+    post!({
+        doc: "Create new navigation property to buckets for planner",
+        name: create_buckets,
+        response: serde_json::Value,
+        path: "/planner/buckets",
+        has_body: true
+    });
+    post!({
+        doc: "Create new navigation property to plans for planner",
+        name: create_plans,
+        response: serde_json::Value,
+        path: "/planner/plans",
+        has_body: true
+    });
+    get!({
+        doc: "Get plans from planner",
+        name: list_plans,
+        response: serde_json::Value,
+        path: "/planner/plans",
+        has_body: false
+    });
+    post!({
+        doc: "Create new navigation property to tasks for planner",
+        name: create_tasks,
+        response: serde_json::Value,
+        path: "/planner/tasks",
+        has_body: true
+    });
+    get!({
+        doc: "Get tasks from planner",
+        name: list_tasks,
+        response: serde_json::Value,
+        path: "/planner/tasks",
+        has_body: false
+    });
 }

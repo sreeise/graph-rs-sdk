@@ -121,6 +121,45 @@ macro_rules! register_upload {
       }
     };
 
+    ( { name: $name:ident, path: $template:expr, method: $m:expr, has_body: false, upload_session: true} ) => {
+      pub fn $name<P: AsRef<Path> + Send + Sync>(&'a self, file: P) -> IntoResponse<'a, UploadSessionClient<Client>, Client>
+      {
+        let client = self.client.request();
+        client.set_method($m);
+        client.set_upload_session(file.as_ref().to_path_buf());
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({})
+        );
+        IntoResponse::new(&self.client.request)
+      }
+    };
+
+    ( { name: $name:ident, path: $template:expr, method: $m:expr, has_body: true, upload_session: true } ) => {
+      pub fn $name<P: AsRef<Path> + Send + Sync, B: serde::Serialize>(&'a self, file: P, body: &B) -> IntoResponse<'a, UploadSessionClient<Client>, Client>
+      {
+        let client = self.client.request();
+        let body = serde_json::to_string(body);
+
+        if let Ok(body) = body {
+            client.set_method($m);
+            client.set_upload_session(file.as_ref().to_path_buf());
+            client.set_body(body);
+        } else if let Err(e) = body {
+            return IntoResponse::new_error(self.client.request(), GraphFailure::from(e));
+        }
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({})
+        );
+        IntoResponse::new(&self.client.request)
+      }
+    };
+
     ( { name: $name:ident, path: $template:expr, method: $m:expr, params: 1, has_body: false, upload_session: true } ) => {
       pub fn $name<S: AsRef<str>, P: AsRef<Path> + Send + Sync>(&'a self, id: S, file: P) -> IntoResponse<'a, UploadSessionClient<Client>, Client>
       {
@@ -201,6 +240,47 @@ macro_rules! register_upload {
       }
     };
 
+    ( { doc: $doc:expr, name: $name:ident, path: $template:expr, method: $m:expr, has_body: false, upload_session: true } ) => {
+      #[doc = $doc]
+      pub fn $name<P: AsRef<Path> + Send + Sync>(&'a self, file: P) -> IntoResponse<'a, UploadSessionClient<Client>, Client>
+      {
+        let client = self.client.request();
+        client.set_method($m);
+        client.set_upload_session(file.as_ref().to_path_buf());
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({})
+        );
+        IntoResponse::new(&self.client.request)
+      }
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, path: $template:expr, method: $m:expr, has_body: true, upload_session: true } ) => {
+      #[doc = $doc]
+      pub fn $name<P: AsRef<Path> + Send + Sync, B: serde::Serialize>(&'a self, file: P, body: &B) -> IntoResponse<'a, UploadSessionClient<Client>, Client>
+      {
+        let client = self.client.request();
+        let body = serde_json::to_string(body);
+
+        if let Ok(body) = body {
+            client.set_method($m);
+            client.set_upload_session(file.as_ref().to_path_buf());
+            client.set_body(body);
+        } else if let Err(e) = body {
+            return IntoResponse::new_error(self.client.request(), GraphFailure::from(e));
+        }
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({})
+        );
+        IntoResponse::new(&self.client.request)
+      }
+    };
+
     ( { doc: $doc:expr, name: $name:ident, path: $template:expr, method: $m:expr, params: 1, has_body: false, upload_session: true } ) => {
       #[doc = $doc]
       pub fn $name<S: AsRef<str>, P: AsRef<Path> + Send + Sync>(&'a self, id: S, file: P) -> IntoResponse<'a, UploadSessionClient<Client>, Client>
@@ -244,7 +324,7 @@ macro_rules! register_upload {
 
     // Upload methods with named parameters
 
-        ( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr  } ) => {
+    ( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr  } ) => {
       pub fn $name<P: AsRef<Path>>(&'a self, file: P) -> IntoResponse<'a, $T, Client>
       {
         let client = self.client.request();
@@ -326,7 +406,7 @@ macro_rules! register_upload {
       }
     };
 
-    ( { name: $name:ident, path: $template:expr, method: $m:expr, has_body: false, upload_session: true} ) => {
+    ( { name: $name:ident, path: $template:expr, method: $m:expr, has_body: false, upload_session: true } ) => {
       pub fn $name<P: AsRef<Path> + Send + Sync>(&'a self, file: P) -> IntoResponse<'a, UploadSessionClient<Client>, Client>
       {
         let client = self.client.request();
