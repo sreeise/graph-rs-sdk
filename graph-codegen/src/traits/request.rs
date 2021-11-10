@@ -214,7 +214,7 @@ impl RequestParser for &str {
     ///     ]
     /// }
     fn struct_links(&self) -> HashMap<String, Vec<String>> {
-        let mut links = self.links();
+        let links = self.links();
         let mut map: HashMap<String, Vec<String>> = HashMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
         vec.sort_unstable();

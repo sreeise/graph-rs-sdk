@@ -15,19 +15,19 @@ where
         ApplicationsIdRequest::new(applications_id.as_ref(), self.client)
     }
 
-    post!({
-        doc: "Add new entity to applications",
-        name: create_application,
-        response: serde_json::Value,
-        path: "/applications",
-        has_body: true
-    });
     get!({
         doc: "Get entities from applications",
         name: list_application,
         response: serde_json::Value,
         path: "/applications",
         has_body: false
+    });
+    post!({
+        doc: "Add new entity to applications",
+        name: create_application,
+        response: serde_json::Value,
+        path: "/applications",
+        has_body: true
     });
     get!({
         doc: "Invoke function delta",
@@ -112,6 +112,13 @@ where
         path: "/applications/{{RID}}/createdOnBehalfOf/$ref",
         has_body: false
     });
+    get!({
+        doc: "Get extensionProperties from applications",
+        name: list_extension_properties,
+        response: serde_json::Value,
+        path: "/applications/{{RID}}/extensionProperties",
+        has_body: false
+    });
     post!({
         doc: "Create new navigation property to extensionProperties for applications",
         name: create_extension_properties,
@@ -121,24 +128,17 @@ where
     });
     get!({
         doc: "Get extensionProperties from applications",
-        name: list_extension_properties,
+        name: get_extension_properties,
         response: serde_json::Value,
-        path: "/applications/{{RID}}/extensionProperties",
+        path: "/applications/{{RID}}/extensionProperties/{{id}}",
+        params: [ extension_property_id ],
         has_body: false
     });
     delete!({
         doc: "Delete navigation property extensionProperties for applications",
         name: delete_extension_properties,
         response: NoContent,
-        path: "/applications/{{RID}}/extensionProperties/{{id2}}",
-        params: [ extension_property_id ],
-        has_body: false
-    });
-    get!({
-        doc: "Get extensionProperties from applications",
-        name: get_extension_properties,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/extensionProperties/{{id2}}",
+        path: "/applications/{{RID}}/extensionProperties/{{id}}",
         params: [ extension_property_id ],
         has_body: false
     });
@@ -146,7 +146,7 @@ where
         doc: "Update the navigation property extensionProperties in applications",
         name: update_extension_properties,
         response: NoContent,
-        path: "/applications/{{RID}}/extensionProperties/{{id2}}",
+        path: "/applications/{{RID}}/extensionProperties/{{id}}",
         params: [ extension_property_id ],
         has_body: true
     });
@@ -157,13 +157,6 @@ where
         path: "/applications/{{RID}}/homeRealmDiscoveryPolicies",
         has_body: false
     });
-    post!({
-        doc: "Create new navigation property ref to homeRealmDiscoveryPolicies for applications",
-        name: create_ref_home_realm_discovery_policies,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
-        has_body: true
-    });
     get!({
         doc: "Get ref of homeRealmDiscoveryPolicies from applications",
         name: list_ref_home_realm_discovery_policies,
@@ -171,12 +164,12 @@ where
         path: "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
         has_body: false
     });
-    get!({
-        doc: "Get media content for application from applications",
-        name: get_logo,
+    post!({
+        doc: "Create new navigation property ref to homeRealmDiscoveryPolicies for applications",
+        name: create_ref_home_realm_discovery_policies,
         response: serde_json::Value,
-        path: "/applications/{{RID}}/logo",
-        has_body: false
+        path: "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
+        has_body: true
     });
     put!({
         doc: "Update media content for application in applications",
@@ -184,6 +177,13 @@ where
         response: NoContent,
         path: "/applications/{{RID}}/logo",
         has_body: true
+    });
+    get!({
+        doc: "Get media content for application from applications",
+        name: get_logo,
+        response: serde_json::Value,
+        path: "/applications/{{RID}}/logo",
+        has_body: false
     });
     post!({
         doc: "Invoke action addKey",
@@ -248,6 +248,20 @@ where
         path: "/applications/{{RID}}/restore",
         has_body: false
     });
+    post!({
+        doc: "Invoke action setVerifiedPublisher",
+        name: set_verified_publisher,
+        response: NoContent,
+        path: "/applications/{{RID}}/setVerifiedPublisher",
+        has_body: true
+    });
+    post!({
+        doc: "Invoke action unsetVerifiedPublisher",
+        name: unset_verified_publisher,
+        response: NoContent,
+        path: "/applications/{{RID}}/unsetVerifiedPublisher",
+        has_body: false
+    });
     get!({
         doc: "Get owners from applications",
         name: list_owners,
@@ -297,18 +311,18 @@ where
         path: "/applications/{{RID}}/tokenLifetimePolicies",
         has_body: false
     });
-    post!({
-        doc: "Create new navigation property ref to tokenLifetimePolicies for applications",
-        name: create_ref_token_lifetime_policies,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/tokenLifetimePolicies/$ref",
-        has_body: true
-    });
     get!({
         doc: "Get ref of tokenLifetimePolicies from applications",
         name: list_ref_token_lifetime_policies,
         response: serde_json::Value,
         path: "/applications/{{RID}}/tokenLifetimePolicies/$ref",
         has_body: false
+    });
+    post!({
+        doc: "Create new navigation property ref to tokenLifetimePolicies for applications",
+        name: create_ref_token_lifetime_policies,
+        response: serde_json::Value,
+        path: "/applications/{{RID}}/tokenLifetimePolicies/$ref",
+        has_body: true
     });
 }

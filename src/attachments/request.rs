@@ -65,4 +65,11 @@ where
         path: "attachments/{{RID}}",
         has_body: false
     });
+    get!({
+        doc: "Get attachments content",
+        name: get_content,
+        response: serde_json::Value,
+        path: "attachments/{{RID}}/$value",
+        has_body: false
+    });
 }

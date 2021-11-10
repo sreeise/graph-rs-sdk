@@ -1,7 +1,6 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::core::ResourceIdentity;
 use graph_http::types::NoContent;
 
 register_client!(TasksRequest,);

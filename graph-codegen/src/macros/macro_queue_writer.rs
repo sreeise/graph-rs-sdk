@@ -66,7 +66,10 @@ pub trait MacroQueueWriter {
                 doc = format!("\n\t\tdoc: \"{}\", ", doc_string);
             }
 
-            let name = m.fn_name();
+            let mut name = m.fn_name();
+            if name.starts_with("reports_") {
+                name = name.replacen("reports_", "", 1);
+            }
             let has_body = m.has_body();
             let macro_fn_name = m.macro_fn_name();
             let request_task = m.request_task();

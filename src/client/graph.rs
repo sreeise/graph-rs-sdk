@@ -1,4 +1,4 @@
-use crate::activities::ActivitiesRequest;
+use crate::activities::{ActivitiesRequest, ActivitiesIdRequest};
 use crate::app_catalogs::AppCatalogsRequest;
 use crate::applications::{ApplicationsIdRequest, ApplicationsRequest};
 use crate::audit_logs::AuditLogsRequest;
@@ -22,7 +22,7 @@ use crate::org_contact::{OrgContactRequest, OrgContactsRequest};
 use crate::places::PlacesRequest;
 use crate::planner::PlannerRequest;
 use crate::policies::PoliciesRequest;
-use crate::reports::
+use crate::reports::ReportsRequest;
 use crate::schema_extensions::SchemaExtensionsRequest;
 use crate::service_principals::ServicePrincipalsRequest;
 use crate::sites::{SiteRequest, SitesRequest};
@@ -285,6 +285,11 @@ where
     pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Activities);
         ActivitiesRequest::new(self.client)
+    }
+
+    pub fn activity<S: AsRef<str>>(&self, id: S) -> ActivitiesIdRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Activities);
+        ActivitiesIdRequest::new(id.as_ref(), self.client)
     }
 
     pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
