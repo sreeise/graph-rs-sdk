@@ -282,16 +282,6 @@ impl<'a, Client> Identify<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Activities);
-        ActivitiesRequest::new(self.client)
-    }
-
-    pub fn activity<S: AsRef<str>>(&self, id: S) -> ActivitiesIdRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Activities);
-        ActivitiesIdRequest::new(id.as_ref(), self.client)
-    }
-
     pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::AppCatalogs);
         AppCatalogsRequest::new(self.client)
