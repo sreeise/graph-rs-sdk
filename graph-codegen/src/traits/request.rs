@@ -143,18 +143,23 @@ impl RequestParser for &str {
             count += 1;
         }
 
-        // Replaces key-value pairs such as getActivitiesByInterval(interval={interval})
-        for cap in KEY_VALUE_PAIR.captures_iter(path_clone.as_str()) {
+        let mut count = 1;
+        // Replaces key-value pairs such as
+        // getActivitiesByInterval(interval=\'{interval}\')
+        for cap in KEY_VALUE_PAIR_RAW_QUOTED.captures_iter(path_clone.as_str()) {
             let s = cap[0].to_string();
             if let Some(i) = s.find('=') {
-                path = replace_ids(count, &s[i + 1..], &mut path);
+                if count == 1 {
+                    path = path.replacen(&s[i + 1..], "'{{id}}'", 1);
+                } else {
+                    path = path.replacen(&s[i + 1..], &format!("'{{{{id{}}}}}'", count), 1);
+                }
             }
             count += 1;
         }
 
-        // Replaces key-value pairs such as
-        // getActivitiesByInterval(interval=\'{interval}\')
-        for cap in KEY_VALUE_PAIR_RAW_QUOTED.captures_iter(path_clone.as_str()) {
+        // Replaces key-value pairs such as getActivitiesByInterval(interval={interval})
+        for cap in KEY_VALUE_PAIR.captures_iter(path_clone.as_str()) {
             let s = cap[0].to_string();
             if let Some(i) = s.find('=') {
                 path = replace_ids(count, &s[i + 1..], &mut path);

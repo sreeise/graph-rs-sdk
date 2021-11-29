@@ -49,4 +49,28 @@ impl MediaType {
 
         false
     }
+
+    pub fn is_download(&self) -> bool {
+        if let Some(either_t) = self.schema.as_ref() {
+            if let Some(schema) = either_t.clone().into_left() {
+                return schema.is_download();
+            }
+        }
+
+        false
+    }
+
+    pub fn is_ref_type_download(&self) -> bool {
+        if let Some(either_t) = self.schema.as_ref() {
+            if let Some(schema) = either_t.clone().into_left() {
+                return schema.is_ref_type_download();
+            }
+
+            if let Some(reference) = either_t.clone().into_right() {
+                return reference.is_ref_type_download();
+            }
+        }
+
+        false
+    }
 }

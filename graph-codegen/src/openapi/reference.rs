@@ -32,4 +32,14 @@ impl Reference {
             "#/components/schemas/microsoft.graph.uploadSession".into(),
         ))
     }
+
+    pub fn is_ref_type_download(&self) -> bool {
+        if let Some(ref_) = self.ref_.as_ref() {
+            return match ref_.as_str() {
+                "#/components/schemas/microsoft.graph.report" => true,
+                _ => false,
+            };
+        }
+        false
+    }
 }

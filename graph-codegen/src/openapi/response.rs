@@ -48,4 +48,12 @@ impl Response {
 
         false
     }
+
+    pub fn is_download(&self) -> bool {
+        if let Some(media_type) = self.content.get("application/json") {
+            return media_type.is_download() || media_type.is_ref_type_download();
+        }
+
+        false
+    }
 }

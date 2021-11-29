@@ -57,6 +57,10 @@ impl Responses {
                 if response.is_upload_session() {
                     return RequestTask::UploadSession;
                 }
+
+                if response.is_download() {
+                    return RequestTask::Download;
+                }
             }
         }
 

@@ -18,7 +18,6 @@ pub struct Schema {
     pub type_: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    // pub format: Option<serde_json::Value>,
     pub format: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -212,6 +211,28 @@ impl Schema {
             for either_t in any_of.iter() {
                 if let Some(reference) = either_t.clone().into_right() {
                     if reference.is_upload_session() {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        false
+    }
+
+    pub fn is_download(&self) -> bool {
+        if let Some(format) = self.format.as_ref() {
+            return format.eq("base64url");
+        }
+
+        false
+    }
+
+    pub fn is_ref_type_download(&self) -> bool {
+        if let Some(any_of) = self.any_of.as_ref() {
+            for either_t in any_of.iter() {
+                if let Some(reference) = either_t.clone().into_right() {
+                    if reference.is_ref_type_download() {
                         return true;
                     }
                 }

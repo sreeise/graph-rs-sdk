@@ -54,6 +54,25 @@ macro_rules! register_download {
       }
     };
 
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: false} ) => {
+      #[doc = $doc]
+      pub fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+        self.client.request()
+            .set_request(vec![
+                graph_http::RequestAttribute::Method(Method::GET),
+                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+            ]).unwrap();
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({})
+        );
+        self.client.request().download()
+      }
+    };
+
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
       pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
         self.client.request()
@@ -69,6 +88,67 @@ macro_rules! register_download {
             &serde_json::json!({ "id": $p.as_ref() })
         );
         self.client.request().download()
+      }
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
+      #[doc = $doc]
+      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+        self.client.request()
+            .set_request(vec![
+                graph_http::RequestAttribute::Method(Method::GET),
+                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+            ]).unwrap();
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({ "id": $p.as_ref() })
+        );
+        self.client.request().download()
+      }
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: false } ) => {
+      #[doc = $doc]
+      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+        self.client.request()
+            .set_request(vec![
+                graph_http::RequestAttribute::Method(Method::GET),
+                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+            ]).unwrap();
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({ "id": $p.as_ref() })
+        );
+        self.client.request().download()
+      }
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: true } ) => {
+      #[doc = $doc]
+      pub fn $name<S: AsRef<str>, P: AsRef<Path>, B: serde::Serialize>(&'a self, $p: S, directory: P, body: &B) -> $T {
+          let client = self.client.request();
+          client.set_request(vec![
+              graph_http::RequestAttribute::Method(Method::GET),
+              graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
+              graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+          ]).unwrap();
+
+          if let Err(err) = client.set_body_with_serialize(body) {
+              return IntoResponse::new_error(self.client.request(), err);
+          }
+
+          render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({ "id": $p.as_ref() })
+          );
+          self.client.request().download()
       }
     };
 }
@@ -129,6 +209,25 @@ macro_rules! register_async_download {
       }
     };
 
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: false } ) => {
+      #[doc = $doc]
+      pub async fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+        self.client.request()
+            .set_request(vec![
+                graph_http::RequestAttribute::Method(Method::GET),
+                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+            ]).unwrap();
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({})
+        );
+        self.client.request().download().await
+      }
+    };
+
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
       pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
         self.client.request()
@@ -144,6 +243,67 @@ macro_rules! register_async_download {
             &serde_json::json!({ "id": $p.as_ref() })
         );
         self.client.request().download().await
+      }
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
+      #[doc = $doc]
+      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+        self.client.request()
+            .set_request(vec![
+                graph_http::RequestAttribute::Method(Method::GET),
+                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+            ]).unwrap();
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({ "id": $p.as_ref() })
+        );
+        self.client.request().download().await
+      }
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: false } ) => {
+      #[doc = $doc]
+      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+        self.client.request()
+            .set_request(vec![
+                graph_http::RequestAttribute::Method(Method::GET),
+                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+            ]).unwrap();
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({ "id": $p.as_ref() })
+        );
+        self.client.request().download().await
+      }
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: true } ) => {
+      #[doc = $doc]
+      pub async fn $name<S: AsRef<str>, P: AsRef<Path>, B: serde::Serialize>(&'a self, $p: S, directory: P, body: &B) -> $T {
+          let client = self.client.request();
+          client.set_request(vec![
+              graph_http::RequestAttribute::Method(Method::GET),
+              graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
+              graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+          ]).unwrap();
+
+          if let Err(err) = client.set_body_with_serialize(body) {
+              return IntoResponse::new_error(self.client.request(), err);
+          }
+
+          render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({ "id": $p.as_ref() })
+          );
+          self.client.request().download().await
       }
     };
 }
@@ -162,8 +322,24 @@ macro_rules! download {
         register_download!( { name: $name, response: $response, path: $template  }  );
     };
 
+    ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, has_body: false } ) => {
+        register_download!( { doc: $doc, name: $name, response: $response, path: $template, has_body: false  }  );
+    };
+
     ( { name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident ] } ) => {
         register_download!( { name: $name, response: $response, path: $template, params: [ $p ]  }  );
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident ] } ) => {
+        register_download!( { doc: $doc, name: $name, response: $response, path: $template, params: [ $p ]  }  );
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident ], has_body: false } ) => {
+        register_download!( { doc: $doc, name: $name, response: $response, path: $template, params: [ $p ] , has_body: false }  );
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident ], has_body: true } ) => {
+        register_download!( { doc: $doc, name: $name, response: $response, path: $template, params: [ $p ], has_body: true  }  );
     };
 }
 
@@ -181,7 +357,23 @@ macro_rules! async_download {
         register_async_download!( { name: $name, response: $response, path: $template  } );
     };
 
+    ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, has_body: false } ) => {
+        register_async_download!( { doc: $doc, name: $name, response: $response, path: $template, has_body: false  }  );
+    };
+
     ( { name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident ] } ) => {
         register_async_download!( { name: $name, response: $response, path: $template, params: [ $p ]  } );
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident ] } ) => {
+        register_async_download!( { doc: $doc, name: $name, response: $response, path: $template, params: [ $p ]  }  );
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident ], has_body: false } ) => {
+        register_async_download!( { doc: $doc, name: $name, response: $response, path: $template, params: [ $p ] , has_body: false }  );
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident ], has_body: true } ) => {
+        register_async_download!( { doc: $doc, name: $name, response: $response, path: $template, params: [ $p ], has_body: true  }  );
     };
 }

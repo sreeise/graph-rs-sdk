@@ -56,52 +56,122 @@ pub trait MacroQueueWriter {
         parameter_str
     }
 
+    fn has_download_methods(&self) -> bool {
+        let metadata = self.request_metadata();
+        metadata
+            .iter()
+            .find(|m| m.request_task() == RequestTask::Download)
+            .is_some()
+    }
+
+    fn write_download_macros(&self, is_async_download: bool) -> Option<String> {
+        let metadata = self.request_metadata();
+        let mut buf = BytesMut::new();
+        let mut has_download_methods = false;
+
+        for m in metadata.iter() {
+            let request_task = m.request_task();
+
+            if request_task == RequestTask::Download {
+                has_download_methods = true;
+                let mut doc = String::new();
+                if let Some(doc_string) = m.doc() {
+                    doc = format!("\n\t\tdoc: \"{}\", ", doc_string);
+                }
+
+                let mut name = m.fn_name();
+                if name.starts_with("reports_") {
+                    name = name.replacen("reports_", "", 1);
+                }
+                let has_body = m.has_body();
+                let mut macro_fn_name = m.macro_fn_name();
+                if is_async_download {
+                    macro_fn_name = "async_download".to_string();
+                }
+
+                let type_name = request_task.type_name();
+                let path = self.path();
+                let params = self.macro_params();
+
+                buf.put(format!("\n\t{}!({{", macro_fn_name).as_bytes());
+                buf.put(doc.as_bytes());
+                buf.put(format!("\n\t\tname: {}", name).as_bytes());
+
+                if is_async_download {
+                    buf.put(",\n\t\tresponse: AsyncDownload".as_bytes());
+                } else {
+                    buf.put(format!(",\n\t\tresponse: {}", type_name).as_bytes());
+                }
+
+                buf.put(format!(",\n\t\tpath: \"{}\"", path).as_bytes());
+
+                if self.param_size() > 0 {
+                    buf.put(format!(",\n\t\tparams: [{}]", params).as_bytes());
+                }
+
+                buf.put(format!(",\n\t\thas_body: {}", has_body).as_bytes());
+                buf.put("\n\t});".as_bytes());
+            }
+        }
+
+        if has_download_methods {
+            let s = std::str::from_utf8(buf.as_ref()).unwrap();
+            Some(s.to_string())
+        } else {
+            None
+        }
+    }
+
     fn write_method_macros(&self) -> String {
         let metadata = self.request_metadata();
         let mut buf = BytesMut::new();
 
         for m in metadata.iter() {
-            let mut doc = String::new();
-            if let Some(doc_string) = m.doc() {
-                doc = format!("\n\t\tdoc: \"{}\", ", doc_string);
-            }
-
-            let mut name = m.fn_name();
-            if name.starts_with("reports_") {
-                name = name.replacen("reports_", "", 1);
-            }
-            let has_body = m.has_body();
-            let macro_fn_name = m.macro_fn_name();
             let request_task = m.request_task();
-            let is_upload = request_task == RequestTask::Upload;
-            let is_upload_session = request_task == RequestTask::UploadSession;
-            let type_name = request_task.type_name();
 
-            let path = self.path();
-            let params = self.macro_params();
+            if request_task != RequestTask::Download {
+                let mut doc = String::new();
+                if let Some(doc_string) = m.doc() {
+                    doc = format!("\n\t\tdoc: \"{}\", ", doc_string);
+                }
 
-            buf.put(format!("\n\t{}!({{", macro_fn_name).as_bytes());
-            buf.put(doc.as_bytes());
-            buf.put(format!("\n\t\tname: {}", name).as_bytes());
+                let mut name = m.fn_name();
+                if name.starts_with("reports_") {
+                    name = name.replacen("reports_", "", 1);
+                }
+                let has_body = m.has_body();
+                let macro_fn_name = m.macro_fn_name();
 
-            if !is_upload_session {
-                buf.put(format!(",\n\t\tresponse: {}", type_name).as_bytes());
+                let is_upload = request_task == RequestTask::Upload;
+                let is_upload_session = request_task == RequestTask::UploadSession;
+                let type_name = request_task.type_name();
+
+                let path = self.path();
+                let params = self.macro_params();
+
+                buf.put(format!("\n\t{}!({{", macro_fn_name).as_bytes());
+                buf.put(doc.as_bytes());
+                buf.put(format!("\n\t\tname: {}", name).as_bytes());
+
+                if !is_upload_session {
+                    buf.put(format!(",\n\t\tresponse: {}", type_name).as_bytes());
+                }
+
+                buf.put(format!(",\n\t\tpath: \"{}\"", path).as_bytes());
+
+                if self.param_size() > 0 {
+                    buf.put(format!(",\n\t\tparams: [{}]", params).as_bytes());
+                }
+
+                buf.put(format!(",\n\t\thas_body: {}", has_body).as_bytes());
+                if is_upload {
+                    buf.put(",\n\t\tupload: true".as_bytes());
+                }
+                if is_upload_session {
+                    buf.put(",\n\t\tupload_session: true".as_bytes());
+                }
+                buf.put("\n\t});".as_bytes());
             }
-
-            buf.put(format!(",\n\t\tpath: \"{}\"", path).as_bytes());
-
-            if self.param_size() > 0 {
-                buf.put(format!(",\n\t\tparams: [{}]", params).as_bytes());
-            }
-
-            buf.put(format!(",\n\t\thas_body: {}", has_body).as_bytes());
-            if is_upload {
-                buf.put(",\n\t\tupload: true".as_bytes());
-            }
-            if is_upload_session {
-                buf.put(",\n\t\tupload_session: true".as_bytes());
-            }
-            buf.put("\n\t});".as_bytes());
         }
         let s = std::str::from_utf8(buf.as_ref()).unwrap();
         s.to_string()
@@ -269,12 +339,48 @@ pub trait MacroImplWriter {
                 }
             }
 
+            let mut has_downloads = false;
             for path_metadata in path_metadata_queue.iter() {
                 let method_macros = path_metadata.write_method_macros();
                 buf.put(method_macros.as_bytes());
+                if has_downloads == false && path_metadata.has_download_methods() {
+                    has_downloads = true;
+                }
             }
 
             buf.put("\n}\n".as_bytes());
+
+            if has_downloads {
+                buf.put("\n\n".as_bytes());
+
+                let impl_start = format!("\nimpl<'a> {}Request<'a, BlockingHttpClient> {{", name);
+
+                buf.put(impl_start.as_bytes());
+
+                for path_metadata in path_metadata_queue.iter() {
+                    let download_macros_option = path_metadata.write_download_macros(false);
+                    if let Some(download_macros) = download_macros_option.as_ref() {
+                        buf.put(download_macros.as_bytes());
+                    }
+                }
+
+                buf.put("\n}\n".as_bytes());
+
+                buf.put("\n\n".as_bytes());
+
+                let impl_start = format!("\nimpl<'a> {}Request<'a, AsyncHttpClient> {{", name);
+
+                buf.put(impl_start.as_bytes());
+
+                for path_metadata in path_metadata_queue.iter() {
+                    let download_macros_option = path_metadata.write_download_macros(true);
+                    if let Some(download_macros) = download_macros_option.as_ref() {
+                        buf.put(download_macros.as_bytes());
+                    }
+                }
+
+                buf.put("\n}\n".as_bytes());
+            }
         }
         //let s = std::str::from_utf8(buf.as_ref()).unwrap();
         //println!("{}", s);

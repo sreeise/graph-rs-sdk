@@ -1,4 +1,3 @@
-use crate::activities::{ActivitiesRequest, ActivitiesIdRequest};
 use crate::app_catalogs::AppCatalogsRequest;
 use crate::applications::{ApplicationsIdRequest, ApplicationsRequest};
 use crate::audit_logs::AuditLogsRequest;

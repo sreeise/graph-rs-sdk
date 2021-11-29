@@ -142,6 +142,10 @@ pub struct OpenApi {
 }
 
 impl OpenApi {
+    pub fn paths(&self) -> &BTreeMap<String, PathItem> {
+        &self.paths
+    }
+
     pub fn filter_path(&mut self, pat: &str) -> BTreeMap<String, PathItem> {
         self.paths
             .clone()
@@ -228,5 +232,36 @@ impl AsMut<BTreeMap<String, PathItem>> for OpenApi {
 impl FilterPath for OpenApi {
     fn paths(&self) -> BTreeMap<String, PathItem> {
         self.paths.clone()
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+#[serde(rename_all = "camelCase")]
+pub struct OpenApiRaw {
+    open_api: serde_json::Value,
+}
+
+impl Default for OpenApiRaw {
+    fn default() -> Self {
+        OpenApiRaw::try_from(GraphUrl::parse(MS_GRAPH_METADATA_URL).unwrap()).unwrap()
+    }
+}
+
+impl TryFrom<GraphUrl> for OpenApiRaw {
+    type Error = GraphFailure;
+
+    fn try_from(value: GraphUrl) -> Result<Self, Self::Error> {
+        OpenApiRaw::try_from(value.to_reqwest_url())
+    }
+}
+
+impl TryFrom<reqwest::Url> for OpenApiRaw {
+    type Error = GraphFailure;
+
+    fn try_from(value: Url) -> Result<Self, Self::Error> {
+        let response = reqwest::blocking::get(value)?;
+        let open_api_raw_text = response.text()?;
+        let open_api: serde_json::Value = serde_yaml::from_str(open_api_raw_text.as_str())?;
+        Ok(OpenApiRaw { open_api })
     }
 }
