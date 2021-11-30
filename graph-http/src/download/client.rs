@@ -320,7 +320,7 @@ impl AsyncDownload {
             path.with_extension(ext.as_str());
         }
 
-        if path.exists() && !self.is_overwrite_existing_file().await {
+        if path.exists() && !request.overwrite_existing_file {
             return Err(AsyncDownloadError::FileExists(
                 path.to_string_lossy().to_string(),
             ));
