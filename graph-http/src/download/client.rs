@@ -13,7 +13,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 pub struct DownloadRequest {
-    path: PathBuf,
+    path: Option<PathBuf>,
     create_dir_all: bool,
     overwrite_existing_file: bool,
     file_name: Option<OsString>,
@@ -21,9 +21,9 @@ pub struct DownloadRequest {
 }
 
 impl DownloadRequest {
-    pub fn new(path: PathBuf) -> DownloadRequest {
+    pub fn new() -> DownloadRequest {
         DownloadRequest {
-            path,
+            path: None,
             create_dir_all: false,
             overwrite_existing_file: false,
             file_name: None,
@@ -77,9 +77,8 @@ impl<Client, Request> DownloadClient<Client, Request> {
 
 impl BlockingDownload {
     pub fn new(client: BlockingClient) -> BlockingDownload {
-        let path = client.download_dir.clone().unwrap();
         DownloadClient {
-            request: RefCell::new(DownloadRequest::new(path)),
+            request: RefCell::new(DownloadRequest::new()),
             client: HttpClient::from(client),
         }
     }
@@ -113,11 +112,11 @@ impl BlockingDownload {
     }
 
     pub fn set_dir<P: AsRef<Path>>(&self, path: P) -> &Self {
-        self.request.borrow_mut().path = path.as_ref().to_path_buf();
+        self.request.borrow_mut().path = Some(path.as_ref().to_path_buf());
         self
     }
 
-    pub fn directory(&self) -> PathBuf {
+    pub fn directory(&self) -> Option<PathBuf> {
         self.request.borrow().path.clone()
     }
 
@@ -145,12 +144,16 @@ impl BlockingDownload {
     fn download(self) -> Result<PathBuf, BlockingDownloadError> {
         let request = self.request.borrow();
 
+        if request.path.is_none() {
+            return Err(BlockingDownloadError::NoFileName);
+        }
+
         // Create the directory if it does not exist.
         if request.create_dir_all {
-            iotools::create_dir(request.path.as_path())?;
-        } else if !request.path.exists() {
+            iotools::create_dir(request.path.as_ref().unwrap().as_path())?;
+        } else if !request.path.as_ref().unwrap().exists() {
             return Err(BlockingDownloadError::TargetDoesNotExist(
-                request.path.to_string_lossy().to_string(),
+                request.path.as_ref().unwrap().to_string_lossy().to_string(),
             ));
         }
 
@@ -174,7 +177,7 @@ impl BlockingDownload {
                 if name.len() > MAX_FILE_NAME_LEN {
                     return Err(BlockingDownloadError::FileNameTooLong);
                 }
-                request.path.join(name)
+                request.path.as_ref().unwrap().join(name)
             } else {
                 return Err(BlockingDownloadError::NoFileName);
             }
@@ -196,9 +199,8 @@ impl BlockingDownload {
 
 impl AsyncDownload {
     pub fn new_async(client: AsyncClient) -> AsyncDownload {
-        let path = client.download_dir.clone().unwrap();
         DownloadClient {
-            request: std::sync::Arc::new(tokio::sync::Mutex::new(DownloadRequest::new(path))),
+            request: std::sync::Arc::new(tokio::sync::Mutex::new(DownloadRequest::new())),
             client: HttpClient::from(client),
         }
     }
@@ -232,12 +234,12 @@ impl AsyncDownload {
     }
 
     pub async fn set_dir<P: AsRef<Path>>(&self, path: P) -> &Self {
-        self.request.lock().await.path = path.as_ref().to_path_buf();
+        self.request.lock().await.path = Some(path.as_ref().to_path_buf());
         self
     }
 
     pub async fn directory(&self) -> PathBuf {
-        self.request.lock().await.path.clone()
+        self.request.lock().await.path.as_ref().unwrap().clone()
     }
 
     pub async fn file_name(&self) -> Option<OsString> {
@@ -266,12 +268,15 @@ impl AsyncDownload {
     async fn download_async(self) -> Result<PathBuf, AsyncDownloadError> {
         let request = self.request.lock().await;
 
+        if request.path.is_none() {
+            return Err(AsyncDownloadError::NoFileName);
+        }
         // Create the directory if it does not exist.
         if request.create_dir_all {
-            iotools::create_dir_async(request.path.as_path()).await?;
-        } else if !request.path.exists() {
+            iotools::create_dir_async(request.path.as_ref().unwrap().as_path()).await?;
+        } else if !request.path.as_ref().unwrap().exists() {
             return Err(AsyncDownloadError::TargetDoesNotExist(
-                request.path.to_string_lossy().to_string(),
+                request.path.as_ref().unwrap().to_string_lossy().to_string(),
             ));
         }
 
@@ -310,7 +315,7 @@ impl AsyncDownload {
                 if name.len() > MAX_FILE_NAME_LEN {
                     return Err(AsyncDownloadError::FileNameTooLong);
                 }
-                request.path.join(name)
+                request.path.as_ref().unwrap().join(name)
             } else {
                 return Err(AsyncDownloadError::NoFileName);
             }
@@ -320,12 +325,44 @@ impl AsyncDownload {
             path.with_extension(ext.as_str());
         }
 
-        if path.exists() && !self.is_overwrite_existing_file().await {
+        if path.exists() && !request.overwrite_existing_file {
             return Err(AsyncDownloadError::FileExists(
                 path.to_string_lossy().to_string(),
             ));
         }
 
         Ok(iotools::copy_async(path, response).await?)
+    }
+
+    pub async fn text(self) -> Result<String, AsyncDownloadError> {
+        if self.client.request_type() == RequestType::Redirect {
+            let response = self
+                .client
+                .build()
+                .await
+                .send()
+                .await?
+                .with_graph_error()
+                .await?;
+
+            let mut client = self.client.client.lock().await;
+            (*client).headers.clear();
+            (*client).method = Method::GET;
+            (*client).req_type = RequestType::Basic;
+            (*client).url = GraphUrl::from(response.url().clone());
+        }
+
+        let response = self
+            .client
+            .build()
+            .await
+            .send()
+            .await?
+            .with_graph_error()
+            .await?
+            .text()
+            .await?;
+
+        Ok(response)
     }
 }

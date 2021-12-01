@@ -1,11 +1,10 @@
 #[macro_use]
 macro_rules! register_download {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 0 } ) => {
-      pub fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub fn $name(&'a self) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -19,11 +18,10 @@ macro_rules! register_download {
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 1 } ) => {
-      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
+      pub fn $name<S: AsRef<str>>(&'a self, id: S) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -37,11 +35,10 @@ macro_rules! register_download {
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr } ) => {
-      pub fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub fn $name(&'a self) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -56,11 +53,10 @@ macro_rules! register_download {
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: false} ) => {
       #[doc = $doc]
-      pub fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub fn $name(&'a self) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -74,11 +70,10 @@ macro_rules! register_download {
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
-      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub fn $name<S: AsRef<str>>(&'a self, $p: S) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -93,11 +88,10 @@ macro_rules! register_download {
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
       #[doc = $doc]
-      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub fn $name<S: AsRef<str>>(&'a self, $p: S) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -112,11 +106,10 @@ macro_rules! register_download {
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: false } ) => {
       #[doc = $doc]
-      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub fn $name<S: AsRef<str>>(&'a self, $p: S) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -131,11 +124,10 @@ macro_rules! register_download {
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: true } ) => {
       #[doc = $doc]
-      pub fn $name<S: AsRef<str>, P: AsRef<Path>, B: serde::Serialize>(&'a self, $p: S, directory: P, body: &B) -> $T {
+      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, $p: S, body: &B) -> $T {
           let client = self.client.request();
           client.set_request(vec![
               graph_http::RequestAttribute::Method(Method::GET),
-              graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
               graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
           ]).unwrap();
 
@@ -156,11 +148,10 @@ macro_rules! register_download {
 #[macro_use]
 macro_rules! register_async_download {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 0 } ) => {
-      pub async fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub async fn $name(&'a self) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -174,11 +165,10 @@ macro_rules! register_async_download {
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 1 } ) => {
-      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
+      pub async fn $name<S: AsRef<str>>(&'a self, id: S) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -192,11 +182,10 @@ macro_rules! register_async_download {
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr } ) => {
-      pub async fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub async fn $name(&'a self) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -211,11 +200,10 @@ macro_rules! register_async_download {
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: false } ) => {
       #[doc = $doc]
-      pub async fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub async fn $name(&'a self) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -229,11 +217,10 @@ macro_rules! register_async_download {
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
-      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub async fn $name<S: AsRef<str>>(&'a self, $p: S) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -248,11 +235,10 @@ macro_rules! register_async_download {
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
       #[doc = $doc]
-      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub async fn $name<S: AsRef<str>>(&'a self, $p: S) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -267,11 +253,10 @@ macro_rules! register_async_download {
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: false } ) => {
       #[doc = $doc]
-      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub async fn $name<S: AsRef<str>>(&'a self, $p: S) -> $T {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
                 graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
             ]).unwrap();
 
@@ -286,11 +271,10 @@ macro_rules! register_async_download {
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: true } ) => {
       #[doc = $doc]
-      pub async fn $name<S: AsRef<str>, P: AsRef<Path>, B: serde::Serialize>(&'a self, $p: S, directory: P, body: &B) -> $T {
+      pub async fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, $p: S, body: &B) -> $T {
           let client = self.client.request();
           client.set_request(vec![
               graph_http::RequestAttribute::Method(Method::GET),
-              graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
               graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
           ]).unwrap();
 

@@ -180,7 +180,9 @@ impl<'a> DrivesRequest<'a, BlockingHttpClient> {
                 RequestAttribute::RequestType(RequestType::Redirect),
             ])
             .unwrap();
-        self.client.request().download()
+        let download_client = self.client.request().download();
+        download_client.set_dir(directory.as_ref().to_path_buf());
+        download_client
     }
 }
 
@@ -199,6 +201,10 @@ impl<'a> DrivesRequest<'a, AsyncHttpClient> {
                 RequestAttribute::RequestType(RequestType::Redirect),
             ])
             .unwrap();
-        futures::executor::block_on(self.client.request().download())
+        futures::executor::block_on(async {
+            let download_client = self.client.request().download().await;
+            download_client.set_dir(directory.as_ref().to_path_buf()).await;
+            download_client
+        })
     }
 }

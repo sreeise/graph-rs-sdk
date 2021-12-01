@@ -163,9 +163,11 @@ fn download_page() {
                 .user(&id)
                 .onenote()
                 .page(page_id)
-                .download_page("./test_files");
+                .download_page();
+
 
             download_page.rename(OsString::from("downloaded_page.html"));
+            download_page.set_dir("./test_files");
             let result = download_page.send();
 
             if let Err(e) = result {
