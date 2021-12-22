@@ -1,11 +1,10 @@
 use crate::async_client::AsyncClient;
 use crate::blocking_client::BlockingClient;
+use crate::iotools;
 use crate::url::GraphUrl;
-use crate::{iotools, GraphResponse};
 use crate::{HttpClient, RequestClient, RequestType};
-use bytes::Bytes;
 use graph_error::download::{AsyncDownloadError, BlockingDownloadError};
-use graph_error::{GraphFailure, GraphResult, WithGraphError, WithGraphErrorAsync};
+use graph_error::{WithGraphError, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
 use reqwest::Method;
 use std::cell::RefCell;

@@ -10,12 +10,19 @@ impl<'a, Client> ReportsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    post!({
-        doc: "Create new navigation property to dailyPrintUsageByPrinter for reports",
-        name: create_daily_print_usage_by_printer,
-        response: serde_json::Value,
-        path: "/reports/dailyPrintUsageByPrinter",
+    patch!({
+        doc: "Update reports",
+        name: update_report_root,
+        response: NoContent,
+        path: "/reports",
         has_body: true
+    });
+    get!({
+        doc: "Get reports",
+        name: get_report_root,
+        response: serde_json::Value,
+        path: "/reports",
+        has_body: false
     });
     get!({
         doc: "Get dailyPrintUsageByPrinter from reports",
@@ -23,6 +30,13 @@ where
         response: serde_json::Value,
         path: "/reports/dailyPrintUsageByPrinter",
         has_body: false
+    });
+    post!({
+        doc: "Create new navigation property to dailyPrintUsageByPrinter for reports",
+        name: create_daily_print_usage_by_printer,
+        response: serde_json::Value,
+        path: "/reports/dailyPrintUsageByPrinter",
+        has_body: true
     });
     patch!({
         doc: "Update the navigation property dailyPrintUsageByPrinter in reports",
@@ -48,13 +62,6 @@ where
         params: [ print_usage_by_printer_id ],
         has_body: false
     });
-    post!({
-        doc: "Create new navigation property to dailyPrintUsageByUser for reports",
-        name: create_daily_print_usage_by_user,
-        response: serde_json::Value,
-        path: "/reports/dailyPrintUsageByUser",
-        has_body: true
-    });
     get!({
         doc: "Get dailyPrintUsageByUser from reports",
         name: list_daily_print_usage_by_user,
@@ -62,13 +69,12 @@ where
         path: "/reports/dailyPrintUsageByUser",
         has_body: false
     });
-    get!({
-        doc: "Get dailyPrintUsageByUser from reports",
-        name: get_daily_print_usage_by_user,
+    post!({
+        doc: "Create new navigation property to dailyPrintUsageByUser for reports",
+        name: create_daily_print_usage_by_user,
         response: serde_json::Value,
-        path: "/reports/dailyPrintUsageByUser/{{id}}",
-        params: [ print_usage_by_user_id ],
-        has_body: false
+        path: "/reports/dailyPrintUsageByUser",
+        has_body: true
     });
     patch!({
         doc: "Update the navigation property dailyPrintUsageByUser in reports",
@@ -77,6 +83,14 @@ where
         path: "/reports/dailyPrintUsageByUser/{{id}}",
         params: [ print_usage_by_user_id ],
         has_body: true
+    });
+    get!({
+        doc: "Get dailyPrintUsageByUser from reports",
+        name: get_daily_print_usage_by_user,
+        response: serde_json::Value,
+        path: "/reports/dailyPrintUsageByUser/{{id}}",
+        params: [ print_usage_by_user_id ],
+        has_body: false
     });
     delete!({
         doc: "Delete navigation property dailyPrintUsageByUser for reports",
@@ -124,14 +138,6 @@ where
         path: "/reports/monthlyPrintUsageByPrinter",
         has_body: false
     });
-    delete!({
-        doc: "Delete navigation property monthlyPrintUsageByPrinter for reports",
-        name: delete_monthly_print_usage_by_printer,
-        response: NoContent,
-        path: "/reports/monthlyPrintUsageByPrinter/{{id}}",
-        params: [ print_usage_by_printer_id ],
-        has_body: false
-    });
     patch!({
         doc: "Update the navigation property monthlyPrintUsageByPrinter in reports",
         name: update_monthly_print_usage_by_printer,
@@ -144,6 +150,14 @@ where
         doc: "Get monthlyPrintUsageByPrinter from reports",
         name: get_monthly_print_usage_by_printer,
         response: serde_json::Value,
+        path: "/reports/monthlyPrintUsageByPrinter/{{id}}",
+        params: [ print_usage_by_printer_id ],
+        has_body: false
+    });
+    delete!({
+        doc: "Delete navigation property monthlyPrintUsageByPrinter for reports",
+        name: delete_monthly_print_usage_by_printer,
+        response: NoContent,
         path: "/reports/monthlyPrintUsageByPrinter/{{id}}",
         params: [ print_usage_by_printer_id ],
         has_body: false
@@ -162,14 +176,6 @@ where
         path: "/reports/monthlyPrintUsageByUser",
         has_body: false
     });
-    patch!({
-        doc: "Update the navigation property monthlyPrintUsageByUser in reports",
-        name: update_monthly_print_usage_by_user,
-        response: NoContent,
-        path: "/reports/monthlyPrintUsageByUser/{{id}}",
-        params: [ print_usage_by_user_id ],
-        has_body: true
-    });
     delete!({
         doc: "Delete navigation property monthlyPrintUsageByUser for reports",
         name: delete_monthly_print_usage_by_user,
@@ -185,6 +191,14 @@ where
         path: "/reports/monthlyPrintUsageByUser/{{id}}",
         params: [ print_usage_by_user_id ],
         has_body: false
+    });
+    patch!({
+        doc: "Update the navigation property monthlyPrintUsageByUser in reports",
+        name: update_monthly_print_usage_by_user,
+        response: NoContent,
+        path: "/reports/monthlyPrintUsageByUser/{{id}}",
+        params: [ print_usage_by_user_id ],
+        has_body: true
     });
 }
 
@@ -869,6 +883,14 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
         name: managed_device_enrollment_failure_details_02_7e,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.managedDeviceEnrollmentFailureDetails()",
+        has_body: false
+    });
+    download!({
+        doc: "Invoke function managedDeviceEnrollmentFailureDetails",
+        name: managed_device_enrollment_failure_details_2b_3d,
+        response: BlockingDownload,
+        path: "/reports/managedDeviceEnrollmentFailureDetails(skip={{id}},top={{id2}},filter='{{id3}}',skipToken='{{id4}}')",
+        params: [ skip  top  filter  skip_token ],
         has_body: false
     });
     download!({
@@ -1569,6 +1591,14 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
         name: managed_device_enrollment_failure_details_02_7e,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.managedDeviceEnrollmentFailureDetails()",
+        has_body: false
+    });
+    async_download!({
+        doc: "Invoke function managedDeviceEnrollmentFailureDetails",
+        name: managed_device_enrollment_failure_details_2b_3d,
+        response: AsyncDownload,
+        path: "/reports/managedDeviceEnrollmentFailureDetails(skip={{id}},top={{id2}},filter='{{id3}}',skipToken='{{id4}}')",
+        params: [ skip  top  filter  skip_token ],
         has_body: false
     });
     async_download!({

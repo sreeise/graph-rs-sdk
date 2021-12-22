@@ -165,6 +165,30 @@ macro_rules! register_download {
           IntoResponse::new(&self.client.request)
       }
     };
+
+        // Only a few download requests have 4 parameters. Mainly reports as of last checked.
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident $p2:ident $p3:ident $p4:ident ], has_body: false } ) => {
+      #[doc = $doc]
+      pub fn $name<S: AsRef<str>>(&'a self, $p: S, $p2: S, $p3: S, $p4: S) -> IntoResponse<'a, $T, BlockingHttpClient> {
+        self.client.request()
+            .set_request(vec![
+                graph_http::RequestAttribute::Method(Method::GET),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
+            ]).unwrap();
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({
+                "id": $p.as_ref(),
+                "id2": $p2.as_ref(),
+                "id3": $p3.as_ref(),
+                "id4": $p4.as_ref()
+            })
+        );
+        IntoResponse::new(&self.client.request)
+      }
+    };
 }
 
 #[macro_use]
@@ -312,6 +336,30 @@ macro_rules! register_async_download {
           IntoResponse::new(&self.client.request)
       }
     };
+
+    // Only a few download requests have more than 1 parameter. Mainly reports which has requests requiring 4 parameters.
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident $p2:ident $p3:ident $p4:ident ], has_body: false } ) => {
+      #[doc = $doc]
+      pub async fn $name<S: AsRef<str>>(&'a self, $p: S, $p2: S, $p3: S, $p4: S) -> IntoResponse<'a, $T, AsyncHttpClient> {
+        self.client.request()
+            .set_request(vec![
+                graph_http::RequestAttribute::Method(Method::GET),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
+            ]).unwrap();
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({
+                "id": $p.as_ref(),
+                "id2": $p2.as_ref(),
+                "id3": $p3.as_ref(),
+                "id4": $p4.as_ref()
+            })
+        );
+        IntoResponse::new(&self.client.request)
+      }
+    };
 }
 
 #[macro_use]
@@ -347,6 +395,10 @@ macro_rules! download {
     ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident ], has_body: true } ) => {
         register_download!( { doc: $doc, name: $name, response: $response, path: $template, params: [ $p ], has_body: true  }  );
     };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident $p2:ident $p3:ident $p4:ident ], has_body: false } ) => {
+        register_download!( { doc: $doc, name: $name, response: $response, path: $template, params: [ $p $p2 $p3 $p4 ], has_body: false  }  );
+    };
 }
 
 #[macro_use]
@@ -381,5 +433,9 @@ macro_rules! async_download {
 
     ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident ], has_body: true } ) => {
         register_async_download!( { doc: $doc, name: $name, response: $response, path: $template, params: [ $p ], has_body: true  }  );
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $response:ty, path: $template:expr, params: [ $p:ident $p2:ident $p3:ident $p4:ident ], has_body: false } ) => {
+        register_async_download!( { doc: $doc, name: $name, response: $response, path: $template, params: [ $p $p2 $p3 $p4 ], has_body: false  }  );
     };
 }
