@@ -4,10 +4,12 @@
 #[macro_use]
 extern crate serde;
 
+pub mod download;
 mod error;
 mod graph_failure;
 mod headers;
 mod internal;
+pub mod ioerror;
 
 pub use error::*;
 pub use graph_failure::*;

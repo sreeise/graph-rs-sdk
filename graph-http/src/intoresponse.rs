@@ -3,10 +3,16 @@ use crate::blocking_client::BlockingHttpClient;
 use crate::traits::{AsyncTryFrom, ODataLink};
 use crate::types::{Delta, DeltaPhantom, NoContent};
 use crate::uploadsession::UploadSessionClient;
-use crate::{DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse, RequestClient};
+use crate::url::GraphUrl;
+use crate::{
+    AsyncDownload, BlockingDownload, DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse,
+    RequestClient,
+};
+use bytes::Bytes;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderValue, IntoHeaderName};
 use std::marker::PhantomData;
+use std::path::Path;
 use std::sync::mpsc::Receiver;
 
 pub struct IntoResponse<'a, T, Client>
@@ -125,17 +131,41 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
+
         let response = self.client.response()?;
         Ok(response.json()?)
     }
 
-    pub fn text(self) -> GraphResult<String> {
+    pub fn text(self) -> GraphResult<GraphResponse<String>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        /*
+        if self.client.is_download_type() {
+            return self.client.download().text();
+        }
+         */
+
+        let response = self.client.response()?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let text = response.text().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, text, status, headers))
+    }
+
+    pub fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
 
         let response = self.client.response()?;
-        response.text().map_err(GraphFailure::from)
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let bytes = response.bytes().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, bytes, status, headers))
     }
 }
 
@@ -202,6 +232,66 @@ where
     }
 }
 
+impl<'a> IntoResponseBlocking<'a, BlockingDownload> {
+    pub fn download<P: AsRef<Path>>(self, path: P) -> GraphResult<BlockingDownload> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        self.client.set_download_dir(path.as_ref().to_path_buf());
+        Ok(self.client.download())
+    }
+
+    /*
+    pub fn text(self) -> GraphResult<GraphResponse<String>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let download_client = self.client.download();
+        download_client.text()
+    }
+
+    pub fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let download_client = self.client.download();
+        download_client.bytes()
+    }
+     */
+}
+
+impl<'a> IntoResponseAsync<'a, AsyncDownload> {
+    pub async fn download<P: AsRef<Path>>(self, path: P) -> GraphResult<AsyncDownload> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        self.client.set_download_dir(path.as_ref().to_path_buf());
+        Ok(self.client.download().await)
+    }
+
+    /*
+    pub fn text(self) -> GraphResult<GraphResponse<String>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let download_client = self.client.download();
+        download_client.text()
+    }
+
+    pub fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let download_client = self.client.download();
+        download_client.bytes()
+    }
+     */
+}
+
 // Async Impl
 
 impl<'a, T> IntoResponseAsync<'a, T> {
@@ -217,13 +307,30 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         response.json().await.map_err(GraphFailure::from)
     }
 
-    pub async fn text(self) -> GraphResult<String> {
+    pub async fn text(self) -> GraphResult<GraphResponse<String>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
 
         let response = self.client.response().await?;
-        response.text().await.map_err(GraphFailure::from)
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let text = response.text().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, text, status, headers))
+    }
+
+    pub async fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.client.response().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let bytes = response.bytes().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, bytes, status, headers))
     }
 }
 

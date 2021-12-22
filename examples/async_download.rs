@@ -1,5 +1,4 @@
-use graph_error::GraphFailure;
-use graph_http::AsyncDownloadError;
+use graph_error::{download::AsyncDownloadError, GraphFailure};
 use graph_rs_sdk::prelude::*;
 use std::ffi::OsString;
 use std::path::PathBuf;

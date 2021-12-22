@@ -23,7 +23,11 @@ fn download_office_365_user_counts_reports_test() {
         let download_client = client
             .v1()
             .reports()
-            .get_office_365_active_user_counts("D90", "./test_files");
+            .get_office_365_active_user_counts("D90")
+            .download("./test_files")
+            .expect(
+                "Request Error. API: Reports | Method: download get_office_365_active_user_counts.",
+            );
 
         download_client.rename(OsString::from("user_count_report.csv"));
 
@@ -49,8 +53,11 @@ async fn async_download_office_365_user_counts_reports_test() {
         let download_client = client
             .v1()
             .reports()
-            .get_office_365_active_user_counts("D90", "./test_files")
-            .await;
+            .get_office_365_active_user_counts("D90")
+            .await
+            .download("./test_files")
+            .await
+            .unwrap();
 
         download_client
             .rename(OsString::from("async_user_count_report.csv"))
@@ -61,5 +68,35 @@ async fn async_download_office_365_user_counts_reports_test() {
             .expect("Request Error. API: Reports | Method: download_async get_office_365_active_user_counts.");
 
         assert!(path_buf.exists());
+    }
+}
+
+#[test]
+fn get_office_365_user_counts_reports_text() {
+    let _lock = THROTTLE_MUTEX.lock().unwrap();
+
+    if let Some((_id, client)) = OAuthTestClient::graph_by_rid(ResourceIdentity::Reports) {
+        let file_location = "./test_files/user_count_report.csv";
+        let mut clean_up = CleanUp::new(|| {
+            let path = Path::new(file_location);
+            if path.exists() {
+                std::fs::remove_file(path).unwrap();
+            }
+        });
+        clean_up.rm_files(file_location.into());
+
+        let result = client
+            .v1()
+            .reports()
+            .get_office_365_active_user_counts("D90")
+            .text();
+
+        TestTools::assert_success(
+            &result,
+            "download_type as text | get_office_365_active_user_counts by text",
+        );
+        let response = result.unwrap();
+
+        assert!(!response.body().is_empty());
     }
 }

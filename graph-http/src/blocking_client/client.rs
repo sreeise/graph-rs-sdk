@@ -100,12 +100,18 @@ impl BlockingClient {
         }
     }
 
+    /// Builds the request and sends it.
+    ///
+    /// Requests that require a redirect are automatic so we don't need
+    /// to do anything special for these requests.
     pub fn response(&mut self) -> GraphResult<reqwest::blocking::Response> {
         let builder = self.build();
         let response = builder.send()?;
         Ok(response)
     }
 
+    /// Builds the requests and sends it, converting to a GraphResponse and deserializing
+    /// the body.
     pub fn execute<T>(&mut self) -> GraphResult<GraphResponse<T>>
     where
         for<'de> T: serde::Deserialize<'de>,

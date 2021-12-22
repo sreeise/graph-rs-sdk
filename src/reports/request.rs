@@ -3,7 +3,6 @@
 use crate::api_default_imports::*;
 use graph_http::types::NoContent;
 use graph_http::{AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient};
-use std::path::Path;
 
 register_client!(ReportsRequest,);
 

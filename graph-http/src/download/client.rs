@@ -1,16 +1,19 @@
-use super::{AsyncDownloadError, BlockingDownloadError};
 use crate::async_client::AsyncClient;
 use crate::blocking_client::BlockingClient;
-use crate::iotools;
 use crate::url::GraphUrl;
+use crate::{iotools, GraphResponse};
 use crate::{HttpClient, RequestClient, RequestType};
-use graph_error::{WithGraphError, WithGraphErrorAsync};
+use bytes::Bytes;
+use graph_error::download::{AsyncDownloadError, BlockingDownloadError};
+use graph_error::{GraphFailure, GraphResult, WithGraphError, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
 use reqwest::Method;
 use std::cell::RefCell;
 use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
+
+// BlockingDownload
 
 pub struct DownloadRequest {
     path: PathBuf,
@@ -58,14 +61,18 @@ impl<Client, Request> DownloadClient<Client, Request> {
                 if let Some(value) = v.iter().find(|s| s.starts_with("filename*=utf-8''")) {
                     let s = value.replace("filename*=utf-8''", "");
                     if let Ok(s) = percent_encoding::percent_decode(s.as_bytes()).decode_utf8() {
-                        return Some(OsString::from(s.to_string()));
+                        return Some(OsString::from(s.to_string().replace("/", "-")));
                     }
                 }
 
                 if let Some(value) = v.last() {
-                    if value.starts_with("filename=") {
+                    if value.trim_start().starts_with("filename=") {
                         return Some(OsString::from(
-                            value.replace("\"", "").replace("filename=", ""),
+                            value
+                                .replace("\"", "")
+                                .replace("filename=", "")
+                                .replace("/", "-")
+                                .trim(),
                         ));
                     }
                 }
@@ -138,6 +145,19 @@ impl BlockingDownload {
         self.client.url_mut(|url| url.format(format));
     }
 
+    fn follow_redirect(&self) -> Result<reqwest::blocking::Response, BlockingDownloadError> {
+        if self.client.request_type() == RequestType::Redirect {
+            let response = self.client.build().send()?.with_graph_error()?;
+            let mut client = self.client.client.borrow_mut();
+            client.headers.clear();
+            client.method = Method::GET;
+            client.req_type = RequestType::Basic;
+            client.url = GraphUrl::from(response.url().clone());
+        }
+
+        Ok(self.client.build().send()?.with_graph_error()?)
+    }
+
     pub fn send(self) -> Result<PathBuf, BlockingDownloadError> {
         self.download()
     }
@@ -154,16 +174,7 @@ impl BlockingDownload {
             ));
         }
 
-        if self.client.request_type() == RequestType::Redirect {
-            let response = self.client.build().send()?.with_graph_error()?;
-            let mut client = self.client.client.borrow_mut();
-            client.headers.clear();
-            client.method = Method::GET;
-            client.req_type = RequestType::Basic;
-            client.url = GraphUrl::from(response.url().clone());
-        }
-
-        let response = self.client.build().send()?.with_graph_error()?;
+        let response = self.follow_redirect()?;
 
         let path = {
             if let Some(name) = request
@@ -179,6 +190,7 @@ impl BlockingDownload {
                 return Err(BlockingDownloadError::NoFileName);
             }
         };
+        println!("Path with filename: {:#?}", path);
 
         if let Some(ext) = request.extension.as_ref() {
             path.with_extension(ext.as_str());
@@ -259,22 +271,7 @@ impl AsyncDownload {
         });
     }
 
-    pub async fn send(self) -> Result<PathBuf, AsyncDownloadError> {
-        self.download_async().await
-    }
-
-    async fn download_async(self) -> Result<PathBuf, AsyncDownloadError> {
-        let request = self.request.lock().await;
-
-        // Create the directory if it does not exist.
-        if request.create_dir_all {
-            iotools::create_dir_async(request.path.as_path()).await?;
-        } else if !request.path.exists() {
-            return Err(AsyncDownloadError::TargetDoesNotExist(
-                request.path.to_string_lossy().to_string(),
-            ));
-        }
-
+    async fn follow_redirect(&self) -> Result<reqwest::Response, AsyncDownloadError> {
         if self.client.request_type() == RequestType::Redirect {
             let response = self
                 .client
@@ -300,6 +297,26 @@ impl AsyncDownload {
             .await?
             .with_graph_error()
             .await?;
+        Ok(response)
+    }
+
+    pub async fn send(self) -> Result<PathBuf, AsyncDownloadError> {
+        self.download_async().await
+    }
+
+    async fn download_async(self) -> Result<PathBuf, AsyncDownloadError> {
+        let request = self.request.lock().await;
+
+        // Create the directory if it does not exist.
+        if request.create_dir_all {
+            iotools::create_dir_async(request.path.as_path()).await?;
+        } else if !request.path.exists() {
+            return Err(AsyncDownloadError::TargetDoesNotExist(
+                request.path.to_string_lossy().to_string(),
+            ));
+        }
+
+        let response = self.follow_redirect().await?;
 
         let path = {
             if let Some(name) = request

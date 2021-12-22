@@ -1,11 +1,11 @@
-use crate::iotools;
-use graph_error::GraphError;
+use crate::ioerror::{AsyncIoError, ThreadedIoError};
+use crate::GraphError;
 
 #[derive(Debug, thiserror::Error)]
 #[allow(clippy::large_enum_variant)]
 pub enum BlockingDownloadError {
     #[error(transparent)]
-    Io(#[from] iotools::ThreadedIoError),
+    Io(#[from] ThreadedIoError),
 
     #[error("target directory does not exist {0}")]
     TargetDoesNotExist(String),
@@ -16,10 +16,7 @@ pub enum BlockingDownloadError {
     #[error("graph error: {0}")]
     Graph(#[from] GraphError),
 
-    #[error(
-        "file name is too long (max {} chars)",
-        super::client::MAX_FILE_NAME_LEN
-    )]
+    #[error("file name is too long (max 255 chars)")]
     FileNameTooLong,
 
     #[error("could not determine file name")]
@@ -34,7 +31,7 @@ pub enum BlockingDownloadError {
 
 impl From<std::io::Error> for BlockingDownloadError {
     fn from(err: std::io::Error) -> Self {
-        Self::Io(iotools::ThreadedIoError::Std(err))
+        Self::Io(ThreadedIoError::Std(err))
     }
 }
 
@@ -42,7 +39,7 @@ impl From<std::io::Error> for BlockingDownloadError {
 #[allow(clippy::large_enum_variant)]
 pub enum AsyncDownloadError {
     #[error(transparent)]
-    Io(#[from] iotools::AsyncIoError),
+    Io(#[from] AsyncIoError),
 
     #[error("target directory does not exist {0}")]
     TargetDoesNotExist(String),
@@ -53,10 +50,7 @@ pub enum AsyncDownloadError {
     #[error("graph error: {0}")]
     Graph(#[from] GraphError),
 
-    #[error(
-        "file name is too long (max {} chars)",
-        super::client::MAX_FILE_NAME_LEN
-    )]
+    #[error("file name is too long (max 255 chars)")]
     FileNameTooLong,
 
     #[error("could not determine file name")]
@@ -71,6 +65,6 @@ pub enum AsyncDownloadError {
 
 impl From<std::io::Error> for AsyncDownloadError {
     fn from(err: std::io::Error) -> Self {
-        Self::Io(iotools::AsyncIoError::Std(err))
+        Self::Io(AsyncIoError::Std(err))
     }
 }

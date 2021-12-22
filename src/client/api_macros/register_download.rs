@@ -1,12 +1,11 @@
 #[macro_use]
 macro_rules! register_download {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 0 } ) => {
-      pub fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub fn $name(&'a self) -> IntoResponse<'a, $T, BlockingHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -14,17 +13,16 @@ macro_rules! register_download {
             $template,
             &serde_json::json!({})
         );
-        self.client.request().download()
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 1 } ) => {
-      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
+      pub fn $name<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, $T, BlockingHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -32,17 +30,16 @@ macro_rules! register_download {
             $template,
             &serde_json::json!({ "id": id.as_ref() })
         );
-        self.client.request().download()
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr } ) => {
-      pub fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub fn $name(&'a self) -> IntoResponse<'a, $T, BlockingHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -50,18 +47,17 @@ macro_rules! register_download {
             $template,
             &serde_json::json!({})
         );
-        self.client.request().download()
+        IntoResponse::new(&self.client.request)
       }
     };
 
-    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: false} ) => {
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: false } ) => {
       #[doc = $doc]
-      pub fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub fn $name(&'a self) -> IntoResponse<'a, $T, BlockingHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -69,17 +65,38 @@ macro_rules! register_download {
             $template,
             &serde_json::json!({})
         );
-        self.client.request().download()
+        IntoResponse::new(&self.client.request)
+      }
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: true } ) => {
+      #[doc = $doc]
+      pub fn $name<B: serde::Serialize>(&'a self, body: &B) -> IntoResponse<'a, $T, BlockingHttpClient> {
+        let client = self.client.request();
+        client.set_request(vec![
+                graph_http::RequestAttribute::Method(Method::GET),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
+            ]).unwrap();
+
+        if let Err(err) = client.set_body_with_serialize(body) {
+            return IntoResponse::new_error(self.client.request(), err);
+        }
+
+        render_path!(
+            self.client,
+            $template,
+            &serde_json::json!({})
+        );
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
-      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub fn $name<S: AsRef<str>>(&'a self, $p: S) -> IntoResponse<'a, $T, BlockingHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -87,18 +104,17 @@ macro_rules! register_download {
             $template,
             &serde_json::json!({ "id": $p.as_ref() })
         );
-        self.client.request().download()
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
       #[doc = $doc]
-      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub fn $name<S: AsRef<str>>(&'a self, $p: S) -> IntoResponse<'a, $T, BlockingHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -106,18 +122,17 @@ macro_rules! register_download {
             $template,
             &serde_json::json!({ "id": $p.as_ref() })
         );
-        self.client.request().download()
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: false } ) => {
       #[doc = $doc]
-      pub fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub fn $name<S: AsRef<str>>(&'a self, $p: S) -> IntoResponse<'a, $T, BlockingHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -125,18 +140,17 @@ macro_rules! register_download {
             $template,
             &serde_json::json!({ "id": $p.as_ref() })
         );
-        self.client.request().download()
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: true } ) => {
       #[doc = $doc]
-      pub fn $name<S: AsRef<str>, P: AsRef<Path>, B: serde::Serialize>(&'a self, $p: S, directory: P, body: &B) -> $T {
+      pub fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, $p: S, body: &B) -> IntoResponse<'a, $T, BlockingHttpClient> {
           let client = self.client.request();
           client.set_request(vec![
               graph_http::RequestAttribute::Method(Method::GET),
-              graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-              graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+              graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
           ]).unwrap();
 
           if let Err(err) = client.set_body_with_serialize(body) {
@@ -148,7 +162,7 @@ macro_rules! register_download {
             $template,
             &serde_json::json!({ "id": $p.as_ref() })
           );
-          self.client.request().download()
+          IntoResponse::new(&self.client.request)
       }
     };
 }
@@ -156,12 +170,11 @@ macro_rules! register_download {
 #[macro_use]
 macro_rules! register_async_download {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 0 } ) => {
-      pub async fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub async fn $name(&'a self) -> IntoResponse<'a, $T, AsyncHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -169,17 +182,16 @@ macro_rules! register_async_download {
             $template,
             &serde_json::json!({})
         );
-        self.client.request().download().await
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 1 } ) => {
-      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, id: S, directory: P) -> $T {
+      pub async fn $name<S: AsRef<str>>(&'a self, id: S) -> IntoResponse<'a, $T, AsyncHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -187,17 +199,16 @@ macro_rules! register_async_download {
             $template,
             &serde_json::json!({ "id": id.as_ref() })
         );
-        self.client.request().download().await
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr } ) => {
-      pub async fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub async fn $name(&'a self) -> IntoResponse<'a, $T, AsyncHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -205,18 +216,17 @@ macro_rules! register_async_download {
             $template,
             &serde_json::json!({})
         );
-        self.client.request().download().await
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: false } ) => {
       #[doc = $doc]
-      pub async fn $name<P: AsRef<Path>>(&'a self, directory: P) -> $T {
+      pub async fn $name(&'a self) -> IntoResponse<'a, $T, AsyncHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -224,17 +234,16 @@ macro_rules! register_async_download {
             $template,
             &serde_json::json!({})
         );
-        self.client.request().download().await
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
-      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub async fn $name<S: AsRef<str>>(&'a self, $p: S) -> IntoResponse<'a, $T, AsyncHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -242,18 +251,17 @@ macro_rules! register_async_download {
             $template,
             &serde_json::json!({ "id": $p.as_ref() })
         );
-        self.client.request().download().await
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ] } ) => {
       #[doc = $doc]
-      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub async fn $name<S: AsRef<str>>(&'a self, $p: S) -> IntoResponse<'a, $T, AsyncHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -261,18 +269,17 @@ macro_rules! register_async_download {
             $template,
             &serde_json::json!({ "id": $p.as_ref() })
         );
-        self.client.request().download().await
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: false } ) => {
       #[doc = $doc]
-      pub async fn $name<S: AsRef<str>, P: AsRef<Path>>(&'a self, $p: S, directory: P) -> $T {
+      pub async fn $name<S: AsRef<str>>(&'a self, $p: S) -> IntoResponse<'a, $T, AsyncHttpClient> {
         self.client.request()
             .set_request(vec![
                 graph_http::RequestAttribute::Method(Method::GET),
-                graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+                graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
             ]).unwrap();
 
         render_path!(
@@ -280,18 +287,17 @@ macro_rules! register_async_download {
             $template,
             &serde_json::json!({ "id": $p.as_ref() })
         );
-        self.client.request().download().await
+        IntoResponse::new(&self.client.request)
       }
     };
 
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [ $p:ident ], has_body: true } ) => {
       #[doc = $doc]
-      pub async fn $name<S: AsRef<str>, P: AsRef<Path>, B: serde::Serialize>(&'a self, $p: S, directory: P, body: &B) -> $T {
+      pub async fn $name<S: AsRef<str>, B: serde::Serialize>(&'a self, $p: S, body: &B) -> IntoResponse<'a, $T, AsyncHttpClient> {
           let client = self.client.request();
           client.set_request(vec![
               graph_http::RequestAttribute::Method(Method::GET),
-              graph_http::RequestAttribute::Download(directory.as_ref().to_path_buf()),
-              graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect),
+              graph_http::RequestAttribute::RequestType(graph_http::RequestType::Redirect)
           ]).unwrap();
 
           if let Err(err) = client.set_body_with_serialize(body) {
@@ -303,7 +309,7 @@ macro_rules! register_async_download {
             $template,
             &serde_json::json!({ "id": $p.as_ref() })
           );
-          self.client.request().download().await
+          IntoResponse::new(&self.client.request)
       }
     };
 }

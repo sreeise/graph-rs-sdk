@@ -9,7 +9,6 @@ use graph_http::{
 };
 use handlebars::*;
 use reqwest::Method;
-use std::path::Path;
 
 register_client!(PageRequest,);
 register_client!(PagesRequest, ());
@@ -162,18 +161,20 @@ where
 
 impl<'a> PagesRequest<'a, BlockingHttpClient> {
     download!({
-        name: download_page,
+        doc: "Get page content",
+        name: content,
         response: BlockingDownload,
         path: "/pages/{{RID}}/content",
-        params: 0
+        has_body: false
     });
 }
 
 impl<'a> PagesRequest<'a, AsyncHttpClient> {
     async_download!({
-        name: download_page,
+        doc: "Get page content",
+        name: content,
         response: AsyncDownload,
         path: "/pages/{{RID}}/content",
-        params: 0
+        has_body: false
     });
 }

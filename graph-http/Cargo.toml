@@ -12,6 +12,7 @@ async-std = "1.6.0"
 async-trait = "0.1.35"
 bytes = "1"
 futures = "0.3"
+futures-core = "0.3"
 handlebars = "2.0.2"
 percent-encoding = "2"
 reqwest = { version = "0.11", features = ["json", "blocking", "stream", "multipart"] }

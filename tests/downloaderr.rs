@@ -1,4 +1,4 @@
-use graph_http::BlockingDownloadError;
+use graph_error::download::BlockingDownloadError;
 use graph_rs_sdk::prelude::*;
 use test_tools::oauthrequest::OAuthTestClient;
 use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
