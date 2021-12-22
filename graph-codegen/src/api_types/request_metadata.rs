@@ -85,7 +85,7 @@ impl RequestMetadata {
         let filters = ParserSettings::doc_comment_filters(resource_identity);
         for filter in filters.iter() {
             if self.doc.is_some() {
-                let doc = self.doc.as_ref().unwrap();
+                let doc = self.doc.clone().unwrap();
                 self.doc.replace(doc.replacen(filter.as_str(), "", 1));
             }
         }

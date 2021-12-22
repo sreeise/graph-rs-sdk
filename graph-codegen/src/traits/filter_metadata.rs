@@ -16,7 +16,7 @@ pub trait FilterMetadata {
         let iter = self.metadata_iter();
         match filter {
             Filter::PathStartsWith(filter) => iter
-                .filter(|(metadata)| metadata.path().starts_with(filter.as_str()))
+                .filter(|metadata| metadata.path().starts_with(filter.as_str()))
                 .collect(),
             Filter::PathStartsWithMulti(vec) => iter
                 .filter(|metadata| vec.iter().any(|s| metadata.path().starts_with(s)))
