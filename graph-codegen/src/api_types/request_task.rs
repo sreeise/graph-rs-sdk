@@ -75,14 +75,12 @@ impl RequestTask {
                 "graph_http::UploadSessionClient",
             ],
             RequestTask::Download => vec![
-                "std::path::Path",
                 "graph_error::GraphFailure",
                 // For now, the parser doesnt differentiate between non-async and async downloads
                 // Any download macro must be implemented twice for async and non-async methods.
                 "graph_http::{AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient}"
             ],
             RequestTask::AsyncDownload => vec![
-                "std::path::Path",
                 "graph_error::GraphFailure",
                 "graph_http::{AsyncDownload, AsyncHttpClient}",
             ],
