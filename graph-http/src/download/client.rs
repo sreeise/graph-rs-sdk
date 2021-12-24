@@ -144,19 +144,6 @@ impl BlockingDownload {
         self.client.url_mut(|url| url.format(format));
     }
 
-    fn follow_redirect(&self) -> Result<reqwest::blocking::Response, BlockingDownloadError> {
-        if self.client.request_type() == RequestType::Redirect {
-            let response = self.client.build().send()?.with_graph_error()?;
-            let mut client = self.client.client.borrow_mut();
-            client.headers.clear();
-            client.method = Method::GET;
-            client.req_type = RequestType::Basic;
-            client.url = GraphUrl::from(response.url().clone());
-        }
-
-        Ok(self.client.build().send()?.with_graph_error()?)
-    }
-
     pub fn send(self) -> Result<PathBuf, BlockingDownloadError> {
         self.download()
     }
@@ -173,7 +160,7 @@ impl BlockingDownload {
             ));
         }
 
-        let response = self.follow_redirect()?;
+        let response = self.client.build().send()?.with_graph_error()?;
 
         let path = {
             if let Some(name) = request
@@ -189,7 +176,6 @@ impl BlockingDownload {
                 return Err(BlockingDownloadError::NoFileName);
             }
         };
-        println!("Path with filename: {:#?}", path);
 
         if let Some(ext) = request.extension.as_ref() {
             path.with_extension(ext.as_str());
@@ -270,35 +256,6 @@ impl AsyncDownload {
         });
     }
 
-    async fn follow_redirect(&self) -> Result<reqwest::Response, AsyncDownloadError> {
-        if self.client.request_type() == RequestType::Redirect {
-            let response = self
-                .client
-                .build()
-                .await
-                .send()
-                .await?
-                .with_graph_error()
-                .await?;
-
-            let mut client = self.client.client.lock().await;
-            (*client).headers.clear();
-            (*client).method = Method::GET;
-            (*client).req_type = RequestType::Basic;
-            (*client).url = GraphUrl::from(response.url().clone());
-        }
-
-        let response = self
-            .client
-            .build()
-            .await
-            .send()
-            .await?
-            .with_graph_error()
-            .await?;
-        Ok(response)
-    }
-
     pub async fn send(self) -> Result<PathBuf, AsyncDownloadError> {
         self.download_async().await
     }
@@ -315,7 +272,14 @@ impl AsyncDownload {
             ));
         }
 
-        let response = self.follow_redirect().await?;
+        let response = self
+            .client
+            .build()
+            .await
+            .send()
+            .await?
+            .with_graph_error()
+            .await?;
 
         let path = {
             if let Some(name) = request
