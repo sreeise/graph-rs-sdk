@@ -26,8 +26,6 @@ fn list_get_notebooks_and_sections() {
             .list_notebooks()
             .send();
 
-        println!("{:#?}", notebooks);
-
         if let Ok(response) = notebooks {
             let vec = response.body()["value"].as_array().unwrap();
 
@@ -135,7 +133,7 @@ fn download_page() {
     }
 
     let _lock = THROTTLE_MUTEX.lock().unwrap();
-    if let Some((USER_ID, client)) = OAuthTestClient::ClientCredentials.graph() {
+    if let Some((user_id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let file_location = "./test_files/downloaded_page.html";
         let mut clean_up = CleanUp::new(|| {
             if Path::new(file_location).exists() {
@@ -147,7 +145,7 @@ fn download_page() {
 
         let res = client
             .v1()
-            .user(&USER_ID)
+            .user(&user_id)
             .onenote()
             .pages()
             .create_pages_from_file("./test_files/onenotepage.html")
@@ -160,14 +158,14 @@ fn download_page() {
 
             let download_client = client
                 .v1()
-                .user(&USER_ID)
+                .user(&user_id)
                 .onenote()
                 .page(page_id)
                 .content()
                 .download("./test_files")
                 .expect("Request error. Method onenote page | 02 get content -> download page");
 
-            download_client.rename(OsString::from("downloaded_page.html"));
+            download_client.set_file_name(OsString::from("downloaded_page.html"));
             let result = download_client.send();
 
             if let Err(e) = result {
@@ -180,7 +178,7 @@ fn download_page() {
             thread::sleep(Duration::from_secs(4));
             let delete_res = client
                 .v1()
-                .user(&USER_ID)
+                .user(&user_id)
                 .onenote()
                 .page(page_id)
                 .delete_pages()

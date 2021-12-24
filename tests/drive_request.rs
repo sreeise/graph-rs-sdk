@@ -163,7 +163,7 @@ fn drive_download_format() {
                 .download(":/test_document.docx:", "./test_files");
 
             download.format("pdf");
-            download.rename(OsString::from("test_document.pdf"));
+            download.set_file_name(OsString::from("test_document.pdf"));
             let path_buf = download
                 .send()
                 .expect("Request Error. Method: drive check_out.");

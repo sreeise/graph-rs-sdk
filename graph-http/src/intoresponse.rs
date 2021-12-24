@@ -153,7 +153,7 @@ where
 }
 
 impl<'a, T> IntoResponseBlocking<'a, T> {
-    pub fn json<U>(self) -> GraphResult<U>
+    pub fn json<U>(self) -> GraphResult<GraphResponse<U>>
     where
         for<'de> U: serde::Deserialize<'de>,
     {
@@ -162,7 +162,11 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         }
 
         let response = self.client.response()?;
-        Ok(response.json()?)
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let json = response.json().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, json, status, headers))
     }
 
     pub fn text(self) -> GraphResult<GraphResponse<String>> {
@@ -268,16 +272,20 @@ impl<'a> IntoResponseBlocking<'a, BlockingDownload> {
 // Async Impl
 
 impl<'a, T> IntoResponseAsync<'a, T> {
-    pub async fn json<U>(self) -> GraphResult<U>
+    pub async fn json<U>(self) -> GraphResult<GraphResponse<U>>
     where
         for<'de> U: serde::Deserialize<'de>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let request = self.client.build().await;
-        let response = request.send().await?;
-        response.json().await.map_err(GraphFailure::from)
+
+        let response = self.client.response().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let json = response.json().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, json, status, headers))
     }
 
     pub async fn text(self) -> GraphResult<GraphResponse<String>> {

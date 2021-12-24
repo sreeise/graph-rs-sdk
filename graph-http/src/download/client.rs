@@ -6,7 +6,6 @@ use crate::{HttpClient, RequestClient, RequestType};
 use graph_error::download::{AsyncDownloadError, BlockingDownloadError};
 use graph_error::{WithGraphError, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
-use reqwest::Method;
 use std::cell::RefCell;
 use std::ffi::OsString;
 use std::path::Path;
@@ -108,7 +107,7 @@ impl BlockingDownload {
         self.request.borrow().overwrite_existing_file
     }
 
-    pub fn rename(&self, value: OsString) -> &Self {
+    pub fn set_file_name(&self, value: OsString) -> &Self {
         self.request.borrow_mut().file_name = Some(value);
         self
     }
@@ -218,7 +217,7 @@ impl AsyncDownload {
         self.request.lock().await.overwrite_existing_file
     }
 
-    pub async fn rename(&self, value: OsString) -> &Self {
+    pub async fn set_file_name(&self, value: OsString) -> &Self {
         self.request.lock().await.file_name = Some(value);
         self
     }

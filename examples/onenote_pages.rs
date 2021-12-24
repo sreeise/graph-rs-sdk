@@ -48,7 +48,7 @@ fn download_page_as_html() {
         .download(DOWNLOAD_PATH)
         .unwrap();
 
-    download_client.rename(OsString::from_str(FILE_NAME).unwrap());
+    download_client.set_file_name(OsString::from_str(FILE_NAME).unwrap());
 
     let path_buf = download_client.send().unwrap();
     println!("{:#?}", path_buf);
