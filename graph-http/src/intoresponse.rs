@@ -54,6 +54,8 @@ where
         self
     }
 
+    /// Filters properties (columns).
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#select-parameter)
     pub fn select(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.select(value);
@@ -61,6 +63,8 @@ where
         self
     }
 
+    /// Retrieves related resources.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#expand-parameter)
     pub fn expand(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.expand(value);
@@ -68,6 +72,8 @@ where
         self
     }
 
+    /// Filters results (rows).
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter)
     pub fn filter(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.filter(value);
@@ -75,6 +81,8 @@ where
         self
     }
 
+    /// Orders results.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#orderby-parameter)
     pub fn order_by(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.order_by(value);
@@ -82,6 +90,8 @@ where
         self
     }
 
+    /// Returns results based on search criteria.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#search-parameter)
     pub fn search(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.search(value);
@@ -89,6 +99,8 @@ where
         self
     }
 
+    /// Returns the results in the specified media format.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#format-parameter)
     pub fn format(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.format(value);
@@ -96,6 +108,9 @@ where
         self
     }
 
+    /// Indexes into a result set. Also used by some APIs to implement paging and can be used
+    /// together with $top to manually page results.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#skip-parameter)
     pub fn skip(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.skip(value);
@@ -103,6 +118,8 @@ where
         self
     }
 
+    /// Sets the page size of results.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#top-parameter)
     pub fn top(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.top(value);
@@ -110,6 +127,18 @@ where
         self
     }
 
+    /// Retrieves the next page of results from result sets that span multiple pages.
+    /// (Some APIs use $skip instead.)
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#skiptoken-parameter)
+    pub fn skip_token(self, value: &str) -> Self {
+        self.client.url_mut(|url| {
+            url.skip_token(value);
+        });
+        self
+    }
+
+    /// Retrieves the total count of matching resources.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#count-parameter)
     pub fn count(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.count(value);
@@ -140,12 +169,6 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-
-        /*
-        if self.client.is_download_type() {
-            return self.client.download().text();
-        }
-         */
 
         let response = self.client.response()?;
         let headers = response.headers().clone();
@@ -240,56 +263,6 @@ impl<'a> IntoResponseBlocking<'a, BlockingDownload> {
         self.client.set_download_dir(path.as_ref().to_path_buf());
         Ok(self.client.download())
     }
-
-    /*
-    pub fn text(self) -> GraphResult<GraphResponse<String>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let download_client = self.client.download();
-        download_client.text()
-    }
-
-    pub fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let download_client = self.client.download();
-        download_client.bytes()
-    }
-     */
-}
-
-impl<'a> IntoResponseAsync<'a, AsyncDownload> {
-    pub async fn download<P: AsRef<Path>>(self, path: P) -> GraphResult<AsyncDownload> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-        self.client.set_download_dir(path.as_ref().to_path_buf());
-        Ok(self.client.download().await)
-    }
-
-    /*
-    pub fn text(self) -> GraphResult<GraphResponse<String>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let download_client = self.client.download();
-        download_client.text()
-    }
-
-    pub fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let download_client = self.client.download();
-        download_client.bytes()
-    }
-     */
 }
 
 // Async Impl
@@ -394,5 +367,15 @@ where
     pub async fn send(self) -> tokio::sync::mpsc::Receiver<Delta<T>> {
         let request = self.build().await;
         request.send().await
+    }
+}
+
+impl<'a> IntoResponseAsync<'a, AsyncDownload> {
+    pub async fn download<P: AsRef<Path>>(self, path: P) -> GraphResult<AsyncDownload> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        self.client.set_download_dir(path.as_ref().to_path_buf());
+        Ok(self.client.download().await)
     }
 }
