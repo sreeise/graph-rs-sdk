@@ -6,6 +6,7 @@ pub enum ParseError {
     DeserializeMatchTarget,
     ReqwestError(reqwest::Error),
     FromAsError(FromAsError),
+    Path,
     Unknown,
 }
 
@@ -17,6 +18,7 @@ impl std::fmt::Display for ParseError {
             }
             ParseError::ReqwestError(err) => err.fmt(f),
             ParseError::FromAsError(err) => err.fmt(f),
+            ParseError::Path => write!(f, "Failed to parse path."),
             ParseError::Unknown => write!(f, "Either the error is unknown or is irrelevant"),
         }
     }
