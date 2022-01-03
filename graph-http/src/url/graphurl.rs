@@ -160,6 +160,10 @@ impl GraphUrl {
     pub fn top(&mut self, value: &str) {
         self.append_query_pair("$top", value.as_ref());
     }
+
+    pub fn cast(&mut self, value: &str) {
+        self.extend_path(&[value]);
+    }
 }
 
 impl From<Url> for GraphUrl {
