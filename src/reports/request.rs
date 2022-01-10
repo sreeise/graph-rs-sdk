@@ -24,13 +24,6 @@ where
         path: "/reports",
         has_body: true
     });
-    get!({
-        doc: "Get dailyPrintUsageByPrinter from reports",
-        name: list_daily_print_usage_by_printer,
-        response: serde_json::Value,
-        path: "/reports/dailyPrintUsageByPrinter",
-        has_body: false
-    });
     post!({
         doc: "Create new navigation property to dailyPrintUsageByPrinter for reports",
         name: create_daily_print_usage_by_printer,
@@ -38,11 +31,18 @@ where
         path: "/reports/dailyPrintUsageByPrinter",
         has_body: true
     });
+    get!({
+        doc: "Get dailyPrintUsageByPrinter from reports",
+        name: list_daily_print_usage_by_printer,
+        response: serde_json::Value,
+        path: "/reports/dailyPrintUsageByPrinter",
+        has_body: false
+    });
     delete!({
         doc: "Delete navigation property dailyPrintUsageByPrinter for reports",
         name: delete_daily_print_usage_by_printer,
         response: NoContent,
-        path: "/reports/dailyPrintUsageByPrinter//{{id}}",
+        path: "/reports/dailyPrintUsageByPrinter/{{id}}",
         params: [ print_usage_by_printer_id ],
         has_body: false
     });
@@ -50,7 +50,7 @@ where
         doc: "Get dailyPrintUsageByPrinter from reports",
         name: get_daily_print_usage_by_printer,
         response: serde_json::Value,
-        path: "/reports/dailyPrintUsageByPrinter//{{id}}",
+        path: "/reports/dailyPrintUsageByPrinter/{{id}}",
         params: [ print_usage_by_printer_id ],
         has_body: false
     });
@@ -58,7 +58,7 @@ where
         doc: "Update the navigation property dailyPrintUsageByPrinter in reports",
         name: update_daily_print_usage_by_printer,
         response: NoContent,
-        path: "/reports/dailyPrintUsageByPrinter//{{id}}",
+        path: "/reports/dailyPrintUsageByPrinter/{{id}}",
         params: [ print_usage_by_printer_id ],
         has_body: true
     });
@@ -76,29 +76,29 @@ where
         path: "/reports/dailyPrintUsageByUser",
         has_body: true
     });
-    delete!({
-        doc: "Delete navigation property dailyPrintUsageByUser for reports",
-        name: delete_daily_print_usage_by_user,
+    patch!({
+        doc: "Update the navigation property dailyPrintUsageByUser in reports",
+        name: update_daily_print_usage_by_user,
         response: NoContent,
-        path: "/reports/dailyPrintUsageByUser//{{id}}",
+        path: "/reports/dailyPrintUsageByUser/{{id}}",
         params: [ print_usage_by_user_id ],
-        has_body: false
+        has_body: true
     });
     get!({
         doc: "Get dailyPrintUsageByUser from reports",
         name: get_daily_print_usage_by_user,
         response: serde_json::Value,
-        path: "/reports/dailyPrintUsageByUser//{{id}}",
+        path: "/reports/dailyPrintUsageByUser/{{id}}",
         params: [ print_usage_by_user_id ],
         has_body: false
     });
-    patch!({
-        doc: "Update the navigation property dailyPrintUsageByUser in reports",
-        name: update_daily_print_usage_by_user,
+    delete!({
+        doc: "Delete navigation property dailyPrintUsageByUser for reports",
+        name: delete_daily_print_usage_by_user,
         response: NoContent,
-        path: "/reports/dailyPrintUsageByUser//{{id}}",
+        path: "/reports/dailyPrintUsageByUser/{{id}}",
         params: [ print_usage_by_user_id ],
-        has_body: true
+        has_body: false
     });
     get!({
         doc: "Invoke function getGroupArchivedPrintJobs",
@@ -124,6 +124,13 @@ where
         params: [ user_id  start_date_time  end_date_time ],
         has_body: false
     });
+    get!({
+        doc: "Get monthlyPrintUsageByPrinter from reports",
+        name: list_monthly_print_usage_by_printer,
+        response: serde_json::Value,
+        path: "/reports/monthlyPrintUsageByPrinter",
+        has_body: false
+    });
     post!({
         doc: "Create new navigation property to monthlyPrintUsageByPrinter for reports",
         name: create_monthly_print_usage_by_printer,
@@ -133,16 +140,9 @@ where
     });
     get!({
         doc: "Get monthlyPrintUsageByPrinter from reports",
-        name: list_monthly_print_usage_by_printer,
-        response: serde_json::Value,
-        path: "/reports/monthlyPrintUsageByPrinter",
-        has_body: false
-    });
-    get!({
-        doc: "Get monthlyPrintUsageByPrinter from reports",
         name: get_monthly_print_usage_by_printer,
         response: serde_json::Value,
-        path: "/reports/monthlyPrintUsageByPrinter//{{id}}",
+        path: "/reports/monthlyPrintUsageByPrinter/{{id}}",
         params: [ print_usage_by_printer_id ],
         has_body: false
     });
@@ -150,7 +150,7 @@ where
         doc: "Delete navigation property monthlyPrintUsageByPrinter for reports",
         name: delete_monthly_print_usage_by_printer,
         response: NoContent,
-        path: "/reports/monthlyPrintUsageByPrinter//{{id}}",
+        path: "/reports/monthlyPrintUsageByPrinter/{{id}}",
         params: [ print_usage_by_printer_id ],
         has_body: false
     });
@@ -158,8 +158,15 @@ where
         doc: "Update the navigation property monthlyPrintUsageByPrinter in reports",
         name: update_monthly_print_usage_by_printer,
         response: NoContent,
-        path: "/reports/monthlyPrintUsageByPrinter//{{id}}",
+        path: "/reports/monthlyPrintUsageByPrinter/{{id}}",
         params: [ print_usage_by_printer_id ],
+        has_body: true
+    });
+    post!({
+        doc: "Create new navigation property to monthlyPrintUsageByUser for reports",
+        name: create_monthly_print_usage_by_user,
+        response: serde_json::Value,
+        path: "/reports/monthlyPrintUsageByUser",
         has_body: true
     });
     get!({
@@ -169,18 +176,11 @@ where
         path: "/reports/monthlyPrintUsageByUser",
         has_body: false
     });
-    post!({
-        doc: "Create new navigation property to monthlyPrintUsageByUser for reports",
-        name: create_monthly_print_usage_by_user,
-        response: serde_json::Value,
-        path: "/reports/monthlyPrintUsageByUser",
-        has_body: true
-    });
     patch!({
         doc: "Update the navigation property monthlyPrintUsageByUser in reports",
         name: update_monthly_print_usage_by_user,
         response: NoContent,
-        path: "/reports/monthlyPrintUsageByUser//{{id}}",
+        path: "/reports/monthlyPrintUsageByUser/{{id}}",
         params: [ print_usage_by_user_id ],
         has_body: true
     });
@@ -188,7 +188,7 @@ where
         doc: "Delete navigation property monthlyPrintUsageByUser for reports",
         name: delete_monthly_print_usage_by_user,
         response: NoContent,
-        path: "/reports/monthlyPrintUsageByUser//{{id}}",
+        path: "/reports/monthlyPrintUsageByUser/{{id}}",
         params: [ print_usage_by_user_id ],
         has_body: false
     });
@@ -196,7 +196,7 @@ where
         doc: "Get monthlyPrintUsageByUser from reports",
         name: get_monthly_print_usage_by_user,
         response: serde_json::Value,
-        path: "/reports/monthlyPrintUsageByUser//{{id}}",
+        path: "/reports/monthlyPrintUsageByUser/{{id}}",
         params: [ print_usage_by_user_id ],
         has_body: false
     });
@@ -235,7 +235,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getEmailActivityUserDetail",
-        name: get_email_activity_user_detail_fe_32,
+        name: get_email_activity_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getEmailActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -243,7 +243,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getEmailActivityUserDetail",
-        name: get_email_activity_user_detail_ddb_2,
+        name: get_email_activity_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getEmailActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -267,7 +267,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getEmailAppUsageUserDetail",
-        name: get_email_app_usage_user_detail_6_2ec,
+        name: get_email_app_usage_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getEmailAppUsageUserDetail(date={{id}})",
         params: [ date ],
@@ -275,7 +275,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getEmailAppUsageUserDetail",
-        name: get_email_app_usage_user_detail_54_6b,
+        name: get_email_app_usage_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getEmailAppUsageUserDetail(period='{{id}}')",
         params: [ period ],
@@ -352,7 +352,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getOffice365ActiveUserDetail",
-        name: get_office_365_active_user_detail_d_389,
+        name: get_office_365_active_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getOffice365ActiveUserDetail(date={{id}})",
         params: [ date ],
@@ -360,7 +360,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getOffice365ActiveUserDetail",
-        name: get_office_365_active_user_detail_6_8ad,
+        name: get_office_365_active_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getOffice365ActiveUserDetail(period='{{id}}')",
         params: [ period ],
@@ -376,7 +376,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getOffice365GroupsActivityDetail",
-        name: get_office_365_groups_activity_detail_8_1cc,
+        name: get_office_365_groups_activity_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getOffice365GroupsActivityDetail(date={{id}})",
         params: [ date ],
@@ -384,7 +384,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getOffice365GroupsActivityDetail",
-        name: get_office_365_groups_activity_detail_3_8f_6,
+        name: get_office_365_groups_activity_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getOffice365GroupsActivityDetail(period='{{id}}')",
         params: [ period ],
@@ -440,7 +440,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getOneDriveActivityUserDetail",
-        name: get_one_drive_activity_user_detail_0_5f_1,
+        name: get_one_drive_activity_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getOneDriveActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -448,7 +448,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getOneDriveActivityUserDetail",
-        name: get_one_drive_activity_user_detail_c_424,
+        name: get_one_drive_activity_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getOneDriveActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -464,7 +464,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getOneDriveUsageAccountDetail",
-        name: get_one_drive_usage_account_detail_e_827,
+        name: get_one_drive_usage_account_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getOneDriveUsageAccountDetail(date={{id}})",
         params: [ date ],
@@ -472,7 +472,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getOneDriveUsageAccountDetail",
-        name: get_one_drive_usage_account_detail_dd_7f,
+        name: get_one_drive_usage_account_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getOneDriveUsageAccountDetail(period='{{id}}')",
         params: [ period ],
@@ -520,7 +520,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getSharePointActivityUserDetail",
-        name: get_share_point_activity_user_detail_f_3be,
+        name: get_share_point_activity_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getSharePointActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -528,7 +528,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getSharePointActivityUserDetail",
-        name: get_share_point_activity_user_detail_b_778,
+        name: get_share_point_activity_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getSharePointActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -536,7 +536,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getSharePointSiteUsageDetail",
-        name: get_share_point_site_usage_detail_d_2_7a,
+        name: get_share_point_site_usage_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getSharePointSiteUsageDetail(date={{id}})",
         params: [ date ],
@@ -544,7 +544,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getSharePointSiteUsageDetail",
-        name: get_share_point_site_usage_detail_20_4b,
+        name: get_share_point_site_usage_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getSharePointSiteUsageDetail(period='{{id}}')",
         params: [ period ],
@@ -600,7 +600,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getSkypeForBusinessActivityUserDetail",
-        name: get_skype_for_business_activity_user_detail_e_4c_9,
+        name: get_skype_for_business_activity_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getSkypeForBusinessActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -608,7 +608,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getSkypeForBusinessActivityUserDetail",
-        name: get_skype_for_business_activity_user_detail_74_4e,
+        name: get_skype_for_business_activity_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getSkypeForBusinessActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -632,7 +632,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getSkypeForBusinessDeviceUsageUserDetail",
-        name: get_skype_for_business_device_usage_user_detail_a_692,
+        name: get_skype_for_business_device_usage_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getSkypeForBusinessDeviceUsageUserDetail(date={{id}})",
         params: [ date ],
@@ -640,7 +640,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getSkypeForBusinessDeviceUsageUserDetail",
-        name: get_skype_for_business_device_usage_user_detail_e_753,
+        name: get_skype_for_business_device_usage_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getSkypeForBusinessDeviceUsageUserDetail(period='{{id}}')",
         params: [ period ],
@@ -736,7 +736,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getTeamsDeviceUsageUserDetail",
-        name: get_teams_device_usage_user_detail_7148,
+        name: get_teams_device_usage_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getTeamsDeviceUsageUserDetail(date={{id}})",
         params: [ date ],
@@ -744,7 +744,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getTeamsDeviceUsageUserDetail",
-        name: get_teams_device_usage_user_detail_7565,
+        name: get_teams_device_usage_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getTeamsDeviceUsageUserDetail(period='{{id}}')",
         params: [ period ],
@@ -768,7 +768,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getTeamsUserActivityUserDetail",
-        name: get_teams_user_activity_user_detail_a_3f_1,
+        name: get_teams_user_activity_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getTeamsUserActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -776,7 +776,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getTeamsUserActivityUserDetail",
-        name: get_teams_user_activity_user_detail_eb_13,
+        name: get_teams_user_activity_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getTeamsUserActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -800,7 +800,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getYammerActivityUserDetail",
-        name: get_yammer_activity_user_detail_ac_30,
+        name: get_yammer_activity_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getYammerActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -808,7 +808,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getYammerActivityUserDetail",
-        name: get_yammer_activity_user_detail_1_5a_5,
+        name: get_yammer_activity_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getYammerActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -832,7 +832,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getYammerDeviceUsageUserDetail",
-        name: get_yammer_device_usage_user_detail_d_0ac,
+        name: get_yammer_device_usage_user_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getYammerDeviceUsageUserDetail(date={{id}})",
         params: [ date ],
@@ -840,7 +840,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getYammerDeviceUsageUserDetail",
-        name: get_yammer_device_usage_user_detail_cfad,
+        name: get_yammer_device_usage_user_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getYammerDeviceUsageUserDetail(period='{{id}}')",
         params: [ period ],
@@ -856,7 +856,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getYammerGroupsActivityDetail",
-        name: get_yammer_groups_activity_detail_da_9a,
+        name: get_yammer_groups_activity_detail_by_date,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getYammerGroupsActivityDetail(date={{id}})",
         params: [ date ],
@@ -864,7 +864,7 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function getYammerGroupsActivityDetail",
-        name: get_yammer_groups_activity_detail_0d_7d,
+        name: get_yammer_groups_activity_detail_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.getYammerGroupsActivityDetail(period='{{id}}')",
         params: [ period ],
@@ -880,14 +880,14 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function managedDeviceEnrollmentFailureDetails",
-        name: managed_device_enrollment_failure_details_02_7e,
+        name: managed_device_enrollment_failure_details,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.managedDeviceEnrollmentFailureDetails()",
         has_body: false
     });
     download!({
         doc: "Invoke function managedDeviceEnrollmentFailureDetails",
-        name: managed_device_enrollment_failure_details_2b_3d,
+        name: managed_device_enrollment_failure_details_by_params,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.managedDeviceEnrollmentFailureDetails(skip={{id}},top={{id2}},filter='{{id3}}',skipToken='{{id4}}')",
         params: [ skip  top  filter  skip_token ],
@@ -895,14 +895,14 @@ impl<'a> ReportsRequest<'a, BlockingHttpClient> {
     });
     download!({
         doc: "Invoke function managedDeviceEnrollmentTopFailures",
-        name: managed_device_enrollment_top_failures_4669,
+        name: managed_device_enrollment_top_failures,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.managedDeviceEnrollmentTopFailures()",
         has_body: false
     });
     download!({
         doc: "Invoke function managedDeviceEnrollmentTopFailures",
-        name: managed_device_enrollment_top_failures_afd_1,
+        name: managed_device_enrollment_top_failures_by_period,
         response: BlockingDownload,
         path: "/reports/microsoft.graph.managedDeviceEnrollmentTopFailures(period='{{id}}')",
         params: [ period ],
@@ -943,7 +943,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getEmailActivityUserDetail",
-        name: get_email_activity_user_detail_fe_32,
+        name: get_email_activity_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getEmailActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -951,7 +951,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getEmailActivityUserDetail",
-        name: get_email_activity_user_detail_ddb_2,
+        name: get_email_activity_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getEmailActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -975,7 +975,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getEmailAppUsageUserDetail",
-        name: get_email_app_usage_user_detail_6_2ec,
+        name: get_email_app_usage_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getEmailAppUsageUserDetail(date={{id}})",
         params: [ date ],
@@ -983,7 +983,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getEmailAppUsageUserDetail",
-        name: get_email_app_usage_user_detail_54_6b,
+        name: get_email_app_usage_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getEmailAppUsageUserDetail(period='{{id}}')",
         params: [ period ],
@@ -1060,7 +1060,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getOffice365ActiveUserDetail",
-        name: get_office_365_active_user_detail_d_389,
+        name: get_office_365_active_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getOffice365ActiveUserDetail(date={{id}})",
         params: [ date ],
@@ -1068,7 +1068,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getOffice365ActiveUserDetail",
-        name: get_office_365_active_user_detail_6_8ad,
+        name: get_office_365_active_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getOffice365ActiveUserDetail(period='{{id}}')",
         params: [ period ],
@@ -1084,7 +1084,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getOffice365GroupsActivityDetail",
-        name: get_office_365_groups_activity_detail_8_1cc,
+        name: get_office_365_groups_activity_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getOffice365GroupsActivityDetail(date={{id}})",
         params: [ date ],
@@ -1092,7 +1092,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getOffice365GroupsActivityDetail",
-        name: get_office_365_groups_activity_detail_3_8f_6,
+        name: get_office_365_groups_activity_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getOffice365GroupsActivityDetail(period='{{id}}')",
         params: [ period ],
@@ -1148,7 +1148,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getOneDriveActivityUserDetail",
-        name: get_one_drive_activity_user_detail_0_5f_1,
+        name: get_one_drive_activity_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getOneDriveActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -1156,7 +1156,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getOneDriveActivityUserDetail",
-        name: get_one_drive_activity_user_detail_c_424,
+        name: get_one_drive_activity_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getOneDriveActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -1172,7 +1172,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getOneDriveUsageAccountDetail",
-        name: get_one_drive_usage_account_detail_e_827,
+        name: get_one_drive_usage_account_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getOneDriveUsageAccountDetail(date={{id}})",
         params: [ date ],
@@ -1180,7 +1180,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getOneDriveUsageAccountDetail",
-        name: get_one_drive_usage_account_detail_dd_7f,
+        name: get_one_drive_usage_account_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getOneDriveUsageAccountDetail(period='{{id}}')",
         params: [ period ],
@@ -1228,7 +1228,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getSharePointActivityUserDetail",
-        name: get_share_point_activity_user_detail_f_3be,
+        name: get_share_point_activity_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getSharePointActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -1236,7 +1236,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getSharePointActivityUserDetail",
-        name: get_share_point_activity_user_detail_b_778,
+        name: get_share_point_activity_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getSharePointActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -1244,7 +1244,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getSharePointSiteUsageDetail",
-        name: get_share_point_site_usage_detail_d_2_7a,
+        name: get_share_point_site_usage_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getSharePointSiteUsageDetail(date={{id}})",
         params: [ date ],
@@ -1252,7 +1252,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getSharePointSiteUsageDetail",
-        name: get_share_point_site_usage_detail_20_4b,
+        name: get_share_point_site_usage_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getSharePointSiteUsageDetail(period='{{id}}')",
         params: [ period ],
@@ -1308,7 +1308,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getSkypeForBusinessActivityUserDetail",
-        name: get_skype_for_business_activity_user_detail_e_4c_9,
+        name: get_skype_for_business_activity_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getSkypeForBusinessActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -1316,7 +1316,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getSkypeForBusinessActivityUserDetail",
-        name: get_skype_for_business_activity_user_detail_74_4e,
+        name: get_skype_for_business_activity_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getSkypeForBusinessActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -1340,7 +1340,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getSkypeForBusinessDeviceUsageUserDetail",
-        name: get_skype_for_business_device_usage_user_detail_a_692,
+        name: get_skype_for_business_device_usage_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getSkypeForBusinessDeviceUsageUserDetail(date={{id}})",
         params: [ date ],
@@ -1348,7 +1348,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getSkypeForBusinessDeviceUsageUserDetail",
-        name: get_skype_for_business_device_usage_user_detail_e_753,
+        name: get_skype_for_business_device_usage_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getSkypeForBusinessDeviceUsageUserDetail(period='{{id}}')",
         params: [ period ],
@@ -1444,7 +1444,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getTeamsDeviceUsageUserDetail",
-        name: get_teams_device_usage_user_detail_7148,
+        name: get_teams_device_usage_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getTeamsDeviceUsageUserDetail(date={{id}})",
         params: [ date ],
@@ -1452,7 +1452,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getTeamsDeviceUsageUserDetail",
-        name: get_teams_device_usage_user_detail_7565,
+        name: get_teams_device_usage_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getTeamsDeviceUsageUserDetail(period='{{id}}')",
         params: [ period ],
@@ -1476,7 +1476,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getTeamsUserActivityUserDetail",
-        name: get_teams_user_activity_user_detail_a_3f_1,
+        name: get_teams_user_activity_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getTeamsUserActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -1484,7 +1484,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getTeamsUserActivityUserDetail",
-        name: get_teams_user_activity_user_detail_eb_13,
+        name: get_teams_user_activity_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getTeamsUserActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -1508,7 +1508,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getYammerActivityUserDetail",
-        name: get_yammer_activity_user_detail_ac_30,
+        name: get_yammer_activity_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getYammerActivityUserDetail(date={{id}})",
         params: [ date ],
@@ -1516,7 +1516,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getYammerActivityUserDetail",
-        name: get_yammer_activity_user_detail_1_5a_5,
+        name: get_yammer_activity_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getYammerActivityUserDetail(period='{{id}}')",
         params: [ period ],
@@ -1540,7 +1540,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getYammerDeviceUsageUserDetail",
-        name: get_yammer_device_usage_user_detail_d_0ac,
+        name: get_yammer_device_usage_user_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getYammerDeviceUsageUserDetail(date={{id}})",
         params: [ date ],
@@ -1548,7 +1548,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getYammerDeviceUsageUserDetail",
-        name: get_yammer_device_usage_user_detail_cfad,
+        name: get_yammer_device_usage_user_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getYammerDeviceUsageUserDetail(period='{{id}}')",
         params: [ period ],
@@ -1564,7 +1564,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getYammerGroupsActivityDetail",
-        name: get_yammer_groups_activity_detail_da_9a,
+        name: get_yammer_groups_activity_detail_by_date,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getYammerGroupsActivityDetail(date={{id}})",
         params: [ date ],
@@ -1572,7 +1572,7 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function getYammerGroupsActivityDetail",
-        name: get_yammer_groups_activity_detail_0d_7d,
+        name: get_yammer_groups_activity_detail_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.getYammerGroupsActivityDetail(period='{{id}}')",
         params: [ period ],
@@ -1588,14 +1588,14 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function managedDeviceEnrollmentFailureDetails",
-        name: managed_device_enrollment_failure_details_02_7e,
+        name: managed_device_enrollment_failure_details,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.managedDeviceEnrollmentFailureDetails()",
         has_body: false
     });
     async_download!({
         doc: "Invoke function managedDeviceEnrollmentFailureDetails",
-        name: managed_device_enrollment_failure_details_2b_3d,
+        name: managed_device_enrollment_failure_details_by_params,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.managedDeviceEnrollmentFailureDetails(skip={{id}},top={{id2}},filter='{{id3}}',skipToken='{{id4}}')",
         params: [ skip  top  filter  skip_token ],
@@ -1603,14 +1603,14 @@ impl<'a> ReportsRequest<'a, AsyncHttpClient> {
     });
     async_download!({
         doc: "Invoke function managedDeviceEnrollmentTopFailures",
-        name: managed_device_enrollment_top_failures_4669,
+        name: managed_device_enrollment_top_failures,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.managedDeviceEnrollmentTopFailures()",
         has_body: false
     });
     async_download!({
         doc: "Invoke function managedDeviceEnrollmentTopFailures",
-        name: managed_device_enrollment_top_failures_afd_1,
+        name: managed_device_enrollment_top_failures_by_period,
         response: AsyncDownload,
         path: "/reports/microsoft.graph.managedDeviceEnrollmentTopFailures(period='{{id}}')",
         params: [ period ],

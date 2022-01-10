@@ -16,17 +16,17 @@ where
     }
 
     get!({
-        doc: "Get buckets",
+        doc: "Get buckets from planner",
         name: list_buckets,
         response: serde_json::Value,
-        path: "buckets",
+        path: "/buckets",
         has_body: false
     });
     post!({
-        doc: "Create new navigation property to buckets",
+        doc: "Create new navigation property to buckets for planner",
         name: create_buckets,
         response: serde_json::Value,
-        path: "buckets",
+        path: "/buckets",
         has_body: true
     });
 }
@@ -52,38 +52,38 @@ where
     }
 
     patch!({
-        doc: "Update the navigation property buckets",
+        doc: "Update the navigation property buckets in planner",
         name: update_buckets,
         response: NoContent,
-        path: "buckets/{{RID}}",
+        path: "/buckets/{{RID}}",
         has_body: true
     });
-    delete!({
-        doc: "Delete navigation property buckets",
-        name: delete_buckets,
-        response: NoContent,
-        path: "buckets/{{RID}}",
-        has_body: false
-    });
     get!({
-        doc: "Get buckets",
+        doc: "Get buckets from planner",
         name: get_buckets,
         response: serde_json::Value,
-        path: "buckets/{{RID}}",
+        path: "/buckets/{{RID}}",
         has_body: false
     });
-    get!({
-        doc: "Get tasks",
-        name: list_tasks,
-        response: serde_json::Value,
-        path: "buckets/{{RID}}/tasks",
+    delete!({
+        doc: "Delete navigation property buckets for planner",
+        name: delete_buckets,
+        response: NoContent,
+        path: "/buckets/{{RID}}",
         has_body: false
     });
     post!({
-        doc: "Create new navigation property to tasks",
+        doc: "Create new navigation property to tasks for planner",
         name: create_tasks,
         response: serde_json::Value,
-        path: "buckets/{{RID}}/tasks",
+        path: "/buckets/{{RID}}/tasks",
         has_body: true
+    });
+    get!({
+        doc: "Get tasks from planner",
+        name: list_tasks,
+        response: serde_json::Value,
+        path: "/buckets/{{RID}}/tasks",
+        has_body: false
     });
 }
