@@ -146,6 +146,13 @@ where
         self
     }
 
+    pub fn cast(self, value: &str) -> Self {
+        self.client.url_mut(|url| {
+            url.cast(value);
+        });
+        self
+    }
+
     pub fn header<H: IntoHeaderName>(self, name: H, value: HeaderValue) -> Self {
         self.client.header(name, value);
         self
