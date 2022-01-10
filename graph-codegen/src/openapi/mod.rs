@@ -57,6 +57,7 @@ pub use tag::*;
 pub use xml::*;
 
 use crate::api_types::PathMetadata;
+use crate::macros::OpenApiParser;
 use crate::traits::{FilterPath, RequestParser};
 use from_as::*;
 use graph_error::GraphFailure;
@@ -265,3 +266,5 @@ impl TryFrom<reqwest::Url> for OpenApiRaw {
         Ok(OpenApiRaw { open_api })
     }
 }
+
+impl OpenApiParser for OpenApi {}

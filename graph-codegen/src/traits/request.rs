@@ -163,11 +163,11 @@ impl RequestParser for &str {
                         match path_matcher {
                             PathMatcher::PathId => {
                                 if count == 1 {
-                                    path = path.replacen(s.as_str(), "/{{id}}", 1);
+                                    path = path.replacen(s.as_str(), "{{id}}", 1);
                                 } else {
                                     path = path.replacen(
                                         s.as_str(),
-                                        &format!("/{{{{id{}}}}}", count),
+                                        &format!("{{{{id{}}}}}", count),
                                         1,
                                     );
                                 }

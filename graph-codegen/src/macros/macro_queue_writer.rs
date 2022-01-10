@@ -3,8 +3,11 @@ use crate::api_types::{
 };
 use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::inflector::Inflector;
+use crate::openapi::OpenApi;
+use crate::parser::client_resource::ResourceParsingInfo;
+use crate::parser::filter::MatchTarget;
 use crate::parser::ParserSettings;
-use crate::traits::RequestParser;
+use crate::traits::{FilterMetadata, RequestParser};
 use bytes::{BufMut, BytesMut};
 use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::create_dir;
@@ -276,13 +279,7 @@ pub trait MacroImplWriter {
         }
 
         let keys: Vec<_> = path_metadata_map.keys().cloned().collect();
-        /*
-        let ident_clients: Vec<_> = keys.iter()
-            .filter(|key| key.contains("Id"))
-            .map(|key| key.replacen("Id", "", 1))
-            .collect();
-         */
-
+        println!("Keys:\n{:#?}", keys);
         let mut links: BTreeMap<String, BTreeSet<ClientLinkSettings>> = BTreeMap::new();
 
         for name in keys.iter() {
@@ -292,11 +289,7 @@ pub trait MacroImplWriter {
             }
         }
 
-        println!("IMPORTS: {:#?}", imports);
-
-        buf.put("// GENERATED CODE\n\n".as_bytes());
-
-        buf.put("use crate::api_default_imports::*;\n".as_bytes());
+        buf.put("// GENERATED CODE\n\nuse crate::api_default_imports::*;\n".as_bytes());
         for import in imports.iter() {
             buf.put(format!("use {};\n", import).as_bytes());
         }
@@ -318,18 +311,10 @@ pub trait MacroImplWriter {
         }
 
         for (name, path_metadata_queue) in path_metadata_map.iter() {
-            /*
-            let resource_identity: ResourceIdentity = ResourceIdentity::from_str(name.to_camel_case().as_str()).unwrap();
-            let client_struct = RegisterClient::from_resource_identity(resource_identity);
-            buf.put(client_struct.as_bytes());
-             */
-
-            let impl_start = format!(
+            buf.put(format!(
                 "\nimpl<'a, Client> {}Request<'a, Client> where Client: graph_http::RequestClient {{",
                 name
-            );
-
-            buf.put(impl_start.as_bytes());
+            ).as_bytes());
 
             if let Some(current_links) = links.get(&name.to_camel_case()) {
                 for link in current_links.iter() {
@@ -351,11 +336,9 @@ pub trait MacroImplWriter {
             buf.put("\n}\n".as_bytes());
 
             if has_downloads {
-                buf.put("\n\n".as_bytes());
-
-                let impl_start = format!("\nimpl<'a> {}Request<'a, BlockingHttpClient> {{", name);
-
-                buf.put(impl_start.as_bytes());
+                buf.put(
+                    format!("\n\n\nimpl<'a> {}Request<'a, BlockingHttpClient> {{", name).as_bytes(),
+                );
 
                 for path_metadata in path_metadata_queue.iter() {
                     let download_macros_option = path_metadata.write_download_macros(false);
@@ -364,13 +347,13 @@ pub trait MacroImplWriter {
                     }
                 }
 
-                buf.put("\n}\n".as_bytes());
-
-                buf.put("\n\n".as_bytes());
-
-                let impl_start = format!("\nimpl<'a> {}Request<'a, AsyncHttpClient> {{", name);
-
-                buf.put(impl_start.as_bytes());
+                buf.put(
+                    format!(
+                        "\n}}\n\n\n\nimpl<'a> {}Request<'a, AsyncHttpClient> {{",
+                        name
+                    )
+                    .as_bytes(),
+                );
 
                 for path_metadata in path_metadata_queue.iter() {
                     let download_macros_option = path_metadata.write_download_macros(true);
@@ -389,5 +372,55 @@ pub trait MacroImplWriter {
         request_file.write_all(buf.as_mut()).unwrap();
         request_file.sync_data().unwrap();
         println!("\nDone")
+    }
+}
+
+pub trait OpenApiParser {
+    fn write(resource_parsing_info: ResourceParsingInfo) {
+        let open_api = OpenApi::default();
+        let mut requests = open_api.requests();
+
+        let name = {
+            if let Some(name) = resource_parsing_info.modifier_name.as_ref() {
+                name.to_string()
+            } else {
+                resource_parsing_info.resource_identity.to_string()
+            }
+        };
+
+        let mut metadata: VecDeque<PathMetadata> = requests
+            .iter()
+            .filter(|r| r.path_starts_with(&resource_parsing_info.path))
+            .cloned()
+            .collect();
+
+        let mut metadata_queue = PathMetadataQueue::from(metadata);
+
+        let modifier_map =
+            ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
+        metadata_queue.update_targets(&modifier_map);
+
+        if let Some(parent_resource_info) = resource_parsing_info.parent_resource_info {
+            metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
+            let resource_identity_string = resource_parsing_info.resource_identity.to_string();
+            metadata_queue.transform_secondary_id_metadata(
+                resource_parsing_info.path.as_str(),
+                "{{id}}",
+                name.as_str(),
+                resource_identity_string.as_str(),
+            );
+            metadata_queue.trim_path_start(parent_resource_info.trim_path_start.as_str());
+        } else {
+            metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
+            metadata_queue.transform_id_metadata(resource_parsing_info.path.as_str());
+        }
+
+        let filters = ParserSettings::path_filters(resource_parsing_info.resource_identity);
+        for filter in filters {
+            metadata_queue.filter_metadata_path(filter);
+        }
+
+        metadata_queue.debug_print();
+        metadata_queue.write_impl(name.as_str());
     }
 }

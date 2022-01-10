@@ -3,6 +3,26 @@ use graph_core::resource::ResourceIdentity;
 use std::convert::TryFrom;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
+pub struct ParentResourceInfo {
+    pub path_start: Option<String>,
+    pub parent_resource_identity: ResourceIdentity,
+    pub trim_path_start: String,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct ResourceParsingInfo {
+    pub modifier_name: Option<String>,
+    pub path: String,
+    pub resource_identity: ResourceIdentity,
+    pub parent_resource_info: Option<ParentResourceInfo>,
+}
+
+pub struct ChildResource {
+    name: String,
+    trim_start: String,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum ClientResource {
     Main {
         modifier: String,

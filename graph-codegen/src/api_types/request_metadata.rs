@@ -1,13 +1,14 @@
-use crate::api_types::{Metadata, RequestClientList, RequestTask};
+use crate::api_types::{Metadata, MetadataModifier, RequestClientList, RequestTask};
 use crate::inflector::Inflector;
 use crate::macros::{MacroFormatter, MacroImplWriter, MacroQueueWriter};
-use crate::parser::filter::Filter;
+use crate::parser::filter::{Filter, MatchTarget, ModifierMap};
 use crate::parser::{HttpMethod, ParserSettings};
 use crate::traits::{FilterMetadata, HashMapExt, RequestParser, INTERNAL_PATH_ID};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::convert::TryFrom;
+use std::fs::metadata;
 use std::io::{Read, Write};
 use std::str::FromStr;
 
@@ -94,6 +95,10 @@ impl RequestMetadata {
     pub fn resource_identity(&self) -> Option<ResourceIdentity> {
         ResourceIdentity::from_str(&self.original_parent).ok()
     }
+
+    pub fn set_resource_identity(&mut self, resource_identity: ResourceIdentity) {
+        self.resource_identity = Some(resource_identity);
+    }
 }
 
 impl Metadata for RequestMetadata {
@@ -119,6 +124,32 @@ impl Metadata for RequestMetadata {
 
     fn parent(&self) -> String {
         self.parent.to_string()
+    }
+}
+
+impl MetadataModifier for RequestMetadata {
+    fn replace_operation_mapping(&mut self, replacement: &str) {
+        self.operation_mapping = replacement.to_string();
+    }
+
+    fn replace_operation_id(&mut self, replacement: &str) {
+        self.operation_id = replacement.to_string();
+    }
+
+    fn replace_operation_mapping_n(&mut self, pat: &str, replacement: &str, count: usize) {
+        self.operation_mapping = self.operation_mapping.replacen(pat, replacement, count);
+    }
+
+    fn replace_operation_id_n(&mut self, pat: &str, replacement: &str, count: usize) {
+        self.operation_id = self.operation_id.replacen(pat, replacement, count);
+    }
+
+    fn operation_mapping(&self) -> String {
+        self.operation_mapping.clone()
+    }
+
+    fn operation_id(&self) -> String {
+        self.operation_id.clone()
     }
 }
 
@@ -330,6 +361,18 @@ impl PathMetadata {
 
         map
     }
+
+    pub fn update_targets(&mut self, modifier_map: &ModifierMap) {
+        for metadata in self.metadata.iter_mut() {
+            metadata.update_targets(modifier_map);
+        }
+    }
+
+    pub fn set_resource_identity(&mut self, resource_identity: ResourceIdentity) {
+        for metadata in self.metadata.iter_mut() {
+            metadata.set_resource_identity(resource_identity);
+        }
+    }
 }
 
 impl MacroQueueWriter for PathMetadata {
@@ -429,7 +472,9 @@ impl PathMetadataQueue {
         for path_metadata in self.0.iter_mut() {
             println!("{:#?}", path_metadata.path);
             println!("Starts with: {:#?}", path_start);
-            if path_metadata.path_starts_with(&format!("{}/{}", path_start, id_name)) {
+            let id_path = format!("{}/{}", path_start, id_name);
+            println!("Checking for: {:#?}", id_path);
+            if path_metadata.path_starts_with(&id_path) {
                 path_metadata.transform_secondary_id_metadata(
                     id_name,
                     operation_mapping,
@@ -464,6 +509,18 @@ impl PathMetadataQueue {
     pub fn debug_print(&self) {
         for path_metadata in self.0.iter() {
             println!("{:#?}", path_metadata);
+        }
+    }
+
+    pub fn update_targets(&mut self, modifier_map: &ModifierMap) {
+        for metadata in self.0.iter_mut() {
+            metadata.update_targets(modifier_map);
+        }
+    }
+
+    pub fn set_resource_identity(&mut self, resource_identity: ResourceIdentity) {
+        for metadata in self.0.iter_mut() {
+            metadata.set_resource_identity(resource_identity);
         }
     }
 }
