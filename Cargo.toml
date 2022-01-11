@@ -1,6 +1,6 @@
 [package]
 name = "graph-rs-sdk"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["sreeise"]
 edition = "2018"
 readme = "README.md"
@@ -42,10 +42,10 @@ rayon = "1"
 tokio = { version = "1", features = ["full"] }
 url = "2"
 
-graph-oauth = { path = "./graph-oauth", version = "0.1.0" }
-graph-http = { path = "graph-http", version = "0.1.1" }
-graph-error = { path = "./graph-error", version = "0.1.0" }
-graph-core = { path = "./graph-core", version = "0.1.0" }
+graph-oauth = { path = "./graph-oauth", version = "0.1.1" }
+graph-http = { path = "graph-http", version = "0.1.2" }
+graph-error = { path = "./graph-error", version = "0.1.1" }
+graph-core = { path = "./graph-core", version = "0.1.1" }
 
 [dev-dependencies]
 from_as = "0.1"
