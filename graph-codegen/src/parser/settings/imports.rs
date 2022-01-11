@@ -2,67 +2,40 @@ use graph_core::resource::ResourceIdentity;
 
 pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
     match resource_identity {
-        ResourceIdentity::Applications => vec![
-            "crate::core::ResourceIdentity",
-        ],
-        ResourceIdentity::Attachments => vec![
-            "crate::core::ResourceIdentity",
-        ],
-        ResourceIdentity::Buckets => vec![
-            "crate::tasks::{TaskRequest, TasksRequest}",
-            "crate::core::ResourceIdentity",
-        ],
+        ResourceIdentity::Buckets => vec!["crate::tasks::{TasksRequest, TasksIdRequest}"],
         ResourceIdentity::Calendar | ResourceIdentity::Calendars => vec![
             "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
             "crate::events::{EventsRequest, EventRequest}",
-            "crate::core::ResourceIdentity",
             "crate::extended_properties::ExtendedPropertiesRequest",
         ],
         ResourceIdentity::CalendarGroup | ResourceIdentity::CalendarGroups => vec![
             "crate::calendar::{CalendarRequest, CalendarsRequest}",
             "crate::events::{EventsRequest, EventRequest}",
-            "crate::core::ResourceIdentity",
         ],
         ResourceIdentity::CalendarView => vec![
             "crate::instances::{InstanceRequest, InstancesRequest}",
             "crate::calendar::CalendarRequest",
-            "crate::core::ResourceIdentity",
             "crate::extended_properties::ExtendedPropertiesRequest",
             "crate::attachments::{AttachmentRequest, AttachmentsRequest}",
         ],
-        ResourceIdentity::Calls => vec![
-            "crate::core::ResourceIdentity",
-        ],
-        ResourceIdentity::CallRecords => vec![
-            "crate::core::ResourceIdentity",
-            "crate::sessions::{SessionRequest, SessionsRequest}",
-        ],
+        ResourceIdentity::Calls => vec!["crate::core::ResourceIdentity"],
+        ResourceIdentity::CallRecords => vec!["crate::sessions::{SessionRequest, SessionsRequest}"],
         ResourceIdentity::Communications => vec![
-            "crate::core::ResourceIdentity",
             "crate::call_records::{CallRecordRequest, CallRecordsRequest}",
             "crate::calls::{CallRequest, CallsRequest}",
         ],
-        ResourceIdentity::Contacts => vec![
-            "crate::core::ResourceIdentity",
-            "crate::extended_properties::ExtendedPropertiesRequest",
-        ],
+        ResourceIdentity::Contacts => vec!["crate::extended_properties::ExtendedPropertiesRequest"],
         ResourceIdentity::ContactFolders => vec![
-            "crate::core::ResourceIdentity",
             "crate::child_folders::{ChildFolderRequest, ChildFoldersRequest}",
             "crate::contacts::{ContactRequest, ContactsRequest}",
-            "crate::extended_properties::ExtendedPropertiesRequest"
+            "crate::extended_properties::ExtendedPropertiesRequest",
         ],
-        ResourceIdentity::Conversations => vec![
-            "crate::core::ResourceIdentity",
-            "crate::threads::{ThreadRequest, ThreadsRequest}",
-        ],
-        ResourceIdentity::ChildFolders => vec![
-            "crate::core::ResourceIdentity",
-            "crate::messages::{MessageRequest, MessagesRequest}",
-        ],
+        ResourceIdentity::Conversations => vec!["crate::threads::{ThreadRequest, ThreadsRequest}"],
+        ResourceIdentity::ChildFolders => {
+            vec!["crate::messages::{MessageRequest, MessagesRequest}"]
+        }
         ResourceIdentity::Drive | ResourceIdentity::Drives => vec![
             "std::path::Path",
-            "crate::core::ResourceIdentity",
             "crate::items::{ItemRequest, ItemsRequest}",
             "crate::lists::{ListRequest, ListsRequest}",
             "graph_http::types::DeltaPhantom",
@@ -75,74 +48,61 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ResourceIdentity::Events => vec![
             "crate::calendar::CalendarRequest",
             "crate::instances::{InstanceRequest, InstancesRequest}",
-            "crate::core::ResourceIdentity",
             "crate::extended_properties::ExtendedPropertiesRequest",
             "crate::attachments::{AttachmentRequest, AttachmentsRequest}",
         ],
         ResourceIdentity::Sites => vec![
-            "crate::core::ResourceIdentity",
             "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
             "crate::lists::{ListRequest, ListsRequest}",
             "crate::drive::DrivesRequest",
             "crate::onenote::OnenoteRequest",
         ],
         ResourceIdentity::Onenote => vec![
-            "crate::core::ResourceIdentity",
             "crate::notebooks::{NotebookRequest, NotebooksRequest}",
             "crate::pages::{PagesRequest, PageRequest}",
             "crate::sections::{SectionRequest, SectionsRequest}",
             "crate::section_groups::{SectionGroupRequest, SectionGroupsRequest}",
         ],
         ResourceIdentity::Pages => vec![
-            "crate::core::ResourceIdentity",
             "crate::parent_notebook::ParentNotebookRequest",
             "crate::parent_section::ParentSectionRequest",
-            "graph_http::{BlockingDownload, AsyncDownload, BlockingHttpClient, AsyncHttpClient, RequestClient}",
+            "graph_http::{BlockingDownload, AsyncDownload, BlockingHttpClient, AsyncHttpClient, \
+             RequestClient}",
             "std::path::Path",
         ],
         ResourceIdentity::Planner => vec![
-            "crate::core::ResourceIdentity",
-            "crate::plans::{PlanRequest, PlansRequest}",
-            "crate::buckets::{BucketRequest, BucketsRequest}",
-            "crate::tasks::{TaskRequest, TasksRequest}",
+            "crate::plans::{PlansRequest, PlansIdRequest}",
+            "crate::buckets::{BucketsRequest, BucketsIdRequest}",
+            "crate::tasks::{TasksRequest, TasksIdRequest}",
         ],
         ResourceIdentity::Notebooks => vec![
-            "crate::core::ResourceIdentity",
             "crate::sections::SectionsRequest",
             "crate::section_groups::SectionGroupsRequest",
         ],
-        ResourceIdentity::SectionGroups => vec![
-            "crate::core::ResourceIdentity",
-            "crate::sections::SectionsRequest",
-        ],
+        ResourceIdentity::SectionGroups => vec!["crate::sections::SectionsRequest"],
         ResourceIdentity::Sections => vec![
-            "crate::core::ResourceIdentity",
             "crate::pages::PagesRequest",
             "crate::section_groups::SectionGroupsRequest",
             "crate::parent_notebook::ParentNotebookRequest",
             "crate::parent_section_group::ParentSectionGroupRequest",
         ],
         ResourceIdentity::ParentNotebook => vec![
-            "crate::core::ResourceIdentity",
             "crate::sections::SectionsRequest",
             "crate::section_groups::SectionGroupsRequest",
         ],
         ResourceIdentity::ParentSectionGroup => vec![
-            "crate::core::ResourceIdentity",
             "crate::sections::SectionsRequest",
             "crate::section_groups::SectionGroupsRequest",
             "crate::parent_notebook::ParentNotebookRequest",
         ],
         ResourceIdentity::ParentSection => vec![
-            "crate::core::ResourceIdentity",
             "crate::pages::PagesRequest",
             "crate::parent_section_group::ParentSectionGroupRequest",
             "crate::parent_notebook::ParentNotebookRequest",
         ],
         ResourceIdentity::Plans => vec![
-            "crate::buckets::{BucketRequest, BucketsRequest}",
-            "crate::tasks::{TaskRequest, TasksRequest}",
-            "crate::core::ResourceIdentity",
+            "crate::buckets::{BucketsRequest, BucketsIdRequest}",
+            "crate::tasks::{TasksRequest, TasksIdRequest}",
         ],
         ResourceIdentity::Posts => vec![
             "crate::core::ResourceIdentity",
@@ -151,13 +111,11 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ],
         ResourceIdentity::ManagedDevices => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::MailFolders => vec![
-            "crate::core::ResourceIdentity",
             "crate::messages::{MessageRequest, MessagesRequest}",
             "crate::child_folders::{ChildFolderRequest, ChildFoldersRequest}",
             "crate::extended_properties::ExtendedPropertiesRequest",
         ],
         ResourceIdentity::Messages => vec![
-            "crate::core::ResourceIdentity",
             "crate::extended_properties::ExtendedPropertiesRequest",
             "crate::attachments::{AttachmentRequest, AttachmentsRequest}",
         ],
@@ -178,11 +136,9 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::outlook::OutlookRequest",
             "crate::drive::DrivesRequest",
             "crate::onenote::OnenoteRequest",
-            "crate::core::ResourceIdentity",
             "crate::contacts::{ContactRequest, ContactsRequest}",
             "crate::planner::PlannerRequest",
         ],
-        ResourceIdentity::Sessions => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::Users => vec![
             "crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest}",
             "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
@@ -200,7 +156,6 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::outlook::OutlookRequest",
             "crate::drive::DrivesRequest",
             "crate::onenote::OnenoteRequest",
-            "crate::core::ResourceIdentity",
             "crate::contacts::{ContactRequest, ContactsRequest}",
             "crate::planner::PlannerRequest",
         ],
@@ -214,15 +169,8 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::threads::{ThreadRequest, ThreadsRequest}",
             "crate::conversations::{ConversationRequest, ConversationsRequest}",
             "crate::planner::PlannerRequest",
-            "crate::core::ResourceIdentity",
         ],
-        ResourceIdentity::Tasks => vec![
-            "crate::core::ResourceIdentity",
-        ],
-        ResourceIdentity::Threads => vec![
-            "crate::core::ResourceIdentity",
-            "crate::posts::{PostRequest, PostsRequest}",
-        ],
+        ResourceIdentity::Threads => vec!["crate::posts::{PostRequest, PostsRequest}"],
         _ => vec![],
     }
 }

@@ -62,7 +62,8 @@ fn create_user() {
         "user_principal_name": "user@domain.com"
     });
 
-    let user: serde_json::Value = client.v1().users().create_user(&user).json().unwrap();
+    let user: GraphResponse<serde_json::Value> =
+        client.v1().users().create_user(&user).json().unwrap();
 
     println!("{:#?}", user);
 }

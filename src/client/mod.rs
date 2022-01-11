@@ -1,5 +1,5 @@
 #[macro_use]
-pub mod macros;
+pub mod api_macros;
 mod graph;
 
 pub use graph::*;

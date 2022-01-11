@@ -95,44 +95,74 @@ impl GraphUrl {
         Ok(())
     }
 
+    /// Retrieves the total count of matching resources.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#count-parameter)
     pub fn count(&mut self, value: &str) {
         self.append_query_pair("$count", value);
     }
 
+    /// Filters properties (columns).
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#select-parameter)
     pub fn select(&mut self, value: &[&str]) {
         let s = value.join(",");
         self.append_query_pair("$select", &s);
     }
 
+    /// Retrieves related resources.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#expand-parameter)
     pub fn expand(&mut self, value: &[&str]) {
         let s = value.join(" ");
         self.append_query_pair("$expand", &s);
     }
 
+    /// Filters results (rows).
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter)
     pub fn filter(&mut self, value: &[&str]) {
         let s = value.join(",");
         self.append_query_pair("$filter", &s);
     }
 
+    /// Orders results.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#orderby-parameter)
     pub fn order_by(&mut self, value: &[&str]) {
         let s = value.join(" ");
         self.append_query_pair("$orderby", &s);
     }
 
+    /// Returns results based on search criteria.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#search-parameter)
     pub fn search(&mut self, value: &str) {
         self.append_query_pair("$search", value);
     }
 
+    /// Returns the results in the specified media format.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#format-parameter)
     pub fn format(&mut self, value: &str) {
         self.append_query_pair("$format", value);
     }
 
+    /// Indexes into a result set. Also used by some APIs to implement paging and can be used
+    /// together with $top to manually page results.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#skip-parameter)
     pub fn skip(&mut self, value: &str) {
         self.append_query_pair("$skip", value.as_ref());
     }
 
+    /// Retrieves the next page of results from result sets that span multiple pages.
+    /// (Some APIs use $skip instead.)
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#skiptoken-parameter)
+    pub fn skip_token(&mut self, value: &str) {
+        self.append_query_pair("$skipToken", value.as_ref());
+    }
+
+    /// Sets the page size of results.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#top-parameter)
     pub fn top(&mut self, value: &str) {
         self.append_query_pair("$top", value.as_ref());
+    }
+
+    pub fn cast(&mut self, value: &str) {
+        self.extend_path(&[value]);
     }
 }
 

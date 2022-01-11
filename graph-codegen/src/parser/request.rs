@@ -1,12 +1,18 @@
-use crate::parser::{Modifier, ResourceNameMapping, ResourceNames};
-use crate::traits::{HashMapExt, RequestParser};
+use crate::{
+    parser::{Modifier, ResourceNameMapping, ResourceNames},
+    traits::{HashMapExt, RequestParser},
+};
 use from_as::*;
 use inflector::Inflector;
-use std::collections::hash_set::{Difference, Iter};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
-use std::convert::TryFrom;
-use std::hash::{Hash, Hasher};
-use std::io::{Read, Write};
+use std::{
+    collections::{
+        hash_set::{Difference, Iter},
+        BTreeMap, BTreeSet, HashMap, HashSet, VecDeque,
+    },
+    convert::TryFrom,
+    hash::{Hash, Hasher},
+    io::{Read, Write},
+};
 
 #[derive(
     Debug,
@@ -29,6 +35,19 @@ pub enum HttpMethod {
     DELETE,
     PATCH,
     TRACE,
+}
+
+impl HttpMethod {
+    pub fn enum_name(&self) -> String {
+        match self {
+            HttpMethod::GET => "Method::GET".into(),
+            HttpMethod::PUT => "Method::PUT".into(),
+            HttpMethod::POST => "Method::POST".into(),
+            HttpMethod::DELETE => "Method::DELETE".into(),
+            HttpMethod::PATCH => "Method::PATCH".into(),
+            HttpMethod::TRACE => "Method::TRACE".into(),
+        }
+    }
 }
 
 impl Default for HttpMethod {
@@ -60,6 +79,12 @@ impl From<HttpMethod> for reqwest::Method {
             HttpMethod::PATCH => reqwest::Method::PATCH,
             HttpMethod::TRACE => reqwest::Method::TRACE,
         }
+    }
+}
+
+impl ToString for HttpMethod {
+    fn to_string(&self) -> String {
+        self.as_ref().to_string()
     }
 }
 
@@ -230,6 +255,10 @@ impl RequestParser for Request {
     fn links(&self) -> HashSet<String> {
         self.operation_mapping.links()
     }
+
+    fn struct_links(&self) -> HashMap<String, Vec<String>> {
+        self.operation_mapping.struct_links()
+    }
 }
 
 pub struct ReqSet {
@@ -329,7 +358,7 @@ impl RequestSet {
         if self.set.contains(&request_map) {
             let mut req_map = self.set.get(&request_map).cloned().unwrap();
             for request in request_map.requests.iter() {
-                if req_map.requests.iter().find(|r| r.eq(&request)).is_none() {
+                if !req_map.requests.iter().any(|r| r.eq(&request)) {
                     req_map.requests.push_back(request.clone());
                 }
             }
@@ -596,13 +625,13 @@ impl From<HashMap<String, RequestSet>> for ApiImpl {
 }
 
 #[derive(Default, Debug, Clone)]
-pub struct ResourceRequestMap<'a> {
-    pub modifier: Modifier<'a>,
+pub struct ResourceRequestMap {
+    pub modifier: Modifier,
     pub request_set: RequestSet,
 }
 
-impl<'a> ResourceRequestMap<'a> {
-    pub fn new(modifier: Modifier<'a>, request_set: RequestSet) -> ResourceRequestMap<'a> {
+impl ResourceRequestMap {
+    pub fn new(modifier: Modifier, request_set: RequestSet) -> ResourceRequestMap {
         ResourceRequestMap {
             modifier,
             request_set,

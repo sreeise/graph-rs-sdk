@@ -5,6 +5,7 @@ use crate::types::*;
 use crate::uploadsession::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::GraphResponse;
+use bytes::Bytes;
 use graph_error::{GraphFailure, GraphResult, WithGraphError, WithGraphErrorAsync};
 use reqwest::header::CONTENT_TYPE;
 use std::marker::PhantomData;
@@ -38,15 +39,46 @@ impl<T> DispatchBlocking<T> {
 }
 
 impl<T> DispatchBlocking<T> {
-    pub fn json<U>(self) -> GraphResult<U>
+    pub fn json<U>(self) -> GraphResult<GraphResponse<U>>
     where
         for<'de> U: serde::Deserialize<'de>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
+
         let response = self.request.send()?;
-        Ok(response.json()?)
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let json = response.json().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, json, status, headers))
+    }
+
+    pub fn text(self) -> GraphResult<GraphResponse<String>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.request.send()?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let text = response.text().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, text, status, headers))
+    }
+
+    pub fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.request.send()?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let bytes = response.bytes().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, bytes, status, headers))
     }
 }
 
@@ -109,15 +141,46 @@ impl<T> DispatchAsync<T> {
 }
 
 impl<T> DispatchAsync<T> {
-    pub async fn json<U>(self) -> GraphResult<U>
+    pub async fn json<U>(self) -> GraphResult<GraphResponse<U>>
     where
         for<'de> U: serde::Deserialize<'de>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
+
         let response = self.request.send().await?;
-        Ok(response.json().await?)
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let json = response.json().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, json, status, headers))
+    }
+
+    pub async fn text(self) -> GraphResult<GraphResponse<String>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.request.send().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let text = response.text().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, text, status, headers))
+    }
+
+    pub async fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.request.send().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let bytes = response.bytes().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, bytes, status, headers))
     }
 }
 

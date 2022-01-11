@@ -97,12 +97,18 @@ impl AsyncClient {
         }
     }
 
+    /// Builds the request and sends it.
+    ///
+    /// Requests that require a redirect are automatic so we don't need
+    /// to do anything special for these requests.
     pub async fn response(&mut self) -> GraphResult<reqwest::Response> {
         let builder = self.build();
         let response = builder.send().await?;
         Ok(response)
     }
 
+    /// Builds the requests and sends it, converting to a GraphResponse and deserializing
+    /// the body.
     pub async fn execute<T>(&mut self) -> GraphResult<GraphResponse<T>>
     where
         for<'de> T: serde::Deserialize<'de>,

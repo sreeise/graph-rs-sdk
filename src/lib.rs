@@ -39,14 +39,13 @@
 //! ```
 //!
 //! #### The send method and Graph types
-//! The send() method is the main method for sending a request. The return value will be wrapped
+//! The send() method is the main method for sending a request. If there are no errors the return value will be wrapped
 //! in a response object and the body will be one of:
 //!
-//! 1. serde_json::Value
+//! 1. [`serde_json::Value`]
 //!
-//! 2. Collection<serde_json::Value>
-//!
-//! 3. Content (204 responses that return a content field)
+//! 2. NoContent (204 responses that return a content field) This is always represented as a [`serde_json::Value::String`]
+//!     and sometimes includes some basic info depending on the request.
 //!
 //! # Basic Use:
 //! ```rust,ignore
@@ -228,6 +227,8 @@ pub mod plans;
 pub mod policies;
 /// Groups threads posts request client.
 pub mod posts;
+/// Reports request client.
+pub mod reports;
 /// Schema extensions request client.
 pub mod schema_extensions;
 /// Onenote section group request client.
@@ -286,4 +287,13 @@ pub mod header {
 /// Types used across multiple crates.
 pub mod core {
     pub use graph_core::resource::*;
+}
+
+pub(crate) mod api_default_imports {
+    pub use crate::client::Graph;
+    pub use crate::core::ResourceIdentity;
+    pub use graph_http::IntoResponse;
+    pub use graph_http::RequestClient;
+    pub use handlebars::*;
+    pub use reqwest::Method;
 }

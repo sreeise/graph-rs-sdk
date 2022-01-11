@@ -1,6 +1,6 @@
 [package]
 name = "graph-http"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["sreeise"]
 edition = "2018"
 license = "MIT"
@@ -12,6 +12,7 @@ async-std = "1.6.0"
 async-trait = "0.1.35"
 bytes = "1"
 futures = "0.3"
+futures-core = "0.3"
 handlebars = "2.0.2"
 percent-encoding = "2"
 reqwest = { version = "0.11", features = ["json", "blocking", "stream", "multipart"] }
@@ -22,5 +23,5 @@ thiserror = "1"
 tokio = { version = "1", features = ["full"] }
 url = { version = "2", features = ["serde"] }
 
-graph-error = { version = "0.1.0", path = "../graph-error" }
-graph-core = { version = "0.1.0", path = "../graph-core" }
+graph-error = { version = "0.1.1"  }
+graph-core = { version = "0.1.1" }

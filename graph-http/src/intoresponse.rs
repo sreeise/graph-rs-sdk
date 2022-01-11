@@ -3,10 +3,16 @@ use crate::blocking_client::BlockingHttpClient;
 use crate::traits::{AsyncTryFrom, ODataLink};
 use crate::types::{Delta, DeltaPhantom, NoContent};
 use crate::uploadsession::UploadSessionClient;
-use crate::{DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse, RequestClient};
+use crate::url::GraphUrl;
+use crate::{
+    AsyncDownload, BlockingDownload, DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse,
+    RequestClient,
+};
+use bytes::Bytes;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderValue, IntoHeaderName};
 use std::marker::PhantomData;
+use std::path::Path;
 use std::sync::mpsc::Receiver;
 
 pub struct IntoResponse<'a, T, Client>
@@ -48,6 +54,8 @@ where
         self
     }
 
+    /// Filters properties (columns).
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#select-parameter)
     pub fn select(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.select(value);
@@ -55,6 +63,8 @@ where
         self
     }
 
+    /// Retrieves related resources.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#expand-parameter)
     pub fn expand(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.expand(value);
@@ -62,6 +72,8 @@ where
         self
     }
 
+    /// Filters results (rows).
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter)
     pub fn filter(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.filter(value);
@@ -69,6 +81,8 @@ where
         self
     }
 
+    /// Orders results.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#orderby-parameter)
     pub fn order_by(self, value: &[&str]) -> Self {
         self.client.url_mut(|url| {
             url.order_by(value);
@@ -76,6 +90,8 @@ where
         self
     }
 
+    /// Returns results based on search criteria.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#search-parameter)
     pub fn search(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.search(value);
@@ -83,6 +99,8 @@ where
         self
     }
 
+    /// Returns the results in the specified media format.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#format-parameter)
     pub fn format(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.format(value);
@@ -90,6 +108,9 @@ where
         self
     }
 
+    /// Indexes into a result set. Also used by some APIs to implement paging and can be used
+    /// together with $top to manually page results.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#skip-parameter)
     pub fn skip(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.skip(value);
@@ -97,6 +118,8 @@ where
         self
     }
 
+    /// Sets the page size of results.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#top-parameter)
     pub fn top(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.top(value);
@@ -104,9 +127,28 @@ where
         self
     }
 
+    /// Retrieves the next page of results from result sets that span multiple pages.
+    /// (Some APIs use $skip instead.)
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#skiptoken-parameter)
+    pub fn skip_token(self, value: &str) -> Self {
+        self.client.url_mut(|url| {
+            url.skip_token(value);
+        });
+        self
+    }
+
+    /// Retrieves the total count of matching resources.
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#count-parameter)
     pub fn count(self, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.count(value);
+        });
+        self
+    }
+
+    pub fn cast(self, value: &str) -> Self {
+        self.client.url_mut(|url| {
+            url.cast(value);
         });
         self
     }
@@ -118,24 +160,46 @@ where
 }
 
 impl<'a, T> IntoResponseBlocking<'a, T> {
-    pub fn json<U>(self) -> GraphResult<U>
+    pub fn json<U>(self) -> GraphResult<GraphResponse<U>>
     where
         for<'de> U: serde::Deserialize<'de>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
+
         let response = self.client.response()?;
-        Ok(response.json()?)
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let json = response.json().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, json, status, headers))
     }
 
-    pub fn text(self) -> GraphResult<String> {
+    pub fn text(self) -> GraphResult<GraphResponse<String>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
 
         let response = self.client.response()?;
-        response.text().map_err(GraphFailure::from)
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let text = response.text().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, text, status, headers))
+    }
+
+    pub fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.client.response()?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let bytes = response.bytes().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, bytes, status, headers))
     }
 }
 
@@ -202,28 +266,59 @@ where
     }
 }
 
+impl<'a> IntoResponseBlocking<'a, BlockingDownload> {
+    pub fn download<P: AsRef<Path>>(self, path: P) -> GraphResult<BlockingDownload> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        self.client.set_download_dir(path.as_ref().to_path_buf());
+        Ok(self.client.download())
+    }
+}
+
 // Async Impl
 
 impl<'a, T> IntoResponseAsync<'a, T> {
-    pub async fn json<U>(self) -> GraphResult<U>
+    pub async fn json<U>(self) -> GraphResult<GraphResponse<U>>
     where
         for<'de> U: serde::Deserialize<'de>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let request = self.client.build().await;
-        let response = request.send().await?;
-        response.json().await.map_err(GraphFailure::from)
+
+        let response = self.client.response().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let json = response.json().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, json, status, headers))
     }
 
-    pub async fn text(self) -> GraphResult<String> {
+    pub async fn text(self) -> GraphResult<GraphResponse<String>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
 
         let response = self.client.response().await?;
-        response.text().await.map_err(GraphFailure::from)
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let text = response.text().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, text, status, headers))
+    }
+
+    pub async fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.client.response().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let bytes = response.bytes().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, bytes, status, headers))
     }
 }
 
@@ -287,5 +382,15 @@ where
     pub async fn send(self) -> tokio::sync::mpsc::Receiver<Delta<T>> {
         let request = self.build().await;
         request.send().await
+    }
+}
+
+impl<'a> IntoResponseAsync<'a, AsyncDownload> {
+    pub async fn download<P: AsRef<Path>>(self, path: P) -> GraphResult<AsyncDownload> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        self.client.set_download_dir(path.as_ref().to_path_buf());
+        Ok(self.client.download().await)
     }
 }

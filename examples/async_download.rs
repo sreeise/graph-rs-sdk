@@ -1,5 +1,4 @@
-use graph_error::GraphFailure;
-use graph_http::AsyncDownloadError;
+use graph_error::{download::AsyncDownloadError, GraphFailure};
 use graph_rs_sdk::prelude::*;
 use std::ffi::OsString;
 use std::path::PathBuf;
@@ -36,7 +35,9 @@ async fn download_with_format() -> Result<(), Error> {
         .download(":/download.docx:", "./examples");
 
     download_client.format("pdf").await;
-    download_client.rename(OsString::from("download.pdf")).await;
+    download_client
+        .set_file_name(OsString::from("download.pdf"))
+        .await;
     let path_buf: PathBuf = download_client.send().await?;
     println!("{:#?}", path_buf);
     Ok(())

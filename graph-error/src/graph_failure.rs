@@ -1,5 +1,7 @@
+use crate::download::{AsyncDownloadError, BlockingDownloadError};
 use crate::error::GraphError;
 use crate::internal::GraphRsError;
+use crate::ioerror::{AsyncIoError, ThreadedIoError};
 use std::cell::BorrowMutError;
 use std::io::ErrorKind;
 use std::str::Utf8Error;
@@ -68,6 +70,18 @@ pub enum GraphFailure {
 
     #[error("Crypto Error (Unknown)")]
     CryptoError,
+
+    #[error("Blocking download error:\n{0:#?}")]
+    BlockingDownloadError(#[from] BlockingDownloadError),
+
+    #[error("Async download error:\n{0:#?}")]
+    AsyncDownloadError(#[from] AsyncDownloadError),
+
+    #[error("Async Io error:\n{0:#?}")]
+    AsyncIoError(#[from] AsyncIoError),
+
+    #[error("Threaded Io error:\n{0:#?}")]
+    ThreadedIoError(#[from] ThreadedIoError),
 }
 
 impl GraphFailure {

@@ -22,7 +22,7 @@ fn applications_url() {
     assert_url_eq(&client, "/applications");
 
     client.v1().applications().get_by_ids(&String::new());
-    assert_url_eq(&client, "/applications/getByIds");
+    assert_url_eq(&client, "/applications/microsoft.graph.getByIds");
 }
 
 #[test]

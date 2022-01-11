@@ -1,5 +1,4 @@
-use graph_http::AsyncDownloadError;
-use graph_http::BlockingDownloadError;
+use graph_error::download::{AsyncDownloadError, BlockingDownloadError};
 use graph_rs_sdk::error::*;
 use graph_rs_sdk::prelude::*;
 use reqwest::StatusCode;
@@ -34,6 +33,7 @@ fn test_graph_failure(err: GraphFailure, expect: GraphError) {
         GraphFailure::HandlebarsTemplateRenderError(e) => {
             panic!("Expected GraphFailure::GraphError, got {}", e)
         }
+        _ => {}
     }
 }
 

@@ -60,7 +60,7 @@ fn download_and_rename(name: &str) {
         .download(ITEM_ID, "./examples/example_files");
 
     // // Rename the file or rename it after downloading using PathBuf.
-    download_client.rename(OsString::from(name));
+    download_client.set_file_name(OsString::from(name));
 
     let path_buf: PathBuf = download_client.send().unwrap();
 

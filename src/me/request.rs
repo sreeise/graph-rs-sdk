@@ -1,6 +1,6 @@
 // GENERATED CODE
 
-use crate::activities::ActivitiesRequest;
+use crate::activities::{ActivitiesIdRequest, ActivitiesRequest};
 use crate::calendar::{CalendarRequest, CalendarsRequest};
 use crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest};
 use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
@@ -753,6 +753,14 @@ where
             .extend_path(&[self.client.ident().as_ref()]);
         self.client.set_ident(ResourceIdentity::Activities);
         ActivitiesRequest::new(self.client)
+    }
+
+    pub fn activity<ID: AsRef<str>>(&self, id: ID) -> ActivitiesIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Activities);
+        ActivitiesIdRequest::new(id.as_ref(), self.client)
     }
 
     pub fn calendars(&self) -> CalendarRequest<'a, Client> {

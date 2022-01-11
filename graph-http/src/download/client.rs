@@ -1,16 +1,17 @@
-use super::{AsyncDownloadError, BlockingDownloadError};
 use crate::async_client::AsyncClient;
 use crate::blocking_client::BlockingClient;
 use crate::iotools;
 use crate::url::GraphUrl;
 use crate::{HttpClient, RequestClient, RequestType};
+use graph_error::download::{AsyncDownloadError, BlockingDownloadError};
 use graph_error::{WithGraphError, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
-use reqwest::Method;
 use std::cell::RefCell;
 use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
+
+// BlockingDownload
 
 pub struct DownloadRequest {
     path: PathBuf,
@@ -58,14 +59,18 @@ impl<Client, Request> DownloadClient<Client, Request> {
                 if let Some(value) = v.iter().find(|s| s.starts_with("filename*=utf-8''")) {
                     let s = value.replace("filename*=utf-8''", "");
                     if let Ok(s) = percent_encoding::percent_decode(s.as_bytes()).decode_utf8() {
-                        return Some(OsString::from(s.to_string()));
+                        return Some(OsString::from(s.to_string().replace("/", "-")));
                     }
                 }
 
                 if let Some(value) = v.last() {
-                    if value.starts_with("filename=") {
+                    if value.trim_start().starts_with("filename=") {
                         return Some(OsString::from(
-                            value.replace("\"", "").replace("filename=", ""),
+                            value
+                                .replace("\"", "")
+                                .replace("filename=", "")
+                                .replace("/", "-")
+                                .trim(),
                         ));
                     }
                 }
@@ -102,7 +107,7 @@ impl BlockingDownload {
         self.request.borrow().overwrite_existing_file
     }
 
-    pub fn rename(&self, value: OsString) -> &Self {
+    pub fn set_file_name(&self, value: OsString) -> &Self {
         self.request.borrow_mut().file_name = Some(value);
         self
     }
@@ -152,15 +157,6 @@ impl BlockingDownload {
             return Err(BlockingDownloadError::TargetDoesNotExist(
                 request.path.to_string_lossy().to_string(),
             ));
-        }
-
-        if self.client.request_type() == RequestType::Redirect {
-            let response = self.client.build().send()?.with_graph_error()?;
-            let mut client = self.client.client.borrow_mut();
-            client.headers.clear();
-            client.method = Method::GET;
-            client.req_type = RequestType::Basic;
-            client.url = GraphUrl::from(response.url().clone());
         }
 
         let response = self.client.build().send()?.with_graph_error()?;
@@ -221,7 +217,7 @@ impl AsyncDownload {
         self.request.lock().await.overwrite_existing_file
     }
 
-    pub async fn rename(&self, value: OsString) -> &Self {
+    pub async fn set_file_name(&self, value: OsString) -> &Self {
         self.request.lock().await.file_name = Some(value);
         self
     }
@@ -275,23 +271,6 @@ impl AsyncDownload {
             ));
         }
 
-        if self.client.request_type() == RequestType::Redirect {
-            let response = self
-                .client
-                .build()
-                .await
-                .send()
-                .await?
-                .with_graph_error()
-                .await?;
-
-            let mut client = self.client.client.lock().await;
-            (*client).headers.clear();
-            (*client).method = Method::GET;
-            (*client).req_type = RequestType::Basic;
-            (*client).url = GraphUrl::from(response.url().clone());
-        }
-
         let response = self
             .client
             .build()
@@ -320,7 +299,7 @@ impl AsyncDownload {
             path.with_extension(ext.as_str());
         }
 
-        if path.exists() && !self.is_overwrite_existing_file().await {
+        if path.exists() && !request.overwrite_existing_file {
             return Err(AsyncDownloadError::FileExists(
                 path.to_string_lossy().to_string(),
             ));

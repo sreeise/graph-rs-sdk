@@ -1,6 +1,5 @@
-use crate::activities::ActivitiesRequest;
 use crate::app_catalogs::AppCatalogsRequest;
-use crate::applications::{ApplicationRequest, ApplicationsRequest};
+use crate::applications::{ApplicationsIdRequest, ApplicationsRequest};
 use crate::audit_logs::AuditLogsRequest;
 use crate::certificate_based_auth_configuration::CertificateBasedAuthConfigurationRequest;
 use crate::communications::CommunicationsRequest;
@@ -22,6 +21,7 @@ use crate::org_contact::{OrgContactRequest, OrgContactsRequest};
 use crate::places::PlacesRequest;
 use crate::planner::PlannerRequest;
 use crate::policies::PoliciesRequest;
+use crate::reports::ReportsRequest;
 use crate::schema_extensions::SchemaExtensionsRequest;
 use crate::service_principals::ServicePrincipalsRequest;
 use crate::sites::{SiteRequest, SitesRequest};
@@ -281,24 +281,19 @@ impl<'a, Client> Identify<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Activities);
-        ActivitiesRequest::new(self.client)
-    }
-
     pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::AppCatalogs);
         AppCatalogsRequest::new(self.client)
     }
 
-    pub fn application<S: AsRef<str>>(&self, id: S) -> ApplicationsRequest<'a, Client> {
+    pub fn application<S: AsRef<str>>(&self, id: S) -> ApplicationsIdRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Applications);
-        ApplicationsRequest::new(id.as_ref(), self.client)
+        ApplicationsIdRequest::new(id.as_ref(), self.client)
     }
 
-    pub fn applications(&self) -> ApplicationRequest<'a, Client> {
+    pub fn applications(&self) -> ApplicationsRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Applications);
-        ApplicationRequest::new(self.client)
+        ApplicationsRequest::new(self.client)
     }
 
     pub fn audit_logs(&self) -> AuditLogsRequest<'a, Client> {
@@ -432,6 +427,11 @@ where
     pub fn policies(&self) -> PoliciesRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Policies);
         PoliciesRequest::new(self.client)
+    }
+
+    pub fn reports(&self) -> ReportsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Reports);
+        ReportsRequest::new(self.client)
     }
 
     pub fn schema_extensions(&self) -> SchemaExtensionsRequest<'a, Client> {

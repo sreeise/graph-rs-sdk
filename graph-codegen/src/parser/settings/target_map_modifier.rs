@@ -1,4 +1,4 @@
-use crate::parser::filter::{MatchTarget, ModifierMap};
+use crate::parser::filter::{FilterModify, MatchTarget, ModifierMap, ModifyOption};
 use graph_core::resource::ResourceIdentity;
 
 pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierMap {
@@ -69,38 +69,91 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
         }
         ResourceIdentity::Buckets => {
             modify_target.map.insert(
-                MatchTarget::OperationId("planner.GetBuckets".to_string()),
+                MatchTarget::OperationMap("planner.buckets".to_string()),
+                vec![MatchTarget::OperationMap("buckets".to_string())],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("planner.buckets.GetBuckets".to_string()),
                 vec![
-                    MatchTarget::OperationMap("planner.buckets".to_string()),
-                    MatchTarget::OperationId("planner.buckets.GetBuckets".to_string()),
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.GetBuckets".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("planner.CreateBuckets".to_string()),
+                vec![
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.CreateBuckets".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("planner.buckets.UpdateBuckets".to_string()),
+                vec![
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.UpdateBuckets".to_string()),
                 ],
             );
             modify_target.map.insert(
                 MatchTarget::OperationId("planner.UpdateBuckets".to_string()),
                 vec![
-                    MatchTarget::OperationMap("planner.buckets".to_string()),
-                    MatchTarget::OperationId("planner.buckets.UpdateBuckets".to_string()),
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.UpdateBuckets".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("planner.buckets.ListBuckets".to_string()),
+                vec![
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.ListBuckets".to_string()),
                 ],
             );
             modify_target.map.insert(
                 MatchTarget::OperationId("planner.ListBuckets".to_string()),
                 vec![
-                    MatchTarget::OperationMap("planner.buckets".to_string()),
-                    MatchTarget::OperationId("planner.buckets.ListBuckets".to_string()),
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.ListBuckets".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("planner.DeleteBuckets".to_string()),
+                vec![
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.DeleteBuckets".to_string()),
                 ],
             );
             modify_target.map.insert(
                 MatchTarget::OperationId("planner.plans.GetBuckets".to_string()),
                 vec![
-                    MatchTarget::OperationMap("planner.buckets".to_string()),
-                    MatchTarget::OperationId("planner.buckets.GetBuckets".to_string()),
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.GetBuckets".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("planner.GetBuckets".to_string()),
+                vec![
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.GetBuckets".to_string()),
                 ],
             );
             modify_target.map.insert(
                 MatchTarget::OperationId("planner.plans.ListBuckets".to_string()),
                 vec![
-                    MatchTarget::OperationMap("planner.buckets".to_string()),
-                    MatchTarget::OperationId("planner.buckets.ListBuckets".to_string()),
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.ListBuckets".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("planner.buckets.CreateTasks".to_string()),
+                vec![
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.CreateTasks".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("planner.buckets.ListTasks".to_string()),
+                vec![
+                    MatchTarget::OperationMap("buckets".to_string()),
+                    MatchTarget::OperationId("buckets.ListTasks".to_string()),
                 ],
             );
         }
@@ -1089,6 +1142,22 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 vec![
                     MatchTarget::OperationMap("planner.plans".to_string()),
                     MatchTarget::OperationId("planner.plans.UpdatePlans".to_string()),
+                ],
+            );
+        }
+        ResourceIdentity::Reports => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("reports.reportRoot.GetReportRoot".to_string()),
+                vec![
+                    MatchTarget::OperationMap("reports".to_string()),
+                    MatchTarget::OperationId("reports.GetReportRoot".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("reports.reportRoot.UpdateReportRoot".to_string()),
+                vec![
+                    MatchTarget::OperationMap("reports".to_string()),
+                    MatchTarget::OperationId("reports.UpdateReportRoot".to_string()),
                 ],
             );
         }

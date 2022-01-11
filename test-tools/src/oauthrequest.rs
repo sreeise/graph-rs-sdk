@@ -256,13 +256,13 @@ impl OAuthTestClient {
 
     pub async fn graph_by_rid_async(
         resource_identity: ResourceIdentity,
-    ) -> Option<(String, Graph<BlockingHttpClient>)> {
+    ) -> Option<(String, Graph<AsyncHttpClient>)> {
         let mut app_registration = OAuthTestClient::get_app_registration()?;
         let client = app_registration.get_by(resource_identity)?;
         let (test_client, credentials) = client.default_client()?;
 
         if let Some((id, token)) = test_client.get_access_token_async(credentials).await {
-            Some((id, Graph::new(token.bearer_token())))
+            Some((id, Graph::new_async(token.bearer_token())))
         } else {
             None
         }

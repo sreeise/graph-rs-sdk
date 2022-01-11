@@ -1,6 +1,6 @@
 // GENERATED CODE
 
-use crate::attachments::{AttachmentRequest, AttachmentsRequest};
+use crate::attachments::{AttachmentsIdRequest, AttachmentsRequest};
 use crate::calendar::CalendarRequest;
 use crate::client::Graph;
 use crate::core::ResourceIdentity;
@@ -192,19 +192,19 @@ where
         has_body: true
     });
 
-    pub fn attachments(&self) -> AttachmentRequest<'a, Client> {
+    pub fn attachments(&self) -> AttachmentsRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        AttachmentRequest::new(self.client)
+        AttachmentsRequest::new(self.client)
     }
 
-    pub fn attachment<ID: AsRef<str>>(&self, id: ID) -> AttachmentsRequest<'a, Client> {
+    pub fn attachment<ID: AsRef<str>>(&self, id: ID) -> AttachmentsIdRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
         self.client.set_ident(ResourceIdentity::Attachments);
-        AttachmentsRequest::new(id.as_ref(), self.client)
+        AttachmentsIdRequest::new(id.as_ref(), self.client)
     }
 
     pub fn calendar(&self) -> CalendarRequest<'a, Client> {

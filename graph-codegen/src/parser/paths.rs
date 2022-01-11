@@ -1,13 +1,17 @@
-use crate::parser::filter::*;
-use crate::parser::{HttpMethod, Modifier, Request, RequestType, ResponseType};
-use crate::traits::{RequestParser, RequestParserBuilder};
+use crate::{
+    parser::{filter::*, HttpMethod, Modifier, Request, RequestType, ResponseType},
+    traits::{RequestParser, RequestParserBuilder},
+};
 use from_as::*;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use regex::Regex;
 use reqwest::Url;
-use std::collections::{BTreeMap, HashSet, VecDeque};
-use std::convert::TryFrom;
-use std::io::{Read, Write};
+use std::collections::HashMap;
+use std::{
+    collections::{BTreeMap, HashSet, VecDeque},
+    convert::TryFrom,
+    io::{Read, Write},
+};
 
 pub trait IsInPath {
     fn retain_is_in_path(&mut self);
@@ -189,14 +193,18 @@ impl RequestParser for Operation {
     fn links(&self) -> HashSet<String> {
         self.operation_mapping().links()
     }
+
+    fn struct_links(&self) -> HashMap<String, Vec<String>> {
+        self.operation_mapping().struct_links()
+    }
 }
 
 impl RequestParserBuilder for Operation {
     /// The build method is where each individual request
     /// is parsed.
-    fn build(&self, path: &str, modifier: &Modifier, http_method: HttpMethod) -> Request {
+    fn build(&self, path: String, modifier: &Modifier, http_method: HttpMethod) -> Request {
         let mut request = Request {
-            path: path.to_string(),
+            path,
             operation_id: self.operation_id.to_string(),
             operation_mapping: self.operation_id.operation_mapping(),
             method_name: self.method_name(),
@@ -309,11 +317,9 @@ impl Path {
         operation: Option<&Operation>,
         http_method: HttpMethod,
     ) -> Option<Request> {
-        if let Some(operation) = operation.as_ref() {
-            Some(operation.build(path, &modifier, http_method))
-        } else {
-            None
-        }
+        operation
+            .as_ref()
+            .map(|operation| operation.build(path.to_string(), &modifier, http_method))
     }
 }
 
@@ -415,13 +421,13 @@ impl From<BTreeMap<String, Path>> for PathMap {
 }
 
 impl PathMap {
-    pub fn filter(&self, filter: Filter<'_>) -> BTreeMap<String, Path> {
+    pub fn filter(&self, filter: Filter) -> BTreeMap<String, Path> {
         match filter {
             Filter::PathStartsWith(filter) => self
                 .paths
                 .clone()
                 .into_par_iter()
-                .filter(|(path, _path_spec)| path.starts_with(filter))
+                .filter(|(path, _path_spec)| path.starts_with(filter.as_str()))
                 .collect(),
             Filter::PathStartsWithMulti(vec) => self
                 .paths
@@ -434,16 +440,16 @@ impl PathMap {
                 .paths
                 .clone()
                 .into_par_iter()
-                .filter(|(path, _path_spec)| path.eq(filter))
+                .filter(|(path, _path_spec)| path.eq(filter.as_str()))
                 .collect(),
             Filter::PathContains(filter) => self
                 .paths
                 .clone()
                 .into_par_iter()
-                .filter(|(path, _path_spec)| path.contains(filter))
+                .filter(|(path, _path_spec)| path.contains(filter.as_str()))
                 .collect(),
             Filter::Regex(s) => {
-                let regex = Regex::new(s).unwrap();
+                let regex = Regex::new(s.as_str()).unwrap();
                 self.paths
                     .clone()
                     .into_iter()
@@ -455,13 +461,13 @@ impl PathMap {
                     .paths
                     .clone()
                     .into_par_iter()
-                    .filter(|(path, _path_spec)| !path.contains(s))
+                    .filter(|(path, _path_spec)| !path.contains(s.as_str()))
                     .collect(),
                 FilterIgnore::PathStartsWith(s) => self
                     .paths
                     .clone()
                     .into_par_iter()
-                    .filter(|(path, _path_spec)| !path.starts_with(s))
+                    .filter(|(path, _path_spec)| !path.starts_with(s.as_str()))
                     .collect(),
                 FilterIgnore::PathContainsMulti(vec) => {
                     let mut paths = self.paths.clone();
@@ -477,7 +483,7 @@ impl PathMap {
                     .paths
                     .clone()
                     .into_par_iter()
-                    .filter(|(path, _path_spec)| !path.eq(s))
+                    .filter(|(path, _path_spec)| !path.eq(s.as_str()))
                     .collect(),
             },
             Filter::MultiFilter(vec) => {

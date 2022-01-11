@@ -1,7 +1,10 @@
+use crate::parser::error::ParseError;
 use crate::parser::{HttpMethod, Modifier, Request};
+use crate::traits::HashMapExt;
 use inflector::Inflector;
-use regex::Regex;
-use std::collections::{HashSet, VecDeque};
+use regex::{Regex, RegexSet};
+use std::collections::{HashMap, HashSet, VecDeque};
+use std::str::FromStr;
 
 lazy_static! {
     /// Matches any number. Some of the graph request data has
@@ -16,17 +19,42 @@ lazy_static! {
     static ref PATH_ID_REG: Regex = Regex::new(r"(\(\{)(\w+)(}\))").unwrap();
 
     /// Matches named ids such as {group-id}.
-    static ref PATH_ID_NAMED_REG: Regex = Regex::new(r"(\{)(\w+-\w+)(})").unwrap();
+    pub static ref PATH_ID_NAMED_REG: Regex = Regex::new(r"(\{)(\w+-\w+)(})").unwrap();
 
     pub static ref INTERNAL_PATH_ID: Regex = Regex::new(r"(\{\{)(\w+)(}})").unwrap();
 
     pub static ref KEY_VALUE_PAIR: Regex = Regex::new(r"(\w+)(=\{)(\w+)(})").unwrap();
 
     pub static ref KEY_VALUE_PAIR_RAW_QUOTED: Regex = Regex::new(r#"(\w+)(='\{)(\w+)(}')"#).unwrap();
+
+    pub static ref PATH_REGEX_SET: Regex = Regex::new(
+        r#"(?P<PATH_ID>\{)(\w+-\w+)(})|(?P<PATH_ID_NAMED>\{\{)(\w+)(}})|(?P<KEY_VALUE_PAIR>\w+)(=\{)(\w+)(})|(?P<KEY_VALUE_PAIR_QUOTED>\w+)(='\{)(\w+)(}')"#
+    ).unwrap();
+}
+
+pub enum PathMatcher {
+    PathId,
+    PathIdNamed,
+    KeyValuePair,
+    KeyValuePairQuoted,
+}
+
+impl FromStr for PathMatcher {
+    type Err = ParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "PATH_ID" => Ok(PathMatcher::PathId),
+            "PATH_ID_NAMED" => Ok(PathMatcher::PathIdNamed),
+            "KEY_VALUE_PAIR" => Ok(PathMatcher::KeyValuePair),
+            "KEY_VALUE_PAIR_QUOTED" => Ok(PathMatcher::KeyValuePairQuoted),
+            _ => Err(ParseError::Path),
+        }
+    }
 }
 
 pub trait RequestParserBuilder<RHS: ?Sized = Self> {
-    fn build(&self, path: &str, modifier: &Modifier, http_method: HttpMethod) -> Request;
+    fn build(&self, path: String, modifier: &Modifier, http_method: HttpMethod) -> Request;
 }
 
 pub trait RequestParser<RHS = Self> {
@@ -36,6 +64,7 @@ pub trait RequestParser<RHS = Self> {
     fn links(&self) -> HashSet<String> {
         Default::default()
     }
+    fn struct_links(&self) -> HashMap<String, Vec<String>>;
 }
 
 pub trait Modify<T> {
@@ -121,52 +150,79 @@ impl RequestParser for &str {
             }
         };
 
-        // Replaces ids in paths attached to the resource name such as groups({id})
         let mut count = 1;
-        for cap in PATH_ID_REG.captures_iter(path_clone.as_str()) {
-            let s = cap[0].to_string();
-            if count == 1 {
-                path = path.replacen(s.as_str(), "/{{id}}", 1);
-            } else {
-                path = path.replacen(s.as_str(), &format!("/{{{{id{}}}}}", count), 1);
+        let capture_names: Vec<&str> = PATH_REGEX_SET.capture_names().flatten().collect();
+
+        for capture in PATH_REGEX_SET.captures_iter(path_clone.as_str()) {
+            let s = capture[0].to_string();
+            let mut found_match = false;
+
+            for name in capture_names.iter() {
+                if capture.name(name).is_some() {
+                    if let Some(path_matcher) = PathMatcher::from_str(name).ok() {
+                        if !s.contains("RID") {
+                            match path_matcher {
+                                PathMatcher::PathId => {
+                                    if count == 1 {
+                                        path = path.replacen(s.as_str(), "{{id}}", 1);
+                                    } else {
+                                        path = path.replacen(
+                                            s.as_str(),
+                                            &format!("{{{{id{}}}}}", count),
+                                            1,
+                                        );
+                                    }
+                                    found_match = true;
+                                    break;
+                                }
+                                PathMatcher::PathIdNamed => {
+                                    path = replace_ids(count, s.as_str(), &mut path);
+                                    found_match = true;
+                                    break;
+                                }
+                                PathMatcher::KeyValuePair => {
+                                    if let Some(i) = s.find('=') {
+                                        if let Some(i) = s.find('=') {
+                                            path = replace_ids(count, &s[i + 1..], &mut path);
+                                            found_match = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                PathMatcher::KeyValuePairQuoted => {
+                                    if let Some(i) = s.find('=') {
+                                        if let Some(i) = s.find('=') {
+                                            if count == 1 {
+                                                path = path.replacen(&s[i + 1..], "'{{id}}'", 1);
+                                            } else {
+                                                path = path.replacen(
+                                                    &s[i + 1..],
+                                                    &format!("'{{{{id{}}}}}'", count),
+                                                    1,
+                                                );
+                                            }
+                                            found_match = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if found_match {
+                    break;
+                }
             }
-            count += 1;
-        }
 
-        // Replaces named ids such as {group-id}.
-        let mut count = 1;
-        for cap in PATH_ID_NAMED_REG.captures_iter(path_clone.as_str()) {
-            let s = cap[0].to_string();
-            path = replace_ids(count, s.as_str(), &mut path);
-            count += 1;
-        }
-
-        // Replaces key-value pairs such as getActivitiesByInterval(interval={interval})
-        for cap in KEY_VALUE_PAIR.captures_iter(path_clone.as_str()) {
-            let s = cap[0].to_string();
-            if let Some(i) = s.find('=') {
-                path = replace_ids(count, &s[i + 1..], &mut path);
+            if found_match {
+                found_match = false;
+                count += 1;
             }
-            count += 1;
         }
 
-        // Replaces key-value pairs such as getActivitiesByInterval(interval=\'{interval}\')
-        for cap in KEY_VALUE_PAIR_RAW_QUOTED.captures_iter(path_clone.as_str()) {
-            let s = cap[0].to_string();
-            if let Some(i) = s.find('=') {
-                path = replace_ids(count, &s[i + 1..], &mut path);
-            }
-            count += 1;
-        }
-
-        // Some of the paths end with a name that starts with microsoft.graph
-        // such as microsoft.graph.delta. We remove that part of the path in
-        // case of issues when performing the actual request.
-        if path.contains("microsoft.graph.") {
-            path.replace("microsoft.graph.", "").replace("()", "")
-        } else {
-            path
-        }
+        path
     }
 
     fn links(&self) -> HashSet<String> {
@@ -189,6 +245,47 @@ impl RequestParser for &str {
 
         links
     }
+
+    /// Creates a hash map of each struct and the client structs
+    /// it links too.
+    ///
+    /// # Example
+    ///
+    /// Say we have the following operation id's or operation mappings:
+    ///     groups.calendar.calendarView
+    ///     groups.calendarView
+    ///     groups.drive
+    ///
+    /// {
+    ///     "groups": [
+    ///         "calendar",
+    ///         "calendarView",
+    ///         "drive"
+    ///     ],
+    ///     "calendar": [
+    ///         "calendarView"
+    ///     ]
+    /// }
+    fn struct_links(&self) -> HashMap<String, Vec<String>> {
+        let links = self.links();
+        let mut map: HashMap<String, Vec<String>> = HashMap::new();
+        let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
+        vec.sort_unstable();
+
+        for link in vec.iter() {
+            if link.contains('.') {
+                let mut vec: VecDeque<&str> = link.split('.').collect();
+                vec.retain(|l| !l.is_empty());
+                let first = vec.pop_front().unwrap();
+                let last = vec.pop_front().unwrap();
+                map.entry_modify_insert(first.to_pascal_case(), last.to_pascal_case());
+            } else {
+                map.insert(link.to_pascal_case(), vec![]);
+            }
+        }
+
+        map
+    }
 }
 
 impl RequestParser for String {
@@ -206,5 +303,9 @@ impl RequestParser for String {
 
     fn links(&self) -> HashSet<String> {
         self.as_str().links()
+    }
+
+    fn struct_links(&self) -> HashMap<String, Vec<String>> {
+        self.as_str().struct_links()
     }
 }

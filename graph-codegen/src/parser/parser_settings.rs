@@ -1,11 +1,17 @@
-use crate::builder::ClientLinkSettings;
-use crate::parser::filter::ResourceIdentityModifier;
-use crate::parser::filter::{Filter, FilterIgnore, ModifierMap, SecondaryModifierMap};
-use crate::parser::settings::{
-    get_client_link_settings, get_custom_requests, get_imports, get_path_filters,
-    get_target_map_modifier,
+use crate::parser::settings::get_doc_comment_replace_filter;
+use crate::{
+    builder::ClientLinkSettings,
+    parser::{
+        filter::{
+            Filter, FilterIgnore, ModifierMap, ResourceIdentityModifier, SecondaryModifierMap,
+        },
+        settings::{
+            get_client_link_settings, get_custom_requests, get_imports, get_path_filters,
+            get_target_map_modifier,
+        },
+        DirectoryModFile, RequestSet,
+    },
 };
-use crate::parser::{DirectoryModFile, RequestSet};
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
@@ -14,11 +20,7 @@ pub struct ParserSettings;
 impl ParserSettings {
     /// Imports that won't be added from parsing and need to be manually added.
     pub fn imports(resource_identity: ResourceIdentity) -> BTreeSet<String> {
-        let mut vec: Vec<&'static str> = vec![
-            "crate::client::Graph",
-            "graph_http::IntoResponse",
-            "reqwest::Method",
-        ];
+        let mut vec: Vec<&'static str> = Vec::new();
         vec.extend(get_imports(resource_identity));
         vec.sort_unstable();
         let mut set: BTreeSet<String> = BTreeSet::new();
@@ -26,19 +28,20 @@ impl ParserSettings {
         set
     }
 
-    pub fn default_path_filters() -> Vec<Filter<'static>> {
+    pub fn default_path_filters() -> Vec<Filter> {
         vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(vec![
-            "singleValueExtendedProperties",
-            "multiValueExtendedProperties",
+            "singleValueExtendedProperties".into(),
+            "multiValueExtendedProperties".into(),
         ]))]
     }
 
     // Filters for clients when the parsing and generation happens. Some clients,
     // such as Users and Groups use the same path for resources like calendars, and
-    // so we generate a separate module for calendars. In cases like these, Users and
-    // Groups will use the same calendar module. This cuts down on the size of the crate
-    // and makes it easier to generate clients that use the same resources.
-    pub fn path_filters(resource_identity: ResourceIdentity) -> Vec<Filter<'static>> {
+    // so we generate a separate module for calendars. In cases like these, Users
+    // and Groups will use the same calendar module. This cuts down on the size
+    // of the crate and makes it easier to generate clients that use the same
+    // resources.
+    pub fn path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
         get_path_filters(resource_identity)
     }
 
@@ -262,12 +265,14 @@ impl ParserSettings {
         matches!(
             resource_identity,
             ResourceIdentity::Applications
+                | ResourceIdentity::Attachments
                 | ResourceIdentity::Drive
                 | ResourceIdentity::Drives
                 | ResourceIdentity::Calendars
                 | ResourceIdentity::CalendarGroups
                 | ResourceIdentity::CalendarView
                 | ResourceIdentity::CallRecords
+                | ResourceIdentity::Calls
         )
     }
 
@@ -287,7 +292,6 @@ impl ParserSettings {
 
     pub fn links_override(resource_identity: ResourceIdentity) -> HashMap<String, Vec<String>> {
         let mut links_override = HashMap::new();
-
         if resource_identity == ResourceIdentity::Directory {
             links_override.insert(
                 "directory".to_string(),
@@ -303,5 +307,9 @@ impl ParserSettings {
         }
 
         links_override
+    }
+
+    pub fn doc_comment_filters(resource_identity: ResourceIdentity) -> Vec<String> {
+        get_doc_comment_replace_filter(resource_identity)
     }
 }
