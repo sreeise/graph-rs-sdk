@@ -1,4 +1,4 @@
-use crate::parser::filter::{FilterModify, MatchTarget, ModifierMap, ModifyOption};
+use crate::parser::filter::{MatchTarget, ModifierMap};
 use graph_core::resource::ResourceIdentity;
 
 pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierMap {

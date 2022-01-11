@@ -1,14 +1,13 @@
 use crate::api_types::{Metadata, MetadataModifier, RequestClientList, RequestTask};
 use crate::inflector::Inflector;
-use crate::macros::{MacroFormatter, MacroImplWriter, MacroQueueWriter};
-use crate::parser::filter::{Filter, MatchTarget, ModifierMap};
+use crate::macros::{MacroImplWriter, MacroQueueWriter};
+use crate::parser::filter::{Filter, ModifierMap};
 use crate::parser::{HttpMethod, ParserSettings};
 use crate::traits::{FilterMetadata, HashMapExt, RequestParser, INTERNAL_PATH_ID};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::convert::TryFrom;
-use std::fs::metadata;
 use std::io::{Read, Write};
 use std::str::FromStr;
 
@@ -339,7 +338,7 @@ impl PathMetadata {
     ///     ]
     /// }
     pub fn struct_links(&mut self) -> HashMap<String, Vec<String>> {
-        let mut links = self.links();
+        let links = self.links();
 
         println!("links btreeset: {:#?}", links);
 
@@ -413,11 +412,6 @@ impl MacroQueueWriter for PathMetadata {
             .map(|s| s.to_string())
             .collect()
     }
-}
-
-pub struct PathMetadataHash {
-    name: String,
-    id_method_impl: bool,
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]

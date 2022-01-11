@@ -5,13 +5,11 @@ use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::inflector::Inflector;
 use crate::openapi::OpenApi;
 use crate::parser::client_resource::ResourceParsingInfo;
-use crate::parser::filter::MatchTarget;
 use crate::parser::ParserSettings;
-use crate::traits::{FilterMetadata, RequestParser};
 use bytes::{BufMut, BytesMut};
 use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::create_dir;
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::fmt::Debug;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
@@ -262,7 +260,7 @@ pub trait MacroImplWriter {
     /// multiple secondary resources.
     // TODO
     fn write_impl(&self, src_dir: &str) {
-        let mut path_metadata_map = self.path_metadata_map();
+        let path_metadata_map = self.path_metadata_map();
         //println!("{:#?}", path_metadata_map);
 
         let mut buf = BytesMut::new();
@@ -378,7 +376,7 @@ pub trait MacroImplWriter {
 pub trait OpenApiParser {
     fn write(resource_parsing_info: ResourceParsingInfo) {
         let open_api = OpenApi::default();
-        let mut requests = open_api.requests();
+        let requests = open_api.requests();
 
         let name = {
             if let Some(name) = resource_parsing_info.modifier_name.as_ref() {
@@ -388,7 +386,7 @@ pub trait OpenApiParser {
             }
         };
 
-        let mut metadata: VecDeque<PathMetadata> = requests
+        let metadata: VecDeque<PathMetadata> = requests
             .iter()
             .filter(|r| r.path_starts_with(&resource_parsing_info.path))
             .cloned()

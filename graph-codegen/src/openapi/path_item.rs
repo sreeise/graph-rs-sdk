@@ -1,4 +1,4 @@
-use crate::api_types::{PathMetadata, RequestMetadata};
+use crate::api_types::PathMetadata;
 use crate::openapi::{EitherT, Operation, Parameter, Reference, Server};
 use crate::parser::HttpMethod;
 use from_as::*;

@@ -23,5 +23,5 @@ thiserror = "1"
 tokio = { version = "1", features = ["full"] }
 url = { version = "2", features = ["serde"] }
 
-graph-error = { version = "0.1.1"  }
-graph-core = { version = "0.1.1" }
+graph-error = { path = "../graph-error"  }
+graph-core = { path = "../graph-core" }
