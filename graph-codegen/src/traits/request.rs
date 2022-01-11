@@ -160,48 +160,50 @@ impl RequestParser for &str {
             for name in capture_names.iter() {
                 if capture.name(name).is_some() {
                     if let Some(path_matcher) = PathMatcher::from_str(name).ok() {
-                        match path_matcher {
-                            PathMatcher::PathId => {
-                                if count == 1 {
-                                    path = path.replacen(s.as_str(), "{{id}}", 1);
-                                } else {
-                                    path = path.replacen(
-                                        s.as_str(),
-                                        &format!("{{{{id{}}}}}", count),
-                                        1,
-                                    );
+                        if !s.contains("RID") {
+                            match path_matcher {
+                                PathMatcher::PathId => {
+                                    if count == 1 {
+                                        path = path.replacen(s.as_str(), "{{id}}", 1);
+                                    } else {
+                                        path = path.replacen(
+                                            s.as_str(),
+                                            &format!("{{{{id{}}}}}", count),
+                                            1,
+                                        );
+                                    }
+                                    found_match = true;
+                                    break;
                                 }
-                                found_match = true;
-                                break;
-                            }
-                            PathMatcher::PathIdNamed => {
-                                path = replace_ids(count, s.as_str(), &mut path);
-                                found_match = true;
-                                break;
-                            }
-                            PathMatcher::KeyValuePair => {
-                                if let Some(i) = s.find('=') {
+                                PathMatcher::PathIdNamed => {
+                                    path = replace_ids(count, s.as_str(), &mut path);
+                                    found_match = true;
+                                    break;
+                                }
+                                PathMatcher::KeyValuePair => {
                                     if let Some(i) = s.find('=') {
-                                        path = replace_ids(count, &s[i + 1..], &mut path);
-                                        found_match = true;
-                                        break;
+                                        if let Some(i) = s.find('=') {
+                                            path = replace_ids(count, &s[i + 1..], &mut path);
+                                            found_match = true;
+                                            break;
+                                        }
                                     }
                                 }
-                            }
-                            PathMatcher::KeyValuePairQuoted => {
-                                if let Some(i) = s.find('=') {
+                                PathMatcher::KeyValuePairQuoted => {
                                     if let Some(i) = s.find('=') {
-                                        if count == 1 {
-                                            path = path.replacen(&s[i + 1..], "'{{id}}'", 1);
-                                        } else {
-                                            path = path.replacen(
-                                                &s[i + 1..],
-                                                &format!("'{{{{id{}}}}}'", count),
-                                                1,
-                                            );
+                                        if let Some(i) = s.find('=') {
+                                            if count == 1 {
+                                                path = path.replacen(&s[i + 1..], "'{{id}}'", 1);
+                                            } else {
+                                                path = path.replacen(
+                                                    &s[i + 1..],
+                                                    &format!("'{{{{id{}}}}}'", count),
+                                                    1,
+                                                );
+                                            }
+                                            found_match = true;
+                                            break;
                                         }
-                                        found_match = true;
-                                        break;
                                     }
                                 }
                             }
