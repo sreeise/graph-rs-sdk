@@ -2,7 +2,7 @@ use crate::parser::error::ParseError;
 use crate::parser::{HttpMethod, Modifier, Request};
 use crate::traits::HashMapExt;
 use inflector::Inflector;
-use regex::{Regex, RegexSet};
+use regex::Regex;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::str::FromStr;
 
@@ -181,7 +181,7 @@ impl RequestParser for &str {
                                     break;
                                 }
                                 PathMatcher::KeyValuePair => {
-                                    if let Some(i) = s.find('=') {
+                                    if let Some(_i) = s.find('=') {
                                         if let Some(i) = s.find('=') {
                                             path = replace_ids(count, &s[i + 1..], &mut path);
                                             found_match = true;
@@ -190,7 +190,7 @@ impl RequestParser for &str {
                                     }
                                 }
                                 PathMatcher::KeyValuePairQuoted => {
-                                    if let Some(i) = s.find('=') {
+                                    if let Some(_i) = s.find('=') {
                                         if let Some(i) = s.find('=') {
                                             if count == 1 {
                                                 path = path.replacen(&s[i + 1..], "'{{id}}'", 1);

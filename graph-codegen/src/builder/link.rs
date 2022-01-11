@@ -1,4 +1,3 @@
-use bytes::Bytes;
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;

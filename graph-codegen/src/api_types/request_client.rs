@@ -1,7 +1,7 @@
 use crate::api_types::RequestMetadata;
 use crate::traits::RequestParser;
 use from_as::*;
-use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
 use std::convert::TryFrom;
 use std::io::{Read, Write};
 

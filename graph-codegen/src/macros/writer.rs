@@ -1,8 +1,5 @@
-use crate::api_types::{Metadata, RequestMetadata, RequestTask};
 use crate::parser::HttpMethod;
 use bytes::{BufMut, BytesMut};
-use graph_http::RequestAttribute::RequestType;
-use std::collections::{HashSet, VecDeque};
 
 /*
 TODO:

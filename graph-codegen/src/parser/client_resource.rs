@@ -17,11 +17,6 @@ pub struct ResourceParsingInfo {
     pub parent_resource_info: Option<ParentResourceInfo>,
 }
 
-pub struct ChildResource {
-    name: String,
-    trim_start: String,
-}
-
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum ClientResource {
     Main {
