@@ -138,6 +138,7 @@ impl RequestParser for &str {
         op_mapping
     }
 
+    #[allow(unused_assignments)]
     fn transform_path(&self) -> String {
         let mut path = self.to_string();
         let path_clone = path.clone();

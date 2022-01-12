@@ -299,11 +299,8 @@ impl AccessToken {
     /// let mut access_token = AccessToken::default();
     /// println!("{:#?}", access_token.refresh_token());
     /// ```
-    pub fn refresh_token(self) -> Option<String> {
-        match self.refresh_token {
-            Some(t) => Some(t),
-            None => None,
-        }
+    pub fn refresh_token(&self) -> Option<String> {
+        self.refresh_token.clone()
     }
 
     /// Get the id token.

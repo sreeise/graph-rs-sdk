@@ -270,8 +270,8 @@ impl WithGraphError for reqwest::blocking::Response {
             let headers = Some(GraphHeaders::from(&self));
             let error_message = self.json().unwrap_or_default();
             Err(GraphError {
-                code,
                 headers,
+                code,
                 error_message,
             })
         } else {
@@ -292,8 +292,8 @@ impl WithGraphErrorAsync for reqwest::Response {
             let headers = Some(GraphHeaders::from(&self));
             let error_message = self.json().await.unwrap_or_default();
             Err(GraphError {
-                code,
                 headers,
+                code,
                 error_message,
             })
         } else {

@@ -206,6 +206,7 @@ impl PathMetadata {
         self.path = self.path.trim_start_matches(path_start).to_string();
     }
 
+    #[allow(unused_assignments)]
     pub fn operation_id_start(&mut self, pat: &str) {
         let mut to = String::new();
         if pat.contains('.') {

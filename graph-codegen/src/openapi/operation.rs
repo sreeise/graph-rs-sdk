@@ -138,6 +138,7 @@ impl Operation {
         self.request_body.is_some()
     }
 
+    #[allow(unused_assignments)]
     pub fn request_metadata(&self, http_method: HttpMethod) -> RequestMetadata {
         let operation_mapping = self.operation_id.operation_mapping();
         let mut parent = String::new();

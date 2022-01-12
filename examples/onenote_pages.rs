@@ -1,4 +1,3 @@
-use graph_http::GraphResponse;
 use graph_rs_sdk::prelude::*;
 use std::ffi::OsString;
 use std::str::FromStr;
@@ -18,7 +17,10 @@ static DOWNLOAD_PATH: &str = "DOWNLOAD_PATH";
 // Include the file extension such as .html
 static FILE_NAME: &str = "FILE_NAME";
 
-fn main() {}
+fn main() {
+    get_page_html_content();
+    download_page_as_html();
+}
 
 fn get_page_html_content() {
     let client = Graph::new(ACCESS_TOKEN);
