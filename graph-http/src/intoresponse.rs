@@ -286,8 +286,8 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-
-        let response = self.client.response().await?;
+        let request = self.client.build().await;
+        let response = request.send().await?;
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
