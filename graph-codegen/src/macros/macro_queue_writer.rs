@@ -61,8 +61,7 @@ pub trait MacroQueueWriter {
         let metadata = self.request_metadata();
         metadata
             .iter()
-            .find(|m| m.request_task() == RequestTask::Download)
-            .is_some()
+            .any(|m| m.request_task() == RequestTask::Download)
     }
 
     fn write_download_macros(&self, is_async_download: bool) -> Option<String> {
@@ -326,7 +325,7 @@ pub trait MacroImplWriter {
             for path_metadata in path_metadata_queue.iter() {
                 let method_macros = path_metadata.write_method_macros();
                 buf.put(method_macros.as_bytes());
-                if has_downloads == false && path_metadata.has_download_methods() {
+                if !has_downloads && path_metadata.has_download_methods() {
                     has_downloads = true;
                 }
             }

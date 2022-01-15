@@ -302,7 +302,7 @@ impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
                 RequestAttribute::Method(method) => client.method = method,
                 RequestAttribute::Body(body) => client.body = Some(body),
                 RequestAttribute::BodyFile(path) => {
-                    let buffer = futures::executor::block_on(tokio::fs::read_to_string(path))?;
+                    let buffer = tokio::fs::read_to_string(path).await?;
                     client.body = Some(buffer.into());
                 }
                 RequestAttribute::Headers(headers) => client.headers = headers,

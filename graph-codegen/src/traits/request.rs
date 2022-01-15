@@ -138,6 +138,7 @@ impl RequestParser for &str {
         op_mapping
     }
 
+    #[allow(unused_assignments)]
     fn transform_path(&self) -> String {
         let mut path = self.to_string();
         let path_clone = path.clone();
@@ -159,7 +160,7 @@ impl RequestParser for &str {
 
             for name in capture_names.iter() {
                 if capture.name(name).is_some() {
-                    if let Some(path_matcher) = PathMatcher::from_str(name).ok() {
+                    if let Ok(path_matcher) = PathMatcher::from_str(name) {
                         if !s.contains("RID") {
                             match path_matcher {
                                 PathMatcher::PathId => {

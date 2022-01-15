@@ -1,5 +1,4 @@
 use graph_core::resource::ResourceIdentity;
-use graph_rs_sdk::prelude::*;
 use std::ffi::OsString;
 use std::path::Path;
 use test_tools::common::TestTools;

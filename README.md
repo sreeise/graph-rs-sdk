@@ -5,7 +5,7 @@
 
 ### Now available on stable Rust at [crates.io](https://crates.io/crates/graph-rs-sdk)
 
-    graph-rs-sdk = "0.1.0"
+    graph-rs-sdk = "0.1.3"
 
 0.1.0 and above use stable Rust. Anything before 0.1.0 uses nightly Rust.
 
@@ -111,7 +111,7 @@ pub struct DriveItem {
     // ... Any other fields
 }
         
-let response: DriveItem = client.v1()
+let response: GraphResponse<DriveItem> = client.v1()
     .me()
     .drive()
     .get_items("ITEM_ID")

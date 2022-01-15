@@ -70,8 +70,8 @@ impl OAuthTestTool {
 
         for query in parse.into_iter() {
             println!("{:#?}", &query);
-            assert_eq!(cow_cred.contains(&query), true);
-            assert_eq!(cow_cred_false.contains(&query), false);
+            assert!(cow_cred.contains(&query));
+            assert!(!cow_cred_false.contains(&query));
         }
     }
 
@@ -88,7 +88,7 @@ impl OAuthTestTool {
 
     pub fn oauth_contains_credentials(oauth: &mut OAuth, credentials: &[OAuthCredential]) {
         for oac in credentials.iter() {
-            assert_eq!(oauth.contains(*oac), true);
+            assert!(oauth.contains(*oac));
         }
     }
 

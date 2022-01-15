@@ -33,7 +33,6 @@ fn test_graph_failure(err: GraphFailure, expect: GraphError) {
         GraphFailure::HandlebarsTemplateRenderError(e) => {
             panic!("Expected GraphFailure::GraphError, got {}", e)
         }
-        _ => {}
     }
 }
 

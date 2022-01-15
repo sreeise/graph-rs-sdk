@@ -54,7 +54,7 @@ pub trait FilterPath {
         self.paths()
             .into_par_iter()
             .filter(|(path, _path_item)| path.contains(pat))
-            .map(|(path, path_item)| (path.clone(), path_item.clone()))
+            .map(|(path, path_item)| (path, path_item))
             .collect()
     }
 
