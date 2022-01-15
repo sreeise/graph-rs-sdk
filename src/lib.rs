@@ -121,14 +121,14 @@ pub mod client;
 pub mod activities;
 /// App catalogs request client.
 pub mod app_catalogs;
+/// Applications request client.
+pub mod applications;
+/// Attachments request client.
+pub mod attachments;
 /// Audit logs request client.
 pub mod audit_logs;
 /// Planner buckets request client.
 pub mod buckets;
-// Applications request client.
-pub mod applications;
-// Attachments request client.
-pub mod attachments;
 /// Calendar request client.
 pub mod calendar;
 /// Calendar groups client.
@@ -272,6 +272,11 @@ pub mod prelude {
 pub mod oauth {
     pub use graph_oauth::jwt;
     pub use graph_oauth::oauth::*;
+}
+
+/// Reexport of graph-http crate.
+pub mod http {
+    pub use graph_http::*;
 }
 
 /// Reexport of graph-error crate.

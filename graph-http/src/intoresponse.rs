@@ -286,6 +286,7 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
+
         let request = self.client.build().await;
         let response = request.send().await?;
         let headers = response.headers().clone();
@@ -300,7 +301,8 @@ impl<'a, T> IntoResponseAsync<'a, T> {
             return Err(self.error.unwrap_or_default());
         }
 
-        let response = self.client.response().await?;
+        let request = self.client.build().await;
+        let response = request.send().await?;
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
@@ -313,7 +315,8 @@ impl<'a, T> IntoResponseAsync<'a, T> {
             return Err(self.error.unwrap_or_default());
         }
 
-        let response = self.client.response().await?;
+        let request = self.client.build().await;
+        let response = request.send().await?;
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
@@ -335,7 +338,8 @@ where
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let response = self.client.response().await?;
+        let request = self.client.build().await;
+        let response = request.send().await?;
         AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
     }
 }
@@ -350,7 +354,9 @@ impl<'a> IntoResponseAsync<'a, NoContent> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let response = self.client.response().await?;
+
+        let request = self.client.build().await;
+        let response = request.send().await?;
         GraphResponse::<serde_json::Value>::async_from_no_content(response).await
     }
 }
