@@ -73,7 +73,7 @@ impl RequestMetadata {
     }
 
     pub fn transform_secondary_request(&mut self, operation_mapping: &str, original_parent: &str) {
-        self.operation_mapping = format!("{}", operation_mapping);
+        self.operation_mapping = operation_mapping.to_string();
         self.parent = original_parent.to_pascal_case();
         self.original_parent = original_parent.to_pascal_case();
         self.resource_identity = ResourceIdentity::from_str(&self.original_parent).ok();
@@ -106,7 +106,7 @@ impl Metadata for RequestMetadata {
     }
 
     fn http_method(&self) -> HttpMethod {
-        self.http_method.clone()
+        self.http_method
     }
 
     fn fn_name(&self) -> String {
@@ -184,8 +184,7 @@ impl PathMetadata {
     pub fn contains_operation_id_start(&self, operation_id_start: &str) -> bool {
         self.metadata
             .iter()
-            .find(|metadata| metadata.operation_id.starts_with(operation_id_start))
-            .is_some()
+            .any(|metadata| metadata.operation_id.starts_with(operation_id_start))
     }
 
     pub fn path_starts_with(&self, path: &str) -> bool {
@@ -238,17 +237,11 @@ impl PathMetadata {
     }
 
     pub fn format_named_path_parameters(&mut self) {
-        let mut counter = 0;
         let mut path = self.path.clone();
 
         for param in self.parameters.iter() {
             let param_snake_case = format!("{{{}}}", param.to_snake_case());
-            if counter == 0 {
-                path = path.replacen(param.as_str(), param_snake_case.as_str(), 1);
-            } else {
-                path = path.replacen(param.as_str(), param_snake_case.as_str(), 1);
-            }
-            counter += 1;
+            path = path.replacen(param.as_str(), param_snake_case.as_str(), 1);
         }
 
         self.path = path;
@@ -263,7 +256,7 @@ impl PathMetadata {
     pub fn transform_id_metadata(&mut self) {
         self.path = self.path.replacen("{{id}}", "{{RID}}", 1);
         let _ = self.parameters.pop_front();
-        self.param_size = self.param_size - 1;
+        self.param_size -= 1;
         for m in self.metadata.iter_mut() {
             m.transform_id_request();
         }

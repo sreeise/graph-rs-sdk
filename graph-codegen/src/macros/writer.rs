@@ -147,12 +147,10 @@ impl MacroFormatter {
             } else {
                 format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: {} }} )", has_body)
             }
+        } else if param_size > 0 {
+            format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, params: [{}], has_body: {} }} )", s, has_body)
         } else {
-            if param_size > 0 {
-                format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, params: [{}], has_body: {} }} )", s, has_body)
-            } else {
-                format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, has_body: {} }} )", has_body)
-            }
+            format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, has_body: {} }} )", has_body)
         }
     }
 
@@ -220,12 +218,10 @@ impl MacroFormatter {
             } else {
                 format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, has_body: {} }} )", has_body)
             }
+        } else if param_size > 0 {
+            format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: [{}], has_body: {} }} )", s, has_body)
         } else {
-            if param_size > 0 {
-                format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: [{}], has_body: {} }} )", s, has_body)
-            } else {
-                format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, has_body: {} }} )", has_body)
-            }
+            format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, has_body: {} }} )", has_body)
         }
     }
 

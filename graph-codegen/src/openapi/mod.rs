@@ -164,7 +164,7 @@ impl OpenApi {
             .paths
             .clone()
             .into_par_iter()
-            .map(|(path, path_item)| (path.transform_path(), path_item.clone()))
+            .map(|(path, path_item)| (path.transform_path(), path_item))
             .collect();
     }
 
