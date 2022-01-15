@@ -71,7 +71,7 @@ impl OAuthTestTool {
         for query in parse.into_iter() {
             println!("{:#?}", &query);
             assert!(cow_cred.contains(&query));
-            assert!(cow_cred_false.contains(&query));
+            assert!(!cow_cred_false.contains(&query));
         }
     }
 
