@@ -1,0 +1,37 @@
+name: Clippy
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning' 
+        type: choice
+        options:
+        - info
+        - warning
+        - debug 
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  clippy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Update rustup
+      run: rustup update
+    - name: Install cargo clippy
+      run: rustup component add clippy
+    - name: Build
+      run: cargo build --verbose
+    - name: Run cargo clippy
+      run: cargo clippy --all
