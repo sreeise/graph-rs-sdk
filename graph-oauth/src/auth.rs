@@ -375,7 +375,10 @@ impl OAuth {
     /// ```
     pub fn tenant_id(&mut self, value: &str) -> &mut OAuth {
         let token_url = format!("https://login.microsoftonline.com/{}/oauth2/v2.0/token", value);
-        self.access_token_url(&token_url)
+        let auth_url = format!("https://login.microsoftonline.com/{}/oauth2/v2.0/authorize", value);
+        
+        self.authorize_url(&auth_url)
+            .access_token_url(&token_url)
             .refresh_token_url(&token_url)
     }
 
