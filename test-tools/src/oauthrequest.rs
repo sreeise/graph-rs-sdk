@@ -283,6 +283,18 @@ impl OAuthTestClient {
             None
         }
     }
+
+    pub fn token(resource_identity: ResourceIdentity) -> Option<AccessToken> {
+        let mut app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by(resource_identity)?;
+        let (test_client, _credentials) = client.default_client()?;
+
+        if let Some((_id, token)) = test_client.request_access_token() {
+            Some(token)
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
