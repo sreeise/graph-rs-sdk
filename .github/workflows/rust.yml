@@ -1,0 +1,25 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      env:
+        TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
+        APP_REGISTRATIONS: ${{ secrets.APP_REGISTRATIONS }}
+      run: cargo test --verbose
