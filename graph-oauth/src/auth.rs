@@ -364,7 +364,7 @@ impl OAuth {
         self.insert(OAuthCredential::RefreshTokenURL, value)
     }
 
-    /// Set both the access token and refresh token of a request
+    /// Set the authorization, access token, and refresh token URL
     /// for OAuth based on a tenant id.
     /// 
     /// # Example
