@@ -14,16 +14,18 @@
 Installation and basic usage can be found below and there are extensive examples in the example's directory
 included in the project on [GitHub](https://github.com/sreeise/graph-rs).
 
+### Feature requests or Bug reports.
+
+For bug reports please file an issue on GitHub and a response or fix will be given as soon as possible.
+
+The [Discussions](https://github.com/sreeise/graph-rs/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs/discussions) is enabled so feel free to stop by there with any questions or feature requests as well. For bugs, please file
+an issue first. Other than that feel free to ask questions, provide tips to others, and talk about the project in general.
+
 ### What Api's are available
 
 The Api's available are generated from OpenApi configs that are stored in Microsoft's msgraph-metadata repository
 for the Graph Api. There may be some requests and/or Api's not yet included in this project that are in the OpenApi
 config but in general most of them are implemented.
-
-### Feature requests or Bug reports.
-
-For both feature requests and bug reports please file an issue on GitHub
-and a response or fix will be given as soon as possible.
 
 ### Use
 
