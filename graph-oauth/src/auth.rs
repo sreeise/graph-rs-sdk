@@ -364,6 +364,24 @@ impl OAuth {
         self.insert(OAuthCredential::RefreshTokenURL, value)
     }
 
+    /// Set the authorization, access token, and refresh token URL
+    /// for OAuth based on a tenant id.
+    /// 
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// oauth.tenant_id("tenant_id");
+    /// ```
+    pub fn tenant_id(&mut self, value: &str) -> &mut OAuth {
+        let token_url = format!("https://login.microsoftonline.com/{}/oauth2/v2.0/token", value);
+        let auth_url = format!("https://login.microsoftonline.com/{}/oauth2/v2.0/authorize", value);
+        
+        self.authorize_url(&auth_url)
+            .access_token_url(&token_url)
+            .refresh_token_url(&token_url)
+    }
+
     /// Set the redirect url of a request
     ///
     /// # Example
