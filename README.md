@@ -5,7 +5,7 @@
 
 ### Now available on stable Rust at [crates.io](https://crates.io/crates/graph-rs-sdk)
 
-    graph-rs-sdk = "0.1.3"
+    graph-rs-sdk = "0.1.4"
 
 0.1.0 and above use stable Rust. Anything before 0.1.0 uses nightly Rust.
 
