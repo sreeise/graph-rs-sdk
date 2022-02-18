@@ -7,12 +7,15 @@ use crate::openapi::OpenApi;
 use crate::parser::client_resource::ResourceParsingInfo;
 use crate::parser::ParserSettings;
 use bytes::{BufMut, BytesMut};
+use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::create_dir;
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::fs::{File, OpenOptions};
-use std::io::Write;
+use std::io::{Read, Write};
+use std::path::Path;
 use std::str::FromStr;
 
 /// Writes the macro used for describing requests. This is the outer
@@ -255,10 +258,7 @@ pub trait MacroImplWriter {
             .unwrap()
     }
 
-    /// Writes the rust file for a single resource. Resources can contain
-    /// multiple secondary resources.
-    // TODO
-    fn write_impl(&self, src_dir: &str) {
+    fn get_impl_bytes(&self) -> BytesMut {
         let path_metadata_map = self.path_metadata_map();
         //println!("{:#?}", path_metadata_map);
 
@@ -362,6 +362,16 @@ pub trait MacroImplWriter {
                 buf.put("\n}\n".as_bytes());
             }
         }
+        buf
+    }
+
+    fn get_impl_metadata(resource_parsing_info: ResourceParsingInfo) -> PathMetadataQueue {
+        PathMetadataQueue::from(resource_parsing_info)
+    }
+
+    /// Writes the rust file for a single resource. Resources can contain multiple secondary resources.
+    fn write_impl(&self, src_dir: &str) {
+        let mut buf = self.get_impl_bytes();
         //let s = std::str::from_utf8(buf.as_ref()).unwrap();
         //println!("{}", s);
 
@@ -374,9 +384,6 @@ pub trait MacroImplWriter {
 
 pub trait OpenApiParser {
     fn write(resource_parsing_info: ResourceParsingInfo) {
-        let open_api = OpenApi::default();
-        let requests = open_api.requests();
-
         let name = {
             if let Some(name) = resource_parsing_info.modifier_name.as_ref() {
                 name.to_string()
@@ -385,39 +392,23 @@ pub trait OpenApiParser {
             }
         };
 
-        let metadata: VecDeque<PathMetadata> = requests
-            .iter()
-            .filter(|r| r.path_starts_with(&resource_parsing_info.path))
-            .cloned()
-            .collect();
-
-        let mut metadata_queue = PathMetadataQueue::from(metadata);
-
-        let modifier_map =
-            ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
-        metadata_queue.update_targets(&modifier_map);
-
-        if let Some(parent_resource_info) = resource_parsing_info.parent_resource_info {
-            metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
-            let resource_identity_string = resource_parsing_info.resource_identity.to_string();
-            metadata_queue.transform_secondary_id_metadata(
-                resource_parsing_info.path.as_str(),
-                "{{id}}",
-                name.as_str(),
-                resource_identity_string.as_str(),
-            );
-            metadata_queue.trim_path_start(parent_resource_info.trim_path_start.as_str());
-        } else {
-            metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
-            metadata_queue.transform_id_metadata(resource_parsing_info.path.as_str());
-        }
-
-        let filters = ParserSettings::path_filters(resource_parsing_info.resource_identity);
-        for filter in filters {
-            metadata_queue.filter_metadata_path(filter);
-        }
-
+        let metadata_queue = PathMetadataQueue::from(resource_parsing_info);
         metadata_queue.debug_print();
         metadata_queue.write_impl(name.as_str());
+        let metadata_file = format!(
+            "./graph-codegen/src/parsed_metadata/{}.json",
+            name.to_snake_case()
+        );
+        metadata_queue.as_file_pretty(&metadata_file).unwrap();
+    }
+
+    fn write_metadata<P: AsRef<Path>>(
+        resource_parsing_info: ResourceParsingInfo,
+        path: &P,
+    ) -> Result<(), FromAsError> {
+        let metadata_queue = PathMetadataQueue::from(resource_parsing_info);
+        metadata_queue.debug_print();
+        let path_buf = path.as_ref().to_path_buf();
+        metadata_queue.as_file_pretty(&path_buf)
     }
 }
