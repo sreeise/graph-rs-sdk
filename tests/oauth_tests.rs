@@ -119,7 +119,7 @@ fn remove_credential() {
 
     assert!(oauth.get(OAuthCredential::RedirectURI).is_some());
     oauth.remove(OAuthCredential::RedirectURI);
-    assert_eq!(oauth.get(OAuthCredential::RedirectURI).is_none());
+    assert!(oauth.get(OAuthCredential::RedirectURI).is_none());
 }
 
 #[test]
