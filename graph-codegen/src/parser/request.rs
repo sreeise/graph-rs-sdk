@@ -252,6 +252,10 @@ impl RequestParser for Request {
         unimplemented!()
     }
 
+    fn shift_path_ids(&self) -> String {
+        String::new()
+    }
+
     fn links(&self) -> HashSet<String> {
         self.operation_mapping.links()
     }

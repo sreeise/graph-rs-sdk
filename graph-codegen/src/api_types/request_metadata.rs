@@ -45,22 +45,22 @@ impl RequestMetadata {
             self.operation_id = self
                 .operation_id
                 .trim_start_matches(operation_id_start_name)
+                .trim_start_matches('.')
                 .to_string();
-            self.operation_id = self.operation_id.trim_start_matches('.').to_string();
         }
 
         if self.operation_mapping.starts_with(operation_id_start_name) {
             self.operation_mapping = self
                 .operation_mapping
                 .trim_start_matches(operation_id_start_name)
+                .trim_start_matches('.')
                 .to_string();
-            self.operation_mapping = self.operation_mapping.trim_start_matches('.').to_string();
         }
     }
 
     pub fn transform_id_request(&mut self) {
-        self.operation_mapping = format!("{}Id", &self.operation_mapping);
-        self.parent = format!("{}Id", &self.operation_mapping);
+        self.operation_mapping = format!("{}Id", self.operation_mapping.to_pascal_case());
+        self.parent = self.operation_mapping.to_string();
     }
 
     pub fn transform_secondary_id_request(
@@ -135,9 +135,7 @@ impl MetadataModifier for RequestMetadata {
     }
 
     fn replace_operation_id(&mut self, replacement: &str) {
-        println!("\n\tSetting operation id replacement to: {}", replacement);
         self.operation_id = replacement.to_string();
-        println!("\n\tSelf operation id: {}", self.operation_id);
     }
 
     fn replace_operation_mapping_n(&mut self, pat: &str, replacement: &str, count: usize) {
@@ -229,7 +227,6 @@ impl PathMetadata {
 
         for r in metadata.iter_mut() {
             r.operation_str_replacen(pat, to.as_str());
-            println!("{:#?}", r);
         }
 
         self.metadata = metadata;
@@ -258,10 +255,24 @@ impl PathMetadata {
         self.parameters = self.snake_case_parameters();
     }
 
+    fn update_rid_path(&mut self) {
+        let previous_path = self.path.clone();
+        let updated_path = self.path.replacen("{{id}}", "{{RID}}", 1);
+        if updated_path.ne(previous_path.as_str()) {
+            self.path = updated_path;
+            self.param_size = INTERNAL_PATH_ID.captures_iter(&self.path).count() - 1;
+
+            while self.parameters.len() > self.param_size {
+                self.parameters.pop_front();
+            }
+
+            self.path = self.path.shift_path_ids();
+        }
+    }
+
     pub fn transform_id_metadata(&mut self) {
-        self.path = self.path.replacen("{{id}}", "{{RID}}", 1);
-        let _ = self.parameters.pop_front();
-        self.param_size -= 1;
+        self.update_rid_path();
+
         for m in self.metadata.iter_mut() {
             m.transform_id_request();
         }
@@ -269,17 +280,10 @@ impl PathMetadata {
 
     pub fn transform_secondary_id_metadata(
         &mut self,
-        id_name: &str,
         operation_mapping: &str,
         original_parent: &str,
     ) {
-        self.path = self.path.replacen(id_name, "{{RID}}", 1);
-        if self.path.contains("{{RID}}") {
-            self.param_size = INTERNAL_PATH_ID.captures_iter(&self.path).count() - 1;
-            while self.parameters.len() > self.param_size {
-                self.parameters.pop_front();
-            }
-        }
+        self.update_rid_path();
 
         for m in self.metadata.iter_mut() {
             m.transform_secondary_id_request(operation_mapping, original_parent);
@@ -461,21 +465,13 @@ impl PathMetadataQueue {
     pub fn transform_secondary_id_metadata(
         &mut self,
         path_start: &str,
-        id_name: &str,
         operation_mapping: &str,
         original_parent: &str,
     ) {
         for path_metadata in self.0.iter_mut() {
-            println!("{:#?}", path_metadata.path);
-            println!("Starts with: {:#?}", path_start);
-            let id_path = format!("{}/{}", path_start, id_name);
-            println!("Checking for: {:#?}", id_path);
+            let id_path = format!("{}/{{{{id}}}}", path_start);
             if path_metadata.path_starts_with(&id_path) {
-                path_metadata.transform_secondary_id_metadata(
-                    id_name,
-                    operation_mapping,
-                    original_parent,
-                );
+                path_metadata.transform_secondary_id_metadata(operation_mapping, original_parent);
             } else if path_metadata.path_starts_with(path_start) {
                 path_metadata.transform_secondary_metadata(operation_mapping, original_parent);
             }
@@ -504,7 +500,7 @@ impl PathMetadataQueue {
 
     pub fn debug_print(&self) {
         for path_metadata in self.0.iter() {
-            println!("{:#?}", path_metadata);
+            dbg!(path_metadata);
         }
     }
 
@@ -587,7 +583,7 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
             .cloned()
             .collect();
 
-        let mut metadata_queue = PathMetadataQueue::from(metadata);
+        let mut metadata_queue = PathMetadataQueue(metadata);
 
         let modifier_map =
             ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
@@ -596,12 +592,13 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
         if let Some(parent_resource_info) = resource_parsing_info.parent_resource_info {
             metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
             let resource_identity_string = resource_parsing_info.resource_identity.to_string();
+
             metadata_queue.transform_secondary_id_metadata(
                 resource_parsing_info.path.as_str(),
-                "{{id}}",
                 name.as_str(),
                 resource_identity_string.as_str(),
             );
+
             metadata_queue.trim_path_start(parent_resource_info.trim_path_start.as_str());
         } else {
             metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);

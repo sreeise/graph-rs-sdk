@@ -372,9 +372,6 @@ pub trait MacroImplWriter {
     /// Writes the rust file for a single resource. Resources can contain multiple secondary resources.
     fn write_impl(&self, src_dir: &str) {
         let mut buf = self.get_impl_bytes();
-        //let s = std::str::from_utf8(buf.as_ref()).unwrap();
-        //println!("{}", s);
-
         let mut request_file = self.create_impl_dir(src_dir);
         request_file.write_all(buf.as_mut()).unwrap();
         request_file.sync_data().unwrap();
@@ -395,6 +392,7 @@ pub trait OpenApiParser {
         let metadata_queue = PathMetadataQueue::from(resource_parsing_info);
         metadata_queue.debug_print();
         metadata_queue.write_impl(name.as_str());
+
         let metadata_file = format!(
             "./graph-codegen/src/parsed_metadata/{}.json",
             name.to_snake_case()

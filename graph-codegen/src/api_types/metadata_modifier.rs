@@ -36,14 +36,11 @@ pub trait MetadataModifier {
                         );
 
                         if self.operation_id().eq(id.as_str()) {
-                            println!("\n\tFound Match Operation Id");
                             match mat_target {
                                 MatchTarget::OperationId(replacement) => {
-                                    println!("\n\tOperation Id Replacement: {:#?}", replacement);
                                     self.replace_operation_id(replacement.as_ref());
                                 }
                                 MatchTarget::OperationMap(replacement) => {
-                                    println!("\n\tOperation map Replacement: {:#?}", replacement);
                                     self.replace_operation_mapping(replacement.as_ref());
                                 }
                             }

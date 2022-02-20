@@ -236,6 +236,18 @@
                         "required": [],
                         "uniqueItems": false,
                         "properties": {
+                          "@odata.nextLink": {
+                            "type": "string",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          },
                           "value": {
                             "type": "array",
                             "readOnly": false,
@@ -253,18 +265,6 @@
                               "unresolvedReference": false,
                               "$ref": "#/components/schemas/microsoft.graph.userActivity"
                             },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          },
-                          "@odata.nextLink": {
-                            "type": "string",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
                             "uniqueItems": false,
                             "additionalPropertiesAllowed": false,
                             "enum": [],
@@ -996,6 +996,18 @@
                         "required": [],
                         "uniqueItems": false,
                         "properties": {
+                          "@odata.nextLink": {
+                            "type": "string",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          },
                           "value": {
                             "type": "array",
                             "readOnly": false,
@@ -1013,18 +1025,6 @@
                               "unresolvedReference": false,
                               "$ref": "#/components/schemas/microsoft.graph.activityHistoryItem"
                             },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          },
-                          "@odata.nextLink": {
-                            "type": "string",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
                             "uniqueItems": false,
                             "additionalPropertiesAllowed": false,
                             "enum": [],
@@ -1744,8 +1744,8 @@
                     "Left": {
                       "operationId": "me.activities.historyItems.Activity.ListHistoryItems",
                       "parameters": {
-                        "userActivity-id": "$request.path.userActivity-id",
-                        "activityHistoryItem-id": "$request.path.activityHistoryItem-id"
+                        "activityHistoryItem-id": "$request.path.activityHistoryItem-id",
+                        "userActivity-id": "$request.path.userActivity-id"
                       }
                     }
                   }

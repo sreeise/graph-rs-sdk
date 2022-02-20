@@ -61,6 +61,7 @@ pub trait RequestParser<RHS = Self> {
     fn method_name(&self) -> String;
     fn operation_mapping(&self) -> String;
     fn transform_path(&self) -> String;
+    fn shift_path_ids(&self) -> String;
     fn links(&self) -> HashSet<String> {
         Default::default()
     }
@@ -166,15 +167,17 @@ impl RequestParser for &str {
                                 PathMatcher::PathId => {
                                     if count == 1 {
                                         path = path.replacen(s.as_str(), "{{id}}", 1);
+                                        found_match = true;
+                                        break;
                                     } else {
                                         path = path.replacen(
                                             s.as_str(),
                                             &format!("{{{{id{}}}}}", count),
                                             1,
                                         );
+                                        found_match = true;
+                                        break;
                                     }
-                                    found_match = true;
-                                    break;
                                 }
                                 PathMatcher::PathIdNamed => {
                                     path = replace_ids(count, s.as_str(), &mut path);
@@ -195,15 +198,17 @@ impl RequestParser for &str {
                                         if let Some(i) = s.find('=') {
                                             if count == 1 {
                                                 path = path.replacen(&s[i + 1..], "'{{id}}'", 1);
+                                                found_match = true;
+                                                break;
                                             } else {
                                                 path = path.replacen(
                                                     &s[i + 1..],
                                                     &format!("'{{{{id{}}}}}'", count),
                                                     1,
                                                 );
+                                                found_match = true;
+                                                break;
                                             }
-                                            found_match = true;
-                                            break;
                                         }
                                     }
                                 }
@@ -224,6 +229,14 @@ impl RequestParser for &str {
         }
 
         path
+    }
+
+    fn shift_path_ids(&self) -> String {
+        self.replacen("id2", "id", 1)
+            .replacen("id3", "id2", 1)
+            .replacen("id4", "id3", 1)
+            .replacen("id5", "id4", 1)
+            .replacen("id6", "id5", 1)
     }
 
     fn links(&self) -> HashSet<String> {
@@ -300,6 +313,10 @@ impl RequestParser for String {
 
     fn transform_path(&self) -> String {
         self.as_str().transform_path()
+    }
+
+    fn shift_path_ids(&self) -> String {
+        self.as_str().shift_path_ids()
     }
 
     fn links(&self) -> HashSet<String> {
