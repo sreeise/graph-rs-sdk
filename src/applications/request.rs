@@ -63,6 +63,13 @@ impl<'a, Client> ApplicationsIdRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    patch!({
+        doc: "Update entity in applications",
+        name: update_application,
+        response: NoContent,
+        path: "/applications/{{RID}}",
+        has_body: true
+    });
     delete!({
         doc: "Delete entity from applications",
         name: delete_application,
@@ -76,13 +83,6 @@ where
         response: serde_json::Value,
         path: "/applications/{{RID}}",
         has_body: false
-    });
-    patch!({
-        doc: "Update entity in applications",
-        name: update_application,
-        response: NoContent,
-        path: "/applications/{{RID}}",
-        has_body: true
     });
     get!({
         doc: "Get createdOnBehalfOf from applications",
@@ -126,13 +126,13 @@ where
         path: "/applications/{{RID}}/extensionProperties",
         has_body: true
     });
-    get!({
-        doc: "Get extensionProperties from applications",
-        name: get_extension_properties,
-        response: serde_json::Value,
+    patch!({
+        doc: "Update the navigation property extensionProperties in applications",
+        name: update_extension_properties,
+        response: NoContent,
         path: "/applications/{{RID}}/extensionProperties/{{id}}",
         params: [ extension_property_id ],
-        has_body: false
+        has_body: true
     });
     delete!({
         doc: "Delete navigation property extensionProperties for applications",
@@ -142,26 +142,19 @@ where
         params: [ extension_property_id ],
         has_body: false
     });
-    patch!({
-        doc: "Update the navigation property extensionProperties in applications",
-        name: update_extension_properties,
-        response: NoContent,
+    get!({
+        doc: "Get extensionProperties from applications",
+        name: get_extension_properties,
+        response: serde_json::Value,
         path: "/applications/{{RID}}/extensionProperties/{{id}}",
         params: [ extension_property_id ],
-        has_body: true
+        has_body: false
     });
     get!({
         doc: "Get homeRealmDiscoveryPolicies from applications",
         name: list_home_realm_discovery_policies,
         response: serde_json::Value,
         path: "/applications/{{RID}}/homeRealmDiscoveryPolicies",
-        has_body: false
-    });
-    get!({
-        doc: "Get ref of homeRealmDiscoveryPolicies from applications",
-        name: list_ref_home_realm_discovery_policies,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
         has_body: false
     });
     post!({
@@ -171,12 +164,12 @@ where
         path: "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
         has_body: true
     });
-    put!({
-        doc: "Update media content for application in applications",
-        name: update_logo,
-        response: NoContent,
-        path: "/applications/{{RID}}/logo",
-        has_body: true
+    get!({
+        doc: "Get ref of homeRealmDiscoveryPolicies from applications",
+        name: list_ref_home_realm_discovery_policies,
+        response: serde_json::Value,
+        path: "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
+        has_body: false
     });
     get!({
         doc: "Get media content for application from applications",
@@ -185,81 +178,88 @@ where
         path: "/applications/{{RID}}/logo",
         has_body: false
     });
+    put!({
+        doc: "Update media content for application in applications",
+        name: update_logo,
+        response: NoContent,
+        path: "/applications/{{RID}}/logo",
+        has_body: true
+    });
     post!({
         doc: "Invoke action addKey",
         name: add_key,
         response: serde_json::Value,
-        path: "/applications/{{RID}}/addKey",
+        path: "/applications/{{RID}}/microsoft.graph.addKey",
         has_body: true
     });
     post!({
         doc: "Invoke action addPassword",
         name: add_password,
         response: serde_json::Value,
-        path: "/applications/{{RID}}/addPassword",
+        path: "/applications/{{RID}}/microsoft.graph.addPassword",
         has_body: true
     });
     post!({
         doc: "Invoke action checkMemberGroups",
         name: check_member_groups,
         response: serde_json::Value,
-        path: "/applications/{{RID}}/checkMemberGroups",
+        path: "/applications/{{RID}}/microsoft.graph.checkMemberGroups",
         has_body: true
     });
     post!({
         doc: "Invoke action checkMemberObjects",
         name: check_member_objects,
         response: serde_json::Value,
-        path: "/applications/{{RID}}/checkMemberObjects",
+        path: "/applications/{{RID}}/microsoft.graph.checkMemberObjects",
         has_body: true
     });
     post!({
         doc: "Invoke action getMemberGroups",
         name: get_member_groups,
         response: serde_json::Value,
-        path: "/applications/{{RID}}/getMemberGroups",
+        path: "/applications/{{RID}}/microsoft.graph.getMemberGroups",
         has_body: true
     });
     post!({
         doc: "Invoke action getMemberObjects",
         name: get_member_objects,
         response: serde_json::Value,
-        path: "/applications/{{RID}}/getMemberObjects",
+        path: "/applications/{{RID}}/microsoft.graph.getMemberObjects",
         has_body: true
     });
     post!({
         doc: "Invoke action removeKey",
         name: remove_key,
         response: NoContent,
-        path: "/applications/{{RID}}/removeKey",
+        path: "/applications/{{RID}}/microsoft.graph.removeKey",
         has_body: true
     });
     post!({
         doc: "Invoke action removePassword",
         name: remove_password,
         response: NoContent,
-        path: "/applications/{{RID}}/removePassword",
+        path: "/applications/{{RID}}/microsoft.graph.removePassword",
         has_body: true
     });
     post!({
         doc: "Invoke action restore",
         name: restore,
         response: serde_json::Value,
-        path: "/applications/{{RID}}/restore",
+        path: "/applications/{{RID}}/microsoft.graph.restore",
         has_body: false
     });
     post!({
         doc: "Invoke action setVerifiedPublisher",
         name: set_verified_publisher,
         response: NoContent,
-        path: "/applications/{{RID}}/setVerifiedPublisher",
+        path: "/applications/{{RID}}/microsoft.graph.setVerifiedPublisher",
         has_body: true
     });
     post!({
         doc: "Invoke action unsetVerifiedPublisher",
         name: unset_verified_publisher,
         response: NoContent,
-        path: "/applications/{{RID}}/unsetVerifiedPublisher",
+        path: "/applications/{{RID}}/microsoft.graph.unsetVerifiedPublisher",
         has_body: false
     });
     get!({

@@ -1,4 +1,3 @@
-#[macro_use]
 macro_rules! register_download {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 0 } ) => {
       pub fn $name(&'a self) -> IntoResponse<'a, $T, BlockingHttpClient> {
@@ -191,7 +190,6 @@ macro_rules! register_download {
     };
 }
 
-#[macro_use]
 macro_rules! register_async_download {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, params: 0 } ) => {
       pub async fn $name(&'a self) -> IntoResponse<'a, $T, AsyncHttpClient> {
@@ -362,7 +360,6 @@ macro_rules! register_async_download {
     };
 }
 
-#[macro_use]
 macro_rules! download {
     ( { name: $name:ident, response: $response:ty, path: $template:expr, params: 0 } ) => {
         register_download!( { name: $name, response: $response, path: $template, params: 0  }  );
@@ -401,7 +398,6 @@ macro_rules! download {
     };
 }
 
-#[macro_use]
 macro_rules! async_download {
     ( { name: $name:ident, response: $response:ty, path: $template:expr, params: 0 } ) => {
         register_async_download!( { name: $name, response: $response, path: $template, params: 0  } );

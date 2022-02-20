@@ -20,6 +20,12 @@ pub fn get_client_link_settings(
                 vec![ClientLinkSettings::new("attachmentsId").as_id_method_link()].mem_take(),
             );
         }
+        ResourceIdentity::Activities => {
+            map.insert(
+                "activities".into(),
+                vec![ClientLinkSettings::new("activitiesId").as_id_method_link()].mem_take(),
+            );
+        }
         ResourceIdentity::Buckets => {
             map.insert(
                 "buckets".into(),

@@ -1,4 +1,3 @@
-#[macro_use]
 macro_rules! api_method {
     ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, has_body: false } ) => {
     #[doc = $doc]

@@ -71,14 +71,14 @@ where
     /// Use the V1.0 api.
     pub fn v1(&'a self) -> Identify<'a, Client> {
         self.request.set_url(GraphUrl::from_str(GRAPH_URL).unwrap());
-        Identify { client: &self }
+        Identify { client: self }
     }
 
     /// Use the beta API.
     pub fn beta(&'a self) -> Identify<'a, Client> {
         self.request
             .set_url(GraphUrl::from_str(GRAPH_URL_BETA).unwrap());
-        Identify { client: &self }
+        Identify { client: self }
     }
 
     /// Check if the current host is v1.0.

@@ -1,4 +1,3 @@
-#[macro_use]
 macro_rules! render_path {
     ($client:expr, $template:expr) => {
         let path = $client
@@ -31,7 +30,6 @@ macro_rules! render_path {
     };
 }
 
-#[macro_use]
 macro_rules! register_method {
     ( $name:ident, $T:ty => $template:expr, $m:expr ) => {
       pub fn $name(&'a self) -> IntoResponse<'a, $T, Client>
@@ -547,7 +545,6 @@ macro_rules! register_method {
     };
 }
 
-#[macro_use]
 macro_rules! get {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::GET );
@@ -828,7 +825,6 @@ macro_rules! get {
 
 }
 
-#[macro_use]
 macro_rules! post {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::POST );
@@ -1264,7 +1260,6 @@ macro_rules! post {
   };
 }
 
-#[macro_use]
 macro_rules! patch {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::PATCH );
@@ -1622,7 +1617,7 @@ macro_rules! patch {
 }
 
 #[allow(unused_macros)]
-#[macro_use]
+
 macro_rules! put {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::PUT );
@@ -1979,7 +1974,6 @@ macro_rules! put {
     };
 }
 
-#[macro_use]
 macro_rules! delete {
     ( $name:ident, $T:ty => $template:expr ) => {
         register_method!( $name, $T => $template, Method::DELETE );

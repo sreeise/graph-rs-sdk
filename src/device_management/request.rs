@@ -934,53 +934,53 @@ where
     });
 
     pub fn detected_apps(&self) -> DetectedAppsRequest<'a, Client> {
-        DetectedAppsRequest::new(&self.client)
+        DetectedAppsRequest::new(self.client)
     }
 
     pub fn device_compliance_policies(&self) -> DeviceCompliancePoliciesRequest<'a, Client> {
-        DeviceCompliancePoliciesRequest::new(&self.client)
+        DeviceCompliancePoliciesRequest::new(self.client)
     }
 
     pub fn device_compliance_policy_setting_state_summaries(
         &self,
     ) -> DeviceCompliancePolicySettingStateSummariesRequest<'a, Client> {
-        DeviceCompliancePolicySettingStateSummariesRequest::new(&self.client)
+        DeviceCompliancePolicySettingStateSummariesRequest::new(self.client)
     }
 
     pub fn device_configurations(&self) -> DeviceConfigurationsRequest<'a, Client> {
-        DeviceConfigurationsRequest::new(&self.client)
+        DeviceConfigurationsRequest::new(self.client)
     }
 
     pub fn device_enrollment_configurations(
         &self,
     ) -> DeviceEnrollmentConfigurationsRequest<'a, Client> {
-        DeviceEnrollmentConfigurationsRequest::new(&self.client)
+        DeviceEnrollmentConfigurationsRequest::new(self.client)
     }
 
     pub fn exchange_connectors(&self) -> ExchangeConnectorsRequest<'a, Client> {
-        ExchangeConnectorsRequest::new(&self.client)
+        ExchangeConnectorsRequest::new(self.client)
     }
 
     pub fn managed_devices(&self) -> ManagedDevicesRequest<'a, Client> {
-        ManagedDevicesRequest::new(&self.client)
+        ManagedDevicesRequest::new(self.client)
     }
 
     pub fn notification_message_templates(
         &self,
     ) -> NotificationMessageTemplatesRequest<'a, Client> {
-        NotificationMessageTemplatesRequest::new(&self.client)
+        NotificationMessageTemplatesRequest::new(self.client)
     }
 
     pub fn remote_assistance_partners(&self) -> RemoteAssistancePartnersRequest<'a, Client> {
-        RemoteAssistancePartnersRequest::new(&self.client)
+        RemoteAssistancePartnersRequest::new(self.client)
     }
 
     pub fn role_definitions(&self) -> RoleDefinitionsRequest<'a, Client> {
-        RoleDefinitionsRequest::new(&self.client)
+        RoleDefinitionsRequest::new(self.client)
     }
 
     pub fn terms_and_conditions(&self) -> TermsAndConditionsRequest<'a, Client> {
-        TermsAndConditionsRequest::new(&self.client)
+        TermsAndConditionsRequest::new(self.client)
     }
 }
 
@@ -1007,7 +1007,7 @@ where
     });
 
     pub fn app_managed_devices(&self) -> AppManagedDevicesRequest<'a, Client> {
-        AppManagedDevicesRequest::new(&self.client)
+        AppManagedDevicesRequest::new(self.client)
     }
 }
 
@@ -1417,7 +1417,7 @@ where
     });
 
     pub fn scheduled_actions_for_rule(&self) -> ScheduledActionsForRuleRequest<'a, Client> {
-        ScheduledActionsForRuleRequest::new(&self.client)
+        ScheduledActionsForRuleRequest::new(self.client)
     }
 }
 
@@ -2141,7 +2141,7 @@ where
     });
 
     pub fn role_assignments(&self) -> RoleAssignmentsRequest<'a, Client> {
-        RoleAssignmentsRequest::new(&self.client)
+        RoleAssignmentsRequest::new(self.client)
     }
 }
 
@@ -2236,7 +2236,7 @@ where
     });
 
     pub fn acceptance_statuses(&self) -> AcceptanceStatusesRequest<'a, Client> {
-        AcceptanceStatusesRequest::new(&self.client)
+        AcceptanceStatusesRequest::new(self.client)
     }
 }
 

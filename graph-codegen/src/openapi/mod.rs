@@ -147,7 +147,7 @@ impl OpenApi {
         &self.paths
     }
 
-    pub fn filter_path(&mut self, pat: &str) -> BTreeMap<String, PathItem> {
+    pub fn filter_path(&self, pat: &str) -> BTreeMap<String, PathItem> {
         self.paths
             .clone()
             .into_par_iter()

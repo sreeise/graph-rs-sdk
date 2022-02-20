@@ -111,15 +111,15 @@ fn remove_credential() {
         .authorize_url("https://www.example.com/authorize?")
         .refresh_token_url("https://www.example.com/token?")
         .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
-    assert_eq!(oauth.get(OAuthCredential::ClientId).is_some(), true);
+    assert!(oauth.get(OAuthCredential::ClientId).is_some());
     oauth.remove(OAuthCredential::ClientId);
-    assert_eq!(oauth.get(OAuthCredential::ClientId).is_some(), false);
+    assert!(oauth.get(OAuthCredential::ClientId).is_none());
     oauth.client_id("client_id");
-    assert_ne!(oauth.get(OAuthCredential::ClientId).is_some(), false);
+    assert!(oauth.get(OAuthCredential::ClientId).is_some());
 
-    assert_eq!(oauth.get(OAuthCredential::RedirectURI).is_some(), true);
+    assert!(oauth.get(OAuthCredential::RedirectURI).is_some());
     oauth.remove(OAuthCredential::RedirectURI);
-    assert_eq!(oauth.get(OAuthCredential::RedirectURI).is_some(), false);
+    assert!(oauth.get(OAuthCredential::RedirectURI).is_none());
 }
 
 #[test]
@@ -138,8 +138,8 @@ fn setters() {
 
     let test_setter = |c: OAuthCredential, s: &str| {
         let result = oauth.get(c);
-        assert_eq!(result.is_none(), false);
-        assert_eq!(result.is_some(), true);
+        assert!(result.is_some());
+        assert!(result.is_some());
         assert_eq!(result.unwrap(), s);
     };
 

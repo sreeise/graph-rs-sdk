@@ -105,19 +105,19 @@ where
     });
 
     pub fn administrative_units(&self) -> AdministrativeUnitsRequest<'a, Client> {
-        AdministrativeUnitsRequest::new(&self.client)
+        AdministrativeUnitsRequest::new(self.client)
     }
 
     pub fn directory_roles(&self) -> DirectoryRolesRequest<'a, Client> {
-        DirectoryRolesRequest::new(&self.client)
+        DirectoryRolesRequest::new(self.client)
     }
 
     pub fn directory_objects(&self) -> DirectoryObjectsRequest<'a, Client> {
-        DirectoryObjectsRequest::new(&self.client)
+        DirectoryObjectsRequest::new(self.client)
     }
 
     pub fn directory_role_templates(&self) -> DirectoryRoleTemplatesRequest<'a, Client> {
-        DirectoryRoleTemplatesRequest::new(&self.client)
+        DirectoryRoleTemplatesRequest::new(self.client)
     }
 }
 
@@ -338,7 +338,7 @@ where
     });
 
     pub fn administrative_units(&self) -> AdministrativeUnitsRequest<'a, Client> {
-        AdministrativeUnitsRequest::new(&self.client)
+        AdministrativeUnitsRequest::new(self.client)
     }
 }
 

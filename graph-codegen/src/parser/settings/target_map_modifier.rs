@@ -35,7 +35,22 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
             );
         }
         ResourceIdentity::AuditLogs => {
+            // auditLogs.auditLogRoot.GetAuditLogRoot
             modify_target.operation_map("auditLogs.auditLogRoot", "auditLogs");
+            modify_target.map.insert(
+                MatchTarget::OperationId("auditLogs.auditLogRoot.GetAuditLogRoot".to_string()),
+                vec![
+                    MatchTarget::OperationMap("auditLogs".to_string()),
+                    MatchTarget::OperationId("auditLogs.GetAuditLogRoot".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("auditLogs.auditLogRoot.UpdateAuditLogRoot".to_string()),
+                vec![
+                    MatchTarget::OperationMap("auditLogs".to_string()),
+                    MatchTarget::OperationId("auditLogs.UpdateAuditLogRoot".to_string()),
+                ],
+            );
         }
         ResourceIdentity::Attachments => {
             modify_target.map.insert(

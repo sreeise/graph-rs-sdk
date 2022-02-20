@@ -1,0 +1,317 @@
+[
+  {
+    "path": "/auditLogs",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "auditLogs.GetAuditLogRoot",
+        "operation_mapping": "auditLogs",
+        "http_method": "GET",
+        "doc": "Get auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogRoot",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "auditLogs.UpdateAuditLogRoot",
+        "operation_mapping": "auditLogs",
+        "http_method": "PATCH",
+        "doc": "Update auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogRoot",
+        "resource_identity": "AuditLogs"
+      }
+    ]
+  },
+  {
+    "path": "/auditLogs/directoryAudits",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "auditLogs.ListDirectoryAudits",
+        "operation_mapping": "auditLogs",
+        "http_method": "GET",
+        "doc": "Get directoryAudits from auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "auditLogs.CreateDirectoryAudits",
+        "operation_mapping": "auditLogs",
+        "http_method": "POST",
+        "doc": "Create new navigation property to directoryAudits for auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      }
+    ]
+  },
+  {
+    "path": "/auditLogs/directoryAudits/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "directory_audit_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "auditLogs.GetDirectoryAudits",
+        "operation_mapping": "auditLogs",
+        "http_method": "GET",
+        "doc": "Get directoryAudits from auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "auditLogs.DeleteDirectoryAudits",
+        "operation_mapping": "auditLogs",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property directoryAudits for auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "auditLogs.UpdateDirectoryAudits",
+        "operation_mapping": "auditLogs",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property directoryAudits in auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      }
+    ]
+  },
+  {
+    "path": "/auditLogs/provisioning",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "auditLogs.ListProvisioning",
+        "operation_mapping": "auditLogs",
+        "http_method": "GET",
+        "doc": "Get provisioning from auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "auditLogs.CreateProvisioning",
+        "operation_mapping": "auditLogs",
+        "http_method": "POST",
+        "doc": "Create new navigation property to provisioning for auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      }
+    ]
+  },
+  {
+    "path": "/auditLogs/provisioning/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "provisioning_object_summary_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "auditLogs.GetProvisioning",
+        "operation_mapping": "auditLogs",
+        "http_method": "GET",
+        "doc": "Get provisioning from auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "auditLogs.UpdateProvisioning",
+        "operation_mapping": "auditLogs",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property provisioning in auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "auditLogs.DeleteProvisioning",
+        "operation_mapping": "auditLogs",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property provisioning for auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      }
+    ]
+  },
+  {
+    "path": "/auditLogs/restrictedSignIns",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "auditLogs.CreateRestrictedSignIns",
+        "operation_mapping": "auditLogs",
+        "http_method": "POST",
+        "doc": "Create new navigation property to restrictedSignIns for auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "auditLogs.ListRestrictedSignIns",
+        "operation_mapping": "auditLogs",
+        "http_method": "GET",
+        "doc": "Get restrictedSignIns from auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      }
+    ]
+  },
+  {
+    "path": "/auditLogs/restrictedSignIns/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "restricted_sign_in_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "auditLogs.UpdateRestrictedSignIns",
+        "operation_mapping": "auditLogs",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property restrictedSignIns in auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "auditLogs.GetRestrictedSignIns",
+        "operation_mapping": "auditLogs",
+        "http_method": "GET",
+        "doc": "Get restrictedSignIns from auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "auditLogs.DeleteRestrictedSignIns",
+        "operation_mapping": "auditLogs",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property restrictedSignIns for auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      }
+    ]
+  },
+  {
+    "path": "/auditLogs/signIns",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "auditLogs.ListSignIns",
+        "operation_mapping": "auditLogs",
+        "http_method": "GET",
+        "doc": "Get signIns from auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "auditLogs.CreateSignIns",
+        "operation_mapping": "auditLogs",
+        "http_method": "POST",
+        "doc": "Create new navigation property to signIns for auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      }
+    ]
+  },
+  {
+    "path": "/auditLogs/signIns/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "sign_in_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "auditLogs.GetSignIns",
+        "operation_mapping": "auditLogs",
+        "http_method": "GET",
+        "doc": "Get signIns from auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "auditLogs.UpdateSignIns",
+        "operation_mapping": "auditLogs",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property signIns in auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "auditLogs.DeleteSignIns",
+        "operation_mapping": "auditLogs",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property signIns for auditLogs",
+        "parent": "AuditLogs",
+        "original_parent": "AuditLogs",
+        "resource_identity": "AuditLogs"
+      }
+    ]
+  }
+]
+  }
+]

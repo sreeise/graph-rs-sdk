@@ -29,7 +29,13 @@ pub trait MetadataModifier {
             for mat_target in match_target_vec.iter() {
                 match match_target {
                     MatchTarget::OperationId(id) => {
-                        if self.operation_id().contains(id.as_str()) {
+                        println!(
+                            "Match Operation Id: {:#?}\nCurrent operation id: {:#?}",
+                            id,
+                            self.operation_id()
+                        );
+
+                        if self.operation_id().eq(id.as_str()) {
                             match mat_target {
                                 MatchTarget::OperationId(replacement) => {
                                     self.replace_operation_id(replacement.as_ref());
@@ -41,7 +47,7 @@ pub trait MetadataModifier {
                         }
                     }
                     MatchTarget::OperationMap(mapping) => {
-                        if self.operation_mapping().contains(mapping.as_str()) {
+                        if self.operation_mapping().eq(mapping.as_str()) {
                             match mat_target {
                                 MatchTarget::OperationId(replacement) => {
                                     self.replace_operation_id(replacement.as_ref());
