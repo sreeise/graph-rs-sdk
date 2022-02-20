@@ -17,6 +17,7 @@ use std::{
 };
 
 #[derive(Default, Debug, Clone)]
+#[allow(dead_code)]
 pub struct SpecBuilder {
     pub(crate) parser: Parser,
     secondary_links: BTreeMap<String, Vec<String>>,

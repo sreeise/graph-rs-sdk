@@ -86,7 +86,7 @@ impl RequestParser for &str {
                 method_name.push_str(self[index + 1..].as_ref());
             }
         } else {
-            method_name.push_str(&self);
+            method_name.push_str(self);
         }
 
         if method_name.is_empty() {

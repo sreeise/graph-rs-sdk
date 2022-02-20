@@ -1,4 +1,3 @@
-#[macro_use]
 macro_rules! register_upload {
     ( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: 0  } ) => {
       pub fn $name<P: AsRef<Path>>(&'a self, file: P) -> IntoResponse<'a, $T, Client>

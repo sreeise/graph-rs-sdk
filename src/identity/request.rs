@@ -212,14 +212,14 @@ where
     });
 
     pub fn conditional_access(&self) -> ConditionalAccessRequest<'a, Client> {
-        ConditionalAccessRequest::new(&self.client)
+        ConditionalAccessRequest::new(self.client)
     }
 
     pub fn identity_container(&self) -> IdentityContainerRequest<'a, Client> {
-        IdentityContainerRequest::new(&self.client)
+        IdentityContainerRequest::new(self.client)
     }
 
     pub fn identity_provider(&self) -> IdentityProviderRequest<'a, Client> {
-        IdentityProviderRequest::new(&self.client)
+        IdentityProviderRequest::new(self.client)
     }
 }

@@ -274,7 +274,7 @@ impl ReqSet {
         &'a self,
         request_set: &'a HashSet<Request>,
     ) -> Difference<'a, Request, std::collections::hash_map::RandomState> {
-        self.set.difference(&request_set)
+        self.set.difference(request_set)
     }
 }
 
@@ -362,7 +362,7 @@ impl RequestSet {
         if self.set.contains(&request_map) {
             let mut req_map = self.set.get(&request_map).cloned().unwrap();
             for request in request_map.requests.iter() {
-                if !req_map.requests.iter().any(|r| r.eq(&request)) {
+                if !req_map.requests.iter().any(|r| r.eq(request)) {
                     req_map.requests.push_back(request.clone());
                 }
             }

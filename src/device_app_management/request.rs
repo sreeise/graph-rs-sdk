@@ -565,47 +565,47 @@ where
     pub fn android_managed_app_protections(
         &self,
     ) -> AndroidManagedAppProtectionsRequest<'a, Client> {
-        AndroidManagedAppProtectionsRequest::new(&self.client)
+        AndroidManagedAppProtectionsRequest::new(self.client)
     }
 
     pub fn default_managed_app_protections(
         &self,
     ) -> DefaultManagedAppProtectionsRequest<'a, Client> {
-        DefaultManagedAppProtectionsRequest::new(&self.client)
+        DefaultManagedAppProtectionsRequest::new(self.client)
     }
 
     pub fn ios_managed_app_protections(&self) -> IosManagedAppProtectionsRequest<'a, Client> {
-        IosManagedAppProtectionsRequest::new(&self.client)
+        IosManagedAppProtectionsRequest::new(self.client)
     }
 
     pub fn managed_app_policies(&self) -> ManagedAppPoliciesRequest<'a, Client> {
-        ManagedAppPoliciesRequest::new(&self.client)
+        ManagedAppPoliciesRequest::new(self.client)
     }
 
     pub fn managed_app_registrations(&self) -> ManagedAppRegistrationsRequest<'a, Client> {
-        ManagedAppRegistrationsRequest::new(&self.client)
+        ManagedAppRegistrationsRequest::new(self.client)
     }
 
     pub fn managed_e_books(&self) -> ManagedEBooksRequest<'a, Client> {
-        ManagedEBooksRequest::new(&self.client)
+        ManagedEBooksRequest::new(self.client)
     }
 
     pub fn mobile_app_configurations(&self) -> MobileAppConfigurationsRequest<'a, Client> {
-        MobileAppConfigurationsRequest::new(&self.client)
+        MobileAppConfigurationsRequest::new(self.client)
     }
 
     pub fn mobile_apps(&self) -> MobileAppsRequest<'a, Client> {
-        MobileAppsRequest::new(&self.client)
+        MobileAppsRequest::new(self.client)
     }
 
     pub fn targeted_managed_app_configurations(
         &self,
     ) -> TargetedManagedAppConfigurationsRequest<'a, Client> {
-        TargetedManagedAppConfigurationsRequest::new(&self.client)
+        TargetedManagedAppConfigurationsRequest::new(self.client)
     }
 
     pub fn vpp_tokens(&self) -> VppTokensRequest<'a, Client> {
-        VppTokensRequest::new(&self.client)
+        VppTokensRequest::new(self.client)
     }
 }
 
@@ -913,11 +913,11 @@ where
     });
 
     pub fn applied_policies(&self) -> AppliedPoliciesRequest<'a, Client> {
-        AppliedPoliciesRequest::new(&self.client)
+        AppliedPoliciesRequest::new(self.client)
     }
 
     pub fn intended_policies(&self) -> IntendedPoliciesRequest<'a, Client> {
-        IntendedPoliciesRequest::new(&self.client)
+        IntendedPoliciesRequest::new(self.client)
     }
 }
 
@@ -1089,7 +1089,7 @@ where
     });
 
     pub fn user_state_summary(&self) -> UserStateSummaryRequest<'a, Client> {
-        UserStateSummaryRequest::new(&self.client)
+        UserStateSummaryRequest::new(self.client)
     }
 }
 

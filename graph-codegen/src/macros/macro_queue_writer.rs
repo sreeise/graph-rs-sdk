@@ -1,9 +1,8 @@
 use crate::api_types::{
-    Metadata, PathMetadata, PathMetadataQueue, RequestClientList, RequestMetadata, RequestTask,
+    Metadata, PathMetadataQueue, RequestClientList, RequestMetadata, RequestTask,
 };
 use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::inflector::Inflector;
-use crate::openapi::OpenApi;
 use crate::parser::client_resource::ResourceParsingInfo;
 use crate::parser::ParserSettings;
 use bytes::{BufMut, BytesMut};
@@ -11,10 +10,9 @@ use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::create_dir;
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
-use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::fs::{File, OpenOptions};
-use std::io::{Read, Write};
+use std::io::Write;
 use std::path::Path;
 use std::str::FromStr;
 

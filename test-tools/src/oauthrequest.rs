@@ -200,13 +200,13 @@ impl OAuthTestClient {
     pub fn request_access_token(&self) -> Option<(String, AccessToken)> {
         if Environment::is_local() || Environment::is_travis() {
             let map: OAuthTestClientMap = OAuthTestClientMap::from_file("./env.json").unwrap();
-            self.get_access_token(map.get(&self).unwrap())
+            self.get_access_token(map.get(self).unwrap())
         } else if Environment::is_appveyor() {
             self.get_access_token(OAuthTestCredentials::new_env())
         } else if Environment::is_github() {
             let map: OAuthTestClientMap =
                 serde_json::from_str(&env::var("TEST_CREDENTIALS").unwrap()).unwrap();
-            self.get_access_token(map.get(&self).unwrap())
+            self.get_access_token(map.get(self).unwrap())
         } else {
             None
         }
@@ -215,14 +215,14 @@ impl OAuthTestClient {
     pub async fn request_access_token_async(&self) -> Option<(String, AccessToken)> {
         if Environment::is_local() || Environment::is_travis() {
             let map: OAuthTestClientMap = OAuthTestClientMap::from_file("./env.json").unwrap();
-            self.get_access_token_async(map.get(&self).unwrap()).await
+            self.get_access_token_async(map.get(self).unwrap()).await
         } else if Environment::is_appveyor() {
             self.get_access_token_async(OAuthTestCredentials::new_env())
                 .await
         } else if Environment::is_github() {
             let map: OAuthTestClientMap =
                 serde_json::from_str(&env::var("TEST_CREDENTIALS").unwrap()).unwrap();
-            self.get_access_token_async(map.get(&self).unwrap()).await
+            self.get_access_token_async(map.get(self).unwrap()).await
         } else {
             None
         }

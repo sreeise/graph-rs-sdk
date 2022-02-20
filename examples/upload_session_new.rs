@@ -26,8 +26,10 @@ fn main() {
 fn upload_session_new() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let mut upload = Session::default();
-    upload.microsoft_graph_conflict_behavior = Some(CONFLICT_BEHAVIOR.into());
+    let upload = Session {
+        microsoft_graph_conflict_behavior: Some(CONFLICT_BEHAVIOR.into()),
+        ..Default::default()
+    };
 
     let session = client
         .v1()
@@ -38,9 +40,9 @@ fn upload_session_new() {
 
     if let Ok(mut session) = session {
         let cancel_request = session.cancel();
-        let mut iter = session.into_iter();
+        let iter = session;
 
-        while let Some(next) = iter.next() {
+        for next in iter {
             match next {
                 Ok(NextSession::Next(response)) => {
                     println!("\nResponse: {:#?}\n", response);

@@ -22,7 +22,7 @@ fn graph_discovery_oauth_v1() {
     );
     assert_eq!(
         oauth.get(OAuthCredential::LogoutURL),
-        Some(keys.end_session_endpoint.to_string())
+        Some(keys.end_session_endpoint)
     );
 }
 
@@ -40,7 +40,7 @@ fn graph_discovery_oauth_v2() {
     );
     assert_eq!(
         oauth.get(OAuthCredential::RefreshTokenURL),
-        Some(String::from(keys.token_endpoint))
+        Some(keys.token_endpoint)
     );
     assert_eq!(
         oauth.get(OAuthCredential::LogoutURL),

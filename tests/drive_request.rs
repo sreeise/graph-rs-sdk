@@ -301,7 +301,7 @@ fn drive_upload_session() {
         if let Ok(mut session) = session {
             let cancel_request = session.cancel();
 
-            for next in session.into_iter() {
+            for next in session {
                 match next {
                     Ok(NextSession::Next(response)) => {
                         assert!(response.status().is_success());
@@ -369,7 +369,7 @@ pub fn get_drive_base() {
             assert!(
                 response.status() == 200 || response.status() == 201 || response.status() == 204
             );
-            let odata_context = response.body()["@odata.context"].as_str().clone().unwrap();
+            let odata_context = response.body()["@odata.context"].as_str().unwrap();
             assert_eq!(
                 "https://graph.microsoft.com/v1.0/$metadata#drives/$entity",
                 odata_context

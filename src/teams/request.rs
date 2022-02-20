@@ -353,19 +353,19 @@ where
     });
 
     pub fn channels(&self) -> ChannelsRequest<'a, Client> {
-        ChannelsRequest::new(&self.client)
+        ChannelsRequest::new(self.client)
     }
 
     pub fn installed_apps(&self) -> InstalledAppsRequest<'a, Client> {
-        InstalledAppsRequest::new(&self.client)
+        InstalledAppsRequest::new(self.client)
     }
 
     pub fn primary_channel(&self) -> PrimaryChannelRequest<'a, Client> {
-        PrimaryChannelRequest::new(&self.client)
+        PrimaryChannelRequest::new(self.client)
     }
 
     pub fn schedule(&self) -> ScheduleRequest<'a, Client> {
-        ScheduleRequest::new(&self.client)
+        ScheduleRequest::new(self.client)
     }
 }
 
@@ -500,11 +500,11 @@ where
     });
 
     pub fn messages(&self) -> MessagesRequest<'a, Client> {
-        MessagesRequest::new(&self.client)
+        MessagesRequest::new(self.client)
     }
 
     pub fn tabs(&self) -> TabsRequest<'a, Client> {
-        TabsRequest::new(&self.client)
+        TabsRequest::new(self.client)
     }
 }
 
@@ -762,11 +762,11 @@ where
     });
 
     pub fn primary_channel_messages(&self) -> PrimaryChannelMessagesRequest<'a, Client> {
-        PrimaryChannelMessagesRequest::new(&self.client)
+        PrimaryChannelMessagesRequest::new(self.client)
     }
 
     pub fn primary_channel_tabs(&self) -> PrimaryChannelTabsRequest<'a, Client> {
-        PrimaryChannelTabsRequest::new(&self.client)
+        PrimaryChannelTabsRequest::new(self.client)
     }
 }
 

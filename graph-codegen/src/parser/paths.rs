@@ -239,7 +239,7 @@ impl RequestParserBuilder for Operation {
             }
         }
 
-        request.modify(&modifier);
+        request.modify(modifier);
         request.method = http_method;
 
         if request.operation_mapping.is_empty() {
@@ -284,31 +284,31 @@ impl Path {
         let mut requests = VecDeque::new();
 
         if let Some(request) =
-            Path::build_request(&path, &modifier, self.get.as_ref(), HttpMethod::GET)
+            Path::build_request(path, modifier, self.get.as_ref(), HttpMethod::GET)
         {
             requests.push_back(request);
         }
 
         if let Some(request) =
-            Path::build_request(&path, &modifier, self.post.as_ref(), HttpMethod::POST)
+            Path::build_request(path, modifier, self.post.as_ref(), HttpMethod::POST)
         {
             requests.push_back(request);
         }
 
         if let Some(request) =
-            Path::build_request(&path, &modifier, self.put.as_ref(), HttpMethod::PUT)
+            Path::build_request(path, modifier, self.put.as_ref(), HttpMethod::PUT)
         {
             requests.push_back(request);
         }
 
         if let Some(request) =
-            Path::build_request(&path, &modifier, self.patch.as_ref(), HttpMethod::PATCH)
+            Path::build_request(path, modifier, self.patch.as_ref(), HttpMethod::PATCH)
         {
             requests.push_back(request);
         }
 
         if let Some(request) =
-            Path::build_request(&path, &modifier, self.delete.as_ref(), HttpMethod::DELETE)
+            Path::build_request(path, modifier, self.delete.as_ref(), HttpMethod::DELETE)
         {
             requests.push_back(request);
         }
@@ -323,7 +323,7 @@ impl Path {
     ) -> Option<Request> {
         operation
             .as_ref()
-            .map(|operation| operation.build(path.to_string(), &modifier, http_method))
+            .map(|operation| operation.build(path.to_string(), modifier, http_method))
     }
 }
 

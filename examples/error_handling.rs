@@ -27,23 +27,19 @@ fn main() {
     let response = client.v1().me().get_user().send();
 
     if let Err(e) = response {
-        match e {
-            GraphFailure::GraphError(err) => {
-                // Basic error information from the HTTP Response
-                println!(
-                    "Description: {:#?}",
-                    err.code.canonical_reason().unwrap_or_default()
-                );
-                println!("Code: {:#?}\n", err.code);
+        if let GraphFailure::GraphError(err) = e {
+            println!(
+                "Description: {:#?}",
+                err.code.canonical_reason().unwrap_or_default()
+            );
+            println!("Code: {:#?}\n", err.code);
 
-                // Graph error information:
-                println!("Code property: {:#?}", err.code_property());
-                println!("Request ID: {:#?}", err.request_id());
-                println!("Message: {:#?}", err.message());
-                println!("Date: {:#?}", err.date());
-                println!("Detailed Error Code: {:#?}", err.detailed_error_code());
-            }
-            _ => {}
+            // Graph error information:
+            println!("Code property: {:#?}", err.code_property());
+            println!("Request ID: {:#?}", err.request_id());
+            println!("Message: {:#?}", err.message());
+            println!("Date: {:#?}", err.date());
+            println!("Detailed Error Code: {:#?}", err.detailed_error_code());
         }
     }
 }

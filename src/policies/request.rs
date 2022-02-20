@@ -299,7 +299,7 @@ where
     });
 
     pub fn permission_grant_policies(&self) -> PermissionGrantPoliciesRequest<'a, Client> {
-        PermissionGrantPoliciesRequest::new(&self.client)
+        PermissionGrantPoliciesRequest::new(self.client)
     }
 }
 

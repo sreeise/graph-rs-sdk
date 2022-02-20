@@ -613,7 +613,7 @@ impl OAuth {
         rng.fill(&mut buf)?;
         let verifier = base64::encode_config(&buf, base64::URL_SAFE_NO_PAD);
         let mut context = ring::digest::Context::new(&ring::digest::SHA256);
-        context.update(&verifier.as_bytes());
+        context.update(verifier.as_bytes());
         let code_challenge =
             base64::encode_config(context.finish().as_ref(), base64::URL_SAFE_NO_PAD);
         self.code_verifier(&verifier);

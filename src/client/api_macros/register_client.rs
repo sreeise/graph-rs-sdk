@@ -1,4 +1,3 @@
-#[macro_use]
 macro_rules! register_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ) => {
         $( register_helper!($helper, $value); )*

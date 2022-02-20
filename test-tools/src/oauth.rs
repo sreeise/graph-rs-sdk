@@ -68,7 +68,7 @@ impl OAuthTestTool {
         let query = parsed_url.query().unwrap();
         let parse = url::form_urlencoded::parse(query.as_bytes());
 
-        for query in parse.into_iter() {
+        for query in parse {
             println!("{:#?}", &query);
             assert!(cow_cred.contains(&query));
             assert!(!cow_cred_false.contains(&query));
