@@ -35,6 +35,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
             );
         }
         ResourceIdentity::AuditLogs => {
+            // auditLogs.auditLogRoot.GetAuditLogRoot
             modify_target.operation_map("auditLogs.auditLogRoot", "auditLogs");
             modify_target.map.insert(
                 MatchTarget::OperationId("auditLogs.auditLogRoot.GetAuditLogRoot".to_string()),

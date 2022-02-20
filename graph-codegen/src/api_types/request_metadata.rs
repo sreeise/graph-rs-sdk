@@ -1,7 +1,7 @@
 use crate::api_types::{Metadata, MetadataModifier, RequestClientList, RequestTask};
 use crate::inflector::Inflector;
 use crate::macros::{MacroImplWriter, MacroQueueWriter};
-use crate::openapi::OpenApi;
+use crate::openapi::{OpenApi, PathItem};
 use crate::parser::client_resource::ResourceParsingInfo;
 use crate::parser::filter::{Filter, ModifierMap};
 use crate::parser::{HttpMethod, ParserSettings};
@@ -60,7 +60,7 @@ impl RequestMetadata {
 
     pub fn transform_id_request(&mut self) {
         self.operation_mapping = format!("{}Id", &self.operation_mapping);
-        self.parent = format!("{}Id", &self.original_parent);
+        self.parent = format!("{}Id", &self.operation_mapping);
     }
 
     pub fn transform_secondary_id_request(
@@ -131,10 +131,13 @@ impl Metadata for RequestMetadata {
 impl MetadataModifier for RequestMetadata {
     fn replace_operation_mapping(&mut self, replacement: &str) {
         self.operation_mapping = replacement.to_string();
+        self.parent = replacement.to_pascal_case();
     }
 
     fn replace_operation_id(&mut self, replacement: &str) {
+        println!("\n\tSetting operation id replacement to: {}", replacement);
         self.operation_id = replacement.to_string();
+        println!("\n\tSelf operation id: {}", self.operation_id);
     }
 
     fn replace_operation_mapping_n(&mut self, pat: &str, replacement: &str, count: usize) {
@@ -414,6 +417,9 @@ impl MacroQueueWriter for PathMetadata {
 pub struct PathMetadataMap(BTreeMap<String, VecDeque<PathMetadata>>);
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
+pub struct PathItemMap(BTreeMap<String, PathItem>);
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct PathMetadataQueue(VecDeque<PathMetadata>);
 
 impl PathMetadataQueue {
@@ -566,6 +572,14 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
                 resource_parsing_info.resource_identity.to_string()
             }
         };
+
+        let path_item_map = PathItemMap(open_api.filter_path(&resource_parsing_info.path));
+
+        let path_item_file = format!(
+            "./graph-codegen/src/parsed_metadata/{}_openapi.json",
+            name.to_snake_case()
+        );
+        path_item_map.as_file_pretty(&path_item_file).unwrap();
 
         let metadata: VecDeque<PathMetadata> = requests
             .iter()

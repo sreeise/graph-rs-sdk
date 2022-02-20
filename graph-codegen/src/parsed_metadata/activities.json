@@ -1,0 +1,222 @@
+[
+  {
+    "path": "/activities",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "activities.ListActivities",
+        "operation_mapping": "activities",
+        "http_method": "GET",
+        "doc": "Get activities from me",
+        "parent": "Activities",
+        "original_parent": "Activities",
+        "resource_identity": null
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "activities.CreateActivities",
+        "operation_mapping": "activities",
+        "http_method": "POST",
+        "doc": "Create new navigation property to activities for me",
+        "parent": "Activities",
+        "original_parent": "Activities",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/activities/microsoft.graph.recent()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.activities.recent",
+        "operation_mapping": "activities",
+        "http_method": "GET",
+        "doc": "Invoke function recent",
+        "parent": "Activities",
+        "original_parent": "Activities",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/activities/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "activities.UpdateActivities",
+        "operation_mapping": "activitiesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property activities in me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.DeleteActivities",
+        "operation_mapping": "activitiesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property activities for me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "activities.GetActivities",
+        "operation_mapping": "activitiesId",
+        "http_method": "GET",
+        "doc": "Get activities from me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/activities/{{RID}}/historyItems",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.activities.ListHistoryItems",
+        "operation_mapping": "activitiesId",
+        "http_method": "GET",
+        "doc": "Get historyItems from me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.activities.CreateHistoryItems",
+        "operation_mapping": "activitiesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to historyItems for me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/activities/{{RID}}/historyItems/{{id2}}",
+    "param_size": 1,
+    "parameters": [
+      "activity_history_item_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.activities.DeleteHistoryItems",
+        "operation_mapping": "activitiesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property historyItems for me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.activities.GetHistoryItems",
+        "operation_mapping": "activitiesId",
+        "http_method": "GET",
+        "doc": "Get historyItems from me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.activities.UpdateHistoryItems",
+        "operation_mapping": "activitiesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property historyItems in me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/activities/{{RID}}/historyItems/{{id2}}/activity",
+    "param_size": 1,
+    "parameters": [
+      "activity_history_item_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.activities.historyItems.GetActivity",
+        "operation_mapping": "activitiesId",
+        "http_method": "GET",
+        "doc": "Get activity from me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/activities/{{RID}}/historyItems/{{id2}}/activity/$ref",
+    "param_size": 1,
+    "parameters": [
+      "activity_history_item_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.activities.historyItems.UpdateRefActivity",
+        "operation_mapping": "activitiesId",
+        "http_method": "PUT",
+        "doc": "Update the ref of navigation property activity in me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.activities.historyItems.DeleteRefActivity",
+        "operation_mapping": "activitiesId",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property activity for me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.activities.historyItems.GetRefActivity",
+        "operation_mapping": "activitiesId",
+        "http_method": "GET",
+        "doc": "Get ref of activity from me",
+        "parent": "ActivitiesId",
+        "original_parent": "Activities",
+        "resource_identity": null
+      }
+    ]
+  }
+]
