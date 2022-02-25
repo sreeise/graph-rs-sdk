@@ -19,6 +19,7 @@ use std::convert::AsRef;
 #[strum(serialize_all = "camelCase")]
 pub enum ResourceIdentity {
     Activities,
+    Admin,
     AppCatalogs,
     Application,
     Applications,
@@ -62,6 +63,7 @@ pub enum ResourceIdentity {
     GroupSettingTemplates,
     GroupSettings,
     Groups,
+    HealthOverviews,
     HistoryItems,
     Identity,
     InferenceClassification,
@@ -97,6 +99,7 @@ pub enum ResourceIdentity {
     SectionGroups,
     Sections,
     Security,
+    ServiceAnnouncement,
     ServicePrincipals,
     Sessions,
     Settings,
