@@ -8,6 +8,16 @@ pub fn get_client_link_settings(
     let mut map: BTreeMap<String, Vec<ClientLinkSettings>> = BTreeMap::new();
 
     match resource_identity {
+        ResourceIdentity::Admin => {
+            map.insert(
+                "admin".into(),
+                vec![ClientLinkSettings::new("serviceAnnouncement")
+                    .use_method_name("service_announcement")
+                    .with_extend_path_ident()
+                    .with_set_resource_identity()]
+                .mem_take(),
+            );
+        }
         ResourceIdentity::Application | ResourceIdentity::Applications => {
             map.insert(
                 "applications".into(),
@@ -945,6 +955,32 @@ pub fn get_client_link_settings(
                         .with_set_resource_identity(),
                     ClientLinkSettings::new("parentSectionGroup")
                         .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        }
+        ResourceIdentity::ServiceAnnouncement => {
+            map.insert(
+                "serviceAnnouncement".into(),
+                vec![
+                    ClientLinkSettings::new("message")
+                        .use_method_name("messages")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("messages")
+                        .use_method_name("message")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("healthOverviews")
+                        .use_method_name("health_overviews")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("healthOverviewsId")
+                        .use_method_name("health_overview")
+                        .with_id_param()
                         .with_extend_path_ident()
                         .with_set_resource_identity(),
                 ]
