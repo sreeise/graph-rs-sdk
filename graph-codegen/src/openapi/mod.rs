@@ -62,9 +62,10 @@ use crate::traits::{FilterPath, RequestParser};
 use from_as::*;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
+use inflector::Inflector;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reqwest::Url;
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::{
     collections::{BTreeMap, VecDeque},
     convert::TryFrom,
@@ -180,6 +181,21 @@ impl OpenApi {
             .iter()
             .map(|(_path, path_item)| path_item.operations())
             .flatten()
+            .collect()
+    }
+
+    pub fn top_level_resources(&self) -> BTreeSet<String> {
+        self.paths()
+            .iter()
+            .map(|(path, _path_item)| {
+                path.split("/")
+                    .into_iter()
+                    .filter(|s| !s.trim().is_empty())
+                    .take(1)
+                    .collect()
+            })
+            .filter(|s: &String| !s.is_empty())
+            .map(|s| s.to_string().to_pascal_case())
             .collect()
     }
 }

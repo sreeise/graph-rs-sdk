@@ -88,6 +88,7 @@ impl ToString for HttpMethod {
     }
 }
 
+#[deprecated]
 #[derive(
     Debug,
     Copy,
@@ -197,6 +198,7 @@ impl Default for RequestType {
     }
 }
 
+#[deprecated]
 #[derive(
     Eq,
     PartialEq,
@@ -265,6 +267,7 @@ impl RequestParser for Request {
     }
 }
 
+#[deprecated]
 pub struct ReqSet {
     set: HashSet<Request>,
 }
@@ -279,6 +282,7 @@ impl ReqSet {
 }
 
 /// RequestMap holds a list of requests that correspond to a URL path
+#[deprecated]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, Ord, PartialOrd, FromFile, AsFile)]
 pub struct RequestMap {
     pub path: String,
@@ -340,6 +344,7 @@ impl RequestMap {
 }
 
 /// RequestSet holds a set of unique RequestMap objects.
+#[deprecated]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct RequestSet {
     pub set: HashSet<RequestMap>,
@@ -617,6 +622,7 @@ impl IntoIterator for RequestSet {
 
 // This is mainly used to output a serializable struct with
 // the request sets grouped by operation mapping.
+#[deprecated]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct ApiImpl {
     pub requests: HashMap<String, RequestSet>,
@@ -628,6 +634,7 @@ impl From<HashMap<String, RequestSet>> for ApiImpl {
     }
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone)]
 pub struct ResourceRequestMap {
     pub modifier: Modifier,
