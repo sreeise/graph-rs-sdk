@@ -18,6 +18,7 @@ lazy_static! {
         reqwest::Url::parse(API_V1_METADATA_URL_STR).unwrap();
 }
 
+#[deprecated]
 pub trait Generate<Clients> {
     fn generate(clients: Clients) -> Result<(), ParseError>;
     fn dry_run(clients: Clients) -> Result<(), ParseError>;
@@ -78,6 +79,7 @@ pub trait Generate<Clients> {
 /// let map = builder.generate_requests();
 /// pretty!(map);
 /// ```
+#[deprecated]
 #[derive(Default, Debug)]
 pub struct Generator {
     builder: Builder,

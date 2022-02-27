@@ -17,6 +17,7 @@ pub trait IsInPath {
     fn retain_is_in_path(&mut self);
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct RequestBody {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -27,6 +28,7 @@ pub struct RequestBody {
     pub required: Option<bool>,
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Response {
     #[serde(rename = "204")]
@@ -62,6 +64,7 @@ impl Response {
     }
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct ResponseObject {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -78,6 +81,7 @@ impl ResponseObject {
     }
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Content {
     #[serde(rename = "application/json")]
@@ -95,6 +99,7 @@ impl Content {
     }
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct ApplicationJson {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -111,6 +116,7 @@ impl ApplicationJson {
     }
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Schema {
     #[serde(rename = "type")]
@@ -128,6 +134,7 @@ impl Schema {
     }
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Operation {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -327,6 +334,7 @@ impl Path {
     }
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct Parameter {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -362,6 +370,7 @@ impl IsInPath for Option<VecDeque<Parameter>> {
     }
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(default)]
 pub struct PathMap {

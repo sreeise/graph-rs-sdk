@@ -59,8 +59,13 @@ impl RequestMetadata {
     }
 
     pub fn transform_id_request(&mut self) {
-        self.operation_mapping = format!("{}Id", self.operation_mapping.to_pascal_case());
-        self.parent = self.operation_mapping.to_string();
+        if let Some(rid) = self.resource_identity.as_ref() {
+            self.operation_mapping = rid.to_string().to_pascal_case();
+            self.parent = self.operation_mapping.to_string();
+        } else {
+            self.operation_mapping = format!("{}Id", self.operation_mapping.to_pascal_case());
+            self.parent = self.operation_mapping.to_string();
+        }
     }
 
     pub fn transform_secondary_id_request(
@@ -69,9 +74,16 @@ impl RequestMetadata {
         original_parent: &str,
     ) {
         self.operation_mapping = format!("{}Id", operation_mapping);
-        self.parent = format!("{}Id", original_parent.to_pascal_case());
-        self.original_parent = original_parent.to_pascal_case();
-        self.resource_identity = ResourceIdentity::from_str(&self.original_parent).ok();
+
+        if let Some(resource_identity) = self.resource_identity {
+            let resource_id_string = resource_identity.to_string();
+            self.parent = format!("{}Id", resource_id_string.to_pascal_case());
+            self.original_parent = resource_id_string.to_pascal_case();
+        } else {
+            self.parent = format!("{}Id", original_parent.to_pascal_case());
+            self.original_parent = original_parent.to_pascal_case();
+            self.resource_identity = ResourceIdentity::from_str(&self.original_parent).ok();
+        }
     }
 
     pub fn transform_secondary_request(&mut self, operation_mapping: &str, original_parent: &str) {
@@ -94,11 +106,21 @@ impl RequestMetadata {
     }
 
     pub fn resource_identity(&self) -> Option<ResourceIdentity> {
-        ResourceIdentity::from_str(&self.original_parent).ok()
+        self.resource_identity
     }
 
     pub fn set_resource_identity(&mut self, resource_identity: ResourceIdentity) {
         self.resource_identity = Some(resource_identity);
+    }
+
+    pub fn force_resource_identity_mapping(&mut self) {
+        if let Some(rid) = self.resource_identity.as_ref() {
+            let name = rid.to_string().to_pascal_case();
+            self.operation_mapping = name.to_string();
+            self.parent = name.to_string();
+            self.original_parent = name.to_string();
+            self.operation_id = format!("{}.{}", name.to_string(), self.fn_name());
+        }
     }
 }
 
@@ -297,6 +319,12 @@ impl PathMetadata {
         }
         for m in self.metadata.iter_mut() {
             m.transform_secondary_request(operation_mapping, original_parent);
+        }
+    }
+
+    pub fn force_resource_identity_mapping(&mut self) {
+        for metadata in self.metadata.iter_mut() {
+            metadata.force_resource_identity_mapping();
         }
     }
 
@@ -589,7 +617,7 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
             ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
         metadata_queue.update_targets(&modifier_map);
 
-        if let Some(parent_resource_info) = resource_parsing_info.parent_resource_info {
+        if let Some(trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
             metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
             let resource_identity_string = resource_parsing_info.resource_identity.to_string();
 
@@ -599,7 +627,7 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
                 resource_identity_string.as_str(),
             );
 
-            metadata_queue.trim_path_start(parent_resource_info.trim_path_start.as_str());
+            metadata_queue.trim_path_start(trim_path_start.as_str());
         } else {
             metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
             metadata_queue.transform_id_metadata(resource_parsing_info.path.as_str());

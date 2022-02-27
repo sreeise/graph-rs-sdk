@@ -16,6 +16,7 @@ use std::{
     str::FromStr,
 };
 
+#[deprecated]
 #[derive(Default, Debug, Clone)]
 #[allow(dead_code)]
 pub struct SpecBuilder {
@@ -31,6 +32,7 @@ impl SpecBuilder {
     }
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone)]
 pub struct Builder {
     pub(crate) spec: RefCell<SpecBuilder>,
