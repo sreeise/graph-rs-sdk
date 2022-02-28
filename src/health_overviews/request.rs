@@ -55,7 +55,7 @@ impl<'a> HealthOverviewsIdRequest<'a, BlockingHttpClient> {
         doc: "Invoke function incidentReport",
         name: incident_report,
         response: BlockingDownload,
-        path: "/admin/serviceAnnouncement/healthOverviews/{{RID}}/issues/{{id}}/microsoft.graph.incidentReport()",
+        path: "/healthOverviews/{{RID}}/issues/{{id}}/microsoft.graph.incidentReport()",
         params: [ service_health_issue_id ],
         has_body: false
     });
@@ -66,7 +66,7 @@ impl<'a> HealthOverviewsIdRequest<'a, AsyncHttpClient> {
         doc: "Invoke function incidentReport",
         name: incident_report,
         response: AsyncDownload,
-        path: "/admin/serviceAnnouncement/healthOverviews/{{RID}}/issues/{{id}}/microsoft.graph.incidentReport()",
+        path: "/healthOverviews/{{RID}}/issues/{{id}}/microsoft.graph.incidentReport()",
         params: [ service_health_issue_id ],
         has_body: false
     });
