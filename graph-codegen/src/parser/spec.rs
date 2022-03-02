@@ -21,6 +21,7 @@ use std::{
     str::FromStr,
 };
 
+#[deprecated]
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Modifier {
     pub(crate) name: String,
@@ -121,6 +122,7 @@ impl<'a> From<&str> for Modifier {
     }
 }
 
+#[deprecated]
 #[derive(Debug, Default, Clone)]
 pub struct ParserSpec {
     pub(crate) paths: PathMap,
@@ -163,6 +165,7 @@ impl ParserSpec {
     }
 }
 
+#[deprecated]
 #[derive(Default, Debug, Clone)]
 pub struct Parser {
     pub(crate) spec: RefCell<ParserSpec>,

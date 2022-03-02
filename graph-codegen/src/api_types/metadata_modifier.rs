@@ -24,38 +24,41 @@ pub trait MetadataModifier {
         false
     }
 
+    fn apply_match_target(&mut self, match_target: &MatchTarget) {
+        match match_target {
+            MatchTarget::OperationId(replacement) => {
+                self.replace_operation_id(replacement.as_ref());
+            }
+            MatchTarget::OperationMap(replacement) => {
+                self.replace_operation_mapping(replacement.as_ref());
+            }
+        }
+    }
+
+    fn apply_match_targets(&mut self, match_targets: &Vec<MatchTarget>) {
+        for mat_target in match_targets {
+            self.apply_match_target(mat_target);
+        }
+    }
+
+    fn force_update_targets(&mut self, modifier_map: &ModifierMap) {
+        for (_match_target, match_target_vec) in modifier_map.map.iter() {
+            self.apply_match_targets(match_target_vec);
+        }
+    }
+
     fn update_targets(&mut self, modifier_map: &ModifierMap) {
         for (match_target, match_target_vec) in modifier_map.map.iter() {
             for mat_target in match_target_vec.iter() {
                 match match_target {
                     MatchTarget::OperationId(id) => {
-                        println!(
-                            "Match Operation Id: {:#?}\nCurrent operation id: {:#?}",
-                            id,
-                            self.operation_id()
-                        );
-
                         if self.operation_id().eq(id.as_str()) {
-                            match mat_target {
-                                MatchTarget::OperationId(replacement) => {
-                                    self.replace_operation_id(replacement.as_ref());
-                                }
-                                MatchTarget::OperationMap(replacement) => {
-                                    self.replace_operation_mapping(replacement.as_ref());
-                                }
-                            }
+                            self.apply_match_target(mat_target);
                         }
                     }
                     MatchTarget::OperationMap(mapping) => {
                         if self.operation_mapping().eq(mapping.as_str()) {
-                            match mat_target {
-                                MatchTarget::OperationId(replacement) => {
-                                    self.replace_operation_id(replacement.as_ref());
-                                }
-                                MatchTarget::OperationMap(replacement) => {
-                                    self.replace_operation_mapping(replacement.as_ref());
-                                }
-                            }
+                            self.apply_match_target(mat_target);
                         }
                     }
                 }
