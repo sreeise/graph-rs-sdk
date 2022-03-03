@@ -119,6 +119,8 @@ extern crate strum;
 pub mod client;
 /// Activities request client.
 pub mod activities;
+/// Admin request client.
+pub mod admin;
 /// App catalogs request client.
 pub mod app_catalogs;
 /// Applications request client.
@@ -179,6 +181,8 @@ pub mod extended_properties;
 pub mod group_lifecycle_policies;
 /// Groups request client.
 pub mod groups;
+/// Health Overviews request client
+pub mod health_overviews;
 /// Identity request client.
 pub mod identity;
 /// Inference classification client (me, users, etc.).
@@ -235,6 +239,8 @@ pub mod schema_extensions;
 pub mod section_groups;
 /// Onenote section request client.
 pub mod sections;
+/// Service announcement request client.
+pub mod service_announcement;
 /// Service principles request client.
 pub mod service_principals;
 /// Communications call record sessions request client.

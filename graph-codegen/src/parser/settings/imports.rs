@@ -2,6 +2,7 @@ use graph_core::resource::ResourceIdentity;
 
 pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
     match resource_identity {
+        ResourceIdentity::Admin => vec!["crate::service_announcement::ServiceAnnouncementRequest"],
         ResourceIdentity::Buckets => vec!["crate::tasks::{TasksRequest, TasksIdRequest}"],
         ResourceIdentity::Calendar | ResourceIdentity::Calendars => vec![
             "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",
@@ -169,6 +170,10 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::threads::{ThreadRequest, ThreadsRequest}",
             "crate::conversations::{ConversationRequest, ConversationsRequest}",
             "crate::planner::PlannerRequest",
+        ],
+        ResourceIdentity::ServiceAnnouncement => vec![
+            "crate::messages::{MessageRequest, MessagesRequest}",
+            "crate::health_overviews::{HealthOverviewsIdRequest, HealthOverviewsRequest}",
         ],
         ResourceIdentity::Threads => vec!["crate::posts::{PostRequest, PostsRequest}"],
         _ => vec![],

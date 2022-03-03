@@ -119,7 +119,7 @@ impl RequestMetadata {
             self.operation_mapping = name.to_string();
             self.parent = name.to_string();
             self.original_parent = name.to_string();
-            self.operation_id = format!("{}.{}", name.to_string(), self.fn_name());
+            self.operation_id = format!("{}.{}", name, self.fn_name());
         }
     }
 }
@@ -188,7 +188,7 @@ pub struct PathMetadata {
 impl From<VecDeque<PathMetadata>> for RequestClientList {
     fn from(vec: VecDeque<PathMetadata>) -> Self {
         let metadata: VecDeque<RequestMetadata> =
-            vec.iter().map(|p| p.metadata.clone()).flatten().collect();
+            vec.iter().flat_map(|p| p.metadata.clone()).collect();
 
         RequestClientList::from(metadata)
     }
@@ -438,8 +438,7 @@ impl MacroQueueWriter for PathMetadata {
     fn imports(&self) -> Vec<String> {
         self.metadata
             .iter()
-            .map(|m| m.request_task.imports())
-            .flatten()
+            .flat_map(|m| m.request_task.imports())
             .map(|s| s.to_string())
             .collect()
     }
@@ -561,8 +560,7 @@ impl MacroImplWriter for PathMetadataQueue {
     fn request_metadata_queue(&self) -> VecDeque<RequestMetadata> {
         self.path_metadata_queue()
             .iter()
-            .map(|p| p.metadata.clone())
-            .flatten()
+            .flat_map(|p| p.metadata.clone())
             .collect()
     }
 

@@ -171,6 +171,7 @@ pub struct Parser {
     pub(crate) spec: RefCell<ParserSpec>,
 }
 
+#[allow(deprecated)]
 impl Parser {
     pub fn parse<P: AsRef<Path>>(file: P) -> Parser {
         Parser {
@@ -303,6 +304,7 @@ impl Parser {
     }
 }
 
+#[allow(deprecated)]
 impl<'a> TryFrom<reqwest::Url> for Parser {
     type Error = reqwest::Error;
 

@@ -267,8 +267,7 @@ pub trait MacroImplWriter {
         for path_metadata_queue in values.iter() {
             let current_imports: Vec<String> = path_metadata_queue
                 .iter()
-                .map(|m| m.imports())
-                .flatten()
+                .flat_map(|m| m.imports())
                 .collect();
             imports.extend(current_imports);
         }

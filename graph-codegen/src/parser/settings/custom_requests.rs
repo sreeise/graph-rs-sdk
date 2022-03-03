@@ -3,6 +3,7 @@ use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
 use std::collections::HashMap;
 
+#[allow(deprecated)]
 pub fn get_custom_requests(
     resource_identity: ResourceIdentity,
 ) -> Option<HashMap<String, RequestSet>> {

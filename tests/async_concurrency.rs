@@ -42,8 +42,7 @@ async fn buffered_requests() {
             .into_body()
             .value
             .iter()
-            .map(|user| user.id.clone())
-            .flatten()
+            .filter_map(|user| user.id.clone())
             .collect();
         assert!(!users.is_empty());
 

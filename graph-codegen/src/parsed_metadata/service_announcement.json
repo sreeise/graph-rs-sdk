@@ -1,0 +1,133 @@
+[
+  {
+    "path": "/serviceAnnouncement",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "admin.GetServiceAnnouncement",
+        "operation_mapping": "serviceAnnouncement",
+        "http_method": "GET",
+        "doc": "Get serviceAnnouncement from admin",
+        "parent": "ServiceAnnouncement",
+        "original_parent": "ServiceAnnouncement",
+        "resource_identity": null
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "admin.UpdateServiceAnnouncement",
+        "operation_mapping": "serviceAnnouncement",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property serviceAnnouncement in admin",
+        "parent": "ServiceAnnouncement",
+        "original_parent": "ServiceAnnouncement",
+        "resource_identity": null
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "admin.DeleteServiceAnnouncement",
+        "operation_mapping": "serviceAnnouncement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property serviceAnnouncement for admin",
+        "parent": "ServiceAnnouncement",
+        "original_parent": "ServiceAnnouncement",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/serviceAnnouncement/issues",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "admin.serviceAnnouncement.ListIssues",
+        "operation_mapping": "serviceAnnouncement",
+        "http_method": "GET",
+        "doc": "Get issues from admin",
+        "parent": "ServiceAnnouncement",
+        "original_parent": "ServiceAnnouncement",
+        "resource_identity": null
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "admin.serviceAnnouncement.CreateIssues",
+        "operation_mapping": "serviceAnnouncement",
+        "http_method": "POST",
+        "doc": "Create new navigation property to issues for admin",
+        "parent": "ServiceAnnouncement",
+        "original_parent": "ServiceAnnouncement",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/serviceAnnouncement/issues/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "service_health_issue_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "admin.serviceAnnouncement.DeleteIssues",
+        "operation_mapping": "serviceAnnouncement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property issues for admin",
+        "parent": "ServiceAnnouncement",
+        "original_parent": "ServiceAnnouncement",
+        "resource_identity": null
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "admin.serviceAnnouncement.UpdateIssues",
+        "operation_mapping": "serviceAnnouncement",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property issues in admin",
+        "parent": "ServiceAnnouncement",
+        "original_parent": "ServiceAnnouncement",
+        "resource_identity": null
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "admin.serviceAnnouncement.GetIssues",
+        "operation_mapping": "serviceAnnouncement",
+        "http_method": "GET",
+        "doc": "Get issues from admin",
+        "parent": "ServiceAnnouncement",
+        "original_parent": "ServiceAnnouncement",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/serviceAnnouncement/issues/{{id}}/microsoft.graph.incidentReport()",
+    "param_size": 1,
+    "parameters": [
+      "service_health_issue_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Download",
+        "operation_id": "admin.serviceAnnouncement.issues.serviceHealthIssue.incidentReport",
+        "operation_mapping": "serviceAnnouncement",
+        "http_method": "GET",
+        "doc": "Invoke function incidentReport",
+        "parent": "ServiceAnnouncement",
+        "original_parent": "ServiceAnnouncement",
+        "resource_identity": null
+      }
+    ]
+  }
+]

@@ -65,6 +65,7 @@ impl Response {
 }
 
 #[deprecated]
+#[allow(deprecated)]
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 pub struct ResponseObject {
     #[serde(skip_serializing_if = "Option::is_none")]

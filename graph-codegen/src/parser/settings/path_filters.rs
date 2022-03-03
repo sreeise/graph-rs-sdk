@@ -3,6 +3,14 @@ use graph_core::resource::ResourceIdentity;
 
 pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
     match resource_identity {
+        ResourceIdentity::Admin => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["serviceAnnouncement"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            ))]
+        }
         ResourceIdentity::Buckets => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["/tasks/"].iter().map(|s| s.to_string()).collect(),
@@ -295,6 +303,14 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
             .map(|s| s.to_string())
             .collect(),
         ))],
+        ResourceIdentity::ServiceAnnouncement => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["messages", "healthOverviews"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            ))]
+        }
         ResourceIdentity::Sites => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["onenote", "contentTypes", "lists"]

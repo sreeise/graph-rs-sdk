@@ -49,6 +49,7 @@ pub type AsyncDownload = DownloadClient<
 pub const MAX_FILE_NAME_LEN: usize = 255;
 
 impl<Client, Request> DownloadClient<Client, Request> {
+    #[allow(clippy::single_char_pattern)]
     fn parse_content_disposition(&self, headers: &HeaderMap) -> Option<OsString> {
         if let Some(value) = headers.get("content-disposition") {
             if let Ok(header) = std::str::from_utf8(value.as_ref()) {
@@ -59,7 +60,7 @@ impl<Client, Request> DownloadClient<Client, Request> {
                 if let Some(value) = v.iter().find(|s| s.starts_with("filename*=utf-8''")) {
                     let s = value.replace("filename*=utf-8''", "");
                     if let Ok(s) = percent_encoding::percent_decode(s.as_bytes()).decode_utf8() {
-                        return Some(OsString::from(s.to_string().replace("/", "-")));
+                        return Some(OsString::from(s.to_string().replace('/', "-")));
                     }
                 }
 
@@ -69,7 +70,7 @@ impl<Client, Request> DownloadClient<Client, Request> {
                             value
                                 .replace("\"", "")
                                 .replace("filename=", "")
-                                .replace("/", "-")
+                                .replace('/', "-")
                                 .trim(),
                         ));
                     }

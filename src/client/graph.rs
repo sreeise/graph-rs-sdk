@@ -1,3 +1,4 @@
+use crate::admin::AdminRequest;
 use crate::app_catalogs::AppCatalogsRequest;
 use crate::applications::{ApplicationsIdRequest, ApplicationsRequest};
 use crate::audit_logs::AuditLogsRequest;
@@ -281,6 +282,11 @@ impl<'a, Client> Identify<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    pub fn admin(&self) -> AdminRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Admin);
+        AdminRequest::new(self.client)
+    }
+
     pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::AppCatalogs);
         AppCatalogsRequest::new(self.client)

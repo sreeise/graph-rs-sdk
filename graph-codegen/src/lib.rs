@@ -1,5 +1,5 @@
 #![recursion_limit = "1024"]
-
+#![allow(deprecated)]
 pub extern crate inflector;
 #[macro_use]
 extern crate serde;
