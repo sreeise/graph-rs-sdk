@@ -35,7 +35,7 @@ pub trait MetadataModifier {
         }
     }
 
-    fn apply_match_targets(&mut self, match_targets: &Vec<MatchTarget>) {
+    fn apply_match_targets(&mut self, match_targets: &[MatchTarget]) {
         for mat_target in match_targets {
             self.apply_match_target(mat_target);
         }

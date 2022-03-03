@@ -4,12 +4,54 @@ use crate::api_default_imports::*;
 use graph_http::types::NoContent;
 use graph_http::{AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient};
 
+register_client!(HealthOverviewsRequest,);
 register_client!(HealthOverviewsIdRequest, ());
+
+impl<'a, Client> HealthOverviewsRequest<'a, Client>
+where
+    Client: graph_http::RequestClient,
+{
+    get!({
+        doc: "Get healthOverviews from admin",
+        name: list_health_overviews,
+        response: serde_json::Value,
+        path: "/healthOverviews",
+        has_body: false
+    });
+    post!({
+        doc: "Create new navigation property to healthOverviews for admin",
+        name: create_health_overviews,
+        response: serde_json::Value,
+        path: "/healthOverviews",
+        has_body: true
+    });
+}
 
 impl<'a, Client> HealthOverviewsIdRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    delete!({
+        doc: "Delete navigation property healthOverviews for admin",
+        name: delete_health_overviews,
+        response: NoContent,
+        path: "/healthOverviews/{{RID}}",
+        has_body: false
+    });
+    patch!({
+        doc: "Update the navigation property healthOverviews in admin",
+        name: update_health_overviews,
+        response: NoContent,
+        path: "/healthOverviews/{{RID}}",
+        has_body: true
+    });
+    get!({
+        doc: "Get healthOverviews from admin",
+        name: get_health_overviews,
+        response: serde_json::Value,
+        path: "/healthOverviews/{{RID}}",
+        has_body: false
+    });
     post!({
         doc: "Create new navigation property to issues for admin",
         name: create_issues,
@@ -32,14 +74,6 @@ where
         params: [ service_health_issue_id ],
         has_body: false
     });
-    patch!({
-        doc: "Update the navigation property issues in admin",
-        name: update_issues,
-        response: NoContent,
-        path: "/healthOverviews/{{RID}}/issues/{{id}}",
-        params: [ service_health_issue_id ],
-        has_body: true
-    });
     delete!({
         doc: "Delete navigation property issues for admin",
         name: delete_issues,
@@ -47,6 +81,14 @@ where
         path: "/healthOverviews/{{RID}}/issues/{{id}}",
         params: [ service_health_issue_id ],
         has_body: false
+    });
+    patch!({
+        doc: "Update the navigation property issues in admin",
+        name: update_issues,
+        response: NoContent,
+        path: "/healthOverviews/{{RID}}/issues/{{id}}",
+        params: [ service_health_issue_id ],
+        has_body: true
     });
 }
 

@@ -185,7 +185,7 @@ impl Parse<&std::path::Path> for Generator {
             } => {
                 let path_map: PathMap = PathMap::from_file(parse_from)?;
                 let mut path_map: PathMap = path_map.filter(start_filter).into();
-                let path_map = path_map.clean_secondary(&modifier.to_string());
+                let path_map = path_map.clean_secondary(modifier.as_ref());
                 let modifiers = Modifier::build_modifier_vec_resource_identity(&[modifier]);
                 let parser_spec = ParserSpec::parser_spec(path_map, modifiers);
 
@@ -269,7 +269,7 @@ impl Parse<reqwest::Url> for Generator {
             } => {
                 let path_map = PathMap::try_from(parse_from)?;
                 let mut path_map: PathMap = path_map.filter(start_filter).into();
-                let path_map = path_map.clean_secondary(&modifier.to_string());
+                let path_map = path_map.clean_secondary(modifier.as_ref());
                 let modifiers = Modifier::build_modifier_vec_resource_identity(&[modifier]);
                 let parser_spec = ParserSpec::parser_spec(path_map, modifiers);
 

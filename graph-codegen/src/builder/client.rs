@@ -99,8 +99,7 @@ impl ClientBuilder {
         let imports_vec: Vec<u8> = self
             .imports
             .iter()
-            .map(|s| format!("use {};\n", s).into_bytes())
-            .flatten()
+            .flat_map(|s| format!("use {};\n", s).into_bytes())
             .collect();
         self.buf.extend(imports_vec);
         self.buf.put_u8(b'\n');

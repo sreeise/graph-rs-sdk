@@ -1,7 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::health_overviews::HealthOverviewsIdRequest;
+use crate::health_overviews::{HealthOverviewsIdRequest, HealthOverviewsRequest};
 use crate::messages::{MessageRequest, MessagesRequest};
 use graph_http::types::NoContent;
 use graph_http::{AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient};
@@ -12,11 +12,18 @@ impl<'a, Client> ServiceAnnouncementRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn health_overview<ID: AsRef<str>>(&self, id: ID) -> HealthOverviewsIdRequest<'a, Client> {
+    pub fn health_overviews(&self) -> HealthOverviewsRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref()]);
         self.client.set_ident(ResourceIdentity::HealthOverviews);
+        HealthOverviewsRequest::new(self.client)
+    }
+
+    pub fn health_overview<ID: AsRef<str>>(&self, id: ID) -> HealthOverviewsIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
         HealthOverviewsIdRequest::new(id.as_ref(), self.client)
     }
 
@@ -35,12 +42,26 @@ where
         MessagesRequest::new(id.as_ref(), self.client)
     }
 
-    post!({
-        doc: "Create new navigation property to issues for admin",
-        name: create_issues,
+    get!({
+        doc: "Get serviceAnnouncement from admin",
+        name: get_service_announcement,
         response: serde_json::Value,
-        path: "/serviceAnnouncement/issues",
+        path: "/serviceAnnouncement",
+        has_body: false
+    });
+    patch!({
+        doc: "Update the navigation property serviceAnnouncement in admin",
+        name: update_service_announcement,
+        response: NoContent,
+        path: "/serviceAnnouncement",
         has_body: true
+    });
+    delete!({
+        doc: "Delete navigation property serviceAnnouncement for admin",
+        name: delete_service_announcement,
+        response: NoContent,
+        path: "/serviceAnnouncement",
+        has_body: false
     });
     get!({
         doc: "Get issues from admin",
@@ -49,13 +70,12 @@ where
         path: "/serviceAnnouncement/issues",
         has_body: false
     });
-    get!({
-        doc: "Get issues from admin",
-        name: get_issues,
+    post!({
+        doc: "Create new navigation property to issues for admin",
+        name: create_issues,
         response: serde_json::Value,
-        path: "/serviceAnnouncement/issues/{{id}}",
-        params: [ service_health_issue_id ],
-        has_body: false
+        path: "/serviceAnnouncement/issues",
+        has_body: true
     });
     delete!({
         doc: "Delete navigation property issues for admin",
@@ -73,20 +93,13 @@ where
         params: [ service_health_issue_id ],
         has_body: true
     });
-
     get!({
-        doc: "Get healthOverviews from admin",
-        name: list_health_overviews,
+        doc: "Get issues from admin",
+        name: get_issues,
         response: serde_json::Value,
-        path: "/serviceAnnouncement/healthOverviews",
+        path: "/serviceAnnouncement/issues/{{id}}",
+        params: [ service_health_issue_id ],
         has_body: false
-    });
-    post!({
-        doc: "Create new navigation property to healthOverviews for admin",
-        name: create_health_overviews,
-        response: serde_json::Value,
-        path: "/serviceAnnouncement/healthOverviews",
-        has_body: true
     });
 }
 

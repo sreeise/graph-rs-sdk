@@ -37,9 +37,9 @@ impl RegisterClient {
     pub fn from_resource_identity(resource_identity: ResourceIdentity) -> String {
         match resource_identity {
             ResourceIdentity::Activities => {
-                RegisterClient::BaseClient.register_client(&resource_identity.to_string())
+                RegisterClient::BaseClient.register_client(resource_identity.as_ref())
             }
-            _ => RegisterClient::BaseClient.register_client(&resource_identity.to_string()),
+            _ => RegisterClient::BaseClient.register_client(resource_identity.as_ref()),
             /*
             ResourceIdentity::AppCatalogs => {}
             ResourceIdentity::Application => {}
