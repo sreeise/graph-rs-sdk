@@ -82,6 +82,12 @@ where
         Identify { client: self }
     }
 
+    pub fn custom_endpoint(&'a self, custom_endpoint: &str) -> Identify<'a, Client> {
+        self.request
+            .set_url(GraphUrl::from_str(custom_endpoint).unwrap());
+        Identify { client: self }
+    }
+
     /// Check if the current host is v1.0.
     pub fn is_v1(&self) -> bool {
         self.request.url().as_str().starts_with(GRAPH_URL)
