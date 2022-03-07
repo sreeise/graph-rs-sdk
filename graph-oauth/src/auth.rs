@@ -9,6 +9,7 @@ use ring::rand::SecureRandom;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
 use std::convert::TryFrom;
+use std::default::Default;
 use std::fmt;
 use std::io::{Read, Write};
 use std::marker::PhantomData;
@@ -1519,27 +1520,37 @@ impl GrantSelector<AsyncAccessTokenGrant> {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Debug)]
 pub struct AuthorizationRequest {
     uri: String,
+    error: Option<GraphFailure>,
 }
 
 impl AuthorizationRequest {
-    pub fn open(&self) -> OAuthReq<Output> {
+    pub fn open(self) -> OAuthReq<Output> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
         webbrowser::open(self.uri.as_str()).map_err(GraphFailure::from)
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Debug)]
 pub struct AccessTokenRequest {
     uri: String,
     params: HashMap<String, String>,
+    error: Option<GraphFailure>,
 }
 
 impl AccessTokenRequest {
     /// Send the request for an access token. The response body
     /// be will converted to an access token and returned.
-    pub fn send(&mut self) -> OAuthReq<AccessToken> {
+    pub fn send(self) -> OAuthReq<AccessToken> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
         let client = reqwest::blocking::Client::new();
         let builder = client.post(self.uri.as_str()).form(&self.params);
         AccessToken::try_from(builder)
@@ -1549,10 +1560,14 @@ impl AccessTokenRequest {
     /// can be used to convert response bodies to custom
     /// objects using the serde crate. The object must implement
     /// serde deserialize.
-    pub fn json<T>(&mut self) -> OAuthReq<T>
+    pub fn json<T>(self) -> OAuthReq<T>
     where
         for<'de> T: serde::Deserialize<'de>,
     {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
         let client = reqwest::blocking::Client::new();
         let builder = client.post(self.uri.as_str()).form(&self.params);
         let response = builder.send()?;
@@ -1560,16 +1575,21 @@ impl AccessTokenRequest {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Debug)]
 pub struct AsyncAccessTokenRequest {
     uri: String,
     params: HashMap<String, String>,
+    error: Option<GraphFailure>,
 }
 
 impl AsyncAccessTokenRequest {
     /// Send the request for an access token. The response body
     /// be will converted to an access token and returned.
-    pub async fn send(&mut self) -> OAuthReq<AccessToken> {
+    pub async fn send(self) -> OAuthReq<AccessToken> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
         let client = reqwest::Client::new();
         let builder = client.post(self.uri.as_str()).form(&self.params);
         AccessToken::try_from_async(builder).await
@@ -1579,10 +1599,14 @@ impl AsyncAccessTokenRequest {
     /// can be used to convert response bodies to custom
     /// objects using the serde crate. The object must implement
     /// serde deserialize.
-    pub async fn json<T>(&mut self) -> OAuthReq<T>
+    pub async fn json<T>(self) -> OAuthReq<T>
     where
         for<'de> T: serde::Deserialize<'de>,
     {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
         let client = reqwest::Client::new();
         let builder = client.post(self.uri.as_str()).form(&self.params);
         let response = builder.send().await?;
@@ -1590,37 +1614,50 @@ impl AsyncAccessTokenRequest {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Debug)]
 pub struct ImplicitGrant {
     oauth: OAuth,
     grant: GrantType,
 }
 
 impl ImplicitGrant {
-    pub fn url(&mut self) -> Url {
+    pub fn url(&mut self) -> OAuthReq<Url> {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::Authorization);
-        Url::parse(
+        Ok(Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizeURL)
-                .unwrap()
+                .get_or_else(OAuthCredential::AuthorizeURL)?
                 .as_str(),
-        )
-        .unwrap()
+        )?)
     }
 
     pub fn browser_authorization(&mut self) -> AuthorizationRequest {
-        let params = self
-            .oauth
-            .params(
-                self.grant
-                    .available_credentials(GrantRequest::Authorization),
-            )
-            .unwrap();
-        let mut url = self.url();
-        url.query_pairs_mut().extend_pairs(&params);
+        let params = self.oauth.params(
+            self.grant
+                .available_credentials(GrantRequest::Authorization),
+        );
+
+        if let Err(e) = params {
+            return AuthorizationRequest {
+                uri: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        let url_result = self.url();
+
+        if let Err(e) = url_result {
+            return AuthorizationRequest {
+                uri: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        let mut url = url_result.unwrap();
+        url.query_pairs_mut().extend_pairs(&params.unwrap());
         AuthorizationRequest {
             uri: url.to_string(),
+            error: None,
         }
     }
 }
@@ -1644,25 +1681,20 @@ pub struct AccessTokenGrant {
 }
 
 impl AccessTokenGrant {
-    pub fn authorization_url(&mut self) -> Url {
+    pub fn authorization_url(&mut self) -> Result<Url, GraphFailure> {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::Authorization);
-        let params = self
-            .oauth
-            .params(
-                self.grant
-                    .available_credentials(GrantRequest::Authorization),
-            )
-            .unwrap();
+        let params = self.oauth.params(
+            self.grant
+                .available_credentials(GrantRequest::Authorization),
+        )?;
         let mut url = Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizeURL)
-                .unwrap()
+                .get_or_else(OAuthCredential::AuthorizeURL)?
                 .as_str(),
-        )
-        .unwrap();
+        )?;
         url.query_pairs_mut().extend_pairs(&params);
-        url
+        Ok(url)
     }
 
     /// Make a request for authorization. The default browser for a user
@@ -1670,8 +1702,17 @@ impl AccessTokenGrant {
     /// sign in and agree to any permissions that were set by the provided
     /// scopes.
     pub fn browser_authorization(&mut self) -> AuthorizationRequest {
+        let uri = self.authorization_url();
+        if let Err(e) = uri {
+            return AuthorizationRequest {
+                uri: Default::default(),
+                error: Some(e),
+            };
+        }
+
         AuthorizationRequest {
-            uri: self.authorization_url().to_string(),
+            uri: uri.unwrap().to_string(),
+            error: None,
         }
     }
 
@@ -1720,15 +1761,31 @@ impl AccessTokenGrant {
     pub fn access_token(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
+        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenURL);
+        let params = self
+            .oauth
+            .params(self.grant.available_credentials(GrantRequest::AccessToken));
+
+        if let Err(e) = uri {
+            return AccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        if let Err(e) = params {
+            return AccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
         AccessTokenRequest {
-            uri: self
-                .oauth
-                .get_or_else(OAuthCredential::AccessTokenURL)
-                .unwrap(),
-            params: self
-                .oauth
-                .params(self.grant.available_credentials(GrantRequest::AccessToken))
-                .unwrap(),
+            uri: uri.unwrap(),
+            params: params.unwrap(),
+            error: None,
         }
     }
 
@@ -1737,15 +1794,31 @@ impl AccessTokenGrant {
     pub fn refresh_token(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::RefreshToken);
+        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenURL);
+        let params = self
+            .oauth
+            .params(self.grant.available_credentials(GrantRequest::RefreshToken));
+
+        if let Err(e) = uri {
+            return AccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        if let Err(e) = params {
+            return AccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
         AccessTokenRequest {
-            uri: self
-                .oauth
-                .get_or_else(OAuthCredential::RefreshTokenURL)
-                .unwrap(),
-            params: self
-                .oauth
-                .params(self.grant.available_credentials(GrantRequest::RefreshToken))
-                .unwrap(),
+            uri: uri.unwrap(),
+            params: params.unwrap(),
+            error: None,
         }
     }
 }
@@ -1757,25 +1830,20 @@ pub struct AsyncAccessTokenGrant {
 }
 
 impl AsyncAccessTokenGrant {
-    pub fn authorization_url(&mut self) -> Url {
+    pub fn authorization_url(&mut self) -> Result<Url, GraphFailure> {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::Authorization);
-        let params = self
-            .oauth
-            .params(
-                self.grant
-                    .available_credentials(GrantRequest::Authorization),
-            )
-            .unwrap();
+        let params = self.oauth.params(
+            self.grant
+                .available_credentials(GrantRequest::Authorization),
+        )?;
         let mut url = Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizeURL)
-                .unwrap()
+                .get_or_else(OAuthCredential::AuthorizeURL)?
                 .as_str(),
-        )
-        .unwrap();
+        )?;
         url.query_pairs_mut().extend_pairs(&params);
-        url
+        Ok(url)
     }
 
     /// Make a request for authorization. The default browser for a user
@@ -1783,8 +1851,17 @@ impl AsyncAccessTokenGrant {
     /// sign in and agree to any permissions that were set by the provided
     /// scopes.
     pub fn browser_authorization(&mut self) -> AuthorizationRequest {
+        let uri = self.authorization_url();
+        if let Err(e) = uri {
+            return AuthorizationRequest {
+                uri: Default::default(),
+                error: Some(e),
+            };
+        }
+
         AuthorizationRequest {
-            uri: self.authorization_url().to_string(),
+            uri: uri.unwrap().to_string(),
+            error: None,
         }
     }
 
@@ -1833,15 +1910,31 @@ impl AsyncAccessTokenGrant {
     pub fn access_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
+        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenURL);
+        let params = self
+            .oauth
+            .params(self.grant.available_credentials(GrantRequest::AccessToken));
+
+        if let Err(e) = uri {
+            return AsyncAccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        if let Err(e) = params {
+            return AsyncAccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
         AsyncAccessTokenRequest {
-            uri: self
-                .oauth
-                .get_or_else(OAuthCredential::AccessTokenURL)
-                .unwrap(),
-            params: self
-                .oauth
-                .params(self.grant.available_credentials(GrantRequest::AccessToken))
-                .unwrap(),
+            uri: uri.unwrap(),
+            params: params.unwrap(),
+            error: None,
         }
     }
 
@@ -1850,15 +1943,31 @@ impl AsyncAccessTokenGrant {
     pub fn refresh_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::RefreshToken);
+        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenURL);
+        let params = self
+            .oauth
+            .params(self.grant.available_credentials(GrantRequest::RefreshToken));
+
+        if let Err(e) = uri {
+            return AsyncAccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        if let Err(e) = params {
+            return AsyncAccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
         AsyncAccessTokenRequest {
-            uri: self
-                .oauth
-                .get_or_else(OAuthCredential::RefreshTokenURL)
-                .unwrap(),
-            params: self
-                .oauth
-                .params(self.grant.available_credentials(GrantRequest::RefreshToken))
-                .unwrap(),
+            uri: uri.unwrap(),
+            params: params.unwrap(),
+            error: None,
         }
     }
 }
