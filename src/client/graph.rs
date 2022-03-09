@@ -1,4 +1,5 @@
 use crate::admin::AdminRequest;
+use crate::agreement_acceptances::{AgreementAcceptancesIdRequest, AgreementAcceptancesRequest};
 use crate::app_catalogs::AppCatalogsRequest;
 use crate::applications::{ApplicationsIdRequest, ApplicationsRequest};
 use crate::audit_logs::AuditLogsRequest;
@@ -296,6 +297,21 @@ where
     pub fn app_catalogs(&self) -> AppCatalogsRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::AppCatalogs);
         AppCatalogsRequest::new(self.client)
+    }
+
+    pub fn agreement_acceptances(&self) -> AgreementAcceptancesRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::AgreementAcceptances);
+        AgreementAcceptancesRequest::new(self.client)
+    }
+
+    pub fn agreement_acceptance<S: AsRef<str>>(
+        &self,
+        id: S,
+    ) -> AgreementAcceptancesIdRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::AgreementAcceptances);
+        AgreementAcceptancesIdRequest::new(id.as_ref(), self.client)
     }
 
     pub fn application<S: AsRef<str>>(&self, id: S) -> ApplicationsIdRequest<'a, Client> {

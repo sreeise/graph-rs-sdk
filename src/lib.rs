@@ -121,6 +121,8 @@ pub mod client;
 pub mod activities;
 /// Admin request client.
 pub mod admin;
+/// Agreement acceptances request client.
+pub mod agreement_acceptances;
 /// App catalogs request client.
 pub mod app_catalogs;
 /// Applications request client.

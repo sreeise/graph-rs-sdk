@@ -156,6 +156,10 @@ impl ResourceIdentity {
     pub fn enum_string(&self) -> String {
         format!("ResourceIdentity::{:#?}", self)
     }
+
+    pub fn to_path_start(&self) -> String {
+        format!("/{}", self.to_string().to_camel_case())
+    }
 }
 
 /// Top level resources are the names for the first or beginning part of a URI path.

@@ -673,6 +673,14 @@ pub fn get_client_link_settings(
                     ClientLinkSettings::new("settings")
                         .with_extend_path_ident()
                         .with_set_resource_identity(),
+                    ClientLinkSettings::new("agreementAcceptances")
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("agreementAcceptancesId")
+                        .use_method_name("agreement_acceptance")
+                        .with_extend_path_ident()
+                        .with_id_param()
+                        .with_set_resource_identity(),
                 ]
                 .mem_take(),
             );
@@ -1182,6 +1190,16 @@ pub fn get_client_link_settings(
                     ClientLinkSettings::new("settings")
                         .with_extend_path_id()
                         .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("agreementAcceptances")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("agreementAcceptancesId")
+                        .use_method_name("agreement_acceptance")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_id_param()
                         .with_set_resource_identity(),
                 ]
                 .mem_take(),
