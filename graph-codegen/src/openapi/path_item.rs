@@ -81,6 +81,44 @@ pub struct PathItem {
 }
 
 impl PathItem {
+    pub fn parameters(&self) -> VecDeque<Parameter> {
+        self.parameters
+            .iter()
+            .filter(|either| either.is_left())
+            .flat_map(|either| either.either_as_ref().left())
+            .cloned()
+            .collect()
+    }
+
+    pub fn path_parameter_size(&self) -> usize {
+        self.parameters()
+            .iter()
+            .filter(|parameter| parameter.is_path())
+            .count()
+    }
+
+    pub fn path_parameters(&self) -> VecDeque<String> {
+        self.parameters()
+            .iter()
+            .filter(|p| p.is_path())
+            .flat_map(|p| p.name.clone())
+            .collect()
+    }
+
+    pub fn path_parameters_and_size(&self) -> (usize, VecDeque<String>) {
+        let parameters = self.parameters();
+        let path_param_size = parameters
+            .iter()
+            .filter(|parameter| parameter.is_path())
+            .count();
+        let parameters = parameters
+            .iter()
+            .filter(|p| p.is_path())
+            .flat_map(|p| p.name.clone())
+            .collect();
+        (path_param_size, parameters)
+    }
+
     pub fn operations(&self) -> VecDeque<Operation> {
         vec![
             self.get.as_ref(),
@@ -128,9 +166,28 @@ impl PathItem {
             ..Default::default()
         };
 
+        // The parameter names used in the request macros are parsed using the parameter field of
+        // an operation object. However, the operation object parameters may not include the path
+        // parameters due to how the parameters field is an EitherT and can only be either a
+        // Parameter object or a Reference object but not both. When path parameters are missing in
+        // the operations object despite params showing in the path it usually means that the
+        // Operations object's Parameter field has an EitherT with a Reference object in it instead
+        // of a Parameter object.
+        //
+        // In this case the PathItem object also has a parameters field that represents all of the
+        // current operations and it may have the correct path parameters.
+        let (path_item_parameter_size, path_item_parameters) = self.path_parameters_and_size();
+
         if let Some(operation) = operations.front() {
-            request_path_item.parameters = operation.path_parameters();
-            request_path_item.param_size = operation.path_parameter_size();
+            let operation_parameter_size = operation.path_parameter_size();
+
+            if operation_parameter_size == 0 {
+                request_path_item.parameters = path_item_parameters;
+                request_path_item.param_size = path_item_parameter_size;
+            } else {
+                request_path_item.parameters = operation.path_parameters();
+                request_path_item.param_size = operation_parameter_size;
+            }
         }
 
         if request_path_item.param_size > 0 {

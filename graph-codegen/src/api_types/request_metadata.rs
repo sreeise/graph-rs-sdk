@@ -60,7 +60,7 @@ impl RequestMetadata {
 
     pub fn transform_id_request(&mut self) {
         if let Some(rid) = self.resource_identity.as_ref() {
-            self.operation_mapping = rid.to_string().to_pascal_case();
+            self.operation_mapping = format!("{}Id", rid.to_string().to_pascal_case());
             self.parent = self.operation_mapping.to_string();
         } else {
             self.operation_mapping = format!("{}Id", self.operation_mapping.to_pascal_case());
@@ -483,6 +483,7 @@ impl PathMetadataQueue {
 
     pub fn transform_id_metadata(&mut self, path_start: &str) {
         for path_metadata in self.0.iter_mut() {
+            println!("{:#?}", path_metadata);
             if path_metadata.path_starts_with(&format!("{}/{{{{id}}}}", path_start)) {
                 path_metadata.transform_id_metadata();
             }
@@ -542,6 +543,12 @@ impl PathMetadataQueue {
             metadata.set_resource_identity(resource_identity);
         }
     }
+
+    pub fn format_path_parameters(&mut self) {
+        for metadata in self.0.iter_mut() {
+            metadata.format_path_parameters();
+        }
+    }
 }
 
 impl From<VecDeque<PathMetadata>> for PathMetadataQueue {
@@ -582,6 +589,18 @@ impl FilterMetadata for PathMetadataQueue {
     }
 }
 
+// Use only for top-level resources. Otherwise use `From<ResourceParsingInfo>`.
+impl From<ResourceIdentity> for PathMetadataQueue {
+    fn from(resource_identity: ResourceIdentity) -> Self {
+        PathMetadataQueue::from(ResourceParsingInfo {
+            modifier_name: None,
+            path: resource_identity.to_path_start(),
+            resource_identity,
+            trim_path_start: None,
+        })
+    }
+}
+
 impl From<ResourceParsingInfo> for PathMetadataQueue {
     fn from(resource_parsing_info: ResourceParsingInfo) -> Self {
         let open_api = OpenApi::default();
@@ -618,6 +637,7 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
         if let Some(trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
             metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
             let resource_identity_string = resource_parsing_info.resource_identity.to_string();
+            metadata_queue.format_path_parameters();
 
             metadata_queue.transform_secondary_id_metadata(
                 resource_parsing_info.path.as_str(),
@@ -628,6 +648,7 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
             metadata_queue.trim_path_start(trim_path_start.as_str());
         } else {
             metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
+            metadata_queue.format_path_parameters();
             metadata_queue.transform_id_metadata(resource_parsing_info.path.as_str());
         }
 

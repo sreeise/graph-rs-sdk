@@ -137,9 +137,13 @@ pub trait MacroQueueWriter {
                 }
 
                 let mut name = m.fn_name();
+
+                /*
                 if name.starts_with("reports_") {
                     name = name.replacen("reports_", "", 1);
                 }
+                 */
+
                 let has_body = m.has_body();
                 let macro_fn_name = m.macro_fn_name();
 
@@ -387,6 +391,20 @@ pub trait OpenApiParser {
         };
 
         let metadata_queue = PathMetadataQueue::from(resource_parsing_info);
+        metadata_queue.debug_print();
+        metadata_queue.write_impl(name.as_str());
+
+        let metadata_file = format!(
+            "./graph-codegen/src/parsed_metadata/{}.json",
+            name.to_snake_case()
+        );
+        metadata_queue.as_file_pretty(&metadata_file).unwrap();
+    }
+
+    /// Use only for top-level resources. Otherwise use `write`.
+    fn write_resource(resource_identity: ResourceIdentity) {
+        let name = resource_identity.to_string();
+        let metadata_queue = PathMetadataQueue::from(resource_identity);
         metadata_queue.debug_print();
         metadata_queue.write_impl(name.as_str());
 

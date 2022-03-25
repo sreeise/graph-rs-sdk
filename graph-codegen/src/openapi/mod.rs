@@ -65,6 +65,7 @@ use graph_http::url::GraphUrl;
 use inflector::Inflector;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reqwest::Url;
+use serde_json::Value;
 use std::collections::{BTreeSet, HashMap};
 use std::{
     collections::{BTreeMap, VecDeque},
@@ -73,6 +74,7 @@ use std::{
 };
 
 static MS_GRAPH_METADATA_URL: &str = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml";
+static MS_GRAPH_BETA_METADATA_URL: &str = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/beta/openapi.yaml";
 
 /// [OpenAPI Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#oasObject)
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -135,8 +137,8 @@ pub struct OpenApi {
     /// tools. Not all tags that are used by the Operation Object must be
     /// declared. The tags that are not declared MAY be organized randomly
     /// or based on the tools' logic. Each tag name in the list MUST be unique.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tags: Option<Tag>,
+    //#[serde(skip_serializing_if = "Option::is_none")]
+    //pub tags: Option<Tag>,
 
     /// Additional external documentation.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -176,6 +178,14 @@ impl OpenApi {
             .collect()
     }
 
+    pub fn requests_filter(&self, path_start: &str) -> VecDeque<PathMetadata> {
+        self.paths
+            .iter()
+            .filter(|(path, _path_item)| path.starts_with(path_start))
+            .map(|(path, path_item)| path_item.request_metadata(path.as_str()))
+            .collect()
+    }
+
     pub fn operations(&self) -> VecDeque<Operation> {
         self.paths
             .iter()
@@ -201,7 +211,16 @@ impl OpenApi {
 
 impl Default for OpenApi {
     fn default() -> Self {
-        OpenApi::try_from(GraphUrl::parse(MS_GRAPH_METADATA_URL).unwrap()).unwrap()
+        match OpenApi::try_from(GraphUrl::parse(MS_GRAPH_METADATA_URL).unwrap()) {
+            Ok(open_api) => open_api,
+            Err(e) => {
+                println!(
+                    "Error parsing v1.0 metadata: {:#?}\n\nAttempting beta Api metadata",
+                    e
+                );
+                OpenApi::try_from(GraphUrl::parse(MS_GRAPH_BETA_METADATA_URL).unwrap()).unwrap()
+            }
+        }
     }
 }
 
@@ -210,8 +229,8 @@ impl TryFrom<reqwest::Url> for OpenApi {
 
     fn try_from(value: Url) -> Result<Self, Self::Error> {
         let response = reqwest::blocking::get(value)?;
-        let open_api_raw_text = response.text()?;
-        let open_api: OpenApi = serde_yaml::from_str(open_api_raw_text.as_str())?;
+        let open_api_yaml = response.text()?;
+        let open_api: OpenApi = serde_yaml::from_str(open_api_yaml.as_str())?;
         Ok(open_api)
     }
 }
@@ -221,6 +240,22 @@ impl TryFrom<GraphUrl> for OpenApi {
 
     fn try_from(value: GraphUrl) -> Result<Self, Self::Error> {
         OpenApi::try_from(value.to_reqwest_url())
+    }
+}
+
+impl TryFrom<serde_yaml::Value> for OpenApi {
+    type Error = GraphFailure;
+
+    fn try_from(value: serde_yaml::Value) -> Result<Self, Self::Error> {
+        serde_yaml::from_value(value).map_err(GraphFailure::from)
+    }
+}
+
+impl TryFrom<OpenApiRaw> for OpenApi {
+    type Error = GraphFailure;
+
+    fn try_from(value: OpenApiRaw) -> Result<Self, Self::Error> {
+        serde_json::from_value(value.open_api).map_err(GraphFailure::from)
     }
 }
 
@@ -251,10 +286,23 @@ impl FilterPath for OpenApi {
     }
 }
 
+impl OpenApiParser for OpenApi {}
+
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenApiRaw {
     open_api: serde_json::Value,
+}
+
+impl OpenApiRaw {
+    pub fn requests_filter(&self, path_start: &str) -> HashMap<String, Value> {
+        let paths = self.open_api["paths"].as_object().unwrap();
+        paths
+            .iter()
+            .filter(|(s, _v)| s.starts_with(path_start))
+            .map(|(s, v)| (s.clone(), v.clone()))
+            .collect()
+    }
 }
 
 impl Default for OpenApiRaw {
@@ -281,5 +329,3 @@ impl TryFrom<reqwest::Url> for OpenApiRaw {
         Ok(OpenApiRaw { open_api })
     }
 }
-
-impl OpenApiParser for OpenApi {}
