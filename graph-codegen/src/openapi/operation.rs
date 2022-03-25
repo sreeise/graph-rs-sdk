@@ -112,7 +112,7 @@ impl Operation {
         self.parameters
             .iter()
             .filter(|either| either.is_left())
-            .filter_map(|either| either.either_as_ref().left())
+            .flat_map(|either| either.either_as_ref().left())
             .cloned()
             .collect()
     }
@@ -128,7 +128,7 @@ impl Operation {
         self.parameters()
             .iter()
             .filter(|p| p.is_path())
-            .filter_map(|p| p.name.clone())
+            .flat_map(|p| p.name.clone())
             .collect()
     }
 

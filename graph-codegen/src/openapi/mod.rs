@@ -65,6 +65,7 @@ use graph_http::url::GraphUrl;
 use inflector::Inflector;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reqwest::Url;
+use serde_json::Value;
 use std::collections::{BTreeSet, HashMap};
 use std::{
     collections::{BTreeMap, VecDeque},
@@ -177,6 +178,14 @@ impl OpenApi {
             .collect()
     }
 
+    pub fn requests_filter(&self, path_start: &str) -> VecDeque<PathMetadata> {
+        self.paths
+            .iter()
+            .filter(|(path, _path_item)| path.starts_with(path_start))
+            .map(|(path, path_item)| path_item.request_metadata(path.as_str()))
+            .collect()
+    }
+
     pub fn operations(&self) -> VecDeque<Operation> {
         self.paths
             .iter()
@@ -277,10 +286,23 @@ impl FilterPath for OpenApi {
     }
 }
 
+impl OpenApiParser for OpenApi {}
+
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenApiRaw {
     open_api: serde_json::Value,
+}
+
+impl OpenApiRaw {
+    pub fn requests_filter(&self, path_start: &str) -> HashMap<String, Value> {
+        let paths = self.open_api["paths"].as_object().unwrap();
+        paths
+            .iter()
+            .filter(|(s, _v)| s.starts_with(path_start))
+            .map(|(s, v)| (s.clone(), v.clone()))
+            .collect()
+    }
 }
 
 impl Default for OpenApiRaw {
@@ -307,5 +329,3 @@ impl TryFrom<reqwest::Url> for OpenApiRaw {
         Ok(OpenApiRaw { open_api })
     }
 }
-
-impl OpenApiParser for OpenApi {}

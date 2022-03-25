@@ -589,6 +589,18 @@ impl FilterMetadata for PathMetadataQueue {
     }
 }
 
+// Use only for top-level resources. Otherwise use `From<ResourceParsingInfo>`.
+impl From<ResourceIdentity> for PathMetadataQueue {
+    fn from(resource_identity: ResourceIdentity) -> Self {
+        PathMetadataQueue::from(ResourceParsingInfo {
+            modifier_name: None,
+            path: resource_identity.to_path_start(),
+            resource_identity,
+            trim_path_start: None,
+        })
+    }
+}
+
 impl From<ResourceParsingInfo> for PathMetadataQueue {
     fn from(resource_parsing_info: ResourceParsingInfo) -> Self {
         let open_api = OpenApi::default();
