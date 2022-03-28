@@ -34,10 +34,8 @@ async fn download_with_format() -> Result<(), Error> {
         .drive(USER_ID)
         .download(":/download.docx:", "./examples");
 
-    download_client.format("pdf").await;
-    download_client
-        .set_file_name(OsString::from("download.pdf"))
-        .await;
+    download_client.format("pdf");
+    download_client.set_file_name(OsString::from("download.pdf"));
     let path_buf: PathBuf = download_client.send().await?;
     println!("{:#?}", path_buf);
     Ok(())

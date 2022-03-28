@@ -14,7 +14,10 @@ use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::redirect::Policy;
 use reqwest::Method;
 use std::fmt::{Debug, Formatter};
+use std::fs::File;
+use std::io::Read;
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
 use url::Url;
 
 pub(crate) type AsyncClient =
@@ -113,7 +116,8 @@ impl AsyncClient {
     where
         for<'de> T: serde::Deserialize<'de>,
     {
-        let response = self.response().await?;
+        let builder = self.build();
+        let response = builder.send().await?;
         AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
     }
 
@@ -155,146 +159,180 @@ impl From<Url> for AsyncClient {
     }
 }
 
-pub type AsyncHttpClient = HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>>;
+pub type AsyncHttpClient = HttpClient<Arc<Mutex<AsyncClient>>>;
 
-impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
-    pub fn new(url: GraphUrl) -> HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
-        HttpClient {
-            client: std::sync::Arc::new(tokio::sync::Mutex::new(AsyncClient::new_async(url))),
+impl AsyncHttpClient {
+    pub fn new(url: GraphUrl) -> AsyncHttpClient {
+        AsyncHttpClient {
+            client: Arc::new(Mutex::new(AsyncClient::new_async(url))),
         }
     }
 
-    async fn inner_token(&self) -> String {
-        self.client.lock().await.token.clone()
+    pub fn clone_inner(&self) -> Arc<Mutex<AsyncClient>> {
+        Arc::clone(&self.client)
     }
 
-    async fn inner_set_token(&self, token: &str) {
-        self.client.lock().await.token = token.to_string();
+    pub async fn download(&self) -> AsyncDownload {
+        self.client.lock().unwrap().download()
     }
 
-    async fn inner_ident(&self) -> ResourceIdentity {
-        self.client.lock().await.ident
+    pub async fn upload_session(&self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
+        self.client.lock().unwrap().upload_session().await
     }
 
-    async fn inner_set_ident(&self, ident: ResourceIdentity) {
-        self.client.lock().await.ident = ident;
+    pub async fn build_upload_session(&self) -> (Option<PathBuf>, reqwest::RequestBuilder) {
+        self.client.lock().unwrap().build_upload_session()
     }
 
-    async fn inner_url(&self) -> GraphUrl {
-        self.client.lock().await.url.clone()
+    pub async fn build(&self) -> reqwest::RequestBuilder {
+        self.client.lock().unwrap().build()
     }
 
-    async fn inner_to_url(&self) -> Url {
-        self.client.lock().await.url.to_url()
+    pub async fn response(&self) -> GraphResult<reqwest::Response> {
+        self.client.lock().unwrap().response().await
     }
 
-    async fn inner_set_url(&self, url: GraphUrl) {
-        self.client.lock().await.url = url;
+    pub async fn execute<T>(&self) -> GraphResult<GraphResponse<T>>
+    where
+        for<'de> T: serde::Deserialize<'de>,
+    {
+        self.client.lock().unwrap().execute().await
+    }
+}
+
+impl RequestClient for AsyncHttpClient {
+    type Body = reqwest::Body;
+    type Form = reqwest::multipart::Form;
+
+    fn token(&self) -> String {
+        self.client.lock().unwrap().token.clone()
     }
 
-    async fn inner_method(&self) -> Method {
-        self.client.lock().await.method.clone()
+    fn set_token(&self, token: &str) {
+        self.client.lock().unwrap().token = token.to_string();
     }
 
-    async fn inner_set_method(&self, method: Method) {
-        self.client.lock().await.method = method;
+    fn ident(&self) -> ResourceIdentity {
+        self.client.lock().unwrap().ident
     }
 
-    async fn inner_set_body<T: Into<reqwest::Body>>(&self, body: T) {
-        self.client.lock().await.body = Some(body.into());
+    fn set_ident(&self, ident: ResourceIdentity) {
+        self.client.lock().unwrap().ident = ident;
     }
 
-    async fn inner_set_body_with_file(&self, path: PathBuf) -> GraphResult<()> {
-        let buffer = tokio::fs::read_to_string(path).await?;
-        self.inner_set_body(buffer).await;
+    fn url(&self) -> GraphUrl {
+        self.client.lock().unwrap().url.clone()
+    }
+
+    fn to_url(&self) -> Url {
+        self.client.lock().unwrap().url.to_url()
+    }
+
+    fn set_url(&self, url: GraphUrl) {
+        self.client.lock().unwrap().url = url;
+    }
+
+    fn method(&self) -> Method {
+        self.client.lock().unwrap().method.clone()
+    }
+
+    fn set_method(&self, method: Method) {
+        self.client.lock().unwrap().method = method;
+    }
+
+    fn set_body<T: Into<reqwest::Body>>(&self, body: T) {
+        self.client.lock().unwrap().body = Some(body.into());
+    }
+
+    fn set_body_with_file(&self, path: PathBuf) -> GraphResult<()> {
+        let mut file = File::open(path)?;
+        let mut buffer = String::new();
+        file.read_to_string(&mut buffer)?;
+        self.client.lock().unwrap().body = Some(buffer.into());
         Ok(())
     }
 
-    async fn inner_header<T: IntoHeaderName>(&self, name: T, value: HeaderValue) {
-        self.client.lock().await.headers.insert(name, value);
+    fn header<T: IntoHeaderName>(&self, name: T, value: HeaderValue) {
+        self.client.lock().unwrap().headers.insert(name, value);
     }
 
-    async fn inner_set_header_map(&self, header_map: HeaderMap) {
-        self.client.lock().await.headers = header_map;
+    fn set_header_map(&self, header_map: HeaderMap) {
+        self.client.lock().unwrap().headers = header_map;
     }
 
-    async fn inner_clear_headers(&self) {
-        self.client.lock().await.headers.clear();
+    fn clear_headers(&self) {
+        self.client.lock().unwrap().headers.clear();
     }
 
-    async fn inner_set_download_dir(&self, dir: PathBuf) {
-        self.client.lock().await.download_dir = Some(dir);
+    fn set_download_dir(&self, dir: PathBuf) {
+        self.client.lock().unwrap().download_dir = Some(dir);
     }
 
-    async fn inner_set_upload_session(&self, file: PathBuf) {
-        self.client.lock().await.upload_session_file = Some(file);
+    fn set_upload_session(&self, file: PathBuf) {
+        self.client.lock().unwrap().upload_session_file = Some(file);
     }
 
-    async fn inner_set_form(&self, form: reqwest::multipart::Form) {
-        let mut inner = self.client.lock().await;
-        inner.form = Some(form);
-        inner.req_type = RequestType::Multipart;
+    fn set_form(&self, form: reqwest::multipart::Form) {
+        let mut client = self.client.lock().unwrap();
+        client.form = Some(form);
+        client.req_type = RequestType::Multipart;
     }
 
-    async fn inner_set_request_type(&self, req_type: RequestType) {
-        self.client.lock().await.req_type = req_type;
+    fn set_request_type(&self, req_type: RequestType) {
+        self.client.lock().unwrap().req_type = req_type;
     }
 
-    async fn inner_request_type(&self) -> RequestType {
-        self.client.lock().await.req_type
+    fn request_type(&self) -> RequestType {
+        self.client.lock().unwrap().req_type
     }
 
-    async fn inner_url_ref<F>(&self, f: F)
+    fn url_ref<F>(&self, f: F)
     where
         F: Fn(&GraphUrl) + Sync,
     {
-        f(&self.client.lock().await.url)
+        f(&self.client.lock().unwrap().url)
     }
 
-    async fn inner_url_mut<F>(&self, f: F)
+    fn url_mut<F>(&self, f: F)
     where
         F: Fn(&mut GraphUrl) + Sync,
     {
-        f(&mut self.client.lock().await.url)
+        f(&mut self.client.lock().unwrap().url)
     }
 
-    async fn inner_debug(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        self.client.lock().await.fmt(f)
-    }
-
-    async fn inner_registry<F>(&self, f: F)
+    fn registry<F>(&self, f: F)
     where
         F: Fn(&mut Handlebars) + Sync,
     {
-        f(&mut self.client.lock().await.registry)
+        f(&mut self.client.lock().unwrap().registry)
     }
 
-    async fn inner_render_template(&self, template: &str, json: &serde_json::Value) -> String {
+    fn render_template(&self, template: &str, json: &serde_json::Value) -> String {
         self.client
             .lock()
-            .await
+            .unwrap()
             .registry
             .render_template(template, json)
             .unwrap()
     }
 
-    async fn inner_register_ident_helper(&self, resource_identity: ResourceIdentity) {
+    fn register_ident_helper(&self, resource_identity: ResourceIdentity) {
         self.client
             .lock()
-            .await
+            .unwrap()
             .register_ident_helper(resource_identity);
     }
 
-    async fn inner_extend_path(&self, path: &[&str]) {
-        self.client.lock().await.url.extend_path(path);
+    fn extend_path(&self, path: &[&str]) {
+        self.client.lock().unwrap().url.extend_path(path);
     }
 
-    async fn inner_set_request(
+    fn set_request(
         &self,
         req_att: Vec<RequestAttribute<reqwest::Body, reqwest::multipart::Form>>,
     ) -> GraphResult<()> {
-        let mut client = self.client.lock().await;
         for att in req_att {
+            let mut client = self.client.lock().unwrap();
             match att {
                 RequestAttribute::Token(token) => client.token = token,
                 RequestAttribute::Ident(ident) => client.ident = ident,
@@ -302,7 +340,9 @@ impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
                 RequestAttribute::Method(method) => client.method = method,
                 RequestAttribute::Body(body) => client.body = Some(body),
                 RequestAttribute::BodyFile(path) => {
-                    let buffer = tokio::fs::read_to_string(path).await?;
+                    let mut file = File::open(path)?;
+                    let mut buffer = String::new();
+                    file.read_to_string(&mut buffer)?;
                     client.body = Some(buffer.into());
                 }
                 RequestAttribute::Headers(headers) => client.headers = headers,
@@ -315,166 +355,18 @@ impl HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
         }
         Ok(())
     }
-
-    pub async fn download(&self) -> AsyncDownload {
-        self.client.lock().await.download()
-    }
-
-    pub async fn upload_session(&self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
-        self.client.lock().await.upload_session().await
-    }
-
-    pub async fn build_upload_session(&self) -> (Option<PathBuf>, reqwest::RequestBuilder) {
-        self.client.lock().await.build_upload_session()
-    }
-
-    pub async fn build(&self) -> reqwest::RequestBuilder {
-        self.client.lock().await.build()
-    }
-
-    pub async fn response(&self) -> GraphResult<reqwest::Response> {
-        self.client.lock().await.response().await
-    }
-
-    pub async fn execute<T>(&self) -> GraphResult<GraphResponse<T>>
-    where
-        for<'de> T: serde::Deserialize<'de>,
-    {
-        self.client.lock().await.execute().await
-    }
 }
 
-impl RequestClient for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
-    type Body = reqwest::Body;
-    type Form = reqwest::multipart::Form;
-
-    fn token(&self) -> String {
-        futures::executor::block_on(self.inner_token())
-    }
-
-    fn set_token(&self, token: &str) {
-        futures::executor::block_on(self.inner_set_token(token));
-    }
-
-    fn ident(&self) -> ResourceIdentity {
-        futures::executor::block_on(self.inner_ident())
-    }
-
-    fn set_ident(&self, ident: ResourceIdentity) {
-        futures::executor::block_on(self.inner_set_ident(ident))
-    }
-
-    fn url(&self) -> GraphUrl {
-        futures::executor::block_on(self.inner_url())
-    }
-
-    fn to_url(&self) -> Url {
-        futures::executor::block_on(self.inner_to_url())
-    }
-
-    fn set_url(&self, url: GraphUrl) {
-        futures::executor::block_on(self.inner_set_url(url));
-    }
-
-    fn method(&self) -> Method {
-        futures::executor::block_on(self.inner_method())
-    }
-
-    fn set_method(&self, method: Method) {
-        futures::executor::block_on(self.inner_set_method(method));
-    }
-
-    fn set_body<T: Into<Self::Body>>(&self, body: T) {
-        futures::executor::block_on(self.inner_set_body(body));
-    }
-
-    fn set_body_with_file(&self, path: PathBuf) -> GraphResult<()> {
-        futures::executor::block_on(self.inner_set_body_with_file(path))
-    }
-
-    fn header<T: IntoHeaderName>(&self, name: T, value: HeaderValue) {
-        futures::executor::block_on(self.inner_header(name, value));
-    }
-
-    fn set_header_map(&self, header_map: HeaderMap<HeaderValue>) {
-        futures::executor::block_on(self.inner_set_header_map(header_map));
-    }
-
-    fn clear_headers(&self) {
-        futures::executor::block_on(self.inner_clear_headers());
-    }
-
-    fn set_download_dir(&self, dir: PathBuf) {
-        futures::executor::block_on(self.inner_set_download_dir(dir));
-    }
-
-    fn set_upload_session(&self, file: PathBuf) {
-        futures::executor::block_on(self.inner_set_upload_session(file));
-    }
-
-    fn set_form(&self, form: Self::Form) {
-        futures::executor::block_on(self.inner_set_form(form));
-    }
-
-    fn set_request_type(&self, req_type: RequestType) {
-        futures::executor::block_on(self.inner_set_request_type(req_type));
-    }
-
-    fn request_type(&self) -> RequestType {
-        futures::executor::block_on(self.inner_request_type())
-    }
-
-    fn url_ref<F>(&self, f: F)
-    where
-        F: Fn(&GraphUrl) + Sync,
-    {
-        futures::executor::block_on(self.inner_url_ref(f));
-    }
-
-    fn url_mut<F>(&self, f: F)
-    where
-        F: Fn(&mut GraphUrl) + Sync,
-    {
-        futures::executor::block_on(self.inner_url_mut(f));
-    }
-
-    fn registry<F>(&self, f: F)
-    where
-        F: Fn(&mut Handlebars) + Sync,
-    {
-        futures::executor::block_on(self.inner_registry(f));
-    }
-
-    fn render_template(&self, template: &str, json: &serde_json::Value) -> String {
-        futures::executor::block_on(self.inner_render_template(template, json))
-    }
-
-    fn register_ident_helper(&self, resource_identity: ResourceIdentity) {
-        futures::executor::block_on(self.inner_register_ident_helper(resource_identity));
-    }
-
-    fn extend_path(&self, path: &[&str]) {
-        futures::executor::block_on(self.inner_extend_path(path));
-    }
-
-    fn set_request(
-        &self,
-        req_att: Vec<RequestAttribute<reqwest::Body, reqwest::multipart::Form>>,
-    ) -> GraphResult<()> {
-        futures::executor::block_on(self.inner_set_request(req_att))
-    }
-}
-
-impl Debug for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
+impl Debug for AsyncHttpClient {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        futures::executor::block_on(self.inner_debug(f))
+        self.client.lock().unwrap().fmt(f)
     }
 }
 
-impl From<AsyncClient> for HttpClient<std::sync::Arc<tokio::sync::Mutex<AsyncClient>>> {
+impl From<AsyncClient> for AsyncHttpClient {
     fn from(client: AsyncClient) -> Self {
         AsyncHttpClient {
-            client: std::sync::Arc::new(tokio::sync::Mutex::new(client)),
+            client: Arc::new(Mutex::new(client)),
         }
     }
 }
