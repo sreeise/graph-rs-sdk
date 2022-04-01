@@ -56,8 +56,8 @@ impl<T> GraphResponse<T> {
                 reqwest::blocking::Client::new()
                     .get(location)
                     .send()?
-                    .with_graph_error()
                     .json()
+                    .map_err(GraphFailure::from)
             })
     }
 
