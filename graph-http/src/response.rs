@@ -53,16 +53,11 @@ impl<T> GraphResponse<T> {
             .to_str()
             .ok()
             .map(|location| {
-                futures::executor::block_on(async {
-                    Ok(reqwest::Client::new()
-                        .get(location)
-                        .send()
-                        .await?
-                        .with_graph_error()
-                        .await?
-                        .json()
-                        .await?)
-                })
+                reqwest::blocking::Client::new()
+                    .get(location)
+                    .send()?
+                    .with_graph_error()
+                    .json()
             })
     }
 
