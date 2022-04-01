@@ -42,8 +42,8 @@ pub struct DownloadClient<Client, Request> {
 pub type BlockingDownload =
     DownloadClient<HttpClient<RefCell<BlockingClient>>, RefCell<DownloadRequest>>;
 pub type AsyncDownload = DownloadClient<
-    HttpClient<std::sync::Arc<std::sync::Mutex<AsyncClient>>>,
-    std::sync::Arc<std::sync::Mutex<DownloadRequest>>,
+    HttpClient<std::sync::Arc<parking_lot::Mutex<AsyncClient>>>,
+    std::sync::Arc<parking_lot::Mutex<DownloadRequest>>,
 >;
 
 pub const MAX_FILE_NAME_LEN: usize = 255;
@@ -195,54 +195,54 @@ impl AsyncDownload {
     pub fn new_async(client: AsyncClient) -> AsyncDownload {
         let path = client.download_dir.clone().unwrap();
         DownloadClient {
-            request: std::sync::Arc::new(std::sync::Mutex::new(DownloadRequest::new(path))),
+            request: std::sync::Arc::new(parking_lot::Mutex::new(DownloadRequest::new(path))),
             client: HttpClient::from(client),
         }
     }
 
     pub fn create_dir_all(&self, value: bool) -> &Self {
-        self.request.lock().unwrap().create_dir_all = value;
+        self.request.lock().create_dir_all = value;
         self
     }
 
     pub fn is_create_dir_all(&self) -> bool {
-        self.request.lock().unwrap().create_dir_all
+        self.request.lock().create_dir_all
     }
 
     pub fn overwrite_existing_file(&self, value: bool) -> &Self {
-        self.request.lock().unwrap().overwrite_existing_file = value;
+        self.request.lock().overwrite_existing_file = value;
         self
     }
 
     pub fn is_overwrite_existing_file(&self) -> bool {
-        self.request.lock().unwrap().overwrite_existing_file
+        self.request.lock().overwrite_existing_file
     }
 
     pub fn set_file_name(&self, value: OsString) -> &Self {
-        self.request.lock().unwrap().file_name = Some(value);
+        self.request.lock().file_name = Some(value);
         self
     }
 
     pub fn set_extension(&self, value: &str) -> &Self {
-        self.request.lock().unwrap().extension = Some(value.into());
+        self.request.lock().extension = Some(value.into());
         self
     }
 
     pub fn set_dir<P: AsRef<Path>>(&self, path: P) -> &Self {
-        self.request.lock().unwrap().path = path.as_ref().to_path_buf();
+        self.request.lock().path = path.as_ref().to_path_buf();
         self
     }
 
     pub fn directory(&self) -> PathBuf {
-        self.request.lock().unwrap().path.clone()
+        self.request.lock().path.clone()
     }
 
     pub fn file_name(&self) -> Option<OsString> {
-        self.request.lock().unwrap().file_name.clone()
+        self.request.lock().file_name.clone()
     }
 
     pub fn extension(&self) -> Option<String> {
-        self.request.lock().unwrap().extension.clone()
+        self.request.lock().extension.clone()
     }
 
     pub fn url(&self) -> GraphUrl {
@@ -257,7 +257,7 @@ impl AsyncDownload {
     }
 
     pub async fn send(self) -> Result<PathBuf, AsyncDownloadError> {
-        let request = self.request.lock().unwrap();
+        let request = self.request.lock();
 
         // Create the directory if it does not exist.
         if request.create_dir_all {

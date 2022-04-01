@@ -10,6 +10,7 @@ use graph_core::resource::ResourceIdentity;
 use graph_error::WithGraphErrorAsync;
 use graph_error::{GraphFailure, GraphResult};
 use handlebars::Handlebars;
+use parking_lot::Mutex;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::redirect::Policy;
 use reqwest::Method;
@@ -17,7 +18,7 @@ use std::fmt::{Debug, Formatter};
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use url::Url;
 
 pub(crate) type AsyncClient =
@@ -173,30 +174,32 @@ impl AsyncHttpClient {
     }
 
     pub async fn download(&self) -> AsyncDownload {
-        self.client.lock().unwrap().download()
+        self.client.lock().download()
     }
 
     pub async fn upload_session(&self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
-        self.client.lock().unwrap().upload_session().await
+        self.client.lock().upload_session().await
     }
 
     pub async fn build_upload_session(&self) -> (Option<PathBuf>, reqwest::RequestBuilder) {
-        self.client.lock().unwrap().build_upload_session()
+        self.client.lock().build_upload_session()
     }
 
     pub async fn build(&self) -> reqwest::RequestBuilder {
-        self.client.lock().unwrap().build()
+        self.client.lock().build()
     }
 
     pub async fn response(&self) -> GraphResult<reqwest::Response> {
-        self.client.lock().unwrap().response().await
+        let mut client = self.client.lock();
+        let response = client.response();
+        response.await
     }
 
     pub async fn execute<T>(&self) -> GraphResult<GraphResponse<T>>
     where
         for<'de> T: serde::Deserialize<'de>,
     {
-        self.client.lock().unwrap().execute().await
+        self.client.lock().execute().await
     }
 }
 
@@ -205,126 +208,122 @@ impl RequestClient for AsyncHttpClient {
     type Form = reqwest::multipart::Form;
 
     fn token(&self) -> String {
-        self.client.lock().unwrap().token.clone()
+        self.client.lock().token.clone()
     }
 
     fn set_token(&self, token: &str) {
-        self.client.lock().unwrap().token = token.to_string();
+        self.client.lock().token = token.to_string();
     }
 
     fn ident(&self) -> ResourceIdentity {
-        self.client.lock().unwrap().ident
+        self.client.lock().ident
     }
 
     fn set_ident(&self, ident: ResourceIdentity) {
-        self.client.lock().unwrap().ident = ident;
+        self.client.lock().ident = ident;
     }
 
     fn url(&self) -> GraphUrl {
-        self.client.lock().unwrap().url.clone()
+        self.client.lock().url.clone()
     }
 
     fn to_url(&self) -> Url {
-        self.client.lock().unwrap().url.to_url()
+        self.client.lock().url.to_url()
     }
 
     fn set_url(&self, url: GraphUrl) {
-        self.client.lock().unwrap().url = url;
+        self.client.lock().url = url;
     }
 
     fn method(&self) -> Method {
-        self.client.lock().unwrap().method.clone()
+        self.client.lock().method.clone()
     }
 
     fn set_method(&self, method: Method) {
-        self.client.lock().unwrap().method = method;
+        self.client.lock().method = method;
     }
 
     fn set_body<T: Into<reqwest::Body>>(&self, body: T) {
-        self.client.lock().unwrap().body = Some(body.into());
+        self.client.lock().body = Some(body.into());
     }
 
     fn set_body_with_file(&self, path: PathBuf) -> GraphResult<()> {
         let mut file = File::open(path)?;
         let mut buffer = String::new();
         file.read_to_string(&mut buffer)?;
-        self.client.lock().unwrap().body = Some(buffer.into());
+        self.client.lock().body = Some(buffer.into());
         Ok(())
     }
 
     fn header<T: IntoHeaderName>(&self, name: T, value: HeaderValue) {
-        self.client.lock().unwrap().headers.insert(name, value);
+        self.client.lock().headers.insert(name, value);
     }
 
     fn set_header_map(&self, header_map: HeaderMap) {
-        self.client.lock().unwrap().headers = header_map;
+        self.client.lock().headers = header_map;
     }
 
     fn clear_headers(&self) {
-        self.client.lock().unwrap().headers.clear();
+        self.client.lock().headers.clear();
     }
 
     fn set_download_dir(&self, dir: PathBuf) {
-        self.client.lock().unwrap().download_dir = Some(dir);
+        self.client.lock().download_dir = Some(dir);
     }
 
     fn set_upload_session(&self, file: PathBuf) {
-        self.client.lock().unwrap().upload_session_file = Some(file);
+        self.client.lock().upload_session_file = Some(file);
     }
 
     fn set_form(&self, form: reqwest::multipart::Form) {
-        let mut client = self.client.lock().unwrap();
+        let mut client = self.client.lock();
         client.form = Some(form);
         client.req_type = RequestType::Multipart;
     }
 
     fn set_request_type(&self, req_type: RequestType) {
-        self.client.lock().unwrap().req_type = req_type;
+        self.client.lock().req_type = req_type;
     }
 
     fn request_type(&self) -> RequestType {
-        self.client.lock().unwrap().req_type
+        self.client.lock().req_type
     }
 
     fn url_ref<F>(&self, f: F)
     where
         F: Fn(&GraphUrl) + Sync,
     {
-        f(&self.client.lock().unwrap().url)
+        f(&self.client.lock().url)
     }
 
     fn url_mut<F>(&self, f: F)
     where
         F: Fn(&mut GraphUrl) + Sync,
     {
-        f(&mut self.client.lock().unwrap().url)
+        f(&mut self.client.lock().url)
     }
 
     fn registry<F>(&self, f: F)
     where
         F: Fn(&mut Handlebars) + Sync,
     {
-        f(&mut self.client.lock().unwrap().registry)
+        f(&mut self.client.lock().registry)
     }
 
     fn render_template(&self, template: &str, json: &serde_json::Value) -> String {
         self.client
             .lock()
-            .unwrap()
             .registry
             .render_template(template, json)
             .unwrap()
     }
 
     fn register_ident_helper(&self, resource_identity: ResourceIdentity) {
-        self.client
-            .lock()
-            .unwrap()
-            .register_ident_helper(resource_identity);
+        self.client.lock().register_ident_helper(resource_identity);
     }
 
     fn extend_path(&self, path: &[&str]) {
-        self.client.lock().unwrap().url.extend_path(path);
+        self.client.lock().url.extend_path(path);
     }
 
     fn set_request(
@@ -332,7 +331,7 @@ impl RequestClient for AsyncHttpClient {
         req_att: Vec<RequestAttribute<reqwest::Body, reqwest::multipart::Form>>,
     ) -> GraphResult<()> {
         for att in req_att {
-            let mut client = self.client.lock().unwrap();
+            let mut client = self.client.lock();
             match att {
                 RequestAttribute::Token(token) => client.token = token,
                 RequestAttribute::Ident(ident) => client.ident = ident,
@@ -359,7 +358,7 @@ impl RequestClient for AsyncHttpClient {
 
 impl Debug for AsyncHttpClient {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        self.client.lock().unwrap().fmt(f)
+        self.client.lock().fmt(f)
     }
 }
 
