@@ -58,9 +58,7 @@ async fn async_download_office_365_user_counts_reports_test() {
             .await
             .unwrap();
 
-        download_client
-            .set_file_name(OsString::from("async_user_count_report.csv"))
-            .await;
+        download_client.set_file_name(OsString::from("async_user_count_report.csv"));
 
         let path_buf = download_client.send()
             .await
