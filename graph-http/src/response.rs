@@ -26,27 +26,38 @@ impl<T> GraphResponse<T> {
         }
     }
 
+    /// Get the URL.
     pub fn url(&self) -> &GraphUrl {
         &self.url
     }
 
+    /// Get a reference to the body.
     pub fn body(&self) -> &T {
         &self.body
     }
 
+    /// Returns the body and ownership of it and dropping the
+    /// GraphResponse in the process.
     pub fn into_body(self) -> T {
         self.body
     }
 
+    /// Get the HTTP status code of the response.
     pub fn status(&self) -> StatusCode {
         self.status
     }
 
+    /// Get the headers returned of the response.
     pub fn headers(&self) -> &HeaderMap {
         &self.headers
     }
 
-    pub fn async_job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
+    /// This makes a request to the location header returned in this response
+    /// for monitoring progress of long running actions.
+    ///
+    /// This is a blocking request and not asycc. Use the method `async_job_status`
+    /// if you are using the async graph client.
+    pub fn job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
         // The location header contains the URL for monitoring progress.
         self.headers
             .get(reqwest::header::LOCATION)?
@@ -58,6 +69,29 @@ impl<T> GraphResponse<T> {
                     .send()?
                     .json()
                     .map_err(GraphFailure::from)
+            })
+    }
+
+    /// This makes a request to the location header returned in this response
+    /// for monitoring progress of long running actions.
+    ///
+    /// This is a async request and not blocking. Use the method `job_status` if you
+    /// are using the blocking graph client.
+    pub async fn async_job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
+        // The location header contains the URL for monitoring progress.
+        self.headers
+            .get(reqwest::header::LOCATION)?
+            .to_str()
+            .ok()
+            .map(|location| {
+                Ok(reqwest::Client::new()
+                    .get(location)
+                    .send()
+                    .await?
+                    .with_graph_error()
+                    .await?
+                    .json()
+                    .await?)
             })
     }
 
