@@ -83,7 +83,7 @@ impl<T> GraphResponse<T> {
             .get(reqwest::header::LOCATION)?
             .to_str()
             .ok()
-            .map(|location| {
+            .map(|location| async {
                 Ok(reqwest::Client::new()
                     .get(location)
                     .send()
