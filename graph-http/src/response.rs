@@ -57,7 +57,7 @@ impl<T> GraphResponse<T> {
     ///
     /// This is a blocking request and not asycc. Use the method `async_job_status`
     /// if you are using the async graph client.
-    pub fn job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
+    pub fn job_status(&self) -> Option<GraphResult<serde_json::Value>> {
         // The location header contains the URL for monitoring progress.
         self.headers
             .get(reqwest::header::LOCATION)?
@@ -77,22 +77,24 @@ impl<T> GraphResponse<T> {
     ///
     /// This is a async request and not blocking. Use the method `job_status` if you
     /// are using the blocking graph client.
-    pub async fn async_job_status(&mut self) -> Option<GraphResult<serde_json::Value>> {
+    pub async fn async_job_status(&self) -> Option<GraphResult<serde_json::Value>> {
         // The location header contains the URL for monitoring progress.
-        self.headers
-            .get(reqwest::header::LOCATION)?
-            .to_str()
-            .ok()
-            .map(|location| async {
-                Ok(reqwest::Client::new()
-                    .get(location)
-                    .send()
-                    .await?
-                    .with_graph_error()
-                    .await?
-                    .json()
-                    .await?)
-            })
+        let url = self.headers.get(reqwest::header::LOCATION)?.to_str().ok()?;
+
+        let result = reqwest::Client::new()
+            .get(url)
+            .send()
+            .await
+            .map_err(GraphFailure::from);
+
+        if let Err(e) = result {
+            return Some(Err(e));
+        } else if let Ok(response) = result {
+            let json_result = response.json().await.map_err(GraphFailure::from);
+            return Some(json_result);
+        }
+
+        None
     }
 
     pub(crate) fn from_no_content(
