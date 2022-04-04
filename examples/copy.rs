@@ -43,10 +43,15 @@ fn copy_item() {
 
     // When an item is copied the response returns a URL in the location header
     // that can be used to monitor the progress. For events that may take longer to finish
-    // such as copying an item, the GraphResponse async_job_status() method can be used
-    // to get the metadata returned from the monitor URL. This request returns an
+    // such as copying an item, the GraphResponse job_status and async_job_status() methods
+    // can be used to get the metadata returned from the monitor URL. This request returns an
     // AsyncJobStatus struct. Note, it is important to remember that AsyncJobStatus
-    // is only used for specific API requests.
+    // is only used for specific API requests. The word Async in the struct is what the graph
+    // api refers to it as and doesnt have anything to do with whether the request is
+    // blocking or async.
+    //
+    // job_status method: Blocking
+    // async_job_status method: async
     //
     // The GraphResponse success() method will return true if the status of the
     // request returns 202 which means the request for copying an item is approved.
@@ -57,5 +62,7 @@ fn copy_item() {
     // Wait a few seconds before checking the progress (assuming the file or
     // folder size is small here).
     thread::sleep(Duration::from_secs(5));
-    println!("{:#?}", &response.async_job_status());
+
+    // For async, do response.async_job_status().await
+    println!("{:#?}", &response.job_status());
 }
