@@ -59,8 +59,8 @@ async fn async_job_status() {
         let copy_response = copy_result.expect("Async copy file: Drive");
         let job_status = copy_response.async_job_status().await.unwrap();
 
-        if let Ok(body) = job_status {
-            let status_option = body["status"].as_str();
+        if let Ok(response) = job_status {
+            let status_option = response.body()["status"].as_str();
             assert!(status_option.eq(&Some("inProgress")) | status_option.eq(&Some("completed")));
 
             if status_option.eq(&Some("completed")) {

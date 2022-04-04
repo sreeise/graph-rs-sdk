@@ -57,19 +57,21 @@ impl<T> GraphResponse<T> {
     ///
     /// This is a blocking request and not asycc. Use the method `async_job_status`
     /// if you are using the async graph client.
-    pub fn job_status(&self) -> Option<GraphResult<serde_json::Value>> {
-        // The location header contains the URL for monitoring progress.
-        self.headers
-            .get(reqwest::header::LOCATION)?
-            .to_str()
-            .ok()
-            .map(|location| {
-                reqwest::blocking::Client::new()
-                    .get(location)
-                    .send()?
-                    .json()
-                    .map_err(GraphFailure::from)
-            })
+    pub fn job_status(&self) -> Option<GraphResult<GraphResponse<serde_json::Value>>> {
+        let url = self.headers.get(reqwest::header::LOCATION)?.to_str().ok()?;
+
+        let result = reqwest::blocking::Client::new()
+            .get(url)
+            .send()
+            .map_err(GraphFailure::from);
+
+        if let Err(e) = result {
+            return Some(Err(e));
+        } else if let Ok(response) = result {
+            return Some(GraphResponse::try_from(response));
+        }
+
+        None
     }
 
     /// This makes a request to the location header returned in this response
@@ -77,8 +79,7 @@ impl<T> GraphResponse<T> {
     ///
     /// This is a async request and not blocking. Use the method `job_status` if you
     /// are using the blocking graph client.
-    pub async fn async_job_status(&self) -> Option<GraphResult<serde_json::Value>> {
-        // The location header contains the URL for monitoring progress.
+    pub async fn async_job_status(&self) -> Option<GraphResult<GraphResponse<serde_json::Value>>> {
         let url = self.headers.get(reqwest::header::LOCATION)?.to_str().ok()?;
 
         let result = reqwest::Client::new()
@@ -90,8 +91,7 @@ impl<T> GraphResponse<T> {
         if let Err(e) = result {
             return Some(Err(e));
         } else if let Ok(response) = result {
-            let json_result = response.json().await.map_err(GraphFailure::from);
-            return Some(json_result);
+            return Some(GraphResponse::async_try_from(response).await);
         }
 
         None
