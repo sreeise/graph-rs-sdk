@@ -5,6 +5,7 @@ use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::Method;
 use std::fmt::Debug;
 use std::path::PathBuf;
+use std::time::Duration;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum RequestType {
@@ -47,6 +48,7 @@ pub struct GraphRequest<Client, Body, Form> {
     pub download_dir: Option<PathBuf>,
     pub form: Option<Form>,
     pub req_type: RequestType,
+    pub timeout: Duration,
 }
 
 impl<Client, Body, Form> Debug for GraphRequest<Client, Body, Form> {

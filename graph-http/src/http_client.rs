@@ -6,6 +6,7 @@ use handlebars::Handlebars;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName};
 use reqwest::Method;
 use std::path::PathBuf;
+use std::time::Duration;
 use url::Url;
 
 pub trait RequestClient {
@@ -47,6 +48,7 @@ pub trait RequestClient {
         &self,
         req_attr: Vec<RequestAttribute<Self::Body, Self::Form>>,
     ) -> GraphResult<()>;
+    fn set_timeout(&self, duration: Duration);
 
     fn set_body_with_serialize<B: serde::Serialize>(&self, body: &B) -> GraphResult<()> {
         let body_result = serde_json::to_string(body).map_err(GraphFailure::from);

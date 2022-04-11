@@ -15,6 +15,7 @@ use std::fmt::{Debug, Formatter};
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
+use std::time::Duration;
 use url::Url;
 
 pub type BlockingClient = GraphRequest<
@@ -45,6 +46,7 @@ impl BlockingClient {
             form: None,
             req_type: Default::default(),
             registry: Handlebars::new(),
+            timeout: Duration::from_secs(30),
         }
     }
 
@@ -85,6 +87,7 @@ impl BlockingClient {
         let builder = self
             .client
             .request(self.method.clone(), self.url.as_str())
+            .timeout(self.timeout)
             .headers(headers)
             .bearer_auth(self.token.as_str());
 
@@ -137,6 +140,7 @@ impl BlockingClient {
             form: self.form.take(),
             req_type: self.req_type,
             registry: Handlebars::new(),
+            timeout: Duration::from_secs(30),
         }
     }
 
@@ -353,6 +357,10 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>> {
             }
         }
         Ok(())
+    }
+
+    fn set_timeout(&self, duration: Duration) {
+        self.client.borrow_mut().timeout = duration;
     }
 }
 

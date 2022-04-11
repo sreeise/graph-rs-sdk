@@ -19,6 +19,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Duration;
 use url::Url;
 
 pub(crate) type AsyncClient =
@@ -46,6 +47,7 @@ impl AsyncClient {
             form: None,
             req_type: Default::default(),
             registry: Handlebars::new(),
+            timeout: Duration::from_secs(30),
         }
     }
 
@@ -86,6 +88,7 @@ impl AsyncClient {
         let builder = self
             .client
             .request(self.method.clone(), self.url.as_str())
+            .timeout(self.timeout)
             .headers(headers)
             .bearer_auth(self.token.as_str());
 
@@ -140,6 +143,7 @@ impl AsyncClient {
             form: self.form.take(),
             req_type: self.req_type,
             registry: Handlebars::new(),
+            timeout: Duration::from_secs(30),
         }
     }
 
@@ -353,6 +357,10 @@ impl RequestClient for AsyncHttpClient {
             }
         }
         Ok(())
+    }
+
+    fn set_timeout(&self, duration: Duration) {
+        self.client.lock().timeout = duration;
     }
 }
 

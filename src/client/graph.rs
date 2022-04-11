@@ -45,6 +45,7 @@ use reqwest::Method;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::str::FromStr;
+use std::time::Duration;
 
 /// The graph client.
 ///
@@ -114,6 +115,11 @@ where
 
     pub(crate) fn request(&self) -> &Client {
         &self.request
+    }
+
+    pub fn set_timeout(&self, duration: Duration) -> &Self {
+        self.request.set_timeout(duration);
+        self
     }
 }
 

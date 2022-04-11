@@ -14,6 +14,7 @@ use reqwest::header::{HeaderValue, IntoHeaderName};
 use std::marker::PhantomData;
 use std::path::Path;
 use std::sync::mpsc::Receiver;
+use std::time::Duration;
 
 pub struct IntoResponse<'a, T, Client>
 where
@@ -45,6 +46,12 @@ where
             ident: PhantomData,
             error: Some(error),
         }
+    }
+
+    /// Using this method set the timeout not only for this API call but also for the entire lifetime of the Client.
+    pub fn set_timeout(self, duration: Duration) -> Self {
+        self.client.set_timeout(duration);
+        self
     }
 
     pub fn query(self, key: &str, value: &str) -> Self {
