@@ -136,7 +136,7 @@ pub trait MacroQueueWriter {
                     doc = format!("\n\t\tdoc: \"{}\", ", doc_string);
                 }
 
-                let mut name = m.fn_name();
+                let name = m.fn_name();
 
                 /*
                 if name.starts_with("reports_") {
