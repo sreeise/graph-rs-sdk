@@ -36,6 +36,13 @@ where
         path: "/applications/microsoft.graph.delta()",
         has_body: false
     });
+    get!({
+        doc: "# Invoke function delta with a previous delta token",
+        name: delta_token,
+        response: DeltaPhantom<serde_json::Value>,
+        path: "/applications/microsoft.graph.delta()",
+        query: [ key: "$deltaToken", value: delta_token ]
+    });
     post!({
         doc: "Invoke action getAvailableExtensionProperties",
         name: get_available_extension_properties,

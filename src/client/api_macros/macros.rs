@@ -823,6 +823,29 @@ macro_rules! get {
         );
     };
 
+
+    // Methods with a query parameter as part of the request method. Example is methods that accept
+    // a deltaToken query.
+    //
+    // This is to conform to other graph api sdk's where you can provide an optional delta token
+    // to start from or none at all and usually done through some form of method overloading.
+    //
+    // In other words its syntax sugar and does the exact same thing as calling the IntoResponse
+    // delta_token function which just adds the deltaToken query parameter with a provided value.
+    // The only difference here is that any resource that has a delta method will now also have
+    // a delta token method that sets the deltaToken query parameter.
+
+    ( { name: $name:ident, response: $T:ty, path: $template:expr, query: [ key: $key:expr, value: $p:ident ] } ) => {
+        api_method!(
+            { name: $name, response: $T, path: $template, method: Method::GET, query: [ key: $key, value: $p ] }
+        );
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, query: [ key: $key:expr, value: $p:ident ] } ) => {
+        api_method!(
+            { doc: $doc, name: $name, response: $T, path: $template, method: Method::GET, query: [ key: $key, value: $p ] }
+        );
+    };
 }
 
 macro_rules! post {

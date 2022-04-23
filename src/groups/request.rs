@@ -50,6 +50,14 @@ where
         has_body: false
     });
 
+    get!({
+        doc: "# Invoke function delta with a previous delta token",
+        name: delta_token,
+        response: DeltaPhantom<serde_json::Value>,
+        path: "/groups/delta()",
+        query: [ key: "$deltaToken", value: delta_token ]
+    });
+
     pub fn id<ID: AsRef<str>>(&self, id: ID) -> GroupsRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Groups);
         GroupsRequest::new(id.as_ref(), self.client)

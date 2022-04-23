@@ -160,6 +160,25 @@ where
         self
     }
 
+    /// Set the deltaToken URL query parameter. This query parameter should only be used on
+    /// delta requests.
+    ///
+    /// A delta query GET response always includes a URL specified in a nextLink or deltaLink
+    /// response header. The nextLink URL includes a skipToken, and a deltaLink URL includes
+    /// a deltaToken.
+    ///
+    /// For more info on skipToken and deltaToken see
+    /// [State Tokens](https://docs.microsoft.com/en-us/graph/delta-query-overview#state-tokens)
+    ///
+    /// Using the deltaToken from the last response of a delta query request, you'll get changes
+    /// (additions, deletions, or updates) to users since the last request.
+    pub fn delta_token(self, value: &str) -> Self {
+        self.client.url_mut(|url| {
+            url.delta_token(value);
+        });
+        self
+    }
+
     pub fn header<H: IntoHeaderName>(self, name: H, value: HeaderValue) -> Self {
         self.client.header(name, value);
         self

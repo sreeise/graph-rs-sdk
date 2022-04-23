@@ -72,8 +72,15 @@ where
         name: delta,
         response: DeltaPhantom<serde_json::Value>,
         path: "/users/delta()",
-        params: 0,
         has_body: false
+    });
+
+    get!({
+        doc: "# Invoke function delta with a previous delta token",
+        name: delta_token,
+        response: DeltaPhantom<serde_json::Value>,
+        path: "/users/delta()",
+        query: [ key: "$deltaToken", value: delta_token ]
     });
 
     pub fn education(&self) -> EducationUsersRequest<'a, Client> {

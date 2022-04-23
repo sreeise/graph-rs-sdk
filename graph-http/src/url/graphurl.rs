@@ -164,6 +164,19 @@ impl GraphUrl {
     pub fn cast(&mut self, value: &str) {
         self.extend_path(&[value]);
     }
+
+    /// A delta query GET response always includes a URL specified in a nextLink or deltaLink
+    /// response header. The nextLink URL includes a skipToken, and a deltaLink URL includes
+    /// a deltaToken.
+    ///
+    /// For more info on skipToken and deltaToken see
+    /// [State Tokens](https://docs.microsoft.com/en-us/graph/delta-query-overview#state-tokens)
+    ///
+    /// Using the deltaToken from the last response of a delta query request, you'll get changes
+    /// (additions, deletions, or updates) to users since the last request.
+    pub fn delta_token(&mut self, value: &str) {
+        self.append_query_pair("$deltaToken", value.as_ref());
+    }
 }
 
 impl From<Url> for GraphUrl {
