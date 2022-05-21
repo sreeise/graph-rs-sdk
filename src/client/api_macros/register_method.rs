@@ -332,7 +332,7 @@ macro_rules! api_method {
     // The only difference here is that any resource that has a delta method will now also have
     // a delta token method that sets the deltaToken query parameter.
 
-( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, query: { key: $key:expr, value: $p:ident } } ) => {
+( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, query: [ key: $key:expr, value: $p:ident ] } ) => {
     pub fn $name<S: AsRef<str> + Sync>(&'a self, $p: S)-> IntoResponse<'a, $T, Client>
     {
         let client = self.client.request();
@@ -359,6 +359,45 @@ macro_rules! api_method {
 
         client.url_mut(|url| {
             url.append_query_pair($key, $p.as_ref());
+        });
+
+        render_path!(
+                self.client,
+                $template,
+                &serde_json::json!({ }));
+        IntoResponse::new(&self.client.request)
+    }
+};
+
+( { name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, query: [ key: $key:expr, value: $p:ident; key: $key1:expr, value: $p1:ident; ] } ) => {
+    pub fn $name<S: AsRef<str> + Sync>(&'a self, $p: S, $p1: S)-> IntoResponse<'a, $T, Client>
+    {
+        let client = self.client.request();
+        client.set_method($m);
+
+        client.url_mut(|url| {
+            url.append_query_pair($key, $p.as_ref());
+            url.append_query_pair($key1, $p1.as_ref());
+        });
+
+        render_path!(
+                self.client,
+                $template,
+                &serde_json::json!({ }));
+        IntoResponse::new(&self.client.request)
+    }
+};
+
+( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, query: [ key: $key:expr, value: $p:ident; key: $key1:expr, value: $p1:ident; ] } ) => {
+    #[doc = $doc]
+    pub fn $name<S: AsRef<str> + Sync>(&'a self, $p: S, $p1: S)-> IntoResponse<'a, $T, Client>
+    {
+        let client = self.client.request();
+        client.set_method($m);
+
+        client.url_mut(|url| {
+            url.append_query_pair($key, $p.as_ref());
+            url.append_query_pair($key1, $p1.as_ref());
         });
 
         render_path!(

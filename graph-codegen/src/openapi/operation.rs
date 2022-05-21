@@ -157,6 +157,7 @@ impl Operation {
             operation_id: self.operation_id.to_string(),
             operation_mapping,
             http_method,
+            queries: Default::default(),
             doc: self.summary.clone(),
             parent,
             original_parent,

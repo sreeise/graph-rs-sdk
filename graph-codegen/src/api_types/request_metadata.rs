@@ -20,6 +20,7 @@ pub struct RequestMetadata {
     pub operation_id: String,
     pub operation_mapping: String,
     pub http_method: HttpMethod,
+    pub queries: BTreeMap<String, String>,
     pub doc: Option<String>,
     pub parent: String,
     pub original_parent: String,
@@ -135,6 +136,10 @@ impl Metadata for RequestMetadata {
 
     fn fn_name(&self) -> String {
         self.operation_id.method_name()
+    }
+
+    fn queries(&self) -> BTreeMap<String, String> {
+        self.queries.clone()
     }
 
     fn request_task(&self) -> RequestTask {
@@ -403,6 +408,35 @@ impl PathMetadata {
             metadata.set_resource_identity(resource_identity);
         }
     }
+
+    pub fn check_add_delta_token_request(&mut self) {
+        let delta_request_option = self
+            .metadata
+            .iter()
+            .find(|m| m.fn_name().eq("delta"))
+            .cloned();
+
+        if let Some(delta_request) = delta_request_option {
+            self.metadata.push_back(RequestMetadata {
+                has_body: false,
+                request_task: RequestTask::Delta,
+                operation_id: delta_request
+                    .operation_id
+                    .replacen("delta", "delta_token", 1),
+                operation_mapping: delta_request.operation_mapping.replacen(
+                    "delta",
+                    "delta_token",
+                    1,
+                ),
+                http_method: HttpMethod::GET,
+                queries: BTreeMap::from([("$deltaToken".into(), "delta_token".into())]),
+                doc: Some("# Invoke function delta with a previous delta token".into()),
+                parent: delta_request.parent,
+                original_parent: delta_request.original_parent,
+                resource_identity: delta_request.resource_identity,
+            })
+        }
+    }
 }
 
 impl MacroQueueWriter for PathMetadata {
@@ -549,6 +583,12 @@ impl PathMetadataQueue {
             metadata.format_path_parameters();
         }
     }
+
+    pub fn check_add_delta_token_request(&mut self) {
+        for metadata in self.0.iter_mut() {
+            metadata.check_add_delta_token_request();
+        }
+    }
 }
 
 impl From<VecDeque<PathMetadata>> for PathMetadataQueue {
@@ -656,6 +696,7 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
         for filter in filters {
             metadata_queue.filter_metadata_path(filter);
         }
+        metadata_queue.check_add_delta_token_request();
         metadata_queue
     }
 }

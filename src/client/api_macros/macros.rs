@@ -846,6 +846,18 @@ macro_rules! get {
             { doc: $doc, name: $name, response: $T, path: $template, method: Method::GET, query: [ key: $key, value: $p ] }
         );
     };
+
+    ( { name: $name:ident, response: $T:ty, path: $template:expr, query: [ key: $key:expr, value: $p:ident; key: $key1:expr, value: $p1:ident; ] } ) => {
+        api_method!(
+            { name: $name, response: $T, path: $template, method: Method::GET, query: [ key: $key, value: $p; key: $key1, value: $p1; ] }
+        );
+    };
+
+    ( { doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, query: [ key: $key:expr, value: $p:ident; key: $key1:expr, value: $p1:ident; ] } ) => {
+        api_method!(
+            { doc: $doc, name: $name, response: $T, path: $template, method: Method::GET, query: [ key: $key, value: $p; key: $key1, value: $p1; ] }
+        );
+    };
 }
 
 macro_rules! post {
