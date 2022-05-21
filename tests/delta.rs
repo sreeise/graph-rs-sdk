@@ -80,7 +80,12 @@ fn delta_token_query() {
 
     let _lock = THROTTLE_MUTEX.lock().unwrap();
     if let Some((_id, client)) = OAuthTestClient::graph_by_rid(ResourceIdentity::Applications) {
-        let delta_recv = client.v1().applications().delta().delta_token("latest").send();
+        let delta_recv = client
+            .v1()
+            .applications()
+            .delta()
+            .delta_token("latest")
+            .send();
         let mut is_done = false;
 
         loop {
