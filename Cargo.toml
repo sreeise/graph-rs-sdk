@@ -2,7 +2,7 @@
 name = "graph-rs-sdk"
 version = "0.2.0"
 authors = ["sreeise"]
-edition = "2018"
+edition = "2021"
 readme = "README.md"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs"
