@@ -2,7 +2,7 @@
 name = "test-tools"
 version = "0.0.1"
 authors = ["sreeise"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs"
 description = "Microsoft Graph Api Client"
