@@ -76,7 +76,7 @@ where
     post!({
         doc: "# Add new entity to teams",
         name: create_team,
-        response: serde_json::Value,
+        response: NoContent,
         path: "/teams",
         params: 0,
         has_body: true
