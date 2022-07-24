@@ -194,6 +194,10 @@ impl RequestParser for Operation {
         self.operation_id.operation_mapping()
     }
 
+    fn transform_key_value_pair_query(&self) -> (String, HashSet<String>) {
+        (String::new(), HashSet::new())
+    }
+
     fn transform_path(&self) -> String {
         Default::default()
     }

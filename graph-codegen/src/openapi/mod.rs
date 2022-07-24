@@ -58,12 +58,13 @@ pub use xml::*;
 
 use crate::api_types::PathMetadata;
 use crate::macros::OpenApiParser;
+use crate::parser::client_resource::ResourceParsingInfo;
 use crate::traits::{FilterPath, RequestParser};
 use from_as::*;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
 use inflector::Inflector;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use rayon::prelude::*;
 use reqwest::Url;
 use serde_json::Value;
 use std::collections::{BTreeSet, HashMap};
@@ -158,6 +159,29 @@ impl OpenApi {
             .collect()
     }
 
+    pub fn filter_resource_parsing_info_path(
+        &self,
+        resource_parsing_info: &ResourceParsingInfo,
+    ) -> BTreeMap<String, PathItem> {
+        let trim_path_start = resource_parsing_info
+            .trim_path_start
+            .clone()
+            .unwrap_or_default()
+            .to_string();
+        let p = resource_parsing_info.path.to_string();
+        self.paths
+            .clone()
+            .into_par_iter()
+            .map(|(path, path_item)| {
+                (
+                    path.trim_start_matches(&trim_path_start).to_string(),
+                    path_item,
+                )
+            })
+            .filter(|(path, _path_item)| path.starts_with(&p))
+            .collect()
+    }
+
     pub fn filter_replace_path(&mut self, pat: &str) {
         self.paths = self.filter_path(pat);
     }
@@ -169,6 +193,20 @@ impl OpenApi {
             .into_par_iter()
             .map(|(path, path_item)| (path.transform_path(), path_item))
             .collect();
+    }
+
+    pub fn requests_secondary(
+        &self,
+        trim_pat: &str,
+        parameter_filter: &[String],
+    ) -> VecDeque<PathMetadata> {
+        self.paths
+            .iter()
+            .filter(|(path, _path_item)| path.starts_with(trim_pat))
+            .map(|(path, path_item)| {
+                path_item.request_metadata_secondary(path.as_str(), trim_pat, parameter_filter)
+            })
+            .collect()
     }
 
     pub fn requests(&self) -> VecDeque<PathMetadata> {

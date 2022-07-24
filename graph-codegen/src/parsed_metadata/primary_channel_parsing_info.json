@@ -1,0 +1,9 @@
+{
+  "modifier_name": "primaryChannel",
+  "path": "/primaryChannel",
+  "resource_identity": "PrimaryChannel",
+  "trim_path_start": "/teams/{team-id}",
+  "parameter_filter": [
+    "team-id"
+  ]
+}

@@ -1,8 +1,10 @@
 use crate::parser::filter::Filter;
+use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use std::convert::TryFrom;
+use std::io::{Read, Write};
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
 pub struct ResourceParsingInfo {
     /// The name, in camel case, of the Api that is used in a request path. These are usually
     /// the same as the ResourceIdentity name and therefore this is an optional field.
@@ -20,6 +22,10 @@ pub struct ResourceParsingInfo {
     /// you want to generate the activities api, then pass /me here so that it will be
     /// trimmed from the path.
     pub trim_path_start: Option<String>,
+    /// If the resource is secondary and the top level resource has an id then
+    /// the original parameters will still have the top level resource id which
+    /// we don't want to include. Allow filtering for these parameters.
+    pub parameter_filter: Vec<String>,
 }
 
 #[deprecated]

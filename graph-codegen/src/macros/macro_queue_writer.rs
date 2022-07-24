@@ -390,7 +390,7 @@ pub trait OpenApiParser {
             }
         };
 
-        let metadata_queue = PathMetadataQueue::from(resource_parsing_info);
+        let metadata_queue = PathMetadataQueue::from(resource_parsing_info.clone());
         metadata_queue.debug_print();
         metadata_queue.write_impl(name.as_str());
 
@@ -398,7 +398,17 @@ pub trait OpenApiParser {
             "./graph-codegen/src/parsed_metadata/{}.json",
             name.to_snake_case()
         );
+
         metadata_queue.as_file_pretty(&metadata_file).unwrap();
+
+        let resource_parsing_info_file = format!(
+            "./graph-codegen/src/parsed_metadata/{}_parsing_info.json",
+            name.to_snake_case()
+        );
+
+        resource_parsing_info
+            .as_file_pretty(&resource_parsing_info_file)
+            .unwrap();
     }
 
     /// Use only for top-level resources. Otherwise use `write`.

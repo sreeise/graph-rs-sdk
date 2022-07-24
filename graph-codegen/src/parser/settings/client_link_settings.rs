@@ -233,6 +233,85 @@ pub fn get_client_link_settings(
                 .mem_take(),
             );
         }
+        ResourceIdentity::Channels => {
+            /*
+            map.insert(
+                "channels".into(),
+                vec![
+                    ClientLinkSettings::new("ChatsAndChannelsMessages")
+                        .use_method_name("messages")
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Messages),
+                    ClientLinkSettings::new("ChatsAndChannelsMessagesId")
+                        .use_method_name("message")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Messages),
+                ]
+                .mem_take(),
+            );
+             */
+            map.insert(
+                "channelsId".into(),
+                vec![
+                    ClientLinkSettings::new("ChatsAndChannelsMessages")
+                        .use_method_name("messages")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Messages),
+                    ClientLinkSettings::new("ChatsAndChannelsMessagesId")
+                        .use_method_name("message")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Messages),
+                    ClientLinkSettings::new("tabs")
+                        .use_method_name("tabs")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Tabs),
+                    ClientLinkSettings::new("tabsId")
+                        .use_method_name("tab")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Tabs),
+                    ClientLinkSettings::new("sharedWithTeams")
+                        .use_method_name("sharedWithTeams")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::SharedWithTeams),
+                    ClientLinkSettings::new("sharedWithTeamsId")
+                        .use_method_name("sharedWithTeam")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::SharedWithTeams),
+                    ClientLinkSettings::new("members")
+                        .use_method_name("members")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Members),
+                    ClientLinkSettings::new("membersId")
+                        .use_method_name("member")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Members),
+                ]
+                .mem_take(),
+            );
+        }
         ResourceIdentity::ChildFolders => {
             map.insert(
                 "childFolders".into(),
@@ -935,6 +1014,58 @@ pub fn get_client_link_settings(
                 .mem_take(),
             );
         }
+        ResourceIdentity::PrimaryChannel => {
+            map.insert(
+                "primaryChannel".into(),
+                vec![
+                    ClientLinkSettings::new("ChatsAndChannelsMessages")
+                        .use_method_name("messages")
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Messages),
+                    ClientLinkSettings::new("ChatsAndChannelsMessagesId")
+                        .use_method_name("message")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Messages),
+                    ClientLinkSettings::new("tabs")
+                        .use_method_name("tabs")
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Tabs),
+                    ClientLinkSettings::new("tabsId")
+                        .use_method_name("tab")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Tabs),
+                    ClientLinkSettings::new("sharedWithTeams")
+                        .use_method_name("sharedWithTeams")
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::SharedWithTeams),
+                    ClientLinkSettings::new("sharedWithTeamsId")
+                        .use_method_name("sharedWithTeam")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::SharedWithTeams),
+                    ClientLinkSettings::new("members")
+                        .use_method_name("members")
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Members),
+                    ClientLinkSettings::new("membersId")
+                        .use_method_name("member")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        // Use messages since this will be used to set the path of a request.
+                        .with_resource_identity(ResourceIdentity::Members),
+                ]
+                .mem_take(),
+            );
+        }
         ResourceIdentity::SectionGroups => {
             map.insert(
                 "sectionGroups".into(),
@@ -1029,6 +1160,50 @@ pub fn get_client_link_settings(
                         .with_extend_path_id()
                         .with_extend_path_ident()
                         .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        }
+        ResourceIdentity::Teams => {
+            map.insert(
+                "teams".into(),
+                vec![ClientLinkSettings::new("teamsId").as_id_method_link()].mem_take(),
+            );
+            map.insert(
+                "teamsId".into(),
+                vec![
+                    ClientLinkSettings::new("channels")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .use_method_name("channels")
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("channelsId")
+                        .with_id_param()
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .use_method_name("channel")
+                        .with_resource_identity(ResourceIdentity::Channels),
+                    ClientLinkSettings::new("primaryChannel")
+                        .use_method_name("primary_channel")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_set_resource_identity(),
+                    ClientLinkSettings::new("members")
+                        .use_method_name("members")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::Members),
+                    ClientLinkSettings::new("membersId")
+                        .with_id_param()
+                        .use_method_name("member")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::Members),
+                    ClientLinkSettings::new("schedule")
+                        .use_method_name("schedule")
+                        .with_extend_path_id()
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::Schedule),
                 ]
                 .mem_take(),
             );

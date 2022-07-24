@@ -88,6 +88,15 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                 vec!["/threads/"].iter().map(|s| s.to_string()).collect(),
             ))]
         }
+        // sharedWithTeams
+        ResourceIdentity::Channels => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["sharedWithTeams", "tabs", "messages", "members"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            ))]
+        }
         ResourceIdentity::ChildFolders => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["/move"].iter().map(|s| s.to_string()).collect(),
@@ -177,6 +186,14 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                 .iter()
                 .map(|s| s.to_string())
                 .collect(),
+            ))]
+        }
+        ResourceIdentity::PrimaryChannel => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["sharedWithTeams", "tabs", "messages", "members"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
             ))]
         }
         ResourceIdentity::Notebooks => {
@@ -361,6 +378,25 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                     "/conversations/",
                     "/threads/",
                     "/conversations/",
+                ]
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
+            ))]
+        }
+        ResourceIdentity::Teams => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec![
+                    "teamsTemplates",
+                    "channels",
+                    //"allChannels",
+                    "primaryChannel",
+                    //"incomingChannels",
+                    "schedule",
+                    //"teamwork",
+                    //"installedApps",
+                    "members",
+                    //"operations",
                 ]
                 .iter()
                 .map(|s| s.to_string())

@@ -1,0 +1,107 @@
+[
+  {
+    "path": "/tabs",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.primaryChannel.ListTabs",
+        "operation_mapping": "tabs",
+        "http_method": "GET",
+        "doc": "Get tabs from teams",
+        "parent": "Tabs",
+        "original_parent": "Tabs",
+        "resource_identity": null
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.primaryChannel.CreateTabs",
+        "operation_mapping": "tabs",
+        "http_method": "POST",
+        "doc": "Create new navigation property to tabs for teams",
+        "parent": "Tabs",
+        "original_parent": "Tabs",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/tabs/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.tabs-8cf3",
+        "operation_mapping": "tabs",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Tabs",
+        "original_parent": "Tabs",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/tabs/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.primaryChannel.GetTabs",
+        "operation_mapping": "tabsId",
+        "http_method": "GET",
+        "doc": "Get tabs from teams",
+        "parent": "TabsId",
+        "original_parent": "Tabs",
+        "resource_identity": "Tabs"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "teams.primaryChannel.UpdateTabs",
+        "operation_mapping": "tabsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property tabs in teams",
+        "parent": "TabsId",
+        "original_parent": "Tabs",
+        "resource_identity": "Tabs"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.primaryChannel.DeleteTabs",
+        "operation_mapping": "tabsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property tabs for teams",
+        "parent": "TabsId",
+        "original_parent": "Tabs",
+        "resource_identity": "Tabs"
+      }
+    ]
+  },
+  {
+    "path": "/tabs/{{RID}}/teamsApp",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.primaryChannel.tabs.GetTeamsApp",
+        "operation_mapping": "tabsId",
+        "http_method": "GET",
+        "doc": "Get teamsApp from teams",
+        "parent": "TabsId",
+        "original_parent": "Tabs",
+        "resource_identity": "Tabs"
+      }
+    ]
+  }
+]
