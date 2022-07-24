@@ -29,7 +29,7 @@ where
     post!({
         doc: "Create team",
         name: create_team,
-        response: serde_json::Value,
+        response: NoContent,
         path: "/teams",
         has_body: true
     });
