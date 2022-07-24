@@ -111,6 +111,7 @@ pub extern crate serde;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 extern crate strum;
+extern crate tokio_stream;
 
 // mod client needs to stay on top of all other
 // client mod declarations for macro use.
@@ -145,6 +146,10 @@ pub mod call_records;
 pub mod calls;
 /// Certificate based auth configuration client.
 pub mod certificate_based_auth_configuration;
+/// Channels request client. (Teams, Sites)
+pub mod channels;
+/// Chats or Channel Messages request client.
+pub mod chats_channels_messages;
 /// Mail folders child folders request client.
 pub mod child_folders;
 /// Communications client.
@@ -205,6 +210,8 @@ pub mod mail_folders;
 pub mod managed_devices;
 /// Me request client.
 pub mod me;
+// Members request client (teams)
+pub mod members;
 /// Messages request client.
 pub mod messages;
 /// Notebooks request client.
@@ -233,8 +240,12 @@ pub mod plans;
 pub mod policies;
 /// Groups threads posts request client.
 pub mod posts;
+/// Primary channels request client.
+pub mod primary_channel;
 /// Reports request client.
 pub mod reports;
+/// Schedule request client (teams).
+pub mod schedule;
 /// Schema extensions request client.
 pub mod schema_extensions;
 /// Onenote section group request client.
@@ -249,16 +260,22 @@ pub mod service_principals;
 pub mod sessions;
 /// Settings request client (me, users, etc.).
 pub mod settings;
+/// Shared With Teams request client (Teams channels and primary channel path)
+pub mod shared_with_teams;
 /// Sites request client.
 pub mod sites;
 /// Subscribed skus request client.
 pub mod subscribed_skus;
 /// Subscriptions request client.
 pub mod subscriptions;
+/// Tabs request client.
+pub mod tabs;
 /// Planner tasks request client.
 pub mod tasks;
 /// Teams request client.
 pub mod teams;
+/// Teams templates request client.
+pub mod teams_templates;
 /// Teamwork request client.
 pub mod teamwork;
 /// Groups thread request client.

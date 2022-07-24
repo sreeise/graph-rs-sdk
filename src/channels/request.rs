@@ -4,6 +4,9 @@ use crate::api_default_imports::*;
 use crate::chats_channels_messages::{
     ChatsAndChannelsMessagesIdRequest, ChatsAndChannelsMessagesRequest,
 };
+use crate::members::{MembersIdRequest, MembersRequest};
+use crate::shared_with_teams::{SharedWithTeamsIdRequest, SharedWithTeamsRequest};
+use crate::tabs::{TabsIdRequest, TabsRequest};
 use graph_http::types::NoContent;
 
 register_client!(ChannelsRequest,);
@@ -13,22 +16,6 @@ impl<'a, Client> ChannelsRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn messages(&self) -> ChatsAndChannelsMessagesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Messages);
-        ChatsAndChannelsMessagesRequest::new(self.client)
-    }
-
-    pub fn message<ID: AsRef<str>>(&self, id: ID) -> ChatsAndChannelsMessagesIdRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Messages);
-        ChatsAndChannelsMessagesIdRequest::new(id.as_ref(), self.client)
-    }
-
     post!({
         doc: "Create new navigation property to channels for teams",
         name: create_channels,
@@ -63,10 +50,81 @@ impl<'a, Client> ChannelsIdRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    pub fn messages(&self) -> ChatsAndChannelsMessagesRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Messages);
+        ChatsAndChannelsMessagesRequest::new(self.client)
+    }
+
+    pub fn message<ID: AsRef<str>>(&self, id: ID) -> ChatsAndChannelsMessagesIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Messages);
+        ChatsAndChannelsMessagesIdRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn members(&self) -> MembersRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Members);
+        MembersRequest::new(self.client)
+    }
+
+    pub fn member<ID: AsRef<str>>(&self, id: ID) -> MembersIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Members);
+        MembersIdRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn shared_with_teams(&self) -> SharedWithTeamsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::SharedWithTeams);
+        SharedWithTeamsRequest::new(self.client)
+    }
+
+    pub fn shared_with_team<ID: AsRef<str>>(&self, id: ID) -> SharedWithTeamsIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::SharedWithTeams);
+        SharedWithTeamsIdRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn tabs(&self) -> TabsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Tabs);
+        TabsRequest::new(self.client)
+    }
+
+    pub fn tab<ID: AsRef<str>>(&self, id: ID) -> TabsIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client.set_ident(ResourceIdentity::Tabs);
+        TabsIdRequest::new(id.as_ref(), self.client)
+    }
+
     get!({
         doc: "Get channels from teams",
         name: get_channels,
         response: serde_json::Value,
+        path: "/channels/{{RID}}",
+        has_body: false
+    });
+    delete!({
+        doc: "Delete navigation property channels for teams",
+        name: delete_channels,
+        response: NoContent,
         path: "/channels/{{RID}}",
         has_body: false
     });
@@ -77,25 +135,11 @@ where
         path: "/channels/{{RID}}",
         has_body: true
     });
-    delete!({
-        doc: "Delete navigation property channels for teams",
-        name: delete_channels,
-        response: NoContent,
-        path: "/channels/{{RID}}",
-        has_body: false
-    });
     get!({
         doc: "Get filesFolder from teams",
         name: get_files_folder,
         response: serde_json::Value,
         path: "/channels/{{RID}}/filesFolder",
-        has_body: false
-    });
-    get!({
-        doc: "Get content for the navigation property filesFolder from teams",
-        name: get_files_folder_content,
-        response: serde_json::Value,
-        path: "/channels/{{RID}}/filesFolder/content",
         has_body: false
     });
     put!({
@@ -105,56 +149,11 @@ where
         path: "/channels/{{RID}}/filesFolder/content",
         has_body: true
     });
-    post!({
-        doc: "Create new navigation property to members for teams",
-        name: create_members,
-        response: serde_json::Value,
-        path: "/channels/{{RID}}/members",
-        has_body: true
-    });
     get!({
-        doc: "Get members from teams",
-        name: list_members,
+        doc: "Get content for the navigation property filesFolder from teams",
+        name: get_files_folder_content,
         response: serde_json::Value,
-        path: "/channels/{{RID}}/members",
-        has_body: false
-    });
-    get!({
-        doc: "Get the number of the resource",
-        name: get_members_count,
-        response: serde_json::Value,
-        path: "/channels/{{RID}}/members/$count",
-        has_body: false
-    });
-    post!({
-        doc: "Invoke action add",
-        name: add,
-        response: serde_json::Value,
-        path: "/channels/{{RID}}/members/microsoft.graph.add",
-        has_body: true
-    });
-    patch!({
-        doc: "Update the navigation property members in teams",
-        name: update_members,
-        response: NoContent,
-        path: "/channels/{{RID}}/members/{{id}}",
-        params: [ conversation_member_id ],
-        has_body: true
-    });
-    delete!({
-        doc: "Delete navigation property members for teams",
-        name: delete_members,
-        response: NoContent,
-        path: "/channels/{{RID}}/members/{{id}}",
-        params: [ conversation_member_id ],
-        has_body: false
-    });
-    get!({
-        doc: "Get members from teams",
-        name: get_members,
-        response: serde_json::Value,
-        path: "/channels/{{RID}}/members/{{id}}",
-        params: [ conversation_member_id ],
+        path: "/channels/{{RID}}/filesFolder/content",
         has_body: false
     });
     post!({

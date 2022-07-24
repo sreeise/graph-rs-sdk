@@ -29,7 +29,8 @@ use crate::service_principals::ServicePrincipalsRequest;
 use crate::sites::{SiteRequest, SitesRequest};
 use crate::subscribed_skus::SubscribedSkusRequest;
 use crate::subscriptions::SubscriptionsRequest;
-use crate::teams::{TeamRequest, TeamsRequest};
+use crate::teams::{TeamsIdRequest, TeamsRequest};
+use crate::teams_templates::{TeamsTemplatesIdRequest, TeamsTemplatesRequest};
 use crate::teamwork::TeamworkRequest;
 use crate::users::{UserRequest, UsersRequest};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
@@ -503,14 +504,24 @@ where
         TeamworkRequest::new(self.client)
     }
 
-    pub fn team<S: AsRef<str>>(&self, id: S) -> TeamsRequest<'a, Client> {
+    pub fn team<S: AsRef<str>>(&self, id: S) -> TeamsIdRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Teams);
-        TeamsRequest::new(id.as_ref(), self.client)
+        TeamsIdRequest::new(id.as_ref(), self.client)
     }
 
-    pub fn teams(&self) -> TeamRequest<'a, Client> {
+    pub fn teams(&self) -> TeamsRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Teams);
-        TeamRequest::new(self.client)
+        TeamsRequest::new(self.client)
+    }
+
+    pub fn teams_template<S: AsRef<str>>(&self, id: S) -> TeamsTemplatesIdRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::TeamsTemplates);
+        TeamsTemplatesIdRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn teams_templates(&self) -> TeamsTemplatesRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::TeamsTemplates);
+        TeamsTemplatesRequest::new(self.client)
     }
 
     pub fn user<S: AsRef<str>>(&self, id: S) -> UsersRequest<'a, Client> {
