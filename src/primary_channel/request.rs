@@ -4,6 +4,8 @@ use crate::api_default_imports::*;
 use crate::chats_channels_messages::{
     ChatsAndChannelsMessagesIdRequest, ChatsAndChannelsMessagesRequest,
 };
+use crate::shared_with_teams::{SharedWithTeamsIdRequest, SharedWithTeamsRequest};
+use crate::tabs::{TabsIdRequest, TabsRequest};
 use graph_http::types::NoContent;
 
 register_client!(PrimaryChannelRequest,);
@@ -28,10 +30,42 @@ where
         ChatsAndChannelsMessagesIdRequest::new(id.as_ref(), self.client)
     }
 
-    get!({
-        doc: "Get primaryChannel from teams",
-        name: get_primary_channel,
-        response: serde_json::Value,
+    pub fn shared_with_teams(&self) -> SharedWithTeamsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::SharedWithTeams);
+        SharedWithTeamsRequest::new(self.client)
+    }
+
+    pub fn shared_with_team<ID: AsRef<str>>(&self, id: ID) -> SharedWithTeamsIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::SharedWithTeams);
+        SharedWithTeamsIdRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn tabs(&self) -> TabsRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Tabs);
+        TabsRequest::new(self.client)
+    }
+
+    pub fn tab<ID: AsRef<str>>(&self, id: ID) -> TabsIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref()]);
+        self.client.set_ident(ResourceIdentity::Tabs);
+        TabsIdRequest::new(id.as_ref(), self.client)
+    }
+
+    delete!({
+        doc: "Delete navigation property primaryChannel for teams",
+        name: delete_primary_channel,
+        response: NoContent,
         path: "/primaryChannel",
         has_body: false
     });
@@ -42,10 +76,10 @@ where
         path: "/primaryChannel",
         has_body: true
     });
-    delete!({
-        doc: "Delete navigation property primaryChannel for teams",
-        name: delete_primary_channel,
-        response: NoContent,
+    get!({
+        doc: "Get primaryChannel from teams",
+        name: get_primary_channel,
+        response: serde_json::Value,
         path: "/primaryChannel",
         has_body: false
     });
@@ -86,7 +120,7 @@ where
     });
     get!({
         doc: "Get the number of the resource",
-        name: get_member_count,
+        name: count,
         response: serde_json::Value,
         path: "/primaryChannel/members/$count",
         has_body: false
@@ -98,10 +132,10 @@ where
         path: "/primaryChannel/members/microsoft.graph.add",
         has_body: true
     });
-    get!({
-        doc: "Get members from teams",
-        name: get_members,
-        response: serde_json::Value,
+    delete!({
+        doc: "Delete navigation property members for teams",
+        name: delete_members,
+        response: NoContent,
         path: "/primaryChannel/members/{{id}}",
         params: [ conversation_member_id ],
         has_body: false
@@ -114,10 +148,10 @@ where
         params: [ conversation_member_id ],
         has_body: true
     });
-    delete!({
-        doc: "Delete navigation property members for teams",
-        name: delete_members,
-        response: NoContent,
+    get!({
+        doc: "Get members from teams",
+        name: get_members,
+        response: serde_json::Value,
         path: "/primaryChannel/members/{{id}}",
         params: [ conversation_member_id ],
         has_body: false
