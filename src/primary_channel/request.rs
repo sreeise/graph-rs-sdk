@@ -28,13 +28,6 @@ where
         ChatsAndChannelsMessagesIdRequest::new(id.as_ref(), self.client)
     }
 
-    delete!({
-        doc: "Delete navigation property primaryChannel for teams",
-        name: delete_primary_channel,
-        response: NoContent,
-        path: "/primaryChannel",
-        has_body: false
-    });
     get!({
         doc: "Get primaryChannel from teams",
         name: get_primary_channel,
@@ -49,11 +42,25 @@ where
         path: "/primaryChannel",
         has_body: true
     });
+    delete!({
+        doc: "Delete navigation property primaryChannel for teams",
+        name: delete_primary_channel,
+        response: NoContent,
+        path: "/primaryChannel",
+        has_body: false
+    });
     get!({
         doc: "Get filesFolder from teams",
         name: get_files_folder,
         response: serde_json::Value,
         path: "/primaryChannel/filesFolder",
+        has_body: false
+    });
+    get!({
+        doc: "Get content for the navigation property filesFolder from teams",
+        name: get_files_folder_content,
+        response: serde_json::Value,
+        path: "/primaryChannel/filesFolder/content",
         has_body: false
     });
     put!({
@@ -63,20 +70,6 @@ where
         path: "/primaryChannel/filesFolder/content",
         has_body: true
     });
-    get!({
-        doc: "Get content for the navigation property filesFolder from teams",
-        name: get_files_folder_content,
-        response: serde_json::Value,
-        path: "/primaryChannel/filesFolder/content",
-        has_body: false
-    });
-    get!({
-        doc: "Get members from teams",
-        name: list_members,
-        response: serde_json::Value,
-        path: "/primaryChannel/members",
-        has_body: false
-    });
     post!({
         doc: "Create new navigation property to members for teams",
         name: create_members,
@@ -85,8 +78,15 @@ where
         has_body: true
     });
     get!({
+        doc: "Get members from teams",
+        name: list_members,
+        response: serde_json::Value,
+        path: "/primaryChannel/members",
+        has_body: false
+    });
+    get!({
         doc: "Get the number of the resource",
-        name: get_members_count,
+        name: get_member_count,
         response: serde_json::Value,
         path: "/primaryChannel/members/$count",
         has_body: false
@@ -106,14 +106,6 @@ where
         params: [ conversation_member_id ],
         has_body: false
     });
-    delete!({
-        doc: "Delete navigation property members for teams",
-        name: delete_members,
-        response: NoContent,
-        path: "/primaryChannel/members/{{id}}",
-        params: [ conversation_member_id ],
-        has_body: false
-    });
     patch!({
         doc: "Update the navigation property members in teams",
         name: update_members,
@@ -121,6 +113,14 @@ where
         path: "/primaryChannel/members/{{id}}",
         params: [ conversation_member_id ],
         has_body: true
+    });
+    delete!({
+        doc: "Delete navigation property members for teams",
+        name: delete_members,
+        response: NoContent,
+        path: "/primaryChannel/members/{{id}}",
+        params: [ conversation_member_id ],
+        has_body: false
     });
     post!({
         doc: "Invoke action completeMigration",
@@ -134,7 +134,7 @@ where
         name: does_user_have_access,
         response: serde_json::Value,
         path: "/primaryChannel/microsoft.graph.doesUserHaveAccess(userId='{{id}}',tenantId='{{id2}}',userPrincipalName='{{id3}}')",
-        params: [ user_id tenant_id user_principal_name ],
+        params: [ user_id  tenant_id  user_principal_name ],
         has_body: false
     });
     post!({
