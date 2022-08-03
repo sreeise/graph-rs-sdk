@@ -5,7 +5,7 @@ use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::inflector::Inflector;
 use crate::parser::client_resource::ResourceParsingInfo;
 use crate::parser::ParserSettings;
-use crate::settings::{get_method_macro_modifiers, MacroModifierType, MethodMacroModifier};
+use crate::settings::get_method_macro_modifiers;
 use bytes::{BufMut, BytesMut};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
@@ -127,10 +127,8 @@ pub trait MacroQueueWriter {
     }
 
     fn write_method_macros(&self) -> String {
-        let metadata = self.request_metadata();
         let mut buf = BytesMut::new();
-
-        let mut method_macros = self.method_macros();
+        let method_macros = self.method_macros();
 
         for method_macro in method_macros.iter() {
             if method_macro.request_task != RequestTask::Download {
@@ -400,10 +398,9 @@ pub trait MacroImplWriter {
         resource_parsing_info: ResourceParsingInfo,
     ) -> BTreeSet<MethodMacro> {
         let path_metadata_map = self.path_metadata_map();
-        let values: Vec<_> = path_metadata_map.values().cloned().collect();
         let mut set = BTreeSet::new();
 
-        for (name, path_metadata_queue) in path_metadata_map.iter() {
+        for (_name, path_metadata_queue) in path_metadata_map.iter() {
             for metadata in path_metadata_queue.iter() {
                 let mut method_macro_set =
                     metadata.list_method_macros(resource_parsing_info.resource_identity);

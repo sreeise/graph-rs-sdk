@@ -52,7 +52,6 @@ impl PathMatcher {
 
         for capture in PATH_REGEX_SET.captures_iter(s) {
             let capture_s = capture[0].to_string();
-            let mut found_match = false;
 
             for name in capture_names.iter() {
                 if capture.name(name).is_some() {
@@ -169,6 +168,7 @@ impl RequestParser for &str {
         op_mapping
     }
 
+    #[allow(unused_assignments)]
     fn transform_key_value_pair_query(&self) -> (String, HashSet<String>) {
         let mut path = self.to_string();
         let path_clone = path.clone();

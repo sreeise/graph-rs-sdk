@@ -666,7 +666,7 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
             ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
         metadata_queue.update_targets(&modifier_map);
 
-        if let Some(trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
+        if let Some(_trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
             metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
             let resource_identity_string = resource_parsing_info.resource_identity.to_string();
             metadata_queue.format_path_parameters();

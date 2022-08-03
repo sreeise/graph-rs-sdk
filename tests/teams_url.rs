@@ -10,15 +10,18 @@ fn get_graph() -> Graph<BlockingHttpClient> {
 }
 
 #[test]
-fn team_to_teams() {
+fn get_teams_request() {
     let client = get_graph();
 
-    let _ = client.v1().teams().id(RID).channel(ID).get_channels();
-    assert_url_eq(&client, &format!("/teams/{}/channels/{}", RID, ID));
+    let _ = client.v1().teams().id(RID).get_team();
+    assert_url_eq(&client, &format!("/teams/{}", RID));
+
+    let _ = client.v1().team(RID).get_team();
+    assert_url_eq(&client, &format!("/teams/{}", RID));
 }
 
 #[test]
-fn team_request() {
+fn list_teams_request() {
     let client = get_graph();
 
     let _ = client.v1().teams().list_team();
@@ -44,7 +47,10 @@ fn teams_schedule_request() {
     assert_url_eq(&client, &format!("/teams/{}/schedule", RID));
 
     let _ = client.v1().team(RID).schedule().share(&String::new());
-    assert_url_eq(&client, &format!("/teams/{}/schedule/share", RID));
+    assert_url_eq(
+        &client,
+        &format!("/teams/{}/schedule/microsoft.graph.share", RID),
+    );
 }
 
 #[test]
