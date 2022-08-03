@@ -240,23 +240,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "teams.CreateInstalledApps",
-        "operation_mapping": "TeamsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property to installedApps for teams",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.ListInstalledApps",
         "operation_mapping": "TeamsId",
         "http_method": "GET",
         "doc": "Get installedApps from teams",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.CreateInstalledApps",
+        "operation_mapping": "TeamsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to installedApps for teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -479,23 +479,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "teams.CreateOperations",
-        "operation_mapping": "TeamsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property to operations for teams",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.ListOperations",
         "operation_mapping": "TeamsId",
         "http_method": "GET",
         "doc": "Get operations from teams",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.CreateOperations",
+        "operation_mapping": "TeamsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to operations for teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -540,22 +540,22 @@
       },
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.GetOperations",
+        "request_task": "NoContent",
+        "operation_id": "teams.DeleteOperations",
         "operation_mapping": "TeamsId",
-        "http_method": "GET",
-        "doc": "Get operations from teams",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property operations for teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
       },
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "teams.DeleteOperations",
+        "request_task": "Json",
+        "operation_id": "teams.GetOperations",
         "operation_mapping": "TeamsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property operations for teams",
+        "http_method": "GET",
+        "doc": "Get operations from teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -580,22 +580,22 @@
       },
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.GetPhoto",
+        "request_task": "NoContent",
+        "operation_id": "teams.DeletePhoto",
         "operation_mapping": "TeamsId",
-        "http_method": "GET",
-        "doc": "Get photo from teams",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property photo for teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
       },
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "teams.DeletePhoto",
+        "request_task": "Json",
+        "operation_id": "teams.GetPhoto",
         "operation_mapping": "TeamsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property photo for teams",
+        "http_method": "GET",
+        "doc": "Get photo from teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"

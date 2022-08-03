@@ -1,4 +1,4 @@
-use crate::api_types::{Metadata, MetadataModifier, RequestClientList, RequestTask};
+use crate::api_types::{Metadata, MetadataModifier, MethodMacro, RequestClientList, RequestTask};
 use crate::inflector::Inflector;
 use crate::macros::{MacroImplWriter, MacroQueueWriter};
 use crate::openapi::{OpenApi, PathItem};
@@ -441,6 +441,17 @@ impl MacroQueueWriter for PathMetadata {
             .flat_map(|m| m.request_task.imports())
             .map(|s| s.to_string())
             .collect()
+    }
+
+    fn method_macros(&self) -> BTreeSet<MethodMacro> {
+        let resource_identity = self
+            .metadata
+            .iter()
+            .map(|s| s.resource_identity)
+            .find(|ri| ri.is_some())
+            .flatten()
+            .unwrap();
+        self.list_method_macros(resource_identity)
     }
 }
 

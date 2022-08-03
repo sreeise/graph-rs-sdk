@@ -5,7 +5,6 @@ use crate::channels::{ChannelsIdRequest, ChannelsRequest};
 use crate::members::{MembersIdRequest, MembersRequest};
 use crate::primary_channel::PrimaryChannelRequest;
 use crate::schedule::ScheduleRequest;
-use crate::teams_templates::{TeamsTemplatesIdRequest, TeamsTemplatesRequest};
 use graph_http::types::NoContent;
 
 register_client!(TeamsRequest,);
@@ -19,19 +18,19 @@ where
         TeamsIdRequest::new(teams_id.as_ref(), self.client)
     }
 
-    get!({
-        doc: "List teams",
-        name: list_team,
-        response: serde_json::Value,
-        path: "/teams",
-        has_body: false
-    });
     post!({
         doc: "Create team",
         name: create_team,
         response: NoContent,
         path: "/teams",
         has_body: true
+    });
+    get!({
+        doc: "List teams",
+        name: list_team,
+        response: serde_json::Value,
+        path: "/teams",
+        has_body: false
     });
     get!({
         doc: "Get the number of the resource",
@@ -101,13 +100,6 @@ where
         ScheduleRequest::new(self.client)
     }
 
-    patch!({
-        doc: "Update team",
-        name: update_team,
-        response: NoContent,
-        path: "/teams/{{RID}}",
-        has_body: true
-    });
     delete!({
         doc: "Delete entity from teams",
         name: delete_team,
@@ -121,6 +113,13 @@ where
         response: serde_json::Value,
         path: "/teams/{{RID}}",
         has_body: false
+    });
+    patch!({
+        doc: "Update team",
+        name: update_team,
+        response: NoContent,
+        path: "/teams/{{RID}}",
+        has_body: true
     });
     get!({
         doc: "Get allChannels from teams",
@@ -194,6 +193,14 @@ where
         path: "/teams/{{RID}}/installedApps/$count",
         has_body: false
     });
+    delete!({
+        doc: "Delete navigation property installedApps for teams",
+        name: delete_installed_apps,
+        response: NoContent,
+        path: "/teams/{{RID}}/installedApps/{{id}}",
+        params: [ teams_app_installation_id ],
+        has_body: false
+    });
     get!({
         doc: "Get installedApps from teams",
         name: get_installed_apps,
@@ -209,14 +216,6 @@ where
         path: "/teams/{{RID}}/installedApps/{{id}}",
         params: [ teams_app_installation_id ],
         has_body: true
-    });
-    delete!({
-        doc: "Delete navigation property installedApps for teams",
-        name: delete_installed_apps,
-        response: NoContent,
-        path: "/teams/{{RID}}/installedApps/{{id}}",
-        params: [ teams_app_installation_id ],
-        has_body: false
     });
     post!({
         doc: "Invoke action upgrade",
@@ -277,19 +276,19 @@ where
         path: "/teams/{{RID}}/microsoft.graph.unarchive",
         has_body: false
     });
-    get!({
-        doc: "Get operations from teams",
-        name: list_operations,
-        response: serde_json::Value,
-        path: "/teams/{{RID}}/operations",
-        has_body: false
-    });
     post!({
         doc: "Create new navigation property to operations for teams",
         name: create_operations,
         response: serde_json::Value,
         path: "/teams/{{RID}}/operations",
         has_body: true
+    });
+    get!({
+        doc: "Get operations from teams",
+        name: list_operations,
+        response: serde_json::Value,
+        path: "/teams/{{RID}}/operations",
+        has_body: false
     });
     get!({
         doc: "Get the number of the resource",
@@ -322,13 +321,6 @@ where
         params: [ teams_async_operation_id ],
         has_body: true
     });
-    patch!({
-        doc: "Update the navigation property photo in teams",
-        name: update_photo,
-        response: NoContent,
-        path: "/teams/{{RID}}/photo",
-        has_body: true
-    });
     delete!({
         doc: "Delete navigation property photo for teams",
         name: delete_photo,
@@ -343,11 +335,11 @@ where
         path: "/teams/{{RID}}/photo",
         has_body: false
     });
-    put!({
-        doc: "Update media content for the navigation property photo in teams",
-        name: update_photo_content,
+    patch!({
+        doc: "Update the navigation property photo in teams",
+        name: update_photo,
         response: NoContent,
-        path: "/teams/{{RID}}/photo/$value",
+        path: "/teams/{{RID}}/photo",
         has_body: true
     });
     get!({
@@ -356,6 +348,13 @@ where
         response: serde_json::Value,
         path: "/teams/{{RID}}/photo/$value",
         has_body: false
+    });
+    put!({
+        doc: "Update media content for the navigation property photo in teams",
+        name: update_photo_content,
+        response: NoContent,
+        path: "/teams/{{RID}}/photo/$value",
+        has_body: true
     });
     get!({
         doc: "Get template from teams",
