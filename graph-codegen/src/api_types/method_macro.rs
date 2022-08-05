@@ -59,6 +59,11 @@ impl MethodMacro {
                         is_match = false;
                     }
                 }
+                MacroModifierType::RequestTask(request_task) => {
+                    if self.request_task.ne(request_task) {
+                        is_match = false;
+                    }
+                }
             }
         }
         is_match
@@ -69,6 +74,7 @@ impl MethodMacro {
             MacroModifierType::FnName(name) => self.fn_name = name,
             MacroModifierType::Path(path) => self.path = path,
             MacroModifierType::ParamSize(param_size) => self.param_size = param_size,
+            MacroModifierType::RequestTask(request_task) => self.request_task = request_task,
         }
     }
 }

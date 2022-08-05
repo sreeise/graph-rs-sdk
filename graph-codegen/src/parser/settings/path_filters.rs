@@ -389,14 +389,9 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                 vec![
                     "teamsTemplates",
                     "channels",
-                    //"allChannels",
                     "primaryChannel",
-                    //"incomingChannels",
                     "schedule",
-                    //"teamwork",
-                    //"installedApps",
                     "members",
-                    //"operations",
                 ]
                 .iter()
                 .map(|s| s.to_string())

@@ -1,3 +1,4 @@
+use crate::api_types::RequestTask;
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use std::convert::TryFrom;
@@ -10,6 +11,7 @@ pub enum MacroModifierType {
     FnName(String),
     Path(String),
     ParamSize(usize),
+    RequestTask(RequestTask),
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
@@ -48,6 +50,13 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
                     MacroModifierType::Path("/teams/{{RID}}/operations/$count".into()),
                 ],
                 update: MacroModifierType::FnName("get_operations_count".into()),
+            },
+            MethodMacroModifier {
+                matching: vec![
+                    MacroModifierType::FnName("create_team".into()),
+                    MacroModifierType::Path("/teams".into()),
+                ],
+                update: MacroModifierType::RequestTask(RequestTask::NoContent),
             },
         ],
         _ => vec![],

@@ -189,7 +189,6 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ],
         ResourceIdentity::Teams => {
             vec![
-                "crate::teams_templates::{TeamsTemplatesIdRequest, TeamsTemplatesRequest}",
                 "crate::channels::{ChannelsIdRequest, ChannelsRequest}",
                 "crate::members::{MembersIdRequest, MembersRequest}",
                 "crate::primary_channel::PrimaryChannelRequest",

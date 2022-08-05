@@ -3,6 +3,7 @@ use crate::api_types::{
 };
 use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::inflector::Inflector;
+use crate::openapi::Components;
 use crate::parser::client_resource::ResourceParsingInfo;
 use crate::parser::ParserSettings;
 use crate::settings::get_method_macro_modifiers;

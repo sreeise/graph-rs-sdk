@@ -56,11 +56,12 @@ pub use server_variable::*;
 pub use tag::*;
 pub use xml::*;
 
-use crate::api_types::PathMetadata;
+use crate::api_types::{MethodMacro, PathMetadata};
 use crate::macros::OpenApiParser;
 use crate::parser::client_resource::ResourceParsingInfo;
 use crate::traits::{FilterPath, RequestParser};
 use from_as::*;
+use graph_core::resource::ResourceIdentity;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
 use inflector::Inflector;
@@ -68,6 +69,7 @@ use rayon::prelude::*;
 use reqwest::Url;
 use serde_json::Value;
 use std::collections::{BTreeSet, HashMap};
+use std::path::Path;
 use std::{
     collections::{BTreeMap, VecDeque},
     convert::TryFrom,
@@ -340,6 +342,21 @@ impl OpenApiRaw {
             .filter(|(s, _v)| s.starts_with(path_start))
             .map(|(s, v)| (s.clone(), v.clone()))
             .collect()
+    }
+
+    pub fn path_filter(&mut self, path_start: &str) {
+        let paths = self.open_api["paths"].as_object().unwrap();
+        let map: HashMap<String, Value> = paths
+            .iter()
+            .filter(|(s, _v)| s.starts_with(path_start))
+            .map(|(s, v)| (s.clone(), v.clone()))
+            .collect();
+
+        self.open_api["paths"] = serde_json::to_value(map).unwrap();
+    }
+
+    pub fn components(&self) -> serde_json::Value {
+        self.open_api["components"].clone()
     }
 }
 

@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.team.ListTeam",
-        "operation_mapping": "teams",
-        "http_method": "GET",
-        "doc": "List teams",
-        "parent": "Teams",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "teams.team.CreateTeam",
         "operation_mapping": "teams",
         "http_method": "POST",
         "doc": "Create team",
+        "parent": "Teams",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.team.ListTeam",
+        "operation_mapping": "teams",
+        "http_method": "GET",
+        "doc": "List teams",
         "parent": "Teams",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -70,6 +70,17 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "teams.team.UpdateTeam",
+        "operation_mapping": "TeamsId",
+        "http_method": "PATCH",
+        "doc": "Update team",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "teams.team.DeleteTeam",
@@ -87,17 +98,6 @@
         "operation_mapping": "TeamsId",
         "http_method": "GET",
         "doc": "Get team",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.team.UpdateTeam",
-        "operation_mapping": "TeamsId",
-        "http_method": "PATCH",
-        "doc": "Update team",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -289,12 +289,12 @@
     ],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.UpdateInstalledApps",
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.GetInstalledApps",
         "operation_mapping": "TeamsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property installedApps in teams",
+        "http_method": "GET",
+        "doc": "Get installedApps from teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -311,12 +311,12 @@
         "resource_identity": "Teams"
       },
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.GetInstalledApps",
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "teams.UpdateInstalledApps",
         "operation_mapping": "TeamsId",
-        "http_method": "GET",
-        "doc": "Get installedApps from teams",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property installedApps in teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -528,6 +528,17 @@
     ],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.GetOperations",
+        "operation_mapping": "TeamsId",
+        "http_method": "GET",
+        "doc": "Get operations from teams",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
         "has_body": true,
         "request_task": "NoContent",
         "operation_id": "teams.UpdateOperations",
@@ -545,17 +556,6 @@
         "operation_mapping": "TeamsId",
         "http_method": "DELETE",
         "doc": "Delete navigation property operations for teams",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.GetOperations",
-        "operation_mapping": "TeamsId",
-        "http_method": "GET",
-        "doc": "Get operations from teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -608,23 +608,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.UpdatePhotoContent",
-        "operation_mapping": "TeamsId",
-        "http_method": "PUT",
-        "doc": "Update media content for the navigation property photo in teams",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.GetPhotoContent",
         "operation_mapping": "TeamsId",
         "http_method": "GET",
         "doc": "Get media content for the navigation property photo from teams",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "teams.UpdatePhotoContent",
+        "operation_mapping": "TeamsId",
+        "http_method": "PUT",
+        "doc": "Update media content for the navigation property photo in teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
