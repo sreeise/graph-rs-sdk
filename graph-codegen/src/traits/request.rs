@@ -1,9 +1,11 @@
 use crate::parser::error::ParseError;
 use crate::parser::{HttpMethod, Modifier, Request};
 use crate::traits::HashMapExt;
+use from_as::*;
 use inflector::Inflector;
 use regex::Regex;
 use std::collections::{HashMap, HashSet, VecDeque};
+use std::io::{Read, Write};
 use std::str::FromStr;
 
 lazy_static! {
@@ -27,16 +29,42 @@ lazy_static! {
 
     pub static ref KEY_VALUE_PAIR_RAW_QUOTED: Regex = Regex::new(r#"(\w+)(='\{)(\w+)(}')"#).unwrap();
 
+    pub static ref KEY_VALUE_PAIR_SET: Regex = Regex::new(
+        r#"(?P<KEY_VALUE_PAIR>\w+)(=\{)(\w+)(})|(?P<KEY_VALUE_PAIR_QUOTED>\w+)(='\{)(\w+)(}')"#
+    ).unwrap();
+
     pub static ref PATH_REGEX_SET: Regex = Regex::new(
         r#"(?P<PATH_ID>\{)(\w+-\w+)(})|(?P<PATH_ID_NAMED>\{\{)(\w+)(}})|(?P<KEY_VALUE_PAIR>\w+)(=\{)(\w+)(})|(?P<KEY_VALUE_PAIR_QUOTED>\w+)(='\{)(\w+)(}')"#
     ).unwrap();
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
 pub enum PathMatcher {
     PathId,
     PathIdNamed,
     KeyValuePair,
     KeyValuePairQuoted,
+}
+
+impl PathMatcher {
+    pub fn matches(&self, s: &str) -> bool {
+        let capture_names: Vec<&str> = PATH_REGEX_SET.capture_names().flatten().collect();
+
+        for capture in PATH_REGEX_SET.captures_iter(s) {
+            let capture_s = capture[0].to_string();
+
+            for name in capture_names.iter() {
+                if capture.name(name).is_some() {
+                    if let Ok(path_matcher) = PathMatcher::from_str(name) {
+                        if !capture_s.contains("RID") {
+                            return self.clone() == path_matcher;
+                        }
+                    }
+                }
+            }
+        }
+        false
+    }
 }
 
 impl FromStr for PathMatcher {
@@ -60,6 +88,7 @@ pub trait RequestParserBuilder<RHS: ?Sized = Self> {
 pub trait RequestParser<RHS = Self> {
     fn method_name(&self) -> String;
     fn operation_mapping(&self) -> String;
+    fn transform_key_value_pair_query(&self) -> (String, HashSet<String>);
     fn transform_path(&self) -> String;
     fn shift_path_ids(&self) -> String;
     fn links(&self) -> HashSet<String> {
@@ -137,6 +166,87 @@ impl RequestParser for &str {
         }
 
         op_mapping
+    }
+
+    #[allow(unused_assignments)]
+    fn transform_key_value_pair_query(&self) -> (String, HashSet<String>) {
+        let mut path = self.to_string();
+        let path_clone = path.clone();
+
+        let replace_ids = |count: usize, s: &str, path: &mut String| {
+            if count == 1 {
+                path.replacen(s, "{{id}}", 1)
+            } else {
+                path.replacen(s, &format!("{{{{id{}}}}}", count), 1)
+            }
+        };
+
+        let mut count = 1;
+        let capture_names: Vec<&str> = PATH_REGEX_SET.capture_names().flatten().collect();
+        let mut path_parameters = HashSet::new();
+
+        for capture in PATH_REGEX_SET.captures_iter(path_clone.as_str()) {
+            let s = capture[0].to_string();
+            let mut found_match = false;
+
+            for name in capture_names.iter() {
+                if capture.name(name).is_some() {
+                    if let Ok(path_matcher) = PathMatcher::from_str(name) {
+                        if !s.contains("RID") {
+                            match path_matcher {
+                                PathMatcher::KeyValuePair => {
+                                    if let Some(_i) = s.find('=') {
+                                        if let Some(i) = s.find('=') {
+                                            path = replace_ids(count, &s[i + 1..], &mut path);
+                                            path_parameters
+                                                .insert(s[i + 3..s.len() - 2].to_string());
+                                            found_match = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                PathMatcher::KeyValuePairQuoted => {
+                                    if let Some(_i) = s.find('=') {
+                                        if let Some(i) = s.find('=') {
+                                            if count == 1 {
+                                                path = path.replacen(&s[i + 1..], "'{{id}}'", 1);
+                                                path_parameters
+                                                    .insert(s[i + 3..s.len() - 2].to_string());
+                                                found_match = true;
+                                                break;
+                                            } else {
+                                                path = path.replacen(
+                                                    &s[i + 1..],
+                                                    &format!("'{{{{id{}}}}}'", count),
+                                                    1,
+                                                );
+                                                path_parameters
+                                                    .insert(s[i + 3..s.len() - 2].to_string());
+                                                found_match = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                // If this matches return the original string.
+                                _ => return (self.to_string(), HashSet::new()),
+                            }
+                        }
+                    }
+                }
+
+                if found_match {
+                    break;
+                }
+            }
+
+            if found_match {
+                found_match = false;
+                count += 1;
+            }
+        }
+
+        (path, path_parameters)
     }
 
     #[allow(unused_assignments)]
@@ -309,6 +419,10 @@ impl RequestParser for String {
 
     fn operation_mapping(&self) -> String {
         self.as_str().operation_mapping()
+    }
+
+    fn transform_key_value_pair_query(&self) -> (String, HashSet<String>) {
+        self.as_str().transform_key_value_pair_query()
     }
 
     fn transform_path(&self) -> String {

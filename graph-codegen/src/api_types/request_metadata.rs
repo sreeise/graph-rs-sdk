@@ -1,4 +1,4 @@
-use crate::api_types::{Metadata, MetadataModifier, RequestClientList, RequestTask};
+use crate::api_types::{Metadata, MetadataModifier, MethodMacro, RequestClientList, RequestTask};
 use crate::inflector::Inflector;
 use crate::macros::{MacroImplWriter, MacroQueueWriter};
 use crate::openapi::{OpenApi, PathItem};
@@ -442,6 +442,17 @@ impl MacroQueueWriter for PathMetadata {
             .map(|s| s.to_string())
             .collect()
     }
+
+    fn method_macros(&self) -> BTreeSet<MethodMacro> {
+        let resource_identity = self
+            .metadata
+            .iter()
+            .map(|s| s.resource_identity)
+            .find(|ri| ri.is_some())
+            .flatten()
+            .unwrap();
+        self.list_method_macros(resource_identity)
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -597,6 +608,7 @@ impl From<ResourceIdentity> for PathMetadataQueue {
             path: resource_identity.to_path_start(),
             resource_identity,
             trim_path_start: None,
+            parameter_filter: vec![],
         })
     }
 }
@@ -604,7 +616,14 @@ impl From<ResourceIdentity> for PathMetadataQueue {
 impl From<ResourceParsingInfo> for PathMetadataQueue {
     fn from(resource_parsing_info: ResourceParsingInfo) -> Self {
         let open_api = OpenApi::default();
-        let requests = open_api.requests();
+        let requests = {
+            if let Some(trim_pat) = resource_parsing_info.trim_path_start.as_ref() {
+                open_api
+                    .requests_secondary(trim_pat.as_str(), &resource_parsing_info.parameter_filter)
+            } else {
+                open_api.requests()
+            }
+        };
 
         let name = {
             if let Some(name) = resource_parsing_info.modifier_name.as_ref() {
@@ -614,17 +633,30 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
             }
         };
 
-        let path_item_map = PathItemMap(open_api.filter_path(&resource_parsing_info.path));
+        if resource_parsing_info.trim_path_start.is_some() {
+            let path_item_map =
+                PathItemMap(open_api.filter_resource_parsing_info_path(&resource_parsing_info));
 
-        let path_item_file = format!(
-            "./graph-codegen/src/parsed_metadata/{}_openapi.json",
-            name.to_snake_case()
-        );
-        path_item_map.as_file_pretty(&path_item_file).unwrap();
+            let path_item_file = format!(
+                "./graph-codegen/src/parsed_metadata/{}_openapi.json",
+                name.to_snake_case()
+            );
+            path_item_map.as_file_pretty(&path_item_file).unwrap();
+        } else {
+            let path_item_map = PathItemMap(open_api.filter_path(&resource_parsing_info.path));
+
+            let path_item_file = format!(
+                "./graph-codegen/src/parsed_metadata/{}_openapi.json",
+                name.to_snake_case()
+            );
+            path_item_map.as_file_pretty(&path_item_file).unwrap();
+        }
+
+        let path_filter = resource_parsing_info.path.clone();
 
         let metadata: VecDeque<PathMetadata> = requests
             .iter()
-            .filter(|r| r.path_starts_with(&resource_parsing_info.path))
+            .filter(|r| r.path_starts_with(&path_filter))
             .cloned()
             .collect();
 
@@ -634,7 +666,7 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
             ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
         metadata_queue.update_targets(&modifier_map);
 
-        if let Some(trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
+        if let Some(_trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
             metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
             let resource_identity_string = resource_parsing_info.resource_identity.to_string();
             metadata_queue.format_path_parameters();
@@ -644,8 +676,6 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
                 name.as_str(),
                 resource_identity_string.as_str(),
             );
-
-            metadata_queue.trim_path_start(trim_path_start.as_str());
         } else {
             metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
             metadata_queue.format_path_parameters();

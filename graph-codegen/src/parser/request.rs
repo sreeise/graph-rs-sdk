@@ -250,6 +250,10 @@ impl RequestParser for Request {
         self.operation_mapping.to_string()
     }
 
+    fn transform_key_value_pair_query(&self) -> (String, HashSet<String>) {
+        (String::new(), HashSet::new())
+    }
+
     fn transform_path(&self) -> String {
         unimplemented!()
     }

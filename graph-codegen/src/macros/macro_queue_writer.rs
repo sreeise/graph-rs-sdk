@@ -1,10 +1,12 @@
 use crate::api_types::{
-    Metadata, PathMetadataQueue, RequestClientList, RequestMetadata, RequestTask,
+    Metadata, MethodMacro, PathMetadataQueue, RequestClientList, RequestMetadata, RequestTask,
 };
 use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::inflector::Inflector;
+use crate::openapi::Components;
 use crate::parser::client_resource::ResourceParsingInfo;
 use crate::parser::ParserSettings;
+use crate::settings::get_method_macro_modifiers;
 use bytes::{BufMut, BytesMut};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
@@ -65,6 +67,8 @@ pub trait MacroQueueWriter {
             .any(|m| m.request_task() == RequestTask::Download)
     }
 
+    fn method_macros(&self) -> BTreeSet<MethodMacro>;
+
     fn write_download_macros(&self, is_async_download: bool) -> Option<String> {
         let metadata = self.request_metadata();
         let mut buf = BytesMut::new();
@@ -124,62 +128,82 @@ pub trait MacroQueueWriter {
     }
 
     fn write_method_macros(&self) -> String {
-        let metadata = self.request_metadata();
         let mut buf = BytesMut::new();
+        let method_macros = self.method_macros();
 
-        for m in metadata.iter() {
-            let request_task = m.request_task();
-
-            if request_task != RequestTask::Download {
+        for method_macro in method_macros.iter() {
+            if method_macro.request_task != RequestTask::Download {
                 let mut doc = String::new();
-                if let Some(doc_string) = m.doc() {
+                if let Some(doc_string) = method_macro.doc_comment.as_ref() {
                     doc = format!("\n\t\tdoc: \"{}\", ", doc_string);
                 }
 
-                let mut name = m.fn_name();
-
-                /*
-                if name.starts_with("reports_") {
-                    name = name.replacen("reports_", "", 1);
-                }
-                 */
-
-                let has_body = m.has_body();
-                let macro_fn_name = m.macro_fn_name();
-
-                let is_upload = request_task == RequestTask::Upload;
-                let is_upload_session = request_task == RequestTask::UploadSession;
-                let type_name = request_task.type_name();
-
-                let path = self.path();
-                let params = self.macro_params();
-
-                buf.put(format!("\n\t{}!({{", macro_fn_name).as_bytes());
+                buf.put(format!("\n\t{}!({{", method_macro.macro_fn_name).as_bytes());
                 buf.put(doc.as_bytes());
-                buf.put(format!("\n\t\tname: {}", name).as_bytes());
+                buf.put(format!("\n\t\tname: {}", method_macro.fn_name).as_bytes());
 
-                if !is_upload_session {
-                    buf.put(format!(",\n\t\tresponse: {}", type_name).as_bytes());
+                if !method_macro.is_upload_session {
+                    buf.put(
+                        format!(",\n\t\tresponse: {}", method_macro.response_type_name())
+                            .as_bytes(),
+                    );
                 }
 
-                buf.put(format!(",\n\t\tpath: \"{}\"", path).as_bytes());
+                buf.put(format!(",\n\t\tpath: \"{}\"", method_macro.path).as_bytes());
 
                 if self.param_size() > 0 {
-                    buf.put(format!(",\n\t\tparams: [{}]", params).as_bytes());
+                    buf.put(format!(",\n\t\tparams: [{}]", method_macro.params).as_bytes());
                 }
 
-                buf.put(format!(",\n\t\thas_body: {}", has_body).as_bytes());
-                if is_upload {
+                buf.put(format!(",\n\t\thas_body: {}", method_macro.has_body).as_bytes());
+                if method_macro.is_upload {
                     buf.put(",\n\t\tupload: true".as_bytes());
                 }
-                if is_upload_session {
+                if method_macro.is_upload_session {
                     buf.put(",\n\t\tupload_session: true".as_bytes());
                 }
                 buf.put("\n\t});".as_bytes());
             }
         }
+
         let s = std::str::from_utf8(buf.as_ref()).unwrap();
         s.to_string()
+    }
+
+    fn list_method_macros(&self, resource_identity: ResourceIdentity) -> BTreeSet<MethodMacro> {
+        let mut set = BTreeSet::new();
+        let metadata = self.request_metadata();
+
+        let method_macro_settings = get_method_macro_modifiers(resource_identity);
+
+        for m in metadata.iter() {
+            let request_task = m.request_task();
+            let is_upload = request_task == RequestTask::Upload;
+            let is_upload_session = request_task == RequestTask::UploadSession;
+
+            let mut method_macro = MethodMacro {
+                doc_comment: m.doc(),
+                fn_name: m.fn_name(),
+                macro_fn_name: m.macro_fn_name(),
+                path: self.path(),
+                params: self.macro_params(),
+                param_size: self.param_size(),
+                request_task,
+                has_body: m.has_body(),
+                is_upload,
+                is_upload_session,
+            };
+
+            for setting in method_macro_settings.iter() {
+                if method_macro.matches(setting) {
+                    method_macro.update(setting);
+                }
+            }
+
+            set.insert(method_macro);
+        }
+
+        set
     }
 
     fn write_impl_macros(&self) {}
@@ -370,6 +394,23 @@ pub trait MacroImplWriter {
         PathMetadataQueue::from(resource_parsing_info)
     }
 
+    fn get_metadata_method_macros(
+        &self,
+        resource_parsing_info: ResourceParsingInfo,
+    ) -> BTreeSet<MethodMacro> {
+        let path_metadata_map = self.path_metadata_map();
+        let mut set = BTreeSet::new();
+
+        for (_name, path_metadata_queue) in path_metadata_map.iter() {
+            for metadata in path_metadata_queue.iter() {
+                let mut method_macro_set =
+                    metadata.list_method_macros(resource_parsing_info.resource_identity);
+                set.append(&mut method_macro_set);
+            }
+        }
+        set
+    }
+
     /// Writes the rust file for a single resource. Resources can contain multiple secondary resources.
     fn write_impl(&self, src_dir: &str) {
         let mut buf = self.get_impl_bytes();
@@ -390,7 +431,7 @@ pub trait OpenApiParser {
             }
         };
 
-        let metadata_queue = PathMetadataQueue::from(resource_parsing_info);
+        let metadata_queue = PathMetadataQueue::from(resource_parsing_info.clone());
         metadata_queue.debug_print();
         metadata_queue.write_impl(name.as_str());
 
@@ -398,7 +439,17 @@ pub trait OpenApiParser {
             "./graph-codegen/src/parsed_metadata/{}.json",
             name.to_snake_case()
         );
+
         metadata_queue.as_file_pretty(&metadata_file).unwrap();
+
+        let resource_parsing_info_file = format!(
+            "./graph-codegen/src/parsed_metadata/{}_parsing_info.json",
+            name.to_snake_case()
+        );
+
+        resource_parsing_info
+            .as_file_pretty(&resource_parsing_info_file)
+            .unwrap();
     }
 
     /// Use only for top-level resources. Otherwise use `write`.
@@ -423,5 +474,12 @@ pub trait OpenApiParser {
         metadata_queue.debug_print();
         let path_buf = path.as_ref().to_path_buf();
         metadata_queue.as_file_pretty(&path_buf)
+    }
+
+    fn get_metadata_method_macros(
+        resource_parsing_info: ResourceParsingInfo,
+    ) -> BTreeSet<MethodMacro> {
+        let metadata_queue = PathMetadataQueue::from(resource_parsing_info.clone());
+        metadata_queue.get_metadata_method_macros(resource_parsing_info)
     }
 }

@@ -1,0 +1,10 @@
+{
+  "modifier_name": "hostedContents",
+  "path": "/hostedContents",
+  "resource_identity": "HostedContents",
+  "trim_path_start": "/me/chats/{chat-id}/messages/{messaged-id}",
+  "parameter_filter": [
+    "chat-id",
+    "message-id"
+  ]
+}

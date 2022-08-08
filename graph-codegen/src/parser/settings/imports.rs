@@ -21,6 +21,12 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ],
         ResourceIdentity::Calls => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::CallRecords => vec!["crate::sessions::{SessionRequest, SessionsRequest}"],
+        ResourceIdentity::Channels => vec![
+            "crate::chats_channels_messages::{ChatsAndChannelsMessagesIdRequest, ChatsAndChannelsMessagesRequest}",
+            "crate::tabs::{TabsIdRequest, TabsRequest}",
+            "crate::members::{MembersIdRequest, MembersRequest}",
+            "crate::shared_with_teams::{SharedWithTeamsIdRequest, SharedWithTeamsRequest}",
+        ],
         ResourceIdentity::Communications => vec![
             "crate::call_records::{CallRecordRequest, CallRecordsRequest}",
             "crate::calls::{CallRequest, CallsRequest}",
@@ -110,6 +116,12 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::extended_properties::ExtendedPropertiesRequest",
             "crate::attachments::{AttachmentRequest, AttachmentsRequest}",
         ],
+        ResourceIdentity::PrimaryChannel => vec![
+            "crate::chats_channels_messages::{ChatsAndChannelsMessagesIdRequest, ChatsAndChannelsMessagesRequest}",
+            "crate::tabs::{TabsIdRequest, TabsRequest}",
+            "crate::members::{MembersIdRequest, MembersRequest}",
+            "crate::shared_with_teams::{SharedWithTeamsIdRequest, SharedWithTeamsRequest}",
+        ],
         ResourceIdentity::ManagedDevices => vec!["crate::core::ResourceIdentity"],
         ResourceIdentity::MailFolders => vec![
             "crate::messages::{MessageRequest, MessagesRequest}",
@@ -175,6 +187,14 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::messages::{MessageRequest, MessagesRequest}",
             "crate::health_overviews::{HealthOverviewsIdRequest, HealthOverviewsRequest}",
         ],
+        ResourceIdentity::Teams => {
+            vec![
+                "crate::channels::{ChannelsIdRequest, ChannelsRequest}",
+                "crate::members::{MembersIdRequest, MembersRequest}",
+                "crate::primary_channel::PrimaryChannelRequest",
+                "crate::schedule::ScheduleRequest"
+            ]
+        }
         ResourceIdentity::Threads => vec!["crate::posts::{PostRequest, PostsRequest}"],
         _ => vec![],
     }

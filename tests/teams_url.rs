@@ -10,15 +10,18 @@ fn get_graph() -> Graph<BlockingHttpClient> {
 }
 
 #[test]
-fn team_to_teams() {
+fn get_teams_request() {
     let client = get_graph();
 
-    let _ = client.v1().teams().id(RID).get_channels(ID);
-    assert_url_eq(&client, &format!("/teams/{}/channels/{}", RID, ID));
+    let _ = client.v1().teams().id(RID).get_team();
+    assert_url_eq(&client, &format!("/teams/{}", RID));
+
+    let _ = client.v1().team(RID).get_team();
+    assert_url_eq(&client, &format!("/teams/{}", RID));
 }
 
 #[test]
-fn team_request() {
+fn list_teams_request() {
     let client = get_graph();
 
     let _ = client.v1().teams().list_team();
@@ -29,9 +32,82 @@ fn team_request() {
 fn teams_channel_request() {
     let client = get_graph();
 
-    let _ = client.v1().team(RID).list_channels();
+    let _ = client.v1().team(RID).channels().list_channels();
     assert_url_eq(&client, &format!("/teams/{}/channels", RID));
 
-    let _ = client.v1().team(RID).get_channels(ID);
+    let _ = client.v1().team(RID).channel(ID).get_channels();
     assert_url_eq(&client, &format!("/teams/{}/channels/{}", RID, ID));
+}
+
+#[test]
+fn teams_schedule_request() {
+    let client = get_graph();
+
+    let _ = client.v1().team(RID).schedule().get_schedule();
+    assert_url_eq(&client, &format!("/teams/{}/schedule", RID));
+
+    let _ = client.v1().team(RID).schedule().share(&String::new());
+    assert_url_eq(
+        &client,
+        &format!("/teams/{}/schedule/microsoft.graph.share", RID),
+    );
+}
+
+#[test]
+fn teams_primary_channel_request() {
+    let client = get_graph();
+
+    let _ = client
+        .v1()
+        .team(RID)
+        .primary_channel()
+        .get_primary_channel();
+    assert_url_eq(&client, &format!("/teams/{}/primaryChannel", RID));
+
+    let _ = client.v1().team(RID).primary_channel().tab(ID).get_tabs();
+    assert_url_eq(
+        &client,
+        &format!("/teams/{}/primaryChannel/tabs/{}", RID, ID),
+    );
+
+    let _ = client
+        .v1()
+        .team(RID)
+        .primary_channel()
+        .shared_with_team(ID)
+        .get_shared_with_teams();
+    assert_url_eq(
+        &client,
+        &format!("/teams/{}/primaryChannel/sharedWithTeams/{}", RID, ID),
+    );
+
+    let _ = client
+        .v1()
+        .team(RID)
+        .primary_channel()
+        .shared_with_teams()
+        .list_shared_with_teams();
+    assert_url_eq(
+        &client,
+        &format!("/teams/{}/primaryChannel/sharedWithTeams", RID),
+    );
+
+    let _ = client
+        .v1()
+        .team(RID)
+        .primary_channel()
+        .messages()
+        .list_messages();
+    assert_url_eq(&client, &format!("/teams/{}/primaryChannel/messages", RID));
+
+    let _ = client
+        .v1()
+        .team(RID)
+        .primary_channel()
+        .message(ID)
+        .get_messages();
+    assert_url_eq(
+        &client,
+        &format!("/teams/{}/primaryChannel/messages/{}", RID, ID),
+    );
 }

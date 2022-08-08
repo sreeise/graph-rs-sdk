@@ -519,6 +519,23 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
+        ResourceIdentity::Channels => {
+            modify_target.map.insert(
+                MatchTarget::OperationMap("teams".to_string()),
+                vec![MatchTarget::OperationMap("channels".to_string())],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("Get.Count.channels-1a82".to_string()),
+                vec![
+                    MatchTarget::OperationMap("channels".to_string()),
+                    MatchTarget::OperationId("channels.Count".to_string()),
+                ],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationMap("teams.team.channels.channel".to_string()),
+                vec![MatchTarget::OperationMap("channels".to_string())],
+            );
+        }
         ResourceIdentity::ChildFolders => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.mailFolders.UpdateChildFolders".to_string()),
@@ -1223,7 +1240,16 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
+        // Get.Count.teams-ff25
         ResourceIdentity::Teams => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("Get.Count.teams-ff25".to_string()),
+                vec![
+                    MatchTarget::OperationMap("teams".to_string()),
+                    MatchTarget::OperationId("teams.Count".to_string()),
+                ],
+            );
+
             modify_target.map.insert(
                 MatchTarget::OperationMap("teams.primaryChannel.messages".to_string()),
                 vec![MatchTarget::OperationMap(
@@ -1235,6 +1261,15 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 vec![MatchTarget::OperationMap(
                     "teams.primaryChannel.primaryChannelTabs".to_string(),
                 )],
+            );
+        }
+        ResourceIdentity::TeamsTemplates => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("Get.Count.teamsTemplates-3b4a".to_string()),
+                vec![
+                    MatchTarget::OperationMap("teamsTemplates".to_string()),
+                    MatchTarget::OperationId("teamsTemplates.Count".to_string()),
+                ],
             );
         }
         ResourceIdentity::Tasks => {

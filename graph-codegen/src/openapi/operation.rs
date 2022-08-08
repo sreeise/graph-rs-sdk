@@ -132,6 +132,21 @@ impl Operation {
             .collect()
     }
 
+    pub fn query_parameter_size(&self) -> usize {
+        self.parameters()
+            .iter()
+            .filter(|parameter| parameter.is_query())
+            .count()
+    }
+
+    pub fn query_parameters(&self) -> VecDeque<String> {
+        self.parameters()
+            .iter()
+            .filter(|p| p.is_query())
+            .flat_map(|p| p.name.clone())
+            .collect()
+    }
+
     pub fn has_body(&self) -> bool {
         self.request_body.is_some()
     }

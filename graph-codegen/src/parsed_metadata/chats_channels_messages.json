@@ -1,0 +1,397 @@
+[
+  {
+    "path": "/messages",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.chats.CreateMessages",
+        "operation_mapping": "chats_channels_messages",
+        "http_method": "POST",
+        "doc": "Create new navigation property to messages for me",
+        "parent": "ChatsAndChannelsMessages",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": null
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.chats.ListMessages",
+        "operation_mapping": "chats_channels_messages",
+        "http_method": "GET",
+        "doc": "Get messages from me",
+        "parent": "ChatsAndChannelsMessages",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/messages/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.messages-5db5",
+        "operation_mapping": "chats_channels_messages",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ChatsAndChannelsMessages",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/messages/microsoft.graph.delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "me.chats.chat.messages.delta",
+        "operation_mapping": "chats_channels_messages",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "ChatsAndChannelsMessages",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": null
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.chats.GetMessages",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Get messages from me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.chats.DeleteMessages",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property messages for me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.chats.UpdateMessages",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property messages in me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/hostedContents",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.chats.messages.CreateHostedContents",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to hostedContents for me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.chats.messages.ListHostedContents",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Get hostedContents from me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/hostedContents/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.hostedContents-5707",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/hostedContents/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "chat_message_hosted_content_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.chats.messages.UpdateHostedContents",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property hostedContents in me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.chats.messages.GetHostedContents",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Get hostedContents from me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.chats.messages.DeleteHostedContents",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property hostedContents for me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/replies",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.chats.messages.CreateReplies",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to replies for me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.chats.messages.ListReplies",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Get replies from me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/replies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.replies-ac4d",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/replies/microsoft.graph.delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "me.chats.chat.messages.chatMessage.replies.delta",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/replies/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "chat_message_id_1"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.chats.messages.GetReplies",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Get replies from me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.chats.messages.DeleteReplies",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property replies for me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.chats.messages.UpdateReplies",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property replies in me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/replies/{{id}}/hostedContents",
+    "param_size": 1,
+    "parameters": [
+      "chat_message_id_1"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.chats.messages.replies.ListHostedContents",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Get hostedContents from me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.chats.messages.replies.CreateHostedContents",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to hostedContents for me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/replies/{{id}}/hostedContents/$count",
+    "param_size": 1,
+    "parameters": [
+      "chat_message_id_1"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.hostedContents-62f4",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/replies/{{id}}/hostedContents/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "chat_message_id_1",
+      "chat_message_hosted_content_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.chats.messages.replies.DeleteHostedContents",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property hostedContents for me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.chats.messages.replies.GetHostedContents",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "GET",
+        "doc": "Get hostedContents from me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.chats.messages.replies.UpdateHostedContents",
+        "operation_mapping": "chats_channels_messagesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property hostedContents in me",
+        "parent": "ChatsAndChannelsMessagesId",
+        "original_parent": "ChatsAndChannelsMessages",
+        "resource_identity": "ChatsAndChannelsMessages"
+      }
+    ]
+  }
+]
