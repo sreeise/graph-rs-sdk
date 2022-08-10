@@ -1,0 +1,4152 @@
+[
+  {
+    "path": "/identityGovernance",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.identityGovernance.GetIdentityGovernance",
+        "operation_mapping": "identityGovernance.identityGovernance",
+        "http_method": "GET",
+        "doc": "Get identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.identityGovernance.UpdateIdentityGovernance",
+        "operation_mapping": "identityGovernance.identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.UpdateAccessReviews",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property accessReviews in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.GetAccessReviews",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get accessReviews from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.DeleteAccessReviews",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property accessReviews for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.ListDefinitions",
+        "operation_mapping": "identityGovernance.accessReviews",
+        "http_method": "GET",
+        "doc": "Get definitions from identityGovernance",
+        "parent": "AccessReviews",
+        "original_parent": "AccessReviews",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.CreateDefinitions",
+        "operation_mapping": "identityGovernance.accessReviews",
+        "http_method": "POST",
+        "doc": "Create new navigation property to definitions for identityGovernance",
+        "parent": "AccessReviews",
+        "original_parent": "AccessReviews",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.definitions-6cbe",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.accessReviews.definitions",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "Definitions",
+        "original_parent": "Definitions",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "access_review_schedule_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.GetDefinitions",
+        "operation_mapping": "identityGovernance.accessReviews",
+        "http_method": "GET",
+        "doc": "Get definitions from identityGovernance",
+        "parent": "AccessReviews",
+        "original_parent": "AccessReviews",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.UpdateDefinitions",
+        "operation_mapping": "identityGovernance.accessReviews",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property definitions in identityGovernance",
+        "parent": "AccessReviews",
+        "original_parent": "AccessReviews",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.DeleteDefinitions",
+        "operation_mapping": "identityGovernance.accessReviews",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property definitions for identityGovernance",
+        "parent": "AccessReviews",
+        "original_parent": "AccessReviews",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances",
+    "param_size": 1,
+    "parameters": [
+      "access_review_schedule_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.CreateInstances",
+        "operation_mapping": "identityGovernance.accessReviews.definitions",
+        "http_method": "POST",
+        "doc": "Create new navigation property to instances for identityGovernance",
+        "parent": "Definitions",
+        "original_parent": "Definitions",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.ListInstances",
+        "operation_mapping": "identityGovernance.accessReviews.definitions",
+        "http_method": "GET",
+        "doc": "Get instances from identityGovernance",
+        "parent": "Definitions",
+        "original_parent": "Definitions",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/$count",
+    "param_size": 1,
+    "parameters": [
+      "access_review_schedule_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.instances-b022",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/microsoft.graph.filterByCurrentUser(on='{{id2}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.GetInstances",
+        "operation_mapping": "identityGovernance.accessReviews.definitions",
+        "http_method": "GET",
+        "doc": "Get instances from identityGovernance",
+        "parent": "Definitions",
+        "original_parent": "Definitions",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.UpdateInstances",
+        "operation_mapping": "identityGovernance.accessReviews.definitions",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property instances in identityGovernance",
+        "parent": "Definitions",
+        "original_parent": "Definitions",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.DeleteInstances",
+        "operation_mapping": "identityGovernance.accessReviews.definitions",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property instances for identityGovernance",
+        "parent": "Definitions",
+        "original_parent": "Definitions",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/contactedReviewers",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.ListContactedReviewers",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "GET",
+        "doc": "Get contactedReviewers from identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.CreateContactedReviewers",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "POST",
+        "doc": "Create new navigation property to contactedReviewers for identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/contactedReviewers/$count",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.contactedReviewers-fe5f",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/contactedReviewers/{{id3}}",
+    "param_size": 3,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id",
+      "access_review_reviewer_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.GetContactedReviewers",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "GET",
+        "doc": "Get contactedReviewers from identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.UpdateContactedReviewers",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property contactedReviewers in identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.DeleteContactedReviewers",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property contactedReviewers for identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/decisions",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.CreateDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "POST",
+        "doc": "Create new navigation property to decisions for identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.ListDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "GET",
+        "doc": "Get decisions from identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/decisions/$count",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.decisions-c10a",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/decisions/microsoft.graph.filterByCurrentUser(on='{{id3}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.decisions.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.decisions",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "Decisions",
+        "original_parent": "Decisions",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/decisions/{{id3}}",
+    "param_size": 3,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id",
+      "access_review_instance_decision_item_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.UpdateDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property decisions in identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.DeleteDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property decisions for identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.GetDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "GET",
+        "doc": "Get decisions from identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/microsoft.graph.acceptRecommendations",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.acceptRecommendations",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance",
+        "http_method": "POST",
+        "doc": "Invoke action acceptRecommendations",
+        "parent": "AccessReviewInstance",
+        "original_parent": "AccessReviewInstance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/microsoft.graph.applyDecisions",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.applyDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance",
+        "http_method": "POST",
+        "doc": "Invoke action applyDecisions",
+        "parent": "AccessReviewInstance",
+        "original_parent": "AccessReviewInstance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/microsoft.graph.batchRecordDecisions",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.batchRecordDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance",
+        "http_method": "POST",
+        "doc": "Invoke action batchRecordDecisions",
+        "parent": "AccessReviewInstance",
+        "original_parent": "AccessReviewInstance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/microsoft.graph.resetDecisions",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.resetDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance",
+        "http_method": "POST",
+        "doc": "Invoke action resetDecisions",
+        "parent": "AccessReviewInstance",
+        "original_parent": "AccessReviewInstance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/microsoft.graph.sendReminder",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.sendReminder",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance",
+        "http_method": "POST",
+        "doc": "Invoke action sendReminder",
+        "parent": "AccessReviewInstance",
+        "original_parent": "AccessReviewInstance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/microsoft.graph.stop",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stop",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance",
+        "http_method": "POST",
+        "doc": "Invoke action stop",
+        "parent": "AccessReviewInstance",
+        "original_parent": "AccessReviewInstance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/stages",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.CreateStages",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "POST",
+        "doc": "Create new navigation property to stages for identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.ListStages",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "GET",
+        "doc": "Get stages from identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/stages/$count",
+    "param_size": 2,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.stages-f2c5",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/stages/microsoft.graph.filterByCurrentUser(on='{{id3}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stages.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stages",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "Stages",
+        "original_parent": "Stages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/stages/{{id3}}",
+    "param_size": 3,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id",
+      "access_review_stage_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.DeleteStages",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property stages for identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.UpdateStages",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property stages in identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.GetStages",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances",
+        "http_method": "GET",
+        "doc": "Get stages from identityGovernance",
+        "parent": "Instances",
+        "original_parent": "Instances",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/stages/{{id3}}/decisions",
+    "param_size": 3,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id",
+      "access_review_stage_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.stages.ListDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances.stages",
+        "http_method": "GET",
+        "doc": "Get decisions from identityGovernance",
+        "parent": "Stages",
+        "original_parent": "Stages",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.stages.CreateDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances.stages",
+        "http_method": "POST",
+        "doc": "Create new navigation property to decisions for identityGovernance",
+        "parent": "Stages",
+        "original_parent": "Stages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/stages/{{id3}}/decisions/$count",
+    "param_size": 3,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id",
+      "access_review_stage_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.decisions-35e1",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/stages/{{id3}}/decisions/microsoft.graph.filterByCurrentUser(on='{{id4}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stages.accessReviewStage.decisions.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stages.accessReviewStage.decisions",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "Decisions",
+        "original_parent": "Decisions",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/stages/{{id3}}/decisions/{{id4}}",
+    "param_size": 4,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id",
+      "access_review_stage_id",
+      "access_review_instance_decision_item_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.stages.UpdateDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances.stages",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property decisions in identityGovernance",
+        "parent": "Stages",
+        "original_parent": "Stages",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.stages.DeleteDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances.stages",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property decisions for identityGovernance",
+        "parent": "Stages",
+        "original_parent": "Stages",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.stages.GetDecisions",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.instances.stages",
+        "http_method": "GET",
+        "doc": "Get decisions from identityGovernance",
+        "parent": "Stages",
+        "original_parent": "Stages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/instances/{{id2}}/stages/{{id3}}/microsoft.graph.stop",
+    "param_size": 3,
+    "parameters": [
+      "access_review_schedule_definition_id",
+      "access_review_instance_id",
+      "access_review_stage_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stages.accessReviewStage.stop",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stages.accessReviewStage",
+        "http_method": "POST",
+        "doc": "Invoke action stop",
+        "parent": "AccessReviewStage",
+        "original_parent": "AccessReviewStage",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/definitions/{{id}}/microsoft.graph.stop",
+    "param_size": 1,
+    "parameters": [
+      "access_review_schedule_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.stop",
+        "operation_mapping": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition",
+        "http_method": "POST",
+        "doc": "Invoke action stop",
+        "parent": "AccessReviewScheduleDefinition",
+        "original_parent": "AccessReviewScheduleDefinition",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/historyDefinitions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.ListHistoryDefinitions",
+        "operation_mapping": "identityGovernance.accessReviews",
+        "http_method": "GET",
+        "doc": "Get historyDefinitions from identityGovernance",
+        "parent": "AccessReviews",
+        "original_parent": "AccessReviews",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.CreateHistoryDefinitions",
+        "operation_mapping": "identityGovernance.accessReviews",
+        "http_method": "POST",
+        "doc": "Create new navigation property to historyDefinitions for identityGovernance",
+        "parent": "AccessReviews",
+        "original_parent": "AccessReviews",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/historyDefinitions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.historyDefinitions-6aff",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/historyDefinitions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "access_review_history_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.UpdateHistoryDefinitions",
+        "operation_mapping": "identityGovernance.accessReviews",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property historyDefinitions in identityGovernance",
+        "parent": "AccessReviews",
+        "original_parent": "AccessReviews",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.DeleteHistoryDefinitions",
+        "operation_mapping": "identityGovernance.accessReviews",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property historyDefinitions for identityGovernance",
+        "parent": "AccessReviews",
+        "original_parent": "AccessReviews",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.GetHistoryDefinitions",
+        "operation_mapping": "identityGovernance.accessReviews",
+        "http_method": "GET",
+        "doc": "Get historyDefinitions from identityGovernance",
+        "parent": "AccessReviews",
+        "original_parent": "AccessReviews",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/historyDefinitions/{{id}}/instances",
+    "param_size": 1,
+    "parameters": [
+      "access_review_history_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.historyDefinitions.ListInstances",
+        "operation_mapping": "identityGovernance.accessReviews.historyDefinitions",
+        "http_method": "GET",
+        "doc": "Get instances from identityGovernance",
+        "parent": "HistoryDefinitions",
+        "original_parent": "HistoryDefinitions",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.historyDefinitions.CreateInstances",
+        "operation_mapping": "identityGovernance.accessReviews.historyDefinitions",
+        "http_method": "POST",
+        "doc": "Create new navigation property to instances for identityGovernance",
+        "parent": "HistoryDefinitions",
+        "original_parent": "HistoryDefinitions",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/historyDefinitions/{{id}}/instances/$count",
+    "param_size": 1,
+    "parameters": [
+      "access_review_history_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.instances-cbe7",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/historyDefinitions/{{id}}/instances/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "access_review_history_definition_id",
+      "access_review_history_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.historyDefinitions.DeleteInstances",
+        "operation_mapping": "identityGovernance.accessReviews.historyDefinitions",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property instances for identityGovernance",
+        "parent": "HistoryDefinitions",
+        "original_parent": "HistoryDefinitions",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.historyDefinitions.GetInstances",
+        "operation_mapping": "identityGovernance.accessReviews.historyDefinitions",
+        "http_method": "GET",
+        "doc": "Get instances from identityGovernance",
+        "parent": "HistoryDefinitions",
+        "original_parent": "HistoryDefinitions",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.historyDefinitions.UpdateInstances",
+        "operation_mapping": "identityGovernance.accessReviews.historyDefinitions",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property instances in identityGovernance",
+        "parent": "HistoryDefinitions",
+        "original_parent": "HistoryDefinitions",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/accessReviews/historyDefinitions/{{id}}/instances/{{id2}}/microsoft.graph.generateDownloadUri",
+    "param_size": 2,
+    "parameters": [
+      "access_review_history_definition_id",
+      "access_review_history_instance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.historyDefinitions.accessReviewHistoryDefinition.instances.accessReviewHistoryInstance.generateDownloadUri",
+        "operation_mapping": "identityGovernance.accessReviews.historyDefinitions.accessReviewHistoryDefinition.instances.accessReviewHistoryInstance",
+        "http_method": "POST",
+        "doc": "Invoke action generateDownloadUri",
+        "parent": "AccessReviewHistoryInstance",
+        "original_parent": "AccessReviewHistoryInstance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.GetAppConsent",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get appConsent from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.DeleteAppConsent",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property appConsent for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.UpdateAppConsent",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property appConsent in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.ListAppConsentRequests",
+        "operation_mapping": "identityGovernance.appConsent",
+        "http_method": "GET",
+        "doc": "Get appConsentRequests from identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.CreateAppConsentRequests",
+        "operation_mapping": "identityGovernance.appConsent",
+        "http_method": "POST",
+        "doc": "Create new navigation property to appConsentRequests for identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.appConsentRequests-d9b5",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "AppConsentRequests",
+        "original_parent": "AppConsentRequests",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "app_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.UpdateAppConsentRequests",
+        "operation_mapping": "identityGovernance.appConsent",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property appConsentRequests in identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.GetAppConsentRequests",
+        "operation_mapping": "identityGovernance.appConsent",
+        "http_method": "GET",
+        "doc": "Get appConsentRequests from identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.DeleteAppConsentRequests",
+        "operation_mapping": "identityGovernance.appConsent",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property appConsentRequests for identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/{{id}}/userConsentRequests",
+    "param_size": 1,
+    "parameters": [
+      "app_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.ListUserConsentRequests",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests",
+        "http_method": "GET",
+        "doc": "Get userConsentRequests from identityGovernance",
+        "parent": "AppConsentRequests",
+        "original_parent": "AppConsentRequests",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.CreateUserConsentRequests",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests",
+        "http_method": "POST",
+        "doc": "Create new navigation property to userConsentRequests for identityGovernance",
+        "parent": "AppConsentRequests",
+        "original_parent": "AppConsentRequests",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/{{id}}/userConsentRequests/$count",
+    "param_size": 1,
+    "parameters": [
+      "app_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.userConsentRequests-cf9d",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/{{id}}/userConsentRequests/microsoft.graph.filterByCurrentUser(on='{{id2}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.appConsentRequest.userConsentRequests.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests.appConsentRequest.userConsentRequests",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "UserConsentRequests",
+        "original_parent": "UserConsentRequests",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/{{id}}/userConsentRequests/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "app_consent_request_id",
+      "user_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.GetUserConsentRequests",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests",
+        "http_method": "GET",
+        "doc": "Get userConsentRequests from identityGovernance",
+        "parent": "AppConsentRequests",
+        "original_parent": "AppConsentRequests",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.DeleteUserConsentRequests",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property userConsentRequests for identityGovernance",
+        "parent": "AppConsentRequests",
+        "original_parent": "AppConsentRequests",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.UpdateUserConsentRequests",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property userConsentRequests in identityGovernance",
+        "parent": "AppConsentRequests",
+        "original_parent": "AppConsentRequests",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/{{id}}/userConsentRequests/{{id2}}/approval",
+    "param_size": 2,
+    "parameters": [
+      "app_consent_request_id",
+      "user_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.UpdateApproval",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests.userConsentRequests",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property approval in identityGovernance",
+        "parent": "UserConsentRequests",
+        "original_parent": "UserConsentRequests",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.DeleteApproval",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests.userConsentRequests",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property approval for identityGovernance",
+        "parent": "UserConsentRequests",
+        "original_parent": "UserConsentRequests",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.GetApproval",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests.userConsentRequests",
+        "http_method": "GET",
+        "doc": "Get approval from identityGovernance",
+        "parent": "UserConsentRequests",
+        "original_parent": "UserConsentRequests",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/{{id}}/userConsentRequests/{{id2}}/approval/stages",
+    "param_size": 2,
+    "parameters": [
+      "app_consent_request_id",
+      "user_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.CreateStages",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval",
+        "http_method": "POST",
+        "doc": "Create new navigation property to stages for identityGovernance",
+        "parent": "Approval",
+        "original_parent": "Approval",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.ListStages",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval",
+        "http_method": "GET",
+        "doc": "Get stages from identityGovernance",
+        "parent": "Approval",
+        "original_parent": "Approval",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/{{id}}/userConsentRequests/{{id2}}/approval/stages/$count",
+    "param_size": 2,
+    "parameters": [
+      "app_consent_request_id",
+      "user_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.stages-3a21",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/appConsent/appConsentRequests/{{id}}/userConsentRequests/{{id2}}/approval/stages/{{id3}}",
+    "param_size": 3,
+    "parameters": [
+      "app_consent_request_id",
+      "user_consent_request_id",
+      "approval_stage_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.UpdateStages",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property stages in identityGovernance",
+        "parent": "Approval",
+        "original_parent": "Approval",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.GetStages",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval",
+        "http_method": "GET",
+        "doc": "Get stages from identityGovernance",
+        "parent": "Approval",
+        "original_parent": "Approval",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.DeleteStages",
+        "operation_mapping": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property stages for identityGovernance",
+        "parent": "Approval",
+        "original_parent": "Approval",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.DeleteEntitlementManagement",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property entitlementManagement for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.GetEntitlementManagement",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get entitlementManagement from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.UpdateEntitlementManagement",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property entitlementManagement in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackageAssignmentApprovals",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.ListAccessPackageAssignmentApprovals",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get accessPackageAssignmentApprovals from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.CreateAccessPackageAssignmentApprovals",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "POST",
+        "doc": "Create new navigation property to accessPackageAssignmentApprovals for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackageAssignmentApprovals/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.accessPackageAssignmentApprovals-ac9b",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackageAssignmentApprovals/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "AccessPackageAssignmentApprovals",
+        "original_parent": "AccessPackageAssignmentApprovals",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackageAssignmentApprovals/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "approval_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.UpdateAccessPackageAssignmentApprovals",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property accessPackageAssignmentApprovals in identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetAccessPackageAssignmentApprovals",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get accessPackageAssignmentApprovals from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.DeleteAccessPackageAssignmentApprovals",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property accessPackageAssignmentApprovals for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackageAssignmentApprovals/{{id}}/stages",
+    "param_size": 1,
+    "parameters": [
+      "approval_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.CreateStages",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals",
+        "http_method": "POST",
+        "doc": "Create new navigation property to stages for identityGovernance",
+        "parent": "AccessPackageAssignmentApprovals",
+        "original_parent": "AccessPackageAssignmentApprovals",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.ListStages",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals",
+        "http_method": "GET",
+        "doc": "Get stages from identityGovernance",
+        "parent": "AccessPackageAssignmentApprovals",
+        "original_parent": "AccessPackageAssignmentApprovals",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackageAssignmentApprovals/{{id}}/stages/$count",
+    "param_size": 1,
+    "parameters": [
+      "approval_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.stages-0bb2",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackageAssignmentApprovals/{{id}}/stages/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "approval_id",
+      "approval_stage_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.DeleteStages",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property stages for identityGovernance",
+        "parent": "AccessPackageAssignmentApprovals",
+        "original_parent": "AccessPackageAssignmentApprovals",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.GetStages",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals",
+        "http_method": "GET",
+        "doc": "Get stages from identityGovernance",
+        "parent": "AccessPackageAssignmentApprovals",
+        "original_parent": "AccessPackageAssignmentApprovals",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.UpdateStages",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property stages in identityGovernance",
+        "parent": "AccessPackageAssignmentApprovals",
+        "original_parent": "AccessPackageAssignmentApprovals",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.ListAccessPackages",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get accessPackages from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.CreateAccessPackages",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "POST",
+        "doc": "Create new navigation property to accessPackages for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.accessPackages-87ea",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackages.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackages",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "access_package_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetAccessPackages",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get accessPackages from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.UpdateAccessPackages",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property accessPackages in identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.DeleteAccessPackages",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property accessPackages for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages/{{id}}/assignmentPolicies",
+    "param_size": 1,
+    "parameters": [
+      "access_package_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackages.CreateAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackages",
+        "http_method": "POST",
+        "doc": "Create new navigation property to assignmentPolicies for identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackages.ListAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackages",
+        "http_method": "GET",
+        "doc": "Get assignmentPolicies from identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages/{{id}}/assignmentPolicies/$count",
+    "param_size": 1,
+    "parameters": [
+      "access_package_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.assignmentPolicies-96f1",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages/{{id}}/assignmentPolicies/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "access_package_id",
+      "access_package_assignment_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackages.GetAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackages",
+        "http_method": "GET",
+        "doc": "Get assignmentPolicies from identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackages.DeleteAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackages",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property assignmentPolicies for identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackages.UpdateAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackages",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property assignmentPolicies in identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages/{{id}}/assignmentPolicies/{{id2}}/accessPackage",
+    "param_size": 2,
+    "parameters": [
+      "access_package_id",
+      "access_package_assignment_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackages.assignmentPolicies.GetAccessPackage",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackages.assignmentPolicies",
+        "http_method": "GET",
+        "doc": "Get accessPackage from identityGovernance",
+        "parent": "AssignmentPolicies",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages/{{id}}/assignmentPolicies/{{id2}}/catalog",
+    "param_size": 2,
+    "parameters": [
+      "access_package_id",
+      "access_package_assignment_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackages.assignmentPolicies.GetCatalog",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackages.assignmentPolicies",
+        "http_method": "GET",
+        "doc": "Get catalog from identityGovernance",
+        "parent": "AssignmentPolicies",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages/{{id}}/catalog",
+    "param_size": 1,
+    "parameters": [
+      "access_package_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackages.GetCatalog",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackages",
+        "http_method": "GET",
+        "doc": "Get catalog from identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/accessPackages/{{id}}/microsoft.graph.getApplicablePolicyRequirements",
+    "param_size": 1,
+    "parameters": [
+      "access_package_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackages.accessPackage.getApplicablePolicyRequirements",
+        "operation_mapping": "identityGovernance.entitlementManagement.accessPackages.accessPackage",
+        "http_method": "POST",
+        "doc": "Invoke action getApplicablePolicyRequirements",
+        "parent": "AccessPackage",
+        "original_parent": "AccessPackage",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentPolicies",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.ListAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get assignmentPolicies from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.CreateAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "POST",
+        "doc": "Create new navigation property to assignmentPolicies for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentPolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.assignmentPolicies-7f35",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentPolicies/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get assignmentPolicies from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.UpdateAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property assignmentPolicies in identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.DeleteAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property assignmentPolicies for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentPolicies/{{id}}/accessPackage",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignmentPolicies.GetAccessPackage",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignmentPolicies",
+        "http_method": "GET",
+        "doc": "Get accessPackage from identityGovernance",
+        "parent": "AssignmentPolicies",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentPolicies/{{id}}/catalog",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignmentPolicies.GetCatalog",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignmentPolicies",
+        "http_method": "GET",
+        "doc": "Get catalog from identityGovernance",
+        "parent": "AssignmentPolicies",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentRequests",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.ListAssignmentRequests",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get assignmentRequests from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.CreateAssignmentRequests",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "POST",
+        "doc": "Create new navigation property to assignmentRequests for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentRequests/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.assignmentRequests-e1cf",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentRequests/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignmentRequests.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignmentRequests",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "AssignmentRequests",
+        "original_parent": "AssignmentRequests",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentRequests/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetAssignmentRequests",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get assignmentRequests from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.UpdateAssignmentRequests",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property assignmentRequests in identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.DeleteAssignmentRequests",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property assignmentRequests for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentRequests/{{id}}/accessPackage",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignmentRequests.GetAccessPackage",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignmentRequests",
+        "http_method": "GET",
+        "doc": "Get accessPackage from identityGovernance",
+        "parent": "AssignmentRequests",
+        "original_parent": "AssignmentRequests",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentRequests/{{id}}/assignment",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignmentRequests.GetAssignment",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignmentRequests",
+        "http_method": "GET",
+        "doc": "Get assignment from identityGovernance",
+        "parent": "AssignmentRequests",
+        "original_parent": "AssignmentRequests",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentRequests/{{id}}/microsoft.graph.cancel",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.assignmentRequests.accessPackageAssignmentRequest.cancel",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignmentRequests.accessPackageAssignmentRequest",
+        "http_method": "POST",
+        "doc": "Invoke action cancel",
+        "parent": "AccessPackageAssignmentRequest",
+        "original_parent": "AccessPackageAssignmentRequest",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentRequests/{{id}}/microsoft.graph.reprocess",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.assignmentRequests.accessPackageAssignmentRequest.reprocess",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignmentRequests.accessPackageAssignmentRequest",
+        "http_method": "POST",
+        "doc": "Invoke action reprocess",
+        "parent": "AccessPackageAssignmentRequest",
+        "original_parent": "AccessPackageAssignmentRequest",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignmentRequests/{{id}}/requestor",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignmentRequests.GetRequestor",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignmentRequests",
+        "http_method": "GET",
+        "doc": "Get requestor from identityGovernance",
+        "parent": "AssignmentRequests",
+        "original_parent": "AssignmentRequests",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignments",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.ListAssignments",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get assignments from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.CreateAssignments",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "POST",
+        "doc": "Create new navigation property to assignments for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignments/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.assignments-bb79",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignments/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignments.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignments",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "Assignments",
+        "original_parent": "Assignments",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignments/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.UpdateAssignments",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property assignments in identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetAssignments",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get assignments from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.DeleteAssignments",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property assignments for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignments/{{id}}/accessPackage",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignments.GetAccessPackage",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignments",
+        "http_method": "GET",
+        "doc": "Get accessPackage from identityGovernance",
+        "parent": "Assignments",
+        "original_parent": "Assignments",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignments/{{id}}/assignmentPolicy",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignments.GetAssignmentPolicy",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignments",
+        "http_method": "GET",
+        "doc": "Get assignmentPolicy from identityGovernance",
+        "parent": "Assignments",
+        "original_parent": "Assignments",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignments/{{id}}/microsoft.graph.reprocess",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.assignments.accessPackageAssignment.reprocess",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignments.accessPackageAssignment",
+        "http_method": "POST",
+        "doc": "Invoke action reprocess",
+        "parent": "AccessPackageAssignment",
+        "original_parent": "AccessPackageAssignment",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/assignments/{{id}}/target",
+    "param_size": 1,
+    "parameters": [
+      "access_package_assignment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignments.GetTarget",
+        "operation_mapping": "identityGovernance.entitlementManagement.assignments",
+        "http_method": "GET",
+        "doc": "Get target from identityGovernance",
+        "parent": "Assignments",
+        "original_parent": "Assignments",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.ListCatalogs",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get catalogs from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.CreateCatalogs",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "POST",
+        "doc": "Create new navigation property to catalogs for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.catalogs-ec42",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "access_package_catalog_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetCatalogs",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get catalogs from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.UpdateCatalogs",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property catalogs in identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.DeleteCatalogs",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property catalogs for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages",
+    "param_size": 1,
+    "parameters": [
+      "access_package_catalog_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.ListAccessPackages",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs",
+        "http_method": "GET",
+        "doc": "Get accessPackages from identityGovernance",
+        "parent": "Catalogs",
+        "original_parent": "Catalogs",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.CreateAccessPackages",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs",
+        "http_method": "POST",
+        "doc": "Create new navigation property to accessPackages for identityGovernance",
+        "parent": "Catalogs",
+        "original_parent": "Catalogs",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages/$count",
+    "param_size": 1,
+    "parameters": [
+      "access_package_catalog_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.accessPackages-d253",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages/microsoft.graph.filterByCurrentUser(on='{{id2}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.accessPackageCatalog.accessPackages.filterByCurrentUser",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs.accessPackageCatalog.accessPackages",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "access_package_catalog_id",
+      "access_package_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.UpdateAccessPackages",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property accessPackages in identityGovernance",
+        "parent": "Catalogs",
+        "original_parent": "Catalogs",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.DeleteAccessPackages",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property accessPackages for identityGovernance",
+        "parent": "Catalogs",
+        "original_parent": "Catalogs",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.GetAccessPackages",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs",
+        "http_method": "GET",
+        "doc": "Get accessPackages from identityGovernance",
+        "parent": "Catalogs",
+        "original_parent": "Catalogs",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages/{{id2}}/assignmentPolicies",
+    "param_size": 2,
+    "parameters": [
+      "access_package_catalog_id",
+      "access_package_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.accessPackages.ListAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs.accessPackages",
+        "http_method": "GET",
+        "doc": "Get assignmentPolicies from identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.accessPackages.CreateAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs.accessPackages",
+        "http_method": "POST",
+        "doc": "Create new navigation property to assignmentPolicies for identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages/{{id2}}/assignmentPolicies/$count",
+    "param_size": 2,
+    "parameters": [
+      "access_package_catalog_id",
+      "access_package_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.assignmentPolicies-76f5",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages/{{id2}}/assignmentPolicies/{{id3}}",
+    "param_size": 3,
+    "parameters": [
+      "access_package_catalog_id",
+      "access_package_id",
+      "access_package_assignment_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.accessPackages.DeleteAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs.accessPackages",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property assignmentPolicies for identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.accessPackages.UpdateAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs.accessPackages",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property assignmentPolicies in identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.accessPackages.GetAssignmentPolicies",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs.accessPackages",
+        "http_method": "GET",
+        "doc": "Get assignmentPolicies from identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages/{{id2}}/assignmentPolicies/{{id3}}/accessPackage",
+    "param_size": 3,
+    "parameters": [
+      "access_package_catalog_id",
+      "access_package_id",
+      "access_package_assignment_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.accessPackages.assignmentPolicies.GetAccessPackage",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs.accessPackages.assignmentPolicies",
+        "http_method": "GET",
+        "doc": "Get accessPackage from identityGovernance",
+        "parent": "AssignmentPolicies",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages/{{id2}}/assignmentPolicies/{{id3}}/catalog",
+    "param_size": 3,
+    "parameters": [
+      "access_package_catalog_id",
+      "access_package_id",
+      "access_package_assignment_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.accessPackages.assignmentPolicies.GetCatalog",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs.accessPackages.assignmentPolicies",
+        "http_method": "GET",
+        "doc": "Get catalog from identityGovernance",
+        "parent": "AssignmentPolicies",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages/{{id2}}/catalog",
+    "param_size": 2,
+    "parameters": [
+      "access_package_catalog_id",
+      "access_package_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.accessPackages.GetCatalog",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs.accessPackages",
+        "http_method": "GET",
+        "doc": "Get catalog from identityGovernance",
+        "parent": "AccessPackages",
+        "original_parent": "AccessPackages",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/catalogs/{{id}}/accessPackages/{{id2}}/microsoft.graph.getApplicablePolicyRequirements",
+    "param_size": 2,
+    "parameters": [
+      "access_package_catalog_id",
+      "access_package_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.catalogs.accessPackageCatalog.accessPackages.accessPackage.getApplicablePolicyRequirements",
+        "operation_mapping": "identityGovernance.entitlementManagement.catalogs.accessPackageCatalog.accessPackages.accessPackage",
+        "http_method": "POST",
+        "doc": "Invoke action getApplicablePolicyRequirements",
+        "parent": "AccessPackage",
+        "original_parent": "AccessPackage",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.ListConnectedOrganizations",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get connectedOrganizations from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.CreateConnectedOrganizations",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "POST",
+        "doc": "Create new navigation property to connectedOrganizations for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.connectedOrganizations-03a9",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetConnectedOrganizations",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get connectedOrganizations from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.UpdateConnectedOrganizations",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property connectedOrganizations in identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.DeleteConnectedOrganizations",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property connectedOrganizations for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/externalSponsors",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.ListExternalSponsors",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations",
+        "http_method": "GET",
+        "doc": "Get externalSponsors from identityGovernance",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.CreateExternalSponsors",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations",
+        "http_method": "POST",
+        "doc": "Create new navigation property to externalSponsors for identityGovernance",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/externalSponsors/$count",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.externalSponsors-3513",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/externalSponsors/$ref",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.CreateRefExternalSponsors",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations",
+        "http_method": "POST",
+        "doc": "Create new navigation property ref to externalSponsors for identityGovernance",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.ListRefExternalSponsors",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations",
+        "http_method": "GET",
+        "doc": "Get ref of externalSponsors from identityGovernance",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/externalSponsors/microsoft.graph.getAvailableExtensionProperties",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.externalSponsors.getAvailableExtensionProperties",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.externalSponsors",
+        "http_method": "POST",
+        "doc": "Invoke action getAvailableExtensionProperties",
+        "parent": "ExternalSponsors",
+        "original_parent": "ExternalSponsors",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/externalSponsors/microsoft.graph.getByIds",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.externalSponsors.getByIds",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.externalSponsors",
+        "http_method": "POST",
+        "doc": "Invoke action getByIds",
+        "parent": "ExternalSponsors",
+        "original_parent": "ExternalSponsors",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/externalSponsors/microsoft.graph.validateProperties",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.externalSponsors.validateProperties",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.externalSponsors",
+        "http_method": "POST",
+        "doc": "Invoke action validateProperties",
+        "parent": "ExternalSponsors",
+        "original_parent": "ExternalSponsors",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/externalSponsors/{{id2}}/$ref",
+    "param_size": 2,
+    "parameters": [
+      "connected_organization_id",
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.DeleteRefExternalSponsors",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property externalSponsors for identityGovernance",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/internalSponsors",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.CreateInternalSponsors",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations",
+        "http_method": "POST",
+        "doc": "Create new navigation property to internalSponsors for identityGovernance",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.ListInternalSponsors",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations",
+        "http_method": "GET",
+        "doc": "Get internalSponsors from identityGovernance",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/internalSponsors/$count",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.internalSponsors-7123",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/internalSponsors/$ref",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.ListRefInternalSponsors",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations",
+        "http_method": "GET",
+        "doc": "Get ref of internalSponsors from identityGovernance",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.CreateRefInternalSponsors",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations",
+        "http_method": "POST",
+        "doc": "Create new navigation property ref to internalSponsors for identityGovernance",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/internalSponsors/microsoft.graph.getAvailableExtensionProperties",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.internalSponsors.getAvailableExtensionProperties",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.internalSponsors",
+        "http_method": "POST",
+        "doc": "Invoke action getAvailableExtensionProperties",
+        "parent": "InternalSponsors",
+        "original_parent": "InternalSponsors",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/internalSponsors/microsoft.graph.getByIds",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.internalSponsors.getByIds",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.internalSponsors",
+        "http_method": "POST",
+        "doc": "Invoke action getByIds",
+        "parent": "InternalSponsors",
+        "original_parent": "InternalSponsors",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/internalSponsors/microsoft.graph.validateProperties",
+    "param_size": 1,
+    "parameters": [
+      "connected_organization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.internalSponsors.validateProperties",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.internalSponsors",
+        "http_method": "POST",
+        "doc": "Invoke action validateProperties",
+        "parent": "InternalSponsors",
+        "original_parent": "InternalSponsors",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/connectedOrganizations/{{id}}/internalSponsors/{{id2}}/$ref",
+    "param_size": 2,
+    "parameters": [
+      "connected_organization_id",
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.DeleteRefInternalSponsors",
+        "operation_mapping": "identityGovernance.entitlementManagement.connectedOrganizations",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property internalSponsors for identityGovernance",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/entitlementManagement/settings",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.UpdateSettings",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property settings in identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetSettings",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get settings from identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.DeleteSettings",
+        "operation_mapping": "identityGovernance.entitlementManagement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property settings for identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.DeleteTermsOfUse",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property termsOfUse for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.GetTermsOfUse",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get termsOfUse from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.UpdateTermsOfUse",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property termsOfUse in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreementAcceptances",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.ListAgreementAcceptances",
+        "operation_mapping": "identityGovernance.termsOfUse",
+        "http_method": "GET",
+        "doc": "Get agreementAcceptances from identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.CreateAgreementAcceptances",
+        "operation_mapping": "identityGovernance.termsOfUse",
+        "http_method": "POST",
+        "doc": "Create new navigation property to agreementAcceptances for identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreementAcceptances/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.agreementAcceptances-70d1",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreementAcceptances/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "agreement_acceptance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.GetAgreementAcceptances",
+        "operation_mapping": "identityGovernance.termsOfUse",
+        "http_method": "GET",
+        "doc": "Get agreementAcceptances from identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.UpdateAgreementAcceptances",
+        "operation_mapping": "identityGovernance.termsOfUse",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property agreementAcceptances in identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.DeleteAgreementAcceptances",
+        "operation_mapping": "identityGovernance.termsOfUse",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property agreementAcceptances for identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.ListAgreements",
+        "operation_mapping": "identityGovernance.termsOfUse",
+        "http_method": "GET",
+        "doc": "Get agreements from identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.CreateAgreements",
+        "operation_mapping": "identityGovernance.termsOfUse",
+        "http_method": "POST",
+        "doc": "Create new navigation property to agreements for identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.agreements-7fcc",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.GetAgreements",
+        "operation_mapping": "identityGovernance.termsOfUse",
+        "http_method": "GET",
+        "doc": "Get agreements from identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.DeleteAgreements",
+        "operation_mapping": "identityGovernance.termsOfUse",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property agreements for identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.UpdateAgreements",
+        "operation_mapping": "identityGovernance.termsOfUse",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property agreements in identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/acceptances",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.ListAcceptances",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "GET",
+        "doc": "Get acceptances from identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.CreateAcceptances",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "POST",
+        "doc": "Create new navigation property to acceptances for identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/acceptances/$count",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.acceptances-7e12",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/acceptances/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_acceptance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.GetAcceptances",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "GET",
+        "doc": "Get acceptances from identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.UpdateAcceptances",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property acceptances in identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.DeleteAcceptances",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property acceptances for identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.UpdateFile",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property file in identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.DeleteFile",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property file for identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.GetFile",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "GET",
+        "doc": "Get file from identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.CreateLocalizations",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.file",
+        "http_method": "POST",
+        "doc": "Create new navigation property to localizations for identityGovernance",
+        "parent": "File",
+        "original_parent": "File",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.ListLocalizations",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.file",
+        "http_method": "GET",
+        "doc": "Get localizations from identityGovernance",
+        "parent": "File",
+        "original_parent": "File",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations/$count",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.localizations-d8c7",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.UpdateLocalizations",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.file",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property localizations in identityGovernance",
+        "parent": "File",
+        "original_parent": "File",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.GetLocalizations",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.file",
+        "http_method": "GET",
+        "doc": "Get localizations from identityGovernance",
+        "parent": "File",
+        "original_parent": "File",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.DeleteLocalizations",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.file",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property localizations for identityGovernance",
+        "parent": "File",
+        "original_parent": "File",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations/{{id2}}/versions",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.localizations.CreateVersions",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.file.localizations",
+        "http_method": "POST",
+        "doc": "Create new navigation property to versions for identityGovernance",
+        "parent": "Localizations",
+        "original_parent": "Localizations",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.localizations.ListVersions",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.file.localizations",
+        "http_method": "GET",
+        "doc": "Get versions from identityGovernance",
+        "parent": "Localizations",
+        "original_parent": "Localizations",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations/{{id2}}/versions/$count",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.versions-47c0",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations/{{id2}}/versions/{{id3}}",
+    "param_size": 3,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id",
+      "agreement_file_version_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.localizations.GetVersions",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.file.localizations",
+        "http_method": "GET",
+        "doc": "Get versions from identityGovernance",
+        "parent": "Localizations",
+        "original_parent": "Localizations",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.localizations.UpdateVersions",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.file.localizations",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property versions in identityGovernance",
+        "parent": "Localizations",
+        "original_parent": "Localizations",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.localizations.DeleteVersions",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.file.localizations",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property versions for identityGovernance",
+        "parent": "Localizations",
+        "original_parent": "Localizations",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.CreateFiles",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "POST",
+        "doc": "Create new navigation property to files for identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.ListFiles",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "GET",
+        "doc": "Get files from identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files/$count",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.files-54ad",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.UpdateFiles",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property files in identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.GetFiles",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "GET",
+        "doc": "Get files from identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.DeleteFiles",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property files for identityGovernance",
+        "parent": "Agreements",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files/{{id2}}/versions",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.files.ListVersions",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.files",
+        "http_method": "GET",
+        "doc": "Get versions from identityGovernance",
+        "parent": "Files",
+        "original_parent": "Files",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.files.CreateVersions",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.files",
+        "http_method": "POST",
+        "doc": "Create new navigation property to versions for identityGovernance",
+        "parent": "Files",
+        "original_parent": "Files",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files/{{id2}}/versions/$count",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.versions-9b3e",
+        "operation_mapping": "Get",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Get",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files/{{id2}}/versions/{{id3}}",
+    "param_size": 3,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id",
+      "agreement_file_version_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.files.GetVersions",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.files",
+        "http_method": "GET",
+        "doc": "Get versions from identityGovernance",
+        "parent": "Files",
+        "original_parent": "Files",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.files.DeleteVersions",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.files",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property versions for identityGovernance",
+        "parent": "Files",
+        "original_parent": "Files",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.files.UpdateVersions",
+        "operation_mapping": "identityGovernance.termsOfUse.agreements.files",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property versions in identityGovernance",
+        "parent": "Files",
+        "original_parent": "Files",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  }
+]

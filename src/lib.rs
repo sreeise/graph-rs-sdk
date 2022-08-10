@@ -153,6 +153,8 @@ pub mod chats_channels_messages;
 pub mod child_folders;
 /// Communications client.
 pub mod communications;
+/// Connected Organizations client (Identity Governments - Entitlement Management)
+pub mod connected_organizations;
 /// Contact folders client (me, users, etc.).
 pub mod contact_folders;
 /// Contacts request client.
@@ -179,6 +181,8 @@ pub mod domains;
 pub mod drive;
 /// Education request client.
 pub mod education;
+/// Entitlement Management client (Identity Governance)
+pub mod entitlement_management;
 /// Events request client (Calendars).
 pub mod events;
 /// Extended properties request client.
@@ -191,6 +195,8 @@ pub mod groups;
 pub mod health_overviews;
 /// Identity request client.
 pub mod identity;
+/// Identity Governance client.
+pub mod identity_governance;
 /// Inference classification client (me, users, etc.).
 pub mod inference_classification;
 /// Insights client (me, users, etc.).

@@ -424,6 +424,23 @@ pub fn get_client_link_settings(
                 .mem_take(),
             );
         }
+        ResourceIdentity::EntitlementManagement => {
+            map.insert(
+                "entitlementManagement".into(),
+                vec![
+                    ClientLinkSettings::new("connectedOrganizations")
+                        .use_method_name("connectedOrganizations")
+                        .with_resource_identity(ResourceIdentity::ConnectedOrganizations)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("connectedOrganizationsId")
+                        .use_method_name("connectedOrganization")
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::ConnectedOrganizations)
+                        .with_extend_path_ident(),
+                ]
+                .mem_take(),
+            );
+        }
         ResourceIdentity::Drive | ResourceIdentity::Drives => {
             map.insert(
                 "drive".into(),

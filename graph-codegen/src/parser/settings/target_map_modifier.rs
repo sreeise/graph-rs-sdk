@@ -601,6 +601,14 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
+        ResourceIdentity::EntitlementManagement => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("calendar.events.UpdateInstances".to_string()),
+                vec![MatchTarget::OperationMap(
+                    "calendar.events.instances".to_string(),
+                )],
+            );
+        }
         ResourceIdentity::Events => {
             modify_target.map.insert(
                 MatchTarget::OperationId("calendar.events.UpdateInstances".to_string()),

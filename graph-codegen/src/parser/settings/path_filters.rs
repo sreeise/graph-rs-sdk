@@ -121,6 +121,14 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                     .collect(),
             ))]
         }
+        ResourceIdentity::EntitlementManagement => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["catalogs", "connectedOrganizations"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            ))]
+        }
         ResourceIdentity::Events => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec![
