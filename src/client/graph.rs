@@ -123,6 +123,11 @@ where
         self.request.set_timeout(duration);
         self
     }
+
+    pub fn follow_next_links(&self, follow: bool) -> &Self {
+        self.request.follow_next_links(follow);
+        self
+    }
 }
 
 impl<Client> Debug for Graph<Client>

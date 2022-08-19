@@ -48,6 +48,7 @@ impl AsyncClient {
             req_type: Default::default(),
             registry: Handlebars::new(),
             timeout: Duration::from_secs(30),
+            follow_next_links: false,
         }
     }
 
@@ -144,6 +145,7 @@ impl AsyncClient {
             req_type: self.req_type,
             registry: Handlebars::new(),
             timeout: Duration::from_secs(30),
+            follow_next_links: false,
         }
     }
 
@@ -361,6 +363,10 @@ impl RequestClient for AsyncHttpClient {
 
     fn set_timeout(&self, duration: Duration) {
         self.client.lock().timeout = duration;
+    }
+
+    fn follow_next_links(&self, follow: bool) {
+        self.client.lock().follow_next_links = follow;
     }
 }
 

@@ -49,6 +49,7 @@ pub trait RequestClient {
         req_attr: Vec<RequestAttribute<Self::Body, Self::Form>>,
     ) -> GraphResult<()>;
     fn set_timeout(&self, duration: Duration);
+    fn follow_next_links(&self, follow:bool);
 
     fn set_body_with_serialize<B: serde::Serialize>(&self, body: &B) -> GraphResult<()> {
         let body_result = serde_json::to_string(body).map_err(GraphFailure::from);

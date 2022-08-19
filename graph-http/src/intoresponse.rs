@@ -54,6 +54,11 @@ where
         self
     }
 
+    pub fn with_next_link_calls(self) -> Self {
+        self.client.follow_next_links(true);
+        self
+    }
+
     pub fn query(self, key: &str, value: &str) -> Self {
         self.client.url_mut(|url| {
             url.append_query_pair(key, value);
@@ -301,6 +306,51 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         let url = GraphUrl::from(response.url());
         let json = response.json().await.map_err(GraphFailure::from)?;
         Ok(GraphResponse::new(url, json, status, headers))
+    }
+
+    pub async fn json_with_next_links<U>(self) -> GraphResult<GraphResponse<Vec<U>>>
+    where
+        for<'de> U: serde::Deserialize<'de>,
+    {
+        #[derive(Debug, Serialize, Deserialize)]
+        pub struct Values<U> {
+            pub(crate) value: Vec<U>,
+            #[serde(rename = "@odata.nextLink")]
+            pub(crate) next_link: Option<String>,
+        }
+
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let request = self.client.build().await;
+        let response = request.send().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let mut json: Values<U> = response.json().await.map_err(GraphFailure::from)?;
+        let mut values: Vec<U> = vec![];
+
+        if self.client.client.lock().follow_next_links {
+            loop {
+                values.append(&mut json.value);
+                match json.next_link {
+                    Some(next_link) => {
+                        let url = GraphUrl::parse(&next_link)?;
+                        self.client.set_url(url);
+                        let request = self.client.build().await;
+                        let response = request.send().await?;
+                        json = response.json().await.map_err(GraphFailure::from)?;
+                    }
+                    None => {
+                        break;
+                    }
+                }
+            }
+            Ok(GraphResponse::new(url, values, status, headers))
+        } else {
+            Ok(GraphResponse::new(url, json.value, status, headers))
+        }
     }
 
     pub async fn text(self) -> GraphResult<GraphResponse<String>> {
