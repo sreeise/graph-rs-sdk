@@ -1,0 +1,127 @@
+[
+  {
+    "path": "/definitions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.CreateDefinitions",
+        "operation_mapping": "accessReviewDefinitions",
+        "http_method": "POST",
+        "doc": "Create new navigation property to definitions for identityGovernance",
+        "parent": "AccessReviewDefinitions",
+        "original_parent": "AccessReviewDefinitions",
+        "resource_identity": "AccessReviewDefinitions"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.ListDefinitions",
+        "operation_mapping": "accessReviewDefinitions",
+        "http_method": "GET",
+        "doc": "Get definitions from identityGovernance",
+        "parent": "AccessReviewDefinitions",
+        "original_parent": "AccessReviewDefinitions",
+        "resource_identity": "AccessReviewDefinitions"
+      }
+    ]
+  },
+  {
+    "path": "/definitions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.definitions-6cbe",
+        "operation_mapping": "accessReviewDefinitions",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "AccessReviewDefinitions",
+        "original_parent": "AccessReviewDefinitions",
+        "resource_identity": "AccessReviewDefinitions"
+      }
+    ]
+  },
+  {
+    "path": "/definitions/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.filterByCurrentUser",
+        "operation_mapping": "accessReviewDefinitions",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "AccessReviewDefinitions",
+        "original_parent": "AccessReviewDefinitions",
+        "resource_identity": "AccessReviewDefinitions"
+      }
+    ]
+  },
+  {
+    "path": "/definitions/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.DeleteDefinitions",
+        "operation_mapping": "accessReviewDefinitionsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property definitions for identityGovernance",
+        "parent": "AccessReviewDefinitionsId",
+        "original_parent": "AccessReviewDefinitions",
+        "resource_identity": "AccessReviewDefinitions"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.GetDefinitions",
+        "operation_mapping": "accessReviewDefinitionsId",
+        "http_method": "GET",
+        "doc": "Get definitions from identityGovernance",
+        "parent": "AccessReviewDefinitionsId",
+        "original_parent": "AccessReviewDefinitions",
+        "resource_identity": "AccessReviewDefinitions"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.UpdateDefinitions",
+        "operation_mapping": "accessReviewDefinitionsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property definitions in identityGovernance",
+        "parent": "AccessReviewDefinitionsId",
+        "original_parent": "AccessReviewDefinitions",
+        "resource_identity": "AccessReviewDefinitions"
+      }
+    ]
+  },
+  {
+    "path": "/definitions/{{RID}}/microsoft.graph.stop",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.stop",
+        "operation_mapping": "accessReviewDefinitionsId",
+        "http_method": "POST",
+        "doc": "Invoke action stop",
+        "parent": "AccessReviewDefinitionsId",
+        "original_parent": "AccessReviewDefinitions",
+        "resource_identity": "AccessReviewDefinitions"
+      }
+    ]
+  }
+]

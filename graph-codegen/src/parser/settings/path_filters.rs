@@ -3,6 +3,14 @@ use graph_core::resource::ResourceIdentity;
 
 pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
     match resource_identity {
+        ResourceIdentity::AccessPackages => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["assignmentPolicies"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            ))]
+        }
         ResourceIdentity::Admin => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["serviceAnnouncement"]
@@ -113,6 +121,24 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                 .collect(),
             ))]
         }
+        ResourceIdentity::AccessReviews => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["definitions"].iter().map(|s| s.to_string()).collect(),
+            ))]
+        }
+        ResourceIdentity::AccessReviewDefinitions => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["instances", "stages"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            ))]
+        }
+        ResourceIdentity::DefinitionInstances => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["stages"].iter().map(|s| s.to_string()).collect(),
+            ))]
+        }
         ResourceIdentity::Drives | ResourceIdentity::Drive => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["/list/", "versions", "items"]
@@ -123,10 +149,18 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
         }
         ResourceIdentity::EntitlementManagement => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["catalogs", "connectedOrganizations"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
+                vec![
+                    "catalogs",
+                    "connectedOrganizations",
+                    "assignmentPolicies",
+                    "accessPackages",
+                    "assignmentRequests",
+                    "assignments",
+                    "accessPackageAssignmentApprovals",
+                ]
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
             ))]
         }
         ResourceIdentity::Events => {
@@ -138,6 +172,19 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                     "/calendar/getSchedule",
                     "calendarPermissions",
                     "/attachments/",
+                ]
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
+            ))]
+        }
+        ResourceIdentity::IdentityGovernance => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec![
+                    "entitlementManagement",
+                    "accessReviews",
+                    "appConsent",
+                    "termsOfUse",
                 ]
                 .iter()
                 .map(|s| s.to_string())
@@ -404,6 +451,14 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                 .iter()
                 .map(|s| s.to_string())
                 .collect(),
+            ))]
+        }
+        ResourceIdentity::TermsOfUse => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["agreementAcceptances", "agreements"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
             ))]
         }
         ResourceIdentity::Threads => {

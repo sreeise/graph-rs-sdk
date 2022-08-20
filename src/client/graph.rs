@@ -17,6 +17,7 @@ use crate::education::EducationRequest;
 use crate::group_lifecycle_policies::GroupLifecyclePoliciesRequest;
 use crate::groups::{GroupRequest, GroupsRequest};
 use crate::identity::IdentityRequest;
+use crate::identity_governance::IdentityGovernanceRequest;
 use crate::invitations::InvitationsRequest;
 use crate::me::MeRequest;
 use crate::org_contact::{OrgContactRequest, OrgContactsRequest};
@@ -427,6 +428,11 @@ where
     pub fn identity(&self) -> IdentityRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Identity);
         IdentityRequest::new(self.client)
+    }
+
+    pub fn identity_governance(&self) -> IdentityGovernanceRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::IdentityGovernance);
+        IdentityGovernanceRequest::new(self.client)
     }
 
     pub fn invitations(&self) -> InvitationsRequest<'a, Client> {

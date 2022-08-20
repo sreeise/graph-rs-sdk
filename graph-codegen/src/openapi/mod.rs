@@ -161,6 +161,14 @@ impl OpenApi {
             .collect()
     }
 
+    pub fn filter_path_contains(&self, pat: &str) -> BTreeMap<String, PathItem> {
+        self.paths
+            .clone()
+            .into_par_iter()
+            .filter(|(path, _path_item)| path.contains(pat))
+            .collect()
+    }
+
     pub fn filter_resource_parsing_info_path(
         &self,
         resource_parsing_info: &ResourceParsingInfo,

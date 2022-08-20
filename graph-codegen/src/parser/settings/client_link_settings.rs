@@ -8,6 +8,59 @@ pub fn get_client_link_settings(
     let mut map: BTreeMap<String, Vec<ClientLinkSettings>> = BTreeMap::new();
 
     match resource_identity {
+        ResourceIdentity::AccessPackages => {
+            map.insert(
+                "accessPackagesId".into(),
+                vec![
+                    ClientLinkSettings::new("assignmentPolicies")
+                        .use_method_name("assignmentPolicies")
+                        .with_resource_identity(ResourceIdentity::AssignmentPolicies)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("assignmentPoliciesId")
+                        .use_method_name("assignmentPolicy")
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::AssignmentPolicies)
+                        .with_extend_path_ident(),
+                ]
+                .mem_take(),
+            );
+        }
+        ResourceIdentity::AccessReviews => {
+            map.insert(
+                "accessReviews".into(),
+                vec![
+                    ClientLinkSettings::new("accessReviewDefinitions")
+                        .use_method_name("definitions")
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::AccessReviewDefinitions),
+                    ClientLinkSettings::new("accessReviewDefinitionsId")
+                        .use_method_name("definition")
+                        .with_extend_path_ident()
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::AccessReviewDefinitions),
+                ]
+                .mem_take(),
+            );
+        }
+        ResourceIdentity::AccessReviewDefinitions => {
+            map.insert(
+                "accessReviewDefinitionsId".into(),
+                vec![
+                    ClientLinkSettings::new("definitionInstances")
+                        .use_method_name("instances")
+                        .use_custom("self.client.request.extend_path(&[\"definitions\"]);\n")
+                        .with_extend_path_id()
+                        .with_resource_identity(ResourceIdentity::DefinitionInstances),
+                    ClientLinkSettings::new("definitionInstancesId")
+                        .use_method_name("instance")
+                        .use_custom("self.client.request.extend_path(&[\"definitions\"]);\n")
+                        .with_extend_path_id()
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::DefinitionInstances),
+                ]
+                .mem_take(),
+            );
+        }
         ResourceIdentity::Admin => {
             map.insert(
                 "admin".into(),
@@ -424,6 +477,25 @@ pub fn get_client_link_settings(
                 .mem_take(),
             );
         }
+        ResourceIdentity::DefinitionInstances => {
+            map.insert(
+                "definitionInstancesId".into(),
+                vec![
+                    ClientLinkSettings::new("definitionInstanceStages")
+                        .use_method_name("stages")
+                        .use_custom("self.client.request.extend_path(&[\"instances\"]);\n")
+                        .with_extend_path_id()
+                        .with_resource_identity(ResourceIdentity::DefinitionInstanceStages),
+                    ClientLinkSettings::new("definitionInstanceStagesId")
+                        .use_method_name("stage")
+                        .use_custom("self.client.request.extend_path(&[\"instances\"]);\n")
+                        .with_extend_path_id()
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::DefinitionInstanceStages),
+                ]
+                .mem_take(),
+            );
+        }
         ResourceIdentity::EntitlementManagement => {
             map.insert(
                 "entitlementManagement".into(),
@@ -436,6 +508,51 @@ pub fn get_client_link_settings(
                         .use_method_name("connectedOrganization")
                         .with_id_param()
                         .with_resource_identity(ResourceIdentity::ConnectedOrganizations)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("assignmentPolicies")
+                        .use_method_name("assignmentPolicies")
+                        .with_resource_identity(ResourceIdentity::AssignmentPolicies)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("assignmentPoliciesId")
+                        .use_method_name("assignmentPolicy")
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::AssignmentPolicies)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("accessPackageAssignmentApprovals")
+                        .use_method_name("accessPackageAssignmentApprovals")
+                        .with_resource_identity(ResourceIdentity::AccessPackageAssignmentApprovals)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("accessPackageAssignmentApprovalsId")
+                        .use_method_name("accessPackageAssignmentApproval")
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::AccessPackageAssignmentApprovals)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("accessPackages")
+                        .use_method_name("accessPackages")
+                        .with_resource_identity(ResourceIdentity::AccessPackages)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("accessPackagesId")
+                        .use_method_name("accessPackage")
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::AccessPackages)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("assignmentRequests")
+                        .use_method_name("assignmentRequests")
+                        .with_resource_identity(ResourceIdentity::AssignmentRequests)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("assignmentRequestsId")
+                        .use_method_name("assignmentRequest")
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::AssignmentRequests)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("assignments")
+                        .use_method_name("assignments")
+                        .with_resource_identity(ResourceIdentity::Assignments)
+                        .with_extend_path_ident(),
+                    ClientLinkSettings::new("assignmentsId")
+                        .use_method_name("assignment")
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::Assignments)
                         .with_extend_path_ident(),
                 ]
                 .mem_take(),
@@ -596,6 +713,26 @@ pub fn get_client_link_settings(
                         .with_extend_path_id()
                         .with_extend_path_ident()
                         .with_set_resource_identity(),
+                ]
+                .mem_take(),
+            );
+        }
+        ResourceIdentity::IdentityGovernance => {
+            map.insert(
+                "identityGovernance".into(),
+                vec![
+                    ClientLinkSettings::new("termsOfUse")
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::TermsOfUse),
+                    ClientLinkSettings::new("entitlementManagement")
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::EntitlementManagement),
+                    ClientLinkSettings::new("appConsent")
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::AppConsent),
+                    ClientLinkSettings::new("accessReviews")
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::AccessReviews),
                 ]
                 .mem_take(),
             );
@@ -1221,6 +1358,30 @@ pub fn get_client_link_settings(
                         .with_extend_path_id()
                         .with_extend_path_ident()
                         .with_resource_identity(ResourceIdentity::Schedule),
+                ]
+                .mem_take(),
+            );
+        }
+        ResourceIdentity::TermsOfUse => {
+            map.insert(
+                "termsOfUse".into(),
+                vec![
+                    ClientLinkSettings::new("agreementAcceptances")
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::AgreementAcceptances),
+                    ClientLinkSettings::new("agreementAcceptancesId")
+                        .use_method_name("agreement_acceptance")
+                        .with_extend_path_ident()
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::AgreementAcceptances),
+                    ClientLinkSettings::new("agreements")
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::Agreements),
+                    ClientLinkSettings::new("agreementsId")
+                        .use_method_name("agreement")
+                        .with_extend_path_ident()
+                        .with_id_param()
+                        .with_resource_identity(ResourceIdentity::Agreements),
                 ]
                 .mem_take(),
             );
