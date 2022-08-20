@@ -1,0 +1,7 @@
+{
+  "modifier_name": "termsOfUse",
+  "path": "/termsOfUse",
+  "resource_identity": "TermsOfUse",
+  "trim_path_start": "/identityGovernance",
+  "parameter_filter": []
+}

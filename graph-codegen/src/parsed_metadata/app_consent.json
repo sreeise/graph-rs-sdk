@@ -1,0 +1,405 @@
+[
+  {
+    "path": "/appConsent",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.UpdateAppConsent",
+        "operation_mapping": "appConsent",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property appConsent in identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.GetAppConsent",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get appConsent from identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.DeleteAppConsent",
+        "operation_mapping": "appConsent",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property appConsent for identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.ListAppConsentRequests",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get appConsentRequests from identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.CreateAppConsentRequests",
+        "operation_mapping": "appConsent",
+        "http_method": "POST",
+        "doc": "Create new navigation property to appConsentRequests for identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.appConsentRequests-d9b5",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.filterByCurrentUser",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "app_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.DeleteAppConsentRequests",
+        "operation_mapping": "appConsent",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property appConsentRequests for identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.UpdateAppConsentRequests",
+        "operation_mapping": "appConsent",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property appConsentRequests in identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.GetAppConsentRequests",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get appConsentRequests from identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/{{id}}/userConsentRequests",
+    "param_size": 1,
+    "parameters": [
+      "app_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.ListUserConsentRequests",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get userConsentRequests from identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.CreateUserConsentRequests",
+        "operation_mapping": "appConsent",
+        "http_method": "POST",
+        "doc": "Create new navigation property to userConsentRequests for identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/{{id}}/userConsentRequests/$count",
+    "param_size": 1,
+    "parameters": [
+      "app_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.userConsentRequests-cf9d",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/{{id}}/userConsentRequests/microsoft.graph.filterByCurrentUser(on='{{id2}}')",
+    "param_size": 2,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.appConsentRequest.userConsentRequests.filterByCurrentUser",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/{{id}}/userConsentRequests/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "app_consent_request_id",
+      "user_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.UpdateUserConsentRequests",
+        "operation_mapping": "appConsent",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property userConsentRequests in identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.GetUserConsentRequests",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get userConsentRequests from identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.DeleteUserConsentRequests",
+        "operation_mapping": "appConsent",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property userConsentRequests for identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/{{id}}/userConsentRequests/{{id2}}/approval",
+    "param_size": 2,
+    "parameters": [
+      "app_consent_request_id",
+      "user_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.GetApproval",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get approval from identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.UpdateApproval",
+        "operation_mapping": "appConsent",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property approval in identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.DeleteApproval",
+        "operation_mapping": "appConsent",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property approval for identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/{{id}}/userConsentRequests/{{id2}}/approval/stages",
+    "param_size": 2,
+    "parameters": [
+      "app_consent_request_id",
+      "user_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.CreateStages",
+        "operation_mapping": "appConsent",
+        "http_method": "POST",
+        "doc": "Create new navigation property to stages for identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.ListStages",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get stages from identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/{{id}}/userConsentRequests/{{id2}}/approval/stages/$count",
+    "param_size": 2,
+    "parameters": [
+      "app_consent_request_id",
+      "user_consent_request_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.stages-3a21",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  },
+  {
+    "path": "/appConsent/appConsentRequests/{{id}}/userConsentRequests/{{id2}}/approval/stages/{{id3}}",
+    "param_size": 3,
+    "parameters": [
+      "app_consent_request_id",
+      "user_consent_request_id",
+      "approval_stage_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.GetStages",
+        "operation_mapping": "appConsent",
+        "http_method": "GET",
+        "doc": "Get stages from identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.DeleteStages",
+        "operation_mapping": "appConsent",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property stages for identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.UpdateStages",
+        "operation_mapping": "appConsent",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property stages in identityGovernance",
+        "parent": "AppConsent",
+        "original_parent": "AppConsent",
+        "resource_identity": "AppConsent"
+      }
+    ]
+  }
+]

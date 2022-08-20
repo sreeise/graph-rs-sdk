@@ -34,8 +34,31 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
+        ResourceIdentity::Agreements => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("Get.Count.localizations-37c2".to_string()),
+                vec![MatchTarget::OperationId(
+                    "getLocalizationsCount".to_string(),
+                )],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("Get.Count.versions-c405".to_string()),
+                vec![MatchTarget::OperationId(
+                    "getLocalizationsVersionCount".to_string(),
+                )],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("Get.Count.files-b229".to_string()),
+                vec![MatchTarget::OperationId("getFilesCount".to_string())],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("Get.Count.versions-8216".to_string()),
+                vec![MatchTarget::OperationId(
+                    "getFilesVersionsCount".to_string(),
+                )],
+            );
+        }
         ResourceIdentity::AuditLogs => {
-            // auditLogs.auditLogRoot.GetAuditLogRoot
             modify_target.operation_map("auditLogs.auditLogRoot", "auditLogs");
             modify_target.map.insert(
                 MatchTarget::OperationId("auditLogs.auditLogRoot.GetAuditLogRoot".to_string()),
@@ -599,6 +622,14 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("directoryRoles.delta".to_string()),
                     MatchTarget::OperationMap("directoryRoles".to_string()),
                 ],
+            );
+        }
+        ResourceIdentity::EntitlementManagement => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("calendar.events.UpdateInstances".to_string()),
+                vec![MatchTarget::OperationMap(
+                    "calendar.events.instances".to_string(),
+                )],
             );
         }
         ResourceIdentity::Events => {

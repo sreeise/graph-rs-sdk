@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/termsOfUse",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.UpdateTermsOfUse",
+        "operation_mapping": "termsOfUse",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property termsOfUse in identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "TermsOfUse"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.DeleteTermsOfUse",
+        "operation_mapping": "termsOfUse",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property termsOfUse for identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "TermsOfUse"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.GetTermsOfUse",
+        "operation_mapping": "termsOfUse",
+        "http_method": "GET",
+        "doc": "Get termsOfUse from identityGovernance",
+        "parent": "TermsOfUse",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "TermsOfUse"
+      }
+    ]
+  }
+]

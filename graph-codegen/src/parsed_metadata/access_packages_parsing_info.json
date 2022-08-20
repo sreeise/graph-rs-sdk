@@ -1,0 +1,7 @@
+{
+  "modifier_name": "accessPackages",
+  "path": "/accessPackages",
+  "resource_identity": "AccessPackages",
+  "trim_path_start": "/identityGovernance/entitlementManagement",
+  "parameter_filter": []
+}

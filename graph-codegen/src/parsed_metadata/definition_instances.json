@@ -1,0 +1,415 @@
+[
+  {
+    "path": "/instances",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.ListInstances",
+        "operation_mapping": "definitionInstances",
+        "http_method": "GET",
+        "doc": "Get instances from identityGovernance",
+        "parent": "DefinitionInstances",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.CreateInstances",
+        "operation_mapping": "definitionInstances",
+        "http_method": "POST",
+        "doc": "Create new navigation property to instances for identityGovernance",
+        "parent": "DefinitionInstances",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.instances-b022",
+        "operation_mapping": "definitionInstances",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DefinitionInstances",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.filterByCurrentUser",
+        "operation_mapping": "definitionInstances",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "DefinitionInstances",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.GetInstances",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "GET",
+        "doc": "Get instances from identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.UpdateInstances",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property instances in identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.DeleteInstances",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property instances for identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/contactedReviewers",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.ListContactedReviewers",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "GET",
+        "doc": "Get contactedReviewers from identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.CreateContactedReviewers",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to contactedReviewers for identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/contactedReviewers/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.contactedReviewers-fe5f",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/contactedReviewers/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "access_review_reviewer_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.UpdateContactedReviewers",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property contactedReviewers in identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.DeleteContactedReviewers",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property contactedReviewers for identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.GetContactedReviewers",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "GET",
+        "doc": "Get contactedReviewers from identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/decisions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.ListDecisions",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "GET",
+        "doc": "Get decisions from identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.CreateDecisions",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to decisions for identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/decisions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.decisions-c10a",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/decisions/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.decisions.filterByCurrentUser",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/decisions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "access_review_instance_decision_item_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.GetDecisions",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "GET",
+        "doc": "Get decisions from identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.UpdateDecisions",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property decisions in identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.DeleteDecisions",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property decisions for identityGovernance",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/microsoft.graph.acceptRecommendations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.acceptRecommendations",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "POST",
+        "doc": "Invoke action acceptRecommendations",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/microsoft.graph.applyDecisions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.applyDecisions",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "POST",
+        "doc": "Invoke action applyDecisions",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/microsoft.graph.batchRecordDecisions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.batchRecordDecisions",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "POST",
+        "doc": "Invoke action batchRecordDecisions",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/microsoft.graph.resetDecisions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.resetDecisions",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "POST",
+        "doc": "Invoke action resetDecisions",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/microsoft.graph.sendReminder",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.sendReminder",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "POST",
+        "doc": "Invoke action sendReminder",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  },
+  {
+    "path": "/instances/{{RID}}/microsoft.graph.stop",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stop",
+        "operation_mapping": "definitionInstancesId",
+        "http_method": "POST",
+        "doc": "Invoke action stop",
+        "parent": "DefinitionInstancesId",
+        "original_parent": "DefinitionInstances",
+        "resource_identity": "DefinitionInstances"
+      }
+    ]
+  }
+]

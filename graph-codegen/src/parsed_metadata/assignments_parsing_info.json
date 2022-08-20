@@ -1,0 +1,7 @@
+{
+  "modifier_name": "assignments",
+  "path": "/assignments",
+  "resource_identity": "Assignments",
+  "trim_path_start": "/identityGovernance/entitlementManagement",
+  "parameter_filter": []
+}

@@ -1,0 +1,7 @@
+{
+  "modifier_name": "accessReviewDefinitions",
+  "path": "/definitions",
+  "resource_identity": "AccessReviewDefinitions",
+  "trim_path_start": "/identityGovernance/accessReviews",
+  "parameter_filter": []
+}

@@ -1,0 +1,7 @@
+{
+  "modifier_name": "connectedOrganizations",
+  "path": "/connectedOrganizations",
+  "resource_identity": "ConnectedOrganizations",
+  "trim_path_start": "/identityGovernance/entitlementManagement",
+  "parameter_filter": []
+}

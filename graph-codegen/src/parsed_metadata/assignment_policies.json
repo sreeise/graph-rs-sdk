@@ -1,0 +1,125 @@
+[
+  {
+    "path": "/assignmentPolicies",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.ListAssignmentPolicies",
+        "operation_mapping": "assignmentPolicies",
+        "http_method": "GET",
+        "doc": "Get assignmentPolicies from identityGovernance",
+        "parent": "AssignmentPolicies",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "AssignmentPolicies"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.CreateAssignmentPolicies",
+        "operation_mapping": "assignmentPolicies",
+        "http_method": "POST",
+        "doc": "Create new navigation property to assignmentPolicies for identityGovernance",
+        "parent": "AssignmentPolicies",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "AssignmentPolicies"
+      }
+    ]
+  },
+  {
+    "path": "/assignmentPolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.assignmentPolicies-7f35",
+        "operation_mapping": "assignmentPolicies",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "AssignmentPolicies",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "AssignmentPolicies"
+      }
+    ]
+  },
+  {
+    "path": "/assignmentPolicies/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetAssignmentPolicies",
+        "operation_mapping": "assignmentPoliciesId",
+        "http_method": "GET",
+        "doc": "Get assignmentPolicies from identityGovernance",
+        "parent": "AssignmentPoliciesId",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "AssignmentPolicies"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.UpdateAssignmentPolicies",
+        "operation_mapping": "assignmentPoliciesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property assignmentPolicies in identityGovernance",
+        "parent": "AssignmentPoliciesId",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "AssignmentPolicies"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.entitlementManagement.DeleteAssignmentPolicies",
+        "operation_mapping": "assignmentPoliciesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property assignmentPolicies for identityGovernance",
+        "parent": "AssignmentPoliciesId",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "AssignmentPolicies"
+      }
+    ]
+  },
+  {
+    "path": "/assignmentPolicies/{{RID}}/accessPackage",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignmentPolicies.GetAccessPackage",
+        "operation_mapping": "assignmentPoliciesId",
+        "http_method": "GET",
+        "doc": "Get accessPackage from identityGovernance",
+        "parent": "AssignmentPoliciesId",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "AssignmentPolicies"
+      }
+    ]
+  },
+  {
+    "path": "/assignmentPolicies/{{RID}}/catalog",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.assignmentPolicies.GetCatalog",
+        "operation_mapping": "assignmentPoliciesId",
+        "http_method": "GET",
+        "doc": "Get catalog from identityGovernance",
+        "parent": "AssignmentPoliciesId",
+        "original_parent": "AssignmentPolicies",
+        "resource_identity": "AssignmentPolicies"
+      }
+    ]
+  }
+]

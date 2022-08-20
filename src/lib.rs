@@ -117,16 +117,34 @@ extern crate strum;
 /// Main Graph client.
 #[macro_use]
 pub mod client;
+/// Access Package Assignment Approvals request client (Identity governance)
+pub mod access_package_assignment_approvals;
+/// Access Packages request client (Identity Governance)
+pub mod access_packages;
+/// Access Review Definitions request client (Identity Governance)
+pub mod access_review_definitions;
+/// Access Reviews request client (Identity Governance).
+pub mod access_reviews;
 /// Activities request client.
 pub mod activities;
 /// Admin request client.
 pub mod admin;
 /// Agreement acceptances request client.
 pub mod agreement_acceptances;
+/// Agreements client
+pub mod agreements;
 /// App catalogs request client.
 pub mod app_catalogs;
+/// App Consent request client (Identity Governance).
+pub mod app_consent;
 /// Applications request client.
 pub mod applications;
+/// Assignment Policies client (Identity Governance)
+pub mod assignment_policies;
+/// Assignment Requests client. (Identity Governance)
+pub mod assignment_requests;
+/// Assignments request client (Identity Governance)
+pub mod assignments;
 /// Attachments request client.
 pub mod attachments;
 /// Audit logs request client.
@@ -153,6 +171,8 @@ pub mod chats_channels_messages;
 pub mod child_folders;
 /// Communications client.
 pub mod communications;
+/// Connected Organizations client (Identity Governments - Entitlement Management)
+pub mod connected_organizations;
 /// Contact folders client (me, users, etc.).
 pub mod contact_folders;
 /// Contacts request client.
@@ -165,6 +185,10 @@ pub mod contracts;
 pub mod conversations;
 /// Data policy operations request client.
 pub mod data_policy_operations;
+/// Definition Instance Stages request client (Identity Governance)
+pub mod definition_instance_stages;
+/// Definition Instances request client (Identity Governance)
+pub mod definition_instances;
 /// Device app management request client.
 pub mod device_app_management;
 /// Device management request client.
@@ -179,6 +203,8 @@ pub mod domains;
 pub mod drive;
 /// Education request client.
 pub mod education;
+/// Entitlement Management client (Identity Governance)
+pub mod entitlement_management;
 /// Events request client (Calendars).
 pub mod events;
 /// Extended properties request client.
@@ -191,6 +217,8 @@ pub mod groups;
 pub mod health_overviews;
 /// Identity request client.
 pub mod identity;
+/// Identity Governance client.
+pub mod identity_governance;
 /// Inference classification client (me, users, etc.).
 pub mod inference_classification;
 /// Insights client (me, users, etc.).
@@ -277,6 +305,8 @@ pub mod teams;
 pub mod teams_templates;
 /// Teamwork request client.
 pub mod teamwork;
+/// Terms Of Use client (Identity Governance)
+pub mod terms_of_use;
 /// Groups thread request client.
 pub mod threads;
 /// Users request client.

@@ -1,0 +1,7 @@
+{
+  "modifier_name": "/identityGovernance",
+  "path": "/identityGovernance",
+  "resource_identity": "IdentityGovernance",
+  "trim_path_start": null,
+  "parameter_filter": []
+}

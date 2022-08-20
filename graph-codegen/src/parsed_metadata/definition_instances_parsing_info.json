@@ -1,0 +1,9 @@
+{
+  "modifier_name": "definitionInstances",
+  "path": "/instances",
+  "resource_identity": "DefinitionInstances",
+  "trim_path_start": "/identityGovernance/accessReviews/definitions/{accessReviewScheduleDefinition-id}",
+  "parameter_filter": [
+    "accessReviewScheduleDefinition-id"
+  ]
+}

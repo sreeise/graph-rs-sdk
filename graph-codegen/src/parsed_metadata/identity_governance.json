@@ -1,0 +1,31 @@
+[
+  {
+    "path": "/identityGovernance",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.identityGovernance.GetIdentityGovernance",
+        "operation_mapping": "identityGovernance.identityGovernance",
+        "http_method": "GET",
+        "doc": "Get identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.identityGovernance.UpdateIdentityGovernance",
+        "operation_mapping": "identityGovernance.identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  }
+]

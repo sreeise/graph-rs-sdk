@@ -2,6 +2,13 @@ use graph_core::resource::ResourceIdentity;
 
 pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
     match resource_identity {
+        ResourceIdentity::AccessPackages => vec!["crate::assignment_policies::{AssignmentPoliciesIdRequest, AssignmentPoliciesRequest}"],
+        ResourceIdentity::AccessReviews => vec![
+            "crate::access_review_definitions::{AccessReviewDefinitionsIdRequest, AccessReviewDefinitionsRequest}"
+        ],
+        ResourceIdentity::AccessReviewDefinitions => vec![
+            "crate::definition_instances::{DefinitionInstancesIdRequest, DefinitionInstancesRequest}"
+        ],
         ResourceIdentity::Admin => vec!["crate::service_announcement::ServiceAnnouncementRequest"],
         ResourceIdentity::Buckets => vec!["crate::tasks::{TasksRequest, TasksIdRequest}"],
         ResourceIdentity::Calendar | ResourceIdentity::Calendars => vec![
@@ -41,6 +48,9 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ResourceIdentity::ChildFolders => {
             vec!["crate::messages::{MessageRequest, MessagesRequest}"]
         }
+        ResourceIdentity::DefinitionInstances => vec![
+            "crate::definition_instance_stages::{DefinitionInstanceStagesRequest, DefinitionInstanceStagesIdRequest}"
+        ],
         ResourceIdentity::Drive | ResourceIdentity::Drives => vec![
             "std::path::Path",
             "crate::items::{ItemRequest, ItemsRequest}",
@@ -52,11 +62,25 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
             "crate::items::{ItemRequest, ItemsRequest}",
         ],
+        ResourceIdentity::EntitlementManagement => vec![
+            "crate::access_package_assignment_approvals::{AccessPackageAssignmentApprovalsIdRequest, AccessPackageAssignmentApprovalsRequest}",
+            "crate::access_packages::{AccessPackagesIdRequest, AccessPackagesRequest}",
+            "crate::assignment_policies::{AssignmentPoliciesIdRequest, AssignmentPoliciesRequest}",
+            "crate::assignment_requests::{AssignmentRequestsIdRequest, AssignmentRequestsRequest}",
+            "crate::assignments::{AssignmentsIdRequest, AssignmentsRequest}",
+            "crate::connected_organizations::{ConnectedOrganizationsIdRequest, ConnectedOrganizationsRequest}"
+        ],
         ResourceIdentity::Events => vec![
             "crate::calendar::CalendarRequest",
             "crate::instances::{InstanceRequest, InstancesRequest}",
             "crate::extended_properties::ExtendedPropertiesRequest",
             "crate::attachments::{AttachmentRequest, AttachmentsRequest}",
+        ],
+        ResourceIdentity::IdentityGovernance => vec![
+            "crate::entitlement_management::EntitlementManagementRequest",
+            "crate::terms_of_use::TermsOfUseRequest",
+            "crate::app_consent::AppConsentRequest",
+            "crate::access_reviews::AccessReviewsRequest"
         ],
         ResourceIdentity::Sites => vec![
             "crate::content_types::{ContentTypeRequest, ContentTypesRequest}",
@@ -195,6 +219,10 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
                 "crate::schedule::ScheduleRequest"
             ]
         }
+        ResourceIdentity::TermsOfUse => vec![
+            "crate::agreement_acceptances::{AgreementAcceptancesIdRequest, AgreementAcceptancesRequest}",
+            "crate::agreements::{AgreementsIdRequest, AgreementsRequest}"
+        ],
         ResourceIdentity::Threads => vec!["crate::posts::{PostRequest, PostsRequest}"],
         _ => vec![],
     }

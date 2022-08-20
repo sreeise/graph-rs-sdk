@@ -304,21 +304,29 @@ impl PathMetadata {
         &mut self,
         operation_mapping: &str,
         original_parent: &str,
+        resource_identity: ResourceIdentity,
     ) {
         self.update_rid_path();
 
         for m in self.metadata.iter_mut() {
             m.transform_secondary_id_request(operation_mapping, original_parent);
+            m.set_resource_identity(resource_identity);
         }
     }
 
-    pub fn transform_secondary_metadata(&mut self, operation_mapping: &str, original_parent: &str) {
+    pub fn transform_secondary_metadata(
+        &mut self,
+        operation_mapping: &str,
+        original_parent: &str,
+        resource_identity: ResourceIdentity,
+    ) {
         self.param_size = INTERNAL_PATH_ID.captures_iter(&self.path).count();
         while self.parameters.len() > self.param_size {
             self.parameters.pop_front();
         }
         for m in self.metadata.iter_mut() {
             m.transform_secondary_request(operation_mapping, original_parent);
+            m.set_resource_identity(resource_identity);
         }
     }
 
@@ -505,14 +513,23 @@ impl PathMetadataQueue {
         &mut self,
         path_start: &str,
         operation_mapping: &str,
-        original_parent: &str,
+        resource_identity: ResourceIdentity,
     ) {
+        let ri_string = resource_identity.to_string();
         for path_metadata in self.0.iter_mut() {
             let id_path = format!("{}/{{{{id}}}}", path_start);
             if path_metadata.path_starts_with(&id_path) {
-                path_metadata.transform_secondary_id_metadata(operation_mapping, original_parent);
+                path_metadata.transform_secondary_id_metadata(
+                    operation_mapping,
+                    ri_string.as_str(),
+                    resource_identity,
+                );
             } else if path_metadata.path_starts_with(path_start) {
-                path_metadata.transform_secondary_metadata(operation_mapping, original_parent);
+                path_metadata.transform_secondary_metadata(
+                    operation_mapping,
+                    ri_string.as_str(),
+                    resource_identity,
+                );
             }
         }
     }
@@ -666,15 +683,16 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
             ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
         metadata_queue.update_targets(&modifier_map);
 
+        metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
+
         if let Some(_trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
-            metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
             let resource_identity_string = resource_parsing_info.resource_identity.to_string();
             metadata_queue.format_path_parameters();
 
             metadata_queue.transform_secondary_id_metadata(
                 resource_parsing_info.path.as_str(),
                 name.as_str(),
-                resource_identity_string.as_str(),
+                resource_parsing_info.resource_identity,
             );
         } else {
             metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
