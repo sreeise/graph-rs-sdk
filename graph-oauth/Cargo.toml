@@ -8,6 +8,9 @@ readme = "README.md"
 repository = "https://github.com/sreeise/graph-rs"
 description = "Microsoft Graph api oauth client for the graph-rs project"
 
+keywords = ["microsoft-graph", "API", "REST", "OAuth"]
+categories = ["authentication", "web-programming::http-client"]
+
 [dependencies]
 base64 = "0.13"
 chrono = { version = "0.4.6", features = ["serde"] }
