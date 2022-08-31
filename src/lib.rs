@@ -105,6 +105,7 @@
 extern crate graph_core;
 extern crate graph_error;
 extern crate graph_oauth;
+extern crate graph_macro;
 extern crate handlebars;
 extern crate reqwest;
 pub extern crate serde;
@@ -346,6 +347,11 @@ pub mod header {
 /// Types used across multiple crates.
 pub mod core {
     pub use graph_core::resource::*;
+}
+
+pub mod macros {
+    pub use graph_macro::*;
+    pub use graph_http::traits::ODataNextLink;
 }
 
 pub(crate) mod api_default_imports {

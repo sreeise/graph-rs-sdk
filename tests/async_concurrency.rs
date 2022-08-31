@@ -3,22 +3,18 @@ use graph_rs_sdk::http::GraphResponse;
 use serde::Deserialize;
 use serde::Serialize;
 use test_tools::oauthrequest::OAuthTestClient;
+use graph_rs_sdk::macros::*;
 
 #[derive(Debug, Serialize, Deserialize)]
+#[graph_rs_json]
 pub struct User {
     pub(crate) id: Option<String>,
     #[serde(rename = "userPrincipalName")]
     user_principal_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Users {
-    pub(crate) value: Vec<User>,
-    #[serde(rename = "@odata.nextLink")]
-    pub(crate) next_link: Option<String>,
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[graph_rs_json]
 pub struct LicenseDetail {
     id: Option<String>,
     #[serde(rename = "skuId")]
@@ -48,7 +44,7 @@ async fn buffered_requests() {
 
         let mut stream = stream::iter(users)
             .map(|i| async {
-                let license_details: GraphResponse<LicenseDetail> = client
+                let license_details: GraphResponse<LicenseDetails> = client
                     .v1()
                     .users()
                     .id(i)

@@ -1,6 +1,6 @@
 use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
-use crate::traits::{AsyncTryFrom, ODataLink, ODataNextLink, ODataNextLinkBlocking};
+use crate::traits::{AsyncTryFrom, ODataLink, ODataNextLink};
 use crate::types::{Delta, DeltaPhantom, NoContent};
 use crate::uploadsession::UploadSessionClient;
 use crate::url::GraphUrl;
@@ -9,12 +9,11 @@ use crate::{
     RequestClient,
 };
 use bytes::Bytes;
-use graph_error::{GraphFailure, GraphResult, WithGraphError};
-use reqwest::header::{CONTENT_TYPE, HeaderValue, IntoHeaderName};
+use graph_error::{GraphFailure, GraphResult};
+use reqwest::header::{HeaderValue, IntoHeaderName};
 use std::marker::PhantomData;
 use std::path::Path;
-use std::sync::mpsc::{channel, Receiver};
-use std::thread;
+use std::sync::mpsc::Receiver;
 use std::time::Duration;
 
 pub struct IntoResponse<'a, T, Client>
@@ -55,6 +54,7 @@ where
         self
     }
 
+    /// Using this method set the follow_next_link property not only for this API call but also for the entire lifetime of the Client.
     pub fn with_next_link_calls(self) -> Self {
         self.client.follow_next_links(true);
         self
@@ -173,9 +173,9 @@ where
 }
 
 impl<'a, T> IntoResponseBlocking<'a, T> {
-    pub fn json<U>(self) -> GraphResult<GraphResponse<U>>
+    pub fn json<U, V>(self) -> GraphResult<GraphResponse<U>>
     where
-        for<'de> U: serde::Deserialize<'de>,
+        for<'de> U: serde::Deserialize<'de> + ODataNextLink<V>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -185,79 +185,29 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let json = response.json().map_err(GraphFailure::from)?;
-        Ok(GraphResponse::new(url, json, status, headers))
-    }
+        let mut json: U = response.json().map_err(GraphFailure::from)?;
+        let mut values: Vec<V> = vec![];
 
-    pub fn json_with_next_links<U: 'static + Send + ODataNextLinkBlocking + Clone>(self) -> Receiver<Option<GraphResult<GraphResponse<U>>>>
-        where
-                for<'de> U: serde::Deserialize<'de>,
-    {
-        let (sender, receiver) = channel();
-        if self.error.is_some() {
-            sender
-                .send(Some(Err(self.error.unwrap_or_default())))
-                .unwrap();
-            return receiver;
-        }
-
-        let initial_res: GraphResult<reqwest::blocking::Response> = self.client.response();
-        let response: GraphResult<GraphResponse<U>> = std::convert::TryFrom::try_from(initial_res);
-
-        if let Err(err) = response {
-            sender.send(Some(Err(err))).unwrap();
-            return receiver;
-        }
-
-        let token = self.client.token();
-        let response = response.unwrap();
-        let mut next_link = response.body().next_link();
-        sender.send(Some(Ok(response))).unwrap();
-
-        thread::spawn(move || {
-            let client = reqwest::blocking::Client::new();
-            while let Some(next) = next_link {
-                let res = client
-                    .get(next.as_str())
-                    .header(CONTENT_TYPE, "application/json")
-                    .bearer_auth(token.as_str())
-                    .send()
-                    .map_err(GraphFailure::from);
-
-                if let Err(err) = res {
-                    next_link = None;
-                    sender.send(Some(Err(err))).unwrap();
-                } else {
-                    match res.unwrap().with_graph_error() {
-                        Ok(response) => {
-                            let url = GraphUrl::from(response.url());
-                            let headers = response.headers().clone();
-                            let status = response.status();
-                            match response.json::<U>() {
-                                Ok(value) => {
-                                    next_link = value.next_link();
-                                    sender
-                                        .send(Some(Ok(GraphResponse::new(
-                                            url, value, status, headers,
-                                        ))))
-                                        .unwrap();
-                                }
-                                Err(err) => {
-                                    next_link = None;
-                                    sender.send(Some(Err(err.into()))).unwrap();
-                                }
-                            }
-                        }
-                        Err(err) => {
-                            next_link = None;
-                            sender.send(Some(Err(GraphFailure::GraphError(err)))).unwrap();
-                        }
+        if self.client.client.borrow().follow_next_links {
+            loop {
+                values.append(&mut json.value());
+                match json.next_link() {
+                    Some(next_link) => {
+                        let url = GraphUrl::parse(&next_link)?;
+                        self.client.set_url(url);
+                        let response = self.client.response()?;
+                        json = response.json().map_err(GraphFailure::from)?;
+                    }
+                    None => {
+                        break;
                     }
                 }
             }
-        });
-
-        receiver
+            json.value().append(&mut values);
+            Ok(GraphResponse::new(url, json, status, headers))
+        } else {
+            Ok(GraphResponse::new(url, json, status, headers))
+        }
     }
 
     pub fn text(self) -> GraphResult<GraphResponse<String>> {

@@ -47,6 +47,7 @@ graph-oauth = { path = "./graph-oauth", version = "0.2.0" }
 graph-http = { path = "./graph-http", version = "0.2.2" }
 graph-error = { path = "./graph-error", version = "0.1.2" }
 graph-core = { path = "./graph-core", version = "0.3.0" }
+graph-macro = { path = "./graph-macro", version = "0.1.0" }
 
 [dev-dependencies]
 from_as = "0.1"

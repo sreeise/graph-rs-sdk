@@ -34,6 +34,12 @@ pub trait ODataNextLink<V, RHS = Self> {
     fn value(&mut self) -> &mut Vec<V>;
 }
 
-pub trait ODataNextLinkBlocking<RHS = Self> {
-    fn next_link(&self) -> Option<String>;
+impl ODataNextLink<serde_json::Value> for serde_json::Value {
+    fn next_link(&self) -> Option<String> {
+        self["@odata.nextLink"].as_str().map(|s| s.to_string())
+    }
+
+    fn value(&mut self) -> &mut Vec<serde_json::Value> {
+        self["@odata.value"].as_array_mut().unwrap() // todo: can we replace this unwrap with something else ?
+    }
 }
