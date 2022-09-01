@@ -12,6 +12,16 @@ pub fn graph_rs_json(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let result = quote! {
         #input
 
+        impl ODataNextLink<#name> for #name {
+            fn next_link(&self) -> Option<String> {
+                None
+            }
+
+            fn value(&mut self) -> &mut Vec<#name> {
+                self.value()
+            }
+        }
+
         #[derive(Debug, Serialize, Deserialize)]
         pub struct #plural {
             pub(crate) value: Vec<#name>,
