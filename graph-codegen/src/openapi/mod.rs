@@ -56,12 +56,11 @@ pub use server_variable::*;
 pub use tag::*;
 pub use xml::*;
 
-use crate::api_types::{MethodMacro, PathMetadata};
+use crate::api_types::PathMetadata;
 use crate::macros::OpenApiParser;
 use crate::parser::client_resource::ResourceParsingInfo;
 use crate::traits::{FilterPath, RequestParser};
 use from_as::*;
-use graph_core::resource::ResourceIdentity;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
 use inflector::Inflector;
@@ -69,7 +68,6 @@ use rayon::prelude::*;
 use reqwest::Url;
 use serde_json::Value;
 use std::collections::{BTreeSet, HashMap};
-use std::path::Path;
 use std::{
     collections::{BTreeMap, VecDeque},
     convert::TryFrom,

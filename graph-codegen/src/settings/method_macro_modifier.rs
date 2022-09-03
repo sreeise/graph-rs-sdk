@@ -178,6 +178,15 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
                 update: MacroModifierType::FnName("filter_user_consent_requests_by_current_user".into()),
             },
         ],
+        ResourceIdentity::AuthenticationMethodsPolicy => vec![
+            MethodMacroModifier {
+                matching: vec![
+                    MacroModifierType::FnName("count".into()),
+                    MacroModifierType::Path("/authenticationMethodConfigurations/$count".into()),
+                ],
+                update: MacroModifierType::FnName("get_authentication_method_configurations_count".into()),
+            },
+        ],
         ResourceIdentity::ConnectedOrganizations => vec![
             MethodMacroModifier {
                 matching: vec![

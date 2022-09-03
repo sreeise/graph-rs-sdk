@@ -75,6 +75,41 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
+        ResourceIdentity::AuthenticationMethodConfigurations => {
+            modify_target.map.insert(
+                MatchTarget::OperationId("Get.Count.authenticationMethodConfigurations-6d53".to_string()),
+                vec![
+                    MatchTarget::OperationMap("authenticationMethodConfigurations".to_string()),
+                    MatchTarget::OperationId("authenticationMethodConfigurations.authenticationMethodConfiguration.GetAuthenticationMethodsConfigurationsCount".to_string()),
+                ],
+            );
+        }
+        ResourceIdentity::AuthenticationMethodsPolicy => {
+            modify_target.map.insert(
+                MatchTarget::OperationId(
+                    "Get.Count.authenticationMethodConfigurations-e7d5".to_string(),
+                ),
+                vec![
+                    MatchTarget::OperationMap("authenticationMethodsPolicy".to_string()),
+                    MatchTarget::OperationId(
+                        "authenticationMethodsPolicy.authenticationMethodsPolicy.GetAuthenticationMethodsPolicyCount".to_string(),
+                    ),
+                ],
+            );
+        }
+        ResourceIdentity::Branding => {
+            modify_target.map.insert(
+                MatchTarget::OperationMap("branding.organizationalBranding".to_string()),
+                vec![MatchTarget::OperationMap("branding".to_string())],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationId("Get.Count.localizations-b239".to_string()),
+                vec![
+                    MatchTarget::OperationMap("branding".to_string()),
+                    MatchTarget::OperationId("branding.GetLocalizationsCount".to_string()),
+                ],
+            );
+        }
         ResourceIdentity::Attachments => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.calendar.events.ListAttachments".to_string()),

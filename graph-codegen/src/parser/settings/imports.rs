@@ -10,6 +10,9 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::definition_instances::{DefinitionInstancesIdRequest, DefinitionInstancesRequest}"
         ],
         ResourceIdentity::Admin => vec!["crate::service_announcement::ServiceAnnouncementRequest"],
+        ResourceIdentity::AuthenticationMethodsPolicy => vec![
+            "crate::authentication_method_configurations::{AuthenticationMethodConfigurationsRequest, AuthenticationMethodConfigurationsIdRequest}"
+        ],
         ResourceIdentity::Buckets => vec!["crate::tasks::{TasksRequest, TasksIdRequest}"],
         ResourceIdentity::Calendar | ResourceIdentity::Calendars => vec![
             "crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest}",

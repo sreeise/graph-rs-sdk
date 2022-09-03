@@ -134,6 +134,14 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                     .collect(),
             ))]
         }
+        ResourceIdentity::AuthenticationMethodsPolicy => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["authenticationMethodConfigurations"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            ))]
+        }
         ResourceIdentity::DefinitionInstances => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["stages"].iter().map(|s| s.to_string()).collect(),

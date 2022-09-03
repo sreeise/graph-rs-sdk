@@ -89,6 +89,27 @@ pub fn get_client_link_settings(
                 vec![ClientLinkSettings::new("activitiesId").as_id_method_link()].mem_take(),
             );
         }
+        ResourceIdentity::AuthenticationMethodsPolicy => {
+            map.insert(
+                "authenticationMethodsPolicy".into(),
+                vec![
+                    ClientLinkSettings::new("authenticationMethodConfigurationsId")
+                        .use_method_name("authenticationMethodConfiguration")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_resource_identity(
+                            ResourceIdentity::AuthenticationMethodConfigurations,
+                        ),
+                    ClientLinkSettings::new("authenticationMethodConfigurations")
+                        .use_method_name("authenticationMethodConfigurations")
+                        .with_extend_path_ident()
+                        .with_resource_identity(
+                            ResourceIdentity::AuthenticationMethodConfigurations,
+                        ),
+                ]
+                .mem_take(),
+            );
+        }
         ResourceIdentity::Buckets => {
             map.insert(
                 "buckets".into(),

@@ -1,0 +1,31 @@
+[
+  {
+    "path": "/authenticationMethodsPolicy",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "authenticationMethodsPolicy.authenticationMethodsPolicy.UpdateAuthenticationMethodsPolicy",
+        "operation_mapping": "authenticationMethodsPolicy.authenticationMethodsPolicy",
+        "http_method": "PATCH",
+        "doc": "Update authenticationMethodsPolicy",
+        "parent": "AuthenticationMethodsPolicy",
+        "original_parent": "AuthenticationMethodsPolicy",
+        "resource_identity": "AuthenticationMethodsPolicy"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "authenticationMethodsPolicy.authenticationMethodsPolicy.GetAuthenticationMethodsPolicy",
+        "operation_mapping": "authenticationMethodsPolicy.authenticationMethodsPolicy",
+        "http_method": "GET",
+        "doc": "Get authenticationMethodsPolicy",
+        "parent": "AuthenticationMethodsPolicy",
+        "original_parent": "AuthenticationMethodsPolicy",
+        "resource_identity": "AuthenticationMethodsPolicy"
+      }
+    ]
+  }
+]

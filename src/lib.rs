@@ -149,6 +149,12 @@ pub mod assignments;
 pub mod attachments;
 /// Audit logs request client.
 pub mod audit_logs;
+/// Authentication Method Configurations request client.
+pub mod authentication_method_configurations;
+/// Authentication Methods Policy request client.
+pub mod authentication_methods_policy;
+/// Branding request client.
+pub mod branding;
 /// Planner buckets request client.
 pub mod buckets;
 /// Calendar request client.

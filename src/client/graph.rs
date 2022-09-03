@@ -1,8 +1,14 @@
 use crate::admin::AdminRequest;
 use crate::agreement_acceptances::{AgreementAcceptancesIdRequest, AgreementAcceptancesRequest};
+use crate::agreements::{AgreementsIdRequest, AgreementsRequest};
 use crate::app_catalogs::AppCatalogsRequest;
 use crate::applications::{ApplicationsIdRequest, ApplicationsRequest};
 use crate::audit_logs::AuditLogsRequest;
+use crate::authentication_method_configurations::{
+    AuthenticationMethodConfigurationsIdRequest, AuthenticationMethodConfigurationsRequest,
+};
+use crate::authentication_methods_policy::AuthenticationMethodsPolicyRequest;
+use crate::branding::BrandingRequest;
 use crate::certificate_based_auth_configuration::CertificateBasedAuthConfigurationRequest;
 use crate::communications::CommunicationsRequest;
 use crate::contracts::ContractsRequest;
@@ -322,6 +328,16 @@ where
         AgreementAcceptancesIdRequest::new(id.as_ref(), self.client)
     }
 
+    pub fn agreements(&self) -> AgreementsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Agreements);
+        AgreementsRequest::new(self.client)
+    }
+
+    pub fn agreement<S: AsRef<str>>(&self, id: S) -> AgreementsIdRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Agreements);
+        AgreementsIdRequest::new(id.as_ref(), self.client)
+    }
+
     pub fn application<S: AsRef<str>>(&self, id: S) -> ApplicationsIdRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Applications);
         ApplicationsIdRequest::new(id.as_ref(), self.client)
@@ -335,6 +351,34 @@ where
     pub fn audit_logs(&self) -> AuditLogsRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::AuditLogs);
         AuditLogsRequest::new(self.client)
+    }
+
+    pub fn authentication_method_configurations(
+        &self,
+    ) -> AuthenticationMethodConfigurationsRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::AuthenticationMethodConfigurations);
+        AuthenticationMethodConfigurationsRequest::new(self.client)
+    }
+
+    pub fn authentication_method_configuration<S: AsRef<str>>(
+        &self,
+        id: S,
+    ) -> AuthenticationMethodConfigurationsIdRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::AuthenticationMethodConfigurations);
+        AuthenticationMethodConfigurationsIdRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn authentication_methods_policy(&self) -> AuthenticationMethodsPolicyRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::AuthenticationMethodsPolicy);
+        AuthenticationMethodsPolicyRequest::new(self.client)
+    }
+
+    pub fn branding(&self) -> BrandingRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::Branding);
+        BrandingRequest::new(self.client)
     }
 
     pub fn certificate_based_auth_configuration(

@@ -686,7 +686,6 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
         metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
 
         if let Some(_trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
-            let resource_identity_string = resource_parsing_info.resource_identity.to_string();
             metadata_queue.format_path_parameters();
 
             metadata_queue.transform_secondary_id_metadata(
