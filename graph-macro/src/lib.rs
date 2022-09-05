@@ -3,7 +3,7 @@ use quote::{format_ident, quote};
 use syn;
 
 #[proc_macro_attribute]
-pub fn graph_rs_json(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn odata_next_link(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(item as syn::ItemStruct);
     let name = &input.ident;
 
@@ -17,8 +17,8 @@ pub fn graph_rs_json(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 None
             }
 
-            fn value(&mut self) -> &mut Vec<#name> {
-                self.value()
+            fn value(&mut self) -> Option<&mut Vec<#name>> {
+                None
             }
         }
 
@@ -34,8 +34,8 @@ pub fn graph_rs_json(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 self.next_link.clone()
             }
 
-            fn value(&mut self) -> &mut Vec<#name> {
-                &mut self.value
+            fn value(&mut self) -> Option<&mut Vec<#name>> {
+                Some(&mut self.value)
             }
         }
     };

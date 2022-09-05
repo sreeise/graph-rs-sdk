@@ -368,6 +368,10 @@ impl RequestClient for AsyncHttpClient {
     fn follow_next_links(&self, follow: bool) {
         self.client.lock().follow_next_links = follow;
     }
+
+    fn get_follow_next_links(&self) -> bool {
+        self.client.lock().follow_next_links
+    }
 }
 
 impl Debug for AsyncHttpClient {

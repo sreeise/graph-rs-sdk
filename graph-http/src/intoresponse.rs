@@ -55,6 +55,7 @@ where
     }
 
     /// Using this method set the follow_next_link property not only for this API call but also for the entire lifetime of the Client.
+    /// /!\ Activating this feature may result in very long delays if you request large collections. /!\
     pub fn with_next_link_calls(self) -> Self {
         self.client.follow_next_links(true);
         self
@@ -188,9 +189,9 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         let mut json: U = response.json().map_err(GraphFailure::from)?;
         let mut values: Vec<V> = vec![];
 
-        if self.client.client.borrow().follow_next_links {
-            loop {
-                values.append(&mut json.value());
+        if self.client.get_follow_next_links() {
+            while let Some(json_value) = json.value() {
+                values.append(json_value);
                 match json.next_link() {
                     Some(next_link) => {
                         let url = GraphUrl::parse(&next_link)?;
@@ -203,7 +204,9 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
                     }
                 }
             }
-            json.value().append(&mut values);
+            if let Some(json_value) = json.value() {
+                json_value.append(&mut values);
+            }
             Ok(GraphResponse::new(url, json, status, headers))
         } else {
             Ok(GraphResponse::new(url, json, status, headers))
@@ -329,9 +332,9 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         let mut json: U = response.json().await.map_err(GraphFailure::from)?;
         let mut values: Vec<V> = vec![];
 
-        if self.client.client.lock().follow_next_links {
-            loop {
-                values.append(&mut json.value());
+        if self.client.get_follow_next_links() {
+            while let Some(json_value) = json.value() {
+                values.append(json_value);
                 match json.next_link() {
                     Some(next_link) => {
                         let url = GraphUrl::parse(&next_link)?;
@@ -345,7 +348,9 @@ impl<'a, T> IntoResponseAsync<'a, T> {
                     }
                 }
             }
-            json.value().append(&mut values);
+            if let Some(json_value) = json.value() {
+                json_value.append(&mut values);
+            }
             Ok(GraphResponse::new(url, json, status, headers))
         } else {
             Ok(GraphResponse::new(url, json, status, headers))

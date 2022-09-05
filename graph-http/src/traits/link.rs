@@ -31,7 +31,7 @@ impl ODataLink for serde_json::Value {
 
 pub trait ODataNextLink<V, RHS = Self> {
     fn next_link(&self) -> Option<String>;
-    fn value(&mut self) -> &mut Vec<V>;
+    fn value(&mut self) -> Option<&mut Vec<V>>;
 }
 
 impl ODataNextLink<serde_json::Value> for serde_json::Value {
@@ -39,7 +39,7 @@ impl ODataNextLink<serde_json::Value> for serde_json::Value {
         self["@odata.nextLink"].as_str().map(|s| s.to_string())
     }
 
-    fn value(&mut self) -> &mut Vec<serde_json::Value> {
-        self["@odata.value"].as_array_mut().unwrap() // todo: can we replace this unwrap with something else ?
+    fn value(&mut self) -> Option<&mut Vec<serde_json::Value>> {
+        self["@odata.value"].as_array_mut()
     }
 }

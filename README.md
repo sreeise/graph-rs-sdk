@@ -108,7 +108,7 @@ use graph_rs_sdk::macros::*;
 let client = Graph::new("ACCESS_TOKEN");
         
 #[derive(Debug, Serialize, Deserialize)]
-#[graph_rs_json]
+#[odata_next_link]
 pub struct DriveItem {
     id: Option<String>,
     name: Option<String>,
@@ -133,7 +133,7 @@ use graph_rs_sdk::macros::*;
 let client = Graph::new("ACCESS_TOKEN");
 
 #[derive(Debug, Serialize, Deserialize)]
-#[graph_rs_json]
+#[odata_next_link]
 pub struct User {
     pub(crate) id: Option<String>,
     #[serde(rename = "userPrincipalName")]
@@ -162,7 +162,7 @@ use graph_rs_sdk::macros::*;
 let client = Graph::new("ACCESS_TOKEN");
 
 #[derive(Debug, Serialize, Deserialize)]
-#[graph_rs_json]
+#[odata_next_link]
 pub struct User {
     pub(crate) id: Option<String>,
     #[serde(rename = "userPrincipalName")]

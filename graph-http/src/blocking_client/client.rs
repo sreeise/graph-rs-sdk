@@ -117,8 +117,8 @@ impl BlockingClient {
     /// Builds the requests and sends it, converting to a GraphResponse and deserializing
     /// the body.
     pub fn execute<T>(&mut self) -> GraphResult<GraphResponse<T>>
-        where
-                for<'de> T: serde::Deserialize<'de>,
+    where
+        for<'de> T: serde::Deserialize<'de>,
     {
         std::convert::TryFrom::try_from(self.response()?)
     }
@@ -193,15 +193,15 @@ impl HttpClient<RefCell<BlockingClient>> {
     }
 
     pub fn execute<T>(&self) -> GraphResult<GraphResponse<T>>
-        where
-                for<'de> T: serde::Deserialize<'de>,
+    where
+        for<'de> T: serde::Deserialize<'de>,
     {
         self.client.borrow_mut().execute()
     }
 
     pub fn inner_url_ref<F>(&self, f: F)
-        where
-            F: Fn(&GraphUrl),
+    where
+        F: Fn(&GraphUrl),
     {
         f(&self.client.borrow().url)
     }
@@ -294,22 +294,22 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>> {
     }
 
     fn url_ref<F>(&self, f: F)
-        where
-            F: Fn(&GraphUrl) + Sync,
+    where
+        F: Fn(&GraphUrl) + Sync,
     {
         f(&self.client.borrow().url)
     }
 
     fn url_mut<F>(&self, f: F)
-        where
-            F: Fn(&mut GraphUrl) + Sync,
+    where
+        F: Fn(&mut GraphUrl) + Sync,
     {
         f(&mut self.client.borrow_mut().url)
     }
 
     fn registry<F>(&self, f: F)
-        where
-            F: Fn(&mut Handlebars) + Sync,
+    where
+        F: Fn(&mut Handlebars) + Sync,
     {
         f(&mut self.client.borrow_mut().registry)
     }
@@ -367,6 +367,10 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>> {
 
     fn follow_next_links(&self, follow: bool) {
         self.client.borrow_mut().follow_next_links = follow;
+    }
+
+    fn get_follow_next_links(&self) -> bool {
+        self.client.borrow().follow_next_links
     }
 }
 
