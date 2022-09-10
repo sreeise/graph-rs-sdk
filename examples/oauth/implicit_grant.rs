@@ -19,17 +19,7 @@ use graph_rs_sdk::oauth::OAuth;
 //
 // To better understand OAuth V2.0 and the implicit flow see: https://tools.ietf.org/html/rfc6749#section-1.3.2
 
-fn main() {
-    // Opens the default browser to the Microsoft login page.
-    // After logging in the page will redirect and the Url
-    // will have the access token in either the query or
-    // the fragment of the Uri.
-    let mut oauth = native_client();
-    let mut request = oauth.build().implicit_grant();
-    let _ = request.browser_authorization().open().unwrap();
-}
-
-fn native_client() -> OAuth {
+fn oauth_implicit_flow() -> OAuth {
     let mut oauth = OAuth::new();
     oauth
         .client_id("<YOUR_CLIENT_ID>")
@@ -44,4 +34,14 @@ fn native_client() -> OAuth {
         .authorize_url("https://login.live.com/oauth20_authorize.srf?")
         .access_token_url("https://login.live.com/oauth20_token.srf");
     oauth
+}
+
+fn request_token_main() {
+    // Opens the default browser to the Microsoft login page.
+    // After logging in the page will redirect and the Url
+    // will have the access token in either the query or
+    // the fragment of the Uri.
+    let mut oauth = native_client();
+    let mut request = oauth.build().implicit_grant();
+    let _ = request.browser_authorization().open().unwrap();
 }

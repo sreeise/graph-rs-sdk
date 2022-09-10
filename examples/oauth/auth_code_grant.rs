@@ -7,13 +7,29 @@ use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
 use warp::{http::Response, Filter};
 
+// Usage:
+/*
+#[tokio::main]
+async fn main() {
+  start_server_main().await;
+}
+*/
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct AccessCode {
     code: String,
 }
 
-#[tokio::main]
-async fn main() {
+/// # Example
+/// ```
+/// use graph_rs_sdk::prelude::*:
+///
+/// #[tokio::main]
+/// async fn main() {
+///   start_server_main().await;
+/// }
+/// ```
+pub async fn start_server_main() {
     let query = warp::query::<AccessCode>()
         .map(Some)
         .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });

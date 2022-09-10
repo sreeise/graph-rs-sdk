@@ -6,6 +6,14 @@ extern crate serde_json;
 use graph_rs_sdk::oauth::OAuth;
 use warp::{http::Response, Filter};
 
+// Usage:
+/*
+#[tokio::main]
+async fn main() {
+  start_server_main().await;
+}
+*/
+
 // The client_id and client_secret must be changed before running this example.
 static CLIENT_ID: &str = "<CLIENT_ID>";
 static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
@@ -20,8 +28,37 @@ pub struct ClientCredentialsResponse {
     tenant: String,
 }
 
-#[tokio::main]
-async fn main() {
+fn get_oauth_client() -> OAuth {
+    let mut oauth = OAuth::new();
+    oauth
+        .client_id(CLIENT_ID)
+        .client_secret(CLIENT_SECRET)
+        .add_scope("https://graph.microsoft.com/.default")
+        .redirect_uri("http://localhost:8000/redirect")
+        .authorize_url("https://login.microsoftonline.com/common/adminconsent")
+        .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token");
+    oauth
+}
+
+fn request_access_token() {
+    let mut oauth = get_oauth_client();
+    let mut request = oauth.build().client_credentials();
+    let access_token = request.access_token().send().unwrap();
+
+    println!("{:#?}", access_token);
+    oauth.access_token(access_token);
+}
+
+/// # Example
+/// ```
+/// use graph_rs_sdk::prelude::*:
+///
+/// #[tokio::main]
+/// async fn main() {
+///   start_server_main().await;
+/// }
+/// ```
+pub async fn start_server_main() {
     // If this is not the first time you are using the client credentials grant
     // then you only have to run request_access_token() and you can comment out
     // what is below.
@@ -56,25 +93,4 @@ async fn main() {
     request.browser_authorization().open().unwrap();
 
     warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
-}
-
-fn get_oauth_client() -> OAuth {
-    let mut oauth = OAuth::new();
-    oauth
-        .client_id(CLIENT_ID)
-        .client_secret(CLIENT_SECRET)
-        .add_scope("https://graph.microsoft.com/.default")
-        .redirect_uri("http://localhost:8000/redirect")
-        .authorize_url("https://login.microsoftonline.com/common/adminconsent")
-        .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token");
-    oauth
-}
-
-fn request_access_token() {
-    let mut oauth = get_oauth_client();
-    let mut request = oauth.build().client_credentials();
-    let access_token = request.access_token().send().unwrap();
-
-    println!("{:#?}", access_token);
-    oauth.access_token(access_token);
 }

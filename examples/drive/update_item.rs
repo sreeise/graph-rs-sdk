@@ -7,10 +7,6 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static ITEM_ID: &str = "ITEM_ID";
 static DRIVE_FILE_NEW_NAME: &str = "NEW_DRIVE_FILE_NAME.txt";
 
-fn main() {
-    update();
-}
-
 // Use the old and new drive item.
 fn update() {
     // Get the latest metadata for the root drive folder items.

@@ -12,11 +12,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 // that is wrapped by : Example ":/documents/my_file.txt:"
 static ITEM_ID: &str = "ITEM_ID";
 
-fn main() {
-    copy_item();
-}
-
-fn copy_item() {
+pub fn copy_item() {
     let graph = Graph::new(ACCESS_TOKEN);
 
     // The DriveItem copy request uses a ItemReference (parent reference) which contains

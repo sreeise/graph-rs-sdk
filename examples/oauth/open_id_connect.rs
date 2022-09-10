@@ -6,6 +6,14 @@ use warp::{http::Response, Filter};
 
 use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuth};
 
+// Usage:
+/*
+#[tokio::main]
+async fn main() {
+  start_server_main().await;
+}
+*/
+
 // The client_id and client_secret must be changed before running this example.
 static CLIENT_ID: &str = "<YOUR_CLIENT_ID>";
 static CLIENT_SECRET: &str = "<YOUR_CLIENT_SECRET>";
@@ -36,8 +44,16 @@ fn oauth_open_id() -> OAuth {
     oauth
 }
 
-#[tokio::main]
-async fn main() {
+/// # Example
+/// ```
+/// use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuth};
+///
+/// #[tokio::main]
+/// async fn main() {
+///   start_server_main().await;
+/// }
+/// ```
+pub async fn start_server_main() {
     let routes = warp::get()
         .and(warp::path("redirect"))
         .and(warp::body::json())

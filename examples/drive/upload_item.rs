@@ -14,14 +14,6 @@ static DRIVE_PARENT_ID: &str = "PARENT_ID";
 // path.
 static RESOURCE_ID: &str = "RESOURCE_ID";
 
-fn main() {
-    upload_file();
-    // Or
-    upload_new();
-    // Using a drives, sites, groups, or users path.
-    sites_upload_new();
-}
-
 // Uploading a file using the drive id and parent id.
 fn upload_file() {
     let graph = Graph::new(ACCESS_TOKEN);

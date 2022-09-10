@@ -2,13 +2,13 @@ use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
-fn main() {
+pub fn list_drive_items() {
     drive_root();
     drive_root_children();
     special_docs();
 }
 
-fn drive_root() {
+pub fn drive_root() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let drive_item: GraphResponse<serde_json::Value> =
@@ -16,7 +16,7 @@ fn drive_root() {
     println!("{:#?}", drive_item);
 }
 
-fn drive_root_children() {
+pub fn drive_root_children() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let drive_item = client
@@ -29,7 +29,7 @@ fn drive_root_children() {
     println!("{:#?}", drive_item);
 }
 
-fn special_docs() {
+pub fn special_docs() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let drive_item = client

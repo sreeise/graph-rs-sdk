@@ -18,7 +18,9 @@ pub fn graph() -> Graph<BlockingHttpClient> {
 fn authentication_methods_policy() {
     let client = graph();
 
-    client.v1().authentication_methods_policy()
+    client
+        .v1()
+        .authentication_methods_policy()
         .get_authentication_methods_policy();
 
     assert_url_eq(&client, "/authenticationMethodsPolicy");
@@ -28,15 +30,28 @@ fn authentication_methods_policy() {
 fn authentication_method_configurations() {
     let client = graph();
 
-    client.v1().authentication_methods_policy()
+    client
+        .v1()
+        .authentication_methods_policy()
         .authentication_method_configurations()
         .list_authentication_method_configuration();
 
-    assert_url_eq(&client, "/authenticationMethodsPolicy/authenticationMethodConfigurations");
+    assert_url_eq(
+        &client,
+        "/authenticationMethodsPolicy/authenticationMethodConfigurations",
+    );
 
-    client.v1().authentication_methods_policy()
+    client
+        .v1()
+        .authentication_methods_policy()
         .authentication_method_configuration(ID_VEC[0].as_str())
         .get_authentication_method_configuration();
 
-    assert_url_eq(&client, format!("/authenticationMethodsPolicy/authenticationMethodConfigurations/{}", ID_VEC[0]));
+    assert_url_eq(
+        &client,
+        format!(
+            "/authenticationMethodsPolicy/authenticationMethodConfigurations/{}",
+            ID_VEC[0]
+        ),
+    );
 }

@@ -5,11 +5,11 @@ use std::path::PathBuf;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static ITEM_ID: &str = "ITEM_ID";
 
-fn main() {
+pub fn download_files() {
     download();
     download_and_format("pdf");
     download_and_rename("FILE_NAME");
-    download_by_path(":/Documents/item.txt:")
+    download_by_path(":/Documents/item.txt:");
 }
 
 pub fn download() {
@@ -49,7 +49,7 @@ pub fn download_and_format(format: &str) {
     println!("{:#?}", path_buf.metadata());
 }
 
-fn download_and_rename(name: &str) {
+pub fn download_and_rename(name: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
     // Create the download request.
@@ -69,7 +69,7 @@ fn download_and_rename(name: &str) {
 
 // The path should always start with :/ and end with :
 // such as :/Documents/item.txt:
-fn download_by_path(path: &str) {
+pub fn download_by_path(path: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
     // Create the download request.
@@ -88,7 +88,7 @@ fn download_by_path(path: &str) {
 // any missing directory. You can change this by passing a
 // download config. This will will fail if the directory does not exist.
 #[allow(dead_code)]
-fn download_with_config() {
+pub fn download_with_config() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let download_client = client

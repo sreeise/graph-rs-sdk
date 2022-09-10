@@ -8,6 +8,41 @@ use warp::{http::Response, Filter};
 use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
 
+// Usage:
+/*
+#[tokio::main]
+async fn main() {
+  start_server_main().await;
+}
+*/
+
+// Setup:
+//
+// You will first need to head to the Microsoft Application Portal and create and
+// application. Once the application is created you will need to specify the
+// scopes you need and change them accordingly in the oauth_web_client() method
+// when adding scopes using OAuth::add_scope("scope").
+//
+// For reference the Microsoft Graph Authorization V2 required parameters along with
+// the methods to use needed to be set are shown above the oauth_web_client() method.
+//
+// Once an application is registered it will given an application id which is the client id in an OAuth2 request.
+// For this example, a client secret will need to be generated. The client secret is the same as the password
+// under Application Secrets int the registration portal. If you do not have a client secret then click on
+// 'Generate New Password'.  Next click on 'Add Platform' and create a new web platform.
+// Add a redirect url to the platform. In the example below, the redirect url is http://localhost:8000/redirect
+// but anything can be used.
+//
+// Overview:
+//
+// After signing in, you will be redirected, and the access code that is given in the redirect
+// will be used to automatically call the access token endpoint and receive an access token
+// and/or refresh token.
+//
+// Disclaimer/Important Info:
+//
+// This example is meant for testing and is not meant to be production ready or complete.
+
 // The client_id and client_secret must be changed before running this example.
 static CLIENT_ID: &str = "<YOUR_CLIENT_ID>";
 static CLIENT_SECRET: &str = "<YOUR_CLIENT_SECRET>";
@@ -22,16 +57,6 @@ pub struct AccessCode {
 // includes authorization with a state parameter in the request query.
 //
 // This example uses the code flow: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/msa-oauth?view=odsp-graph-online
-//
-// If you have not set up an application to call the Graph API for OneDrive
-// API then you will want to first read through the information in rocket_example.rs
-// before moving forward. A client id and client secret are needed to
-// call the overdrive API in order to authenticate users. This is done
-// through the Microsoft application portal or through Azure. Creating an
-// application will create an application ID which is the client id. Then,
-// under application secrets, a new password will need to be generated. This
-// password is the client secret. The rocket_example.rs file has more information
-// on how to set up an application.
 
 // Create an OAuth struct with the needed credentials.
 fn oauth_web_client() -> OAuth {
@@ -57,8 +82,31 @@ fn oauth_web_client() -> OAuth {
     oauth
 }
 
-#[tokio::main]
-async fn main() {
+pub fn set_and_req_access_code(access_code: AccessCode) {
+    let mut oauth = oauth_web_client();
+    oauth.response_type("token");
+    oauth.state(access_code.code.as_str());
+    oauth.access_code(access_code.code.as_str());
+
+    // Request the access token.
+    let mut request = oauth.build().code_flow();
+    let access_token = request.access_token().send().unwrap();
+    oauth.access_token(access_token);
+
+    // If all went well here we can print out the OAuth config with the Access Token.
+    println!("{:#?}", &oauth);
+}
+
+/// # Example
+/// ```
+/// use graph_rs_sdk::prelude::*:
+///
+/// #[tokio::main]
+/// async fn main() {
+///   start_server_main().await;
+/// }
+/// ```
+pub async fn start_server_main() {
     let query = warp::query::<AccessCode>()
         .map(Some)
         .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
@@ -92,24 +140,4 @@ async fn main() {
     request.browser_authorization().open().unwrap();
 
     warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
-}
-
-pub fn set_and_req_access_code(access_code: AccessCode) {
-    let mut oauth = oauth_web_client();
-    oauth.response_type("token");
-    oauth.state(access_code.code.as_str());
-    oauth.access_code(access_code.code.as_str());
-
-    // Request the access token.
-    let mut request = oauth.build().code_flow();
-    let access_token = request.access_token().send().unwrap();
-    oauth.access_token(access_token);
-
-    // If all went well here we can print out the OAuth config with the Access Token.
-    println!("{:#?}", &oauth);
-
-    // Save our configuration to a file so we can retrieve it for other requests.
-    oauth
-        .as_file("./examples/example_files/web_oauth.json")
-        .unwrap();
 }
