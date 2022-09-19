@@ -129,6 +129,8 @@ pub mod access_reviews;
 pub mod activities;
 /// Admin request client.
 pub mod admin;
+/// Administrative Units request client (Directory)
+pub mod administrative_units;
 /// Agreement acceptances request client.
 pub mod agreement_acceptances;
 /// Agreements client

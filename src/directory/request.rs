@@ -10,6 +10,7 @@ register_client!(DirectoryObjectsRequest,);
 register_client!(DirectoryRoleTemplatesRequest,);
 register_client!(DirectoryRolesRequest,);
 
+/*
 impl<'a, Client> DirectoryRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
@@ -518,3 +519,5 @@ where
         has_body: false
     });
 }
+
+ */

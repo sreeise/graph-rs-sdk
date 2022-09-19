@@ -27,6 +27,7 @@ pub enum ResourceIdentity {
     AccessReviewDefinitions,
     Activities,
     Admin,
+    AdministrativeUnits,
     AgreementAcceptances,
     Agreements,
     AppConsent,

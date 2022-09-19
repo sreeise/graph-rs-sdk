@@ -40,10 +40,10 @@ fn get_oauth_client() -> OAuth {
     oauth
 }
 
-fn request_access_token() {
+async fn request_access_token() {
     let mut oauth = get_oauth_client();
-    let mut request = oauth.build().client_credentials();
-    let access_token = request.access_token().send().unwrap();
+    let mut request = oauth.build_async().client_credentials();
+    let access_token = request.access_token().send().await.unwrap();
 
     println!("{:#?}", access_token);
     oauth.access_token(access_token);
@@ -75,7 +75,7 @@ pub async fn start_server_main() {
                 println!("{:#?}", code);
 
                 // Request an access token.
-                request_access_token();
+                request_access_token().await;
 
                 // Generic login page response.
                 Response::builder().body(String::from(
