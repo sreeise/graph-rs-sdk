@@ -1,0 +1,9 @@
+{
+  "modifier_name": "administrativeUnitsMembers",
+  "path": "/members",
+  "resource_identity": "AdministrativeUnitsMembers",
+  "trim_path_start": "/directory/administrativeUnits/{administrativeUnit-id}",
+  "parameter_filter": [
+    "administrativeUnit-id"
+  ]
+}

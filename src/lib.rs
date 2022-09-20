@@ -131,6 +131,8 @@ pub mod activities;
 pub mod admin;
 /// Administrative Units request client (Directory)
 pub mod administrative_units;
+/// Administrative Units Members (Directory administrativeUnits/members)
+pub mod administrative_units_members;
 /// Agreement acceptances request client.
 pub mod agreement_acceptances;
 /// Agreements client

@@ -1,5 +1,8 @@
 // GENERATED CODE
 
+use crate::administrative_units_members::{
+    AdministrativeUnitsMembersIdRequest, AdministrativeUnitsMembersRequest,
+};
 use crate::api_default_imports::*;
 use graph_http::types::DeltaPhantom;
 use graph_http::types::NoContent;
@@ -27,7 +30,7 @@ where
     });
     get!({
         doc: "Get the number of the resource",
-        name: count,
+        name: get_administrative_units_count,
         response: serde_json::Value,
         path: "/administrativeUnits/$count",
         has_body: false
@@ -45,6 +48,27 @@ impl<'a, Client> AdministrativeUnitsIdRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
+    pub fn administrative_units_members(&self) -> AdministrativeUnitsMembersRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client
+            .set_ident(ResourceIdentity::AdministrativeUnitsMembers);
+        AdministrativeUnitsMembersRequest::new(self.client)
+    }
+
+    pub fn administrative_units_member<ID: AsRef<str>>(
+        &self,
+        id: ID,
+    ) -> AdministrativeUnitsMembersIdRequest<'a, Client> {
+        self.client
+            .request
+            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
+        self.client
+            .set_ident(ResourceIdentity::AdministrativeUnitsMembers);
+        AdministrativeUnitsMembersIdRequest::new(id.as_ref(), self.client)
+    }
+
     delete!({
         doc: "Delete navigation property administrativeUnits for directory",
         name: delete_administrative_units,
@@ -82,7 +106,7 @@ where
     });
     get!({
         doc: "Get the number of the resource",
-        name: count,
+        name: get_extensions_count,
         response: serde_json::Value,
         path: "/administrativeUnits/{{RID}}/extensions/$count",
         has_body: false
@@ -111,174 +135,6 @@ where
         params: [ extension_id ],
         has_body: true
     });
-    get!({
-        doc: "Get members from directory",
-        name: list_members,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members",
-        has_body: false
-    });
-    get!({
-        doc: "Get the number of the resource",
-        name: count,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/$count",
-        has_body: false
-    });
-    post!({
-        doc: "Create new navigation property ref to members for directory",
-        name: create_ref_members,
-        response: NoContent,
-        path: "/administrativeUnits/{{RID}}/members/$ref",
-        has_body: true
-    });
-    get!({
-        doc: "Get ref of members from directory",
-        name: list_ref_members,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/$ref",
-        has_body: false
-    });
-    get!({
-        doc: "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.application",
-        has_body: false
-    });
-    get!({
-        doc: "Get the number of the resource",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.application/$count",
-        has_body: false
-    });
-    get!({
-        doc: "Get the items of type microsoft.graph.device in the microsoft.graph.directoryObject collection",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.device",
-        has_body: false
-    });
-    get!({
-        doc: "Get the number of the resource",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.device/$count",
-        has_body: false
-    });
-    get!({
-        doc: "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.group",
-        has_body: false
-    });
-    get!({
-        doc: "Get the number of the resource",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.group/$count",
-        has_body: false
-    });
-    get!({
-        doc: "Get the items of type microsoft.graph.orgContact in the microsoft.graph.directoryObject collection",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.orgContact",
-        has_body: false
-    });
-    get!({
-        doc: "Get the number of the resource",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.orgContact/$count",
-        has_body: false
-    });
-    get!({
-        doc: "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.servicePrincipal",
-        has_body: false
-    });
-    get!({
-        doc: "Get the number of the resource",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.servicePrincipal/$count",
-        has_body: false
-    });
-    get!({
-        doc: "Get the items of type microsoft.graph.user in the microsoft.graph.directoryObject collection",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.user",
-        has_body: false
-    });
-    get!({
-        doc: "Get the number of the resource",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/microsoft.graph.user/$count",
-        has_body: false
-    });
-    delete!({
-        doc: "Delete ref of navigation property members for directory",
-        name: delete_ref_members,
-        response: NoContent,
-        path: "/administrativeUnits/{{RID}}/members/{{id}}/$ref",
-        params: [ directory_object_id ],
-        has_body: false
-    });
-    get!({
-        doc: "Get the item of type microsoft.graph.directoryObject as microsoft.graph.application",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/{{id}}/microsoft.graph.application",
-        params: [ directory_object_id ],
-        has_body: false
-    });
-    get!({
-        doc: "Get the item of type microsoft.graph.directoryObject as microsoft.graph.device",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/{{id}}/microsoft.graph.device",
-        params: [ directory_object_id ],
-        has_body: false
-    });
-    get!({
-        doc: "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/{{id}}/microsoft.graph.group",
-        params: [ directory_object_id ],
-        has_body: false
-    });
-    get!({
-        doc: "Get the item of type microsoft.graph.directoryObject as microsoft.graph.orgContact",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/{{id}}/microsoft.graph.orgContact",
-        params: [ directory_object_id ],
-        has_body: false
-    });
-    get!({
-        doc: "Get the item of type microsoft.graph.directoryObject as microsoft.graph.servicePrincipal",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/{{id}}/microsoft.graph.servicePrincipal",
-        params: [ directory_object_id ],
-        has_body: false
-    });
-    get!({
-        doc: "Get the item of type microsoft.graph.directoryObject as microsoft.graph.user",
-        name: graph,
-        response: serde_json::Value,
-        path: "/administrativeUnits/{{RID}}/members/{{id}}/microsoft.graph.user",
-        params: [ directory_object_id ],
-        has_body: false
-    });
     post!({
         doc: "Create new navigation property to scopedRoleMembers for directory",
         name: create_scoped_role_members,
@@ -295,7 +151,7 @@ where
     });
     get!({
         doc: "Get the number of the resource",
-        name: count,
+        name: get_scoped_role_members_count,
         response: serde_json::Value,
         path: "/administrativeUnits/{{RID}}/scopedRoleMembers/$count",
         has_body: false
