@@ -21,7 +21,7 @@ pub fn copy_item() {
     // requested above so the copy of the item will be placed in the same folder. This can
     // be changed to wherever you would like the copy placed.
 
-    let mut response = graph
+    let response = graph
         .v1()
         .me()
         .drive()

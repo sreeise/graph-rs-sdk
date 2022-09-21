@@ -1,3 +1,5 @@
+#![allow(dead_code, unused, unused_imports)]
+
 mod check_in_out;
 mod copy;
 mod create_folder;
@@ -7,14 +9,12 @@ mod get_item;
 mod list_drive_items;
 mod thumbnails;
 mod update_item;
-mod upload_item;
 
+mod upload_item;
 use crate::copy::copy_item;
-use crate::create_folder::*;
 use crate::delete::*;
 use crate::download::*;
 use crate::list_drive_items::*;
-use crate::thumbnails::*;
 
 fn main() {
     delete();

@@ -3,10 +3,8 @@ extern crate serde;
 extern crate reqwest;
 extern crate serde_json;
 
-use warp::{http::Response, Filter};
-
-use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
+use warp::{http::Response, Filter};
 
 // The client_id and client_secret must be changed before running this example.
 static CLIENT_ID: &str = "<CLIENT_ID>";

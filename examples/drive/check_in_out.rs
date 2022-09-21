@@ -8,11 +8,6 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 // ID of the drive item to check in and out.
 static ITEM_ID: &str = "ITEM_ID";
 
-fn main() {
-    check_out_item();
-    check_in_item();
-}
-
 // For more information on checking out a drive item see:
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkout?view=odsp-graph-online
 fn check_out_item() {
