@@ -1,9 +1,10 @@
+use crate::api_types::metadata_modifier::ModifierMap;
+use crate::api_types::ResourceParsingInfo;
 use crate::api_types::{Metadata, MetadataModifier, MethodMacro, RequestClientList, RequestTask};
+use crate::filter::Filter;
 use crate::inflector::Inflector;
 use crate::macros::{MacroImplWriter, MacroQueueWriter};
 use crate::openapi::{OpenApi, PathItem};
-use crate::parser::client_resource::ResourceParsingInfo;
-use crate::parser::filter::{Filter, ModifierMap};
 use crate::parser::{HttpMethod, ParserSettings};
 use crate::traits::{FilterMetadata, HashMapExt, RequestParser, INTERNAL_PATH_ID};
 use from_as::*;
@@ -686,7 +687,6 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
         metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
 
         if let Some(_trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
-            let resource_identity_string = resource_parsing_info.resource_identity.to_string();
             metadata_queue.format_path_parameters();
 
             metadata_queue.transform_secondary_id_metadata(

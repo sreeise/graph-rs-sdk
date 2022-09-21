@@ -8,7 +8,7 @@ under the examples directory:
 The examples have various places where the response metadata from requests
 is stored in JSON files to make it easier to use across multiple examples.
 
-For using OAuth to get access tokens, a good place to start is the web server example: oauth_web_server.rs
+For using OAuth to get access tokens, a good place to start is the examples/oauth directory.
 
 ### Using the Graph API
 

@@ -3,10 +3,8 @@ extern crate serde;
 extern crate reqwest;
 extern crate serde_json;
 
-use warp::{http::Response, Filter};
-
-use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
+use warp::{http::Response, Filter};
 
 // The client_id and client_secret must be changed before running this example.
 static CLIENT_ID: &str = "<CLIENT_ID>";
@@ -164,9 +162,4 @@ pub fn set_and_req_access_code(access_code: AccessCode) {
 
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("{:#?}", &oauth);
-
-    // Save our configuration to a file so we can retrieve it from other requests.
-    oauth
-        .as_file("./examples/example_files/web_oauth.json")
-        .unwrap();
 }

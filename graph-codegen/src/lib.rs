@@ -11,7 +11,7 @@ extern crate strum;
 
 pub mod api_types;
 pub mod builder;
-pub mod generator;
+pub mod filter;
 pub mod macros;
 pub mod openapi;
 pub mod parser;

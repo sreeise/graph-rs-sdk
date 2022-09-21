@@ -129,6 +129,10 @@ pub mod access_reviews;
 pub mod activities;
 /// Admin request client.
 pub mod admin;
+/// Administrative Units request client (Directory)
+pub mod administrative_units;
+/// Administrative Units Members (Directory administrativeUnits/members)
+pub mod administrative_units_members;
 /// Agreement acceptances request client.
 pub mod agreement_acceptances;
 /// Agreements client
@@ -149,6 +153,12 @@ pub mod assignments;
 pub mod attachments;
 /// Audit logs request client.
 pub mod audit_logs;
+/// Authentication Method Configurations request client.
+pub mod authentication_method_configurations;
+/// Authentication Methods Policy request client.
+pub mod authentication_methods_policy;
+/// Branding request client.
+pub mod branding;
 /// Planner buckets request client.
 pub mod buckets;
 /// Calendar request client.
@@ -195,6 +205,10 @@ pub mod device_app_management;
 pub mod device_management;
 /// Directory request client.
 pub mod directory;
+pub mod directory_deleted_items;
+pub mod directory_objects;
+pub mod directory_role_templates;
+pub mod directory_roles;
 /// Domain dns records request client.
 pub mod domain_dns_records;
 /// Domains request client.
