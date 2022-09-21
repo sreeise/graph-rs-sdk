@@ -1,4 +1,5 @@
-use crate::parser::filter::{Filter, FilterIgnore};
+use crate::filter::Filter;
+use crate::filter::FilterIgnore;
 use graph_core::resource::ResourceIdentity;
 
 pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
@@ -11,9 +12,35 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                     .collect(),
             ))]
         }
+        ResourceIdentity::AccessReviews => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["definitions"].iter().map(|s| s.to_string()).collect(),
+            ))]
+        }
+        ResourceIdentity::AccessReviewDefinitions => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["instances", "stages"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            ))]
+        }
         ResourceIdentity::Admin => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["serviceAnnouncement"]
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            ))]
+        }
+        ResourceIdentity::AdministrativeUnits => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["members"].iter().map(|s| s.to_string()).collect(),
+            ))]
+        }
+        ResourceIdentity::AuthenticationMethodsPolicy => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["authenticationMethodConfigurations"]
                     .iter()
                     .map(|s| s.to_string())
                     .collect(),
@@ -121,30 +148,28 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                 .collect(),
             ))]
         }
-        ResourceIdentity::AccessReviews => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["definitions"].iter().map(|s| s.to_string()).collect(),
-            ))]
-        }
-        ResourceIdentity::AccessReviewDefinitions => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["instances", "stages"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
-            ))]
-        }
-        ResourceIdentity::AuthenticationMethodsPolicy => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["authenticationMethodConfigurations"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
-            ))]
-        }
         ResourceIdentity::DefinitionInstances => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["stages"].iter().map(|s| s.to_string()).collect(),
+            ))]
+        }
+        ResourceIdentity::Directory => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec![
+                    "administrativeUnits",
+                    "directoryRoles",
+                    "directoryRoleTemplates",
+                    "directoryObjects",
+                    "deletedItems",
+                ]
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
+            ))]
+        }
+        ResourceIdentity::DirectoryRoles => {
+            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
+                vec!["members"].iter().map(|s| s.to_string()).collect(),
             ))]
         }
         ResourceIdentity::Drives | ResourceIdentity::Drive => {

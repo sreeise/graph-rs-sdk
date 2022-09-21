@@ -19,31 +19,7 @@ pub struct MethodMacroModifier {
     pub matching: Vec<MacroModifierType>,
     pub update: MacroModifierType,
 }
-/*
-   get!({
-       doc: "Get the number of the resource",
-       name: internal_sponsors_count,
-       response: serde_json::Value,
-       path: "/connectedOrganizations/{{RID}}/internalSponsors/$count",
-       has_body: false
-   });
 
-       get!({
-       doc: "Get the number of the resource",
-       name: count,
-       response: serde_json::Value,
-       path: "/connectedOrganizations/{{RID}}/externalSponsors/$count",
-       has_body: false
-   });
-
-       post!({
-       doc: "Invoke action validateProperties",
-       name: validate_properties,
-       response: NoContent,
-       path: "/connectedOrganizations/{{RID}}/externalSponsors/microsoft.graph.validateProperties",
-       has_body: true
-   });
-*/
 pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<MethodMacroModifier> {
     match resource_identity {
         ResourceIdentity::AccessReviews => vec![

@@ -1,9 +1,10 @@
+use crate::api_types::metadata_modifier::ModifierMap;
+use crate::api_types::ResourceParsingInfo;
 use crate::api_types::{Metadata, MetadataModifier, MethodMacro, RequestClientList, RequestTask};
+use crate::filter::Filter;
 use crate::inflector::Inflector;
 use crate::macros::{MacroImplWriter, MacroQueueWriter};
 use crate::openapi::{OpenApi, PathItem};
-use crate::parser::client_resource::ResourceParsingInfo;
-use crate::parser::filter::{Filter, ModifierMap};
 use crate::parser::{HttpMethod, ParserSettings};
 use crate::traits::{FilterMetadata, HashMapExt, RequestParser, INTERNAL_PATH_ID};
 use from_as::*;

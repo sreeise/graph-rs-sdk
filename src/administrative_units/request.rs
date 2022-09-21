@@ -48,7 +48,7 @@ impl<'a, Client> AdministrativeUnitsIdRequest<'a, Client>
 where
     Client: graph_http::RequestClient,
 {
-    pub fn administrative_units_members(&self) -> AdministrativeUnitsMembersRequest<'a, Client> {
+    pub fn members(&self) -> AdministrativeUnitsMembersRequest<'a, Client> {
         self.client
             .request
             .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
@@ -57,7 +57,7 @@ where
         AdministrativeUnitsMembersRequest::new(self.client)
     }
 
-    pub fn administrative_units_member<ID: AsRef<str>>(
+    pub fn member<ID: AsRef<str>>(
         &self,
         id: ID,
     ) -> AdministrativeUnitsMembersIdRequest<'a, Client> {

@@ -16,6 +16,11 @@ use crate::data_policy_operations::DataPolicyOperationsRequest;
 use crate::device_app_management::DeviceAppManagementRequest;
 use crate::device_management::DeviceManagementRequest;
 use crate::directory::DirectoryRequest;
+use crate::directory_objects::{DirectoryObjectsIdRequest, DirectoryObjectsRequest};
+use crate::directory_role_templates::{
+    DirectoryRoleTemplatesIdRequest, DirectoryRoleTemplatesRequest,
+};
+use crate::directory_roles::{DirectoryRolesIdRequest, DirectoryRolesRequest};
 use crate::domain_dns_records::DomainDnsRecordsRequest;
 use crate::domains::{DomainRequest, DomainsRequest};
 use crate::drive::{DriveRequest, DrivesRequest};
@@ -143,7 +148,7 @@ where
 type GraphBlocking = Graph<BlockingHttpClient>;
 type GraphAsync = Graph<AsyncHttpClient>;
 
-impl<'a> GraphBlocking {
+impl GraphBlocking {
     /// Create a new client with an access token.
     ///
     /// # Example
@@ -218,7 +223,7 @@ impl TryFrom<&OAuth> for GraphBlocking {
     }
 }
 
-impl<'a> GraphAsync {
+impl GraphAsync {
     /// Create a new client with an access token.
     ///
     /// # Example
@@ -418,6 +423,43 @@ where
     pub fn directory(&self) -> DirectoryRequest<'a, Client> {
         self.client.set_ident(ResourceIdentity::Directory);
         DirectoryRequest::new(self.client)
+    }
+
+    pub fn directory_object<S: AsRef<str>>(&self, id: S) -> DirectoryObjectsIdRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::DirectoryObjects);
+        DirectoryObjectsIdRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn directory_objects(&self) -> DirectoryObjectsRequest<'a, Client> {
+        self.client.set_ident(ResourceIdentity::DirectoryObjects);
+        DirectoryObjectsRequest::new(self.client)
+    }
+
+    pub fn directory_role_template<S: AsRef<str>>(
+        &self,
+        id: S,
+    ) -> DirectoryRoleTemplatesIdRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::DirectoryRoleTemplates);
+        DirectoryRoleTemplatesIdRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn directory_role_templates(&self) -> DirectoryRoleTemplatesRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::DirectoryRoleTemplates);
+        DirectoryRoleTemplatesRequest::new(self.client)
+    }
+
+    pub fn directory_role<S: AsRef<str>>(&self, id: S) -> DirectoryRolesIdRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::DirectoryRoleTemplates);
+        DirectoryRolesIdRequest::new(id.as_ref(), self.client)
+    }
+
+    pub fn directory_roles(&self) -> DirectoryRolesRequest<'a, Client> {
+        self.client
+            .set_ident(ResourceIdentity::DirectoryRoleTemplates);
+        DirectoryRolesRequest::new(self.client)
     }
 
     pub fn domain_dns_records(&self) -> DomainDnsRecordsRequest<'a, Client> {

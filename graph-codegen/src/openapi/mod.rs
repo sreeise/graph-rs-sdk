@@ -56,9 +56,8 @@ pub use server_variable::*;
 pub use tag::*;
 pub use xml::*;
 
-use crate::api_types::PathMetadata;
+use crate::api_types::{PathMetadata, ResourceParsingInfo};
 use crate::macros::OpenApiParser;
-use crate::parser::client_resource::ResourceParsingInfo;
 use crate::traits::{FilterPath, RequestParser};
 use from_as::*;
 use graph_error::GraphFailure;
@@ -174,8 +173,7 @@ impl OpenApi {
         let trim_path_start = resource_parsing_info
             .trim_path_start
             .clone()
-            .unwrap_or_default()
-            .to_string();
+            .unwrap_or_default();
         let p = resource_parsing_info.path.to_string();
         self.paths
             .clone()

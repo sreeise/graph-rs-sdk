@@ -205,6 +205,10 @@ pub mod device_app_management;
 pub mod device_management;
 /// Directory request client.
 pub mod directory;
+pub mod directory_deleted_items;
+pub mod directory_objects;
+pub mod directory_role_templates;
+pub mod directory_roles;
 /// Domain dns records request client.
 pub mod domain_dns_records;
 /// Domains request client.

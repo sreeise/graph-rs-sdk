@@ -76,6 +76,7 @@ pub enum ResourceIdentity {
     DeviceManagement,
     Devices,
     Directory,
+    DirectoryDeletedItems,
     DirectoryObjects,
     DirectoryRoleTemplates,
     DirectoryRoles,

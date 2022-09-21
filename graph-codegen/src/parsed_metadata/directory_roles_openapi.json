@@ -1,21 +1,14 @@
 {
-  "/administrativeUnits": {
-    "description": "Provides operations to manage the administrativeUnits property of the microsoft.graph.directory entity.",
+  "/directoryRoles": {
+    "description": "Provides operations to manage the collection of directoryRole entities.",
     "get": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.directoryRole"
       ],
-      "summary": "Get administrativeUnits from directory",
-      "description": "Conceptual container for user and group directory objects.",
-      "operationId": "directory.ListAdministrativeUnits",
+      "summary": "List directoryRoles",
+      "description": "List the directory roles that are activated in the tenant. This operation only returns roles that have been activated. A role becomes activated when an admin activates the role using the Activate directoryRole API. Not all built-in roles are initially activated.  When assigning a role using the Azure portal, the role activation step is implicitly done on the admin's behalf. To get the full list of roles that are available in Azure AD, use List directoryRoleTemplates.",
+      "operationId": "directoryRoles.directoryRole.ListDirectoryRole",
       "parameters": [
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/top"
-            }
-          }
-        },
         {
           "either": {
             "Right": {
@@ -76,8 +69,8 @@
                     "description desc",
                     "displayName",
                     "displayName desc",
-                    "visibility",
-                    "visibility desc"
+                    "roleTemplateId",
+                    "roleTemplateId desc"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -123,10 +116,9 @@
                     "deletedDateTime",
                     "description",
                     "displayName",
-                    "visibility",
+                    "roleTemplateId",
                     "members",
-                    "scopedRoleMembers",
-                    "extensions"
+                    "scopedMembers"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -170,8 +162,7 @@
                   "enum": [
                     "*",
                     "members",
-                    "scopedRoleMembers",
-                    "extensions"
+                    "scopedMembers"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -191,10 +182,10 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/microsoft.graph.administrativeUnitCollectionResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -205,10 +196,10 @@
             }
           }
         },
-        "4XX": {
+        "200": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/microsoft.graph.directoryRoleCollectionResponse"
             }
           }
         }
@@ -217,20 +208,21 @@
     },
     "post": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.directoryRole"
       ],
-      "summary": "Create new navigation property to administrativeUnits for directory",
-      "operationId": "directory.CreateAdministrativeUnits",
+      "summary": "Activate directoryRole",
+      "description": "Activate a directory role. To read a directory role or update its members, it must first be activated in the tenant. The Company Administrators and the implicit user directory roles (**User**, **Guest User**, and **Restricted Guest User** roles) are activated by default. To access and assign members to other directory roles, you must first activate it with its corresponding directory role template ID.",
+      "operationId": "directoryRoles.directoryRole.CreateDirectoryRole",
       "requestBody": {
         "either": {
           "Left": {
-            "description": "New navigation property",
+            "description": "New entity",
             "content": {
               "application/json": {
                 "schema": {
                   "either": {
                     "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
+                      "$ref": "#/components/schemas/microsoft.graph.directoryRole"
                     }
                   }
                 }
@@ -244,13 +236,13 @@
         "201": {
           "either": {
             "Left": {
-              "description": "Created navigation property.",
+              "description": "Created entity",
               "content": {
                 "application/json": {
                   "schema": {
                     "either": {
                       "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
+                        "$ref": "#/components/schemas/microsoft.graph.directoryRole"
                       }
                     }
                   }
@@ -259,14 +251,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -277,12 +269,19 @@
       "deprecated": false
     }
   },
-  "/administrativeUnits/$count": {
+  "/directoryRoles/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.administrativeUnits-a5a1",
+      "operationId": "Get.Count.directoryRoles-ad68",
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Right": {
@@ -296,27 +295,27 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/directoryRoles/microsoft.graph.delta()": {
+    "description": "Provides operations to call the delta method.",
+    "get": {
+      "tags": [
+        "directoryRoles.Functions"
+      ],
+      "summary": "Invoke function delta",
+      "operationId": "directoryRoles.delta",
+      "responses": {
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
-        }
-      },
-      "deprecated": false
-    }
-  },
-  "/administrativeUnits/microsoft.graph.delta()": {
-    "description": "Provides operations to call the delta method.",
-    "get": {
-      "tags": [
-        "directory.Functions"
-      ],
-      "summary": "Invoke function delta",
-      "operationId": "directory.administrativeUnits.delta",
-      "responses": {
+        },
         "200": {
           "either": {
             "Left": {
@@ -326,7 +325,7 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "title": "Collection of administrativeUnit",
+                        "title": "Collection of directoryRole",
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
@@ -345,7 +344,7 @@
                                 {
                                   "either": {
                                     "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
+                                      "$ref": "#/components/schemas/microsoft.graph.directoryRole"
                                     }
                                   }
                                 },
@@ -395,10 +394,127 @@
             }
           }
         },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/directoryRoles/microsoft.graph.getAvailableExtensionProperties": {
+    "description": "Provides operations to call the getAvailableExtensionProperties method.",
+    "post": {
+      "tags": [
+        "directoryRoles.Actions"
+      ],
+      "summary": "Invoke action getAvailableExtensionProperties",
+      "operationId": "directoryRoles.getAvailableExtensionProperties",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "Action parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Left": {
+                      "type": "object",
+                      "readOnly": false,
+                      "writeOnly": false,
+                      "required": [],
+                      "uniqueItems": false,
+                      "properties": {
+                        "isSyncedFromOnPremises": {
+                          "type": "boolean",
+                          "default": false,
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        }
+                      },
+                      "additionalPropertiesAllowed": false,
+                      "enum": [],
+                      "nullable": false,
+                      "deprecated": false,
+                      "unresolvedReference": false
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "title": "Collection of directoryRole",
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "required": [],
+                        "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "array",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "items": {
+                              "readOnly": false,
+                              "writeOnly": false,
+                              "required": [],
+                              "uniqueItems": false,
+                              "additionalPropertiesAllowed": false,
+                              "enum": [],
+                              "nullable": false,
+                              "deprecated": false,
+                              "unresolvedReference": false,
+                              "$ref": "#/components/schemas/microsoft.graph.extensionProperty"
+                            },
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -413,15 +529,288 @@
       "deprecated": false
     }
   },
-  "/administrativeUnits/{administrativeUnit-id}": {
-    "description": "Provides operations to manage the administrativeUnits property of the microsoft.graph.directory entity.",
+  "/directoryRoles/microsoft.graph.getByIds": {
+    "description": "Provides operations to call the getByIds method.",
+    "post": {
+      "tags": [
+        "directoryRoles.Actions"
+      ],
+      "summary": "Invoke action getByIds",
+      "operationId": "directoryRoles.getByIds",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "Action parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Left": {
+                      "type": "object",
+                      "readOnly": false,
+                      "writeOnly": false,
+                      "required": [],
+                      "uniqueItems": false,
+                      "properties": {
+                        "types": {
+                          "type": "array",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "items": {
+                            "type": "string",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          },
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": false,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
+                        "ids": {
+                          "type": "array",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "items": {
+                            "type": "string",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          },
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": false,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        }
+                      },
+                      "additionalPropertiesAllowed": false,
+                      "enum": [],
+                      "nullable": false,
+                      "deprecated": false,
+                      "unresolvedReference": false
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "title": "Collection of directoryRole",
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "required": [],
+                        "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "array",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "items": {
+                              "readOnly": false,
+                              "writeOnly": false,
+                              "required": [],
+                              "uniqueItems": false,
+                              "additionalPropertiesAllowed": false,
+                              "enum": [],
+                              "nullable": false,
+                              "deprecated": false,
+                              "unresolvedReference": false,
+                              "$ref": "#/components/schemas/microsoft.graph.directoryObject"
+                            },
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/directoryRoles/microsoft.graph.validateProperties": {
+    "description": "Provides operations to call the validateProperties method.",
+    "post": {
+      "tags": [
+        "directoryRoles.Actions"
+      ],
+      "summary": "Invoke action validateProperties",
+      "operationId": "directoryRoles.validateProperties",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "Action parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Left": {
+                      "type": "object",
+                      "readOnly": false,
+                      "writeOnly": false,
+                      "required": [],
+                      "uniqueItems": false,
+                      "properties": {
+                        "entityType": {
+                          "type": "string",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
+                        "displayName": {
+                          "type": "string",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
+                        "mailNickname": {
+                          "type": "string",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
+                        "onBehalfOfUserId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        }
+                      },
+                      "additionalPropertiesAllowed": false,
+                      "enum": [],
+                      "nullable": false,
+                      "deprecated": false,
+                      "unresolvedReference": false
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/directoryRoles/{directoryRole-id}": {
+    "description": "Provides operations to manage the collection of directoryRole entities.",
     "get": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.directoryRole"
       ],
-      "summary": "Get administrativeUnits from directory",
-      "description": "Conceptual container for user and group directory objects.",
-      "operationId": "directory.GetAdministrativeUnits",
+      "summary": "Get directoryRole",
+      "description": "Retrieve the properties of a directoryRole object. The role must be activated in tenant for a successful response. You can use both the object ID and template ID of the **directoryRole** with this API. The template ID of a built-in role is immutable and can be seen in the role description on the Azure portal. For details, see Role template IDs.",
+      "operationId": "directoryRoles.directoryRole.GetDirectoryRole",
       "parameters": [
         {
           "either": {
@@ -451,10 +840,9 @@
                     "deletedDateTime",
                     "description",
                     "displayName",
-                    "visibility",
+                    "roleTemplateId",
                     "members",
-                    "scopedRoleMembers",
-                    "extensions"
+                    "scopedMembers"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -498,8 +886,7 @@
                   "enum": [
                     "*",
                     "members",
-                    "scopedRoleMembers",
-                    "extensions"
+                    "scopedMembers"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -519,23 +906,16 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
-              "description": "Retrieved navigation property",
+              "description": "Retrieved entity",
               "content": {
                 "application/json": {
                   "schema": {
                     "either": {
                       "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
+                        "$ref": "#/components/schemas/microsoft.graph.directoryRole"
                       }
                     }
                   }
@@ -550,16 +930,23 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "delete": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.directoryRole"
       ],
-      "summary": "Delete navigation property administrativeUnits for directory",
-      "operationId": "directory.DeleteAdministrativeUnits",
+      "summary": "Delete entity from directoryRoles",
+      "operationId": "directoryRoles.directoryRole.DeleteDirectoryRole",
       "parameters": [
         {
           "either": {
@@ -597,17 +984,17 @@
             }
           }
         },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -616,20 +1003,20 @@
     },
     "patch": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.directoryRole"
       ],
-      "summary": "Update the navigation property administrativeUnits in directory",
-      "operationId": "directory.UpdateAdministrativeUnits",
+      "summary": "Update entity in directoryRoles",
+      "operationId": "directoryRoles.directoryRole.UpdateDirectoryRole",
       "requestBody": {
         "either": {
           "Left": {
-            "description": "New navigation property values",
+            "description": "New property values",
             "content": {
               "application/json": {
                 "schema": {
                   "either": {
                     "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
+                      "$ref": "#/components/schemas/microsoft.graph.directoryRole"
                     }
                   }
                 }
@@ -639,579 +1026,6 @@
           }
         }
       },
-      "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "administrativeUnit-id",
-            "in": "path",
-            "description": "key: id of administrativeUnit",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
-          }
-        }
-      }
-    ]
-  },
-  "/administrativeUnits/{administrativeUnit-id}/extensions": {
-    "description": "Provides operations to manage the extensions property of the microsoft.graph.administrativeUnit entity.",
-    "get": {
-      "tags": [
-        "directory.administrativeUnit"
-      ],
-      "summary": "Get extensions from directory",
-      "description": "The collection of open extensions defined for this administrative unit. Nullable.",
-      "operationId": "directory.administrativeUnits.ListExtensions",
-      "parameters": [
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/top"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/skip"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/search"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/filter"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/count"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$orderby",
-              "in": "query",
-              "description": "Order items by property values",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "id desc"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$select",
-              "in": "query",
-              "description": "Select properties to be returned",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.extensionCollectionResponse"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "post": {
-      "tags": [
-        "directory.administrativeUnit"
-      ],
-      "summary": "Create new navigation property to extensions for directory",
-      "operationId": "directory.administrativeUnits.CreateExtensions",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "New navigation property",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.extension"
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "201": {
-          "either": {
-            "Left": {
-              "description": "Created navigation property.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.extension"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "administrativeUnit-id",
-            "in": "path",
-            "description": "key: id of administrativeUnit",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
-          }
-        }
-      }
-    ]
-  },
-  "/administrativeUnits/{administrativeUnit-id}/extensions/$count": {
-    "description": "Provides operations to count the resources in the collection.",
-    "get": {
-      "summary": "Get the number of the resource",
-      "operationId": "Get.Count.extensions-48cb",
-      "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "administrativeUnit-id",
-            "in": "path",
-            "description": "key: id of administrativeUnit",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
-          }
-        }
-      }
-    ]
-  },
-  "/administrativeUnits/{administrativeUnit-id}/extensions/{extension-id}": {
-    "description": "Provides operations to manage the extensions property of the microsoft.graph.administrativeUnit entity.",
-    "get": {
-      "tags": [
-        "directory.administrativeUnit"
-      ],
-      "summary": "Get extensions from directory",
-      "description": "The collection of open extensions defined for this administrative unit. Nullable.",
-      "operationId": "directory.administrativeUnits.GetExtensions",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "$select",
-              "in": "query",
-              "description": "Select properties to be returned",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Left": {
-              "description": "Retrieved navigation property",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.extension"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "delete": {
-      "tags": [
-        "directory.administrativeUnit"
-      ],
-      "summary": "Delete navigation property extensions for directory",
-      "operationId": "directory.administrativeUnits.DeleteExtensions",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "If-Match",
-              "in": "header",
-              "description": "ETag",
-              "required": false,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
       "responses": {
         "5XX": {
           "either": {
@@ -1237,63 +1051,13 @@
       },
       "deprecated": false
     },
-    "patch": {
-      "tags": [
-        "directory.administrativeUnit"
-      ],
-      "summary": "Update the navigation property extensions in directory",
-      "operationId": "directory.administrativeUnits.UpdateExtensions",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "New navigation property values",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.extension"
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
     "parameters": [
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1312,49 +1076,21 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
-          }
-        }
-      },
-      {
-        "either": {
-          "Left": {
-            "name": "extension-id",
-            "in": "path",
-            "description": "key: id of extension",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "extension"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members": {
-    "description": "Provides operations to manage the members property of the microsoft.graph.administrativeUnit entity.",
+  "/directoryRoles/{directoryRole-id}/members": {
+    "description": "Provides operations to manage the members property of the microsoft.graph.directoryRole entity.",
     "get": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.directoryObject"
       ],
-      "summary": "Get members from directory",
-      "description": "Users and groups that are members of this administrative unit. Supports $expand.",
-      "operationId": "directory.administrativeUnits.ListMembers",
+      "summary": "Get members from directoryRoles",
+      "description": "Users that are members of this directory role. HTTP Methods: GET, POST, DELETE. Read-only. Nullable. Supports $expand.",
+      "operationId": "directoryRoles.ListMembers",
       "parameters": [
         {
           "either": {
@@ -1523,26 +1259,26 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -1551,9 +1287,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1572,22 +1308,22 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/$count": {
+  "/directoryRoles/{directoryRole-id}/members/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.members-777a",
+      "operationId": "Get.Count.members-5361",
       "responses": {
-        "4XX": {
+        "200": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -1598,10 +1334,10 @@
             }
           }
         },
-        "200": {
+        "4XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1612,9 +1348,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1633,21 +1369,21 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/$ref": {
-    "description": "Provides operations to manage the collection of directory entities.",
+  "/directoryRoles/{directoryRole-id}/members/$ref": {
+    "description": "Provides operations to manage the collection of directoryRole entities.",
     "get": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.directoryObject"
       ],
-      "summary": "Get ref of members from directory",
-      "description": "Users and groups that are members of this administrative unit. Supports $expand.",
-      "operationId": "directory.administrativeUnits.ListRefMembers",
+      "summary": "Get ref of members from directoryRoles",
+      "description": "Users that are members of this directory role. HTTP Methods: GET, POST, DELETE. Read-only. Nullable. Supports $expand.",
+      "operationId": "directoryRoles.ListRefMembers",
       "parameters": [
         {
           "either": {
@@ -1731,10 +1467,10 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/StringCollectionResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -1745,10 +1481,10 @@
             }
           }
         },
-        "4XX": {
+        "200": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/StringCollectionResponse"
             }
           }
         }
@@ -1757,10 +1493,10 @@
     },
     "post": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.directoryObject"
       ],
-      "summary": "Create new navigation property ref to members for directory",
-      "operationId": "directory.administrativeUnits.CreateRefMembers",
+      "summary": "Create new navigation property ref to members for directoryRoles",
+      "operationId": "directoryRoles.CreateRefMembers",
       "requestBody": {
         "either": {
           "Right": {
@@ -1776,17 +1512,17 @@
             }
           }
         },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -1797,9 +1533,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1818,20 +1554,20 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.application": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.application": {
     "description": "Casts the previous resource to application.",
     "get": {
       "tags": [
         "directoryObject.application"
       ],
       "summary": "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-a88b",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-ced0",
       "parameters": [
         {
           "either": {
@@ -2000,13 +1736,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -2020,6 +1749,13 @@
               "$ref": "#/components/responses/microsoft.graph.applicationCollectionResponse"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -2028,9 +1764,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2049,29 +1785,22 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.application/$count": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.application/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.microsoft.graph.application-12bb",
+      "operationId": "Get.Count.microsoft.graph.application-290c",
       "responses": {
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -2081,6 +1810,13 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -2089,9 +1825,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2110,20 +1846,20 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.device": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.device": {
     "description": "Casts the previous resource to device.",
     "get": {
       "tags": [
         "directoryObject.device"
       ],
       "summary": "Get the items of type microsoft.graph.device in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.device-d7ae",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.device-17c2",
       "parameters": [
         {
           "either": {
@@ -2292,6 +2028,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Right": {
@@ -2299,13 +2042,6 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -2320,9 +2056,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2341,17 +2077,17 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.device/$count": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.device/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.microsoft.graph.device-a313",
+      "operationId": "Get.Count.microsoft.graph.device-e712",
       "responses": {
         "4XX": {
           "either": {
@@ -2381,9 +2117,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2402,20 +2138,20 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.group": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.group": {
     "description": "Casts the previous resource to group.",
     "get": {
       "tags": [
         "directoryObject.group"
       ],
       "summary": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-7246",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-2ecd",
       "parameters": [
         {
           "either": {
@@ -2585,13 +2321,6 @@
       ],
       "responses": {
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2604,6 +2333,13 @@
               "$ref": "#/components/responses/microsoft.graph.groupCollectionResponse"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -2612,9 +2348,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2633,29 +2369,29 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.group/$count": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.group/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.microsoft.graph.group-af07",
+      "operationId": "Get.Count.microsoft.graph.group-b36f",
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -2673,9 +2409,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2694,20 +2430,20 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.orgContact": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.orgContact": {
     "description": "Casts the previous resource to orgContact.",
     "get": {
       "tags": [
         "directoryObject.orgContact"
       ],
       "summary": "Get the items of type microsoft.graph.orgContact in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.orgContact-3ab1",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.orgContact-0952",
       "parameters": [
         {
           "either": {
@@ -2876,10 +2612,10 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "200": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/microsoft.graph.orgContactCollectionResponse"
             }
           }
         },
@@ -2890,10 +2626,10 @@
             }
           }
         },
-        "200": {
+        "5XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/microsoft.graph.orgContactCollectionResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2904,9 +2640,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2925,17 +2661,17 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.orgContact/$count": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.orgContact/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.microsoft.graph.orgContact-7392",
+      "operationId": "Get.Count.microsoft.graph.orgContact-3e36",
       "responses": {
         "200": {
           "either": {
@@ -2965,9 +2701,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2986,20 +2722,20 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.servicePrincipal": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.servicePrincipal": {
     "description": "Casts the previous resource to servicePrincipal.",
     "get": {
       "tags": [
         "directoryObject.servicePrincipal"
       ],
       "summary": "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.servicePrincipal-88a7",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.servicePrincipal-ca34",
       "parameters": [
         {
           "either": {
@@ -3196,9 +2932,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3217,18 +2953,25 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.servicePrincipal/$count": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.servicePrincipal/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.microsoft.graph.servicePrincipal-1d41",
+      "operationId": "Get.Count.microsoft.graph.servicePrincipal-b8f5",
       "responses": {
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -3242,13 +2985,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
         }
       },
       "deprecated": false
@@ -3257,9 +2993,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3278,20 +3014,20 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.user": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.user": {
     "description": "Casts the previous resource to user.",
     "get": {
       "tags": [
         "directoryObject.user"
       ],
       "summary": "Get the items of type microsoft.graph.user in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.user-b145",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.user-8323",
       "parameters": [
         {
           "either": {
@@ -3460,10 +3196,10 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/microsoft.graph.userCollectionResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -3474,10 +3210,10 @@
             }
           }
         },
-        "4XX": {
+        "200": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/microsoft.graph.userCollectionResponse"
             }
           }
         }
@@ -3488,9 +3224,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3509,25 +3245,18 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.user/$count": {
+  "/directoryRoles/{directoryRole-id}/members/microsoft.graph.user/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.microsoft.graph.user-5d18",
+      "operationId": "Get.Count.microsoft.graph.user-af1f",
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -3541,6 +3270,13 @@
               "$ref": "#/components/responses/ODataCountResponse"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -3549,9 +3285,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3570,20 +3306,20 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/$ref": {
-    "description": "Provides operations to manage the collection of directory entities.",
+  "/directoryRoles/{directoryRole-id}/members/{directoryObject-id}/$ref": {
+    "description": "Provides operations to manage the collection of directoryRole entities.",
     "delete": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.directoryObject"
       ],
-      "summary": "Delete ref of navigation property members for directory",
-      "operationId": "directory.administrativeUnits.DeleteRefMembers",
+      "summary": "Delete ref of navigation property members for directoryRoles",
+      "operationId": "directoryRoles.DeleteRefMembers",
       "parameters": [
         {
           "either": {
@@ -3669,9 +3405,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3690,7 +3426,7 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       },
@@ -3724,14 +3460,14 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.application": {
+  "/directoryRoles/{directoryRole-id}/members/{directoryObject-id}/microsoft.graph.application": {
     "description": "Casts the previous resource to application.",
     "get": {
       "tags": [
         "directoryObject.application"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.application",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-a88b",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-ced0",
       "parameters": [
         {
           "either": {
@@ -3820,13 +3556,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -3851,6 +3580,13 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -3859,9 +3595,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3880,7 +3616,7 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       },
@@ -3914,14 +3650,14 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.device": {
+  "/directoryRoles/{directoryRole-id}/members/{directoryObject-id}/microsoft.graph.device": {
     "description": "Casts the previous resource to device.",
     "get": {
       "tags": [
         "directoryObject.device"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.device",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.device-d7ae",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.device-17c2",
       "parameters": [
         {
           "either": {
@@ -4010,20 +3746,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -4041,6 +3763,20 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -4049,9 +3785,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4070,7 +3806,7 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       },
@@ -4104,14 +3840,14 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.group": {
+  "/directoryRoles/{directoryRole-id}/members/{directoryObject-id}/microsoft.graph.group": {
     "description": "Casts the previous resource to group.",
     "get": {
       "tags": [
         "directoryObject.group"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-7246",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-2ecd",
       "parameters": [
         {
           "either": {
@@ -4201,6 +3937,13 @@
       ],
       "responses": {
         "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4224,13 +3967,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -4239,9 +3975,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4260,7 +3996,7 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       },
@@ -4294,14 +4030,14 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.orgContact": {
+  "/directoryRoles/{directoryRole-id}/members/{directoryObject-id}/microsoft.graph.orgContact": {
     "description": "Casts the previous resource to orgContact.",
     "get": {
       "tags": [
         "directoryObject.orgContact"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.orgContact",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.orgContact-3ab1",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.orgContact-0952",
       "parameters": [
         {
           "either": {
@@ -4390,6 +4126,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -4414,13 +4157,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -4429,9 +4165,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4450,7 +4186,7 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       },
@@ -4484,14 +4220,14 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.servicePrincipal": {
+  "/directoryRoles/{directoryRole-id}/members/{directoryObject-id}/microsoft.graph.servicePrincipal": {
     "description": "Casts the previous resource to servicePrincipal.",
     "get": {
       "tags": [
         "directoryObject.servicePrincipal"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.servicePrincipal",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.servicePrincipal-88a7",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.servicePrincipal-ca34",
       "parameters": [
         {
           "either": {
@@ -4580,7 +4316,7 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4605,7 +4341,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4619,9 +4355,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4640,7 +4376,7 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       },
@@ -4674,14 +4410,14 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.user": {
+  "/directoryRoles/{directoryRole-id}/members/{directoryObject-id}/microsoft.graph.user": {
     "description": "Casts the previous resource to user.",
     "get": {
       "tags": [
         "directoryObject.user"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.user",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.user-b145",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.user-8323",
       "parameters": [
         {
           "either": {
@@ -4770,6 +4506,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -4788,13 +4531,6 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -4809,9 +4545,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4830,7 +4566,7 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       },
@@ -4864,15 +4600,761 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/scopedRoleMembers": {
-    "description": "Provides operations to manage the scopedRoleMembers property of the microsoft.graph.administrativeUnit entity.",
+  "/directoryRoles/{directoryRole-id}/microsoft.graph.checkMemberGroups": {
+    "description": "Provides operations to call the checkMemberGroups method.",
+    "post": {
+      "tags": [
+        "directoryRoles.Actions"
+      ],
+      "summary": "Invoke action checkMemberGroups",
+      "operationId": "directoryRoles.directoryRole.checkMemberGroups",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "Action parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Left": {
+                      "type": "object",
+                      "readOnly": false,
+                      "writeOnly": false,
+                      "required": [],
+                      "uniqueItems": false,
+                      "properties": {
+                        "groupIds": {
+                          "type": "array",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "items": {
+                            "type": "string",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          },
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": false,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        }
+                      },
+                      "additionalPropertiesAllowed": false,
+                      "enum": [],
+                      "nullable": false,
+                      "deprecated": false,
+                      "unresolvedReference": false
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "title": "Collection of directoryRole",
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "required": [],
+                        "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "array",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "items": {
+                              "type": "string",
+                              "readOnly": false,
+                              "writeOnly": false,
+                              "required": [],
+                              "uniqueItems": false,
+                              "additionalPropertiesAllowed": false,
+                              "enum": [],
+                              "nullable": false,
+                              "deprecated": false,
+                              "unresolvedReference": false
+                            },
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "directoryRole-id",
+            "in": "path",
+            "description": "key: id of directoryRole",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryRole"
+          }
+        }
+      }
+    ]
+  },
+  "/directoryRoles/{directoryRole-id}/microsoft.graph.checkMemberObjects": {
+    "description": "Provides operations to call the checkMemberObjects method.",
+    "post": {
+      "tags": [
+        "directoryRoles.Actions"
+      ],
+      "summary": "Invoke action checkMemberObjects",
+      "operationId": "directoryRoles.directoryRole.checkMemberObjects",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "Action parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Left": {
+                      "type": "object",
+                      "readOnly": false,
+                      "writeOnly": false,
+                      "required": [],
+                      "uniqueItems": false,
+                      "properties": {
+                        "ids": {
+                          "type": "array",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "items": {
+                            "type": "string",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          },
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": false,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        }
+                      },
+                      "additionalPropertiesAllowed": false,
+                      "enum": [],
+                      "nullable": false,
+                      "deprecated": false,
+                      "unresolvedReference": false
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "title": "Collection of directoryRole",
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "required": [],
+                        "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "array",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "items": {
+                              "type": "string",
+                              "readOnly": false,
+                              "writeOnly": false,
+                              "required": [],
+                              "uniqueItems": false,
+                              "additionalPropertiesAllowed": false,
+                              "enum": [],
+                              "nullable": false,
+                              "deprecated": false,
+                              "unresolvedReference": false
+                            },
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "directoryRole-id",
+            "in": "path",
+            "description": "key: id of directoryRole",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryRole"
+          }
+        }
+      }
+    ]
+  },
+  "/directoryRoles/{directoryRole-id}/microsoft.graph.getMemberGroups": {
+    "description": "Provides operations to call the getMemberGroups method.",
+    "post": {
+      "tags": [
+        "directoryRoles.Actions"
+      ],
+      "summary": "Invoke action getMemberGroups",
+      "operationId": "directoryRoles.directoryRole.getMemberGroups",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "Action parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Left": {
+                      "type": "object",
+                      "readOnly": false,
+                      "writeOnly": false,
+                      "required": [],
+                      "uniqueItems": false,
+                      "properties": {
+                        "securityEnabledOnly": {
+                          "type": "boolean",
+                          "default": false,
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        }
+                      },
+                      "additionalPropertiesAllowed": false,
+                      "enum": [],
+                      "nullable": false,
+                      "deprecated": false,
+                      "unresolvedReference": false
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "title": "Collection of directoryRole",
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "required": [],
+                        "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "array",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "items": {
+                              "type": "string",
+                              "readOnly": false,
+                              "writeOnly": false,
+                              "required": [],
+                              "uniqueItems": false,
+                              "additionalPropertiesAllowed": false,
+                              "enum": [],
+                              "nullable": false,
+                              "deprecated": false,
+                              "unresolvedReference": false
+                            },
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "directoryRole-id",
+            "in": "path",
+            "description": "key: id of directoryRole",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryRole"
+          }
+        }
+      }
+    ]
+  },
+  "/directoryRoles/{directoryRole-id}/microsoft.graph.getMemberObjects": {
+    "description": "Provides operations to call the getMemberObjects method.",
+    "post": {
+      "tags": [
+        "directoryRoles.Actions"
+      ],
+      "summary": "Invoke action getMemberObjects",
+      "operationId": "directoryRoles.directoryRole.getMemberObjects",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "Action parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Left": {
+                      "type": "object",
+                      "readOnly": false,
+                      "writeOnly": false,
+                      "required": [],
+                      "uniqueItems": false,
+                      "properties": {
+                        "securityEnabledOnly": {
+                          "type": "boolean",
+                          "default": false,
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        }
+                      },
+                      "additionalPropertiesAllowed": false,
+                      "enum": [],
+                      "nullable": false,
+                      "deprecated": false,
+                      "unresolvedReference": false
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "title": "Collection of directoryRole",
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "required": [],
+                        "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "array",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "items": {
+                              "type": "string",
+                              "readOnly": false,
+                              "writeOnly": false,
+                              "required": [],
+                              "uniqueItems": false,
+                              "additionalPropertiesAllowed": false,
+                              "enum": [],
+                              "nullable": false,
+                              "deprecated": false,
+                              "unresolvedReference": false
+                            },
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "directoryRole-id",
+            "in": "path",
+            "description": "key: id of directoryRole",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryRole"
+          }
+        }
+      }
+    ]
+  },
+  "/directoryRoles/{directoryRole-id}/microsoft.graph.restore": {
+    "description": "Provides operations to call the restore method.",
+    "post": {
+      "tags": [
+        "directoryRoles.Actions"
+      ],
+      "summary": "Invoke action restore",
+      "operationId": "directoryRoles.directoryRole.restore",
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "anyOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/microsoft.graph.directoryObject"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": true,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
+                          }
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "directoryRole-id",
+            "in": "path",
+            "description": "key: id of directoryRole",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryRole"
+          }
+        }
+      }
+    ]
+  },
+  "/directoryRoles/{directoryRole-id}/scopedMembers": {
+    "description": "Provides operations to manage the scopedMembers property of the microsoft.graph.directoryRole entity.",
     "get": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.scopedRoleMembership"
       ],
-      "summary": "Get scopedRoleMembers from directory",
-      "description": "Scoped-role members of this administrative unit.",
-      "operationId": "directory.administrativeUnits.ListScopedRoleMembers",
+      "summary": "Get scopedMembers from directoryRoles",
+      "description": "Members of this directory role that are scoped to administrative units. Read-only. Nullable.",
+      "operationId": "directoryRoles.ListScopedMembers",
       "parameters": [
         {
           "either": {
@@ -5073,10 +5555,10 @@
     },
     "post": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.scopedRoleMembership"
       ],
-      "summary": "Create new navigation property to scopedRoleMembers for directory",
-      "operationId": "directory.administrativeUnits.CreateScopedRoleMembers",
+      "summary": "Create new navigation property to scopedMembers for directoryRoles",
+      "operationId": "directoryRoles.CreateScopedMembers",
       "requestBody": {
         "either": {
           "Left": {
@@ -5136,9 +5618,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5157,29 +5639,29 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/scopedRoleMembers/$count": {
+  "/directoryRoles/{directoryRole-id}/scopedMembers/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.scopedRoleMembers-cb3a",
+      "operationId": "Get.Count.scopedMembers-b2b2",
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -5197,9 +5679,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5218,21 +5700,21 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/scopedRoleMembers/{scopedRoleMembership-id}": {
-    "description": "Provides operations to manage the scopedRoleMembers property of the microsoft.graph.administrativeUnit entity.",
+  "/directoryRoles/{directoryRole-id}/scopedMembers/{scopedRoleMembership-id}": {
+    "description": "Provides operations to manage the scopedMembers property of the microsoft.graph.directoryRole entity.",
     "get": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.scopedRoleMembership"
       ],
-      "summary": "Get scopedRoleMembers from directory",
-      "description": "Scoped-role members of this administrative unit.",
-      "operationId": "directory.administrativeUnits.GetScopedRoleMembers",
+      "summary": "Get scopedMembers from directoryRoles",
+      "description": "Members of this directory role that are scoped to administrative units. Read-only. Nullable.",
+      "operationId": "directoryRoles.GetScopedMembers",
       "parameters": [
         {
           "either": {
@@ -5323,6 +5805,20 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -5340,30 +5836,16 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "delete": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.scopedRoleMembership"
       ],
-      "summary": "Delete navigation property scopedRoleMembers for directory",
-      "operationId": "directory.administrativeUnits.DeleteScopedRoleMembers",
+      "summary": "Delete navigation property scopedMembers for directoryRoles",
+      "operationId": "directoryRoles.DeleteScopedMembers",
       "parameters": [
         {
           "either": {
@@ -5394,13 +5876,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -5414,16 +5889,23 @@
               "description": "Success"
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "patch": {
       "tags": [
-        "directory.administrativeUnit"
+        "directoryRoles.scopedRoleMembership"
       ],
-      "summary": "Update the navigation property scopedRoleMembers in directory",
-      "operationId": "directory.administrativeUnits.UpdateScopedRoleMembers",
+      "summary": "Update the navigation property scopedMembers in directoryRoles",
+      "operationId": "directoryRoles.UpdateScopedMembers",
       "requestBody": {
         "either": {
           "Left": {
@@ -5472,9 +5954,9 @@
       {
         "either": {
           "Left": {
-            "name": "administrativeUnit-id",
+            "name": "directoryRole-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "key: id of directoryRole",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5493,7 +5975,7 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "administrativeUnit"
+            "x-ms-docs-key-type": "directoryRole"
           }
         }
       },

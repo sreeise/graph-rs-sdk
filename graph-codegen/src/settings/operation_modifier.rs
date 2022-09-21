@@ -1,4 +1,5 @@
-use crate::parser::filter::{MatchTarget, ModifierMap};
+use crate::api_types::MatchTarget;
+use crate::api_types::ModifierMap;
 use graph_core::resource::ResourceIdentity;
 
 pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierMap {
@@ -638,25 +639,47 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
             );
         }
         ResourceIdentity::Directory => {
-            modify_target.operation_map(
-                "directoryObjects.microsoft.graph.administrativeUnit",
-                "directoryObjects.administrativeUnits",
+            modify_target.multi_operation_map(
+                "directory",
+                &[
+                    "Get",
+                    "Get.Count.microsoft",
+                    "directory.deletedItems",
+                    "directory.deletedItems.directoryObject",
+                    "Get.microsoft.graph.directoryObject.Items.As.microsoft",
+                    "Get.microsoft.graph.directoryObject.Item.As.microsoft",
+                ],
             );
             modify_target.map.insert(
-                MatchTarget::OperationId("directory.administrativeUnits.delta.fa14".to_string()),
+                MatchTarget::OperationId(
+                    "directory.federationConfigurations.availableProviderTypes".to_string(),
+                ),
                 vec![
+                    MatchTarget::OperationMap("directory".to_string()),
                     MatchTarget::OperationId(
-                        "directoryObjects.administrativeUnits.delta".to_string(),
+                        "directory.GetFederationConfigurationsAvailableProviderTypes".to_string(),
                     ),
-                    MatchTarget::OperationMap("directoryObjects.administrativeUnits".to_string()),
                 ],
             );
+        }
+        ResourceIdentity::DirectoryObjects => {
             modify_target.map.insert(
-                MatchTarget::OperationId("directoryRoles.delta.fa14".to_string()),
-                vec![
-                    MatchTarget::OperationId("directoryRoles.delta".to_string()),
-                    MatchTarget::OperationMap("directoryRoles".to_string()),
-                ],
+                MatchTarget::OperationMap("Get".to_string()),
+                vec![MatchTarget::OperationMap("directoryObjects".to_string())],
+            );
+        }
+        ResourceIdentity::DirectoryRoleTemplates => {
+            modify_target.map.insert(
+                MatchTarget::OperationMap("Get".to_string()),
+                vec![MatchTarget::OperationMap(
+                    "directoryRoleTemplates".to_string(),
+                )],
+            );
+        }
+        ResourceIdentity::DirectoryRoles => {
+            modify_target.map.insert(
+                MatchTarget::OperationMap("Get".to_string()),
+                vec![MatchTarget::OperationMap("directoryRoles".to_string())],
             );
         }
         ResourceIdentity::EntitlementManagement => {

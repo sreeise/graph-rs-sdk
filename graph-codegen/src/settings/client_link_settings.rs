@@ -1,6 +1,8 @@
-use crate::{builder::ClientLinkSettings, traits::VecExt};
+use crate::builder::ClientLinkSettings;
+use crate::traits::VecExt;
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet};
+
 // attachments
 pub fn get_client_link_settings(
     resource_identity: ResourceIdentity,
@@ -106,6 +108,25 @@ pub fn get_client_link_settings(
                         .with_resource_identity(
                             ResourceIdentity::AuthenticationMethodConfigurations,
                         ),
+                ]
+                .mem_take(),
+            );
+        }
+        ResourceIdentity::AdministrativeUnits => {
+            map.insert(
+                "administrativeUnitsId".into(),
+                vec![
+                    ClientLinkSettings::new("administrativeUnitsMembersId")
+                        .use_method_name("member")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_extend_path_id()
+                        .with_resource_identity(ResourceIdentity::AdministrativeUnitsMembers),
+                    ClientLinkSettings::new("administrativeUnitsMembers")
+                        .use_method_name("members")
+                        .with_extend_path_ident()
+                        .with_extend_path_id()
+                        .with_resource_identity(ResourceIdentity::AdministrativeUnitsMembers),
                 ]
                 .mem_take(),
             );
@@ -513,6 +534,51 @@ pub fn get_client_link_settings(
                         .with_extend_path_id()
                         .with_id_param()
                         .with_resource_identity(ResourceIdentity::DefinitionInstanceStages),
+                ]
+                .mem_take(),
+            );
+        }
+        ResourceIdentity::Directory => {
+            map.insert(
+                "directory".into(),
+                vec![
+                    ClientLinkSettings::new("administrativeUnitsId")
+                        .use_method_name("administrative_unit")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::AdministrativeUnits),
+                    ClientLinkSettings::new("administrativeUnits")
+                        .use_method_name("administrative_units")
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::AdministrativeUnits),
+                    ClientLinkSettings::new("directoryDeletedItemsId")
+                        .use_method_name("deleted_item")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::AdministrativeUnits),
+                    ClientLinkSettings::new("directoryDeletedItems")
+                        .use_method_name("deleted_items")
+                        .with_extend_path_ident()
+                        .with_resource_identity(ResourceIdentity::AdministrativeUnits),
+                ]
+                .mem_take(),
+            );
+        }
+        ResourceIdentity::DirectoryRoles => {
+            map.insert(
+                "directoryRolesId".into(),
+                vec![
+                    ClientLinkSettings::new("administrativeUnitsMembersId")
+                        .use_method_name("member")
+                        .with_id_param()
+                        .with_extend_path_ident()
+                        .with_extend_path_id()
+                        .with_resource_identity(ResourceIdentity::AdministrativeUnitsMembers),
+                    ClientLinkSettings::new("administrativeUnitsMembers")
+                        .use_method_name("members")
+                        .with_extend_path_ident()
+                        .with_extend_path_id()
+                        .with_resource_identity(ResourceIdentity::AdministrativeUnitsMembers),
                 ]
                 .mem_take(),
             );

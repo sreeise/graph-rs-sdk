@@ -10,6 +10,7 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
             "crate::definition_instances::{DefinitionInstancesIdRequest, DefinitionInstancesRequest}"
         ],
         ResourceIdentity::Admin => vec!["crate::service_announcement::ServiceAnnouncementRequest"],
+        ResourceIdentity::AdministrativeUnits => vec!["crate::administrative_units_members::{AdministrativeUnitsMembersRequest, AdministrativeUnitsMembersIdRequest}"],
         ResourceIdentity::AuthenticationMethodsPolicy => vec![
             "crate::authentication_method_configurations::{AuthenticationMethodConfigurationsRequest, AuthenticationMethodConfigurationsIdRequest}"
         ],
@@ -54,6 +55,11 @@ pub fn get_imports(resource_identity: ResourceIdentity) -> Vec<&'static str> {
         ResourceIdentity::DefinitionInstances => vec![
             "crate::definition_instance_stages::{DefinitionInstanceStagesRequest, DefinitionInstanceStagesIdRequest}"
         ],
+        ResourceIdentity::Directory => vec![
+            "crate::administrative_units::{AdministrativeUnitsRequest, AdministrativeUnitsIdRequest}",
+            "crate::directory_deleted_items::{DirectoryDeletedItemsIdRequest, DirectoryDeletedItemsRequest}"
+        ],
+        ResourceIdentity::DirectoryRoles => vec!["crate::administrative_units_members::{AdministrativeUnitsMembersRequest, AdministrativeUnitsMembersIdRequest}"],
         ResourceIdentity::Drive | ResourceIdentity::Drives => vec![
             "std::path::Path",
             "crate::items::{ItemRequest, ItemsRequest}",

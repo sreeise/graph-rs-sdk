@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "directory.CreateAdministrativeUnits",
-        "operation_mapping": "administrativeUnits",
-        "http_method": "POST",
-        "doc": "Create new navigation property to administrativeUnits for directory",
-        "parent": "AdministrativeUnits",
-        "original_parent": "AdministrativeUnits",
-        "resource_identity": "AdministrativeUnits"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "directory.ListAdministrativeUnits",
         "operation_mapping": "administrativeUnits",
         "http_method": "GET",
         "doc": "Get administrativeUnits from directory",
+        "parent": "AdministrativeUnits",
+        "original_parent": "AdministrativeUnits",
+        "resource_identity": "AdministrativeUnits"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "directory.CreateAdministrativeUnits",
+        "operation_mapping": "administrativeUnits",
+        "http_method": "POST",
+        "doc": "Create new navigation property to administrativeUnits for directory",
         "parent": "AdministrativeUnits",
         "original_parent": "AdministrativeUnits",
         "resource_identity": "AdministrativeUnits"
@@ -110,23 +110,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "directory.administrativeUnits.CreateExtensions",
-        "operation_mapping": "administrativeUnitsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property to extensions for directory",
-        "parent": "AdministrativeUnitsId",
-        "original_parent": "AdministrativeUnits",
-        "resource_identity": "AdministrativeUnits"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "directory.administrativeUnits.ListExtensions",
         "operation_mapping": "administrativeUnitsId",
         "http_method": "GET",
         "doc": "Get extensions from directory",
+        "parent": "AdministrativeUnitsId",
+        "original_parent": "AdministrativeUnits",
+        "resource_identity": "AdministrativeUnits"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "directory.administrativeUnits.CreateExtensions",
+        "operation_mapping": "administrativeUnitsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to extensions for directory",
         "parent": "AdministrativeUnitsId",
         "original_parent": "AdministrativeUnits",
         "resource_identity": "AdministrativeUnits"
@@ -199,23 +199,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "directory.administrativeUnits.CreateScopedRoleMembers",
-        "operation_mapping": "administrativeUnitsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property to scopedRoleMembers for directory",
-        "parent": "AdministrativeUnitsId",
-        "original_parent": "AdministrativeUnits",
-        "resource_identity": "AdministrativeUnits"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "directory.administrativeUnits.ListScopedRoleMembers",
         "operation_mapping": "administrativeUnitsId",
         "http_method": "GET",
         "doc": "Get scopedRoleMembers from directory",
+        "parent": "AdministrativeUnitsId",
+        "original_parent": "AdministrativeUnits",
+        "resource_identity": "AdministrativeUnits"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "directory.administrativeUnits.CreateScopedRoleMembers",
+        "operation_mapping": "administrativeUnitsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to scopedRoleMembers for directory",
         "parent": "AdministrativeUnitsId",
         "original_parent": "AdministrativeUnits",
         "resource_identity": "AdministrativeUnits"
@@ -260,22 +260,22 @@
       },
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "directory.administrativeUnits.DeleteScopedRoleMembers",
+        "request_task": "Json",
+        "operation_id": "directory.administrativeUnits.GetScopedRoleMembers",
         "operation_mapping": "administrativeUnitsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property scopedRoleMembers for directory",
+        "http_method": "GET",
+        "doc": "Get scopedRoleMembers from directory",
         "parent": "AdministrativeUnitsId",
         "original_parent": "AdministrativeUnits",
         "resource_identity": "AdministrativeUnits"
       },
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "directory.administrativeUnits.GetScopedRoleMembers",
+        "request_task": "NoContent",
+        "operation_id": "directory.administrativeUnits.DeleteScopedRoleMembers",
         "operation_mapping": "administrativeUnitsId",
-        "http_method": "GET",
-        "doc": "Get scopedRoleMembers from directory",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property scopedRoleMembers for directory",
         "parent": "AdministrativeUnitsId",
         "original_parent": "AdministrativeUnits",
         "resource_identity": "AdministrativeUnits"

@@ -1,9 +1,9 @@
+use crate::api_types::ResourceParsingInfo;
 use crate::api_types::{
     Metadata, MethodMacro, PathMetadataQueue, RequestClientList, RequestMetadata, RequestTask,
 };
 use crate::builder::{ClientLinkSettings, RegisterClient};
 use crate::inflector::Inflector;
-use crate::parser::client_resource::ResourceParsingInfo;
 use crate::parser::ParserSettings;
 use crate::settings::get_method_macro_modifiers;
 use bytes::{BufMut, BytesMut};
@@ -12,6 +12,7 @@ use graph_core::resource::ResourceIdentity;
 use graph_http::iotools::create_dir;
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::fmt::Debug;
+use std::fmt::Write as _;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
@@ -54,7 +55,9 @@ pub trait MacroQueueWriter {
     fn macro_params(&self) -> String {
         let mut parameter_str = String::new();
         for param in self.params().iter() {
-            parameter_str.push_str(&format!(" {} ", param));
+            // Clippy lint suggested using write! - TODO verify works
+            // parameter_str.push_str(&write!(" {} ", param));
+            let _ = write!(parameter_str, " {} ", param);
         }
         parameter_str
     }

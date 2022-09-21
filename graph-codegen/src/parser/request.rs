@@ -1,5 +1,5 @@
 use crate::{
-    parser::{Modifier, ResourceNameMapping, ResourceNames},
+    parser::{ResourceNameMapping, ResourceNames},
     traits::{HashMapExt, RequestParser},
 };
 use from_as::*;
@@ -226,19 +226,6 @@ pub struct Request {
     pub operation_id: String,
     pub operation_mapping: String,
     pub doc: Option<String>,
-}
-
-impl Request {
-    pub fn modify(&mut self, modifier: &Modifier) {
-        for (mat, modify_vec) in modifier.modifier_map.map.iter() {
-            if mat.matches(self) {
-                for modifier in modify_vec.iter() {
-                    modifier.modify(self);
-                }
-            }
-        }
-        modifier.secondary_modify_target.modify(self);
-    }
 }
 
 impl RequestParser for Request {
@@ -621,41 +608,5 @@ impl IntoIterator for RequestSet {
 
     fn into_iter(self) -> Self::IntoIter {
         self.set.into_iter()
-    }
-}
-
-// This is mainly used to output a serializable struct with
-// the request sets grouped by operation mapping.
-#[deprecated]
-#[derive(Debug, Default, Clone, Serialize, Deserialize, FromFile, AsFile)]
-pub struct ApiImpl {
-    pub requests: HashMap<String, RequestSet>,
-}
-
-impl From<HashMap<String, RequestSet>> for ApiImpl {
-    fn from(requests: HashMap<String, RequestSet>) -> Self {
-        ApiImpl { requests }
-    }
-}
-
-#[deprecated]
-#[derive(Default, Debug, Clone)]
-pub struct ResourceRequestMap {
-    pub modifier: Modifier,
-    pub request_set: RequestSet,
-}
-
-impl ResourceRequestMap {
-    pub fn new(modifier: Modifier, request_set: RequestSet) -> ResourceRequestMap {
-        ResourceRequestMap {
-            modifier,
-            request_set,
-        }
-    }
-
-    pub fn get_imports(&self) -> BTreeSet<String> {
-        let mut imports = self.modifier.imports.clone();
-        imports.extend(self.request_set.get_imports());
-        imports
     }
 }

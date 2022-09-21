@@ -100,6 +100,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -119,13 +126,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -161,13 +161,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -179,6 +172,13 @@
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -378,13 +378,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
@@ -393,6 +386,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -428,14 +428,14 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -706,13 +706,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -735,6 +728,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -777,14 +777,14 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1063,17 +1063,17 @@
             }
           }
         },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.extensionCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.extensionCollectionResponse"
             }
           }
         }
@@ -1106,20 +1106,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "201": {
           "either": {
             "Left": {
@@ -1135,6 +1121,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1178,13 +1178,6 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.extensions-48cb",
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -1196,6 +1189,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1329,6 +1329,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -1348,13 +1355,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1400,7 +1400,7 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1414,7 +1414,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1710,10 +1710,10 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "200": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
             }
           }
         },
@@ -1724,10 +1724,10 @@
             }
           }
         },
-        "200": {
+        "5XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1771,13 +1771,6 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.members-777a",
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
@@ -1786,6 +1779,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1918,13 +1918,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
@@ -1933,6 +1926,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1956,10 +1956,10 @@
         }
       },
       "responses": {
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -1970,10 +1970,10 @@
             }
           }
         },
-        "5XX": {
+        "204": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -2187,10 +2187,10 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/microsoft.graph.applicationCollectionResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -2201,10 +2201,10 @@
             }
           }
         },
-        "4XX": {
+        "200": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/microsoft.graph.applicationCollectionResponse"
             }
           }
         }
@@ -2255,17 +2255,17 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2479,14 +2479,14 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2540,13 +2540,6 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.device-a313",
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
@@ -2555,6 +2548,13 @@
           }
         },
         "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2832,6 +2832,13 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.group-af07",
       "responses": {
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2843,13 +2850,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -3063,17 +3063,17 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.orgContactCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -3423,14 +3423,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3654,14 +3654,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3708,13 +3708,6 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.user-5d18",
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -3726,6 +3719,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -4007,6 +4007,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -4026,13 +4033,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4197,13 +4197,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -4219,6 +4212,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -4577,20 +4577,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -4606,6 +4592,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -4767,6 +4767,20 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -4782,20 +4796,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -5284,6 +5284,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "201": {
           "either": {
             "Left": {
@@ -5299,13 +5306,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -5356,13 +5356,6 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.scopedRoleMembers-cb3a",
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -5374,6 +5367,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -5510,13 +5510,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -5536,6 +5529,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5581,7 +5581,7 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5595,7 +5595,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5631,10 +5631,10 @@
         }
       },
       "responses": {
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -5645,10 +5645,10 @@
             }
           }
         },
-        "5XX": {
+        "204": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -5891,6 +5891,13 @@
         }
       ],
       "responses": {
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -5902,13 +5909,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
             }
           }
         }
@@ -5941,13 +5941,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "201": {
           "either": {
             "Left": {
@@ -5967,6 +5960,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -6215,17 +6215,17 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.application-09ac",
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -6292,7 +6292,7 @@
         }
       },
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -6353,7 +6353,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -6451,13 +6451,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -6516,6 +6509,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -6699,13 +6699,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -6717,6 +6710,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.groupCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -6938,17 +6938,17 @@
             }
           }
         },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.userCollectionResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.userCollectionResponse"
             }
           }
         }
@@ -6962,6 +6962,13 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.user-bc15",
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Right": {
@@ -6970,13 +6977,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -7010,6 +7010,18 @@
                       "required": [],
                       "uniqueItems": false,
                       "properties": {
+                        "entityType": {
+                          "type": "string",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
                         "onBehalfOfUserId": {
                           "type": "string",
                           "format": "uuid",
@@ -7024,31 +7036,19 @@
                           "deprecated": false,
                           "unresolvedReference": false
                         },
-                        "displayName": {
-                          "type": "string",
-                          "readOnly": false,
-                          "writeOnly": false,
-                          "required": [],
-                          "uniqueItems": false,
-                          "additionalPropertiesAllowed": false,
-                          "enum": [],
-                          "nullable": true,
-                          "deprecated": false,
-                          "unresolvedReference": false
-                        },
-                        "entityType": {
-                          "type": "string",
-                          "readOnly": false,
-                          "writeOnly": false,
-                          "required": [],
-                          "uniqueItems": false,
-                          "additionalPropertiesAllowed": false,
-                          "enum": [],
-                          "nullable": true,
-                          "deprecated": false,
-                          "unresolvedReference": false
-                        },
                         "mailNickname": {
+                          "type": "string",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
+                        "displayName": {
                           "type": "string",
                           "readOnly": false,
                           "writeOnly": false,
@@ -7076,6 +7076,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -7087,13 +7094,6 @@
           "either": {
             "Left": {
               "description": "Success"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -7198,6 +7198,20 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -7213,20 +7227,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -7269,10 +7269,10 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "204": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "Success"
             }
           }
         },
@@ -7283,10 +7283,10 @@
             }
           }
         },
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -7319,6 +7319,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -7327,13 +7334,6 @@
           }
         },
         "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -7606,13 +7606,6 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -7664,6 +7657,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -7771,13 +7771,6 @@
             }
           }
         },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -7829,6 +7822,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -7972,14 +7972,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -8072,7 +8072,7 @@
         }
       },
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -8133,7 +8133,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -8270,20 +8270,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -8299,6 +8285,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -8396,14 +8396,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -8540,6 +8540,20 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -8555,20 +8569,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -8783,13 +8783,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -8801,6 +8794,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.identityProviderBaseCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -8882,14 +8882,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -8909,6 +8909,20 @@
       "summary": "Invoke function availableProviderTypes",
       "operationId": "directory.federationConfigurations.availableProviderTypes",
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -8960,20 +8974,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -9206,17 +9206,17 @@
             }
           }
         },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -9473,17 +9473,17 @@
             }
           }
         },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
             }
           }
         }
@@ -9516,6 +9516,20 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "201": {
           "either": {
             "Left": {
@@ -9533,20 +9547,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -9558,13 +9558,6 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.directoryObjects-3210",
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
@@ -9573,6 +9566,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -9635,20 +9635,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -9702,6 +9688,20 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -9730,30 +9730,6 @@
                       "required": [],
                       "uniqueItems": false,
                       "properties": {
-                        "types": {
-                          "type": "array",
-                          "readOnly": false,
-                          "writeOnly": false,
-                          "required": [],
-                          "items": {
-                            "type": "string",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": true,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          },
-                          "uniqueItems": false,
-                          "additionalPropertiesAllowed": false,
-                          "enum": [],
-                          "nullable": false,
-                          "deprecated": false,
-                          "unresolvedReference": false
-                        },
                         "ids": {
                           "type": "array",
                           "readOnly": false,
@@ -9768,6 +9744,30 @@
                             "additionalPropertiesAllowed": false,
                             "enum": [],
                             "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          },
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": false,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
+                        "types": {
+                          "type": "array",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "items": {
+                            "type": "string",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
                             "deprecated": false,
                             "unresolvedReference": false
                           },
@@ -9794,13 +9794,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -9861,6 +9854,13 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -9901,7 +9901,7 @@
                           "deprecated": false,
                           "unresolvedReference": false
                         },
-                        "mailNickname": {
+                        "entityType": {
                           "type": "string",
                           "readOnly": false,
                           "writeOnly": false,
@@ -9927,7 +9927,7 @@
                           "deprecated": false,
                           "unresolvedReference": false
                         },
-                        "entityType": {
+                        "mailNickname": {
                           "type": "string",
                           "readOnly": false,
                           "writeOnly": false,
@@ -9955,7 +9955,7 @@
         }
       },
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -9969,7 +9969,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -10077,7 +10077,7 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -10102,7 +10102,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -10149,13 +10149,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
@@ -10164,6 +10157,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -10317,14 +10317,14 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -10482,13 +10482,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -10540,6 +10533,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -10690,14 +10690,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -10790,20 +10790,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -10855,6 +10841,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -11268,10 +11268,10 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.directoryRoleTemplates-ed85",
       "responses": {
-        "5XX": {
+        "200": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -11282,10 +11282,10 @@
             }
           }
         },
-        "200": {
+        "5XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -11345,7 +11345,7 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -11406,7 +11406,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -11440,30 +11440,6 @@
                       "required": [],
                       "uniqueItems": false,
                       "properties": {
-                        "types": {
-                          "type": "array",
-                          "readOnly": false,
-                          "writeOnly": false,
-                          "required": [],
-                          "items": {
-                            "type": "string",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": true,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          },
-                          "uniqueItems": false,
-                          "additionalPropertiesAllowed": false,
-                          "enum": [],
-                          "nullable": false,
-                          "deprecated": false,
-                          "unresolvedReference": false
-                        },
                         "ids": {
                           "type": "array",
                           "readOnly": false,
@@ -11478,6 +11454,30 @@
                             "additionalPropertiesAllowed": false,
                             "enum": [],
                             "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          },
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": false,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
+                        "types": {
+                          "type": "array",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "items": {
+                            "type": "string",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
                             "deprecated": false,
                             "unresolvedReference": false
                           },
@@ -11504,13 +11504,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -11565,6 +11558,13 @@
             }
           }
         },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -11599,7 +11599,7 @@
                       "required": [],
                       "uniqueItems": false,
                       "properties": {
-                        "displayName": {
+                        "entityType": {
                           "type": "string",
                           "readOnly": false,
                           "writeOnly": false,
@@ -11625,7 +11625,7 @@
                           "deprecated": false,
                           "unresolvedReference": false
                         },
-                        "entityType": {
+                        "displayName": {
                           "type": "string",
                           "readOnly": false,
                           "writeOnly": false,
@@ -11665,7 +11665,7 @@
         }
       },
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -11679,7 +11679,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -11789,6 +11789,20 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -11804,20 +11818,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -11860,6 +11860,13 @@
         }
       ],
       "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -11871,13 +11878,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
             }
           }
         }
@@ -11910,6 +11910,13 @@
         }
       },
       "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -11921,13 +11928,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
             }
           }
         }
@@ -12028,6 +12028,20 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -12079,20 +12093,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -12347,6 +12347,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -12405,13 +12412,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -12501,13 +12501,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -12568,6 +12561,13 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -12613,6 +12613,13 @@
       "operationId": "directoryRoleTemplates.directoryRoleTemplate.restore",
       "responses": {
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -12667,13 +12674,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -12945,20 +12945,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "201": {
           "either": {
             "Left": {
@@ -12976,23 +12962,6 @@
               }
             }
           }
-        }
-      },
-      "deprecated": false
-    }
-  },
-  "/directoryRoles/$count": {
-    "description": "Provides operations to count the resources in the collection.",
-    "get": {
-      "summary": "Get the number of the resource",
-      "operationId": "Get.Count.directoryRoles-ad68",
-      "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
         },
         "4XX": {
           "either": {
@@ -13005,6 +12974,37 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/directoryRoles/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.directoryRoles-ad68",
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -13169,6 +13169,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -13224,13 +13231,6 @@
           }
         },
         "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -13328,13 +13328,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -13395,6 +13388,13 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -13423,6 +13423,18 @@
                       "required": [],
                       "uniqueItems": false,
                       "properties": {
+                        "entityType": {
+                          "type": "string",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
                         "onBehalfOfUserId": {
                           "type": "string",
                           "format": "uuid",
@@ -13460,18 +13472,6 @@
                           "nullable": true,
                           "deprecated": false,
                           "unresolvedReference": false
-                        },
-                        "entityType": {
-                          "type": "string",
-                          "readOnly": false,
-                          "writeOnly": false,
-                          "required": [],
-                          "uniqueItems": false,
-                          "additionalPropertiesAllowed": false,
-                          "enum": [],
-                          "nullable": true,
-                          "deprecated": false,
-                          "unresolvedReference": false
                         }
                       },
                       "additionalPropertiesAllowed": false,
@@ -13489,6 +13489,13 @@
         }
       },
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -13497,13 +13504,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -13618,13 +13618,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -13647,6 +13640,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -13689,13 +13689,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -13707,6 +13700,13 @@
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -13971,6 +13971,13 @@
         }
       ],
       "responses": {
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -13982,13 +13989,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
             }
           }
         }
@@ -14039,17 +14039,17 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -14186,17 +14186,17 @@
             }
           }
         },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/StringCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -14217,17 +14217,17 @@
         }
       },
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         },
@@ -14448,17 +14448,17 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.applicationCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -14509,13 +14509,6 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.application-290c",
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
@@ -14524,6 +14517,13 @@
           }
         },
         "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -14740,13 +14740,6 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.deviceCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -14758,6 +14751,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.deviceCollectionResponse"
             }
           }
         }
@@ -14801,6 +14801,13 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.device-e712",
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -14812,13 +14819,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -15032,17 +15032,17 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.groupCollectionResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.groupCollectionResponse"
             }
           }
         },
@@ -15093,6 +15093,13 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.group-b36f",
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Right": {
@@ -15101,13 +15108,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -15324,6 +15324,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Right": {
@@ -15332,13 +15339,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -15616,17 +15616,17 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.servicePrincipalCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -15684,17 +15684,17 @@
             }
           }
         },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -15908,17 +15908,17 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.userCollectionResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "200": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.userCollectionResponse"
             }
           }
         },
@@ -15969,6 +15969,13 @@
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.user-af1f",
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -15980,13 +15987,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -16089,6 +16089,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -16097,13 +16104,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -16268,20 +16268,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -16297,6 +16283,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -16838,13 +16838,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -16860,6 +16853,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -17236,14 +17236,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -17375,6 +17375,13 @@
         }
       },
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -17430,13 +17437,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -17540,20 +17540,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -17605,6 +17591,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -17694,13 +17694,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -17756,6 +17749,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -17855,6 +17855,13 @@
             }
           }
         },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "200": {
           "either": {
             "Left": {
@@ -17908,13 +17915,6 @@
               }
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -17960,13 +17960,6 @@
       "operationId": "directoryRoles.directoryRole.restore",
       "responses": {
         "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -18021,6 +18014,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -18291,13 +18291,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "201": {
           "either": {
             "Left": {
@@ -18313,6 +18306,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -18370,14 +18370,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -18517,13 +18517,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "200": {
           "either": {
             "Left": {
@@ -18543,6 +18536,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -18588,13 +18588,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -18606,6 +18599,13 @@
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -18638,13 +18638,6 @@
         }
       },
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -18656,6 +18649,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         }
