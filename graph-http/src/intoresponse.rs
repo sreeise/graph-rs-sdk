@@ -1,7 +1,7 @@
 use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
 use crate::traits::{AsyncTryFrom, ODataLink, ODataNextLink};
-use crate::types::{Delta, DeltaPhantom, NoContent};
+use crate::types::{Delta, DeltaPhantom, NextLink, NoContent};
 use crate::uploadsession::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::{
@@ -51,13 +51,6 @@ where
     /// Using this method set the timeout not only for this API call but also for the entire lifetime of the Client.
     pub fn set_timeout(self, duration: Duration) -> Self {
         self.client.set_timeout(duration);
-        self
-    }
-
-    /// Using this method set the follow_next_link property not only for this API call but also for the entire lifetime of the Client.
-    /// /!\ Activating this feature may result in very long delays if you request large collections. /!\
-    pub fn with_next_link_calls(self) -> Self {
-        self.client.follow_next_links(true);
         self
     }
 
@@ -174,6 +167,72 @@ where
 }
 
 impl<'a, T> IntoResponseBlocking<'a, T> {
+    pub fn text(self) -> GraphResult<GraphResponse<String>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.client.response()?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let text = response.text().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, text, status, headers))
+    }
+
+    pub fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.client.response()?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let bytes = response.bytes().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, bytes, status, headers))
+    }
+
+    pub fn with_next_links_calls(self) -> IntoResponseBlocking<'a, NextLink> {
+        self.client.follow_next_links(true);
+        IntoResponse::new(self.client)
+    }
+}
+
+impl<'a, T> IntoResponseBlocking<'a, T>
+where
+    for<'de> T: serde::Deserialize<'de>,
+{
+    pub fn build(self) -> DispatchBlocking<T> {
+        let builder = self.client.build();
+        DispatchBlocking::new(builder, None, self.error)
+    }
+
+    pub fn send(self) -> GraphResult<GraphResponse<T>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        self.client.execute()
+    }
+
+    pub fn json<U>(self) -> GraphResult<GraphResponse<U>>
+    where
+        for<'de> U: serde::Deserialize<'de>,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.client.response()?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let json = response.json().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, json, status, headers))
+    }
+}
+
+impl<'a> IntoResponseBlocking<'a, NextLink> {
     pub fn json<U, V>(self) -> GraphResult<GraphResponse<U>>
     where
         for<'de> U: serde::Deserialize<'de> + ODataNextLink<V>,
@@ -211,49 +270,6 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         } else {
             Ok(GraphResponse::new(url, json, status, headers))
         }
-    }
-
-    pub fn text(self) -> GraphResult<GraphResponse<String>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let response = self.client.response()?;
-        let headers = response.headers().clone();
-        let status = response.status();
-        let url = GraphUrl::from(response.url());
-        let text = response.text().map_err(GraphFailure::from)?;
-        Ok(GraphResponse::new(url, text, status, headers))
-    }
-
-    pub fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let response = self.client.response()?;
-        let headers = response.headers().clone();
-        let status = response.status();
-        let url = GraphUrl::from(response.url());
-        let bytes = response.bytes().map_err(GraphFailure::from)?;
-        Ok(GraphResponse::new(url, bytes, status, headers))
-    }
-}
-
-impl<'a, T> IntoResponseBlocking<'a, T>
-where
-    for<'de> T: serde::Deserialize<'de>,
-{
-    pub fn build(self) -> DispatchBlocking<T> {
-        let builder = self.client.build();
-        DispatchBlocking::new(builder, None, self.error)
-    }
-
-    pub fn send(self) -> GraphResult<GraphResponse<T>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-        self.client.execute()
     }
 }
 
@@ -316,6 +332,77 @@ impl<'a> IntoResponseBlocking<'a, BlockingDownload> {
 // Async Impl
 
 impl<'a, T> IntoResponseAsync<'a, T> {
+    pub async fn text(self) -> GraphResult<GraphResponse<String>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let request = self.client.build().await;
+        let response = request.send().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let text = response.text().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, text, status, headers))
+    }
+
+    pub async fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let request = self.client.build().await;
+        let response = request.send().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let bytes = response.bytes().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, bytes, status, headers))
+    }
+
+    pub fn with_next_links_calls(self) -> IntoResponseAsync<'a, NextLink> {
+        self.client.follow_next_links(true);
+        IntoResponse::new(self.client)
+    }
+}
+
+impl<'a, T> IntoResponseAsync<'a, T>
+where
+    for<'de> T: serde::Deserialize<'de>,
+{
+    pub async fn build(self) -> DispatchAsync<T> {
+        let builder = self.client.build().await;
+        DispatchAsync::new(builder, None, self.error)
+    }
+
+    pub async fn send(self) -> GraphResult<GraphResponse<T>> {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+        let request = self.client.build().await;
+        let response = request.send().await?;
+        AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
+    }
+
+    pub async fn json<U>(self) -> GraphResult<GraphResponse<U>>
+    where
+        for<'de> U: serde::Deserialize<'de>,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let request = self.client.build().await;
+        let response = request.send().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let json = response.json().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, json, status, headers))
+    }
+}
+
+impl<'a> IntoResponseAsync<'a, NextLink> {
     pub async fn json<U, V>(self) -> GraphResult<GraphResponse<U>>
     where
         for<'de> U: serde::Deserialize<'de> + ODataNextLink<V>,
@@ -355,53 +442,6 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         } else {
             Ok(GraphResponse::new(url, json, status, headers))
         }
-    }
-
-    pub async fn text(self) -> GraphResult<GraphResponse<String>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let request = self.client.build().await;
-        let response = request.send().await?;
-        let headers = response.headers().clone();
-        let status = response.status();
-        let url = GraphUrl::from(response.url());
-        let text = response.text().await.map_err(GraphFailure::from)?;
-        Ok(GraphResponse::new(url, text, status, headers))
-    }
-
-    pub async fn bytes(self) -> GraphResult<GraphResponse<Bytes>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let request = self.client.build().await;
-        let response = request.send().await?;
-        let headers = response.headers().clone();
-        let status = response.status();
-        let url = GraphUrl::from(response.url());
-        let bytes = response.bytes().await.map_err(GraphFailure::from)?;
-        Ok(GraphResponse::new(url, bytes, status, headers))
-    }
-}
-
-impl<'a, T> IntoResponseAsync<'a, T>
-where
-    for<'de> T: serde::Deserialize<'de>,
-{
-    pub async fn build(self) -> DispatchAsync<T> {
-        let builder = self.client.build().await;
-        DispatchAsync::new(builder, None, self.error)
-    }
-
-    pub async fn send(self) -> GraphResult<GraphResponse<T>> {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-        let request = self.client.build().await;
-        let response = request.send().await?;
-        AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
     }
 }
 

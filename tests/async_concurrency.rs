@@ -6,7 +6,7 @@ use test_tools::oauthrequest::OAuthTestClient;
 use graph_rs_sdk::macros::*;
 
 #[derive(Debug, Serialize, Deserialize)]
-#[graph_rs_json]
+#[odata_next_link]
 pub struct User {
     pub(crate) id: Option<String>,
     #[serde(rename = "userPrincipalName")]
@@ -14,7 +14,7 @@ pub struct User {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[graph_rs_json]
+#[odata_next_link]
 pub struct LicenseDetail {
     id: Option<String>,
     #[serde(rename = "skuId")]
