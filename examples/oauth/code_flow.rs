@@ -52,7 +52,7 @@ pub struct AccessCode {
 }
 
 // Create OAuth client and set credentials.
-fn oauth_web_client<'a>() -> OAuth {
+fn oauth_web_client() -> OAuth {
     let mut oauth = OAuth::new();
     oauth
         .client_id(CLIENT_ID)

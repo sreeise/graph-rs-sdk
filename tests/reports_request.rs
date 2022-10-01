@@ -40,6 +40,7 @@ fn download_office_365_user_counts_reports_test() {
 
 #[tokio::test]
 async fn async_download_office_365_user_counts_reports_test() {
+    #[allow(clippy::await_holding_lock)]
     let _lock = THROTTLE_MUTEX.lock().unwrap();
 
     if let Some((_id, client)) =
