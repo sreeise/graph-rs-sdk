@@ -8,14 +8,14 @@ on:
   workflow_dispatch:
     inputs:
       logLevel:
-        description: 'Log level'     
+        description: 'Log level'
         required: true
-        default: 'warning' 
+        default: 'warning'
         type: choice
         options:
         - info
         - warning
-        - debug 
+        - debug
 
 
 env:
@@ -31,6 +31,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose
+    - name: Clippy
+      run: cargo clippy
     - name: Run tests
       env:
         TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
