@@ -1,5 +1,5 @@
 use crate::parser::error::ParseError;
-use crate::parser::{HttpMethod, Modifier, Request};
+use crate::parser::{HttpMethod, Request};
 use crate::traits::HashMapExt;
 use from_as::*;
 use inflector::Inflector;
@@ -36,6 +36,10 @@ lazy_static! {
     pub static ref PATH_REGEX_SET: Regex = Regex::new(
         r#"(?P<PATH_ID>\{)(\w+-\w+)(})|(?P<PATH_ID_NAMED>\{\{)(\w+)(}})|(?P<KEY_VALUE_PAIR>\w+)(=\{)(\w+)(})|(?P<KEY_VALUE_PAIR_QUOTED>\w+)(='\{)(\w+)(}')"#
     ).unwrap();
+
+    pub static ref OPERATION_ID_DUPLICATE_COUNT_METHODS: Regex = Regex::new(r#"(?P<GET_COUNT>Get.Count.)(?P<RESOURCE_NAME>\w+)(?P<ARBITRARY_CHARS>-\w+[0-9])"#).unwrap();
+
+    pub static ref RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING: Regex = Regex::new(r#"(?P<RESOURCE_NAME>\w+)(-\w+[0-9])"#).unwrap();
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
@@ -82,7 +86,7 @@ impl FromStr for PathMatcher {
 }
 
 pub trait RequestParserBuilder<RHS: ?Sized = Self> {
-    fn build(&self, path: String, modifier: &Modifier, http_method: HttpMethod) -> Request;
+    fn build(&self, path: String, http_method: HttpMethod) -> Request;
 }
 
 pub trait RequestParser<RHS = Self> {
@@ -105,6 +109,65 @@ impl RequestParser for &str {
     /// Parse the method name of a request.
     fn method_name(&self) -> String {
         let mut method_name = String::new();
+
+        let directory_object_items =
+            "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.";
+        let directory_object_item = "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.";
+        let current_operation_id = self.to_lowercase();
+
+        let starts_with_directory_object_items =
+            current_operation_id.starts_with(directory_object_items.to_lowercase().as_str());
+        let starts_with_directory_object_item =
+            current_operation_id.starts_with(directory_object_item.to_lowercase().as_str());
+
+        if starts_with_directory_object_items || starts_with_directory_object_item {
+            let operation_id_clone = self
+                .replace(directory_object_items, "")
+                .replace(directory_object_item, "");
+
+            for capture in
+                RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING.captures_iter(operation_id_clone.as_str())
+            {
+                if let Some(capture_match) = capture.name("RESOURCE_NAME") {
+                    let resource_name = capture_match.as_str();
+                    if !resource_name.is_empty() {
+                        if starts_with_directory_object_item {
+                            return format!(
+                                "get_directory_object_item_as_{}_type",
+                                resource_name.to_snake_case()
+                            );
+                        } else {
+                            return format!(
+                                "get_directory_object_items_as_{}_type",
+                                resource_name.to_snake_case()
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        if self.starts_with("Get.Count") {
+            let operation_id_clone = {
+                if self.starts_with("Get.Count.microsoft.graph.") {
+                    self.replace("microsoft.graph.", "")
+                } else {
+                    self.to_string()
+                }
+            };
+
+            for capture in
+                OPERATION_ID_DUPLICATE_COUNT_METHODS.captures_iter(operation_id_clone.as_str())
+            {
+                if let Some(capture_match) = capture.name("RESOURCE_NAME") {
+                    let resource_name = capture_match.as_str();
+                    if !resource_name.is_empty() {
+                        return format!("get_{}_count", resource_name.to_snake_case());
+                    }
+                }
+            }
+        }
+
         if let Some(index) = self.rfind('.') {
             let last: &str = self[index + 1..].as_ref();
             if NUM_REG.is_match(last) {

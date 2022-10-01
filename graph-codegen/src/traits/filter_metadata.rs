@@ -1,5 +1,6 @@
+use crate::filter::Filter;
+use crate::filter::FilterIgnore;
 use crate::macros::MacroQueueWriter;
-use crate::parser::filter::{Filter, FilterIgnore};
 use regex::Regex;
 use std::collections::VecDeque;
 use std::fmt::Debug;

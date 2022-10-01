@@ -1,4 +1,4 @@
-use crate::parser::{PathMap, RequestSet};
+use crate::parser::RequestSet;
 use from_as::*;
 use inflector::Inflector;
 use std::{
@@ -65,17 +65,6 @@ impl From<&RequestSet> for ResourceNames {
         for request_map in request_set.set.iter() {
             paths.push(request_map.path.to_string());
         }
-        ResourceNames::from(paths)
-    }
-}
-
-impl From<PathMap> for ResourceNames {
-    fn from(path_map: PathMap) -> Self {
-        let mut paths: Vec<String> = Vec::new();
-        for (path, _p) in path_map.paths.iter() {
-            paths.push(path.to_string());
-        }
-
         ResourceNames::from(paths)
     }
 }

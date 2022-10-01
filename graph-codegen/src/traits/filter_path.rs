@@ -1,5 +1,6 @@
+use crate::filter::Filter;
+use crate::filter::FilterIgnore;
 use crate::openapi::PathItem;
-use crate::parser::filter::{Filter, FilterIgnore};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use regex::Regex;
 use std::collections::BTreeMap;

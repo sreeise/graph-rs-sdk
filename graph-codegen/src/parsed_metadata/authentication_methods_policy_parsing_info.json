@@ -1,0 +1,7 @@
+{
+  "modifier_name": "authenticationMethodsPolicy",
+  "path": "/authenticationMethodsPolicy",
+  "resource_identity": "AuthenticationMethodsPolicy",
+  "trim_path_start": null,
+  "parameter_filter": []
+}

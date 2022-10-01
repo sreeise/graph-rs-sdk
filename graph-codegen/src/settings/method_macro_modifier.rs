@@ -19,31 +19,7 @@ pub struct MethodMacroModifier {
     pub matching: Vec<MacroModifierType>,
     pub update: MacroModifierType,
 }
-/*
-   get!({
-       doc: "Get the number of the resource",
-       name: internal_sponsors_count,
-       response: serde_json::Value,
-       path: "/connectedOrganizations/{{RID}}/internalSponsors/$count",
-       has_body: false
-   });
 
-       get!({
-       doc: "Get the number of the resource",
-       name: count,
-       response: serde_json::Value,
-       path: "/connectedOrganizations/{{RID}}/externalSponsors/$count",
-       has_body: false
-   });
-
-       post!({
-       doc: "Invoke action validateProperties",
-       name: validate_properties,
-       response: NoContent,
-       path: "/connectedOrganizations/{{RID}}/externalSponsors/microsoft.graph.validateProperties",
-       has_body: true
-   });
-*/
 pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<MethodMacroModifier> {
     match resource_identity {
         ResourceIdentity::AccessReviews => vec![
@@ -176,6 +152,15 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
                     MacroModifierType::Path("/appConsent/appConsentRequests/{{id}}/userConsentRequests/microsoft.graph.filterByCurrentUser(on='{{id2}}')".into()),
                 ],
                 update: MacroModifierType::FnName("filter_user_consent_requests_by_current_user".into()),
+            },
+        ],
+        ResourceIdentity::AuthenticationMethodsPolicy => vec![
+            MethodMacroModifier {
+                matching: vec![
+                    MacroModifierType::FnName("count".into()),
+                    MacroModifierType::Path("/authenticationMethodConfigurations/$count".into()),
+                ],
+                update: MacroModifierType::FnName("get_authentication_method_configurations_count".into()),
             },
         ],
         ResourceIdentity::ConnectedOrganizations => vec![
