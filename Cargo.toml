@@ -26,6 +26,7 @@ members = [
     "graph-codegen",
     "graph-http",
     "graph-core",
+    "graph-macro",
 ]
 
 [dependencies]

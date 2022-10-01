@@ -1,9 +1,9 @@
 use futures::stream::{self, StreamExt};
 use graph_rs_sdk::http::GraphResponse;
+use graph_rs_sdk::macros::*;
 use serde::Deserialize;
 use serde::Serialize;
 use test_tools::oauthrequest::OAuthTestClient;
-use graph_rs_sdk::macros::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[odata_next_link]
