@@ -1,7 +1,7 @@
 use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
-use crate::traits::{AsyncTryFrom, ODataLink, ODataNextLink};
-use crate::types::{Delta, DeltaPhantom, NextLink, NoContent};
+use crate::traits::{AsyncTryFrom, ODataLink};
+use crate::types::{Delta, DeltaPhantom, NextLink, NextLinkValues, NoContent};
 use crate::uploadsession::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::{
@@ -193,8 +193,7 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         Ok(GraphResponse::new(url, bytes, status, headers))
     }
 
-    pub fn with_next_links_calls(self) -> IntoResponseBlocking<'a, NextLink> {
-        self.client.follow_next_links(true);
+    pub fn paging(self) -> IntoResponseBlocking<'a, NextLink> {
         IntoResponse::new(self.client)
     }
 }
@@ -233,9 +232,9 @@ where
 }
 
 impl<'a> IntoResponseBlocking<'a, NextLink> {
-    pub fn json<U, V>(self) -> GraphResult<GraphResponse<U>>
+    pub fn json<V>(self) -> GraphResult<GraphResponse<Vec<V>>>
     where
-        for<'de> U: serde::Deserialize<'de> + ODataNextLink<V>,
+        for<'de> V: serde::Deserialize<'de>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -245,31 +244,24 @@ impl<'a> IntoResponseBlocking<'a, NextLink> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let mut json: U = response.json().map_err(GraphFailure::from)?;
+        let mut json: NextLinkValues<V> = response.json().map_err(GraphFailure::from)?;
         let mut values: Vec<V> = vec![];
 
-        if self.client.get_follow_next_links() {
-            while let Some(json_value) = json.value() {
-                values.append(json_value);
-                match json.next_link() {
-                    Some(next_link) => {
-                        let url = GraphUrl::parse(&next_link)?;
-                        self.client.set_url(url);
-                        let response = self.client.response()?;
-                        json = response.json().map_err(GraphFailure::from)?;
-                    }
-                    None => {
-                        break;
-                    }
+        loop {
+            values.append(&mut json.value);
+            match json.next_link {
+                Some(next_link) => {
+                    let url = GraphUrl::parse(&next_link)?;
+                    self.client.set_url(url);
+                    let response = self.client.response()?;
+                    json = response.json().map_err(GraphFailure::from)?;
+                }
+                None => {
+                    break;
                 }
             }
-            if let Some(json_value) = json.value() {
-                json_value.append(&mut values);
-            }
-            Ok(GraphResponse::new(url, json, status, headers))
-        } else {
-            Ok(GraphResponse::new(url, json, status, headers))
         }
+        Ok(GraphResponse::new(url, values, status, headers))
     }
 }
 
@@ -360,8 +352,7 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         Ok(GraphResponse::new(url, bytes, status, headers))
     }
 
-    pub fn with_next_links_calls(self) -> IntoResponseAsync<'a, NextLink> {
-        self.client.follow_next_links(true);
+    pub fn paging(self) -> IntoResponseAsync<'a, NextLink> {
         IntoResponse::new(self.client)
     }
 }
@@ -403,9 +394,9 @@ where
 }
 
 impl<'a> IntoResponseAsync<'a, NextLink> {
-    pub async fn json<U, V>(self) -> GraphResult<GraphResponse<U>>
+    pub async fn json<V>(self) -> GraphResult<GraphResponse<Vec<V>>>
     where
-        for<'de> U: serde::Deserialize<'de> + ODataNextLink<V>,
+        for<'de> V: serde::Deserialize<'de>,
     {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -416,32 +407,25 @@ impl<'a> IntoResponseAsync<'a, NextLink> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let mut json: U = response.json().await.map_err(GraphFailure::from)?;
+        let mut json: NextLinkValues<V> = response.json().await.map_err(GraphFailure::from)?;
         let mut values: Vec<V> = vec![];
 
-        if self.client.get_follow_next_links() {
-            while let Some(json_value) = json.value() {
-                values.append(json_value);
-                match json.next_link() {
-                    Some(next_link) => {
-                        let url = GraphUrl::parse(&next_link)?;
-                        self.client.set_url(url);
-                        let request = self.client.build().await;
-                        let response = request.send().await?;
-                        json = response.json().await.map_err(GraphFailure::from)?;
-                    }
-                    None => {
-                        break;
-                    }
+        loop {
+            values.append(&mut json.value);
+            match json.next_link {
+                Some(next_link) => {
+                    let url = GraphUrl::parse(&next_link)?;
+                    self.client.set_url(url);
+                    let request = self.client.build().await;
+                    let response = request.send().await?;
+                    json = response.json().await.map_err(GraphFailure::from)?;
+                }
+                None => {
+                    break;
                 }
             }
-            if let Some(json_value) = json.value() {
-                json_value.append(&mut values);
-            }
-            Ok(GraphResponse::new(url, json, status, headers))
-        } else {
-            Ok(GraphResponse::new(url, json, status, headers))
         }
+        Ok(GraphResponse::new(url, values, status, headers))
     }
 }
 

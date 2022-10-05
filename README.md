@@ -99,16 +99,14 @@ println!("{:#?}", response.body());
 
 ##### Custom Types
 The json() method can be used to convert the response body to your own types. These
-types must implement `serde::Deserialize` and `graph_rs_sdk::http::traits::ODataNextLink`.
+types must implement `serde::Deserialize`.
 
 ```rust
 use graph_rs_sdk::prelude::*;
-use graph_rs_sdk::macros::*;
         
 let client = Graph::new("ACCESS_TOKEN");
         
 #[derive(Debug, Serialize, Deserialize)]
-#[odata_next_link]
 pub struct DriveItem {
     id: Option<String>,
     name: Option<String>,
@@ -122,64 +120,34 @@ let response: GraphResponse<DriveItem> = client.v1()
     .json()?;
         
 println!("{:#?}", response);   
-``` 
-
-You can retrieve a collection of custom structs by using the `#[graph_rs_json]` proc macro and specifying the plural of your type:
-
-```rust
-use graph_rs_sdk::prelude::*;
-use graph_rs_sdk::macros::*;
-        
-let client = Graph::new("ACCESS_TOKEN");
-
-#[derive(Debug, Serialize, Deserialize)]
-#[odata_next_link]
-pub struct User {
-    pub(crate) id: Option<String>,
-    #[serde(rename = "userPrincipalName")]
-    user_principal_name: Option<String>,
-}
-
-let users_resp: GraphResponse<Users> = client // use Users instead of User
-    .v1()
-    .users()
-    .list_user()
-    .select(&["id", "userPrincipalName"])
-    .json()
-    .unwrap();
-
-let users = users_resp.into_body();
-println!("{:?}", users.value);
-``` 
+```
 
 GraphAPI will limit the number of returned items per page even if you specify a very large `.top()` value and will provide a `next_link` link for you to retrieve the next batch.
-You can use the `.with_next_link_calls()` method and graph-rs will follow the next_links to return the whole collection.
+You can use the `.paging()` method and graph-rs will follow the next_links to return the whole collection.
 
 ```rust
 use graph_rs_sdk::prelude::*;
-use graph_rs_sdk::macros::*;
         
 let client = Graph::new("ACCESS_TOKEN");
 
 #[derive(Debug, Serialize, Deserialize)]
-#[odata_next_link]
 pub struct User {
     pub(crate) id: Option<String>,
     #[serde(rename = "userPrincipalName")]
     user_principal_name: Option<String>,
 }
 
-let users_resp: GraphResponse<Users> = client // use Users instead of User
+let users_resp: GraphResponse<Vec<User>> = client
     .v1()
     .users()
     .list_user()
     .select(&["id", "userPrincipalName"])
-    .with_next_link_calls()
+    .paging()
     .json()
     .unwrap();
 
 let users = users_resp.into_body();
-println!("{:?}", users.value);
+println!("{:?}", users);
 ``` 
 
 ### OneDrive

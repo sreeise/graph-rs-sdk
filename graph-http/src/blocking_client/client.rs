@@ -47,7 +47,6 @@ impl BlockingClient {
             req_type: Default::default(),
             registry: Handlebars::new(),
             timeout: Duration::from_secs(30),
-            follow_next_links: false,
         }
     }
 
@@ -142,7 +141,6 @@ impl BlockingClient {
             req_type: self.req_type,
             registry: Handlebars::new(),
             timeout: Duration::from_secs(30),
-            follow_next_links: false,
         }
     }
 
@@ -363,14 +361,6 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>> {
 
     fn set_timeout(&self, duration: Duration) {
         self.client.borrow_mut().timeout = duration;
-    }
-
-    fn follow_next_links(&self, follow: bool) {
-        self.client.borrow_mut().follow_next_links = follow;
-    }
-
-    fn get_follow_next_links(&self) -> bool {
-        self.client.borrow().follow_next_links
     }
 }
 

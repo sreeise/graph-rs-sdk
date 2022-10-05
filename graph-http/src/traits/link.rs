@@ -28,18 +28,3 @@ impl ODataLink for serde_json::Value {
         self["@odata.deltaLink"].as_str().map(|s| s.to_string())
     }
 }
-
-pub trait ODataNextLink<V, RHS = Self> {
-    fn next_link(&self) -> Option<String>;
-    fn value(&mut self) -> Option<&mut Vec<V>>;
-}
-
-impl ODataNextLink<serde_json::Value> for serde_json::Value {
-    fn next_link(&self) -> Option<String> {
-        self["@odata.nextLink"].as_str().map(|s| s.to_string())
-    }
-
-    fn value(&mut self) -> Option<&mut Vec<serde_json::Value>> {
-        self["@odata.value"].as_array_mut()
-    }
-}

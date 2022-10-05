@@ -49,7 +49,6 @@ pub struct GraphRequest<Client, Body, Form> {
     pub form: Option<Form>,
     pub req_type: RequestType,
     pub timeout: Duration,
-    pub follow_next_links: bool,
 }
 
 impl<Client, Body, Form> Debug for GraphRequest<Client, Body, Form> {
