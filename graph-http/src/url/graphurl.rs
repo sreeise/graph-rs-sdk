@@ -6,7 +6,7 @@ use std::str::FromStr;
 use url::form_urlencoded::Serializer;
 use url::{PathSegmentsMut, Position, Url, UrlQuery};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GraphUrl {
     url: Url,
 }
