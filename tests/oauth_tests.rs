@@ -1,5 +1,5 @@
 use graph_oauth::oauth::{OAuth, OAuthCredential};
-use strum::IntoEnumIterator;
+use graph_oauth::oauth::IntoEnumIterator;
 
 #[test]
 fn oauth_parameters_from_credential() {
