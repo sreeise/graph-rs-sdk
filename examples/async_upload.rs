@@ -46,14 +46,9 @@ async fn main() -> Result<(), GraphFailure> {
             match next {
                 Ok(NextSession::Next(response)) => {
                     println!("\nResponse: {:#?}\n", response);
-                    println!(
-                        "Expiration date time: {:#?}",
-                        response.body()["expirationDateTime"]
-                    );
-                    println!(
-                        "Next expected ranges: {:#?}",
-                        response.body()["nextExpectedRanges"]
-                    );
+                    let body = response.body().unwrap();
+                    println!("Expiration date time: {:#?}", body["expirationDateTime"]);
+                    println!("Next expected ranges: {:#?}", body["nextExpectedRanges"]);
                 }
                 Ok(NextSession::Done(response)) => {
                     // When the upload session is done the drive item metadata

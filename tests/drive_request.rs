@@ -29,7 +29,7 @@ fn test_folder_create_delete(folder_name: &str) {
             assert!(
                 response.status() == 200 || response.status() == 201 || response.status() == 204
             );
-            let item_id = response.body()["id"].as_str().unwrap();
+            let item_id = response.body().unwrap()["id"].as_str().unwrap();
             thread::sleep(Duration::from_secs(2));
 
             let result = client.v1().drive(&id).delete_items(item_id).send();
@@ -68,8 +68,8 @@ fn list_versions_get_item() {
             .send();
 
         if let Ok(res) = get_item_res {
-            assert!(res.body()["id"].as_str().is_some());
-            let item_id = res.body()["id"].as_str().unwrap();
+            assert!(res.body().unwrap()["id"].as_str().is_some());
+            let item_id = res.body().unwrap()["id"].as_str().unwrap();
 
             let versions_res = client
                 .v1()
@@ -191,7 +191,10 @@ fn drive_update() {
             .send();
 
         if let Ok(response) = req {
-            assert_eq!(response.body()["name"].as_str(), Some("update_test.docx"));
+            assert_eq!(
+                response.body().unwrap()["name"].as_str(),
+                Some("update_test.docx")
+            );
             thread::sleep(Duration::from_secs(2));
 
             let req = client
@@ -207,7 +210,7 @@ fn drive_update() {
 
             if let Ok(response) = req {
                 assert_eq!(
-                    response.body()["name"].as_str(),
+                    response.body().unwrap()["name"].as_str(),
                     Some("update_test_document.docx")
                 );
             } else if let Err(e) = req {
@@ -233,8 +236,8 @@ fn drive_upload_new_and_replace_and_delete() {
             .send();
 
         if let Ok(value) = upload_res {
-            assert!(value.body()["id"].as_str().is_some());
-            let item_id = value.body()["id"].as_str().unwrap();
+            assert!(value.body().unwrap()["id"].as_str().is_some());
+            let item_id = value.body().unwrap()["id"].as_str().unwrap();
 
             let mut file = OpenOptions::new()
                 .write(true)
@@ -252,7 +255,7 @@ fn drive_upload_new_and_replace_and_delete() {
                 .send();
 
             if let Ok(value) = upload_replace {
-                let item_id2 = value.body()["id"].as_str().unwrap();
+                let item_id2 = value.body().unwrap()["id"].as_str().unwrap();
                 assert_eq!(item_id, item_id2);
             } else if let Err(e) = upload_replace {
                 panic!(
@@ -309,8 +312,10 @@ fn drive_upload_session() {
                     Ok(NextSession::Done(response)) => {
                         assert!(response.status().is_success());
                         let drive_item = response.body();
-                        let drive_item_id =
-                            drive_item["id"].as_str().unwrap_or_default().to_string();
+                        let drive_item_id = drive_item.unwrap()["id"]
+                            .as_str()
+                            .unwrap_or_default()
+                            .to_string();
                         thread::sleep(Duration::from_secs(3));
 
                         let delete_res = client
@@ -369,7 +374,7 @@ pub fn get_drive_base() {
             assert!(
                 response.status() == 200 || response.status() == 201 || response.status() == 204
             );
-            let odata_context = response.body()["@odata.context"].as_str().unwrap();
+            let odata_context = response.body().unwrap()["@odata.context"].as_str().unwrap();
             assert_eq!(
                 "https://graph.microsoft.com/v1.0/$metadata#drives/$entity",
                 odata_context

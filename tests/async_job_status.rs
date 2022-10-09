@@ -38,7 +38,7 @@ async fn async_job_status() {
             .await;
 
         let response = result.expect("Async get file: Drive");
-        let id_option = response.body()["id"].as_str();
+        let id_option = response.body().unwrap()["id"].as_str();
         assert!(id_option.is_some());
 
         tokio::time::sleep(Duration::from_secs(2)).await;
@@ -60,7 +60,7 @@ async fn async_job_status() {
         let job_status = copy_response.async_job_status().await.unwrap();
 
         if let Ok(response) = job_status {
-            let status_option = response.body()["status"].as_str();
+            let status_option = response.body().unwrap()["status"].as_str();
             assert!(status_option.eq(&Some("inProgress")) | status_option.eq(&Some("completed")));
 
             if status_option.eq(&Some("completed")) {

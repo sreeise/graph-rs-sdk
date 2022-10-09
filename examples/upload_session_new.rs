@@ -48,11 +48,11 @@ fn upload_session_new() {
                     println!("\nResponse: {:#?}\n", response);
                     println!(
                         "Expiration date time: {:#?}",
-                        response.body()["expirationDateTime"]
+                        response.body().unwrap()["expirationDateTime"]
                     );
                     println!(
                         "Next expected ranges: {:#?}",
-                        response.body()["nextExpectedRanges"]
+                        response.body().unwrap()["nextExpectedRanges"]
                     );
                 }
                 Ok(NextSession::Done(response)) => {

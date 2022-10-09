@@ -18,7 +18,7 @@ fn get_drafts_mail_folder() {
             .send();
 
         if let Ok(response) = result {
-            let display_name = response.body()["displayName"].as_str().unwrap();
+            let display_name = response.body().unwrap()["displayName"].as_str().unwrap();
             assert_eq!("Drafts", display_name);
         } else if let Err(e) = result {
             println!("{:#?}", e);

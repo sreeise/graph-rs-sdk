@@ -10,7 +10,7 @@ fn dispatch_blocking_json() {
 
         let response: GraphResponse<serde_json::Value> = request.json().unwrap();
         let body = response.body();
-        let enabled = body["accountEnabled"].as_bool().unwrap();
+        let enabled = body.unwrap()["accountEnabled"].as_bool().unwrap();
         assert!(enabled);
     }
 }
@@ -22,7 +22,7 @@ fn dispatch_blocking_text() {
 
         let response: GraphResponse<String> = request.text().unwrap();
         let body = response.body();
-        let json: serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(body.unwrap().as_str()).unwrap();
         let enabled = json["accountEnabled"].as_bool().unwrap();
         assert!(enabled);
     }
@@ -34,7 +34,7 @@ async fn dispatch_async_json() {
         let request = client.beta().user(id.as_str()).get_user().build().await;
 
         let response: GraphResponse<serde_json::Value> = request.json().await.unwrap();
-        let body = response.body();
+        let body = response.body().unwrap();
         let enabled = body["accountEnabled"].as_bool().unwrap();
         assert!(enabled);
     }
@@ -47,7 +47,7 @@ async fn dispatch_async_text() {
 
         let response: GraphResponse<String> = request.text().await.unwrap();
         let body = response.body();
-        let json: serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(body.unwrap().as_str()).unwrap();
         let enabled = json["accountEnabled"].as_bool().unwrap();
         assert!(enabled);
     }

@@ -11,13 +11,18 @@ use std::convert::TryFrom;
 #[derive(Debug)]
 pub struct GraphResponse<T> {
     url: GraphUrl,
-    body: T,
+    body: GraphResult<T>,
     status: StatusCode,
     headers: HeaderMap,
 }
 
 impl<T> GraphResponse<T> {
-    pub fn new(url: GraphUrl, body: T, status: StatusCode, headers: HeaderMap) -> GraphResponse<T> {
+    pub fn new(
+        url: GraphUrl,
+        body: GraphResult<T>,
+        status: StatusCode,
+        headers: HeaderMap,
+    ) -> GraphResponse<T> {
         GraphResponse {
             url,
             body,
@@ -32,19 +37,23 @@ impl<T> GraphResponse<T> {
     }
 
     /// Get a reference to the body.
-    pub fn body(&self) -> &T {
-        &self.body
+    pub fn body(&self) -> Result<&T, &GraphFailure> {
+        self.body.as_ref()
     }
 
     /// Returns the body and ownership of it and dropping the
     /// GraphResponse in the process.
-    pub fn into_body(self) -> T {
+    pub fn into_body(self) -> GraphResult<T> {
         self.body
     }
 
     /// Get the HTTP status code of the response.
     pub fn status(&self) -> StatusCode {
         self.status
+    }
+
+    pub fn is_success_status_code(&self) -> bool {
+        self.status.is_success()
     }
 
     /// Get the headers returned of the response.
@@ -104,11 +113,13 @@ impl<T> GraphResponse<T> {
         let url = GraphUrl::from(response.url());
         let status = response.status();
         let headers = response.headers().to_owned();
-        response
+
+        let body = response
             .text()
             .map(|s| serde_json::from_str(s.as_str()).unwrap_or(serde_json::Value::String(s)))
-            .or_else(|_| Ok(serde_json::Value::String(String::new())))
-            .map(|body| GraphResponse::new(url, body, status, headers))
+            .or_else(|_| Ok(serde_json::Value::String(String::new())));
+
+        Ok(GraphResponse::new(url, body, status, headers))
     }
 
     pub(crate) async fn async_from_no_content(
@@ -118,27 +129,32 @@ impl<T> GraphResponse<T> {
         let url = GraphUrl::from(response.url());
         let status = response.status();
         let headers = response.headers().to_owned();
-        response
+
+        let body = response
             .text()
             .await
+            .map_err(GraphFailure::from)
             .map(|s| serde_json::from_str(s.as_str()).unwrap_or(serde_json::Value::String(s)))
-            .or_else(|_| Ok(serde_json::Value::String(String::new())))
-            .map(|body| GraphResponse::new(url, body, status, headers))
+            .or_else(|_| Ok(serde_json::Value::String(String::new())));
+
+        Ok(GraphResponse::new(url, body, status, headers))
+    }
+}
+/*
+
+impl<T> AsRef<GraphResult<T>> for GraphResponse<T> {
+    fn as_ref(&self) -> Result<&T, &GraphFailure> {
+        self.body.as_ref()
     }
 }
 
-impl<T> AsRef<T> for GraphResponse<T> {
-    fn as_ref(&self) -> &T {
-        &self.body
-    }
-}
-
-impl<T> AsMut<T> for GraphResponse<T> {
-    fn as_mut(&mut self) -> &mut T {
+impl<T> AsMut<GraphResult<T>> for GraphResponse<T> {
+    fn as_mut(&mut self) -> &mut Result<&T, &GraphFailure> {
         &mut self.body
     }
 }
 
+ */
 impl<T: DeserializeOwned> TryFrom<reqwest::blocking::Response> for GraphResponse<T> {
     type Error = GraphFailure;
 
@@ -147,7 +163,8 @@ impl<T: DeserializeOwned> TryFrom<reqwest::blocking::Response> for GraphResponse
         let url = GraphUrl::from(response.url());
         let status = response.status();
         let headers = response.headers().to_owned();
-        Ok(GraphResponse::new(url, response.json()?, status, headers))
+        let body = response.json().map_err(GraphFailure::from);
+        Ok(GraphResponse::new(url, body, status, headers))
     }
 }
 
@@ -168,13 +185,9 @@ impl<T: DeserializeOwned> AsyncTryFrom<reqwest::Response> for GraphResponse<T> {
         let url = GraphUrl::from(response.url());
         let status = response.status();
         let headers = response.headers().to_owned();
+        let body = response.json().await.map_err(GraphFailure::from);
 
-        Ok(GraphResponse::new(
-            url,
-            response.json().await?,
-            status,
-            headers,
-        ))
+        Ok(GraphResponse::new(url, body, status, headers))
     }
 }
 

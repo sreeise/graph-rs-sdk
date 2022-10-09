@@ -179,7 +179,7 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let json = response.json().map_err(GraphFailure::from)?;
+        let json = response.json().map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, json, status, headers))
     }
 
@@ -192,7 +192,7 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let text = response.text().map_err(GraphFailure::from)?;
+        let text = response.text().map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, text, status, headers))
     }
 
@@ -205,7 +205,7 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let bytes = response.bytes().map_err(GraphFailure::from)?;
+        let bytes = response.bytes().map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, bytes, status, headers))
     }
 }
@@ -299,7 +299,7 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let json = response.json().await.map_err(GraphFailure::from)?;
+        let json = response.json().await.map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, json, status, headers))
     }
 
@@ -313,7 +313,7 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let text = response.text().await.map_err(GraphFailure::from)?;
+        let text = response.text().await.map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, text, status, headers))
     }
 
@@ -327,7 +327,7 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let bytes = response.bytes().await.map_err(GraphFailure::from)?;
+        let bytes = response.bytes().await.map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, bytes, status, headers))
     }
 }

@@ -59,7 +59,7 @@ fn filter_query_request_v1() {
             .send();
 
         if let Ok(response) = result {
-            let users = response.body()["value"].as_array().unwrap();
+            let users = response.body().unwrap()["value"].as_array().unwrap();
             let found_user = users.iter().find(|user| {
                 let name = user["displayName"].as_str().unwrap();
                 name.eq("Adele Vance")
@@ -88,7 +88,7 @@ fn filter_query_request_beta() {
             .send();
 
         if let Ok(response) = result {
-            let users = response.body()["value"].as_array().unwrap();
+            let users = response.body().unwrap()["value"].as_array().unwrap();
             let found_user = users.iter().find(|user| {
                 let name = user["displayName"].as_str().unwrap();
                 name.eq("Adele Vance")
@@ -117,7 +117,7 @@ fn order_by_query_request_v1() {
             .send();
 
         if let Ok(response) = result {
-            let users = response.body()["value"].as_array().unwrap();
+            let users = response.body().unwrap()["value"].as_array().unwrap();
             let found_user = users.iter().find(|user| {
                 let name = user["displayName"].as_str().unwrap();
                 name.eq("Adele Vance")
@@ -146,7 +146,7 @@ fn order_by_request_beta() {
             .send();
 
         if let Ok(response) = result {
-            let users = response.body()["value"].as_array().unwrap();
+            let users = response.body().unwrap()["value"].as_array().unwrap();
             let found_user = users.iter().find(|user| {
                 let name = user["displayName"].as_str().unwrap();
                 name.eq("Adele Vance")

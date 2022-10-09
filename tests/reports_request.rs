@@ -96,6 +96,6 @@ fn get_office_365_user_counts_reports_text() {
         );
         let response = result.unwrap();
 
-        assert!(!response.body().is_empty());
+        assert!(!response.body().unwrap().is_empty());
     }
 }

@@ -70,7 +70,10 @@ async fn async_upload_session() {
                     assert!(response.status().is_success());
 
                     let drive_item = response.body();
-                    let drive_item_id = drive_item["id"].as_str().unwrap_or_default().to_string();
+                    let drive_item_id = drive_item.unwrap()["id"]
+                        .as_str()
+                        .unwrap_or_default()
+                        .to_string();
                     tokio::time::sleep(Duration::from_secs(3)).await;
 
                     let delete_res = client
@@ -138,7 +141,10 @@ async fn async_upload_session_standalone_request() {
                 Ok(NextSession::Done(response)) => {
                     assert!(response.status().is_success());
                     let drive_item = response.body();
-                    let drive_item_id = drive_item["id"].as_str().unwrap_or_default().to_string();
+                    let drive_item_id = drive_item.unwrap()["id"]
+                        .as_str()
+                        .unwrap_or_default()
+                        .to_string();
                     tokio::time::sleep(Duration::from_secs(3)).await;
 
                     let delete_res = client
@@ -190,7 +196,7 @@ async fn create_delete_folder_async() {
             .await;
 
         if let Ok(response) = create_folder_res {
-            let item_id = response.body()["id"].as_str().unwrap();
+            let item_id = response.body().unwrap()["id"].as_str().unwrap();
             tokio::time::sleep(Duration::from_secs(2)).await;
 
             let req = client.v1().drive(id).delete_items(item_id).send().await;
@@ -229,8 +235,8 @@ async fn drive_upload_new_and_replace_and_delete() {
             .await;
 
         if let Ok(value) = upload_res {
-            assert!(value.body()["id"].as_str().is_some());
-            let item_id = value.body()["id"].as_str().unwrap();
+            assert!(value.body().unwrap()["id"].as_str().is_some());
+            let item_id = value.body().unwrap()["id"].as_str().unwrap();
 
             let mut file = OpenOptions::new()
                 .write(true)
@@ -250,7 +256,7 @@ async fn drive_upload_new_and_replace_and_delete() {
                 .await;
 
             if let Ok(value) = upload_replace {
-                let item_id2 = value.body()["id"].as_str().unwrap();
+                let item_id2 = value.body().unwrap()["id"].as_str().unwrap();
                 assert_eq!(item_id, item_id2);
             } else if let Err(e) = upload_replace {
                 panic!(

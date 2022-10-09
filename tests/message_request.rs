@@ -18,7 +18,7 @@ fn list_and_get_messages() {
             .list_messages()
             .send()
         {
-            let vec = res.body()["value"].as_array().unwrap();
+            let vec = res.body().unwrap()["value"].as_array().unwrap();
             let message_id = vec[0]["id"].as_str().unwrap();
             let get_req = client
                 .v1()
@@ -30,7 +30,7 @@ fn list_and_get_messages() {
             if let Ok(response) = get_req {
                 println!("{:#?}", response);
                 let value = response.body().clone();
-                let m_id = value["id"].as_str().unwrap();
+                let m_id = value.unwrap()["id"].as_str().unwrap();
                 assert_eq!(m_id, message_id);
             } else if get_req.is_err() {
                 panic!("Request error. Method: mail messages get");
@@ -71,7 +71,7 @@ fn mail_create_and_delete_message() {
             .send();
 
         if let Ok(message) = result {
-            let message_id = message.body()["id"].as_str().unwrap();
+            let message_id = message.body().unwrap()["id"].as_str().unwrap();
 
             thread::sleep(Duration::from_secs(2));
             let delete_res = client

@@ -51,7 +51,7 @@ impl<T> DispatchBlocking<T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let json = response.json().map_err(GraphFailure::from)?;
+        let json = response.json().map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, json, status, headers))
     }
 
@@ -64,7 +64,7 @@ impl<T> DispatchBlocking<T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let text = response.text().map_err(GraphFailure::from)?;
+        let text = response.text().map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, text, status, headers))
     }
 
@@ -77,7 +77,7 @@ impl<T> DispatchBlocking<T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let bytes = response.bytes().map_err(GraphFailure::from)?;
+        let bytes = response.bytes().map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, bytes, status, headers))
     }
 }
@@ -153,7 +153,7 @@ impl<T> DispatchAsync<T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let json = response.json().await.map_err(GraphFailure::from)?;
+        let json = response.json().await.map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, json, status, headers))
     }
 
@@ -166,7 +166,7 @@ impl<T> DispatchAsync<T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let text = response.text().await.map_err(GraphFailure::from)?;
+        let text = response.text().await.map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, text, status, headers))
     }
 
@@ -179,7 +179,7 @@ impl<T> DispatchAsync<T> {
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let bytes = response.bytes().await.map_err(GraphFailure::from)?;
+        let bytes = response.bytes().await.map_err(GraphFailure::from);
         Ok(GraphResponse::new(url, bytes, status, headers))
     }
 }
@@ -270,7 +270,7 @@ where
 
         let token = self.token;
         let response = response.unwrap();
-        let mut next_link = response.body().next_link();
+        let mut next_link = response.body().unwrap().next_link();
         sender.send(Delta::Next(response)).unwrap();
 
         thread::spawn(move || {
@@ -299,7 +299,10 @@ where
                                     next_link = value.next_link();
                                     sender
                                         .send(Delta::Next(GraphResponse::new(
-                                            url, value, status, headers,
+                                            url,
+                                            Ok(value),
+                                            status,
+                                            headers,
                                         )))
                                         .unwrap();
                                 }
@@ -353,7 +356,7 @@ where
 
         let token = self.token;
         let response = response.unwrap();
-        let mut next_link = response.body().next_link();
+        let mut next_link = response.body().unwrap().next_link();
         sender.send(Delta::Next(response)).await.unwrap();
 
         tokio::spawn(async move {
@@ -383,7 +386,10 @@ where
                                     next_link = value.next_link();
                                     sender
                                         .send(Delta::Next(GraphResponse::new(
-                                            url, value, status, headers,
+                                            url,
+                                            Ok(value),
+                                            status,
+                                            headers,
                                         )))
                                         .await
                                         .unwrap();

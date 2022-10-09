@@ -40,6 +40,7 @@ async fn buffered_requests() {
 
         let users: Vec<String> = users_resp
             .into_body()
+            .unwrap()
             .value
             .iter()
             .filter_map(|user| user.id.clone())
