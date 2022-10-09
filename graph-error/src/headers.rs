@@ -1,7 +1,7 @@
 use reqwest::header::HeaderMap;
 
 #[allow(dead_code)]
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct HeaderInfo {
     url: String,
     status: i64,
@@ -9,7 +9,7 @@ pub struct HeaderInfo {
 }
 
 #[allow(dead_code)]
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Headers {
     #[serde(rename = "cache-control")]
     cache_control: String,

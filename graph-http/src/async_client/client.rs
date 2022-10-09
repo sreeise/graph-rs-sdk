@@ -220,7 +220,7 @@ impl AsyncHttpClient {
 
     pub async fn response(&self) -> GraphResult<reqwest::Response> {
         let builder = self.build();
-        return builder.send().await.map_err(GraphFailure::from);
+        builder.send().await.map_err(GraphFailure::from)
     }
 
     pub async fn execute<T>(&self) -> GraphResult<GraphResponse<T>>
