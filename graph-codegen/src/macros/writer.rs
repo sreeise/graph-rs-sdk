@@ -1,5 +1,6 @@
 use crate::parser::HttpMethod;
 use bytes::{BufMut, BytesMut};
+use std::fmt::Write as _;
 
 /*
 TODO:
@@ -100,7 +101,7 @@ impl MacroFormatter {
             if i == 0 {
                 s.push_str(", $p: S");
             } else {
-                s.push_str(&format!(", $p{}: S", i));
+                let _ = write!(s, ", $p{}: S", i);
             }
         }
 
@@ -117,7 +118,7 @@ impl MacroFormatter {
             if i == 0 {
                 s.push_str(" \"id\": $p.as_ref()");
             } else {
-                s.push_str(&format!(", \"id{}\": $p{}.as_ref()", i, i));
+                let _ = write!(s, ", \"id{}\": $p{}.as_ref()", i, i);
             }
         }
 
@@ -137,7 +138,7 @@ impl MacroFormatter {
             if i == 0 {
                 s.push_str(" $p:ident ");
             } else {
-                s.push_str(&format!("$p{}:ident ", i));
+                let _ = write!(s, "$p{}:ident ", i);
             }
         }
 
@@ -168,7 +169,7 @@ impl MacroFormatter {
             if i == 0 {
                 inner_params.push_str(" $p ");
             } else {
-                inner_params.push_str(&format!("$p{} ", i));
+                let _ = write!(inner_params, "$p{} ", i);
             }
         }
 
@@ -211,7 +212,7 @@ impl MacroFormatter {
             if i == 0 {
                 s.push_str(" $p:ident ");
             } else {
-                s.push_str(&format!("$p{}:ident ", i));
+                let _ = write!(s, "$p{}:ident ", i);
             }
         }
 

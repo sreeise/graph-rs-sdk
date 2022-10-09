@@ -13,7 +13,7 @@ use handlebars::Handlebars;
 use parking_lot::Mutex;
 use reqwest::header::{HeaderMap, HeaderValue, IntoHeaderName, CONTENT_TYPE};
 use reqwest::redirect::Policy;
-use reqwest::Method;
+use reqwest::{Method, RequestBuilder};
 use std::fmt::{Debug, Formatter};
 use std::fs::File;
 use std::io::Read;
@@ -60,6 +60,16 @@ impl AsyncClient {
         DownloadClient::new_async(request)
     }
 
+    /*
+       async fn upload_session_from(&mut self, file: PathBuf, request: RequestBuilder) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
+           let response = request.send().await?.with_graph_error().await?;
+           let upload_session: serde_json::Value = response.json().await?;
+           let mut session = UploadSessionClient::new_async(upload_session)?;
+           session.set_file(file).await?;
+           Ok(session)
+       }
+
+    */
     pub async fn upload_session(&mut self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
         let file = self
             .upload_session_file
@@ -181,29 +191,45 @@ impl AsyncHttpClient {
         self.client.lock().download()
     }
 
-    pub async fn upload_session(&self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
-        self.client.lock().upload_session().await
+    fn get_upload_session_values(&self) -> GraphResult<(PathBuf, RequestBuilder)> {
+        let mut client = self.client.lock();
+        let upload_session_file = client
+            .upload_session_file
+            .take()
+            .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
+        let request_builder = client.build();
+        Ok((upload_session_file, request_builder))
     }
 
-    pub async fn build_upload_session(&self) -> (Option<PathBuf>, reqwest::RequestBuilder) {
+    pub async fn upload_session(&self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
+        let (file, request) = self.get_upload_session_values()?;
+        let response = request.send().await?.with_graph_error().await?;
+        let upload_session: serde_json::Value = response.json().await?;
+        let mut session = UploadSessionClient::new_async(upload_session)?;
+        session.set_file(file).await?;
+        Ok(session)
+    }
+
+    pub fn build_upload_session(&self) -> (Option<PathBuf>, reqwest::RequestBuilder) {
         self.client.lock().build_upload_session()
     }
 
-    pub async fn build(&self) -> reqwest::RequestBuilder {
+    pub fn build(&self) -> reqwest::RequestBuilder {
         self.client.lock().build()
     }
 
     pub async fn response(&self) -> GraphResult<reqwest::Response> {
-        let mut client = self.client.lock();
-        let response = client.response();
-        response.await
+        let builder = self.build();
+        builder.send().await.map_err(GraphFailure::from)
     }
 
     pub async fn execute<T>(&self) -> GraphResult<GraphResponse<T>>
     where
         for<'de> T: serde::Deserialize<'de>,
     {
-        self.client.lock().execute().await
+        let request = self.build();
+        let response = request.send().await?;
+        AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
     }
 }
 
