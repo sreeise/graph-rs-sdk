@@ -1,7 +1,7 @@
 use reqwest::header::HeaderMap;
 
 #[allow(dead_code)]
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct HeaderInfo {
     url: String,
     status: i64,

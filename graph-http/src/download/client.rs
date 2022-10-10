@@ -6,12 +6,46 @@ use crate::{HttpClient, RequestClient, RequestType};
 use graph_error::download::{AsyncDownloadError, BlockingDownloadError};
 use graph_error::{WithGraphError, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
+use reqwest::RequestBuilder;
 use std::cell::RefCell;
 use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
 
 // BlockingDownload
+
+pub const MAX_FILE_NAME_LEN: usize = 255;
+
+#[allow(clippy::single_char_pattern)]
+fn parse_content_disposition(headers: &HeaderMap) -> Option<OsString> {
+    if let Some(value) = headers.get("content-disposition") {
+        if let Ok(header) = std::str::from_utf8(value.as_ref()) {
+            let mut v: Vec<&str> = header.split(';').collect();
+            v.retain(|s| !s.is_empty());
+
+            // The filename* indicates that the filename is encoded
+            if let Some(value) = v.iter().find(|s| s.starts_with("filename*=utf-8''")) {
+                let s = value.replace("filename*=utf-8''", "");
+                if let Ok(s) = percent_encoding::percent_decode(s.as_bytes()).decode_utf8() {
+                    return Some(OsString::from(s.to_string().replace('/', "-")));
+                }
+            }
+
+            if let Some(value) = v.last() {
+                if value.trim_start().starts_with("filename=") {
+                    return Some(OsString::from(
+                        value
+                            .replace("\"", "")
+                            .replace("filename=", "")
+                            .replace('/', "-")
+                            .trim(),
+                    ));
+                }
+            }
+        }
+    }
+    None
+}
 
 pub struct DownloadRequest {
     path: PathBuf,
@@ -45,41 +79,6 @@ pub type AsyncDownload = DownloadClient<
     HttpClient<std::sync::Arc<parking_lot::Mutex<AsyncClient>>>,
     std::sync::Arc<parking_lot::Mutex<DownloadRequest>>,
 >;
-
-pub const MAX_FILE_NAME_LEN: usize = 255;
-
-impl<Client, Request> DownloadClient<Client, Request> {
-    #[allow(clippy::single_char_pattern)]
-    fn parse_content_disposition(&self, headers: &HeaderMap) -> Option<OsString> {
-        if let Some(value) = headers.get("content-disposition") {
-            if let Ok(header) = std::str::from_utf8(value.as_ref()) {
-                let mut v: Vec<&str> = header.split(';').collect();
-                v.retain(|s| !s.is_empty());
-
-                // The filename* indicates that the filename is encoded
-                if let Some(value) = v.iter().find(|s| s.starts_with("filename*=utf-8''")) {
-                    let s = value.replace("filename*=utf-8''", "");
-                    if let Ok(s) = percent_encoding::percent_decode(s.as_bytes()).decode_utf8() {
-                        return Some(OsString::from(s.to_string().replace('/', "-")));
-                    }
-                }
-
-                if let Some(value) = v.last() {
-                    if value.trim_start().starts_with("filename=") {
-                        return Some(OsString::from(
-                            value
-                                .replace("\"", "")
-                                .replace("filename=", "")
-                                .replace('/', "-")
-                                .trim(),
-                        ));
-                    }
-                }
-            }
-        }
-        None
-    }
-}
 
 impl BlockingDownload {
     pub fn new(client: BlockingClient) -> BlockingDownload {
@@ -166,7 +165,7 @@ impl BlockingDownload {
             if let Some(name) = request
                 .file_name
                 .clone()
-                .or_else(|| self.parse_content_disposition(response.headers()))
+                .or_else(|| parse_content_disposition(response.headers()))
             {
                 if name.len() > MAX_FILE_NAME_LEN {
                     return Err(BlockingDownloadError::FileNameTooLong);
@@ -256,47 +255,65 @@ impl AsyncDownload {
         });
     }
 
-    pub async fn send(self) -> Result<PathBuf, AsyncDownloadError> {
-        let request = self.request.lock();
+    // Allows locking the mutex without being held across an .await in the send method.
+    fn get_send_values(
+        self,
+    ) -> (
+        PathBuf,
+        Option<OsString>,
+        bool,
+        bool,
+        Option<String>,
+        RequestBuilder,
+    ) {
+        let client = self.request.lock();
+        let path = client.path.clone();
+        let file_name = client.file_name.clone();
+        let create_dir_all = client.create_dir_all;
+        let overwrite_existing_file = client.overwrite_existing_file;
+        let extension = client.extension.clone();
+        let request_builder = self.client.build();
+        (
+            path,
+            file_name,
+            create_dir_all,
+            overwrite_existing_file,
+            extension,
+            request_builder,
+        )
+    }
 
-        // Create the directory if it does not exist.
-        if request.create_dir_all {
-            iotools::create_dir_async(request.path.as_path()).await?;
-        } else if !request.path.exists() {
+    pub async fn send(self) -> Result<PathBuf, AsyncDownloadError> {
+        let (path, file_name, create_dir_all, overwrite_existing_file, extension, request_builder) =
+            self.get_send_values();
+
+        if create_dir_all {
+            iotools::create_dir_async(path.as_path()).await?;
+        } else if !path.exists() {
             return Err(AsyncDownloadError::TargetDoesNotExist(
-                request.path.to_string_lossy().to_string(),
+                path.to_string_lossy().to_string(),
             ));
         }
 
-        let response = self
-            .client
-            .build()
-            .await
-            .send()
-            .await?
-            .with_graph_error()
-            .await?;
+        let response = request_builder.send().await?.with_graph_error().await?;
 
         let path = {
-            if let Some(name) = request
-                .file_name
-                .clone()
-                .or_else(|| self.parse_content_disposition(response.headers()))
+            if let Some(name) = file_name.or_else(|| parse_content_disposition(response.headers()))
             {
                 if name.len() > MAX_FILE_NAME_LEN {
                     return Err(AsyncDownloadError::FileNameTooLong);
                 }
-                request.path.join(name)
+                path.join(name)
             } else {
                 return Err(AsyncDownloadError::NoFileName);
             }
         };
 
-        if let Some(ext) = request.extension.as_ref() {
+        if let Some(ext) = extension.as_ref() {
             path.with_extension(ext.as_str());
         }
 
-        if path.exists() && !request.overwrite_existing_file {
+        if path.exists() && !overwrite_existing_file {
             return Err(AsyncDownloadError::FileExists(
                 path.to_string_lossy().to_string(),
             ));

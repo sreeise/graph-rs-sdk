@@ -177,7 +177,7 @@ impl UploadSessionClient<AsyncHttpClient> {
 
     pub async fn cancel(&mut self) -> reqwest::RequestBuilder {
         self.client.set_method(reqwest::Method::DELETE);
-        self.client.build().await
+        self.client.build()
     }
 
     pub async fn status(&mut self) -> GraphResult<reqwest::Response> {
@@ -192,7 +192,7 @@ impl AsyncIterator for UploadSessionClient<AsyncHttpClient> {
     async fn next(&mut self) -> Option<Self::Item> {
         let (body, content_length, content_range) = self.byte_ranges.pop_front()?;
         self.build_next_request(body, content_length, content_range);
-        let request_builder = self.client.build().await;
+        let request_builder = self.client.build();
         let result = request_builder.send().await.map_err(GraphFailure::from);
         match result {
             Ok(response) => match response.with_graph_error().await {

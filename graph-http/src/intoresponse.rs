@@ -323,7 +323,7 @@ impl<'a, T> IntoResponseAsync<'a, T> {
             return Err(self.error.unwrap_or_default());
         }
 
-        let request = self.client.build().await;
+        let request = self.client.build();
         let response = request.send().await?;
         let headers = response.headers().clone();
         let status = response.status();
@@ -337,7 +337,7 @@ impl<'a, T> IntoResponseAsync<'a, T> {
             return Err(self.error.unwrap_or_default());
         }
 
-        let request = self.client.build().await;
+        let request = self.client.build();
         let response = request.send().await?;
         let headers = response.headers().clone();
         let status = response.status();
@@ -356,7 +356,7 @@ where
     for<'de> T: serde::Deserialize<'de>,
 {
     pub async fn build(self) -> DispatchAsync<T> {
-        let builder = self.client.build().await;
+        let builder = self.client.build();
         DispatchAsync::new(builder, None, self.error)
     }
 
@@ -364,7 +364,7 @@ where
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
-        let request = self.client.build().await;
+        let request = self.client.build();
         let response = request.send().await?;
         AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
     }
@@ -377,7 +377,7 @@ where
             return Err(self.error.unwrap_or_default());
         }
 
-        let request = self.client.build().await;
+        let request = self.client.build();
         let response = request.send().await?;
         let headers = response.headers().clone();
         let status = response.status();
@@ -397,8 +397,7 @@ impl<'a> IntoResponseAsync<'a, NextLink> {
         }
 
         let mut values = vec![];
-        let request = self.client.build().await;
-        let response = request.send().await?;
+        let response = self.client.build().send().await?;
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
@@ -407,8 +406,7 @@ impl<'a> IntoResponseAsync<'a, NextLink> {
         values.append(&mut body.value);
         while let Some(url) = next_link {
             self.client.set_url(url);
-            let request = self.client.build().await;
-            let response = request.send().await?;
+            let response = self.client.build().send().await?;
             let mut body: NextLinkValues<V> = response.json().await.map_err(GraphFailure::from)?;
             next_link = body.next_link.and_then(|url| GraphUrl::parse(&url).ok());
             values.append(&mut body.value);
@@ -419,7 +417,7 @@ impl<'a> IntoResponseAsync<'a, NextLink> {
 
 impl<'a> IntoResponseAsync<'a, NoContent> {
     pub async fn build(self) -> DispatchAsync<GraphResponse<NoContent>> {
-        let builder = self.client.build().await;
+        let builder = self.client.build();
         DispatchAsync::new(builder, None, self.error)
     }
 
@@ -428,7 +426,7 @@ impl<'a> IntoResponseAsync<'a, NoContent> {
             return Err(self.error.unwrap_or_default());
         }
 
-        let request = self.client.build().await;
+        let request = self.client.build();
         let response = request.send().await?;
         GraphResponse::<serde_json::Value>::async_from_no_content(response).await
     }
@@ -436,7 +434,7 @@ impl<'a> IntoResponseAsync<'a, NoContent> {
 
 impl<'a> IntoResponseAsync<'a, UploadSessionClient<AsyncHttpClient>> {
     pub async fn build(self) -> DispatchAsync<UploadSessionClient<AsyncHttpClient>> {
-        let (file, builder) = self.client.build_upload_session().await;
+        let (file, builder) = self.client.build_upload_session();
         DispatchAsync::new(builder, file, self.error)
     }
 
@@ -453,7 +451,7 @@ where
     for<'de> T: serde::Deserialize<'de>,
 {
     pub async fn build(self) -> DispatchDelta<T, reqwest::RequestBuilder> {
-        let builder = self.client.build().await;
+        let builder = self.client.build();
         let token = self.client.token();
         DispatchDelta::<T, reqwest::RequestBuilder>::new(token, builder, self.error)
     }

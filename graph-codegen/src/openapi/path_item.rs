@@ -264,12 +264,7 @@ impl PathItem {
         }
 
         for param in parameter_filter {
-            request_path_item.parameters = request_path_item
-                .parameters
-                .iter()
-                .filter(|p| p.ne(&param))
-                .cloned()
-                .collect();
+            request_path_item.parameters.retain(|p| p.ne(param));
         }
 
         request_path_item.param_size = request_path_item.parameters.len();
