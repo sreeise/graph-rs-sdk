@@ -240,26 +240,20 @@ impl<'a> IntoResponseBlocking<'a, NextLink> {
             return Err(self.error.unwrap_or_default());
         }
 
+        let mut values = vec![];
         let response = self.client.response()?;
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let mut json: NextLinkValues<V> = response.json().map_err(GraphFailure::from)?;
-        let mut values: Vec<V> = vec![];
-
-        loop {
-            values.append(&mut json.value);
-            match json.next_link {
-                Some(next_link) => {
-                    let url = GraphUrl::parse(&next_link)?;
-                    self.client.set_url(url);
-                    let response = self.client.response()?;
-                    json = response.json().map_err(GraphFailure::from)?;
-                }
-                None => {
-                    break;
-                }
-            }
+        let mut body: NextLinkValues<V> = response.json().map_err(GraphFailure::from)?;
+        let mut next_link = body.next_link.and_then(|url| GraphUrl::parse(&url).ok());
+        values.append(&mut body.value);
+        while let Some(url) = next_link {
+            self.client.set_url(url);
+            let response = self.client.response()?;
+            let mut body: NextLinkValues<V> = response.json().map_err(GraphFailure::from)?;
+            next_link = body.next_link.and_then(|url| GraphUrl::parse(&url).ok());
+            values.append(&mut body.value);
         }
         Ok(GraphResponse::new(url, values, status, headers))
     }
@@ -402,28 +396,22 @@ impl<'a> IntoResponseAsync<'a, NextLink> {
             return Err(self.error.unwrap_or_default());
         }
 
+        let mut values = vec![];
         let request = self.client.build().await;
         let response = request.send().await?;
         let headers = response.headers().clone();
         let status = response.status();
         let url = GraphUrl::from(response.url());
-        let mut json: NextLinkValues<V> = response.json().await.map_err(GraphFailure::from)?;
-        let mut values: Vec<V> = vec![];
-
-        loop {
-            values.append(&mut json.value);
-            match json.next_link {
-                Some(next_link) => {
-                    let url = GraphUrl::parse(&next_link)?;
-                    self.client.set_url(url);
-                    let request = self.client.build().await;
-                    let response = request.send().await?;
-                    json = response.json().await.map_err(GraphFailure::from)?;
-                }
-                None => {
-                    break;
-                }
-            }
+        let mut body: NextLinkValues<V> = response.json().await.map_err(GraphFailure::from)?;
+        let mut next_link = body.next_link.and_then(|url| GraphUrl::parse(&url).ok());
+        values.append(&mut body.value);
+        while let Some(url) = next_link {
+            self.client.set_url(url);
+            let request = self.client.build().await;
+            let response = request.send().await?;
+            let mut body: NextLinkValues<V> = response.json().await.map_err(GraphFailure::from)?;
+            next_link = body.next_link.and_then(|url| GraphUrl::parse(&url).ok());
+            values.append(&mut body.value);
         }
         Ok(GraphResponse::new(url, values, status, headers))
     }
