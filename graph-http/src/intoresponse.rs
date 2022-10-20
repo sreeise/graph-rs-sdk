@@ -232,6 +232,14 @@ where
 }
 
 impl<'a> IntoResponseBlocking<'a, NextLink> {
+    /// Gets all next link calls in one response.
+    ///
+    /// This method will get the next link url of the original response and
+    /// then continue calling next link requests until there are no more left
+    /// returning all response bodies in a single Vec.
+    ///
+    /// This method make block for long periods of time if there are many
+    /// next link values.
     pub fn json<V>(self) -> GraphResult<GraphResponse<Vec<V>>>
     where
         for<'de> V: serde::Deserialize<'de>,
@@ -388,6 +396,14 @@ where
 }
 
 impl<'a> IntoResponseAsync<'a, NextLink> {
+    /// Gets all next link calls in one response.
+    ///
+    /// This method will get the next link url of the original response and
+    /// then continue calling next link requests until there are no more left
+    /// returning all response bodies in a single Vec.
+    ///
+    /// This method make block for long periods of time if there are many
+    /// next link values.
     pub async fn json<V>(self) -> GraphResult<GraphResponse<Vec<V>>>
     where
         for<'de> V: serde::Deserialize<'de>,
