@@ -1,7 +1,7 @@
 use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
 use crate::traits::{AsyncTryFrom, ODataLink};
-use crate::types::{Delta, DeltaPhantom, NoContent};
+use crate::types::{Delta, DeltaPhantom, NextLink, NextLinkValues, NoContent};
 use crate::uploadsession::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::{
@@ -167,22 +167,6 @@ where
 }
 
 impl<'a, T> IntoResponseBlocking<'a, T> {
-    pub fn json<U>(self) -> GraphResult<GraphResponse<U>>
-    where
-        for<'de> U: serde::Deserialize<'de>,
-    {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let response = self.client.response()?;
-        let headers = response.headers().clone();
-        let status = response.status();
-        let url = GraphUrl::from(response.url());
-        let json = response.json().map_err(GraphFailure::from)?;
-        Ok(GraphResponse::new(url, json, status, headers))
-    }
-
     pub fn text(self) -> GraphResult<GraphResponse<String>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -208,6 +192,10 @@ impl<'a, T> IntoResponseBlocking<'a, T> {
         let bytes = response.bytes().map_err(GraphFailure::from)?;
         Ok(GraphResponse::new(url, bytes, status, headers))
     }
+
+    pub fn paging(self) -> IntoResponseBlocking<'a, NextLink> {
+        IntoResponse::new(self.client)
+    }
 }
 
 impl<'a, T> IntoResponseBlocking<'a, T>
@@ -224,6 +212,58 @@ where
             return Err(self.error.unwrap_or_default());
         }
         self.client.execute()
+    }
+
+    pub fn json<U>(self) -> GraphResult<GraphResponse<U>>
+    where
+        for<'de> U: serde::Deserialize<'de>,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let response = self.client.response()?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let json = response.json().map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, json, status, headers))
+    }
+}
+
+impl<'a> IntoResponseBlocking<'a, NextLink> {
+    /// Gets all next link calls in one response.
+    ///
+    /// This method will get the next link url of the original response and
+    /// then continue calling next link requests until there are no more left
+    /// returning all response bodies in a single Vec.
+    ///
+    /// This method make block for long periods of time if there are many
+    /// next link values.
+    pub fn json<V>(self) -> GraphResult<GraphResponse<Vec<V>>>
+    where
+        for<'de> V: serde::Deserialize<'de>,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let mut values = vec![];
+        let response = self.client.response()?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let mut body: NextLinkValues<V> = response.json().map_err(GraphFailure::from)?;
+        let mut next_link = body.next_link.and_then(|url| GraphUrl::parse(&url).ok());
+        values.append(&mut body.value);
+        while let Some(url) = next_link {
+            self.client.set_url(url);
+            let response = self.client.response()?;
+            let mut body: NextLinkValues<V> = response.json().map_err(GraphFailure::from)?;
+            next_link = body.next_link.and_then(|url| GraphUrl::parse(&url).ok());
+            values.append(&mut body.value);
+        }
+        Ok(GraphResponse::new(url, values, status, headers))
     }
 }
 
@@ -286,23 +326,6 @@ impl<'a> IntoResponseBlocking<'a, BlockingDownload> {
 // Async Impl
 
 impl<'a, T> IntoResponseAsync<'a, T> {
-    pub async fn json<U>(self) -> GraphResult<GraphResponse<U>>
-    where
-        for<'de> U: serde::Deserialize<'de>,
-    {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let request = self.client.build();
-        let response = request.send().await?;
-        let headers = response.headers().clone();
-        let status = response.status();
-        let url = GraphUrl::from(response.url());
-        let json = response.json().await.map_err(GraphFailure::from)?;
-        Ok(GraphResponse::new(url, json, status, headers))
-    }
-
     pub async fn text(self) -> GraphResult<GraphResponse<String>> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -330,6 +353,10 @@ impl<'a, T> IntoResponseAsync<'a, T> {
         let bytes = response.bytes().await.map_err(GraphFailure::from)?;
         Ok(GraphResponse::new(url, bytes, status, headers))
     }
+
+    pub fn paging(self) -> IntoResponseAsync<'a, NextLink> {
+        IntoResponse::new(self.client)
+    }
 }
 
 impl<'a, T> IntoResponseAsync<'a, T>
@@ -348,6 +375,59 @@ where
         let request = self.client.build();
         let response = request.send().await?;
         AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
+    }
+
+    pub async fn json<U>(self) -> GraphResult<GraphResponse<U>>
+    where
+        for<'de> U: serde::Deserialize<'de>,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let request = self.client.build();
+        let response = request.send().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let json = response.json().await.map_err(GraphFailure::from)?;
+        Ok(GraphResponse::new(url, json, status, headers))
+    }
+}
+
+impl<'a> IntoResponseAsync<'a, NextLink> {
+    /// Gets all next link calls in one response.
+    ///
+    /// This method will get the next link url of the original response and
+    /// then continue calling next link requests until there are no more left
+    /// returning all response bodies in a single Vec.
+    ///
+    /// This method make block for long periods of time if there are many
+    /// next link values.
+    pub async fn json<V>(self) -> GraphResult<GraphResponse<Vec<V>>>
+    where
+        for<'de> V: serde::Deserialize<'de>,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let mut values = vec![];
+        let response = self.client.build().send().await?;
+        let headers = response.headers().clone();
+        let status = response.status();
+        let url = GraphUrl::from(response.url());
+        let mut body: NextLinkValues<V> = response.json().await.map_err(GraphFailure::from)?;
+        let mut next_link = body.next_link.and_then(|url| GraphUrl::parse(&url).ok());
+        values.append(&mut body.value);
+        while let Some(url) = next_link {
+            self.client.set_url(url);
+            let response = self.client.build().send().await?;
+            let mut body: NextLinkValues<V> = response.json().await.map_err(GraphFailure::from)?;
+            next_link = body.next_link.and_then(|url| GraphUrl::parse(&url).ok());
+            values.append(&mut body.value);
+        }
+        Ok(GraphResponse::new(url, values, status, headers))
     }
 }
 

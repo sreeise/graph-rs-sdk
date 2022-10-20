@@ -1,13 +1,3 @@
-pub trait ODataNextLink {
-    fn next_link(&self) -> Option<String>;
-}
-
-impl ODataNextLink for serde_json::Value {
-    fn next_link(&self) -> Option<String> {
-        self["@odata.nextLink"].as_str().map(|s| s.to_string())
-    }
-}
-
 pub trait ODataLink<RHS = Self> {
     /// Get the download URL.
     fn download_link(&self) -> Option<String>;

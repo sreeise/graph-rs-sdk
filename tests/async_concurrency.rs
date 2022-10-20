@@ -11,13 +11,6 @@ pub struct User {
     user_principal_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Users {
-    pub(crate) value: Vec<User>,
-    #[serde(rename = "@odata.nextLink")]
-    pub(crate) next_link: Option<String>,
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LicenseDetail {
     id: Option<String>,
@@ -28,19 +21,19 @@ pub struct LicenseDetail {
 #[tokio::test]
 async fn buffered_requests() {
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let users_resp: GraphResponse<Users> = client
+        let users_resp: GraphResponse<Vec<User>> = client
             .v1()
             .users()
             .list_user()
             .select(&["id", "userPrincipalName"])
             .top("5")
+            .paging()
             .json()
             .await
             .unwrap();
 
         let users: Vec<String> = users_resp
             .into_body()
-            .value
             .iter()
             .filter_map(|user| user.id.clone())
             .collect();
@@ -48,11 +41,12 @@ async fn buffered_requests() {
 
         let mut stream = stream::iter(users)
             .map(|i| async {
-                let license_details: GraphResponse<LicenseDetail> = client
+                let license_details: GraphResponse<Vec<LicenseDetail>> = client
                     .v1()
                     .users()
                     .id(i)
                     .list_license_details()
+                    .paging()
                     .json()
                     .await
                     .unwrap();
