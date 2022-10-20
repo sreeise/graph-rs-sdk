@@ -1,7 +1,7 @@
 mod content;
 mod delta;
-mod nextlink;
+mod next_link;
 
 pub use content::*;
 pub use delta::*;
-pub use nextlink::*;
+pub use next_link::*;
