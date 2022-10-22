@@ -12,6 +12,7 @@ mod http_client;
 mod intoresponse;
 mod registry;
 mod request;
+mod request_handler;
 mod response;
 mod uploadsession;
 
@@ -29,5 +30,6 @@ pub use http_client::*;
 pub use intoresponse::*;
 pub use registry::*;
 pub use request::*;
+pub use request_handler::*;
 pub use response::*;
 pub use uploadsession::*;
