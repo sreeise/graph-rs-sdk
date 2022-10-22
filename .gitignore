@@ -4,6 +4,9 @@
 # No Intellij files
 .idea/
 
+# JetBrains Fleet
+.fleet/
+
 # Dont import lock file for library
 Cargo.lock
 
