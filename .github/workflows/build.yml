@@ -1,4 +1,4 @@
-name: Rust
+name: Rust Build and Clippy Analyze
 
 on:
   push:
@@ -28,13 +28,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3.0.2
     - name: Build
       run: cargo build --verbose
-    - name: Clippy
-      run: cargo clippy
     - name: Run tests
       env:
         TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
         APP_REGISTRATIONS: ${{ secrets.APP_REGISTRATIONS }}
       run: cargo test --verbose
+    
+    - name: Install required cargo
+      run: cargo install clippy-sarif sarif-fmt
+
+    - name: Run rust-clippy
+      run:
+        cargo clippy
+        --all-features
+        --message-format=json | clippy-sarif | tee rust-clippy-results.sarif | sarif-fmt
+      continue-on-error: true
+
+    - name: Upload analysis results to GitHub
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: rust-clippy-results.sarif
+        wait-for-processing: true
