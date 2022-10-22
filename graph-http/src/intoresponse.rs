@@ -1,6 +1,6 @@
 use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
-use crate::traits::{AsyncTryFrom, ODataLink};
+use crate::traits::{AsyncTryFrom, ODataNextLink};
 use crate::types::{Delta, DeltaPhantom, NextLink, NextLinkValues, NoContent};
 use crate::uploadsession::UploadSessionClient;
 use crate::url::GraphUrl;
@@ -8,7 +8,9 @@ use crate::{
     AsyncDownload, BlockingDownload, DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse,
     RequestClient,
 };
+use async_stream::{stream, try_stream};
 use bytes::Bytes;
+use futures_core::Stream;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderValue, IntoHeaderName};
 use std::marker::PhantomData;
@@ -296,7 +298,7 @@ impl<'a> IntoResponseBlocking<'a, NoContent> {
     }
 }
 
-impl<'a, T: 'static + Send + ODataLink + Clone> IntoResponseBlocking<'a, DeltaPhantom<T>>
+impl<'a, T: 'static + Send + ODataNextLink + Clone> IntoResponseBlocking<'a, DeltaPhantom<T>>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
@@ -393,6 +395,62 @@ where
         let json = response.json().await.map_err(GraphFailure::from)?;
         Ok(GraphResponse::new(url, json, status, headers))
     }
+
+    fn try_stream(&'a self) -> impl Stream<Item = GraphResult<GraphResponse<T>>> + 'a
+    where
+        for<'de> T: serde::Deserialize<'de> + ODataNextLink + 'a + Clone,
+    {
+        try_stream! {
+            let request = self.client.build();
+            let response = request.send().await?;
+            let headers = response.headers().clone();
+            let status = response.status();
+            let url = GraphUrl::from(response.url());
+            let json: T = response.json().await.map_err(GraphFailure::from)?;
+            let mut next_link = json.next_link().clone().and_then(|url| GraphUrl::parse(&url).ok());
+            let result = GraphResponse::new(url, json, status, headers);
+            yield result;
+
+            while let Some(url) = next_link {
+                self.client.set_url(url);
+                let response = self.client.build().send().await?;
+                let headers = response.headers().clone();
+                let status = response.status();
+                let current_url = GraphUrl::from(response.url());
+                let json: T = response.json().await.map_err(GraphFailure::from)?;
+                next_link = json.next_link().clone().and_then(|url| GraphUrl::parse(&url).ok());
+                let result = GraphResponse::new(current_url, json, status, headers);
+                yield result;
+            }
+        }
+    }
+
+    fn into_stream(self) -> GraphResult<impl Stream<Item = GraphResult<GraphResponse<T>>> + 'a>
+    where
+        for<'de> T: serde::Deserialize<'de> + ODataNextLink + 'a + Clone,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        Ok(stream! {
+            let s = self.try_stream();
+            for await value in s {
+                yield value
+            }
+        })
+    }
+
+    pub fn stream(self) -> GraphResult<impl Stream<Item = GraphResult<GraphResponse<T>>> + 'a>
+    where
+        for<'de> T: serde::Deserialize<'de> + ODataNextLink + 'a + Clone,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        Ok(Box::pin(self.into_stream()?))
+    }
 }
 
 impl<'a> IntoResponseAsync<'a, NextLink> {
@@ -462,7 +520,7 @@ impl<'a> IntoResponseAsync<'a, UploadSessionClient<AsyncHttpClient>> {
     }
 }
 
-impl<'a, T: 'static + Send + ODataLink + Clone> IntoResponseAsync<'a, DeltaPhantom<T>>
+impl<'a, T: 'static + Send + ODataNextLink + Clone> IntoResponseAsync<'a, DeltaPhantom<T>>
 where
     for<'de> T: serde::Deserialize<'de>,
 {

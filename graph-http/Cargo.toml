@@ -9,10 +9,12 @@ description = "Http client and utilities for the graph-rs project"
 
 [dependencies]
 async-std = "1.6.0"
+async-stream = "0.3"
 async-trait = "0.1.35"
 bytes = "1"
 futures = "0.3"
 futures-core = "0.3"
+futures-util = "0.3"
 handlebars = "2.0.2"
 parking_lot = "0.12.0"
 percent-encoding = "2"

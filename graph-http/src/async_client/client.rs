@@ -60,16 +60,6 @@ impl AsyncClient {
         DownloadClient::new_async(request)
     }
 
-    /*
-       async fn upload_session_from(&mut self, file: PathBuf, request: RequestBuilder) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
-           let response = request.send().await?.with_graph_error().await?;
-           let upload_session: serde_json::Value = response.json().await?;
-           let mut session = UploadSessionClient::new_async(upload_session)?;
-           session.set_file(file).await?;
-           Ok(session)
-       }
-
-    */
     pub async fn upload_session(&mut self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
         let file = self
             .upload_session_file
@@ -83,13 +73,13 @@ impl AsyncClient {
         Ok(session)
     }
 
-    pub fn build_upload_session(&mut self) -> (Option<PathBuf>, reqwest::RequestBuilder) {
+    pub fn build_upload_session(&mut self) -> (Option<PathBuf>, RequestBuilder) {
         let file = self.upload_session_file.take();
         let builder = self.build();
         (file, builder)
     }
 
-    pub fn build(&mut self) -> reqwest::RequestBuilder {
+    pub fn build(&mut self) -> RequestBuilder {
         let headers = self.headers.clone();
         self.headers.clear();
         self.headers
@@ -210,11 +200,11 @@ impl AsyncHttpClient {
         Ok(session)
     }
 
-    pub fn build_upload_session(&self) -> (Option<PathBuf>, reqwest::RequestBuilder) {
+    pub fn build_upload_session(&self) -> (Option<PathBuf>, RequestBuilder) {
         self.client.lock().build_upload_session()
     }
 
-    pub fn build(&self) -> reqwest::RequestBuilder {
+    pub fn build(&self) -> RequestBuilder {
         self.client.lock().build()
     }
 
