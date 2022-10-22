@@ -247,7 +247,7 @@ impl<T, Builder> DispatchDelta<T, Builder> {
     }
 }
 
-impl<T: 'static + Send + ODataLink + Clone> DispatchDelta<T, reqwest::blocking::RequestBuilder>
+impl<T: 'static + Send + ODataNextLink + Clone> DispatchDelta<T, reqwest::blocking::RequestBuilder>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
@@ -327,7 +327,7 @@ where
     }
 }
 
-impl<T: 'static + Send + ODataLink + Clone> DispatchDelta<T, reqwest::RequestBuilder>
+impl<T: 'static + Send + ODataNextLink + Clone> DispatchDelta<T, reqwest::RequestBuilder>
 where
     for<'de> T: serde::Deserialize<'de>,
 {
