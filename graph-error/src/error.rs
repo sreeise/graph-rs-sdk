@@ -52,6 +52,8 @@ pub struct GraphError {
     pub code: StatusCode,
 
     pub error_message: ErrorMessage,
+    /// Contains deserialized JSON response independent of ErrorMessage
+    pub response_raw: serde_json::Value,
 }
 
 impl GraphError {
@@ -64,6 +66,7 @@ impl GraphError {
             headers,
             code,
             error_message,
+            response_raw: serde_json::Value::Null,
         }
     }
 
@@ -268,11 +271,15 @@ impl WithGraphError for reqwest::blocking::Response {
         let code = self.status();
         if code.is_client_error() || code.is_server_error() {
             let headers = Some(GraphHeaders::from(&self));
-            let error_message = self.json().unwrap_or_default();
+            let response_raw: serde_json::Value = self.json().unwrap_or_else(|err| {
+                serde_json::Value::String(format!("unable to parse response as JSON: {}", err))
+            });
+            let error_message = serde_json::from_value(response_raw.clone()).unwrap_or_default();
             Err(GraphError {
                 headers,
                 code,
                 error_message,
+                response_raw,
             })
         } else {
             Ok(self)
@@ -290,11 +297,15 @@ impl WithGraphErrorAsync for reqwest::Response {
         let code = self.status();
         if code.is_client_error() || code.is_server_error() {
             let headers = Some(GraphHeaders::from(&self));
-            let error_message = self.json().await.unwrap_or_default();
+            let response_raw: serde_json::Value = self.json().await.unwrap_or_else(|err| {
+                serde_json::Value::String(format!("unable to parse response as JSON: {}", err))
+            });
+            let error_message = serde_json::from_value(response_raw.clone()).unwrap_or_default();
             Err(GraphError {
                 headers,
                 code,
                 error_message,
+                response_raw,
             })
         } else {
             Ok(self)
