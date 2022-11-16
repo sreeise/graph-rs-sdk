@@ -1,5 +1,6 @@
 use crate::{GraphHeaders, GraphResult};
 use async_trait::async_trait;
+use hyper::body::Bytes;
 use reqwest::StatusCode;
 use serde::Serialize;
 use std::error::Error;
@@ -271,10 +272,31 @@ impl WithGraphError for reqwest::blocking::Response {
         let code = self.status();
         if code.is_client_error() || code.is_server_error() {
             let headers = Some(GraphHeaders::from(&self));
-            let response_raw: serde_json::Value = self.json().unwrap_or_else(|err| {
-                serde_json::Value::String(format!("unable to parse response as JSON: {}", err))
-            });
-            let error_message = serde_json::from_value(response_raw.clone()).unwrap_or_default();
+            let (response_raw, error_message) = self
+                .bytes()
+                .map(|bytes: Bytes| {
+                    serde_json::from_slice::<serde_json::Value>(&bytes)
+                        .map_err(|err| {
+                            format!(
+                                "unable to parse response as JSON: {}; {}",
+                                err,
+                                String::from_utf8_lossy(&bytes)
+                            )
+                        })
+                        .map(|json| {
+                            (
+                                json,
+                                serde_json::from_slice::<ErrorMessage>(&bytes).unwrap_or_default(),
+                            )
+                        })
+                })
+                .unwrap_or_else(|err| {
+                    Ok((
+                        serde_json::Value::String(format!("unable to read response: {}", err)),
+                        ErrorMessage::default(),
+                    ))
+                })
+                .unwrap_or_else(|err| (serde_json::Value::String(err), ErrorMessage::default()));
             Err(GraphError {
                 headers,
                 code,
@@ -297,10 +319,32 @@ impl WithGraphErrorAsync for reqwest::Response {
         let code = self.status();
         if code.is_client_error() || code.is_server_error() {
             let headers = Some(GraphHeaders::from(&self));
-            let response_raw: serde_json::Value = self.json().await.unwrap_or_else(|err| {
-                serde_json::Value::String(format!("unable to parse response as JSON: {}", err))
-            });
-            let error_message = serde_json::from_value(response_raw.clone()).unwrap_or_default();
+            let (response_raw, error_message) = self
+                .bytes()
+                .await
+                .map(|bytes: Bytes| {
+                    serde_json::from_slice::<serde_json::Value>(&bytes)
+                        .map_err(|err| {
+                            format!(
+                                "unable to parse response as JSON: {}; {}",
+                                err,
+                                String::from_utf8_lossy(&bytes)
+                            )
+                        })
+                        .map(|json| {
+                            (
+                                json,
+                                serde_json::from_slice::<ErrorMessage>(&bytes).unwrap_or_default(),
+                            )
+                        })
+                })
+                .unwrap_or_else(|err| {
+                    Ok((
+                        serde_json::Value::String(format!("unable to read response: {}", err)),
+                        ErrorMessage::default(),
+                    ))
+                })
+                .unwrap_or_else(|err| (serde_json::Value::String(err), ErrorMessage::default()));
             Err(GraphError {
                 headers,
                 code,
