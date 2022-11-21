@@ -55,6 +55,7 @@ fn new_error(status_code: StatusCode, error_code: &str, message: &str) -> GraphE
                 inner_error: None,
             }),
         },
+        response_raw: Default::default(),
     }
 }
 
