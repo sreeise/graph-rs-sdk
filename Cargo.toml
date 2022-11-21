@@ -15,7 +15,7 @@ exclude = [
     "test-tools/*",
     "graph-codegen/*"
 ]
-keywords = ["onedrive", "microsoft", "micorosft-graph", "api", "oauth"]
+keywords = ["onedrive", "microsoft", "microsoft-graph", "api", "oauth"]
 categories = ["authentication", "web-programming::http-client"]
 
 [workspace]
