@@ -1,6 +1,6 @@
 use crate::async_client::{AsyncClient, AsyncHttpClient};
 use crate::blocking_client::{BlockingClient, BlockingHttpClient};
-use crate::byterange::ByteRangeIterator;
+use crate::byte_range::ByteRangeIterator;
 use crate::traits::*;
 use crate::url::GraphUrl;
 use crate::{GraphResponse, RequestAttribute, RequestClient};

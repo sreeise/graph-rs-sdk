@@ -1,8 +1,9 @@
 use crate::download::{BlockingDownload, DownloadClient};
-use crate::uploadsession::UploadSessionClient;
+use crate::upload_session::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::{
-    GraphRequest, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient, RequestType,
+    GraphRequestWrapper, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient,
+    RequestType,
 };
 use graph_core::resource::ResourceIdentity;
 use graph_error::{GraphFailure, GraphResult, WithGraphError};
@@ -18,7 +19,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 use url::Url;
 
-pub type BlockingClient = GraphRequest<
+pub type BlockingClient = GraphRequestWrapper<
     reqwest::blocking::Client,
     reqwest::blocking::Body,
     reqwest::blocking::multipart::Form,
@@ -123,7 +124,7 @@ impl BlockingClient {
     }
 
     pub fn clone(&mut self) -> Self {
-        GraphRequest {
+        GraphRequestWrapper {
             token: self.token.to_string(),
             ident: self.ident,
             client: reqwest::blocking::Client::builder()

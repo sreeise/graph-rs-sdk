@@ -367,6 +367,7 @@ pub(crate) mod api_default_imports {
     pub use crate::core::ResourceIdentity;
     pub use graph_http::IntoResponse;
     pub use graph_http::RequestClient;
+    pub use graph_http::{client, ResourceConfig, ResponseHandler};
     pub use handlebars::*;
     pub use reqwest::Method;
 }

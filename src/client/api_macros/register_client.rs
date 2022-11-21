@@ -1,3 +1,51 @@
+macro_rules! resource_client {
+    ( $name:ident ) => {
+        pub struct $name {
+            client: graph_http::api_impl::Client,
+            resource_config: graph_http::api_impl::ResourceConfig,
+            registry: handlebars::Handlebars,
+        }
+
+        impl $name {
+            pub(crate) fn new(
+                client: graph_http::api_impl::Client,
+                resource_config: graph_http::api_impl::ResourceConfig,
+                registry: handlebars::Handlebars,
+            ) -> $name {
+                $name {
+                    client,
+                    resource_config,
+                    registry,
+                }
+            }
+        }
+
+        impl ApiClientImpl for $name {
+            fn url(&self) -> GraphUrl {
+                self.resource_config.url.clone()
+            }
+
+            fn render_template<S: AsRef<str>>(
+                &self,
+                path: S,
+                path_params_map: &serde_json::Value,
+            ) -> GraphResult<String> {
+                self.registry
+                    .render_template(path.as_ref(), path_params_map)
+                    .map_err(GraphFailure::from)
+            }
+        }
+
+        impl std::fmt::Debug for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                f.debug_struct(stringify!($name))
+                    .field("resource_config", &self.resource_config)
+                    .finish()
+            }
+        }
+    };
+}
+
 macro_rules! register_client {
     ( $name:ident, $($helper:ident => $value:expr,)* ) => {
         $( register_helper!($helper, $value); )*

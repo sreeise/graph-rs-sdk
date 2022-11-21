@@ -545,46 +545,100 @@ macro_rules! register_method {
     };
 }
 
+macro_rules! resource_method {
+    (
+        name: $name:ident, path: $template:expr, method: $method:expr
+    ) => {
+        pub fn $name(&self) -> ResponseHandler {
+            //(**self).$name( $($arg_name),* )
+            let url = self.build_url($template, &serde_json::json!({})).unwrap();
+            let request_builder = self.client.default_builder($method, url);
+            ResponseHandler::new(request_builder, None)
+        }
+    };
+
+    (
+        name: $name:ident, path: $template:expr, method: $method:expr, params: [ $( $arg_name:ident, )* ]
+    ) => {
+        pub fn $name<ID: AsRef<str>>(&self $(, $arg_name : ID )*) -> ResponseHandler {
+            //(**self).$name( $($arg_name),* )
+            //let mut json = serde_json::json!({});
+            let mut map = serde_json::Map::new();
+            let mut count = 0;
+            $(
+                let mut key = "id".to_string();
+                if count > 0 { key = format!("id{}", count); }
+                map.entry(key.as_str()).or_insert(serde_json::json!($arg_name.as_ref()));
+                count += 1;
+            )*
+
+            let json = serde_json::Value::Object(map);
+            let url = self.build_url($template, &json).unwrap();
+            let request_builder = self.client.default_builder($method, url);
+            ResponseHandler::new(request_builder, None)
+        }
+    };
+
+    (
+        name: $name:ident, path: $template:expr, method: $method:expr, body, params: [ $( $arg_name:ident, )* ]
+    ) => {
+        pub fn $name<ID: AsRef<str>, B: serde::Serialize>(&self $(, $arg_name : ID )*, body: &B) -> ResponseHandler {
+            let mut map = serde_json::Map::new();
+            let mut count = 0;
+            $(
+                let mut key = "id".to_string();
+                if count > 0 { key = format!("id{}", count); }
+                map.entry(key.as_str()).or_insert(serde_json::json!($arg_name.as_ref()));
+                count += 1;
+            )*
+
+            let json = serde_json::Value::Object(map);
+            let url = self.build_url($template, &json).unwrap();
+            let body_result = serde_json::to_string(body).map_err(GraphFailure::from);
+
+            if let Ok(json_body) = body_result {
+                let request_builder = self.client.default_builder_with_body($method, url, json_body);
+                ResponseHandler::new(request_builder, None)
+            } else if let Err(err) = body_result {
+                let request_builder = self.client.default_builder($method, url);
+                ResponseHandler::new(request_builder, Some(err))
+            } else {
+                let request_builder = self.client.default_builder($method, url);
+                ResponseHandler::new(request_builder, None)
+            }
+        }
+    };
+
+}
+
+macro_rules! get_resource {
+    ( name: $name:ident, path: $path:expr  ) => {
+        resource_method!( name: $name, path: $path, method: Method::GET  );
+    };
+
+    ( name: $name:ident, path: $path:expr, params: [ $( $arg_name:ident, )* ]  ) => {
+        resource_method!( name: $name, path: $path, method: Method::GET, params: [ $( $arg_name, )* ]  );
+    };
+
+    ( name: $name:ident, path: $path:expr, body, params: [ $( $arg_name:ident, )* ]  ) => {
+        resource_method!( name: $name, path: $path, method: Method::GET, body, params: [ $( $arg_name, )* ]  );
+    };
+}
+
 macro_rules! get {
-    ( $name:ident, $T:ty => $template:expr ) => {
-        register_method!( $name, $T => $template, Method::GET );
+    ( name: $name:ident, path: $path:expr  ) => {
+        resource_method!( name: $name, path: $path, method: Method::GET  );
     };
 
-    ( [ $name:ident, $T:ty => $template:expr ] ) => {
-       register_method!( [ $name, $T => $template, Method::GET ] );
+    ( name: $name:ident, path: $path:expr, params: [ $( $arg_name:ident, )* ]  ) => {
+        resource_method!( name: $name, path: $path, method: Method::GET, params: [ $( $arg_name, )* ]  );
     };
 
-    ( | $name:ident, $T:ty => $template:expr ) => {
-        register_method!( | $name, $T => $template, Method::GET);
+    ( name: $name:ident, path: $path:expr, body, params: [ $( $arg_name:ident, )* ]  ) => {
+        resource_method!( name: $name, path: $path, method: Method::GET, body, params: [ $( $arg_name, )* ]  );
     };
 
-    ( || $name:ident, $T:ty => $template:expr ) => {
-        register_method!( || $name, $T => $template, Method::GET);
-    };
-
-    ( ||| $name:ident, $T:ty => $template:expr ) => {
-        register_method!( ||| $name, $T => $template, Method::GET);
-    };
-
-    ( |||| $name:ident, $T:ty => $template:expr ) => {
-        register_method!( |||| $name, $T => $template, Method::GET);
-    };
-
-    ( [ $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ $name, $T => $template, Method::GET ] );
-    };
-
-    ( [ | $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ | $name, $T => $template, Method::GET ] );
-    };
-
-    ( [ || $name:ident, $T:ty, $template:expr ] ) => {
-        register_method!( [ || $name, $T => $template, Method::GET ]);
-    };
-
-    ( [ ||| $name:ident, $T:ty, $template:expr ] ) => {
-        register_method!( [ ||| $name, $T => $template, Method::GET ]);
-    };
+    // -------------------------
 
     ({ name: $name:ident, response: $T:ty, path: $template:expr, params: 0, has_body: false }) => {
         register_method!(
@@ -826,47 +880,6 @@ macro_rules! get {
 }
 
 macro_rules! post {
-    ( $name:ident, $T:ty => $template:expr ) => {
-        register_method!( $name, $T => $template, Method::POST );
-    };
-
-    ( [ $name:ident, $T:ty => $template:expr ] ) => {
-       register_method!( [ $name, $T => $template, Method::POST ] );
-    };
-
-    ( | $name:ident, $T:ty => $template:expr ) => {
-        register_method!( | $name, $T => $template, Method::POST);
-    };
-
-    ( || $name:ident, $T:ty => $template:expr ) => {
-        register_method!( || $name, $T => $template, Method::POST);
-    };
-
-    ( ||| $name:ident, $T:ty => $template:expr ) => {
-        register_method!( ||| $name, $T => $template, Method::POST);
-    };
-
-    ( |||| $name:ident, $T:ty => $template:expr ) => {
-        register_method!( |||| $name, $T => $template, Method::POST);
-    };
-
-    ( [ $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ $name, $T => $template, Method::POST ] );
-    };
-
-    ( [ | $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ | $name, $T => $template, Method::POST ] );
-    };
-
-    ( [ || $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ || $name, $T => $template, Method::POST ]);
-    };
-
-    ( [ ||| $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ ||| $name, $T => $template, Method::POST ]);
-    };
-
-
     ({ name: $name:ident, response: $T:ty, path: $template:expr, params: 0, has_body: false }) => {
         register_method!(
             { name: $name, response: $T, path: $template, method: Method::POST, params: 0, has_body: false }
@@ -1261,47 +1274,6 @@ macro_rules! post {
 }
 
 macro_rules! patch {
-    ( $name:ident, $T:ty => $template:expr ) => {
-        register_method!( $name, $T => $template, Method::PATCH );
-    };
-
-    ( [ $name:ident, $T:ty => $template:expr ] ) => {
-       register_method!( [ $name, $T => $template, Method::PATCH ] );
-    };
-
-    ( | $name:ident, $T:ty => $template:expr ) => {
-        register_method!( | $name, $T => $template, Method::PATCH);
-    };
-
-    ( || $name:ident, $T:ty => $template:expr ) => {
-        register_method!( || $name, $T => $template, Method::PATCH);
-    };
-
-    ( ||| $name:ident, $T:ty => $template:expr ) => {
-        register_method!( ||| $name, $T => $template, Method::PATCH);
-    };
-
-    ( |||| $name:ident, $T:ty => $template:expr ) => {
-        register_method!( |||| $name, $T => $template, Method::PATCH);
-    };
-
-    ( [ $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ $name, $T => $template, Method::PATCH ] );
-    };
-
-    ( [ | $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ | $name, $T => $template, Method::PATCH ] );
-    };
-
-    ( [ || $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ || $name, $T => $template, Method::PATCH ]);
-    };
-
-    ( [ ||| $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ ||| $name, $T => $template, Method::PATCH ]);
-    };
-
-
     ({ name: $name:ident, response: $T:ty, path: $template:expr, params: 0, has_body: false }) => {
         register_method!(
             { name: $name, response: $T, path: $template, method: Method::PATCH, params: 0, has_body: false }
@@ -1975,47 +1947,6 @@ macro_rules! put {
 }
 
 macro_rules! delete {
-    ( $name:ident, $T:ty => $template:expr ) => {
-        register_method!( $name, $T => $template, Method::DELETE );
-    };
-
-    ( [ $name:ident, $T:ty => $template:expr ] ) => {
-       register_method!( [ $name, $T => $template, Method::DELETE ] );
-    };
-
-    ( | $name:ident, $T:ty => $template:expr ) => {
-        register_method!( | $name, $T => $template, Method::DELETE);
-    };
-
-    ( || $name:ident, $T:ty => $template:expr ) => {
-        register_method!( || $name, $T => $template, Method::DELETE);
-    };
-
-    ( ||| $name:ident, $T:ty => $template:expr ) => {
-        register_method!( ||| $name, $T => $template, Method::DELETE);
-    };
-
-    ( |||| $name:ident, $T:ty => $template:expr ) => {
-        register_method!( |||| $name, $T => $template, Method::DELETE);
-    };
-
-    ( [ $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ $name, $T => $template, Method::DELETE ] );
-    };
-
-    ( [ | $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ | $name, $T => $template, Method::DELETE ] );
-    };
-
-    ( [ || $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ || $name, $T => $template, Method::DELETE ]);
-    };
-
-    ( [ ||| $name:ident, $T:ty => $template:expr ] ) => {
-        register_method!( [ ||| $name, $T => $template, Method::DELETE ]);
-    };
-
-
     ({ name: $name:ident, response: $T:ty, path: $template:expr, params: 0, has_body: false }) => {
         register_method!(
             { name: $name, response: $T, path: $template, method: Method::DELETE, params: 0, has_body: false }

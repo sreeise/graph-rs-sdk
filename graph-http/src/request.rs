@@ -35,7 +35,7 @@ pub enum RequestAttribute<Body, Form> {
     RequestType(RequestType),
 }
 
-pub struct GraphRequest<Client, Body, Form> {
+pub struct GraphRequestWrapper<Client, Body, Form> {
     pub(crate) token: String,
     pub(crate) ident: ResourceIdentity,
     pub(crate) client: Client,
@@ -51,7 +51,7 @@ pub struct GraphRequest<Client, Body, Form> {
     pub timeout: Duration,
 }
 
-impl<Client, Body, Form> Debug for GraphRequest<Client, Body, Form> {
+impl<Client, Body, Form> Debug for GraphRequestWrapper<Client, Body, Form> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("GraphRequest")
             .field("token", &"[REDACTED]")
@@ -66,13 +66,13 @@ impl<Client, Body, Form> Debug for GraphRequest<Client, Body, Form> {
     }
 }
 
-impl<Client, Body, Form> AsRef<GraphUrl> for GraphRequest<Client, Body, Form> {
+impl<Client, Body, Form> AsRef<GraphUrl> for GraphRequestWrapper<Client, Body, Form> {
     fn as_ref(&self) -> &GraphUrl {
         &self.url
     }
 }
 
-impl<Client, Body, Form> AsMut<GraphUrl> for GraphRequest<Client, Body, Form> {
+impl<Client, Body, Form> AsMut<GraphUrl> for GraphRequestWrapper<Client, Body, Form> {
     fn as_mut(&mut self) -> &mut GraphUrl {
         &mut self.url
     }

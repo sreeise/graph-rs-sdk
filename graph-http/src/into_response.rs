@@ -2,7 +2,7 @@ use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
 use crate::traits::{AsyncTryFrom, ODataNextLink};
 use crate::types::{Delta, DeltaPhantom, NextLink, NextLinkValues, NoContent};
-use crate::uploadsession::UploadSessionClient;
+use crate::upload_session::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::{
     AsyncDownload, BlockingDownload, DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse,

@@ -1,10 +1,11 @@
 use crate::download::AsyncDownload;
 use crate::download::DownloadClient;
 use crate::traits::*;
-use crate::uploadsession::UploadSessionClient;
+use crate::upload_session::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::{
-    GraphRequest, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient, RequestType,
+    GraphRequestWrapper, GraphResponse, HttpClient, Registry, RequestAttribute, RequestClient,
+    RequestType,
 };
 use graph_core::resource::ResourceIdentity;
 use graph_error::WithGraphErrorAsync;
@@ -23,7 +24,7 @@ use std::time::Duration;
 use url::Url;
 
 pub(crate) type AsyncClient =
-    GraphRequest<reqwest::Client, reqwest::Body, reqwest::multipart::Form>;
+    GraphRequestWrapper<reqwest::Client, reqwest::Body, reqwest::multipart::Form>;
 
 impl AsyncClient {
     pub fn new_async(url: GraphUrl) -> AsyncClient {
@@ -60,19 +61,6 @@ impl AsyncClient {
         DownloadClient::new_async(request)
     }
 
-    pub async fn upload_session(&mut self) -> GraphResult<UploadSessionClient<AsyncHttpClient>> {
-        let file = self
-            .upload_session_file
-            .take()
-            .ok_or_else(|| GraphFailure::invalid("file for upload session"))?;
-
-        let response = self.response().await?.with_graph_error().await?;
-        let upload_session: serde_json::Value = response.json().await?;
-        let mut session = UploadSessionClient::new_async(upload_session)?;
-        session.set_file(file).await?;
-        Ok(session)
-    }
-
     pub fn build_upload_session(&mut self) -> (Option<PathBuf>, RequestBuilder) {
         let file = self.upload_session_file.take();
         let builder = self.build();
@@ -104,29 +92,8 @@ impl AsyncClient {
         }
     }
 
-    /// Builds the request and sends it.
-    ///
-    /// Requests that require a redirect are automatic so we don't need
-    /// to do anything special for these requests.
-    pub async fn response(&mut self) -> GraphResult<reqwest::Response> {
-        let builder = self.build();
-        let response = builder.send().await?;
-        Ok(response)
-    }
-
-    /// Builds the requests and sends it, converting to a GraphResponse and deserializing
-    /// the body.
-    pub async fn execute<T>(&mut self) -> GraphResult<GraphResponse<T>>
-    where
-        for<'de> T: serde::Deserialize<'de>,
-    {
-        let builder = self.build();
-        let response = builder.send().await?;
-        AsyncTryFrom::<reqwest::Response>::async_try_from(response).await
-    }
-
     pub fn clone(&mut self) -> Self {
-        GraphRequest {
+        GraphRequestWrapper {
             token: self.token.to_string(),
             ident: self.ident,
             client: reqwest::Client::builder()

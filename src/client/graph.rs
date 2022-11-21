@@ -1,4 +1,4 @@
-use crate::admin::AdminRequest;
+use crate::admin::{AdminRequest, AdminRequest2};
 use crate::agreement_acceptances::{AgreementAcceptancesIdRequest, AgreementAcceptancesRequest};
 use crate::agreements::{AgreementsIdRequest, AgreementsRequest};
 use crate::app_catalogs::AppCatalogsRequest;
@@ -48,17 +48,105 @@ use crate::users::{UserRequest, UsersRequest};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_core::resource::ResourceIdentity;
 use graph_error::GraphFailure;
+use graph_http::client::Client;
 use graph_http::url::GraphUrl;
+use graph_http::ResourceConfigBuilder;
 use graph_http::{
     types::DeltaPhantom, AsyncHttpClient, BlockingHttpClient, IntoResponse, RequestClient,
+    ResourceConfig,
 };
 use graph_oauth::oauth::{AccessToken, OAuth};
+use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext};
 use reqwest::header::{HeaderValue, ACCEPT};
 use reqwest::Method;
 use std::convert::TryFrom;
 use std::fmt::Debug;
+use std::io::Write;
 use std::str::FromStr;
 use std::time::Duration;
+
+fn resource_config(resource_identity: ResourceIdentity) -> ResourceConfig {
+    ResourceConfigBuilder::default()
+        .resource_identity(resource_identity)
+        .url(GraphUrl::parse(GRAPH_URL).unwrap())
+        .build()
+        .unwrap()
+}
+
+fn registry_with_id<ID: ToString>(id: ID) -> Handlebars {
+    let mut registry = Handlebars::new();
+    let id_owned = id.to_string();
+    registry.register_helper(
+        "RID",
+        Box::new(
+            move |_: &Helper,
+                  _: &Handlebars,
+                  _: &Context,
+                  _: &mut RenderContext,
+                  out: &mut dyn Output|
+                  -> HelperResult {
+                out.write(&id_owned)?;
+                Ok(())
+            },
+        ),
+    );
+    registry
+}
+
+pub struct GraphV2 {
+    client: Client,
+}
+
+impl GraphV2 {
+    pub fn new(access_token: &str) -> GraphV2 {
+        GraphV2 {
+            client: Client::new(access_token),
+        }
+    }
+
+    pub fn admin(&self) -> AdminRequest2 {
+        AdminRequest2::new(
+            self.client.clone(),
+            resource_config(ResourceIdentity::Admin),
+            Handlebars::new(),
+        )
+    }
+
+    pub fn admin_id(&self, id: &str) -> AdminRequest2 {
+        AdminRequest2::new(
+            self.client.clone(),
+            resource_config(ResourceIdentity::Admin),
+            registry_with_id(id),
+        )
+    }
+}
+
+/*
+pub struct Identify2<'a> {
+    client: &'a Client,
+    url: GraphUrl
+}
+
+impl<'a> Identify2<'a> {
+    pub(crate) fn new(client: &'a Client, url: GraphUrl) -> Identify2 {
+        Identify2 {
+            client,
+            url
+        }
+    }
+
+    pub fn admin(&self) -> AdminRequest2 {
+        let request_config = ResourceConfigBuilder::default()
+            .resource_identity(ResourceIdentity::Admin)
+            .url(self.url.clone())
+            .build()
+            .unwrap();
+        AdminRequest2::new(self.request_handler.clone(), request_config)
+    }
+
+}
+
+ */
 
 /// The graph client.
 ///

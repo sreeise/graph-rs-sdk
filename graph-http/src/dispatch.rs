@@ -2,7 +2,7 @@ use crate::async_client::AsyncHttpClient;
 use crate::blocking_client::BlockingHttpClient;
 use crate::traits::*;
 use crate::types::*;
-use crate::uploadsession::UploadSessionClient;
+use crate::upload_session::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::GraphResponse;
 use bytes::Bytes;
