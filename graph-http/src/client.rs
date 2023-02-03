@@ -1,15 +1,12 @@
+use crate::odata_query::ODataQuery;
 use crate::url::GraphUrl;
-use graph_core::resource::ResourceIdentity;
-use graph_error::{GraphFailure, GraphResult};
-use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext};
-use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, CONTENT_TYPE, USER_AGENT};
-use reqwest::redirect::Policy;
-use reqwest::{Body, Certificate, ClientBuilder, Identity, Method, RequestBuilder, Response};
+use graph_error::GraphResult;
+use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
+use reqwest::{Body, Method};
 use std::env::VarError;
 use std::ffi::OsStr;
-use std::io::Write;
 use std::time::Duration;
-use tokio::runtime::Runtime;
+use graph_core::resource::ResourceIdentity;
 
 pub type GraphRequest = reqwest::Request;
 
@@ -115,63 +112,18 @@ impl GraphClientBuilder {
     }
 
     /// Enable auto gzip decompression by checking the `Content-Encoding` response header.
-    ///
-    /// If auto gzip decompression is turned on:
-    ///
-    /// - When sending a request and if the request's headers do not already contain
-    ///   an `Accept-Encoding` **and** `Range` values, the `Accept-Encoding` header is set to `gzip`.
-    ///   The request body is **not** automatically compressed.
-    /// - When receiving a response, if its headers contain a `Content-Encoding` value of
-    ///   `gzip`, both `Content-Encoding` and `Content-Length` are removed from the
-    ///   headers' set. The response body is automatically decompressed.
-    ///
-    /// If the `gzip` feature is turned on, the default option is enabled.
-    ///
-    /// # Optional
-    ///
-    /// This requires the optional `gzip` feature to be enabled
     pub fn gzip(mut self, enable: bool) -> GraphClientBuilder {
         self.config.gzip = enable;
         self
     }
 
     /// Enable auto deflate decompression by checking the `Content-Encoding` response header.
-    ///
-    /// If auto deflate decompression is turned on:
-    ///
-    /// - When sending a request and if the request's headers do not already contain
-    ///   an `Accept-Encoding` **and** `Range` values, the `Accept-Encoding` header is set to `deflate`.
-    ///   The request body is **not** automatically compressed.
-    /// - When receiving a response, if it's headers contain a `Content-Encoding` value that
-    ///   equals to `deflate`, both values `Content-Encoding` and `Content-Length` are removed from the
-    ///   headers' set. The response body is automatically decompressed.
-    ///
-    /// If the `deflate` feature is turned on, the default option is enabled.
-    ///
-    /// # Optional
-    ///
-    /// This requires the optional `deflate` feature to be enabled
     pub fn deflate(mut self, enable: bool) -> GraphClientBuilder {
         self.config.deflate = enable;
         self
     }
 
     /// Enable auto brotli decompression by checking the `Content-Encoding` response header.
-    ///
-    /// If auto brotli decompression is turned on:
-    ///
-    /// - When sending a request and if the request's headers do not already contain
-    ///   an `Accept-Encoding` **and** `Range` values, the `Accept-Encoding` header is set to `br`.
-    ///   The request body is **not** automatically compressed.
-    /// - When receiving a response, if its headers contain a `Content-Encoding` value of
-    ///   `br`, both `Content-Encoding` and `Content-Length` are removed from the
-    ///   headers' set. The response body is automatically decompressed.
-    ///
-    /// If the `brotli` feature is turned on, the default option is enabled.
-    ///
-    /// # Optional
-    ///
-    /// This requires the optional `brotli` feature to be enabled
     pub fn brotli(mut self, enable: bool) -> GraphClientBuilder {
         self.config.brotli = enable;
         self
@@ -202,7 +154,7 @@ impl GraphClientBuilder {
         self
     }
 
-    pub fn build(mut self) -> Client {
+    pub fn build(self) -> Client {
         let mut builder = reqwest::ClientBuilder::new()
             .default_headers(self.config.headers)
             .referer(self.config.referer)
@@ -275,7 +227,7 @@ impl Client {
     }
 }
 
-pub trait ApiClientImpl {
+pub trait ApiClientImpl: ODataQuery + Sized {
     fn url(&self) -> GraphUrl;
 
     fn render_template<S: AsRef<str>>(
@@ -289,7 +241,7 @@ pub trait ApiClientImpl {
         path: S,
         path_params_map: &serde_json::Value,
     ) -> GraphResult<GraphUrl> {
-        let mut path = self.render_template(path.as_ref(), path_params_map)?;
+        let path = self.render_template(path.as_ref(), path_params_map)?;
         let mut vec: Vec<&str> = path.split("/").collect();
         vec.retain(|s| !s.is_empty());
         let mut url = self.url();

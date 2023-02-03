@@ -1,16 +1,15 @@
-use crate::client::Client;
+use crate::odata_query::ODataQuery;
 use crate::url::GraphUrl;
 use graph_core::resource::ResourceIdentity;
 use graph_error::{GraphFailure, GraphResult};
-use reqwest::redirect::Policy;
 use reqwest::RequestBuilder;
-use std::io::Write;
 
 #[derive(Clone, Builder, Debug)]
 #[builder(setter(into))]
 pub struct ResourceConfig {
     pub resource_identity: ResourceIdentity,
     pub url: GraphUrl,
+    pub resource_identity_id: Option<String>,
 }
 
 #[derive(Builder)]
@@ -39,22 +38,16 @@ impl ResponseHandler {
             .map_err(GraphFailure::from)
     }
 
-    pub fn query<T: serde::Serialize + ?Sized>(mut self, query: &T) -> Self {
-        self.request_builder = self.request_builder.query(query);
-        self
-    }
-
-    /// Filters properties (columns).
-    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#select-parameter)
-    pub fn select(mut self, value: &[&str]) -> Self {
-        let s = value.join(",");
-        self.request_builder = self.request_builder.query(&[("$select", &s)]);
-        self
-    }
-
+    // Just for testing.
     pub fn url(self) -> reqwest::Url {
         let request = self.request_builder.build().unwrap();
+
         request.url().clone()
+    }
+
+    fn query(mut self, key: &str, value: &str) -> Self {
+        self.request_builder = self.request_builder.query(&[(key, value)]);
+        self
     }
 }
 
@@ -62,4 +55,16 @@ impl From<RequestBuilder> for ResponseHandler {
     fn from(request_builder: RequestBuilder) -> Self {
         ResponseHandler::new(request_builder, None)
     }
+}
+
+impl ODataQuery for ResponseHandler {
+    fn append_query_pair<KV: AsRef<str>>(self, key: KV, value: KV) -> Self {
+        self.query(key.as_ref(), value.as_ref())
+    }
+}
+
+pub trait RequestComposer {
+    type ResponseType;
+
+    fn send(self) -> Self::ResponseType;
 }
