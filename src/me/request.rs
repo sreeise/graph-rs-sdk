@@ -1,990 +1,677 @@
 // GENERATED CODE
 
-use crate::activities::{ActivitiesIdRequest, ActivitiesRequest};
-use crate::agreement_acceptances::{AgreementAcceptancesIdRequest, AgreementAcceptancesRequest};
-use crate::calendar::{CalendarRequest, CalendarsRequest};
-use crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest};
-use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
-use crate::client::Graph;
-use crate::contact_folders::{ContactFolderRequest, ContactFoldersRequest};
-use crate::contacts::{ContactRequest, ContactsRequest};
-use crate::core::ResourceIdentity;
-use crate::drive::DrivesRequest;
-use crate::education::MeRequest as EducationMeRequest;
-use crate::events::{EventRequest, EventsRequest};
-use crate::inference_classification::InferenceClassificationRequest;
-use crate::insights::InsightsRequest;
-use crate::mail_folders::{MailFolderRequest, MailFoldersRequest};
-use crate::managed_devices::{ManagedDeviceRequest, ManagedDevicesRequest};
-use crate::messages::{MessageRequest, MessagesRequest};
-use crate::onenote::OnenoteRequest;
-use crate::outlook::OutlookRequest;
-use crate::planner::PlannerRequest;
-use crate::settings::SettingsRequest;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+use crate::api_default_imports::*;
 
-register_client!(ManagedAppRegistrationsRequest,);
-register_client!(MeRequest,);
+resource_api_client!(MeApiClient, ResourceIdentity::Me);
 
-impl<'a, Client> ManagedAppRegistrationsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Invoke function getUserIdsWithFlaggedAppRegistration",
-        name: get_user_ids_with_flagged_app_registration,
-        response: serde_json::Value,
-        path: "/me/managedAppRegistrations/getUserIdsWithFlaggedAppRegistration()",
-        params: 0,
-        has_body: false
-    });
-}
+use crate::activities::{ActivitiesApiClient, ActivitiesIdApiClient};
+use crate::agreement_acceptances::{
+    AgreementAcceptancesApiClient, AgreementAcceptancesIdApiClient,
+};
+use crate::calendar::{CalendarApiClient, CalendarIdApiClient};
+use crate::calendar_groups::{CalendarGroupsApiClient, CalendarGroupsIdApiClient};
+use crate::calendar_view::{CalendarViewApiClient, CalendarViewIdApiClient};
+use crate::contact_folders::{ContactFoldersApiClient, ContactFoldersIdApiClient};
+use crate::contacts::{ContactsApiClient, ContactsIdApiClient};
+use crate::drive::DriveApiClient;
+use crate::education::EducationMeApiClient;
+use crate::events::{EventsApiClient, EventsIdApiClient};
+use crate::inference_classification::InferenceClassificationApiClient;
+use crate::insights::InsightsApiClient;
+use crate::mail_folders::{MailFoldersApiClient, MailFoldersIdApiClient};
+use crate::managed_devices::{ManagedDevicesApiClient, ManagedDevicesIdApiClient};
+use crate::messages::{MessagesApiClient, MessagesIdApiClient};
+use crate::onenote::OnenoteApiClient;
+use crate::outlook::OutlookApiClient;
+use crate::planner::PlannerApiClient;
+use crate::settings::SettingsApiClient;
 
-impl<'a, Client> MeRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
+impl MeApiClient {
+    get!(
         doc: "# Get me",
         name: get_user,
-        response: serde_json::Value,
-        path: "/me",
-        params: 0,
-        has_body: false
-    });
+        path: "/me"
+    );
 
-    patch!({
+    patch!(
         doc: "# Update me",
         name: update_user,
-        response: NoContent,
         path: "/me",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get appRoleAssignments from me",
         name: list_app_role_assignments,
-        response: serde_json::Value,
-        path: "/me/appRoleAssignments",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/appRoleAssignments"
+    );
 
-    post!({
+    post!(
         doc: "# Create new navigation property to appRoleAssignments for me",
         name: create_app_role_assignments,
-        response: serde_json::Value,
         path: "/me/appRoleAssignments",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get appRoleAssignments from me",
         name: get_app_role_assignments,
-        response: serde_json::Value,
         path: "/me/appRoleAssignments/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property appRoleAssignments in me",
         name: update_app_role_assignments,
-        response: NoContent,
         path: "/me/appRoleAssignments/{{id}}",
-        params: 1,
-        has_body: true
-    });
+        body: true,
+        params: id
+    );
 
-    post!({
+    post!(
         doc: "# Invoke action assignLicense",
         name: assign_license,
-        response: serde_json::Value,
         path: "/me/assignLicense",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    post!({
+    post!(
         doc: "# Invoke action changePassword",
         name: change_password,
-        response: NoContent,
         path: "/me/changePassword",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get createdObjects from me",
         name: list_created_objects,
-        response: serde_json::Value,
-        path: "/me/createdObjects",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/createdObjects"
+    );
 
-    get!({
+    get!(
         doc: "# Get createdObjects from me",
         name: get_created_objects,
-        response: serde_json::Value,
         path: "/me/createdObjects/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get deviceManagementTroubleshootingEvents from me",
         name: list_device_management_troubleshooting_events,
-        response: serde_json::Value,
-        path: "/me/deviceManagementTroubleshootingEvents",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/deviceManagementTroubleshootingEvents"
+    );
 
-    post!({
+    post!(
         doc: "# Create new navigation property to deviceManagementTroubleshootingEvents for me",
         name: create_device_management_troubleshooting_events,
-        response: serde_json::Value,
         path: "/me/deviceManagementTroubleshootingEvents",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get deviceManagementTroubleshootingEvents from me",
         name: get_device_management_troubleshooting_events,
-        response: serde_json::Value,
         path: "/me/deviceManagementTroubleshootingEvents/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property deviceManagementTroubleshootingEvents in me",
         name: update_device_management_troubleshooting_events,
-        response: NoContent,
         path: "/me/deviceManagementTroubleshootingEvents/{{id}}",
-        params: 1,
-        has_body: true
-    });
+        body: true,
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get directReports from me",
         name: list_direct_reports,
-        response: serde_json::Value,
-        path: "/me/directReports",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/directReports"
+    );
 
-    get!({
+    get!(
         doc: "# Get directReports from me",
         name: get_direct_reports,
-        response: serde_json::Value,
         path: "/me/directReports/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get drive from me",
         name: get_drive,
-        response: serde_json::Value,
-        path: "/me/drive",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/drive"
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property drive in me",
         name: update_drive,
-        response: NoContent,
         path: "/me/drive",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get drives from me",
         name: list_drives,
-        response: serde_json::Value,
-        path: "/me/drives",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/drives"
+    );
 
-    post!({
+    post!(
         doc: "# Create new navigation property to drives for me",
         name: create_drives,
-        response: serde_json::Value,
         path: "/me/drives",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get drives from me",
         name: get_drives,
-        response: serde_json::Value,
         path: "/me/drives/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property drives in me",
         name: update_drives,
-        response: NoContent,
         path: "/me/drives/{{id}}",
-        params: 1,
-        has_body: true
-    });
+        body: true,
+        params: id
+    );
 
-    post!({
+    post!(
         doc: "# Invoke action exportPersonalData",
         name: export_personal_data,
-        response: NoContent,
         path: "/me/exportPersonalData",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get extensions from me",
         name: list_extensions,
-        response: serde_json::Value,
-        path: "/me/extensions",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/extensions"
+    );
 
-    post!({
+    post!(
         doc: "# Create new navigation property to extensions for me",
         name: create_extensions,
-        response: serde_json::Value,
         path: "/me/extensions",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get extensions from me",
         name: get_extensions,
-        response: serde_json::Value,
         path: "/me/extensions/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property extensions in me",
         name: update_extensions,
-        response: NoContent,
         path: "/me/extensions/{{id}}",
-        params: 1,
-        has_body: true
-    });
+        body: true,
+        params: id
+    );
 
-    post!({
+    post!(
         doc: "# Invoke action findMeetingTimes",
         name: find_meeting_times,
-        response: serde_json::Value,
         path: "/me/findMeetingTimes",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get followedSites from me",
         name: list_followed_sites,
-        response: serde_json::Value,
-        path: "/me/followedSites",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/followedSites"
+    );
 
-    get!({
+    get!(
         doc: "# Get followedSites from me",
         name: get_followed_sites,
-        response: serde_json::Value,
         path: "/me/followedSites/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    post!({
+    post!(
         doc: "# Invoke action getMailTips",
         name: get_mail_tips,
-        response: serde_json::Value,
         path: "/me/getMailTips",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Invoke function getManagedAppDiagnosticStatuses",
         name: get_managed_app_diagnostic_statuses,
-        response: serde_json::Value,
-        path: "/me/getManagedAppDiagnosticStatuses()",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/getManagedAppDiagnosticStatuses()"
+    );
 
-    get!({
+    get!(
         doc: "# Invoke function getManagedAppPolicies",
         name: get_managed_app_policies,
-        response: serde_json::Value,
-        path: "/me/getManagedAppPolicies()",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/getManagedAppPolicies()"
+    );
 
-    get!({
+    get!(
         doc: "# Get joinedTeams from me",
         name: list_joined_teams,
-        response: serde_json::Value,
-        path: "/me/joinedTeams",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/joinedTeams"
+    );
 
-    post!({
+    post!(
         doc: "# Create new navigation property to joinedTeams for me",
         name: create_joined_teams,
-        response: serde_json::Value,
         path: "/me/joinedTeams",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get joinedTeams from me",
         name: get_joined_teams,
-        response: serde_json::Value,
         path: "/me/joinedTeams/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property joinedTeams in me",
         name: update_joined_teams,
-        response: NoContent,
         path: "/me/joinedTeams/{{id}}",
-        params: 1,
-        has_body: true
-    });
+        body: true,
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get licenseDetails from me",
         name: list_license_details,
-        response: serde_json::Value,
-        path: "/me/licenseDetails",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/licenseDetails"
+    );
 
-    post!({
+    post!(
         doc: "# Create new navigation property to licenseDetails for me",
         name: create_license_details,
-        response: serde_json::Value,
         path: "/me/licenseDetails",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get licenseDetails from me",
         name: get_license_details,
-        response: serde_json::Value,
         path: "/me/licenseDetails/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property licenseDetails in me",
         name: update_license_details,
-        response: NoContent,
         path: "/me/licenseDetails/{{id}}",
-        params: 1,
-        has_body: true
-    });
+        body: true,
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get managedAppRegistrations from me",
         name: list_managed_app_registrations,
-        response: serde_json::Value,
-        path: "/me/managedAppRegistrations",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/managedAppRegistrations"
+    );
 
-    get!({
+    get!(
         doc: "# Get managedAppRegistrations from me",
         name: get_managed_app_registrations,
-        response: serde_json::Value,
         path: "/me/managedAppRegistrations/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get manager from me",
         name: get_manager,
-        response: serde_json::Value,
-        path: "/me/manager",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/manager"
+    );
 
-    get!({
+    get!(
         doc: "# Get memberOf from me",
         name: list_member_of,
-        response: serde_json::Value,
-        path: "/me/memberOf",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/memberOf"
+    );
 
-    get!({
+    get!(
         doc: "# Get memberOf from me",
         name: get_member_of,
-        response: serde_json::Value,
         path: "/me/memberOf/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get oauth2PermissionGrants from me",
         name: me_list_oauth_2_permission_grants,
-        response: serde_json::Value,
-        path: "/me/oauth2PermissionGrants",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/oauth2PermissionGrants"
+    );
 
-    get!({
+    get!(
         doc: "# Get oauth2PermissionGrants from me",
         name: me_get_oauth_2_permission_grants,
-        response: serde_json::Value,
         path: "/me/oauth2PermissionGrants/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get ownedDevices from me",
         name: list_owned_devices,
-        response: serde_json::Value,
-        path: "/me/ownedDevices",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/ownedDevices"
+    );
 
-    get!({
+    get!(
         doc: "# Get ownedDevices from me",
         name: get_owned_devices,
-        response: serde_json::Value,
         path: "/me/ownedDevices/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get ownedObjects from me",
         name: list_owned_objects,
-        response: serde_json::Value,
-        path: "/me/ownedObjects",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/ownedObjects"
+    );
 
-    get!({
+    get!(
         doc: "# Get ownedObjects from me",
         name: get_owned_objects,
-        response: serde_json::Value,
         path: "/me/ownedObjects/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get people from me",
         name: list_people,
-        response: serde_json::Value,
-        path: "/me/people",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/people"
+    );
 
-    post!({
+    post!(
         doc: "# Create new navigation property to people for me",
         name: create_people,
-        response: serde_json::Value,
         path: "/me/people",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get people from me",
         name: get_people,
-        response: serde_json::Value,
         path: "/me/people/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property people in me",
         name: update_people,
-        response: NoContent,
         path: "/me/people/{{id}}",
-        params: 1,
-        has_body: true
-    });
+        body: true,
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get photo from me",
         name: get_photo,
-        response: serde_json::Value,
-        path: "/me/photo",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/photo"
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property photo in me",
         name: update_photo,
-        response: NoContent,
         path: "/me/photo",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get photos from me",
         name: list_photos,
-        response: serde_json::Value,
-        path: "/me/photos",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/photos"
+    );
 
-    post!({
+    post!(
         doc: "# Create new navigation property to photos for me",
         name: create_photos,
-        response: serde_json::Value,
         path: "/me/photos",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get photos from me",
         name: get_photos,
-        response: serde_json::Value,
         path: "/me/photos/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property photos in me",
         name: update_photos,
-        response: NoContent,
         path: "/me/photos/{{id}}",
-        params: 1,
-        has_body: true
-    });
+        body: true,
+        params: id
+    );
 
-    get!({
+    get!(
         doc: "# Get registeredDevices from me",
         name: list_registered_devices,
-        response: serde_json::Value,
-        path: "/me/registeredDevices",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/registeredDevices"
 
-    get!({
+
+    );
+
+    get!(
         doc: "# Get registeredDevices from me",
         name: get_registered_devices,
-        response: serde_json::Value,
-        path: "/me/registeredDevices/{{id}}",
-        params: 1,
-        has_body: false
-    });
 
-    post!({
+        path: "/me/registeredDevices/{{id}}",
+        params: id
+    );
+
+    post!(
         doc: "# Invoke action removeAllDevicesFromManagement",
         name: remove_all_devices_from_management,
-        response: NoContent,
-        path: "/me/removeAllDevicesFromManagement",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/removeAllDevicesFromManagement"
+    );
 
-    post!({
+    post!(
         doc: "# Invoke action reprocessLicenseAssignment",
         name: reprocess_license_assignment,
-        response: serde_json::Value,
-        path: "/me/reprocessLicenseAssignment",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/reprocessLicenseAssignment"
+    );
 
-    post!({
+    post!(
         doc: "# Invoke action revokeSignInSessions",
         name: revoke_sign_in_sessions,
-        response: serde_json::Value,
-        path: "/me/revokeSignInSessions",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/revokeSignInSessions"
+    );
 
-    get!({
+    get!(
         doc: "# Get scopedRoleMemberOf from me",
         name: list_scoped_role_member_of,
-        response: serde_json::Value,
-        path: "/me/scopedRoleMemberOf",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/scopedRoleMemberOf"
+    );
 
-    post!({
+    post!(
         doc: "# Create new navigation property to scopedRoleMemberOf for me",
         name: create_scoped_role_member_of,
-        response: serde_json::Value,
         path: "/me/scopedRoleMemberOf",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get scopedRoleMemberOf from me",
         name: get_scoped_role_member_of,
-        response: serde_json::Value,
         path: "/me/scopedRoleMemberOf/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property scopedRoleMemberOf in me",
         name: update_scoped_role_member_of,
-        response: NoContent,
         path: "/me/scopedRoleMemberOf/{{id}}",
-        params: 1,
-        has_body: true
-    });
+        body: true,
+        params: id
+    );
 
-    post!({
+    post!(
         doc: "# Invoke action sendMail",
         name: send_mail,
-        response: NoContent,
         path: "/me/sendMail",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get settings from me",
         name: get_settings,
-        response: serde_json::Value,
-        path: "/me/settings",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/settings"
+    );
 
-    patch!({
+    patch!(
         doc: "# Update the navigation property settings in me",
         name: update_settings,
-        response: NoContent,
         path: "/me/settings",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    get!({
+    get!(
         doc: "# Get transitiveMemberOf from me",
         name: list_transitive_member_of,
-        response: serde_json::Value,
-        path: "/me/transitiveMemberOf",
-        params: 0,
-        has_body: false
-    });
+        path: "/me/transitiveMemberOf"
+    );
 
-    get!({
+    get!(
         doc: "# Get transitiveMemberOf from me",
         name: get_transitive_member_of,
-        response: serde_json::Value,
         path: "/me/transitiveMemberOf/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: id
+    );
 
-    post!({
+    post!(
         doc: "# Invoke action translateExchangeIds",
         name: translate_exchange_ids,
-        response: serde_json::Value,
         path: "/me/translateExchangeIds",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    post!({
+    post!(
         doc: "# Invoke action wipeManagedAppRegistrationsByDeviceTag",
         name: wipe_managed_app_registrations_by_device_tag,
-        response: NoContent,
         path: "/me/wipeManagedAppRegistrationsByDeviceTag",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
 
-    pub fn activities(&self) -> ActivitiesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Activities);
-        ActivitiesRequest::new(self.client)
-    }
+    api_client_link!(
+        activities,
+        ResourceIdentity::Activities,
+        ActivitiesApiClient
+    );
 
-    pub fn activity<ID: AsRef<str>>(&self, id: ID) -> ActivitiesIdRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Activities);
-        ActivitiesIdRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(
+        activity,
+        ResourceIdentity::Activities,
+        ActivitiesIdApiClient
+    );
 
-    pub fn agreement_acceptances(&self) -> AgreementAcceptancesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client
-            .set_ident(ResourceIdentity::AgreementAcceptances);
-        AgreementAcceptancesRequest::new(self.client)
-    }
+    api_client_link!(
+        aggreement_acceptances,
+        ResourceIdentity::AgreementAcceptances,
+        AgreementAcceptancesApiClient
+    );
 
-    pub fn agreement_acceptance<ID: AsRef<str>>(
-        &self,
-        id: ID,
-    ) -> AgreementAcceptancesIdRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client
-            .set_ident(ResourceIdentity::AgreementAcceptances);
-        AgreementAcceptancesIdRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(
+        aggreement_acceptance,
+        ResourceIdentity::AgreementAcceptances,
+        AgreementAcceptancesIdApiClient
+    );
 
-    pub fn calendars(&self) -> CalendarRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Calendar);
-        CalendarRequest::new(self.client)
-    }
+    api_client_link!(calendars, ResourceIdentity::Calendar, CalendarApiClient);
 
-    pub fn calendar_groups(&self) -> CalendarGroupRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::CalendarGroup);
-        CalendarGroupRequest::new(self.client)
-    }
+    api_client_link_id!(calendar, ResourceIdentity::Calendar, CalendarIdApiClient);
 
-    pub fn calendar_group<ID: AsRef<str>>(&self, id: ID) -> CalendarGroupsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::CalendarGroups);
-        CalendarGroupsRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link!(
+        calendar_groups,
+        ResourceIdentity::CalendarGroups,
+        CalendarGroupsApiClient
+    );
 
-    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::CalendarView);
-        CalendarViewRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(
+        calendar_group,
+        ResourceIdentity::CalendarGroups,
+        CalendarGroupsIdApiClient
+    );
 
-    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::CalendarViews);
-        CalendarViewsRequest::new(self.client)
-    }
+    api_client_link!(
+        calendar_views,
+        ResourceIdentity::CalendarView,
+        CalendarViewApiClient
+    );
 
-    pub fn calendar<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Calendars);
-        CalendarsRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(
+        calendar_view,
+        ResourceIdentity::CalendarView,
+        CalendarViewIdApiClient
+    );
 
-    pub fn contacts(&self) -> ContactRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        ContactRequest::new(self.client)
-    }
+    api_client_link!(contacts, ResourceIdentity::Contacts, ContactsApiClient);
 
-    pub fn contact_folders(&self) -> ContactFolderRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        ContactFolderRequest::new(self.client)
-    }
+    api_client_link_id!(contact, ResourceIdentity::Contacts, ContactsIdApiClient);
 
-    pub fn contact_folder<ID: AsRef<str>>(&self, id: ID) -> ContactFoldersRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::ContactFolders);
-        ContactFoldersRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link!(
+        contact_folders,
+        ResourceIdentity::ContactFolders,
+        ContactFoldersApiClient
+    );
 
-    pub fn contact<ID: AsRef<str>>(&self, id: ID) -> ContactsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Contacts);
-        ContactsRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(
+        contact_folder,
+        ResourceIdentity::ContactFolders,
+        ContactFoldersIdApiClient
+    );
 
-    pub fn drive(&self) -> DrivesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        DrivesRequest::new("", self.client)
-    }
+    api_client_link!(drive, ResourceIdentity::Drive, DriveApiClient);
 
-    pub fn education(&self) -> EducationMeRequest<'a, Client> {
-        EducationMeRequest::new(self.client)
-    }
+    api_client_link!(education, ResourceIdentity::Education, EducationMeApiClient);
 
-    pub fn events(&self) -> EventRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Event);
-        EventRequest::new(self.client)
-    }
+    api_client_link!(events, ResourceIdentity::Events, EventsApiClient);
 
-    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Events);
-        EventsRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(event, ResourceIdentity::Events, EventsIdApiClient);
 
-    pub fn inference_classification(&self) -> InferenceClassificationRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client
-            .set_ident(ResourceIdentity::InferenceClassification);
-        InferenceClassificationRequest::new(self.client)
-    }
+    api_client_link!(
+        inference_classification,
+        ResourceIdentity::InferenceClassification,
+        InferenceClassificationApiClient
+    );
 
-    pub fn insights(&self) -> InsightsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Insights);
-        InsightsRequest::new(self.client)
-    }
+    api_client_link!(insights, ResourceIdentity::Insights, InsightsApiClient);
 
-    pub fn mail_folders(&self) -> MailFolderRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        MailFolderRequest::new(self.client)
-    }
+    api_client_link!(
+        mail_folders,
+        ResourceIdentity::MailFolders,
+        MailFoldersApiClient
+    );
 
-    pub fn mail_folder<ID: AsRef<str>>(&self, id: ID) -> MailFoldersRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::MailFolders);
-        MailFoldersRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(
+        mail_folder,
+        ResourceIdentity::MailFolders,
+        MailFoldersIdApiClient
+    );
 
-    pub fn managed_app_registrations(&self) -> ManagedAppRegistrationsRequest<'a, Client> {
-        ManagedAppRegistrationsRequest::new(self.client)
-    }
+    api_client_link!(
+        managed_devices,
+        ResourceIdentity::ManagedDevices,
+        ManagedDevicesApiClient
+    );
 
-    pub fn managed_devices(&self) -> ManagedDeviceRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        ManagedDeviceRequest::new(self.client)
-    }
+    api_client_link_id!(
+        managed_device,
+        ResourceIdentity::ManagedDevices,
+        ManagedDevicesIdApiClient
+    );
 
-    pub fn managed_device<ID: AsRef<str>>(&self, id: ID) -> ManagedDevicesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::ManagedDevices);
-        ManagedDevicesRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link!(messages, ResourceIdentity::Messages, MessagesApiClient);
+    api_client_link_id!(message, ResourceIdentity::Messages, MessagesIdApiClient);
 
-    pub fn messages(&self) -> MessageRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        MessageRequest::new(self.client)
-    }
+    api_client_link!(onenote, ResourceIdentity::Onenote, OnenoteApiClient);
 
-    pub fn message<ID: AsRef<str>>(&self, id: ID) -> MessagesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Messages);
-        MessagesRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(outlook, ResourceIdentity::Outlook, OutlookApiClient);
 
-    pub fn onenote(&self) -> OnenoteRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Onenote);
-        OnenoteRequest::new(self.client)
-    }
+    api_client_link!(planner, ResourceIdentity::Planner, PlannerApiClient);
 
-    pub fn outlook(&self) -> OutlookRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Outlook);
-        OutlookRequest::new(self.client)
-    }
-
-    pub fn planner(&self) -> PlannerRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Planner);
-        PlannerRequest::new(self.client)
-    }
-
-    pub fn settings(&self) -> SettingsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client.set_ident(ResourceIdentity::Settings);
-        SettingsRequest::new(self.client)
-    }
+    api_client_link_id!(settings, ResourceIdentity::Settings, SettingsApiClient);
 }
