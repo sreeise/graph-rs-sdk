@@ -8,39 +8,14 @@ use crate::tasks::{TasksApiClient, TasksIdApiClient};
 resource_api_client!(PlannerApiClient);
 
 impl PlannerApiClient {
+    api_client_link!(buckets, ResourceIdentity::Buckets, BucketsApiClient);
+    api_client_link_id!(bucket, ResourceIdentity::Buckets, BucketsIdApiClient);
 
-    api_client_link!(
-        buckets,
-        ResourceIdentity::Buckets,
-        BucketsApiClient
-    );
-    api_client_link_id!(
-        bucket,
-        ResourceIdentity::Buckets,
-        BucketsIdApiClient
-    );
+    api_client_link!(plans, ResourceIdentity::Plans, PlansApiClient);
+    api_client_link_id!(plan, ResourceIdentity::Plans, PlansIdApiClient);
 
-    api_client_link!(
-        plans,
-        ResourceIdentity::Plans,
-        PlansApiClient
-    );
-    api_client_link_id!(
-        plan,
-        ResourceIdentity::Plans,
-        PlansIdApiClient
-    );
-
-    api_client_link!(
-        tasks,
-        ResourceIdentity::Tasks,
-        TasksApiClient
-    );
-    api_client_link_id!(
-        task,
-        ResourceIdentity::Tasks,
-        TasksIdApiClient
-    );
+    api_client_link!(tasks, ResourceIdentity::Tasks, TasksApiClient);
+    api_client_link_id!(task, ResourceIdentity::Tasks, TasksIdApiClient);
 
     get!({
         doc: "Get planner",

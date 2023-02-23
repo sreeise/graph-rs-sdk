@@ -1,17 +1,12 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::buckets::{BucketsIdRequest, BucketsRequest};
-use crate::tasks::{TasksIdRequest, TasksRequest};
-use graph_http::types::NoContent;
+use crate::buckets::{BucketsApiClient, BucketsIdApiClient};
+use crate::tasks::{TasksApiClient, TasksIdApiClient};
 
-register_client!(PlansRequest,);
-register_client!(PlansIdRequest, ());
+resource_api_client!(PlansApiClient, PlansIdApiClient, ResourceIdentity::Plans);
 
-impl<'a, Client> PlansRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
+impl PlansApiClient {
     post!({
         doc: "Create new navigation property to plans",
         name: create_plans,
@@ -28,41 +23,12 @@ where
     });
 }
 
-impl<'a, Client> PlansIdRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    pub fn buckets(&self) -> BucketsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Buckets);
-        BucketsRequest::new(self.client)
-    }
+impl PlansIdApiClient {
+    api_client_link!(buckets, ResourceIdentity::Buckets, BucketsApiClient);
+    api_client_link_id!(bucket, ResourceIdentity::Buckets, BucketsIdApiClient);
 
-    pub fn bucket<ID: AsRef<str>>(&self, id: ID) -> BucketsIdRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Buckets);
-        BucketsIdRequest::new(id.as_ref(), self.client)
-    }
-
-    pub fn tasks(&self) -> TasksRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Tasks);
-        TasksRequest::new(self.client)
-    }
-
-    pub fn task<ID: AsRef<str>>(&self, id: ID) -> TasksIdRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Tasks);
-        TasksIdRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link!(tasks, ResourceIdentity::Tasks, TasksApiClient);
+    api_client_link_id!(task, ResourceIdentity::Tasks, TasksIdApiClient);
 
     patch!({
         doc: "Update the navigation property plans",
