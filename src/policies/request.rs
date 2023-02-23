@@ -1,15 +1,8 @@
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+use crate::api_default_imports::*;
 
-register_client!(PoliciesRequest,);
-register_client!(PermissionGrantPoliciesRequest,);
+resource_api_client!(PoliciesApiClient);
 
-impl<'a, Client> PoliciesRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
+impl PoliciesApiClient {
     get!({
         doc: "# Get claimsMappingPolicies from policies",
         name: list_claims_mapping_policies,
@@ -298,18 +291,9 @@ where
         has_body: true
     });
 
-    pub fn permission_grant_policies(&self) -> PermissionGrantPoliciesRequest<'a, Client> {
-        PermissionGrantPoliciesRequest::new(self.client)
-    }
-}
-
-impl<'a, Client> PermissionGrantPoliciesRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
     get!({
         doc: "# Get excludes from policies",
-        name: list_excludes,
+        name: list_permission_grant_policies_excludes,
         response: serde_json::Value,
         path: "/policies/permissionGrantPolicies/{{id}}/excludes",
         params: 1,
@@ -318,7 +302,7 @@ where
 
     post!({
         doc: "# Create new navigation property to excludes for policies",
-        name: create_excludes,
+        name: create_permission_grant_policies_excludes,
         response: serde_json::Value,
         path: "/policies/permissionGrantPolicies/{{id}}/excludes",
         params: 1,
@@ -327,7 +311,7 @@ where
 
     get!({
         doc: "# Get includes from policies",
-        name: get_includes,
+        name: get_permission_grant_policies_includes,
         response: serde_json::Value,
         path: "/policies/permissionGrantPolicies/{{id}}/includes/{{id2}}",
         params: 2,
@@ -336,7 +320,7 @@ where
 
     patch!({
         doc: "# Update the navigation property includes in policies",
-        name: update_includes,
+        name: update_permission_grant_policies_includes,
         response: NoContent,
         path: "/policies/permissionGrantPolicies/{{id}}/includes/{{id2}}",
         params: 2,
@@ -345,7 +329,7 @@ where
 
     get!({
         doc: "# Get includes from policies",
-        name: list_includes,
+        name: list_permission_grant_policies_includes,
         response: serde_json::Value,
         path: "/policies/permissionGrantPolicies/{{id}}/includes",
         params: 1,
@@ -354,7 +338,7 @@ where
 
     post!({
         doc: "# Create new navigation property to includes for policies",
-        name: create_includes,
+        name: create_permission_grant_policies_includes,
         response: serde_json::Value,
         path: "/policies/permissionGrantPolicies/{{id}}/includes",
         params: 1,
@@ -363,7 +347,7 @@ where
 
     get!({
         doc: "# Get excludes from policies",
-        name: get_excludes,
+        name: get_permission_grant_policies_excludes,
         response: serde_json::Value,
         path: "/policies/permissionGrantPolicies/{{id}}/excludes/{{id2}}",
         params: 2,
@@ -372,7 +356,7 @@ where
 
     patch!({
         doc: "# Update the navigation property excludes in policies",
-        name: update_excludes,
+        name: update_permission_grant_policies_excludes,
         response: NoContent,
         path: "/policies/permissionGrantPolicies/{{id}}/excludes/{{id2}}",
         params: 2,
