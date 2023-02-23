@@ -8,15 +8,15 @@ use crate::identity_governance::access_review_definitions::{
 resource_api_client!(AccessReviewsApiClient, ResourceIdentity::AccessReviews);
 
 impl AccessReviewsApiClient {
-    api_client_link!(
-        access_review_definitions,
-        ResourceIdentity::AccessReviewDefinitions,
-        AccessReviewDefinitionsApiClient
-    );
     api_client_link_id!(
         access_review_definition,
         ResourceIdentity::AccessReviewDefinitions,
         AccessReviewDefinitionsIdApiClient
+    );
+    api_client_link!(
+        access_review_definitions,
+        ResourceIdentity::AccessReviewDefinitions,
+        AccessReviewDefinitionsApiClient
     );
 
     delete!(

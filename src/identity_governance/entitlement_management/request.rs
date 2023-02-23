@@ -19,9 +19,14 @@ resource_api_client!(
 
 impl EntitlementManagementApiClient {
     api_client_link!(
-        access_packages,
-        ResourceIdentity::AccessPackages,
-        AccessPackagesApiClient
+        assignment_policies,
+        ResourceIdentity::AssignmentPolicies,
+        AssignmentPoliciesApiClient
+    );
+    api_client_link_id!(
+        access_package_assignment_approval,
+        ResourceIdentity::AccessPackageAssignmentApprovals,
+        AccessPackageAssignmentApprovalsIdApiClient
     );
     api_client_link_id!(
         access_package,
@@ -29,9 +34,14 @@ impl EntitlementManagementApiClient {
         AccessPackagesIdApiClient
     );
     api_client_link_id!(
-        access_package_assignment_approval,
-        ResourceIdentity::AccessPackageAssignmentApprovals,
-        AccessPackageAssignmentApprovalsIdApiClient
+        assignment,
+        ResourceIdentity::Assignments,
+        AssignmentsIdApiClient
+    );
+    api_client_link_id!(
+        assignment_request,
+        ResourceIdentity::AssignmentRequests,
+        AssignmentRequestsIdApiClient
     );
     api_client_link!(
         connected_organizations,
@@ -44,34 +54,24 @@ impl EntitlementManagementApiClient {
         ConnectedOrganizationsIdApiClient
     );
     api_client_link!(
-        assignment_policies,
-        ResourceIdentity::AssignmentPolicies,
-        AssignmentPoliciesApiClient
-    );
-    api_client_link!(
         assignment_requests,
         ResourceIdentity::AssignmentRequests,
         AssignmentRequestsApiClient
-    );
-    api_client_link_id!(
-        assignment_request,
-        ResourceIdentity::AssignmentRequests,
-        AssignmentRequestsIdApiClient
-    );
-    api_client_link!(
-        assignments,
-        ResourceIdentity::Assignments,
-        AssignmentsApiClient
-    );
-    api_client_link_id!(
-        assignment,
-        ResourceIdentity::Assignments,
-        AssignmentsIdApiClient
     );
     api_client_link!(
         access_package_assignment_approvals,
         ResourceIdentity::AccessPackageAssignmentApprovals,
         AccessPackageAssignmentApprovalsApiClient
+    );
+    api_client_link!(
+        access_packages,
+        ResourceIdentity::AccessPackages,
+        AccessPackagesApiClient
+    );
+    api_client_link!(
+        assignments,
+        ResourceIdentity::Assignments,
+        AssignmentsApiClient
     );
     api_client_link_id!(
         assignment_policy,

@@ -35,15 +35,15 @@ impl AccessPackagesApiClient {
 }
 
 impl AccessPackagesIdApiClient {
-    api_client_link_id!(
-        assignment_policy,
-        ResourceIdentity::AssignmentPolicies,
-        AssignmentPoliciesIdApiClient
-    );
     api_client_link!(
         assignment_policies,
         ResourceIdentity::AssignmentPolicies,
         AssignmentPoliciesApiClient
+    );
+    api_client_link_id!(
+        assignment_policy,
+        ResourceIdentity::AssignmentPolicies,
+        AssignmentPoliciesIdApiClient
     );
 
     delete!(
