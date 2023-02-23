@@ -1,45 +1,12 @@
 // GENERATED CODE
 
-use crate::attachments::{AttachmentsIdRequest, AttachmentsRequest};
-use crate::client::Graph;
-use crate::core::ResourceIdentity;
-use crate::extended_properties::ExtendedPropertiesRequest;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use handlebars::*;
-use reqwest::Method;
+use crate::api_default_imports::*;
+use crate::attachments::{AttachmentsApiClient, AttachmentsIdApiClient};
+use crate::extended_properties::ExtendedPropertiesApiClient;
 
-register_client!(InReplyToRequest,);
-register_client!(PostRequest,);
-register_client!(PostsRequest, ());
+resource_api_client!(PostsApiClient, PostsIdApiClient, ResourceIdentity::Posts);
 
-impl<'a, Client> InReplyToRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    post!({
-        doc: "# Invoke action forward",
-        name: forward,
-        response: NoContent,
-        path: "/posts/{{RID}}/inReplyTo/forward",
-        params: 0,
-        has_body: true
-    });
-
-    post!({
-        doc: "# Invoke action reply",
-        name: reply,
-        response: NoContent,
-        path: "/posts/{{RID}}/inReplyTo/reply",
-        params: 0,
-        has_body: true
-    });
-}
-
-impl<'a, Client> PostRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
+impl PostsApiClient {
     get!({
         doc: "# Get posts from groups",
         name: list_posts,
@@ -57,17 +24,26 @@ where
         params: 0,
         has_body: true
     });
-
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> PostsRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Posts);
-        PostsRequest::new(id.as_ref(), self.client)
-    }
 }
 
-impl<'a, Client> PostsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
+impl PostsIdApiClient {
+    api_client_link!(
+        attachments,
+        ResourceIdentity::Attachments,
+        AttachmentsApiClient
+    );
+    api_client_link_id!(
+        attachment,
+        ResourceIdentity::Attachments,
+        AttachmentsIdApiClient
+    );
+
+    api_client_link!(
+        extended_properties,
+        ResourceIdentity::ExtendedProperties,
+        ExtendedPropertiesApiClient
+    );
+
     get!({
         doc: "# Get posts from groups",
         name: get_posts,
@@ -176,30 +152,21 @@ where
         has_body: true
     });
 
-    pub fn attachments(&self) -> AttachmentsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        AttachmentsRequest::new(self.client)
-    }
+    post!({
+        doc: "# Invoke action forward",
+        name: forward_in_reply_to,
+        response: NoContent,
+        path: "/posts/{{RID}}/inReplyTo/forward",
+        params: 0,
+        has_body: true
+    });
 
-    pub fn attachment<ID: AsRef<str>>(&self, id: ID) -> AttachmentsIdRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Attachments);
-        AttachmentsIdRequest::new(id.as_ref(), self.client)
-    }
-
-    pub fn extended_properties(&self) -> ExtendedPropertiesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::ExtendedProperties);
-        ExtendedPropertiesRequest::new(self.client)
-    }
-
-    pub fn in_reply_to(&self) -> InReplyToRequest<'a, Client> {
-        InReplyToRequest::new(self.client)
-    }
+    post!({
+        doc: "# Invoke action reply",
+        name: reply_in_reply_to,
+        response: NoContent,
+        path: "/posts/{{RID}}/inReplyTo/reply",
+        params: 0,
+        has_body: true
+    });
 }
