@@ -1,22 +1,22 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::identity_governance::access_review_definitions::{
-    AccessReviewDefinitionsApiClient, AccessReviewDefinitionsIdApiClient,
+use crate::identity_governance::{
+    AccessReviewsDefinitionsApiClient, AccessReviewsDefinitionsIdApiClient,
 };
 
 resource_api_client!(AccessReviewsApiClient, ResourceIdentity::AccessReviews);
 
 impl AccessReviewsApiClient {
     api_client_link_id!(
-        access_review_definition,
-        ResourceIdentity::AccessReviewDefinitions,
-        AccessReviewDefinitionsIdApiClient
+        definition,
+        ResourceIdentity::AccessReviewsDefinitions,
+        AccessReviewsDefinitionsIdApiClient
     );
     api_client_link!(
-        access_review_definitions,
-        ResourceIdentity::AccessReviewDefinitions,
-        AccessReviewDefinitionsApiClient
+        definitions,
+        ResourceIdentity::AccessReviewsDefinitions,
+        AccessReviewsDefinitionsApiClient
     );
 
     delete!(

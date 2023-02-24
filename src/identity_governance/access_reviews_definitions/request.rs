@@ -1,14 +1,17 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::identity_governance::{
+    AccessReviewsDefinitionsInstancesApiClient, AccessReviewsDefinitionsInstancesIdApiClient,
+};
 
 resource_api_client!(
-    AccessReviewDefinitionsApiClient,
-    AccessReviewDefinitionsIdApiClient,
-    ResourceIdentity::AccessReviewDefinitions
+    AccessReviewsDefinitionsApiClient,
+    AccessReviewsDefinitionsIdApiClient,
+    ResourceIdentity::AccessReviewsDefinitions
 );
 
-impl AccessReviewDefinitionsApiClient {
+impl AccessReviewsDefinitionsApiClient {
     post!(
         doc: "Create definitions",
         name: create_definitions,
@@ -33,7 +36,18 @@ impl AccessReviewDefinitionsApiClient {
     );
 }
 
-impl AccessReviewDefinitionsIdApiClient {
+impl AccessReviewsDefinitionsIdApiClient {
+    api_client_link_id!(
+        instance,
+        ResourceIdentity::AccessReviewsDefinitionsInstances,
+        AccessReviewsDefinitionsInstancesIdApiClient
+    );
+    api_client_link!(
+        instances,
+        ResourceIdentity::AccessReviewsDefinitionsInstances,
+        AccessReviewsDefinitionsInstancesApiClient
+    );
+
     delete!(
         doc: "Delete navigation property definitions for identityGovernance",
         name: delete_definitions,
