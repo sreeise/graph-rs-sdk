@@ -13,14 +13,14 @@ resource_api_client!(
 
 impl IdentityGovernanceApiClient {
     api_client_link!(
-        access_reviews,
-        ResourceIdentity::AccessReviews,
-        AccessReviewsApiClient
-    );
-    api_client_link!(
         entitlement_management,
         ResourceIdentity::EntitlementManagement,
         EntitlementManagementApiClient
+    );
+    api_client_link!(
+        access_reviews,
+        ResourceIdentity::AccessReviews,
+        AccessReviewsApiClient
     );
 
     get!(

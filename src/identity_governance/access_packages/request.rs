@@ -1,7 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::assignment_policies::{AssignmentPoliciesApiClient, AssignmentPoliciesIdApiClient};
+use crate::identity_governance::{AssignmentPoliciesApiClient, AssignmentPoliciesIdApiClient};
 
 resource_api_client!(
     AccessPackagesApiClient,
