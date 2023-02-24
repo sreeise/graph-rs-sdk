@@ -1,168 +1,111 @@
 // GENERATED CODE
 
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+use crate::api_default_imports::*;
 
-register_client!(AppCatalogsRequest,);
-register_client!(AppDefinitionsRequest,);
-register_client!(TeamsAppsRequest,);
+resource_api_client!(AppCatalogsApiClient, ResourceIdentity::AppCatalogs);
 
-impl<'a, Client> AppCatalogsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get appCatalogs",
+impl AppCatalogsApiClient {
+    get!(
+        doc: "Get appCatalogs",
         name: get_app_catalogs,
-        response: serde_json::Value,
-        path: "/appCatalogs",
-        params: 0,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update appCatalogs",
+        path: "/appCatalogs"
+    );
+    patch!(
+        doc: "Update appCatalogs",
         name: update_app_catalogs,
-        response: NoContent,
         path: "/appCatalogs",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get teamsApps from appCatalogs",
+        body: true
+    );
+    get!(
+        doc: "List teamsApp",
         name: list_teams_apps,
-        response: serde_json::Value,
-        path: "/appCatalogs/teamsApps",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to teamsApps for appCatalogs",
+        path: "/appCatalogs/teamsApps"
+    );
+    post!(
+        doc: "Publish teamsapp",
         name: create_teams_apps,
-        response: serde_json::Value,
         path: "/appCatalogs/teamsApps",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get teamsApps from appCatalogs",
-        name: get_teams_apps,
-        response: serde_json::Value,
-        path: "/appCatalogs/teamsApps/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property teamsApps in appCatalogs",
-        name: update_teams_apps,
-        response: NoContent,
-        path: "/appCatalogs/teamsApps/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete navigation property teamsApps for appCatalogs",
+        body: true
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_teams_apps_count,
+        path: "/appCatalogs/teamsApps/$count"
+    );
+    delete!(
+        doc: "Delete navigation property teamsApps for appCatalogs",
         name: delete_teams_apps,
-        response: NoContent,
         path: "/appCatalogs/teamsApps/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    pub fn teams_apps(&self) -> TeamsAppsRequest<'a, Client> {
-        TeamsAppsRequest::new(self.client)
-    }
-}
-
-impl<'a, Client> AppDefinitionsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get bot from appCatalogs",
-        name: get_bot,
-        response: serde_json::Value,
-        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}/bot",
-        params: 2,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property bot in appCatalogs",
-        name: update_bot,
-        response: NoContent,
-        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}/bot",
-        params: 2,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete navigation property bot for appCatalogs",
-        name: delete_bot,
-        response: NoContent,
-        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}/bot",
-        params: 2,
-        has_body: false
-    });
-}
-
-impl<'a, Client> TeamsAppsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get appDefinitions from appCatalogs",
+        params: teams_app_id
+    );
+    get!(
+        doc: "Get teamsApps from appCatalogs",
+        name: get_teams_apps,
+        path: "/appCatalogs/teamsApps/{{id}}",
+        params: teams_app_id
+    );
+    patch!(
+        doc: "Update the navigation property teamsApps in appCatalogs",
+        name: update_teams_apps,
+        path: "/appCatalogs/teamsApps/{{id}}",
+        body: true,
+        params: teams_app_id
+    );
+    get!(
+        doc: "Get appDefinitions from appCatalogs",
         name: list_app_definitions,
-        response: serde_json::Value,
         path: "/appCatalogs/teamsApps/{{id}}/appDefinitions",
-        params: 1,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to appDefinitions for appCatalogs",
+        params: teams_app_id
+    );
+    post!(
+        doc: "Update teamsApp",
         name: create_app_definitions,
-        response: serde_json::Value,
         path: "/appCatalogs/teamsApps/{{id}}/appDefinitions",
-        params: 1,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get appDefinitions from appCatalogs",
-        name: get_app_definitions,
-        response: serde_json::Value,
-        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}",
-        params: 2,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property appDefinitions in appCatalogs",
-        name: update_app_definitions,
-        response: NoContent,
-        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}",
-        params: 2,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete navigation property appDefinitions for appCatalogs",
+        body: true,
+        params: teams_app_id
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_app_definitions_count,
+        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/$count",
+        params: teams_app_id
+    );
+    delete!(
+        doc: "Delete navigation property appDefinitions for appCatalogs",
         name: delete_app_definitions,
-        response: NoContent,
         path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}",
-        params: 2,
-        has_body: false
-    });
-
-    pub fn app_definitions(&self) -> AppDefinitionsRequest<'a, Client> {
-        AppDefinitionsRequest::new(self.client)
-    }
+        params: teams_app_id, teams_app_definition_id
+    );
+    get!(
+        doc: "Get appDefinitions from appCatalogs",
+        name: get_app_definitions,
+        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}",
+        params: teams_app_id, teams_app_definition_id
+    );
+    patch!(
+        doc: "Update the navigation property appDefinitions in appCatalogs",
+        name: update_app_definitions,
+        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}",
+        body: true,
+        params: teams_app_id, teams_app_definition_id
+    );
+    delete!(
+        doc: "Delete navigation property bot for appCatalogs",
+        name: delete_bot,
+        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}/bot",
+        params: teams_app_id, teams_app_definition_id
+    );
+    get!(
+        doc: "Get teamworkBot",
+        name: get_bot,
+        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}/bot",
+        params: teams_app_id, teams_app_definition_id
+    );
+    patch!(
+        doc: "Update the navigation property bot in appCatalogs",
+        name: update_bot,
+        path: "/appCatalogs/teamsApps/{{id}}/appDefinitions/{{id2}}/bot",
+        body: true,
+        params: teams_app_id, teams_app_definition_id
+    );
 }
