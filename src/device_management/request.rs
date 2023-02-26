@@ -4,8 +4,9 @@ use crate::api_default_imports::*;
 use crate::device_management::{
     DeviceConfigurationsApiClient, DeviceConfigurationsIdApiClient,
     DeviceEnrollmentConfigurationsApiClient, DeviceEnrollmentConfigurationsIdApiClient,
-    ManagedDevicesApiClient, ManagedDevicesIdApiClient, RoleDefinitionsApiClient,
-    RoleDefinitionsIdApiClient, TermsAndConditionsApiClient, TermsAndConditionsIdApiClient,
+    DeviceManagementManagedDevicesApiClient, DeviceManagementManagedDevicesIdApiClient,
+    RoleDefinitionsApiClient, RoleDefinitionsIdApiClient, TermsAndConditionsApiClient,
+    TermsAndConditionsIdApiClient,
 };
 
 resource_api_client!(
@@ -14,56 +15,22 @@ resource_api_client!(
 );
 
 impl DeviceManagementApiClient {
-    api_client_link!(
-        device_configurations,
-        ResourceIdentity::DeviceConfigurations,
-        DeviceConfigurationsApiClient
+    api_client_link!(managed_devices, DeviceManagementManagedDevicesApiClient);
+    api_client_link!(device_configurations, DeviceConfigurationsApiClient);
+    api_client_link!(role_definitions, RoleDefinitionsApiClient);
+    api_client_link_id!(device_configuration, DeviceConfigurationsIdApiClient);
+    api_client_link_id!(
+        device_enrollment_configuration,
+        DeviceEnrollmentConfigurationsIdApiClient
     );
     api_client_link!(
         device_enrollment_configurations,
-        ResourceIdentity::DeviceEnrollmentConfigurations,
         DeviceEnrollmentConfigurationsApiClient
     );
-    api_client_link_id!(
-        managed_device,
-        ResourceIdentity::ManagedDevices,
-        ManagedDevicesIdApiClient
-    );
-    api_client_link_id!(
-        role_definition,
-        ResourceIdentity::RoleDefinitions,
-        RoleDefinitionsIdApiClient
-    );
-    api_client_link!(
-        managed_devices,
-        ResourceIdentity::ManagedDevices,
-        ManagedDevicesApiClient
-    );
-    api_client_link_id!(
-        device_enrollment_configuration,
-        ResourceIdentity::DeviceEnrollmentConfigurations,
-        DeviceEnrollmentConfigurationsIdApiClient
-    );
-    api_client_link_id!(
-        terms_and_condition,
-        ResourceIdentity::TermsAndConditions,
-        TermsAndConditionsIdApiClient
-    );
-    api_client_link!(
-        role_definitions,
-        ResourceIdentity::RoleDefinitions,
-        RoleDefinitionsApiClient
-    );
-    api_client_link!(
-        terms_and_conditions,
-        ResourceIdentity::TermsAndConditions,
-        TermsAndConditionsApiClient
-    );
-    api_client_link_id!(
-        device_configuration,
-        ResourceIdentity::DeviceConfigurations,
-        DeviceConfigurationsIdApiClient
-    );
+    api_client_link_id!(managed_device, DeviceManagementManagedDevicesIdApiClient);
+    api_client_link_id!(role_definition, RoleDefinitionsIdApiClient);
+    api_client_link!(terms_and_conditions, TermsAndConditionsApiClient);
+    api_client_link_id!(terms_and_condition, TermsAndConditionsIdApiClient);
 
     get!(
         doc: "Get deviceManagement",

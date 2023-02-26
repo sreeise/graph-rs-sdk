@@ -3,12 +3,12 @@
 use crate::api_default_imports::*;
 
 resource_api_client!(
-    ManagedDevicesApiClient,
-    ManagedDevicesIdApiClient,
-    ResourceIdentity::ManagedDevices
+    DeviceManagementManagedDevicesApiClient,
+    DeviceManagementManagedDevicesIdApiClient,
+    ResourceIdentity::DeviceManagementManagedDevices
 );
 
-impl ManagedDevicesApiClient {
+impl DeviceManagementManagedDevicesApiClient {
     post!(
         doc: "Create new navigation property to managedDevices for deviceManagement",
         name: create_managed_devices,
@@ -27,7 +27,7 @@ impl ManagedDevicesApiClient {
     );
 }
 
-impl ManagedDevicesIdApiClient {
+impl DeviceManagementManagedDevicesIdApiClient {
     delete!(
         doc: "Delete navigation property managedDevices for deviceManagement",
         name: delete_managed_devices,
