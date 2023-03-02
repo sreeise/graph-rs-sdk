@@ -1,56 +1,47 @@
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+// GENERATED CODE
 
-register_client!(SubscriptionsRequest,);
+use crate::api_default_imports::*;
 
-impl<'a, Client> SubscriptionsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get entity from subscriptions by key",
-        name: get_subscription,
-        response: serde_json::Value,
-        path: "/subscriptions/{{id}}",
-        params: 1,
-        has_body: false
-    });
+resource_api_client!(
+    SubscriptionsApiClient,
+    SubscriptionsIdApiClient,
+    ResourceIdentity::Subscriptions
+);
 
-    patch!({
-        doc: "# Update entity in subscriptions",
-        name: update_subscription,
-        response: NoContent,
-        path: "/subscriptions/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete entity from subscriptions",
-        name: delete_subscription,
-        response: NoContent,
-        path: "/subscriptions/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    get!({
-        doc: "# Get entities from subscriptions",
-        name: list_subscription,
-        response: serde_json::Value,
-        path: "/subscriptions",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Add new entity to subscriptions",
+impl SubscriptionsApiClient {
+    post!(
+        doc: "Create subscription",
         name: create_subscription,
-        response: serde_json::Value,
         path: "/subscriptions",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
+    get!(
+        doc: "List subscriptions",
+        name: list_subscription,
+        path: "/subscriptions"
+    );
+}
+
+impl SubscriptionsIdApiClient {
+    delete!(
+        doc: "Delete subscription",
+        name: delete_subscription,
+        path: "/subscriptions/{{RID}}"
+    );
+    get!(
+        doc: "Get subscription",
+        name: get_subscription,
+        path: "/subscriptions/{{RID}}"
+    );
+    patch!(
+        doc: "Update subscription",
+        name: update_subscription,
+        path: "/subscriptions/{{RID}}",
+        body: true
+    );
+    post!(
+        doc: "Invoke action reauthorize",
+        name: reauthorize,
+        path: "/subscriptions/{{RID}}/reauthorize"
+    );
 }
