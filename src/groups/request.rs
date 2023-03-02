@@ -1,28 +1,17 @@
-use crate::calendar::{CalendarRequest, CalendarsRequest};
-use crate::calendar_groups::{CalendarGroupRequest, CalendarGroupsRequest};
-use crate::calendar_view::{CalendarViewRequest, CalendarViewsRequest};
-use crate::client::Graph;
-use crate::conversations::{ConversationRequest, ConversationsRequest};
-use crate::core::ResourceIdentity;
-use crate::drive::DrivesRequest;
-use crate::events::{EventRequest, EventsRequest};
-use crate::onenote::OnenoteRequest;
-use crate::planner::PlannerRequest;
-use crate::threads::{ThreadRequest, ThreadsRequest};
+use crate::api_default_imports::*;
+use crate::calendar::{CalendarApiClient, CalendarIdApiClient};
+use crate::calendar_groups::{CalendarGroupsApiClient, CalendarGroupsIdApiClient};
+use crate::calendar_view::{CalendarViewApiClient, CalendarViewIdApiClient};
+use crate::conversations::{ConversationsApiClient, ConversationsIdApiClient};
+use crate::drive::DriveApiClient;
+use crate::events::{EventsApiClient, EventsIdApiClient};
+use crate::onenote::OnenoteApiClient;
+use crate::planner::PlannerApiClient;
+use crate::threads::{ThreadsApiClient, ThreadsIdApiClient};
 
-use graph_http::types::DeltaPhantom;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use handlebars::*;
-use reqwest::Method;
+resource_api_client!(GroupsApiClient, GroupsIdApiClient, ResourceIdentity::Groups);
 
-register_client!(GroupRequest,);
-register_client!(GroupsRequest, ());
-
-impl<'a, Client> GroupRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
+impl GroupsApiClient {
     get!({
         doc: "# Get entities from groups",
         name: list_group,
@@ -49,17 +38,9 @@ where
         params: 0,
         has_body: false
     });
-
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> GroupsRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Groups);
-        GroupsRequest::new(id.as_ref(), self.client)
-    }
 }
 
-impl<'a, Client> GroupsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
+impl GroupsIdApiClient {
     get!({
         doc: "# Get entity from groups by key",
         name: get_group,
@@ -812,120 +793,57 @@ where
         has_body: false
     });
 
-    pub fn calendars(&self) -> CalendarRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Calendar);
-        CalendarRequest::new(self.client)
-    }
+    api_client_link!(calendars, ResourceIdentity::Calendar, CalendarApiClient);
 
-    pub fn calendar_groups(&self) -> CalendarGroupRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::CalendarGroup);
-        CalendarGroupRequest::new(self.client)
-    }
+    api_client_link!(calendar, ResourceIdentity::Calendar, CalendarIdApiClient);
 
-    pub fn calendar_group<ID: AsRef<str>>(&self, id: ID) -> CalendarGroupsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::CalendarGroups);
-        CalendarGroupsRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link!(
+        calendar_groups,
+        ResourceIdentity::CalendarGroups,
+        CalendarGroupsApiClient
+    );
 
-    pub fn calendar_view<ID: AsRef<str>>(&self, id: ID) -> CalendarViewRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::CalendarView);
-        CalendarViewRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link!(
+        calendar_group,
+        ResourceIdentity::CalendarGroups,
+        CalendarGroupsIdApiClient
+    );
 
-    pub fn calendar_views(&self) -> CalendarViewsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::CalendarViews);
-        CalendarViewsRequest::new(self.client)
-    }
+    api_client_link!(
+        calendar_views,
+        ResourceIdentity::CalendarView,
+        CalendarViewApiClient
+    );
 
-    pub fn calendar<ID: AsRef<str>>(&self, id: ID) -> CalendarsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Calendars);
-        CalendarsRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(
+        calendar_view,
+        ResourceIdentity::CalendarView,
+        CalendarViewIdApiClient
+    );
 
-    pub fn conversations(&self) -> ConversationRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        ConversationRequest::new(self.client)
-    }
+    api_client_link!(
+        conversations,
+        ResourceIdentity::Conversations,
+        ConversationsApiClient
+    );
 
-    pub fn conversation<ID: AsRef<str>>(&self, id: ID) -> ConversationsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Conversations);
-        ConversationsRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(
+        conversation,
+        ResourceIdentity::Conversations,
+        ConversationsIdApiClient
+    );
 
-    pub fn drive(&self) -> DrivesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        DrivesRequest::new("", self.client)
-    }
+    api_client_link!(drive, ResourceIdentity::Drive, DriveApiClient);
 
-    pub fn events(&self) -> EventRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Event);
-        EventRequest::new(self.client)
-    }
+    api_client_link!(events, ResourceIdentity::Events, EventsApiClient);
 
-    pub fn event<ID: AsRef<str>>(&self, id: ID) -> EventsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Events);
-        EventsRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(event, ResourceIdentity::Events, EventsIdApiClient);
 
-    pub fn onenote(&self) -> OnenoteRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Onenote);
-        OnenoteRequest::new(self.client)
-    }
+    api_client_link!(onenote, ResourceIdentity::Onenote, OnenoteApiClient);
 
-    pub fn planner(&self) -> PlannerRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Planner);
-        PlannerRequest::new(self.client)
-    }
+    api_client_link!(planner, ResourceIdentity::Planner, PlannerApiClient);
 
-    pub fn threads(&self) -> ThreadRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        ThreadRequest::new(self.client)
-    }
+    api_client_link!(threads, ResourceIdentity::Threads, ThreadsApiClient);
 
-    pub fn thread<ID: AsRef<str>>(&self, id: ID) -> ThreadsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Threads);
-        ThreadsRequest::new(id.as_ref(), self.client)
-    }
+    api_client_link_id!(thread, ResourceIdentity::Threads, ThreadsIdApiClient);
 }

@@ -1,3 +1,3 @@
-mod request;
-
 pub use request::*;
+
+mod request;
