@@ -68,8 +68,8 @@ impl IdentityGovernanceApiClient {
     );
     get!(
         doc: "Invoke function filterByCurrentUser",
-        name: filter_app_consent_requests_by_current_user,
-        path: "/identityGovernance/appConsent/appConsentRequests/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+        name: filter_by_current_user,
+        path: "/identityGovernance/appConsent/appConsentRequests/filterByCurrentUser(on='{{id}}')",
         params: on
     );
     delete!(
@@ -112,8 +112,8 @@ impl IdentityGovernanceApiClient {
     );
     get!(
         doc: "Invoke function filterByCurrentUser",
-        name: filter_user_consent_requests_by_current_user,
-        path: "/identityGovernance/appConsent/appConsentRequests/{{id}}/userConsentRequests/microsoft.graph.filterByCurrentUser(on='{{id2}}')",
+        name: filter_by_current_user,
+        path: "/identityGovernance/appConsent/appConsentRequests/{{id}}/userConsentRequests/filterByCurrentUser(on='{{id2}}')",
         params: on
     );
     delete!(

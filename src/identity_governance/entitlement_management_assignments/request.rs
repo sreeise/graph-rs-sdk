@@ -28,13 +28,13 @@ impl EntitlementManagementAssignmentsApiClient {
     get!(
         doc: "Invoke function additionalAccess",
         name: additional_access,
-        path: "/assignments/microsoft.graph.additionalAccess(accessPackageId='{{id}}',incompatibleAccessPackageId='{{id2}}')",
+        path: "/assignments/additionalAccess(accessPackageId='{{id}}',incompatibleAccessPackageId='{{id2}}')",
         params: access_package_id, incompatible_access_package_id
     );
     get!(
         doc: "Invoke function filterByCurrentUser",
         name: filter_by_current_user,
-        path: "/assignments/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+        path: "/assignments/filterByCurrentUser(on='{{id}}')",
         params: on
     );
 }
@@ -69,7 +69,7 @@ impl EntitlementManagementAssignmentsIdApiClient {
     post!(
         doc: "Invoke action reprocess",
         name: reprocess,
-        path: "/assignments/{{RID}}/microsoft.graph.reprocess"
+        path: "/assignments/{{RID}}/reprocess"
     );
     get!(
         doc: "Get target from identityGovernance",

@@ -29,7 +29,7 @@ impl AccessPackagesApiClient {
     get!(
         doc: "Invoke function filterByCurrentUser",
         name: filter_by_current_user,
-        path: "/accessPackages/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+        path: "/accessPackages/filterByCurrentUser(on='{{id}}')",
         params: on
     );
 }
@@ -82,6 +82,11 @@ impl AccessPackagesIdApiClient {
         doc: "Get catalog from identityGovernance",
         name: get_catalog,
         path: "/accessPackages/{{RID}}/catalog"
+    );
+    post!(
+        doc: "Invoke action getApplicablePolicyRequirements",
+        name: get_applicable_policy_requirements,
+        path: "/accessPackages/{{RID}}/getApplicablePolicyRequirements"
     );
     get!(
         doc: "List incompatibleAccessPackages",
@@ -136,10 +141,5 @@ impl AccessPackagesIdApiClient {
         name: delete_ref_incompatible_groups,
         path: "/accessPackages/{{RID}}/incompatibleGroups/{{id}}/$ref",
         params: group_id
-    );
-    post!(
-        doc: "Invoke action getApplicablePolicyRequirements",
-        name: get_applicable_policy_requirements,
-        path: "/accessPackages/{{RID}}/microsoft.graph.getApplicablePolicyRequirements"
     );
 }

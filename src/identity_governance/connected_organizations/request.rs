@@ -1,6 +1,8 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use graph_http::types::DeltaPhantom;
+use crate::identity_governance::{ConnectedOrganizationsExternalSponsorsApiClient, ConnectedOrganizationsInternalSponsorsApiClient};
 
 resource_api_client!(
     ConnectedOrganizationsApiClient,
@@ -28,6 +30,16 @@ impl ConnectedOrganizationsApiClient {
 }
 
 impl ConnectedOrganizationsIdApiClient {
+    api_client_link!(
+        internal_sponsors,
+        ResourceIdentity::ConnectedOrganizationsInternalSponsors,
+        ConnectedOrganizationsInternalSponsorsApiClient
+    );
+    api_client_link!(
+        external_sponsors,
+        ResourceIdentity::ConnectedOrganizationsExternalSponsors,
+        ConnectedOrganizationsExternalSponsorsApiClient
+    );
     delete!(
         doc: "Delete navigation property connectedOrganizations for identityGovernance",
         name: delete_connected_organizations,
@@ -71,22 +83,27 @@ impl ConnectedOrganizationsIdApiClient {
         name: list_ref_external_sponsors,
         path: "/connectedOrganizations/{{RID}}/externalSponsors/$ref"
     );
+    get!(
+        doc: "Invoke function delta",
+        name: delta,
+        path: "/connectedOrganizations/{{RID}}/externalSponsors/delta()"
+    );
     post!(
         doc: "Invoke action getAvailableExtensionProperties",
         name: get_available_extension_properties,
-        path: "/connectedOrganizations/{{RID}}/externalSponsors/microsoft.graph.getAvailableExtensionProperties",
+        path: "/connectedOrganizations/{{RID}}/externalSponsors/getAvailableExtensionProperties",
         body: true
     );
     post!(
         doc: "Invoke action getByIds",
-        name: get_external_sponsors_by_ids,
-        path: "/connectedOrganizations/{{RID}}/externalSponsors/microsoft.graph.getByIds",
+        name: get_by_ids,
+        path: "/connectedOrganizations/{{RID}}/externalSponsors/getByIds",
         body: true
     );
     post!(
         doc: "Invoke action validateProperties",
-        name: validate_external_sponsors_properties,
-        path: "/connectedOrganizations/{{RID}}/externalSponsors/microsoft.graph.validateProperties",
+        name: validate_properties,
+        path: "/connectedOrganizations/{{RID}}/externalSponsors/validateProperties",
         body: true
     );
     delete!(
@@ -122,22 +139,27 @@ impl ConnectedOrganizationsIdApiClient {
         name: list_ref_internal_sponsors,
         path: "/connectedOrganizations/{{RID}}/internalSponsors/$ref"
     );
+    get!(
+        doc: "Invoke function delta",
+        name: delta,
+        path: "/connectedOrganizations/{{RID}}/internalSponsors/delta()"
+    );
     post!(
         doc: "Invoke action getAvailableExtensionProperties",
-        name: get_internal_sponsors_available_extension_properties,
-        path: "/connectedOrganizations/{{RID}}/internalSponsors/microsoft.graph.getAvailableExtensionProperties",
+        name: get_available_extension_properties,
+        path: "/connectedOrganizations/{{RID}}/internalSponsors/getAvailableExtensionProperties",
         body: true
     );
     post!(
         doc: "Invoke action getByIds",
-        name: get_internal_sponsors_by_ids,
-        path: "/connectedOrganizations/{{RID}}/internalSponsors/microsoft.graph.getByIds",
+        name: get_by_ids,
+        path: "/connectedOrganizations/{{RID}}/internalSponsors/getByIds",
         body: true
     );
     post!(
         doc: "Invoke action validateProperties",
-        name: validate_internal_sponsors_properties,
-        path: "/connectedOrganizations/{{RID}}/internalSponsors/microsoft.graph.validateProperties",
+        name: validate_properties,
+        path: "/connectedOrganizations/{{RID}}/internalSponsors/validateProperties",
         body: true
     );
     delete!(

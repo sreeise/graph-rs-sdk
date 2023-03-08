@@ -32,7 +32,7 @@ impl AccessReviewsDefinitionsInstancesApiClient {
     get!(
         doc: "Invoke function filterByCurrentUser",
         name: filter_by_current_user,
-        path: "/instances/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+        path: "/instances/filterByCurrentUser(on='{{id}}')",
         params: on
     );
 }
@@ -63,6 +63,22 @@ impl AccessReviewsDefinitionsInstancesIdApiClient {
         doc: "Update the navigation property instances in identityGovernance",
         name: update_instances,
         path: "/instances/{{RID}}",
+        body: true
+    );
+    post!(
+        doc: "Invoke action acceptRecommendations",
+        name: accept_recommendations,
+        path: "/instances/{{RID}}/acceptRecommendations"
+    );
+    post!(
+        doc: "Invoke action applyDecisions",
+        name: apply_decisions,
+        path: "/instances/{{RID}}/applyDecisions"
+    );
+    post!(
+        doc: "Invoke action batchRecordDecisions",
+        name: batch_record_decisions,
+        path: "/instances/{{RID}}/batchRecordDecisions",
         body: true
     );
     post!(
@@ -119,7 +135,7 @@ impl AccessReviewsDefinitionsInstancesIdApiClient {
     get!(
         doc: "Invoke function filterByCurrentUser",
         name: filter_by_current_user,
-        path: "/instances/{{RID}}/decisions/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+        path: "/instances/{{RID}}/decisions/filterByCurrentUser(on='{{id}}')",
         params: on
     );
     delete!(
@@ -142,34 +158,18 @@ impl AccessReviewsDefinitionsInstancesIdApiClient {
         params: access_review_instance_decision_item_id
     );
     post!(
-        doc: "Invoke action acceptRecommendations",
-        name: accept_recommendations,
-        path: "/instances/{{RID}}/microsoft.graph.acceptRecommendations"
-    );
-    post!(
-        doc: "Invoke action applyDecisions",
-        name: apply_decisions,
-        path: "/instances/{{RID}}/microsoft.graph.applyDecisions"
-    );
-    post!(
-        doc: "Invoke action batchRecordDecisions",
-        name: batch_record_decisions,
-        path: "/instances/{{RID}}/microsoft.graph.batchRecordDecisions",
-        body: true
-    );
-    post!(
         doc: "Invoke action resetDecisions",
         name: reset_decisions,
-        path: "/instances/{{RID}}/microsoft.graph.resetDecisions"
+        path: "/instances/{{RID}}/resetDecisions"
     );
     post!(
         doc: "Invoke action sendReminder",
         name: send_reminder,
-        path: "/instances/{{RID}}/microsoft.graph.sendReminder"
+        path: "/instances/{{RID}}/sendReminder"
     );
     post!(
         doc: "Invoke action stop",
         name: stop,
-        path: "/instances/{{RID}}/microsoft.graph.stop"
+        path: "/instances/{{RID}}/stop"
     );
 }

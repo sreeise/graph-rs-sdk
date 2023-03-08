@@ -28,7 +28,7 @@ impl AccessReviewsDefinitionsInstancesStagesApiClient {
     get!(
         doc: "Invoke function filterByCurrentUser",
         name: filter_by_current_user,
-        path: "/stages/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+        path: "/stages/filterByCurrentUser(on='{{id}}')",
         params: on
     );
 }
@@ -69,7 +69,7 @@ impl AccessReviewsDefinitionsInstancesStagesIdApiClient {
     get!(
         doc: "Invoke function filterByCurrentUser",
         name: filter_by_current_user,
-        path: "/stages/{{RID}}/decisions/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+        path: "/stages/{{RID}}/decisions/filterByCurrentUser(on='{{id}}')",
         params: on
     );
     delete!(
@@ -94,6 +94,6 @@ impl AccessReviewsDefinitionsInstancesStagesIdApiClient {
     post!(
         doc: "Invoke action stop",
         name: stop,
-        path: "/stages/{{RID}}/microsoft.graph.stop"
+        path: "/stages/{{RID}}/stop"
     );
 }

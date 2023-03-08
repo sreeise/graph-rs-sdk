@@ -28,7 +28,7 @@ impl AccessPackageAssignmentApprovalsApiClient {
     get!(
         doc: "Invoke function filterByCurrentUser",
         name: filter_by_current_user,
-        path: "/accessPackageAssignmentApprovals/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+        path: "/accessPackageAssignmentApprovals/filterByCurrentUser(on='{{id}}')",
         params: on
     );
 }

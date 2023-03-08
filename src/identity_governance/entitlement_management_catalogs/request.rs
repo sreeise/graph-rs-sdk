@@ -29,15 +29,15 @@ impl EntitlementManagementCatalogsApiClient {
 }
 
 impl EntitlementManagementCatalogsIdApiClient {
-    api_client_link!(
-        access_packages,
-        ResourceIdentity::AccessPackages,
-        AccessPackagesApiClient
-    );
     api_client_link_id!(
         access_package,
         ResourceIdentity::AccessPackages,
         AccessPackagesIdApiClient
+    );
+    api_client_link!(
+        access_packages,
+        ResourceIdentity::AccessPackages,
+        AccessPackagesApiClient
     );
 
     delete!(

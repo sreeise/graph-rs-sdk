@@ -28,7 +28,7 @@ impl AssignmentRequestsApiClient {
     get!(
         doc: "Invoke function filterByCurrentUser",
         name: filter_by_current_user,
-        path: "/assignmentRequests/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+        path: "/assignmentRequests/filterByCurrentUser(on='{{id}}')",
         params: on
     );
 }
@@ -63,12 +63,12 @@ impl AssignmentRequestsIdApiClient {
     post!(
         doc: "Invoke action cancel",
         name: cancel,
-        path: "/assignmentRequests/{{RID}}/microsoft.graph.cancel"
+        path: "/assignmentRequests/{{RID}}/cancel"
     );
     post!(
         doc: "Invoke action reprocess",
         name: reprocess,
-        path: "/assignmentRequests/{{RID}}/microsoft.graph.reprocess"
+        path: "/assignmentRequests/{{RID}}/reprocess"
     );
     get!(
         doc: "Get requestor from identityGovernance",

@@ -21,6 +21,31 @@ resource_api_client!(
 );
 
 impl EntitlementManagementApiClient {
+    api_client_link!(
+        connected_organizations,
+        ResourceIdentity::ConnectedOrganizations,
+        ConnectedOrganizationsApiClient
+    );
+    api_client_link!(
+        access_packages,
+        ResourceIdentity::AccessPackages,
+        AccessPackagesApiClient
+    );
+    api_client_link!(
+        assignment_policies,
+        ResourceIdentity::AssignmentPolicies,
+        AssignmentPoliciesApiClient
+    );
+    api_client_link_id!(
+        access_package_assignment_approval,
+        ResourceIdentity::AccessPackageAssignmentApprovals,
+        AccessPackageAssignmentApprovalsIdApiClient
+    );
+    api_client_link_id!(
+        catalog,
+        ResourceIdentity::EntitlementManagementCatalogs,
+        EntitlementManagementCatalogsIdApiClient
+    );
     api_client_link_id!(
         assignment_request,
         ResourceIdentity::AssignmentRequests,
@@ -31,30 +56,20 @@ impl EntitlementManagementApiClient {
         ResourceIdentity::ConnectedOrganizations,
         ConnectedOrganizationsIdApiClient
     );
-    api_client_link!(
-        connected_organizations,
-        ResourceIdentity::ConnectedOrganizations,
-        ConnectedOrganizationsApiClient
+    api_client_link_id!(
+        assignment,
+        ResourceIdentity::EntitlementManagementAssignments,
+        EntitlementManagementAssignmentsIdApiClient
     );
     api_client_link!(
-        access_package_assignment_approvals,
-        ResourceIdentity::AccessPackageAssignmentApprovals,
-        AccessPackageAssignmentApprovalsApiClient
+        assignment_requests,
+        ResourceIdentity::AssignmentRequests,
+        AssignmentRequestsApiClient
     );
     api_client_link_id!(
         access_package,
         ResourceIdentity::AccessPackages,
         AccessPackagesIdApiClient
-    );
-    api_client_link_id!(
-        access_package_assignment_approval,
-        ResourceIdentity::AccessPackageAssignmentApprovals,
-        AccessPackageAssignmentApprovalsIdApiClient
-    );
-    api_client_link_id!(
-        assignment_policy,
-        ResourceIdentity::AssignmentPolicies,
-        AssignmentPoliciesIdApiClient
     );
     api_client_link!(
         assignments,
@@ -62,34 +77,19 @@ impl EntitlementManagementApiClient {
         EntitlementManagementAssignmentsApiClient
     );
     api_client_link!(
-        access_packages,
-        ResourceIdentity::AccessPackages,
-        AccessPackagesApiClient
+        access_package_assignment_approvals,
+        ResourceIdentity::AccessPackageAssignmentApprovals,
+        AccessPackageAssignmentApprovalsApiClient
     );
     api_client_link_id!(
-        assignment,
-        ResourceIdentity::EntitlementManagementAssignments,
-        EntitlementManagementAssignmentsIdApiClient
-    );
-    api_client_link!(
-        assignment_policies,
+        assignment_policy,
         ResourceIdentity::AssignmentPolicies,
-        AssignmentPoliciesApiClient
+        AssignmentPoliciesIdApiClient
     );
     api_client_link!(
         catalogs,
         ResourceIdentity::EntitlementManagementCatalogs,
         EntitlementManagementCatalogsApiClient
-    );
-    api_client_link_id!(
-        catalog,
-        ResourceIdentity::EntitlementManagementCatalogs,
-        EntitlementManagementCatalogsIdApiClient
-    );
-    api_client_link!(
-        assignment_requests,
-        ResourceIdentity::AssignmentRequests,
-        AssignmentRequestsApiClient
     );
 
     delete!(
