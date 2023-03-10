@@ -1,5 +1,7 @@
+use crate::download::AsyncDownloadError;
 use crate::error::GraphError;
 use crate::internal::GraphRsError;
+use reqwest::header::HeaderMap;
 use std::cell::BorrowMutError;
 use std::io::ErrorKind;
 use std::str::Utf8Error;
@@ -63,11 +65,24 @@ pub enum GraphFailure {
     #[error("Handlebars render error:\n{0:#?}")]
     HandlebarsRenderError(#[from] handlebars::RenderError),
 
-    #[error("Handlebars template render error:\n{0:#?}")]
+    #[error("Handlebars template render error:\n{0:?}")]
     HandlebarsTemplateRenderError(#[from] handlebars::TemplateRenderError),
 
     #[error("Crypto Error (Unknown)")]
     CryptoError,
+
+    #[error("Async Download Error:\n{0:#?}")]
+    AsyncDownloadError(#[from] AsyncDownloadError),
+
+    #[error(
+        "Error building or processing request prior to being sent:\n{0:#?}r",
+        error
+    )]
+    PreFlightError {
+        url: Option<reqwest::Url>,
+        headers: HeaderMap,
+        error: Box<GraphFailure>,
+    },
 }
 
 impl GraphFailure {

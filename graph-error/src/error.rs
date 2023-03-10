@@ -194,30 +194,36 @@ impl ErrorType {}
 impl ErrorType {
     pub fn as_str(&self) -> &str {
         match *self {
-            ErrorType::BadRequest => "Cannot process the request because it is malformed or incorrect.",
-            ErrorType::Unauthorized => "Required authentication information is either missing or not valid for the resource.",
-            ErrorType::Forbidden => "Access is denied to the requested resource. The user might not have enough permission.",
-            ErrorType::NotFound => "The requested resource doesnt exist.",
-            ErrorType::MethodNotAllowed => "The HTTP method in the request is not allowed on the resource.",
-            ErrorType::NotAcceptable => "This service doesnt support the format requested in the Accept header.",
-            ErrorType::Conflict => "The current state conflicts with what the request expects. For example, the specified parent folder might not exist",
-            ErrorType::Gone => "The requested resource is no longer available at the server.",
-            ErrorType::LengthRequired => "A Content-Length header is required on the request.",
-            ErrorType::PreconditionFailed=> "A precondition provided in the request (such as an if-match header) does not match the resource's current state.",
-            ErrorType::RequestEntityTooLarge => "The request size exceeds the maximum limit.",
-            ErrorType::UnsupportedMediaType => "The content type of the request is a format that is not supported by the service.",
-            ErrorType::RequestRangeNotSatisfiable => "The specified byte range is invalid or unavailable.",
-            ErrorType::UnprocessableEntity => "Cannot process the request because it is semantically incorrect.",
-            ErrorType::Locked => "The resource that is being accessed is locked.",
-            ErrorType::TooManyRequests => "Client application has been throttled and should not attempt to repeat the request until an amount of time has elapsed.",
-            ErrorType::InternalServerError => "There was an internal server error while processing the request.",
-            ErrorType::NotImplemented => "The requested feature isn’t implemented.",
-            ErrorType::ServiceUnavailable => "The service is temporarily unavailable. You may repeat the request after a delay. There may be a Retry-After header.",
-            ErrorType::GatewayTimeout => "The server, while acting as a proxy, did not receive a timely response from the upstream server it needed to access in attempting to complete the request. May occur together with 503.",
-            ErrorType::InsufficientStorage => "The maximum storage quota has been reached.",
-            ErrorType::BandwidthLimitExceeded => "Your app has been throttled for exceeding the maximum bandwidth cap. Your app can retry the request again after more time has elapsed.",
-            ErrorType::UnknownError => "Unknown error or failure",
-        }
+			ErrorType::BadRequest => "Cannot process the request because it is malformed or incorrect.",
+			ErrorType::Unauthorized => "Required authentication information is either missing or not valid for the resource.",
+			ErrorType::Forbidden => "Access is denied to the requested resource. The user might not have enough permission.",
+			ErrorType::NotFound => "The requested resource doesnt exist.",
+			ErrorType::MethodNotAllowed => "The HTTP method in the request is not allowed on the resource.",
+			ErrorType::NotAcceptable => "This service doesnt support the format requested in the Accept header.",
+			ErrorType::Conflict =>
+				"The current state conflicts with what the request expects. For example, the specified parent folder might not exist",
+			ErrorType::Gone => "The requested resource is no longer available at the server.",
+			ErrorType::LengthRequired => "A Content-Length header is required on the request.",
+			ErrorType::PreconditionFailed =>
+				"A precondition provided in the request (such as an if-match header) does not match the resource's current state.",
+			ErrorType::RequestEntityTooLarge => "The request size exceeds the maximum limit.",
+			ErrorType::UnsupportedMediaType => "The content type of the request is a format that is not supported by the service.",
+			ErrorType::RequestRangeNotSatisfiable => "The specified byte range is invalid or unavailable.",
+			ErrorType::UnprocessableEntity => "Cannot process the request because it is semantically incorrect.",
+			ErrorType::Locked => "The resource that is being accessed is locked.",
+			ErrorType::TooManyRequests =>
+				"Client application has been throttled and should not attempt to repeat the request until an amount of time has elapsed.",
+			ErrorType::InternalServerError => "There was an internal server error while processing the request.",
+			ErrorType::NotImplemented => "The requested feature isn’t implemented.",
+			ErrorType::ServiceUnavailable =>
+				"The service is temporarily unavailable. You may repeat the request after a delay. There may be a Retry-After header.",
+			ErrorType::GatewayTimeout =>
+				"The server, while acting as a proxy, did not receive a timely response from the upstream server it needed to access in attempting to complete the request. May occur together with 503.",
+			ErrorType::InsufficientStorage => "The maximum storage quota has been reached.",
+			ErrorType::BandwidthLimitExceeded =>
+				"Your app has been throttled for exceeding the maximum bandwidth cap. Your app can retry the request again after more time has elapsed.",
+			ErrorType::UnknownError => "Unknown error or failure",
+		}
     }
 
     pub fn from_u16(num: u16) -> Option<ErrorType> {
