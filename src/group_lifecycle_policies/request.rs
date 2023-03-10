@@ -1,74 +1,59 @@
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+// GENERATED CODE
 
-register_client!(GroupLifecyclePoliciesRequest,);
+use crate::api_default_imports::*;
 
-impl<'a, Client> GroupLifecyclePoliciesRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get entity from groupLifecyclePolicies by key",
-        name: get_group_lifecycle_policy,
-        response: serde_json::Value,
-        path: "/groupLifecyclePolicies/{{id}}",
-        params: 1,
-        has_body: false
-    });
+resource_api_client!(
+    GroupLifecyclePoliciesApiClient,
+    GroupLifecyclePoliciesIdApiClient,
+    ResourceIdentity::GroupLifecyclePolicies
+);
 
-    patch!({
-        doc: "# Update entity in groupLifecyclePolicies",
-        name: update_group_lifecycle_policy,
-        response: NoContent,
-        path: "/groupLifecyclePolicies/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete entity from groupLifecyclePolicies",
-        name: delete_group_lifecycle_policy,
-        response: NoContent,
-        path: "/groupLifecyclePolicies/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Invoke action removeGroup",
-        name: remove_group,
-        response: serde_json::Value,
-        path: "/groupLifecyclePolicies/{{id}}/removeGroup",
-        params: 1,
-        has_body: true
-    });
-
-    post!({
-        doc: "# Invoke action addGroup",
-        name: add_group,
-        response: serde_json::Value,
-        path: "/groupLifecyclePolicies/{{id}}/addGroup",
-        params: 1,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get entities from groupLifecyclePolicies",
-        name: list_group_lifecycle_policy,
-        response: serde_json::Value,
-        path: "/groupLifecyclePolicies",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Add new entity to groupLifecyclePolicies",
+impl GroupLifecyclePoliciesApiClient {
+    post!(
+        doc: "Create groupLifecyclePolicy",
         name: create_group_lifecycle_policy,
-        response: serde_json::Value,
         path: "/groupLifecyclePolicies",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
+    get!(
+        doc: "List groupLifecyclePolicies",
+        name: list_group_lifecycle_policy,
+        path: "/groupLifecyclePolicies"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_group_lifecycle_policies_count,
+        path: "/groupLifecyclePolicies/$count"
+    );
+}
+
+impl GroupLifecyclePoliciesIdApiClient {
+    delete!(
+        doc: "Delete groupLifecyclePolicy",
+        name: delete_group_lifecycle_policy,
+        path: "/groupLifecyclePolicies/{{RID}}"
+    );
+    get!(
+        doc: "Get groupLifecyclePolicy",
+        name: get_group_lifecycle_policy,
+        path: "/groupLifecyclePolicies/{{RID}}"
+    );
+    patch!(
+        doc: "Update groupLifecyclePolicy",
+        name: update_group_lifecycle_policy,
+        path: "/groupLifecyclePolicies/{{RID}}",
+        body: true
+    );
+    post!(
+        doc: "Invoke action addGroup",
+        name: add_group,
+        path: "/groupLifecyclePolicies/{{RID}}/addGroup",
+        body: true
+    );
+    post!(
+        doc: "Invoke action removeGroup",
+        name: remove_group,
+        path: "/groupLifecyclePolicies/{{RID}}/removeGroup",
+        body: true
+    );
 }
