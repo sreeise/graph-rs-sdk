@@ -4,6 +4,7 @@ use std::convert::AsRef;
 /// Comprises both top level and second level resources.
 /// These are not generated from OpenApi, except for top level resources,
 /// and mostly consist of Apis that the project currently has generated.
+#[remain::sorted]
 #[derive(
     AsRefStr,
     Copy,
@@ -21,38 +22,42 @@ use std::convert::AsRef;
 )]
 #[strum(serialize_all = "camelCase")]
 pub enum ResourceIdentity {
-    AccessPackages,
     AccessPackageAssignmentApprovals,
+    AccessPackages,
     AccessReviews,
-    AccessReviewDefinitions,
+    AccessReviewsDefinitions,
+    AccessReviewsDefinitionsInstances,
+    AccessReviewsDefinitionsInstancesStages,
     Activities,
     Admin,
     AdministrativeUnits,
     AdministrativeUnitsMembers,
     AgreementAcceptances,
     Agreements,
+    AllChannels,
+    AppCatalogs,
     AppConsent,
+    Application,
+    Applications,
+    ApplicationTemplates,
+    AppRoleAssignments,
     AssignmentPolicies,
     AssignmentRequests,
     Assignments,
-    AllChannels,
-    AppCatalogs,
-    Application,
-    ApplicationTemplates,
-    Applications,
     Attachments,
     AuditLogs,
+    Authentication,
     AuthenticationMethodConfigurations,
     AuthenticationMethodsPolicy,
-    Buckets,
+    Batch, // Specifically for $batch requests.
     Branding,
+    Buckets,
     Calendar,
     CalendarGroups,
-    CalendarView,
-    CalendarViews,
     Calendars,
-    CallRecord,
+    CalendarView,
     CallRecords,
+    CallRecordsSessions,
     Calls,
     CertificateBasedAuthConfiguration,
     Channels,
@@ -62,37 +67,74 @@ pub enum ResourceIdentity {
     Communications,
     Compliance,
     ConnectedOrganizations,
+    ConnectedOrganizationsExternalSponsors,
+    ConnectedOrganizationsInternalSponsors,
     Connections,
     ContactFolders,
     Contacts,
     ContentTypes,
     Contracts,
-    Conversations,
+    CreatedObjects,
     DataPolicyOperations,
-    DefinitionInstances,
-    DefinitionInstanceStages,
     DeviceAppManagement,
+    DeviceAppManagementAndroidManagedAppProtections,
+    DeviceAppManagementDefaultManagedAppProtections,
+    DeviceAppManagementIosManagedAppProtections,
+    DeviceAppManagementManagedAppPolicies,
+    DeviceAppManagementManagedAppRegistrations,
+    DeviceAppManagementManagedAppStatuses,
+    DeviceAppManagementManagedEBooks,
+    DeviceAppManagementMdmWindowsInformationProtectionPolicies,
+    DeviceAppManagementMobileAppCategories,
+    DeviceAppManagementMobileAppConfigurations,
+    DeviceAppManagementMobileApps,
+    DeviceAppManagementTargetedManagedAppConfigurations,
+    DeviceAppManagementVppTokens,
+    DeviceAppManagementWindowsInformationProtectionPolicies,
+    DeviceCompliancePolicies,
+    DeviceConfigurations,
+    DeviceEnrollmentConfigurations,
     DeviceManagement,
+    DeviceManagementManagedDevices,
+    DeviceManagementTroubleshootingEvents,
     Devices,
     Directory,
     DirectoryDeletedItems,
     DirectoryObjects,
-    DirectoryRoleTemplates,
     DirectoryRoles,
+    DirectoryRoleTemplates,
+    DirectReports,
     DomainDnsRecords,
     Domains,
     Drive,
     Drives,
+    DrivesItems,
+    DrivesList,
+    DrivesListContentTypes,
     Education,
+    EducationAssignments,
+    EducationAssignmentsSubmissions,
+    EducationClasses,
+    EducationMe,
+    EducationSchools,
+    EducationUsers,
     EntitlementManagement,
+    EntitlementManagementAssignments,
+    EntitlementManagementCatalogs,
     Events,
-    External,
     ExtendedProperties,
+    Extensions,
+    External,
+    FollowedSites,
     GroupLifecyclePolicies,
-    GroupSettingTemplates,
     GroupSettings,
+    GroupSettingTemplates,
     Groups,
-    HealthOverviews,
+    GroupsConversations,
+    GroupsOwners,
+    GroupsTeam,
+    GroupsThreads,
+    GroupsThreadsPosts,
     HistoryItems,
     Identity,
     IdentityGovernance,
@@ -105,46 +147,54 @@ pub enum ResourceIdentity {
     Instances,
     Invitations,
     Items,
+    JoinedTeams,
+    LicenseDetails,
     List,
     Lists,
     Localizations,
     MailFolders,
+    ManagedAppRegistrations,
     ManagedDevices,
     Me,
+    MemberOf,
     Members,
     Messages,
     Notebooks,
     Oauth2PermissionGrants,
     Onenote,
     OnlineMeetings,
-    OrgContact,
     Organization,
+    OrgContacts,
     Outlook,
+    OwnedDevices,
+    OwnedObjects,
     Pages,
     ParentNotebook,
     ParentSection,
     ParentSectionGroup,
+    People,
     PermissionGrants,
+    Photos,
     Places,
     Planner,
     Plans,
     Policies,
-    Posts,
-    PrimaryChannel,
+    Presence,
     Print,
     Privacy,
+    RegisteredDevices,
     Reports,
+    RoleDefinitions,
     RoleManagement,
     Schedule,
-    ScopedRoleMemberships,
     SchemaExtensions,
+    ScopedRoleMemberOf,
+    ScopedRoleMemberships,
     Search,
     SectionGroups,
     Sections,
     Security,
-    ServiceAnnouncement,
     ServicePrincipals,
-    Sessions,
     Settings,
     SharedWithTeams,
     Shares,
@@ -155,17 +205,143 @@ pub enum ResourceIdentity {
     Tabs,
     Tasks,
     Teams,
+    TeamsPrimaryChannel,
+    TeamsPrimaryChannelSharedWithTeams,
+    TeamsPrimaryChannelTabs,
     TeamsTemplates,
     Teamwork,
-    TermsOfUse,
-    Threads,
+    TermsAndConditions,
+    Todo,
+    TransitiveMemberOf,
     Users,
     Workbooks,
 }
 
 impl ToString for ResourceIdentity {
     fn to_string(&self) -> String {
-        self.as_ref().to_camel_case()
+        let device_am = ResourceIdentity::DeviceAppManagement.exact_camel_case();
+
+        match self {
+            ResourceIdentity::AccessPackages => "accessPackages".to_string(),
+            ResourceIdentity::AccessReviewsDefinitions => "definitions".to_string(),
+            ResourceIdentity::AccessReviewsDefinitionsInstances => "instances".to_string(),
+            ResourceIdentity::AccessReviewsDefinitionsInstancesStages => "stages".to_string(),
+            ResourceIdentity::DeviceManagementManagedDevices => "managedDevices".to_string(),
+            ResourceIdentity::EntitlementManagementAssignments => "assignments".to_string(),
+            ResourceIdentity::EntitlementManagementCatalogs => "catalogs".to_string(),
+            ResourceIdentity::TeamsPrimaryChannel => "primaryChannel".to_string(),
+            ResourceIdentity::TeamsPrimaryChannelSharedWithTeams => "sharedWithTeams".to_string(),
+            ResourceIdentity::DrivesList => "list".to_string(),
+            ResourceIdentity::DrivesItems => "items".to_string(),
+            ResourceIdentity::DrivesListContentTypes => "contentTypes".to_string(),
+
+            ResourceIdentity::DeviceAppManagementAndroidManagedAppProtections => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementDefaultManagedAppProtections => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementIosManagedAppProtections => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementManagedAppPolicies => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementManagedAppRegistrations => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementManagedAppStatuses => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementManagedEBooks => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementMdmWindowsInformationProtectionPolicies => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementMobileAppCategories => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementMobileAppConfigurations => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementMobileApps => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementTargetedManagedAppConfigurations => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementVppTokens => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::DeviceAppManagementWindowsInformationProtectionPolicies => {
+                self.replace(&device_am, "").to_camel_case()
+            }
+            ResourceIdentity::GroupsConversations => "conversations".into(),
+            ResourceIdentity::GroupsOwners => "owners".into(),
+            ResourceIdentity::GroupsTeam => "team".into(),
+            ResourceIdentity::GroupsThreadsPosts => "posts".into(),
+            ResourceIdentity::GroupsThreads => "threads".into(),
+            ResourceIdentity::Activities => "activities".to_string(),
+            ResourceIdentity::AgreementAcceptances => "agreementAcceptances".to_string(),
+            ResourceIdentity::AppRoleAssignments => "appRoleAssignments".to_string(),
+            ResourceIdentity::Authentication => "authentication".to_string(),
+            ResourceIdentity::Calendar => "calendar".to_string(),
+            ResourceIdentity::CalendarGroups => "calendarGroups".to_string(),
+            ResourceIdentity::CalendarView => "calendarView".to_string(),
+            ResourceIdentity::Calendars => "calendars".to_string(),
+            ResourceIdentity::Chats => "chats".to_string(),
+            ResourceIdentity::ContactFolders => "contactFolders".to_string(),
+            ResourceIdentity::Contacts => "contacts".to_string(),
+            ResourceIdentity::CreatedObjects => "createdObjects".to_string(),
+            ResourceIdentity::DeviceManagementTroubleshootingEvents => {
+                "deviceManagementTroubleshootingEvents".to_string()
+            }
+            ResourceIdentity::DirectReports => "directReports".to_string(),
+            ResourceIdentity::Drives => "drives".to_string(),
+            ResourceIdentity::Events => "events".to_string(),
+            ResourceIdentity::Extensions => "extensions".to_string(),
+            ResourceIdentity::FollowedSites => "followedSites".to_string(),
+            ResourceIdentity::InferenceClassification => "inferenceClassification".to_string(),
+            ResourceIdentity::Insights => "insights".to_string(),
+            ResourceIdentity::JoinedTeams => "joinedTeams".to_string(),
+            ResourceIdentity::LicenseDetails => "licenseDetails".to_string(),
+            ResourceIdentity::MailFolders => "mailFolders".to_string(),
+            ResourceIdentity::ManagedAppRegistrations => "managedAppRegistrations".to_string(),
+            ResourceIdentity::ManagedDevices => "managedDevices".to_string(),
+            ResourceIdentity::MemberOf => "memberOf".to_string(),
+            ResourceIdentity::Messages => "messages".to_string(),
+            ResourceIdentity::Oauth2PermissionGrants => "oauth2PermissionGrants".to_string(),
+            ResourceIdentity::Onenote => "onenote".to_string(),
+            ResourceIdentity::OnlineMeetings => "onlineMeetings".to_string(),
+            ResourceIdentity::Outlook => "outlook".to_string(),
+            ResourceIdentity::OwnedDevices => "ownedDevices".to_string(),
+            ResourceIdentity::OwnedObjects => "ownedObjects".to_string(),
+            ResourceIdentity::People => "people".to_string(),
+            ResourceIdentity::Photos => "photos".to_string(),
+            ResourceIdentity::Planner => "planner".to_string(),
+            ResourceIdentity::Presence => "presence".to_string(),
+            ResourceIdentity::RegisteredDevices => "registeredDevices".to_string(),
+            ResourceIdentity::ScopedRoleMemberOf => "scopedRoleMemberOf".to_string(),
+            ResourceIdentity::Teamwork => "teamwork".to_string(),
+            ResourceIdentity::Todo => "todo".to_string(),
+            ResourceIdentity::TransitiveMemberOf => "transitiveMemberOf".to_string(),
+
+            ResourceIdentity::ConnectedOrganizationsExternalSponsors => {
+                "externalSponsors".to_string()
+            }
+            ResourceIdentity::ConnectedOrganizationsInternalSponsors => {
+                "internalSponsors".to_string()
+            }
+            ResourceIdentity::CallRecordsSessions => "sessions".to_string(),
+            ResourceIdentity::EducationAssignmentsSubmissions => "submissions".to_string(),
+            ResourceIdentity::EducationAssignments => "assignments".to_string(),
+            ResourceIdentity::EducationClasses => "classes".to_string(),
+            ResourceIdentity::EducationMe => "me".to_string(),
+            ResourceIdentity::EducationUsers => "users".to_string(),
+            ResourceIdentity::EducationSchools => "schools".to_string(),
+            _ => self.as_ref().to_camel_case(),
+        }
     }
 }
 
@@ -177,11 +353,27 @@ impl Default for ResourceIdentity {
 
 impl ResourceIdentity {
     pub fn enum_string(&self) -> String {
-        format!("ResourceIdentity::{:#?}", self)
+        format!("ResourceIdentity::{self:#?}")
     }
 
     pub fn to_path_start(&self) -> String {
-        format!("/{}", self.to_string().to_camel_case())
+        format!("/{}", self.to_string())
+    }
+
+    pub fn replace(&self, from: &str, to: &str) -> String {
+        self.as_ref().replace(from, to)
+    }
+
+    pub fn exact_camel_case(&self) -> String {
+        self.as_ref().to_camel_case()
+    }
+
+    pub fn exact_pascal_case(&self) -> String {
+        self.as_ref().to_pascal_case()
+    }
+
+    pub fn exact_snake_case(&self) -> String {
+        self.as_ref().to_snake_case()
     }
 }
 
