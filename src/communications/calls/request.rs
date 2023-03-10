@@ -229,7 +229,7 @@ impl CallsIdApiClient {
     );
     post!(
         doc: "Invoke action mute",
-        name: mute,
+        name: mute_participants,
         path: "/calls/{{RID}}/participants/{{id}}/mute",
         body: true,
         params: participant_id
