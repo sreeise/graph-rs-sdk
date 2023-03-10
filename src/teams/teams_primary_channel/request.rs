@@ -2,6 +2,7 @@
 
 use crate::api_default_imports::*;
 use crate::teams::*;
+use crate::users::*;
 
 resource_api_client!(
     TeamsPrimaryChannelApiClient,
@@ -9,8 +10,10 @@ resource_api_client!(
 );
 
 impl TeamsPrimaryChannelApiClient {
-    api_client_link_id!(shared_with_team, SharedWithTeamsIdApiClient);
     api_client_link!(shared_with_teams, SharedWithTeamsApiClient);
+    api_client_link_id!(message, MessagesIdApiClient);
+    api_client_link!(messages, MessagesApiClient);
+    api_client_link_id!(shared_with_team, SharedWithTeamsIdApiClient);
 
     delete!(
         doc: "Delete navigation property primaryChannel for teams",

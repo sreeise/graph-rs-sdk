@@ -31,8 +31,8 @@ impl TeamsApiClient {
 }
 
 impl TeamsIdApiClient {
-    api_client_link!(channels, ChannelsApiClient);
     api_client_link!(primary_channel, TeamsPrimaryChannelApiClient);
+    api_client_link!(channels, ChannelsApiClient);
     api_client_link_id!(channel, ChannelsIdApiClient);
 
     delete!(
