@@ -31,9 +31,14 @@ impl TeamsApiClient {
 }
 
 impl TeamsIdApiClient {
-    api_client_link!(primary_channel, TeamsPrimaryChannelApiClient);
     api_client_link!(channels, ChannelsApiClient);
     api_client_link_id!(channel, ChannelsIdApiClient);
+    api_client_link!(schedule, ScheduleApiClient);
+    api_client_link!(tags, TeamsTagsApiClient);
+    api_client_link!(members, TeamsMembersApiClient);
+    api_client_link!(primary_channel, PrimaryChannelApiClient);
+    api_client_link_id!(tag, TeamsTagsIdApiClient);
+    api_client_link!(member, TeamsMembersIdApiClient);
 
     delete!(
         doc: "Delete entity from teams",
