@@ -1,6 +1,8 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::chats::*;
+use crate::teams::*;
 
 resource_api_client!(ChatsApiClient, ChatsIdApiClient, ResourceIdentity::Chats);
 
@@ -24,11 +26,15 @@ impl ChatsApiClient {
     get!(
         doc: "Invoke function getAllMessages",
         name: get_all_messages,
-        path: "/chats/microsoft.graph.getAllMessages()"
+        path: "/chats/getAllMessages()"
     );
 }
 
 impl ChatsIdApiClient {
+    api_client_link!(messages, MessagesApiClient);
+    api_client_link_id!(message, MessagesIdApiClient);
+    api_client_link!(members, TeamsMembersApiClient);
+
     delete!(
         doc: "Delete entity from chats",
         name: delete_chat,
@@ -43,6 +49,12 @@ impl ChatsIdApiClient {
         doc: "Update chat",
         name: update_chat,
         path: "/chats/{{RID}}",
+        body: true
+    );
+    post!(
+        doc: "Invoke action hideForUser",
+        name: hide_for_user,
+        path: "/chats/{{RID}}/hideForUser",
         body: true
     );
     post!(
@@ -80,15 +92,9 @@ impl ChatsIdApiClient {
         body: true,
         params: teams_app_installation_id
     );
-    post!(
-        doc: "Invoke action upgrade",
-        name: upgrade,
-        path: "/chats/{{RID}}/installedApps/{{id}}/microsoft.graph.upgrade",
-        params: teams_app_installation_id
-    );
     get!(
         doc: "Get teamsApp from chats",
-        name: get_teams_app,
+        name: get_installed_apps_teams_app,
         path: "/chats/{{RID}}/installedApps/{{id}}/teamsApp",
         params: teams_app_installation_id
     );
@@ -96,6 +102,12 @@ impl ChatsIdApiClient {
         doc: "Get teamsAppDefinition from chats",
         name: get_teams_app_definition,
         path: "/chats/{{RID}}/installedApps/{{id}}/teamsAppDefinition",
+        params: teams_app_installation_id
+    );
+    post!(
+        doc: "Invoke action upgrade",
+        name: upgrade,
+        path: "/chats/{{RID}}/installedApps/{{id}}/upgrade",
         params: teams_app_installation_id
     );
     delete!(
@@ -115,74 +127,15 @@ impl ChatsIdApiClient {
         body: true
     );
     post!(
-        doc: "Add member to a chat",
-        name: create_members,
-        path: "/chats/{{RID}}/members",
-        body: true
-    );
-    get!(
-        doc: "List members of a chat",
-        name: list_members,
-        path: "/chats/{{RID}}/members"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_members_count,
-        path: "/chats/{{RID}}/members/$count"
-    );
-    post!(
-        doc: "Invoke action add",
-        name: add,
-        path: "/chats/{{RID}}/members/microsoft.graph.add",
-        body: true
-    );
-    delete!(
-        doc: "Delete navigation property members for chats",
-        name: delete_members,
-        path: "/chats/{{RID}}/members/{{id}}",
-        params: conversation_member_id
-    );
-    get!(
-        doc: "Get members from chats",
-        name: get_members,
-        path: "/chats/{{RID}}/members/{{id}}",
-        params: conversation_member_id
-    );
-    patch!(
-        doc: "Update the navigation property members in chats",
-        name: update_members,
-        path: "/chats/{{RID}}/members/{{id}}",
-        body: true,
-        params: conversation_member_id
-    );
-    post!(
-        doc: "Invoke action hideForUser",
-        name: hide_for_user,
-        path: "/chats/{{RID}}/microsoft.graph.hideForUser",
-        body: true
-    );
-    post!(
         doc: "Invoke action markChatReadForUser",
         name: mark_chat_read_for_user,
-        path: "/chats/{{RID}}/microsoft.graph.markChatReadForUser",
+        path: "/chats/{{RID}}/markChatReadForUser",
         body: true
     );
     post!(
         doc: "Invoke action markChatUnreadForUser",
         name: mark_chat_unread_for_user,
-        path: "/chats/{{RID}}/microsoft.graph.markChatUnreadForUser",
-        body: true
-    );
-    post!(
-        doc: "Invoke action sendActivityNotification",
-        name: send_activity_notification,
-        path: "/chats/{{RID}}/microsoft.graph.sendActivityNotification",
-        body: true
-    );
-    post!(
-        doc: "Invoke action unhideForUser",
-        name: unhide_for_user,
-        path: "/chats/{{RID}}/microsoft.graph.unhideForUser",
+        path: "/chats/{{RID}}/markChatUnreadForUser",
         body: true
     );
     get!(
@@ -227,38 +180,15 @@ impl ChatsIdApiClient {
         params: pinned_chat_message_info_id
     );
     post!(
-        doc: "Add tab to chat",
-        name: create_tabs,
-        path: "/chats/{{RID}}/tabs",
+        doc: "Invoke action sendActivityNotification",
+        name: send_activity_notification,
+        path: "/chats/{{RID}}/sendActivityNotification",
         body: true
     );
-    get!(
-        doc: "List tabs in chat",
-        name: list_tabs,
-        path: "/chats/{{RID}}/tabs"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_tabs_count,
-        path: "/chats/{{RID}}/tabs/$count"
-    );
-    delete!(
-        doc: "Delete navigation property tabs for chats",
-        name: delete_tabs,
-        path: "/chats/{{RID}}/tabs/{{id}}",
-        params: teams_tab_id
-    );
-    get!(
-        doc: "Get tabs from chats",
-        name: get_tabs,
-        path: "/chats/{{RID}}/tabs/{{id}}",
-        params: teams_tab_id
-    );
-    patch!(
-        doc: "Update the navigation property tabs in chats",
-        name: update_tabs,
-        path: "/chats/{{RID}}/tabs/{{id}}",
-        body: true,
-        params: teams_tab_id
+    post!(
+        doc: "Invoke action unhideForUser",
+        name: unhide_for_user,
+        path: "/chats/{{RID}}/unhideForUser",
+        body: true
     );
 }
