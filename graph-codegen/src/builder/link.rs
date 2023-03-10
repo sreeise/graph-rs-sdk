@@ -1,3 +1,4 @@
+use crate::settings::ApiClientLink;
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use inflector::Inflector;
@@ -22,8 +23,8 @@ use std::{
     AsFile,
 )]
 pub struct ClientLinkSettings {
-    name: String,
-    method_name: Option<String>,
+    pub name: String,
+    pub method_name: Option<String>,
     custom_calls: Option<String>,
     id_method_link_param: Option<String>,
     has_id_param: bool,
@@ -108,7 +109,7 @@ impl ClientLinkSettings {
     }
 
     fn base_struct_name(&self) -> String {
-        format!("{}Request", self.name.to_pascal_case())
+        format!("{}ApiClient", self.name.to_pascal_case())
     }
 
     fn method_link(&self) -> String {
@@ -228,6 +229,29 @@ impl ClientLinkSettings {
     }
 
     pub fn format(&self) -> String {
+        if let Some(resource_identity) = self.has_resource_identity.as_ref() {
+            let method_name_snake_casing = self.method_link();
+            let api_client_pascal_casing = self.base_struct_name();
+
+            if self.has_id_param && !self.is_id_method_link {
+                return ApiClientLink::ResourceId(
+                    method_name_snake_casing,
+                    api_client_pascal_casing,
+                    *resource_identity,
+                )
+                .format();
+            } else if !self.is_id_method_link {
+                return ApiClientLink::Resource(
+                    method_name_snake_casing,
+                    api_client_pascal_casing,
+                    *resource_identity,
+                )
+                .format();
+            } else if self.is_id_method_link {
+                return ApiClientLink::IdMethod(api_client_pascal_casing, *resource_identity)
+                    .format();
+            }
+        }
         let mut s = self.method_start_string();
 
         if let Some(custom) = self.custom_calls.as_ref() {

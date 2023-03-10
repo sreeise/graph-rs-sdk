@@ -1,0 +1,2747 @@
+{
+  "/schools": {
+    "description": "Provides operations to manage the schools property of the microsoft.graph.educationRoot entity.",
+    "get": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "List educationSchools",
+      "description": "Get a list of the educationSchool objects and their properties.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/educationschool-list?view=graph-rest-1.0"
+      },
+      "operationId": "education.ListSchools",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "externalSource",
+                    "externalSource desc",
+                    "externalSourceDetail",
+                    "externalSourceDetail desc",
+                    "address",
+                    "address desc",
+                    "createdBy",
+                    "createdBy desc",
+                    "externalId",
+                    "externalId desc",
+                    "externalPrincipalId",
+                    "externalPrincipalId desc",
+                    "fax",
+                    "fax desc",
+                    "highestGrade",
+                    "highestGrade desc",
+                    "lowestGrade",
+                    "lowestGrade desc",
+                    "phone",
+                    "phone desc",
+                    "principalEmail",
+                    "principalEmail desc",
+                    "principalName",
+                    "principalName desc",
+                    "schoolNumber",
+                    "schoolNumber desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "description",
+                    "displayName",
+                    "externalSource",
+                    "externalSourceDetail",
+                    "address",
+                    "createdBy",
+                    "externalId",
+                    "externalPrincipalId",
+                    "fax",
+                    "highestGrade",
+                    "lowestGrade",
+                    "phone",
+                    "principalEmail",
+                    "principalName",
+                    "schoolNumber",
+                    "administrativeUnit",
+                    "classes",
+                    "users"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "administrativeUnit",
+                    "classes",
+                    "users"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.educationSchoolCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "Create educationSchool",
+      "description": "Create a new educationSchool object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/educationschool-post?view=graph-rest-1.0"
+      },
+      "operationId": "education.CreateSchools",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.educationSchool"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Created navigation property.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.educationSchool"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/schools/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.schools-c02b",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/schools/delta()": {
+    "description": "Provides operations to call the delta method.",
+    "get": {
+      "tags": [
+        "education.Functions"
+      ],
+      "summary": "Invoke function delta",
+      "operationId": "education.schools.delta",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "description",
+                    "displayName",
+                    "externalSource",
+                    "externalSourceDetail",
+                    "address",
+                    "createdBy",
+                    "externalId",
+                    "externalPrincipalId",
+                    "fax",
+                    "highestGrade",
+                    "lowestGrade",
+                    "phone",
+                    "principalEmail",
+                    "principalName",
+                    "schoolNumber",
+                    "administrativeUnit",
+                    "classes",
+                    "users"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "externalSource",
+                    "externalSource desc",
+                    "externalSourceDetail",
+                    "externalSourceDetail desc",
+                    "address",
+                    "address desc",
+                    "createdBy",
+                    "createdBy desc",
+                    "externalId",
+                    "externalId desc",
+                    "externalPrincipalId",
+                    "externalPrincipalId desc",
+                    "fax",
+                    "fax desc",
+                    "highestGrade",
+                    "highestGrade desc",
+                    "lowestGrade",
+                    "lowestGrade desc",
+                    "phone",
+                    "phone desc",
+                    "principalEmail",
+                    "principalEmail desc",
+                    "principalName",
+                    "principalName desc",
+                    "schoolNumber",
+                    "schoolNumber desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "title": "Collection of educationSchool",
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseDeltaFunctionResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
+                                      "readOnly": false,
+                                      "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.educationSchool"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "required": [],
+                                      "uniqueItems": false,
+                                      "additionalPropertiesAllowed": false,
+                                      "enum": [],
+                                      "nullable": false,
+                                      "deprecated": false,
+                                      "unresolvedReference": false
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
+                                  }
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
+                          }
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/schools/{educationSchool-id}": {
+    "description": "Provides operations to manage the schools property of the microsoft.graph.educationRoot entity.",
+    "get": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "Get schools from education",
+      "operationId": "education.GetSchools",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "description",
+                    "displayName",
+                    "externalSource",
+                    "externalSourceDetail",
+                    "address",
+                    "createdBy",
+                    "externalId",
+                    "externalPrincipalId",
+                    "fax",
+                    "highestGrade",
+                    "lowestGrade",
+                    "phone",
+                    "principalEmail",
+                    "principalName",
+                    "schoolNumber",
+                    "administrativeUnit",
+                    "classes",
+                    "users"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "administrativeUnit",
+                    "classes",
+                    "users"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved navigation property",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.educationSchool"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "delete": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "Delete navigation property schools for education",
+      "operationId": "education.DeleteSchools",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "patch": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "Update the navigation property schools in education",
+      "operationId": "education.UpdateSchools",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.educationSchool"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.educationSchool"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "educationSchool-id",
+            "in": "path",
+            "description": "The unique identifier of educationSchool",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationSchool"
+          }
+        }
+      }
+    ]
+  },
+  "/schools/{educationSchool-id}/administrativeUnit": {
+    "description": "Provides operations to manage the administrativeUnit property of the microsoft.graph.educationSchool entity.",
+    "get": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "List administrativeUnit an educationSchool",
+      "description": "Get a list of **administrativeUnits** associated with an educationSchool object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/educationschool-list-administrativeunit?view=graph-rest-1.0"
+      },
+      "operationId": "education.schools.GetAdministrativeUnit",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime",
+                    "description",
+                    "displayName",
+                    "visibility",
+                    "members",
+                    "scopedRoleMembers",
+                    "extensions"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "members",
+                    "scopedRoleMembers",
+                    "extensions"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved navigation property",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "patch": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "Update the navigation property administrativeUnit in education",
+      "operationId": "education.schools.UpdateAdministrativeUnit",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "educationSchool-id",
+            "in": "path",
+            "description": "The unique identifier of educationSchool",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationSchool"
+          }
+        }
+      }
+    ]
+  },
+  "/schools/{educationSchool-id}/classes": {
+    "description": "Provides operations to manage the classes property of the microsoft.graph.educationSchool entity.",
+    "get": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "List classes of an educationSchool",
+      "description": "Get the educationClass resources owned by an educationSchool.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/educationschool-list-classes?view=graph-rest-1.0"
+      },
+      "operationId": "education.schools.ListClasses",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "classCode",
+                    "classCode desc",
+                    "course",
+                    "course desc",
+                    "createdBy",
+                    "createdBy desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "externalId",
+                    "externalId desc",
+                    "externalName",
+                    "externalName desc",
+                    "externalSource",
+                    "externalSource desc",
+                    "externalSourceDetail",
+                    "externalSourceDetail desc",
+                    "grade",
+                    "grade desc",
+                    "mailNickname",
+                    "mailNickname desc",
+                    "term",
+                    "term desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "classCode",
+                    "course",
+                    "createdBy",
+                    "description",
+                    "displayName",
+                    "externalId",
+                    "externalName",
+                    "externalSource",
+                    "externalSourceDetail",
+                    "grade",
+                    "mailNickname",
+                    "term",
+                    "assignmentCategories",
+                    "assignmentDefaults",
+                    "assignments",
+                    "assignmentSettings",
+                    "group",
+                    "members",
+                    "schools",
+                    "teachers"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "assignmentCategories",
+                    "assignmentDefaults",
+                    "assignments",
+                    "assignmentSettings",
+                    "group",
+                    "members",
+                    "schools",
+                    "teachers"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.educationClassCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "educationSchool-id",
+            "in": "path",
+            "description": "The unique identifier of educationSchool",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationSchool"
+          }
+        }
+      }
+    ]
+  },
+  "/schools/{educationSchool-id}/classes/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.classes-d3ee",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "educationSchool-id",
+            "in": "path",
+            "description": "The unique identifier of educationSchool",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationSchool"
+          }
+        }
+      }
+    ]
+  },
+  "/schools/{educationSchool-id}/classes/$ref": {
+    "description": "Provides operations to manage the collection of educationRoot entities.",
+    "get": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "List classes of an educationSchool",
+      "description": "Get the educationClass resources owned by an educationSchool.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/educationschool-list-classes?view=graph-rest-1.0"
+      },
+      "operationId": "education.schools.ListRefClasses",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "classCode",
+                    "classCode desc",
+                    "course",
+                    "course desc",
+                    "createdBy",
+                    "createdBy desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "externalId",
+                    "externalId desc",
+                    "externalName",
+                    "externalName desc",
+                    "externalSource",
+                    "externalSource desc",
+                    "externalSourceDetail",
+                    "externalSourceDetail desc",
+                    "grade",
+                    "grade desc",
+                    "mailNickname",
+                    "mailNickname desc",
+                    "term",
+                    "term desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/StringCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "Create new navigation property ref to classes for education",
+      "operationId": "education.schools.CreateRefClasses",
+      "requestBody": {
+        "either": {
+          "Right": {
+            "$ref": "#/components/requestBodies/refPostBody"
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "educationSchool-id",
+            "in": "path",
+            "description": "The unique identifier of educationSchool",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationSchool"
+          }
+        }
+      }
+    ]
+  },
+  "/schools/{educationSchool-id}/classes/{educationClass-id}/$ref": {
+    "description": "Provides operations to manage the collection of educationRoot entities.",
+    "delete": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "Delete ref of navigation property classes for education",
+      "operationId": "education.schools.DeleteRefClasses",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "@id",
+              "in": "query",
+              "description": "Delete Uri",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "educationSchool-id",
+            "in": "path",
+            "description": "The unique identifier of educationSchool",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationSchool"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "educationClass-id",
+            "in": "path",
+            "description": "The unique identifier of educationClass",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationClass"
+          }
+        }
+      }
+    ]
+  },
+  "/schools/{educationSchool-id}/users": {
+    "description": "Provides operations to manage the users property of the microsoft.graph.educationSchool entity.",
+    "get": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "List users of an educationSchool",
+      "description": "Get the educationUser resources associated with an educationSchool.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/educationschool-list-users?view=graph-rest-1.0"
+      },
+      "operationId": "education.schools.ListUsers",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "relatedContacts",
+                    "relatedContacts desc",
+                    "accountEnabled",
+                    "accountEnabled desc",
+                    "assignedLicenses",
+                    "assignedLicenses desc",
+                    "assignedPlans",
+                    "assignedPlans desc",
+                    "businessPhones",
+                    "businessPhones desc",
+                    "createdBy",
+                    "createdBy desc",
+                    "department",
+                    "department desc",
+                    "displayName",
+                    "displayName desc",
+                    "externalSource",
+                    "externalSource desc",
+                    "externalSourceDetail",
+                    "externalSourceDetail desc",
+                    "givenName",
+                    "givenName desc",
+                    "mail",
+                    "mail desc",
+                    "mailingAddress",
+                    "mailingAddress desc",
+                    "mailNickname",
+                    "mailNickname desc",
+                    "middleName",
+                    "middleName desc",
+                    "mobilePhone",
+                    "mobilePhone desc",
+                    "officeLocation",
+                    "officeLocation desc",
+                    "onPremisesInfo",
+                    "onPremisesInfo desc",
+                    "passwordPolicies",
+                    "passwordPolicies desc",
+                    "passwordProfile",
+                    "passwordProfile desc",
+                    "preferredLanguage",
+                    "preferredLanguage desc",
+                    "primaryRole",
+                    "primaryRole desc",
+                    "provisionedPlans",
+                    "provisionedPlans desc",
+                    "refreshTokensValidFromDateTime",
+                    "refreshTokensValidFromDateTime desc",
+                    "residenceAddress",
+                    "residenceAddress desc",
+                    "showInAddressList",
+                    "showInAddressList desc",
+                    "student",
+                    "student desc",
+                    "surname",
+                    "surname desc",
+                    "teacher",
+                    "teacher desc",
+                    "usageLocation",
+                    "usageLocation desc",
+                    "userPrincipalName",
+                    "userPrincipalName desc",
+                    "userType",
+                    "userType desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "relatedContacts",
+                    "accountEnabled",
+                    "assignedLicenses",
+                    "assignedPlans",
+                    "businessPhones",
+                    "createdBy",
+                    "department",
+                    "displayName",
+                    "externalSource",
+                    "externalSourceDetail",
+                    "givenName",
+                    "mail",
+                    "mailingAddress",
+                    "mailNickname",
+                    "middleName",
+                    "mobilePhone",
+                    "officeLocation",
+                    "onPremisesInfo",
+                    "passwordPolicies",
+                    "passwordProfile",
+                    "preferredLanguage",
+                    "primaryRole",
+                    "provisionedPlans",
+                    "refreshTokensValidFromDateTime",
+                    "residenceAddress",
+                    "showInAddressList",
+                    "student",
+                    "surname",
+                    "teacher",
+                    "usageLocation",
+                    "userPrincipalName",
+                    "userType",
+                    "assignments",
+                    "rubrics",
+                    "classes",
+                    "schools",
+                    "taughtClasses",
+                    "user"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "assignments",
+                    "rubrics",
+                    "classes",
+                    "schools",
+                    "taughtClasses",
+                    "user"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.educationUserCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "educationSchool-id",
+            "in": "path",
+            "description": "The unique identifier of educationSchool",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationSchool"
+          }
+        }
+      }
+    ]
+  },
+  "/schools/{educationSchool-id}/users/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.users-e5a6",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "educationSchool-id",
+            "in": "path",
+            "description": "The unique identifier of educationSchool",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationSchool"
+          }
+        }
+      }
+    ]
+  },
+  "/schools/{educationSchool-id}/users/$ref": {
+    "description": "Provides operations to manage the collection of educationRoot entities.",
+    "get": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "List users of an educationSchool",
+      "description": "Get the educationUser resources associated with an educationSchool.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/educationschool-list-users?view=graph-rest-1.0"
+      },
+      "operationId": "education.schools.ListRefUsers",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "relatedContacts",
+                    "relatedContacts desc",
+                    "accountEnabled",
+                    "accountEnabled desc",
+                    "assignedLicenses",
+                    "assignedLicenses desc",
+                    "assignedPlans",
+                    "assignedPlans desc",
+                    "businessPhones",
+                    "businessPhones desc",
+                    "createdBy",
+                    "createdBy desc",
+                    "department",
+                    "department desc",
+                    "displayName",
+                    "displayName desc",
+                    "externalSource",
+                    "externalSource desc",
+                    "externalSourceDetail",
+                    "externalSourceDetail desc",
+                    "givenName",
+                    "givenName desc",
+                    "mail",
+                    "mail desc",
+                    "mailingAddress",
+                    "mailingAddress desc",
+                    "mailNickname",
+                    "mailNickname desc",
+                    "middleName",
+                    "middleName desc",
+                    "mobilePhone",
+                    "mobilePhone desc",
+                    "officeLocation",
+                    "officeLocation desc",
+                    "onPremisesInfo",
+                    "onPremisesInfo desc",
+                    "passwordPolicies",
+                    "passwordPolicies desc",
+                    "passwordProfile",
+                    "passwordProfile desc",
+                    "preferredLanguage",
+                    "preferredLanguage desc",
+                    "primaryRole",
+                    "primaryRole desc",
+                    "provisionedPlans",
+                    "provisionedPlans desc",
+                    "refreshTokensValidFromDateTime",
+                    "refreshTokensValidFromDateTime desc",
+                    "residenceAddress",
+                    "residenceAddress desc",
+                    "showInAddressList",
+                    "showInAddressList desc",
+                    "student",
+                    "student desc",
+                    "surname",
+                    "surname desc",
+                    "teacher",
+                    "teacher desc",
+                    "usageLocation",
+                    "usageLocation desc",
+                    "userPrincipalName",
+                    "userPrincipalName desc",
+                    "userType",
+                    "userType desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/StringCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "Create new navigation property ref to users for education",
+      "operationId": "education.schools.CreateRefUsers",
+      "requestBody": {
+        "either": {
+          "Right": {
+            "$ref": "#/components/requestBodies/refPostBody"
+          }
+        }
+      },
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "educationSchool-id",
+            "in": "path",
+            "description": "The unique identifier of educationSchool",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationSchool"
+          }
+        }
+      }
+    ]
+  },
+  "/schools/{educationSchool-id}/users/{educationUser-id}/$ref": {
+    "description": "Provides operations to manage the collection of educationRoot entities.",
+    "delete": {
+      "tags": [
+        "education.educationSchool"
+      ],
+      "summary": "Delete ref of navigation property users for education",
+      "operationId": "education.schools.DeleteRefUsers",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "@id",
+              "in": "query",
+              "description": "Delete Uri",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "educationSchool-id",
+            "in": "path",
+            "description": "The unique identifier of educationSchool",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationSchool"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "educationUser-id",
+            "in": "path",
+            "description": "The unique identifier of educationUser",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "educationUser"
+          }
+        }
+      }
+    ]
+  }
+}

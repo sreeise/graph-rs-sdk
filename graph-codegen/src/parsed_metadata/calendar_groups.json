@@ -1,0 +1,178 @@
+[
+  {
+    "path": "/calendarGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateCalendarGroups",
+        "operation_mapping": "calendarGroups",
+        "http_method": "POST",
+        "doc": "Create CalendarGroup",
+        "parent": "CalendarGroups",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendarGroups.ListCalendarGroups",
+        "operation_mapping": "calendarGroups",
+        "http_method": "GET",
+        "doc": "List calendarGroups",
+        "parent": "CalendarGroups",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      }
+    ]
+  },
+  {
+    "path": "/calendarGroups/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.calendarGroups-ee80",
+        "operation_mapping": "calendarGroups",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CalendarGroups",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      }
+    ]
+  },
+  {
+    "path": "/calendarGroups/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendarGroups.GetCalendarGroups",
+        "operation_mapping": "CalendarGroupsId",
+        "http_method": "GET",
+        "doc": "Get calendarGroups from users",
+        "parent": "CalendarGroupsId",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.calendarGroups.UpdateCalendarGroups",
+        "operation_mapping": "CalendarGroupsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property calendarGroups in users",
+        "parent": "CalendarGroupsId",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.calendarGroups.DeleteCalendarGroups",
+        "operation_mapping": "CalendarGroupsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property calendarGroups for users",
+        "parent": "CalendarGroupsId",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      }
+    ]
+  },
+  {
+    "path": "/calendarGroups/{{RID}}/calendars",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.calendarGroups.CreateCalendars",
+        "operation_mapping": "CalendarGroupsId",
+        "http_method": "POST",
+        "doc": "Create Calendar",
+        "parent": "CalendarGroupsId",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendarGroups.ListCalendars",
+        "operation_mapping": "CalendarGroupsId",
+        "http_method": "GET",
+        "doc": "List calendars",
+        "parent": "CalendarGroupsId",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      }
+    ]
+  },
+  {
+    "path": "/calendarGroups/{{RID}}/calendars/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.calendars-8e45",
+        "operation_mapping": "CalendarGroupsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CalendarGroupsId",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      }
+    ]
+  },
+  {
+    "path": "/calendarGroups/{{RID}}/calendars/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "calendar_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.calendarGroups.DeleteCalendars",
+        "operation_mapping": "CalendarGroupsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property calendars for users",
+        "parent": "CalendarGroupsId",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.calendarGroups.UpdateCalendars",
+        "operation_mapping": "CalendarGroupsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property calendars in users",
+        "parent": "CalendarGroupsId",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendarGroups.GetCalendars",
+        "operation_mapping": "CalendarGroupsId",
+        "http_method": "GET",
+        "doc": "Get calendars from users",
+        "parent": "CalendarGroupsId",
+        "original_parent": "CalendarGroups",
+        "resource_identity": "CalendarGroups"
+      }
+    ]
+  }
+]

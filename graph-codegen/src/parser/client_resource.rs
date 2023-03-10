@@ -57,22 +57,20 @@ impl TryFrom<ResourceIdentity> for ClientResource {
                 start_filter: Filter::PathStartsWith("/planner/buckets".into()),
                 modifier: "buckets".to_string(),
             }),
-            ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
+            ResourceIdentity::DefaultCalendar | ResourceIdentity::Calendars => {
                 Ok(ClientResource::SecondaryResourceIdentity {
                     start_filter: Filter::PathStartsWith("/users/{user-id}/calendar".into()),
-                    modifier: ResourceIdentity::Calendar,
+                    modifier: ResourceIdentity::DefaultCalendar,
                 })
             }
             ResourceIdentity::CalendarGroups => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/users".into()),
                 modifier: "calendarGroups".to_string(),
             }),
-            ResourceIdentity::CalendarView | ResourceIdentity::CalendarViews => {
-                Ok(ClientResource::Secondary {
-                    start_filter: Filter::PathStartsWith("/me/calendarView".into()),
-                    modifier: "calendarView".to_string(),
-                })
-            }
+            ResourceIdentity::CalendarView => Ok(ClientResource::Secondary {
+                start_filter: Filter::PathStartsWith("/me/calendarView".into()),
+                modifier: "calendarView".to_string(),
+            }),
             ResourceIdentity::CallRecords => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/communications/callRecords".into()),
                 modifier: "callRecords".to_string(),
@@ -92,7 +90,7 @@ impl TryFrom<ResourceIdentity> for ClientResource {
                 start_filter: Filter::PathStartsWith("/sites/{site-id}/contentTypes".into()),
                 modifier: "contentTypes".to_string(),
             }),
-            ResourceIdentity::Conversations => Ok(ClientResource::Secondary {
+            ResourceIdentity::GroupsConversations => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/groups/{group-id}/conversations".into()),
                 modifier: "conversations".to_string(),
             }),
@@ -130,7 +128,7 @@ impl TryFrom<ResourceIdentity> for ClientResource {
                 start_filter: Filter::PathStartsWith("/me/insights".into()),
                 modifier: "insights".to_string(),
             }),
-            ResourceIdentity::Instances => Ok(ClientResource::Secondary {
+            ResourceIdentity::EventsInstances => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith(
                     "/me/calendarView/{event-id}/instances".into(),
                 ),
@@ -160,7 +158,7 @@ impl TryFrom<ResourceIdentity> for ClientResource {
                 ),
                 modifier: "childFolders".to_string(),
             }),
-            ResourceIdentity::Messages => Ok(ClientResource::Secondary {
+            ResourceIdentity::ChatsMessages => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/me/messages".into()),
                 modifier: "messages".to_string(),
             }),
@@ -212,7 +210,7 @@ impl TryFrom<ResourceIdentity> for ClientResource {
             ResourceIdentity::Planner => Ok(ClientResource::Main {
                 modifier: "planner".to_string(),
             }),
-            ResourceIdentity::Posts => Ok(ClientResource::Secondary {
+            ResourceIdentity::GroupsThreadsPosts => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith(
                     "/groups/{group-id}/threads/{conversationThread-id}/posts".into(),
                 ),
@@ -225,7 +223,7 @@ impl TryFrom<ResourceIdentity> for ClientResource {
             ResourceIdentity::Sites => Ok(ClientResource::Main {
                 modifier: "sites".to_string(),
             }),
-            ResourceIdentity::Sessions => Ok(ClientResource::Secondary {
+            ResourceIdentity::CallRecordsSessions => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith(
                     "/communications/callRecords/{callRecord-id}/sessions".into(),
                 ),
@@ -242,7 +240,7 @@ impl TryFrom<ResourceIdentity> for ClientResource {
                 start_filter: Filter::PathStartsWith("/planner/tasks".into()),
                 modifier: "tasks".to_string(),
             }),
-            ResourceIdentity::Threads => Ok(ClientResource::Secondary {
+            ResourceIdentity::GroupsThreads => Ok(ClientResource::Secondary {
                 start_filter: Filter::PathStartsWith("/groups/{group-id}/threads".into()),
                 modifier: "threads".to_string(),
             }),

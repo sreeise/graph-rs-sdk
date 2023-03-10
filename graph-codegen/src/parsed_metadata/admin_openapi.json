@@ -1,5 +1,6 @@
 {
   "/admin": {
+    "description": "Provides operations to manage the admin singleton.",
     "get": {
       "tags": [
         "admin.admin"
@@ -94,14 +95,7 @@
         }
       ],
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved entity",
@@ -115,16 +109,21 @@
                     }
                   }
                 }
-              },
-              "links": {
-                "serviceAnnouncement": {
-                  "either": {
-                    "Left": {
-                      "operationId": "admin.GetServiceAnnouncement"
-                    }
-                  }
-                }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -157,17 +156,35 @@
         }
       },
       "responses": {
-        "default": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.admin"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -176,6 +193,7 @@
     }
   },
   "/admin/serviceAnnouncement": {
+    "description": "Provides operations to manage the serviceAnnouncement property of the microsoft.graph.admin entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
@@ -276,14 +294,7 @@
         }
       ],
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -297,30 +308,21 @@
                     }
                   }
                 }
-              },
-              "links": {
-                "messages": {
-                  "either": {
-                    "Left": {
-                      "operationId": "admin.ServiceAnnouncement.ListMessages"
-                    }
-                  }
-                },
-                "healthOverviews": {
-                  "either": {
-                    "Left": {
-                      "operationId": "admin.ServiceAnnouncement.ListHealthOverviews"
-                    }
-                  }
-                },
-                "issues": {
-                  "either": {
-                    "Left": {
-                      "operationId": "admin.ServiceAnnouncement.ListIssues"
-                    }
-                  }
-                }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -332,7 +334,6 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Delete navigation property serviceAnnouncement for admin",
-      "description": "A container for service communications resources. Read-only.",
       "operationId": "admin.DeleteServiceAnnouncement",
       "parameters": [
         {
@@ -364,7 +365,7 @@
         }
       ],
       "responses": {
-        "default": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -377,6 +378,13 @@
               "description": "Success"
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -386,7 +394,6 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Update the navigation property serviceAnnouncement in admin",
-      "description": "A container for service communications resources. Read-only.",
       "operationId": "admin.UpdateServiceAnnouncement",
       "requestBody": {
         "either": {
@@ -408,17 +415,35 @@
         }
       },
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.serviceAnnouncement"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -427,12 +452,17 @@
     }
   },
   "/admin/serviceAnnouncement/healthOverviews": {
+    "description": "Provides operations to manage the healthOverviews property of the microsoft.graph.serviceAnnouncement entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
       ],
-      "summary": "Get healthOverviews from admin",
-      "description": "A collection of service health information for tenant. This property is a contained navigation property, it is nullable and readonly.",
+      "summary": "List healthOverviews",
+      "description": "Retrieve the serviceHealth resources from the **healthOverviews** navigation property. This operation provides the health report of all subscribed services for a tenant.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceannouncement-list-healthoverviews?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.ListHealthOverviews",
       "parameters": [
         {
@@ -607,76 +637,24 @@
         }
       ],
       "responses": {
-        "default": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
-            "Left": {
-              "description": "Retrieved navigation property",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Left": {
-                        "title": "Collection of serviceHealth",
-                        "type": "object",
-                        "readOnly": false,
-                        "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false,
-                              "$ref": "#/components/schemas/microsoft.graph.serviceHealth"
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          },
-                          "@odata.nextLink": {
-                            "type": "string",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
-                        "additionalPropertiesAllowed": false,
-                        "enum": [],
-                        "nullable": false,
-                        "deprecated": false,
-                        "unresolvedReference": false
-                      }
-                    }
-                  }
-                }
-              }
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.serviceHealthCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -688,7 +666,6 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Create new navigation property to healthOverviews for admin",
-      "description": "A collection of service health information for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.CreateHealthOverviews",
       "requestBody": {
         "either": {
@@ -710,14 +687,14 @@
         }
       },
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -734,12 +711,67 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/admin/serviceAnnouncement/healthOverviews/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.healthOverviews-51c2",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     }
   },
   "/admin/serviceAnnouncement/healthOverviews/{serviceHealth-id}": {
+    "description": "Provides operations to manage the healthOverviews property of the microsoft.graph.serviceAnnouncement entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
@@ -748,34 +780,6 @@
       "description": "A collection of service health information for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.GetHealthOverviews",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealth-id",
-              "in": "path",
-              "description": "key: id of serviceHealth",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealth"
-            }
-          }
-        },
         {
           "either": {
             "Left": {
@@ -866,14 +870,7 @@
         }
       ],
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -887,19 +884,21 @@
                     }
                   }
                 }
-              },
-              "links": {
-                "issues": {
-                  "either": {
-                    "Left": {
-                      "operationId": "admin.serviceAnnouncement.HealthOverviews.ListIssues",
-                      "parameters": {
-                        "serviceHealth-id": "$request.path.serviceHealth-id"
-                      }
-                    }
-                  }
-                }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -911,37 +910,8 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Delete navigation property healthOverviews for admin",
-      "description": "A collection of service health information for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.DeleteHealthOverviews",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealth-id",
-              "in": "path",
-              "description": "key: id of serviceHealth",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealth"
-            }
-          }
-        },
         {
           "either": {
             "Left": {
@@ -971,17 +941,24 @@
         }
       ],
       "responses": {
-        "default": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "4XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -993,38 +970,7 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Update the navigation property healthOverviews in admin",
-      "description": "A collection of service health information for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.UpdateHealthOverviews",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealth-id",
-              "in": "path",
-              "description": "key: id of serviceHealth",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealth"
-            }
-          }
-        }
-      ],
       "requestBody": {
         "either": {
           "Left": {
@@ -1045,25 +991,74 @@
         }
       },
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.serviceHealth"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceHealth-id",
+            "in": "path",
+            "description": "key: id of serviceHealth",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceHealth"
+          }
+        }
+      }
+    ]
   },
   "/admin/serviceAnnouncement/healthOverviews/{serviceHealth-id}/issues": {
+    "description": "Provides operations to manage the issues property of the microsoft.graph.serviceHealth entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
@@ -1072,34 +1067,6 @@
       "description": "A collection of issues that happened on the service, with detailed information for each issue.",
       "operationId": "admin.serviceAnnouncement.healthOverviews.ListIssues",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealth-id",
-              "in": "path",
-              "description": "key: id of serviceHealth",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealth"
-            }
-          }
-        },
         {
           "either": {
             "Right": {
@@ -1306,76 +1273,24 @@
         }
       ],
       "responses": {
-        "default": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "4XX": {
           "either": {
-            "Left": {
-              "description": "Retrieved navigation property",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Left": {
-                        "title": "Collection of serviceHealthIssue",
-                        "type": "object",
-                        "readOnly": false,
-                        "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false,
-                              "$ref": "#/components/schemas/microsoft.graph.serviceHealthIssue"
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          },
-                          "@odata.nextLink": {
-                            "type": "string",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
-                        "additionalPropertiesAllowed": false,
-                        "enum": [],
-                        "nullable": false,
-                        "deprecated": false,
-                        "unresolvedReference": false
-                      }
-                    }
-                  }
-                }
-              }
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.serviceHealthIssueCollectionResponse"
             }
           }
         }
@@ -1387,38 +1302,7 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Create new navigation property to issues for admin",
-      "description": "A collection of issues that happened on the service, with detailed information for each issue.",
       "operationId": "admin.serviceAnnouncement.healthOverviews.CreateIssues",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealth-id",
-              "in": "path",
-              "description": "key: id of serviceHealth",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealth"
-            }
-          }
-        }
-      ],
       "requestBody": {
         "either": {
           "Left": {
@@ -1439,14 +1323,7 @@
         }
       },
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -1463,12 +1340,134 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceHealth-id",
+            "in": "path",
+            "description": "key: id of serviceHealth",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceHealth"
+          }
+        }
+      }
+    ]
+  },
+  "/admin/serviceAnnouncement/healthOverviews/{serviceHealth-id}/issues/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.issues-fd80",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceHealth-id",
+            "in": "path",
+            "description": "key: id of serviceHealth",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceHealth"
+          }
+        }
+      }
+    ]
   },
   "/admin/serviceAnnouncement/healthOverviews/{serviceHealth-id}/issues/{serviceHealthIssue-id}": {
+    "description": "Provides operations to manage the issues property of the microsoft.graph.serviceHealth entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
@@ -1477,62 +1476,6 @@
       "description": "A collection of issues that happened on the service, with detailed information for each issue.",
       "operationId": "admin.serviceAnnouncement.healthOverviews.GetIssues",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealth-id",
-              "in": "path",
-              "description": "key: id of serviceHealth",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealth"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealthIssue-id",
-              "in": "path",
-              "description": "key: id of serviceHealthIssue",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealthIssue"
-            }
-          }
-        },
         {
           "either": {
             "Left": {
@@ -1633,14 +1576,21 @@
         }
       ],
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1666,65 +1616,8 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Delete navigation property issues for admin",
-      "description": "A collection of issues that happened on the service, with detailed information for each issue.",
       "operationId": "admin.serviceAnnouncement.healthOverviews.DeleteIssues",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealth-id",
-              "in": "path",
-              "description": "key: id of serviceHealth",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealth"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealthIssue-id",
-              "in": "path",
-              "description": "key: id of serviceHealthIssue",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealthIssue"
-            }
-          }
-        },
         {
           "either": {
             "Left": {
@@ -1754,7 +1647,7 @@
         }
       ],
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1767,6 +1660,13 @@
               "description": "Success"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -1776,66 +1676,7 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Update the navigation property issues in admin",
-      "description": "A collection of issues that happened on the service, with detailed information for each issue.",
       "operationId": "admin.serviceAnnouncement.healthOverviews.UpdateIssues",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealth-id",
-              "in": "path",
-              "description": "key: id of serviceHealth",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealth"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealthIssue-id",
-              "in": "path",
-              "description": "key: id of serviceHealthIssue",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealthIssue"
-            }
-          }
-        }
-      ],
       "requestBody": {
         "either": {
           "Left": {
@@ -1856,115 +1697,155 @@
         }
       },
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.serviceHealthIssue"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceHealth-id",
+            "in": "path",
+            "description": "key: id of serviceHealth",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceHealth"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "serviceHealthIssue-id",
+            "in": "path",
+            "description": "key: id of serviceHealthIssue",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceHealthIssue"
+          }
+        }
+      }
+    ]
   },
   "/admin/serviceAnnouncement/healthOverviews/{serviceHealth-id}/issues/{serviceHealthIssue-id}/microsoft.graph.incidentReport()": {
+    "description": "Provides operations to call the incidentReport method.",
     "get": {
       "tags": [
         "admin.Functions"
       ],
       "summary": "Invoke function incidentReport",
       "operationId": "admin.serviceAnnouncement.healthOverviews.serviceHealth.issues.serviceHealthIssue.incidentReport",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealth-id",
-              "in": "path",
-              "description": "key: id of serviceHealth",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealth"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealthIssue-id",
-              "in": "path",
-              "description": "key: id of serviceHealthIssue",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealthIssue"
-            }
-          }
-        }
-      ],
       "responses": {
-        "default": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
               "content": {
-                "application/json": {
+                "application/octet-stream": {
                   "schema": {
                     "either": {
                       "Left": {
-                        "type": "string",
-                        "format": "base64url",
+                        "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
                         "required": [],
                         "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "string",
+                            "format": "base64url",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
-                        "nullable": true,
+                        "nullable": false,
                         "deprecated": false,
                         "unresolvedReference": false
                       }
@@ -1977,15 +1858,78 @@
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceHealth-id",
+            "in": "path",
+            "description": "key: id of serviceHealth",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceHealth"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "serviceHealthIssue-id",
+            "in": "path",
+            "description": "key: id of serviceHealthIssue",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceHealthIssue"
+          }
+        }
+      }
+    ]
   },
   "/admin/serviceAnnouncement/issues": {
+    "description": "Provides operations to manage the issues property of the microsoft.graph.serviceAnnouncement entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
       ],
-      "summary": "Get issues from admin",
-      "description": "A collection of service issues for tenant. This property is a contained navigation property, it is nullable and readonly.",
+      "summary": "List issues",
+      "description": "Retrieve serviceHealthIssue resources from the **issues** navigation property. This operation retrieves information about all service health issues that exist for the tenant.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceannouncement-list-issues?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.ListIssues",
       "parameters": [
         {
@@ -2194,76 +2138,24 @@
         }
       ],
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
-            "Left": {
-              "description": "Retrieved navigation property",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Left": {
-                        "title": "Collection of serviceHealthIssue",
-                        "type": "object",
-                        "readOnly": false,
-                        "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false,
-                              "$ref": "#/components/schemas/microsoft.graph.serviceHealthIssue"
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          },
-                          "@odata.nextLink": {
-                            "type": "string",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
-                        "additionalPropertiesAllowed": false,
-                        "enum": [],
-                        "nullable": false,
-                        "deprecated": false,
-                        "unresolvedReference": false
-                      }
-                    }
-                  }
-                }
-              }
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.serviceHealthIssueCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2275,7 +2167,6 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Create new navigation property to issues for admin",
-      "description": "A collection of service issues for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.CreateIssues",
       "requestBody": {
         "either": {
@@ -2297,14 +2188,7 @@
         }
       },
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -2321,12 +2205,74 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/admin/serviceAnnouncement/issues/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.issues-e140",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
         }
       },
       "deprecated": false
     }
   },
   "/admin/serviceAnnouncement/issues/{serviceHealthIssue-id}": {
+    "description": "Provides operations to manage the issues property of the microsoft.graph.serviceAnnouncement entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
@@ -2335,34 +2281,6 @@
       "description": "A collection of service issues for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.GetIssues",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealthIssue-id",
-              "in": "path",
-              "description": "key: id of serviceHealthIssue",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealthIssue"
-            }
-          }
-        },
         {
           "either": {
             "Left": {
@@ -2463,14 +2381,7 @@
         }
       ],
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -2487,6 +2398,20 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -2496,37 +2421,8 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Delete navigation property issues for admin",
-      "description": "A collection of service issues for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.DeleteIssues",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealthIssue-id",
-              "in": "path",
-              "description": "key: id of serviceHealthIssue",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealthIssue"
-            }
-          }
-        },
         {
           "either": {
             "Left": {
@@ -2556,17 +2452,24 @@
         }
       ],
       "responses": {
-        "default": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2578,38 +2481,7 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Update the navigation property issues in admin",
-      "description": "A collection of service issues for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.UpdateIssues",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealthIssue-id",
-              "in": "path",
-              "description": "key: id of serviceHealthIssue",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealthIssue"
-            }
-          }
-        }
-      ],
       "requestBody": {
         "either": {
           "Left": {
@@ -2630,87 +2502,113 @@
         }
       },
       "responses": {
-        "default": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.serviceHealthIssue"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "4XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceHealthIssue-id",
+            "in": "path",
+            "description": "key: id of serviceHealthIssue",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceHealthIssue"
+          }
+        }
+      }
+    ]
   },
   "/admin/serviceAnnouncement/issues/{serviceHealthIssue-id}/microsoft.graph.incidentReport()": {
+    "description": "Provides operations to call the incidentReport method.",
     "get": {
       "tags": [
         "admin.Functions"
       ],
       "summary": "Invoke function incidentReport",
       "operationId": "admin.serviceAnnouncement.issues.serviceHealthIssue.incidentReport",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceHealthIssue-id",
-              "in": "path",
-              "description": "key: id of serviceHealthIssue",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceHealthIssue"
-            }
-          }
-        }
-      ],
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
               "content": {
-                "application/json": {
+                "application/octet-stream": {
                   "schema": {
                     "either": {
                       "Left": {
-                        "type": "string",
-                        "format": "base64url",
+                        "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
                         "required": [],
                         "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "string",
+                            "format": "base64url",
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
-                        "nullable": true,
+                        "nullable": false,
                         "deprecated": false,
                         "unresolvedReference": false
                       }
@@ -2720,18 +2618,67 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceHealthIssue-id",
+            "in": "path",
+            "description": "key: id of serviceHealthIssue",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceHealthIssue"
+          }
+        }
+      }
+    ]
   },
   "/admin/serviceAnnouncement/messages": {
+    "description": "Provides operations to manage the messages property of the microsoft.graph.serviceAnnouncement entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
       ],
-      "summary": "Get messages from admin",
-      "description": "A collection of service messages for tenant. This property is a contained navigation property, it is nullable and readonly.",
+      "summary": "List serviceAnnouncement messages",
+      "description": "Retrieve the serviceUpdateMessage resources from the **messages** navigation property. This operation retrieves all service update messages that exist for the tenant.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceannouncement-list-messages?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.ListMessages",
       "parameters": [
         {
@@ -2945,76 +2892,24 @@
         }
       ],
       "responses": {
-        "default": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
-            "Left": {
-              "description": "Retrieved navigation property",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Left": {
-                        "title": "Collection of serviceUpdateMessage",
-                        "type": "object",
-                        "readOnly": false,
-                        "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false,
-                              "$ref": "#/components/schemas/microsoft.graph.serviceUpdateMessage"
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          },
-                          "@odata.nextLink": {
-                            "type": "string",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
-                        "additionalPropertiesAllowed": false,
-                        "enum": [],
-                        "nullable": false,
-                        "deprecated": false,
-                        "unresolvedReference": false
-                      }
-                    }
-                  }
-                }
-              }
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.serviceUpdateMessageCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3026,7 +2921,6 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Create new navigation property to messages for admin",
-      "description": "A collection of service messages for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.CreateMessages",
       "requestBody": {
         "either": {
@@ -3048,14 +2942,21 @@
         }
       },
       "responses": {
-        "default": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -3077,12 +2978,65 @@
       "deprecated": false
     }
   },
+  "/admin/serviceAnnouncement/messages/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.messages-0cc9",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
   "/admin/serviceAnnouncement/messages/microsoft.graph.archive": {
+    "description": "Provides operations to call the archive method.",
     "post": {
       "tags": [
         "admin.Actions"
       ],
       "summary": "Invoke action archive",
+      "description": "Archive a list of serviceUpdateMessages for the signed in user.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceupdatemessage-archive?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.messages.archive",
       "requestBody": {
         "either": {
@@ -3139,14 +3093,14 @@
         }
       },
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -3155,15 +3109,29 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "type": "boolean",
-                        "default": false,
+                        "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
                         "required": [],
                         "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "boolean",
+                            "default": false,
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
-                        "nullable": true,
+                        "nullable": false,
                         "deprecated": false,
                         "unresolvedReference": false
                       }
@@ -3173,17 +3141,30 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     }
   },
   "/admin/serviceAnnouncement/messages/microsoft.graph.favorite": {
+    "description": "Provides operations to call the favorite method.",
     "post": {
       "tags": [
         "admin.Actions"
       ],
       "summary": "Invoke action favorite",
+      "description": "Change the status of a list of serviceUpdateMessages to favorite for the signed in user.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceupdatemessage-favorite?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.messages.favorite",
       "requestBody": {
         "either": {
@@ -3240,14 +3221,7 @@
         }
       },
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -3256,15 +3230,29 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "type": "boolean",
-                        "default": false,
+                        "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
                         "required": [],
                         "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "boolean",
+                            "default": false,
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
-                        "nullable": true,
+                        "nullable": false,
                         "deprecated": false,
                         "unresolvedReference": false
                       }
@@ -3274,17 +3262,37 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     }
   },
   "/admin/serviceAnnouncement/messages/microsoft.graph.markRead": {
+    "description": "Provides operations to call the markRead method.",
     "post": {
       "tags": [
         "admin.Actions"
       ],
       "summary": "Invoke action markRead",
+      "description": "Mark a list of serviceUpdateMessages as **read** for the signed in user.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceupdatemessage-markread?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.messages.markRead",
       "requestBody": {
         "either": {
@@ -3341,14 +3349,14 @@
         }
       },
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -3357,15 +3365,29 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "type": "boolean",
-                        "default": false,
+                        "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
                         "required": [],
                         "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "boolean",
+                            "default": false,
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
-                        "nullable": true,
+                        "nullable": false,
                         "deprecated": false,
                         "unresolvedReference": false
                       }
@@ -3375,17 +3397,30 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     }
   },
   "/admin/serviceAnnouncement/messages/microsoft.graph.markUnread": {
+    "description": "Provides operations to call the markUnread method.",
     "post": {
       "tags": [
         "admin.Actions"
       ],
       "summary": "Invoke action markUnread",
+      "description": "Mark a list of serviceUpdateMessages as **unread** for the signed in user.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceupdatemessage-markunread?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.messages.markUnread",
       "requestBody": {
         "either": {
@@ -3442,14 +3477,7 @@
         }
       },
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -3458,15 +3486,29 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "type": "boolean",
-                        "default": false,
+                        "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
                         "required": [],
                         "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "boolean",
+                            "default": false,
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
-                        "nullable": true,
+                        "nullable": false,
                         "deprecated": false,
                         "unresolvedReference": false
                       }
@@ -3476,17 +3518,37 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     }
   },
   "/admin/serviceAnnouncement/messages/microsoft.graph.unarchive": {
+    "description": "Provides operations to call the unarchive method.",
     "post": {
       "tags": [
         "admin.Actions"
       ],
       "summary": "Invoke action unarchive",
+      "description": "Unarchive a list of serviceUpdateMessages for the signed in user.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceupdatemessage-unarchive?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.messages.unarchive",
       "requestBody": {
         "either": {
@@ -3543,14 +3605,14 @@
         }
       },
       "responses": {
-        "default": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -3559,15 +3621,29 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "type": "boolean",
-                        "default": false,
+                        "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
                         "required": [],
                         "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "boolean",
+                            "default": false,
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
-                        "nullable": true,
+                        "nullable": false,
                         "deprecated": false,
                         "unresolvedReference": false
                       }
@@ -3577,17 +3653,30 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     }
   },
   "/admin/serviceAnnouncement/messages/microsoft.graph.unfavorite": {
+    "description": "Provides operations to call the unfavorite method.",
     "post": {
       "tags": [
         "admin.Actions"
       ],
       "summary": "Invoke action unfavorite",
+      "description": "Remove the favorite status of serviceUpdateMessages for the signed in user.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceupdatemessage-unfavorite?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.messages.unfavorite",
       "requestBody": {
         "either": {
@@ -3644,14 +3733,14 @@
         }
       },
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -3660,15 +3749,29 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "type": "boolean",
-                        "default": false,
+                        "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
                         "required": [],
                         "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "boolean",
+                            "default": false,
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": true,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
-                        "nullable": true,
+                        "nullable": false,
                         "deprecated": false,
                         "unresolvedReference": false
                       }
@@ -3678,12 +3781,20 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     }
   },
   "/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}": {
+    "description": "Provides operations to manage the messages property of the microsoft.graph.serviceAnnouncement entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
@@ -3692,34 +3803,6 @@
       "description": "A collection of service messages for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.GetMessages",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        },
         {
           "either": {
             "Left": {
@@ -3823,14 +3906,7 @@
         }
       ],
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -3844,19 +3920,21 @@
                     }
                   }
                 }
-              },
-              "links": {
-                "attachments": {
-                  "either": {
-                    "Left": {
-                      "operationId": "admin.serviceAnnouncement.Messages.ListAttachments",
-                      "parameters": {
-                        "serviceUpdateMessage-id": "$request.path.serviceUpdateMessage-id"
-                      }
-                    }
-                  }
-                }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3868,37 +3946,8 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Delete navigation property messages for admin",
-      "description": "A collection of service messages for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.DeleteMessages",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        },
         {
           "either": {
             "Left": {
@@ -3928,7 +3977,7 @@
         }
       ],
       "responses": {
-        "default": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3941,6 +3990,13 @@
               "description": "Success"
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -3950,38 +4006,7 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Update the navigation property messages in admin",
-      "description": "A collection of service messages for tenant. This property is a contained navigation property, it is nullable and readonly.",
       "operationId": "admin.serviceAnnouncement.UpdateMessages",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        }
-      ],
       "requestBody": {
         "either": {
           "Left": {
@@ -4002,61 +4027,86 @@
         }
       },
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.serviceUpdateMessage"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceUpdateMessage-id",
+            "in": "path",
+            "description": "key: id of serviceUpdateMessage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceUpdateMessage"
+          }
+        }
+      }
+    ]
   },
   "/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments": {
+    "description": "Provides operations to manage the attachments property of the microsoft.graph.serviceUpdateMessage entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
       ],
-      "summary": "Get attachments from admin",
-      "description": "A collection of serviceAnnouncementAttachments.",
+      "summary": "List attachments",
+      "description": "Get the list of attachments associated with a service message.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceupdatemessage-list-attachments?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.messages.ListAttachments",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        },
         {
           "either": {
             "Right": {
@@ -4236,76 +4286,24 @@
         }
       ],
       "responses": {
-        "default": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.serviceAnnouncementAttachmentCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Retrieved navigation property",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Left": {
-                        "title": "Collection of serviceAnnouncementAttachment",
-                        "type": "object",
-                        "readOnly": false,
-                        "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "@odata.nextLink": {
-                            "type": "string",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          },
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false,
-                              "$ref": "#/components/schemas/microsoft.graph.serviceAnnouncementAttachment"
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
-                        "additionalPropertiesAllowed": false,
-                        "enum": [],
-                        "nullable": false,
-                        "deprecated": false,
-                        "unresolvedReference": false
-                      }
-                    }
-                  }
-                }
-              }
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -4317,38 +4315,7 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Create new navigation property to attachments for admin",
-      "description": "A collection of serviceAnnouncementAttachments.",
       "operationId": "admin.serviceAnnouncement.messages.CreateAttachments",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        }
-      ],
       "requestBody": {
         "either": {
           "Left": {
@@ -4369,14 +4336,7 @@
         }
       },
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -4393,12 +4353,134 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceUpdateMessage-id",
+            "in": "path",
+            "description": "key: id of serviceUpdateMessage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceUpdateMessage"
+          }
+        }
+      }
+    ]
+  },
+  "/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.attachments-e0ef",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceUpdateMessage-id",
+            "in": "path",
+            "description": "key: id of serviceUpdateMessage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceUpdateMessage"
+          }
+        }
+      }
+    ]
   },
   "/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}": {
+    "description": "Provides operations to manage the attachments property of the microsoft.graph.serviceUpdateMessage entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
@@ -4407,62 +4489,6 @@
       "description": "A collection of serviceAnnouncementAttachments.",
       "operationId": "admin.serviceAnnouncement.messages.GetAttachments",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "serviceAnnouncementAttachment-id",
-              "in": "path",
-              "description": "key: id of serviceAnnouncementAttachment",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceAnnouncementAttachment"
-            }
-          }
-        },
         {
           "either": {
             "Left": {
@@ -4554,14 +4580,21 @@
         }
       ],
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -4587,65 +4620,8 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Delete navigation property attachments for admin",
-      "description": "A collection of serviceAnnouncementAttachments.",
       "operationId": "admin.serviceAnnouncement.messages.DeleteAttachments",
       "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "serviceAnnouncementAttachment-id",
-              "in": "path",
-              "description": "key: id of serviceAnnouncementAttachment",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceAnnouncementAttachment"
-            }
-          }
-        },
         {
           "either": {
             "Left": {
@@ -4675,7 +4651,14 @@
         }
       ],
       "responses": {
-        "default": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4697,66 +4680,7 @@
         "admin.serviceAnnouncement"
       ],
       "summary": "Update the navigation property attachments in admin",
-      "description": "A collection of serviceAnnouncementAttachments.",
       "operationId": "admin.serviceAnnouncement.messages.UpdateAttachments",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "serviceAnnouncementAttachment-id",
-              "in": "path",
-              "description": "key: id of serviceAnnouncementAttachment",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceAnnouncementAttachment"
-            }
-          }
-        }
-      ],
       "requestBody": {
         "either": {
           "Left": {
@@ -4777,98 +4701,129 @@
         }
       },
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.serviceAnnouncementAttachment"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceUpdateMessage-id",
+            "in": "path",
+            "description": "key: id of serviceUpdateMessage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceUpdateMessage"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "serviceAnnouncementAttachment-id",
+            "in": "path",
+            "description": "key: id of serviceAnnouncementAttachment",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceAnnouncementAttachment"
+          }
+        }
+      }
+    ]
   },
   "/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachments/{serviceAnnouncementAttachment-id}/content": {
+    "description": "Provides operations to manage the media for the admin entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
       ],
-      "summary": "Get media content for the navigation property attachments from admin",
+      "summary": "Get content for the navigation property attachments from admin",
+      "description": "The attachment content.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceupdatemessage-list-attachments?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.messages.GetAttachmentsContent",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "serviceAnnouncementAttachment-id",
-              "in": "path",
-              "description": "key: id of serviceAnnouncementAttachment",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceAnnouncementAttachment"
-            }
-          }
-        }
-      ],
       "responses": {
-        "default": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved media content",
@@ -4903,66 +4858,9 @@
       "tags": [
         "admin.serviceAnnouncement"
       ],
-      "summary": "Update media content for the navigation property attachments in admin",
+      "summary": "Update content for the navigation property attachments in admin",
+      "description": "The attachment content.",
       "operationId": "admin.serviceAnnouncement.messages.UpdateAttachmentsContent",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "serviceAnnouncementAttachment-id",
-              "in": "path",
-              "description": "key: id of serviceAnnouncementAttachment",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceAnnouncementAttachment"
-            }
-          }
-        }
-      ],
       "requestBody": {
         "either": {
           "Left": {
@@ -4993,70 +4891,104 @@
         }
       },
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceUpdateMessage-id",
+            "in": "path",
+            "description": "key: id of serviceUpdateMessage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceUpdateMessage"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "serviceAnnouncementAttachment-id",
+            "in": "path",
+            "description": "key: id of serviceAnnouncementAttachment",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceAnnouncementAttachment"
+          }
+        }
+      }
+    ]
   },
   "/admin/serviceAnnouncement/messages/{serviceUpdateMessage-id}/attachmentsArchive": {
+    "description": "Provides operations to manage the media for the admin entity.",
     "get": {
       "tags": [
         "admin.serviceAnnouncement"
       ],
-      "summary": "Get media content for the navigation property messages from admin",
+      "summary": "Get attachmentsArchive for the navigation property messages from admin",
+      "description": "The zip file that contains all attachments for a message.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/serviceannouncement-list-messages?view=graph-rest-1.0"
+      },
       "operationId": "admin.serviceAnnouncement.GetMessagesAttachmentsArchive",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        }
-      ],
       "responses": {
-        "default": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved media content",
@@ -5083,6 +5015,20 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -5091,38 +5037,9 @@
       "tags": [
         "admin.serviceAnnouncement"
       ],
-      "summary": "Update media content for the navigation property messages in admin",
+      "summary": "Update attachmentsArchive for the navigation property messages in admin",
+      "description": "The zip file that contains all attachments for a message.",
       "operationId": "admin.serviceAnnouncement.UpdateMessagesAttachmentsArchive",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "serviceUpdateMessage-id",
-              "in": "path",
-              "description": "key: id of serviceUpdateMessage",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {},
-              "x-ms-docs-key-type": "serviceUpdateMessage"
-            }
-          }
-        }
-      ],
       "requestBody": {
         "either": {
           "Left": {
@@ -5153,7 +5070,7 @@
         }
       },
       "responses": {
-        "default": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5166,9 +5083,46 @@
               "description": "Success"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
-    }
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "serviceUpdateMessage-id",
+            "in": "path",
+            "description": "key: id of serviceUpdateMessage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "serviceUpdateMessage"
+          }
+        }
+      }
+    ]
   }
 }

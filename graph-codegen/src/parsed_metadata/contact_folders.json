@@ -1,0 +1,370 @@
+[
+  {
+    "path": "/contactFolders",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateContactFolders",
+        "operation_mapping": "contactFolders",
+        "http_method": "POST",
+        "doc": "Create ContactFolder",
+        "parent": "ContactFolders",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListContactFolders",
+        "operation_mapping": "contactFolders",
+        "http_method": "GET",
+        "doc": "List contactFolders",
+        "parent": "ContactFolders",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.contactFolders-72bb",
+        "operation_mapping": "contactFolders",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ContactFolders",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "users.user.contactFolders.delta",
+        "operation_mapping": "contactFolders",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "ContactFolders",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteContactFolders",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property contactFolders for users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateContactFolders",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property contactFolders in users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetContactFolders",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "GET",
+        "doc": "Get contactFolders from users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/{{RID}}/contacts",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.CreateContacts",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "POST",
+        "doc": "Create contact",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.ListContacts",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "GET",
+        "doc": "List contacts",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/{{RID}}/contacts/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.contacts-5cc4",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/{{RID}}/contacts/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "users.user.contactFolders.contactFolder.contacts.delta",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/{{RID}}/contacts/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "contact_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.UpdateContacts",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property contacts in users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.GetContacts",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "GET",
+        "doc": "Get contacts from users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.contactFolders.DeleteContacts",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property contacts for users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/{{RID}}/contacts/{{id}}/extensions",
+    "param_size": 1,
+    "parameters": [
+      "contact_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.contacts.CreateExtensions",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to extensions for users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.contacts.ListExtensions",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "GET",
+        "doc": "Get extensions from users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/{{RID}}/contacts/{{id}}/extensions/$count",
+    "param_size": 1,
+    "parameters": [
+      "contact_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.extensions-8e14",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/{{RID}}/contacts/{{id}}/extensions/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "contact_id",
+      "extension_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.contacts.GetExtensions",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "GET",
+        "doc": "Get extensions from users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.contacts.UpdateExtensions",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property extensions in users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.contactFolders.contacts.DeleteExtensions",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property extensions for users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/{{RID}}/contacts/{{id}}/photo",
+    "param_size": 1,
+    "parameters": [
+      "contact_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.contacts.GetPhoto",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "GET",
+        "doc": "Get photo from users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.contacts.UpdatePhoto",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property photo in users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  },
+  {
+    "path": "/contactFolders/{{RID}}/contacts/{{id}}/photo/$value",
+    "param_size": 1,
+    "parameters": [
+      "contact_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.contactFolders.contacts.UpdatePhotoContent",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "PUT",
+        "doc": "Update media content for the navigation property photo in users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.contactFolders.contacts.GetPhotoContent",
+        "operation_mapping": "ContactFoldersId",
+        "http_method": "GET",
+        "doc": "Get media content for the navigation property photo from users",
+        "parent": "ContactFoldersId",
+        "original_parent": "ContactFolders",
+        "resource_identity": "ContactFolders"
+      }
+    ]
+  }
+]

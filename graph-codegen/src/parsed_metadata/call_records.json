@@ -1,0 +1,314 @@
+[
+  {
+    "path": "/callRecords",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "callRecords.CreateCallRecords",
+        "operation_mapping": "callRecords",
+        "http_method": "POST",
+        "doc": "Create new navigation property to callRecords for communications",
+        "parent": "CallRecords",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "callRecords.ListCallRecords",
+        "operation_mapping": "callRecords",
+        "http_method": "GET",
+        "doc": "Get callRecords from communications",
+        "parent": "CallRecords",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  },
+  {
+    "path": "/callRecords/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.callRecords-e558",
+        "operation_mapping": "callRecords",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CallRecords",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  },
+  {
+    "path": "/callRecords/callRecords.getDirectRoutingCalls(fromDateTime={{id}},toDateTime={{id2}})",
+    "param_size": 2,
+    "parameters": [
+      "from_date_time",
+      "to_date_time"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.callRecords.getDirectRoutingCalls",
+        "operation_mapping": "callRecords",
+        "http_method": "GET",
+        "doc": "Invoke function getDirectRoutingCalls",
+        "parent": "CallRecords",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  },
+  {
+    "path": "/callRecords/callRecords.getPstnCalls(fromDateTime={{id}},toDateTime={{id2}})",
+    "param_size": 2,
+    "parameters": [
+      "from_date_time",
+      "to_date_time"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.callRecords.getPstnCalls",
+        "operation_mapping": "callRecords",
+        "http_method": "GET",
+        "doc": "Invoke function getPstnCalls",
+        "parent": "CallRecords",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  },
+  {
+    "path": "/callRecords/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "communications.DeleteCallRecords",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property callRecords for communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "callRecords.GetCallRecords",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "GET",
+        "doc": "Get callRecords from communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "callRecords.UpdateCallRecords",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property callRecords in communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  },
+  {
+    "path": "/callRecords/{{RID}}/sessions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.callRecords.CreateSessions",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to sessions for communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.callRecords.ListSessions",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "GET",
+        "doc": "List callRecord sessions",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  },
+  {
+    "path": "/callRecords/{{RID}}/sessions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.sessions-c743",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  },
+  {
+    "path": "/callRecords/{{RID}}/sessions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "session_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "communications.callRecords.DeleteSessions",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property sessions for communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.callRecords.UpdateSessions",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property sessions in communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.callRecords.GetSessions",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "GET",
+        "doc": "Get sessions from communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  },
+  {
+    "path": "/callRecords/{{RID}}/sessions/{{id}}/segments",
+    "param_size": 1,
+    "parameters": [
+      "session_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.callRecords.sessions.CreateSegments",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to segments for communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.callRecords.sessions.ListSegments",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "GET",
+        "doc": "Get segments from communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  },
+  {
+    "path": "/callRecords/{{RID}}/sessions/{{id}}/segments/$count",
+    "param_size": 1,
+    "parameters": [
+      "session_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.segments-4fed",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  },
+  {
+    "path": "/callRecords/{{RID}}/sessions/{{id}}/segments/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "session_id",
+      "segment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.callRecords.sessions.UpdateSegments",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property segments in communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.callRecords.sessions.GetSegments",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "GET",
+        "doc": "Get segments from communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "communications.callRecords.sessions.DeleteSegments",
+        "operation_mapping": "CallRecordsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property segments for communications",
+        "parent": "CallRecordsId",
+        "original_parent": "CallRecords",
+        "resource_identity": "CallRecords"
+      }
+    ]
+  }
+]

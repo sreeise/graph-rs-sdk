@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "branding.organizationalBranding.UpdateOrganizationalBranding",
-        "operation_mapping": "branding",
-        "http_method": "PATCH",
-        "doc": "Update branding",
-        "parent": "Branding",
-        "original_parent": "OrganizationalBranding",
-        "resource_identity": "Branding"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "branding.organizationalBranding.GetOrganizationalBranding",
         "operation_mapping": "branding",
         "http_method": "GET",
         "doc": "Get branding",
+        "parent": "Branding",
+        "original_parent": "OrganizationalBranding",
+        "resource_identity": "Branding"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "branding.organizationalBranding.UpdateOrganizationalBranding",
+        "operation_mapping": "branding",
+        "http_method": "PATCH",
+        "doc": "Update branding",
         "parent": "Branding",
         "original_parent": "OrganizationalBranding",
         "resource_identity": "Branding"
@@ -63,23 +63,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "branding.organizationalBranding.GetBannerLogo",
-        "operation_mapping": "branding",
-        "http_method": "GET",
-        "doc": "Get bannerLogo for organizationalBranding from branding",
-        "parent": "Branding",
-        "original_parent": "OrganizationalBranding",
-        "resource_identity": "Branding"
-      },
-      {
         "has_body": true,
         "request_task": "NoContent",
         "operation_id": "branding.organizationalBranding.UpdateBannerLogo",
         "operation_mapping": "branding",
         "http_method": "PUT",
         "doc": "Update bannerLogo for organizationalBranding in branding",
+        "parent": "Branding",
+        "original_parent": "OrganizationalBranding",
+        "resource_identity": "Branding"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "branding.organizationalBranding.GetBannerLogo",
+        "operation_mapping": "branding",
+        "http_method": "GET",
+        "doc": "Get bannerLogo for organizationalBranding from branding",
         "parent": "Branding",
         "original_parent": "OrganizationalBranding",
         "resource_identity": "Branding"
@@ -92,23 +92,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "branding.ListLocalizations",
-        "operation_mapping": "branding",
-        "http_method": "GET",
-        "doc": "Get localizations from branding",
-        "parent": "Branding",
-        "original_parent": "Branding",
-        "resource_identity": "Branding"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "branding.CreateLocalizations",
         "operation_mapping": "branding",
         "http_method": "POST",
-        "doc": "Create new navigation property to localizations for branding",
+        "doc": "Create organizationalBrandingLocalization",
+        "parent": "Branding",
+        "original_parent": "Branding",
+        "resource_identity": "Branding"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "branding.ListLocalizations",
+        "operation_mapping": "branding",
+        "http_method": "GET",
+        "doc": "List localizations",
         "parent": "Branding",
         "original_parent": "Branding",
         "resource_identity": "Branding"
@@ -141,6 +141,17 @@
     ],
     "metadata": [
       {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "branding.UpdateLocalizations",
+        "operation_mapping": "branding",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property localizations in branding",
+        "parent": "Branding",
+        "original_parent": "Branding",
+        "resource_identity": "Branding"
+      },
+      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "branding.DeleteLocalizations",
@@ -158,17 +169,6 @@
         "operation_mapping": "branding",
         "http_method": "GET",
         "doc": "Get localizations from branding",
-        "parent": "Branding",
-        "original_parent": "Branding",
-        "resource_identity": "Branding"
-      },
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "branding.UpdateLocalizations",
-        "operation_mapping": "branding",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property localizations in branding",
         "parent": "Branding",
         "original_parent": "Branding",
         "resource_identity": "Branding"
@@ -214,23 +214,23 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "branding.GetLocalizationsBannerLogo",
-        "operation_mapping": "branding",
-        "http_method": "GET",
-        "doc": "Get bannerLogo for the navigation property localizations from branding",
-        "parent": "Branding",
-        "original_parent": "Branding",
-        "resource_identity": "Branding"
-      },
-      {
         "has_body": true,
         "request_task": "NoContent",
         "operation_id": "branding.UpdateLocalizationsBannerLogo",
         "operation_mapping": "branding",
         "http_method": "PUT",
         "doc": "Update bannerLogo for the navigation property localizations in branding",
+        "parent": "Branding",
+        "original_parent": "Branding",
+        "resource_identity": "Branding"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "branding.GetLocalizationsBannerLogo",
+        "operation_mapping": "branding",
+        "http_method": "GET",
+        "doc": "Get bannerLogo for the navigation property localizations from branding",
         "parent": "Branding",
         "original_parent": "Branding",
         "resource_identity": "Branding"
@@ -245,23 +245,23 @@
     ],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "branding.UpdateLocalizationsSquareLogo",
-        "operation_mapping": "branding",
-        "http_method": "PUT",
-        "doc": "Update squareLogo for the navigation property localizations in branding",
-        "parent": "Branding",
-        "original_parent": "Branding",
-        "resource_identity": "Branding"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "branding.GetLocalizationsSquareLogo",
         "operation_mapping": "branding",
         "http_method": "GET",
         "doc": "Get squareLogo for the navigation property localizations from branding",
+        "parent": "Branding",
+        "original_parent": "Branding",
+        "resource_identity": "Branding"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "branding.UpdateLocalizationsSquareLogo",
+        "operation_mapping": "branding",
+        "http_method": "PUT",
+        "doc": "Update squareLogo for the navigation property localizations in branding",
         "parent": "Branding",
         "original_parent": "Branding",
         "resource_identity": "Branding"
@@ -274,23 +274,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "branding.organizationalBranding.GetSquareLogo",
-        "operation_mapping": "branding",
-        "http_method": "GET",
-        "doc": "Get squareLogo for organizationalBranding from branding",
-        "parent": "Branding",
-        "original_parent": "OrganizationalBranding",
-        "resource_identity": "Branding"
-      },
-      {
         "has_body": true,
         "request_task": "NoContent",
         "operation_id": "branding.organizationalBranding.UpdateSquareLogo",
         "operation_mapping": "branding",
         "http_method": "PUT",
         "doc": "Update squareLogo for organizationalBranding in branding",
+        "parent": "Branding",
+        "original_parent": "OrganizationalBranding",
+        "resource_identity": "Branding"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "branding.organizationalBranding.GetSquareLogo",
+        "operation_mapping": "branding",
+        "http_method": "GET",
+        "doc": "Get squareLogo for organizationalBranding from branding",
         "parent": "Branding",
         "original_parent": "OrganizationalBranding",
         "resource_identity": "Branding"

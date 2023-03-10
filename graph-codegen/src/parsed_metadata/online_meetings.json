@@ -1,0 +1,319 @@
+[
+  {
+    "path": "/onlineMeetings",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateOnlineMeetings",
+        "operation_mapping": "onlineMeetings",
+        "http_method": "POST",
+        "doc": "Create onlineMeeting",
+        "parent": "OnlineMeetings",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListOnlineMeetings",
+        "operation_mapping": "onlineMeetings",
+        "http_method": "GET",
+        "doc": "Get onlineMeeting",
+        "parent": "OnlineMeetings",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  },
+  {
+    "path": "/onlineMeetings/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.onlineMeetings-1fc7",
+        "operation_mapping": "onlineMeetings",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OnlineMeetings",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  },
+  {
+    "path": "/onlineMeetings/createOrGet",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.onlineMeetings.createOrGet",
+        "operation_mapping": "onlineMeetings",
+        "http_method": "POST",
+        "doc": "Invoke action createOrGet",
+        "parent": "OnlineMeetings",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  },
+  {
+    "path": "/onlineMeetings/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteOnlineMeetings",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property onlineMeetings for users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetOnlineMeetings",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "GET",
+        "doc": "Get onlineMeetings from users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateOnlineMeetings",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property onlineMeetings in users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  },
+  {
+    "path": "/onlineMeetings/{{RID}}/attendanceReports",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.onlineMeetings.ListAttendanceReports",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "GET",
+        "doc": "List meetingAttendanceReports",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.onlineMeetings.CreateAttendanceReports",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to attendanceReports for users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  },
+  {
+    "path": "/onlineMeetings/{{RID}}/attendanceReports/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.attendanceReports-e849",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  },
+  {
+    "path": "/onlineMeetings/{{RID}}/attendanceReports/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "meeting_attendance_report_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.onlineMeetings.GetAttendanceReports",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "GET",
+        "doc": "Get attendanceReports from users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.onlineMeetings.UpdateAttendanceReports",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property attendanceReports in users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.onlineMeetings.DeleteAttendanceReports",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property attendanceReports for users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  },
+  {
+    "path": "/onlineMeetings/{{RID}}/attendanceReports/{{id}}/attendanceRecords",
+    "param_size": 1,
+    "parameters": [
+      "meeting_attendance_report_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.onlineMeetings.attendanceReports.ListAttendanceRecords",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "GET",
+        "doc": "List attendanceRecords",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.onlineMeetings.attendanceReports.CreateAttendanceRecords",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to attendanceRecords for users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  },
+  {
+    "path": "/onlineMeetings/{{RID}}/attendanceReports/{{id}}/attendanceRecords/$count",
+    "param_size": 1,
+    "parameters": [
+      "meeting_attendance_report_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.attendanceRecords-3340",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  },
+  {
+    "path": "/onlineMeetings/{{RID}}/attendanceReports/{{id}}/attendanceRecords/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "meeting_attendance_report_id",
+      "attendance_record_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.onlineMeetings.attendanceReports.DeleteAttendanceRecords",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property attendanceRecords for users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.onlineMeetings.attendanceReports.GetAttendanceRecords",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "GET",
+        "doc": "Get attendanceRecords from users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.onlineMeetings.attendanceReports.UpdateAttendanceRecords",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property attendanceRecords in users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  },
+  {
+    "path": "/onlineMeetings/{{RID}}/attendeeReport",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.UpdateOnlineMeetingsAttendeeReport",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "PUT",
+        "doc": "Update attendeeReport for the navigation property onlineMeetings in users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetOnlineMeetingsAttendeeReport",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "GET",
+        "doc": "Get attendeeReport for the navigation property onlineMeetings from users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      }
+    ]
+  }
+]

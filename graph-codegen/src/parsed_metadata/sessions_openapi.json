@@ -1,0 +1,1498 @@
+{
+  "/sessions": {
+    "description": "Provides operations to manage the sessions property of the microsoft.graph.callRecords.callRecord entity.",
+    "get": {
+      "tags": [
+        "communications.callRecord"
+      ],
+      "summary": "List callRecord sessions",
+      "description": "Retrieve the list of sessions associated with a callRecord object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/callrecords-session-list?view=graph-rest-1.0"
+      },
+      "operationId": "communications.callRecords.ListSessions",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "callee",
+                    "callee desc",
+                    "caller",
+                    "caller desc",
+                    "endDateTime",
+                    "endDateTime desc",
+                    "failureInfo",
+                    "failureInfo desc",
+                    "modalities",
+                    "modalities desc",
+                    "startDateTime",
+                    "startDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "callee",
+                    "caller",
+                    "endDateTime",
+                    "failureInfo",
+                    "modalities",
+                    "startDateTime",
+                    "segments"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "segments"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.callRecords.sessionCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "communications.callRecord"
+      ],
+      "summary": "Create new navigation property to sessions for communications",
+      "operationId": "communications.callRecords.CreateSessions",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.callRecords.session"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Created navigation property.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.callRecords.session"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "callRecord-id",
+            "in": "path",
+            "description": "The unique identifier of callRecord",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "callRecord"
+          }
+        }
+      }
+    ]
+  },
+  "/sessions/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.sessions-c743",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "callRecord-id",
+            "in": "path",
+            "description": "The unique identifier of callRecord",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "callRecord"
+          }
+        }
+      }
+    ]
+  },
+  "/sessions/{session-id}": {
+    "description": "Provides operations to manage the sessions property of the microsoft.graph.callRecords.callRecord entity.",
+    "get": {
+      "tags": [
+        "communications.callRecord"
+      ],
+      "summary": "Get sessions from communications",
+      "description": "List of sessions involved in the call. Peer-to-peer calls typically only have one session, whereas group calls typically have at least one session per participant. Read-only. Nullable.",
+      "operationId": "communications.callRecords.GetSessions",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "callee",
+                    "caller",
+                    "endDateTime",
+                    "failureInfo",
+                    "modalities",
+                    "startDateTime",
+                    "segments"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "segments"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved navigation property",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.callRecords.session"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "delete": {
+      "tags": [
+        "communications.callRecord"
+      ],
+      "summary": "Delete navigation property sessions for communications",
+      "operationId": "communications.callRecords.DeleteSessions",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "patch": {
+      "tags": [
+        "communications.callRecord"
+      ],
+      "summary": "Update the navigation property sessions in communications",
+      "operationId": "communications.callRecords.UpdateSessions",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.callRecords.session"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.callRecords.session"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "callRecord-id",
+            "in": "path",
+            "description": "The unique identifier of callRecord",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "callRecord"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "session-id",
+            "in": "path",
+            "description": "The unique identifier of session",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "session"
+          }
+        }
+      }
+    ]
+  },
+  "/sessions/{session-id}/segments": {
+    "description": "Provides operations to manage the segments property of the microsoft.graph.callRecords.session entity.",
+    "get": {
+      "tags": [
+        "communications.callRecord"
+      ],
+      "summary": "Get segments from communications",
+      "description": "The list of segments involved in the session. Read-only. Nullable.",
+      "operationId": "communications.callRecords.sessions.ListSegments",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "callee",
+                    "callee desc",
+                    "caller",
+                    "caller desc",
+                    "endDateTime",
+                    "endDateTime desc",
+                    "failureInfo",
+                    "failureInfo desc",
+                    "media",
+                    "media desc",
+                    "startDateTime",
+                    "startDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "callee",
+                    "caller",
+                    "endDateTime",
+                    "failureInfo",
+                    "media",
+                    "startDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.callRecords.segmentCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "communications.callRecord"
+      ],
+      "summary": "Create new navigation property to segments for communications",
+      "operationId": "communications.callRecords.sessions.CreateSegments",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.callRecords.segment"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Created navigation property.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.callRecords.segment"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "callRecord-id",
+            "in": "path",
+            "description": "The unique identifier of callRecord",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "callRecord"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "session-id",
+            "in": "path",
+            "description": "The unique identifier of session",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "session"
+          }
+        }
+      }
+    ]
+  },
+  "/sessions/{session-id}/segments/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.segments-4fed",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "callRecord-id",
+            "in": "path",
+            "description": "The unique identifier of callRecord",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "callRecord"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "session-id",
+            "in": "path",
+            "description": "The unique identifier of session",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "session"
+          }
+        }
+      }
+    ]
+  },
+  "/sessions/{session-id}/segments/{segment-id}": {
+    "description": "Provides operations to manage the segments property of the microsoft.graph.callRecords.session entity.",
+    "get": {
+      "tags": [
+        "communications.callRecord"
+      ],
+      "summary": "Get segments from communications",
+      "description": "The list of segments involved in the session. Read-only. Nullable.",
+      "operationId": "communications.callRecords.sessions.GetSegments",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "callee",
+                    "caller",
+                    "endDateTime",
+                    "failureInfo",
+                    "media",
+                    "startDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved navigation property",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.callRecords.segment"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "delete": {
+      "tags": [
+        "communications.callRecord"
+      ],
+      "summary": "Delete navigation property segments for communications",
+      "operationId": "communications.callRecords.sessions.DeleteSegments",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "patch": {
+      "tags": [
+        "communications.callRecord"
+      ],
+      "summary": "Update the navigation property segments in communications",
+      "operationId": "communications.callRecords.sessions.UpdateSegments",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.callRecords.segment"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.callRecords.segment"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "callRecord-id",
+            "in": "path",
+            "description": "The unique identifier of callRecord",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "callRecord"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "session-id",
+            "in": "path",
+            "description": "The unique identifier of session",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "session"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "segment-id",
+            "in": "path",
+            "description": "The unique identifier of segment",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "segment"
+          }
+        }
+      }
+    ]
+  }
+}

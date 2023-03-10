@@ -1,0 +1,336 @@
+[
+  {
+    "path": "/calendarView",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListCalendarView",
+        "operation_mapping": "calendarView",
+        "http_method": "GET",
+        "doc": "Get calendarView from users",
+        "parent": "CalendarView",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.calendarView-9543",
+        "operation_mapping": "calendarView",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CalendarView",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "users.user.calendarView.delta",
+        "operation_mapping": "calendarView",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "CalendarView",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetCalendarView",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "GET",
+        "doc": "Get calendarView from users",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/accept",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.calendarView.event.accept",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "POST",
+        "doc": "Invoke action accept",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/attachments",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.calendarView.CreateAttachments",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "POST",
+        "doc": "Add attachment",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendarView.ListAttachments",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "GET",
+        "doc": "List attachments",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/calendar",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendarView.GetCalendar",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "GET",
+        "doc": "Get calendar from users",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/cancel",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.calendarView.event.cancel",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "POST",
+        "doc": "Invoke action cancel",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/decline",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.calendarView.event.decline",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "POST",
+        "doc": "Invoke action decline",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/dismissReminder",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.calendarView.event.dismissReminder",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "POST",
+        "doc": "Invoke action dismissReminder",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/extensions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendarView.ListExtensions",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "GET",
+        "doc": "Get extensions from users",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.calendarView.CreateExtensions",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "POST",
+        "doc": "Create open extension",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/extensions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.extensions-df44",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/extensions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "extension_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.calendarView.DeleteExtensions",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property extensions for users",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendarView.GetExtensions",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "GET",
+        "doc": "Get extensions from users",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.calendarView.UpdateExtensions",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property extensions in users",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/forward",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.calendarView.event.forward",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "POST",
+        "doc": "Invoke action forward",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/snoozeReminder",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.calendarView.event.snoozeReminder",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "POST",
+        "doc": "Invoke action snoozeReminder",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/tentativelyAccept",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.calendarView.event.tentativelyAccept",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "POST",
+        "doc": "Invoke action tentativelyAccept",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  }
+]

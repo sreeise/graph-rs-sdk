@@ -1,0 +1,236 @@
+[
+  {
+    "path": "/stages",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.ListStages",
+        "operation_mapping": "accessReviewsDefinitionsInstancesStages",
+        "http_method": "GET",
+        "doc": "List stages (of an access review)",
+        "parent": "AccessReviewsDefinitionsInstancesStages",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.CreateStages",
+        "operation_mapping": "accessReviewsDefinitionsInstancesStages",
+        "http_method": "POST",
+        "doc": "Create new navigation property to stages for identityGovernance",
+        "parent": "AccessReviewsDefinitionsInstancesStages",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      }
+    ]
+  },
+  {
+    "path": "/stages/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.stages-f2c5",
+        "operation_mapping": "accessReviewsDefinitionsInstancesStages",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "AccessReviewsDefinitionsInstancesStages",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      }
+    ]
+  },
+  {
+    "path": "/stages/filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stages.filterByCurrentUser",
+        "operation_mapping": "accessReviewsDefinitionsInstancesStages",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "AccessReviewsDefinitionsInstancesStages",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      }
+    ]
+  },
+  {
+    "path": "/stages/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.GetStages",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "GET",
+        "doc": "Get stages from identityGovernance",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.UpdateStages",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property stages in identityGovernance",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.DeleteStages",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property stages for identityGovernance",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      }
+    ]
+  },
+  {
+    "path": "/stages/{{RID}}/decisions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.stages.CreateDecisions",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to decisions for identityGovernance",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.stages.ListDecisions",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "GET",
+        "doc": "List decisions (from a multi-stage access review)",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      }
+    ]
+  },
+  {
+    "path": "/stages/{{RID}}/decisions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.decisions-35e1",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      }
+    ]
+  },
+  {
+    "path": "/stages/{{RID}}/decisions/filterByCurrentUser(on='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "on"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stages.accessReviewStage.decisions.filterByCurrentUser",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "GET",
+        "doc": "Invoke function filterByCurrentUser",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      }
+    ]
+  },
+  {
+    "path": "/stages/{{RID}}/decisions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "access_review_instance_decision_item_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.stages.DeleteDecisions",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property decisions for identityGovernance",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.stages.GetDecisions",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "GET",
+        "doc": "Get decisions from identityGovernance",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.accessReviews.definitions.instances.stages.UpdateDecisions",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property decisions in identityGovernance",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      }
+    ]
+  },
+  {
+    "path": "/stages/{{RID}}/stop",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stages.accessReviewStage.stop",
+        "operation_mapping": "AccessReviewsDefinitionsInstancesStagesId",
+        "http_method": "POST",
+        "doc": "Invoke action stop",
+        "parent": "AccessReviewsDefinitionsInstancesStagesId",
+        "original_parent": "AccessReviewsDefinitionsInstancesStages",
+        "resource_identity": "AccessReviewsDefinitionsInstancesStages"
+      }
+    ]
+  }
+]

@@ -96,13 +96,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -110,7 +103,14 @@
             }
           }
         },
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -167,13 +167,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -185,6 +178,13 @@
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -217,10 +217,10 @@
         }
       },
       "responses": {
-        "204": {
+        "4XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -231,10 +231,21 @@
             }
           }
         },
-        "4XX": {
+        "2XX": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.appConsentApprovalRoute"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -248,8 +259,12 @@
       "tags": [
         "identityGovernance.appConsentApprovalRoute"
       ],
-      "summary": "Get appConsentRequests from identityGovernance",
-      "description": "A collection of userConsentRequest objects for a specific application.",
+      "summary": "List appConsentRequests",
+      "description": "Retrieve appConsentRequest objects and their properties.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/appconsentapprovalroute-list-appconsentrequests?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.appConsent.ListAppConsentRequests",
       "parameters": [
         {
@@ -427,6 +442,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -434,17 +456,10 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.appConsentRequestCollectionResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -491,7 +506,7 @@
             }
           }
         },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -518,18 +533,34 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.appConsentRequests-d9b5",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -544,7 +575,7 @@
       "deprecated": false
     }
   },
-  "/appConsent/appConsentRequests/microsoft.graph.filterByCurrentUser(on='{on}')": {
+  "/appConsent/appConsentRequests/filterByCurrentUser(on='{on}')": {
     "description": "Provides operations to call the filterByCurrentUser method.",
     "get": {
       "tags": [
@@ -579,10 +610,147 @@
               "content": {}
             }
           }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "appDisplayName",
+                    "appId",
+                    "pendingScopes",
+                    "userConsentRequests"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "appDisplayName",
+                    "appDisplayName desc",
+                    "appId",
+                    "appId desc",
+                    "pendingScopes",
+                    "pendingScopes desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -595,58 +763,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.appConsentRequest"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.appConsentRequest"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -657,13 +850,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -779,7 +965,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -798,13 +991,6 @@
           }
         },
         "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -850,17 +1036,17 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -900,10 +1086,10 @@
         }
       },
       "responses": {
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -914,10 +1100,21 @@
             }
           }
         },
-        "5XX": {
+        "2XX": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.appConsentRequest"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -930,7 +1127,7 @@
           "Left": {
             "name": "appConsentRequest-id",
             "in": "path",
-            "description": "key: id of appConsentRequest",
+            "description": "The unique identifier of appConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -961,8 +1158,12 @@
       "tags": [
         "identityGovernance.appConsentApprovalRoute"
       ],
-      "summary": "Get userConsentRequests from identityGovernance",
-      "description": "A list of pending user consent requests. Supports $filter (eq).",
+      "summary": "List userConsentRequests",
+      "description": "Retrieve a collection of userConsentRequest objects and their properties.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/appconsentrequest-list-userconsentrequests?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.appConsent.appConsentRequests.ListUserConsentRequests",
       "parameters": [
         {
@@ -1152,17 +1353,17 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.userConsentRequestCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.userConsentRequestCollectionResponse"
             }
           }
         },
@@ -1202,14 +1403,7 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -1224,6 +1418,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -1243,7 +1444,7 @@
           "Left": {
             "name": "appConsentRequest-id",
             "in": "path",
-            "description": "key: id of appConsentRequest",
+            "description": "The unique identifier of appConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1273,6 +1474,22 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.userConsentRequests-cf9d",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
         "5XX": {
           "either": {
@@ -1288,7 +1505,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -1304,7 +1521,7 @@
           "Left": {
             "name": "appConsentRequest-id",
             "in": "path",
-            "description": "key: id of appConsentRequest",
+            "description": "The unique identifier of appConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1329,7 +1546,7 @@
       }
     ]
   },
-  "/appConsent/appConsentRequests/{appConsentRequest-id}/userConsentRequests/microsoft.graph.filterByCurrentUser(on='{on}')": {
+  "/appConsent/appConsentRequests/{appConsentRequest-id}/userConsentRequests/filterByCurrentUser(on='{on}')": {
     "description": "Provides operations to call the filterByCurrentUser method.",
     "get": {
       "tags": [
@@ -1364,6 +1581,148 @@
               "content": {}
             }
           }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "approvalId",
+                    "completedDateTime",
+                    "createdBy",
+                    "createdDateTime",
+                    "customData",
+                    "status",
+                    "reason",
+                    "approval"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "approvalId",
+                    "approvalId desc",
+                    "completedDateTime",
+                    "completedDateTime desc",
+                    "createdBy",
+                    "createdBy desc",
+                    "createdDateTime",
+                    "createdDateTime desc",
+                    "customData",
+                    "customData desc",
+                    "status",
+                    "status desc",
+                    "reason",
+                    "reason desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
         }
       ],
       "responses": {
@@ -1374,7 +1733,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -1387,58 +1746,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.userConsentRequest"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.userConsentRequest"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -1468,7 +1852,7 @@
           "Left": {
             "name": "appConsentRequest-id",
             "in": "path",
-            "description": "key: id of appConsentRequest",
+            "description": "The unique identifier of appConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1605,7 +1989,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1669,7 +2053,7 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1683,7 +2067,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1719,13 +2103,6 @@
         }
       },
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -1739,6 +2116,24 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.userConsentRequest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       },
       "deprecated": false
@@ -1749,7 +2144,7 @@
           "Left": {
             "name": "appConsentRequest-id",
             "in": "path",
-            "description": "key: id of appConsentRequest",
+            "description": "The unique identifier of appConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1777,7 +2172,7 @@
           "Left": {
             "name": "userConsentRequest-id",
             "in": "path",
-            "description": "key: id of userConsentRequest",
+            "description": "The unique identifier of userConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1900,21 +2295,7 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1929,6 +2310,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1971,6 +2366,13 @@
         }
       ],
       "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -1982,13 +2384,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
             }
           }
         }
@@ -2021,13 +2416,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -2035,10 +2423,28 @@
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.approval"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2051,7 +2457,7 @@
           "Left": {
             "name": "appConsentRequest-id",
             "in": "path",
-            "description": "key: id of appConsentRequest",
+            "description": "The unique identifier of appConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2079,7 +2485,7 @@
           "Left": {
             "name": "userConsentRequest-id",
             "in": "path",
-            "description": "key: id of userConsentRequest",
+            "description": "The unique identifier of userConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2110,8 +2516,12 @@
       "tags": [
         "identityGovernance.appConsentApprovalRoute"
       ],
-      "summary": "Get stages from identityGovernance",
-      "description": "A collection of stages in the approval decision.",
+      "summary": "List approval stages",
+      "description": "In Azure AD entitlement management, list the approvalStage objects associated with an approval object. This call can be made by an approver, providing the identifier of the access package assignment request.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/approval-list-stages?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.appConsent.appConsentRequests.userConsentRequests.approval.ListStages",
       "parameters": [
         {
@@ -2299,13 +2709,6 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.approvalStageCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -2317,6 +2720,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.approvalStageCollectionResponse"
             }
           }
         }
@@ -2349,7 +2759,14 @@
         }
       },
       "responses": {
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -2364,13 +2781,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -2390,7 +2800,7 @@
           "Left": {
             "name": "appConsentRequest-id",
             "in": "path",
-            "description": "key: id of appConsentRequest",
+            "description": "The unique identifier of appConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2418,7 +2828,7 @@
           "Left": {
             "name": "userConsentRequest-id",
             "in": "path",
-            "description": "key: id of userConsentRequest",
+            "description": "The unique identifier of userConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2448,6 +2858,22 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.stages-3a21",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
         "5XX": {
           "either": {
@@ -2456,7 +2882,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -2479,7 +2905,7 @@
           "Left": {
             "name": "appConsentRequest-id",
             "in": "path",
-            "description": "key: id of appConsentRequest",
+            "description": "The unique identifier of appConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2507,7 +2933,7 @@
           "Left": {
             "name": "userConsentRequest-id",
             "in": "path",
-            "description": "key: id of userConsentRequest",
+            "description": "The unique identifier of userConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2642,7 +3068,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -2706,6 +3132,13 @@
         }
       ],
       "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2717,13 +3150,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
             }
           }
         }
@@ -2756,10 +3182,21 @@
         }
       },
       "responses": {
-        "4XX": {
+        "2XX": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.approvalStage"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -2770,10 +3207,10 @@
             }
           }
         },
-        "204": {
+        "4XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2786,7 +3223,7 @@
           "Left": {
             "name": "appConsentRequest-id",
             "in": "path",
-            "description": "key: id of appConsentRequest",
+            "description": "The unique identifier of appConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2814,7 +3251,7 @@
           "Left": {
             "name": "userConsentRequest-id",
             "in": "path",
-            "description": "key: id of userConsentRequest",
+            "description": "The unique identifier of userConsentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2842,7 +3279,7 @@
           "Left": {
             "name": "approvalStage-id",
             "in": "path",
-            "description": "key: id of approvalStage",
+            "description": "The unique identifier of approvalStage",
             "required": true,
             "deprecated": false,
             "explode": false,

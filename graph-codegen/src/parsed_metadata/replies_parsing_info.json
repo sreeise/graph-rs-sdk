@@ -1,0 +1,20 @@
+{
+  "modifier_name": null,
+  "path": "/replies",
+  "resource_identity": "ChatsMessagesReplies",
+  "trim_path_start": "/chats/{chat-id}/messages/{chatMessage-id}",
+  "filter_path": [],
+  "replace_operation_map": "chatsMessagesReplies",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/chats/chats_messages_replies/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

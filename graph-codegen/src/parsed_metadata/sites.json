@@ -1,0 +1,732 @@
+[
+  {
+    "path": "/sites",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.site.ListSite",
+        "operation_mapping": "sites",
+        "http_method": "GET",
+        "doc": "Search for sites",
+        "parent": "Sites",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.sites-6254",
+        "operation_mapping": "sites",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Sites",
+        "original_parent": "Get",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/add",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "sites.add",
+        "operation_mapping": "sites",
+        "http_method": "POST",
+        "doc": "Invoke action add",
+        "parent": "Sites",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/remove",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "sites.remove",
+        "operation_mapping": "sites",
+        "http_method": "POST",
+        "doc": "Invoke action remove",
+        "parent": "Sites",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.site.GetSite",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get a site resource",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "sites.site.UpdateSite",
+        "operation_mapping": "SitesId",
+        "http_method": "PATCH",
+        "doc": "Update entity in sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/analytics",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.GetAnalytics",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get analytics from sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/columns",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "sites.CreateColumns",
+        "operation_mapping": "SitesId",
+        "http_method": "POST",
+        "doc": "Create a columnDefinition in a site",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.ListColumns",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "List columns in a site",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/columns/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.columns-a8bb",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "SitesId",
+        "original_parent": "Get",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/columns/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "column_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "sites.DeleteColumns",
+        "operation_mapping": "SitesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property columns for sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.GetColumns",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get columns from sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "sites.UpdateColumns",
+        "operation_mapping": "SitesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property columns in sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/columns/{{id}}/sourceColumn",
+    "param_size": 1,
+    "parameters": [
+      "column_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.columns.GetSourceColumn",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get sourceColumn from sites",
+        "parent": "SitesId",
+        "original_parent": "Columns",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/drive",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.GetDrive",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get Drive",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/drives",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.ListDrives",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "List available drives",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/drives/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.drives-5071",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "SitesId",
+        "original_parent": "Get",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/drives/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "drive_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.GetDrives",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get drives from sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/externalColumns",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.ListExternalColumns",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get externalColumns from sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/externalColumns/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.externalColumns-3855",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "SitesId",
+        "original_parent": "Get",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/externalColumns/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "column_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.GetExternalColumns",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get externalColumns from sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/getActivitiesByInterval(startDateTime='{{id}}',endDateTime='{{id2}}',interval='{{id3}}')",
+    "param_size": 3,
+    "parameters": [
+      "start_date_time",
+      "end_date_time",
+      "interval"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.site.getActivitiesByInterval-ad27",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Invoke function getActivitiesByInterval",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/getApplicableContentTypesForList(listId='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "list_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.site.getApplicableContentTypesForList",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Invoke function getApplicableContentTypesForList",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/getByPath(path='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "path"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.site.getByPath",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Invoke function getByPath",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/items",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.ListItems",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get items from sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/items/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.items-1b67",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "SitesId",
+        "original_parent": "Get",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/items/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "base_item_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.GetItems",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get items from sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/operations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.ListOperations",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "List operations on a site",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "sites.CreateOperations",
+        "operation_mapping": "SitesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to operations for sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/operations/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.operations-71b0",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "SitesId",
+        "original_parent": "Get",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/operations/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "rich_long_running_operation_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "sites.DeleteOperations",
+        "operation_mapping": "SitesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property operations for sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.GetOperations",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get operations from sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "sites.UpdateOperations",
+        "operation_mapping": "SitesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property operations in sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/permissions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.ListPermissions",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "List permissions",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "sites.CreatePermissions",
+        "operation_mapping": "SitesId",
+        "http_method": "POST",
+        "doc": "Create permission",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/permissions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.permissions-511e",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "SitesId",
+        "original_parent": "Get",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/permissions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "permission_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "sites.DeletePermissions",
+        "operation_mapping": "SitesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property permissions for sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "sites.UpdatePermissions",
+        "operation_mapping": "SitesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property permissions in sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.GetPermissions",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get permissions from sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/permissions/{{id}}/grant",
+    "param_size": 1,
+    "parameters": [
+      "permission_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "sites.site.permissions.permission.grant",
+        "operation_mapping": "SitesId",
+        "http_method": "POST",
+        "doc": "Invoke action grant",
+        "parent": "SitesId",
+        "original_parent": "Permission",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/sites",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.ListSites",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Enumerate subsites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/sites/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.sites-f499",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "SitesId",
+        "original_parent": "Get",
+        "resource_identity": "Sites"
+      }
+    ]
+  },
+  {
+    "path": "/sites/{{RID}}/sites/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "site_id_1"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "sites.GetSites",
+        "operation_mapping": "SitesId",
+        "http_method": "GET",
+        "doc": "Get sites from sites",
+        "parent": "SitesId",
+        "original_parent": "Sites",
+        "resource_identity": "Sites"
+      }
+    ]
+  }
+]

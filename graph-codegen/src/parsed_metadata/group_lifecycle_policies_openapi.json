@@ -1,0 +1,909 @@
+{
+  "/groupLifecyclePolicies": {
+    "description": "Provides operations to manage the collection of groupLifecyclePolicy entities.",
+    "get": {
+      "tags": [
+        "groupLifecyclePolicies.groupLifecyclePolicy"
+      ],
+      "summary": "List groupLifecyclePolicies",
+      "description": "List all the groupLifecyclePolicies.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/grouplifecyclepolicy-list?view=graph-rest-1.0"
+      },
+      "operationId": "groupLifecyclePolicies.groupLifecyclePolicy.ListGroupLifecyclePolicy",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "alternateNotificationEmails",
+                    "alternateNotificationEmails desc",
+                    "groupLifetimeInDays",
+                    "groupLifetimeInDays desc",
+                    "managedGroupTypes",
+                    "managedGroupTypes desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "alternateNotificationEmails",
+                    "groupLifetimeInDays",
+                    "managedGroupTypes"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.groupLifecyclePolicyCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "groupLifecyclePolicies.groupLifecyclePolicy"
+      ],
+      "summary": "Create groupLifecyclePolicy",
+      "description": "Creates a new groupLifecyclePolicy.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/grouplifecyclepolicy-post-grouplifecyclepolicies?view=graph-rest-1.0"
+      },
+      "operationId": "groupLifecyclePolicies.groupLifecyclePolicy.CreateGroupLifecyclePolicy",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.groupLifecyclePolicy"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Created entity",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.groupLifecyclePolicy"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/groupLifecyclePolicies/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.groupLifecyclePolicies-ca62",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/groupLifecyclePolicies/{groupLifecyclePolicy-id}": {
+    "description": "Provides operations to manage the collection of groupLifecyclePolicy entities.",
+    "get": {
+      "tags": [
+        "groupLifecyclePolicies.groupLifecyclePolicy"
+      ],
+      "summary": "Get groupLifecyclePolicy",
+      "description": "Retrieve the properties and relationships of a groupLifecyclePolicies object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/grouplifecyclepolicy-get?view=graph-rest-1.0"
+      },
+      "operationId": "groupLifecyclePolicies.groupLifecyclePolicy.GetGroupLifecyclePolicy",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "alternateNotificationEmails",
+                    "groupLifetimeInDays",
+                    "managedGroupTypes"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved entity",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.groupLifecyclePolicy"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "delete": {
+      "tags": [
+        "groupLifecyclePolicies.groupLifecyclePolicy"
+      ],
+      "summary": "Delete groupLifecyclePolicy",
+      "description": "Delete a groupLifecyclePolicy.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/grouplifecyclepolicy-delete?view=graph-rest-1.0"
+      },
+      "operationId": "groupLifecyclePolicies.groupLifecyclePolicy.DeleteGroupLifecyclePolicy",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "patch": {
+      "tags": [
+        "groupLifecyclePolicies.groupLifecyclePolicy"
+      ],
+      "summary": "Update groupLifecyclePolicy",
+      "description": "Update the properties of a groupLifecyclePolicygroupLifecyclePolicy resource type object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/grouplifecyclepolicy-update?view=graph-rest-1.0"
+      },
+      "operationId": "groupLifecyclePolicies.groupLifecyclePolicy.UpdateGroupLifecyclePolicy",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.groupLifecyclePolicy"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.groupLifecyclePolicy"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "groupLifecyclePolicy-id",
+            "in": "path",
+            "description": "The unique identifier of groupLifecyclePolicy",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "groupLifecyclePolicy"
+          }
+        }
+      }
+    ]
+  },
+  "/groupLifecyclePolicies/{groupLifecyclePolicy-id}/addGroup": {
+    "description": "Provides operations to call the addGroup method.",
+    "post": {
+      "tags": [
+        "groupLifecyclePolicies.Actions"
+      ],
+      "summary": "Invoke action addGroup",
+      "operationId": "groupLifecyclePolicies.groupLifecyclePolicy.addGroup",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "Action parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Left": {
+                      "type": "object",
+                      "readOnly": false,
+                      "writeOnly": false,
+                      "required": [],
+                      "uniqueItems": false,
+                      "properties": {
+                        "groupId": {
+                          "type": "string",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": false,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        }
+                      },
+                      "additionalPropertiesAllowed": false,
+                      "enum": [],
+                      "nullable": false,
+                      "deprecated": false,
+                      "unresolvedReference": false
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "required": [],
+                        "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "boolean",
+                            "default": false,
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "groupLifecyclePolicy-id",
+            "in": "path",
+            "description": "The unique identifier of groupLifecyclePolicy",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "groupLifecyclePolicy"
+          }
+        }
+      }
+    ]
+  },
+  "/groupLifecyclePolicies/{groupLifecyclePolicy-id}/removeGroup": {
+    "description": "Provides operations to call the removeGroup method.",
+    "post": {
+      "tags": [
+        "groupLifecyclePolicies.Actions"
+      ],
+      "summary": "Invoke action removeGroup",
+      "operationId": "groupLifecyclePolicies.groupLifecyclePolicy.removeGroup",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "Action parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Left": {
+                      "type": "object",
+                      "readOnly": false,
+                      "writeOnly": false,
+                      "required": [],
+                      "uniqueItems": false,
+                      "properties": {
+                        "groupId": {
+                          "type": "string",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": false,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        }
+                      },
+                      "additionalPropertiesAllowed": false,
+                      "enum": [],
+                      "nullable": false,
+                      "deprecated": false,
+                      "unresolvedReference": false
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "required": [],
+                        "uniqueItems": false,
+                        "properties": {
+                          "value": {
+                            "type": "boolean",
+                            "default": false,
+                            "readOnly": false,
+                            "writeOnly": false,
+                            "required": [],
+                            "uniqueItems": false,
+                            "additionalPropertiesAllowed": false,
+                            "enum": [],
+                            "nullable": false,
+                            "deprecated": false,
+                            "unresolvedReference": false
+                          }
+                        },
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "groupLifecyclePolicy-id",
+            "in": "path",
+            "description": "The unique identifier of groupLifecyclePolicy",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "groupLifecyclePolicy"
+          }
+        }
+      }
+    ]
+  }
+}

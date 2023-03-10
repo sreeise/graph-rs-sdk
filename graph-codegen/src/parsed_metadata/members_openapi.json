@@ -5,8 +5,12 @@
       "tags": [
         "teams.conversationMember"
       ],
-      "summary": "Get members from teams",
-      "description": "Members and owners of the team.",
+      "summary": "List members of team",
+      "description": "Get the conversationMember collection of a team.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/team-list-members?view=graph-rest-1.0"
+      },
       "operationId": "teams.ListMembers",
       "parameters": [
         {
@@ -182,13 +186,6 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.conversationMemberCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -202,6 +199,13 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.conversationMemberCollectionResponse"
+            }
+          }
         }
       },
       "deprecated": false
@@ -210,7 +214,12 @@
       "tags": [
         "teams.conversationMember"
       ],
-      "summary": "Create new navigation property to members for teams",
+      "summary": "Add member to team",
+      "description": "Add a new conversationMember to a team.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/team-post-members?view=graph-rest-1.0"
+      },
       "operationId": "teams.CreateMembers",
       "requestBody": {
         "either": {
@@ -232,21 +241,7 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -263,6 +258,20 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -273,7 +282,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -303,18 +312,34 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.members-717b",
-      "responses": {
-        "200": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -334,7 +359,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -359,13 +384,18 @@
       }
     ]
   },
-  "/members/microsoft.graph.add": {
+  "/members/add": {
     "description": "Provides operations to call the add method.",
     "post": {
       "tags": [
         "teams.Actions"
       ],
       "summary": "Invoke action add",
+      "description": "Add multiple members in a single request to a team. The response provides details about which memberships could and couldn't be created.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/conversationmembers-add?view=graph-rest-1.0"
+      },
       "operationId": "teams.team.members.add",
       "requestBody": {
         "either": {
@@ -446,14 +476,14 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -462,62 +492,86 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "title": "Collection of conversationMember",
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.actionResultPart"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.actionResultPart"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -531,7 +585,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -547,7 +601,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -671,7 +725,7 @@
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -689,14 +743,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -742,13 +796,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
@@ -757,6 +804,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -792,21 +846,32 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.conversationMember"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -822,7 +887,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -850,7 +915,7 @@
           "Left": {
             "name": "conversationMember-id",
             "in": "path",
-            "description": "key: id of conversationMember",
+            "description": "The unique identifier of conversationMember",
             "required": true,
             "deprecated": false,
             "explode": false,

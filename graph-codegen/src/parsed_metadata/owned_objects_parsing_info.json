@@ -1,0 +1,23 @@
+{
+  "modifier_name": null,
+  "path": "/ownedObjects",
+  "resource_identity": "OwnedObjects",
+  "trim_path_start": "/users/{user-id}",
+  "filter_path": [
+    "/multiValueExtendedProperties",
+    "singleValueExtendedProperties"
+  ],
+  "replace_operation_map": "ownedObjects",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/users/owned_objects/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

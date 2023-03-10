@@ -1,0 +1,17 @@
+{
+  "modifier_name": "auditLogs",
+  "path": "/auditLogs",
+  "resource_identity": "AuditLogs",
+  "trim_path_start": null,
+  "filter_path": [],
+  "replace_operation_map": "auditLogs",
+  "parameter_filter": [],
+  "mod_file_writer": {
+    "file": "src/audit_logs/mod.rs",
+    "declarations": [
+      "request"
+    ]
+  },
+  "mod_write_override": null,
+  "children": []
+}

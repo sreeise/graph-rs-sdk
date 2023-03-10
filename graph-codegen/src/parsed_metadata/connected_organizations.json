@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.ListConnectedOrganizations",
+        "operation_mapping": "connectedOrganizations",
+        "http_method": "GET",
+        "doc": "List connectedOrganizations",
+        "parent": "ConnectedOrganizations",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "ConnectedOrganizations"
+      },
+      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "identityGovernance.entitlementManagement.CreateConnectedOrganizations",
         "operation_mapping": "connectedOrganizations",
         "http_method": "POST",
         "doc": "Create new navigation property to connectedOrganizations for identityGovernance",
-        "parent": "ConnectedOrganizations",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.ListConnectedOrganizations",
-        "operation_mapping": "connectedOrganizations",
-        "http_method": "GET",
-        "doc": "Get connectedOrganizations from identityGovernance",
         "parent": "ConnectedOrganizations",
         "original_parent": "ConnectedOrganizations",
         "resource_identity": "ConnectedOrganizations"
@@ -53,20 +53,9 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.GetConnectedOrganizations",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "GET",
-        "doc": "Get connectedOrganizations from identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      },
-      {
-        "has_body": false,
         "request_task": "NoContent",
         "operation_id": "identityGovernance.entitlementManagement.DeleteConnectedOrganizations",
-        "operation_mapping": "connectedOrganizationsId",
+        "operation_mapping": "ConnectedOrganizationsId",
         "http_method": "DELETE",
         "doc": "Delete navigation property connectedOrganizations for identityGovernance",
         "parent": "ConnectedOrganizationsId",
@@ -74,312 +63,23 @@
         "resource_identity": "ConnectedOrganizations"
       },
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetConnectedOrganizations",
+        "operation_mapping": "ConnectedOrganizationsId",
+        "http_method": "GET",
+        "doc": "Get connectedOrganizations from identityGovernance",
+        "parent": "ConnectedOrganizationsId",
+        "original_parent": "ConnectedOrganizations",
+        "resource_identity": "ConnectedOrganizations"
+      },
+      {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "identityGovernance.entitlementManagement.UpdateConnectedOrganizations",
-        "operation_mapping": "connectedOrganizationsId",
+        "operation_mapping": "ConnectedOrganizationsId",
         "http_method": "PATCH",
         "doc": "Update the navigation property connectedOrganizations in identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/externalSponsors",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.CreateExternalSponsors",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property to externalSponsors for identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.ListExternalSponsors",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "GET",
-        "doc": "Get externalSponsors from identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/externalSponsors/$count",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.Count.externalSponsors-3513",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "GET",
-        "doc": "Get the number of the resource",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/externalSponsors/$ref",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.CreateRefExternalSponsors",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property ref to externalSponsors for identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.ListRefExternalSponsors",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "GET",
-        "doc": "Get ref of externalSponsors from identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/externalSponsors/microsoft.graph.getAvailableExtensionProperties",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.externalSponsors.getAvailableExtensionProperties",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "POST",
-        "doc": "Invoke action getAvailableExtensionProperties",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/externalSponsors/microsoft.graph.getByIds",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.externalSponsors.getByIds",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "POST",
-        "doc": "Invoke action getByIds",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/externalSponsors/microsoft.graph.validateProperties",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.externalSponsors.validateProperties",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "POST",
-        "doc": "Invoke action validateProperties",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/externalSponsors/{{id}}/$ref",
-    "param_size": 1,
-    "parameters": [
-      "directory_object_id"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.DeleteRefExternalSponsors",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "DELETE",
-        "doc": "Delete ref of navigation property externalSponsors for identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/internalSponsors",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.CreateInternalSponsors",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property to internalSponsors for identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.ListInternalSponsors",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "GET",
-        "doc": "Get internalSponsors from identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/internalSponsors/$count",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.Count.internalSponsors-7123",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "GET",
-        "doc": "Get the number of the resource",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/internalSponsors/$ref",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.CreateRefInternalSponsors",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property ref to internalSponsors for identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.ListRefInternalSponsors",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "GET",
-        "doc": "Get ref of internalSponsors from identityGovernance",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/internalSponsors/microsoft.graph.getAvailableExtensionProperties",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.internalSponsors.getAvailableExtensionProperties",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "POST",
-        "doc": "Invoke action getAvailableExtensionProperties",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/internalSponsors/microsoft.graph.getByIds",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.internalSponsors.getByIds",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "POST",
-        "doc": "Invoke action getByIds",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/internalSponsors/microsoft.graph.validateProperties",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.connectedOrganization.internalSponsors.validateProperties",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "POST",
-        "doc": "Invoke action validateProperties",
-        "parent": "ConnectedOrganizationsId",
-        "original_parent": "ConnectedOrganizations",
-        "resource_identity": "ConnectedOrganizations"
-      }
-    ]
-  },
-  {
-    "path": "/connectedOrganizations/{{RID}}/internalSponsors/{{id}}/$ref",
-    "param_size": 1,
-    "parameters": [
-      "directory_object_id"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "identityGovernance.entitlementManagement.connectedOrganizations.DeleteRefInternalSponsors",
-        "operation_mapping": "connectedOrganizationsId",
-        "http_method": "DELETE",
-        "doc": "Delete ref of navigation property internalSponsors for identityGovernance",
         "parent": "ConnectedOrganizationsId",
         "original_parent": "ConnectedOrganizations",
         "resource_identity": "ConnectedOrganizations"

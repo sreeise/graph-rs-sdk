@@ -1,0 +1,89 @@
+[
+  {
+    "path": "/scopedRoleMemberOf",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListScopedRoleMemberOf",
+        "operation_mapping": "scopedRoleMemberOf",
+        "http_method": "GET",
+        "doc": "Get scopedRoleMemberOf from users",
+        "parent": "ScopedRoleMemberOf",
+        "original_parent": "ScopedRoleMemberOf",
+        "resource_identity": "ScopedRoleMemberOf"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateScopedRoleMemberOf",
+        "operation_mapping": "scopedRoleMemberOf",
+        "http_method": "POST",
+        "doc": "Create new navigation property to scopedRoleMemberOf for users",
+        "parent": "ScopedRoleMemberOf",
+        "original_parent": "ScopedRoleMemberOf",
+        "resource_identity": "ScopedRoleMemberOf"
+      }
+    ]
+  },
+  {
+    "path": "/scopedRoleMemberOf/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.scopedRoleMemberOf-0e30",
+        "operation_mapping": "scopedRoleMemberOf",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ScopedRoleMemberOf",
+        "original_parent": "ScopedRoleMemberOf",
+        "resource_identity": "ScopedRoleMemberOf"
+      }
+    ]
+  },
+  {
+    "path": "/scopedRoleMemberOf/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateScopedRoleMemberOf",
+        "operation_mapping": "ScopedRoleMemberOfId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property scopedRoleMemberOf in users",
+        "parent": "ScopedRoleMemberOfId",
+        "original_parent": "ScopedRoleMemberOf",
+        "resource_identity": "ScopedRoleMemberOf"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteScopedRoleMemberOf",
+        "operation_mapping": "ScopedRoleMemberOfId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property scopedRoleMemberOf for users",
+        "parent": "ScopedRoleMemberOfId",
+        "original_parent": "ScopedRoleMemberOf",
+        "resource_identity": "ScopedRoleMemberOf"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetScopedRoleMemberOf",
+        "operation_mapping": "ScopedRoleMemberOfId",
+        "http_method": "GET",
+        "doc": "Get scopedRoleMemberOf from users",
+        "parent": "ScopedRoleMemberOfId",
+        "original_parent": "ScopedRoleMemberOf",
+        "resource_identity": "ScopedRoleMemberOf"
+      }
+    ]
+  }
+]

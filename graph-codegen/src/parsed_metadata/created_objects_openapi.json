@@ -1,0 +1,1004 @@
+{
+  "/createdObjects": {
+    "description": "Provides operations to manage the createdObjects property of the microsoft.graph.user entity.",
+    "get": {
+      "tags": [
+        "users.directoryObject"
+      ],
+      "summary": "List createdObjects",
+      "description": "Get a list of directory objects that were created by the user. This API returns only those directory objects that were created by a user who isn't in any administrator role; otherwise, it returns an empty object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/user-list-createdobjects?view=graph-rest-1.0"
+      },
+      "operationId": "users.ListCreatedObjects",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "user-id",
+            "in": "path",
+            "description": "The unique identifier of user",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "user"
+          }
+        }
+      }
+    ]
+  },
+  "/createdObjects/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.createdObjects-c0ed",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "user-id",
+            "in": "path",
+            "description": "The unique identifier of user",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "user"
+          }
+        }
+      }
+    ]
+  },
+  "/createdObjects/graph.servicePrincipal": {
+    "description": "Casts the previous resource to servicePrincipal.",
+    "get": {
+      "tags": [
+        "directoryObject.servicePrincipal"
+      ],
+      "summary": "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.servicePrincipal-9b00",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.servicePrincipalCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "user-id",
+            "in": "path",
+            "description": "The unique identifier of user",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "user"
+          }
+        }
+      }
+    ]
+  },
+  "/createdObjects/graph.servicePrincipal/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.microsoft.graph.servicePrincipal-1751",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "user-id",
+            "in": "path",
+            "description": "The unique identifier of user",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "user"
+          }
+        }
+      }
+    ]
+  },
+  "/createdObjects/{directoryObject-id}": {
+    "description": "Provides operations to manage the createdObjects property of the microsoft.graph.user entity.",
+    "get": {
+      "tags": [
+        "users.directoryObject"
+      ],
+      "summary": "Get createdObjects from users",
+      "description": "Directory objects that were created by the user. Read-only. Nullable.",
+      "operationId": "users.GetCreatedObjects",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved navigation property",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.directoryObject"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "user-id",
+            "in": "path",
+            "description": "The unique identifier of user",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "user"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "directoryObject-id",
+            "in": "path",
+            "description": "The unique identifier of directoryObject",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryObject"
+          }
+        }
+      }
+    ]
+  },
+  "/createdObjects/{directoryObject-id}/graph.servicePrincipal": {
+    "description": "Casts the previous resource to servicePrincipal.",
+    "get": {
+      "tags": [
+        "directoryObject.servicePrincipal"
+      ],
+      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.servicePrincipal",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.servicePrincipal-9b00",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Result entities",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.servicePrincipal"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "user-id",
+            "in": "path",
+            "description": "The unique identifier of user",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "user"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "directoryObject-id",
+            "in": "path",
+            "description": "The unique identifier of directoryObject",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryObject"
+          }
+        }
+      }
+    ]
+  }
+}

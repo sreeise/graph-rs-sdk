@@ -1,0 +1,23 @@
+{
+  "modifier_name": "teamsPrimaryChannel",
+  "path": "/primaryChannel",
+  "resource_identity": "TeamsPrimaryChannel",
+  "trim_path_start": "/teams/{team-id}",
+  "filter_path": [
+    "sharedWithTeams",
+    "tabs",
+    "messages"
+  ],
+  "replace_operation_map": null,
+  "parameter_filter": [
+    "team-id"
+  ],
+  "mod_file": null,
+  "mod_file_writer": null,
+  "mod_write_override": {
+    "folder_path": "/teams/teams_primary_channel",
+    "folder_name": "teams",
+    "mod_name": "teams_primary_channel"
+  },
+  "children": []
+}

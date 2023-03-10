@@ -1,0 +1,2396 @@
+[
+  {
+    "path": "/reports",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.GetReportRoot",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Get reports",
+        "parent": "Reports",
+        "original_parent": "ReportRoot",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "reports.UpdateReportRoot",
+        "operation_mapping": "reports",
+        "http_method": "PATCH",
+        "doc": "Update reports",
+        "parent": "Reports",
+        "original_parent": "ReportRoot",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/dailyPrintUsageByPrinter",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "reports.CreateDailyPrintUsageByPrinter",
+        "operation_mapping": "reports",
+        "http_method": "POST",
+        "doc": "Create new navigation property to dailyPrintUsageByPrinter for reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.ListDailyPrintUsageByPrinter",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "List dailyPrintUsageByPrinter",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/dailyPrintUsageByPrinter/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.dailyPrintUsageByPrinter-73e4",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Reports",
+        "original_parent": "Get",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/dailyPrintUsageByPrinter/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "print_usage_by_printer_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "reports.DeleteDailyPrintUsageByPrinter",
+        "operation_mapping": "reports",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property dailyPrintUsageByPrinter for reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.GetDailyPrintUsageByPrinter",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Get dailyPrintUsageByPrinter from reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "reports.UpdateDailyPrintUsageByPrinter",
+        "operation_mapping": "reports",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property dailyPrintUsageByPrinter in reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/dailyPrintUsageByUser",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.ListDailyPrintUsageByUser",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "List dailyPrintUsageByUser",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "reports.CreateDailyPrintUsageByUser",
+        "operation_mapping": "reports",
+        "http_method": "POST",
+        "doc": "Create new navigation property to dailyPrintUsageByUser for reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/dailyPrintUsageByUser/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.dailyPrintUsageByUser-e839",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Reports",
+        "original_parent": "Get",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/dailyPrintUsageByUser/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "print_usage_by_user_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "reports.UpdateDailyPrintUsageByUser",
+        "operation_mapping": "reports",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property dailyPrintUsageByUser in reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "reports.DeleteDailyPrintUsageByUser",
+        "operation_mapping": "reports",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property dailyPrintUsageByUser for reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.GetDailyPrintUsageByUser",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Get dailyPrintUsageByUser from reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.deviceConfigurationDeviceActivity()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.deviceConfigurationDeviceActivity",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function deviceConfigurationDeviceActivity",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.deviceConfigurationUserActivity()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.deviceConfigurationUserActivity",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function deviceConfigurationUserActivity",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getEmailActivityCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getEmailActivityCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getEmailActivityCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getEmailActivityUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getEmailActivityUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getEmailActivityUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getEmailActivityUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getEmailActivityUserDetail-fe32",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getEmailActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getEmailActivityUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getEmailActivityUserDetail-dcb6",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getEmailActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getEmailAppUsageAppsUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getEmailAppUsageAppsUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getEmailAppUsageAppsUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getEmailAppUsageUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getEmailAppUsageUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getEmailAppUsageUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getEmailAppUsageUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getEmailAppUsageUserDetail-62ec",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getEmailAppUsageUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getEmailAppUsageUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getEmailAppUsageUserDetail-a0ff",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getEmailAppUsageUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getEmailAppUsageVersionsUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getEmailAppUsageVersionsUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getEmailAppUsageVersionsUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getGroupArchivedPrintJobs(groupId='{{id}}',startDateTime={{id2}},endDateTime={{id3}})",
+    "param_size": 3,
+    "parameters": [
+      "group_id",
+      "start_date_time",
+      "end_date_time"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getGroupArchivedPrintJobs",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getGroupArchivedPrintJobs",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getM365AppPlatformUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getM365AppPlatformUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getM365AppPlatformUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getM365AppUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getM365AppUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getM365AppUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getM365AppUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getM365AppUserDetail-2b20",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getM365AppUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getM365AppUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getM365AppUserDetail-3b6b",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getM365AppUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getMailboxUsageDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getMailboxUsageDetail",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getMailboxUsageDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getMailboxUsageMailboxCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getMailboxUsageMailboxCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getMailboxUsageMailboxCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getMailboxUsageQuotaStatusMailboxCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getMailboxUsageQuotaStatusMailboxCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getMailboxUsageQuotaStatusMailboxCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getMailboxUsageStorage(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getMailboxUsageStorage",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getMailboxUsageStorage",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365ActivationCounts()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365ActivationCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365ActivationCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365ActivationsUserCounts()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365ActivationsUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365ActivationsUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365ActivationsUserDetail()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365ActivationsUserDetail",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365ActivationsUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365ActiveUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365ActiveUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365ActiveUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365ActiveUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365ActiveUserDetail-d389",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365ActiveUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365ActiveUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365ActiveUserDetail-285f",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365ActiveUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365GroupsActivityCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365GroupsActivityCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365GroupsActivityCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365GroupsActivityDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365GroupsActivityDetail-81cc",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365GroupsActivityDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365GroupsActivityDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365GroupsActivityDetail-50ef",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365GroupsActivityDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365GroupsActivityFileCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365GroupsActivityFileCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365GroupsActivityFileCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365GroupsActivityGroupCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365GroupsActivityGroupCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365GroupsActivityGroupCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365GroupsActivityStorage(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365GroupsActivityStorage",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365GroupsActivityStorage",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOffice365ServicesUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOffice365ServicesUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOffice365ServicesUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOneDriveActivityFileCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOneDriveActivityFileCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOneDriveActivityFileCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOneDriveActivityUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOneDriveActivityUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOneDriveActivityUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOneDriveActivityUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOneDriveActivityUserDetail-05f1",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOneDriveActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOneDriveActivityUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOneDriveActivityUserDetail-38e5",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOneDriveActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOneDriveUsageAccountCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOneDriveUsageAccountCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOneDriveUsageAccountCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOneDriveUsageAccountDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOneDriveUsageAccountDetail-e827",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOneDriveUsageAccountDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOneDriveUsageAccountDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOneDriveUsageAccountDetail-9341",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOneDriveUsageAccountDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOneDriveUsageFileCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOneDriveUsageFileCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOneDriveUsageFileCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getOneDriveUsageStorage(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getOneDriveUsageStorage",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getOneDriveUsageStorage",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getPrinterArchivedPrintJobs(printerId='{{id}}',startDateTime={{id2}},endDateTime={{id3}})",
+    "param_size": 3,
+    "parameters": [
+      "printer_id",
+      "start_date_time",
+      "end_date_time"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getPrinterArchivedPrintJobs",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getPrinterArchivedPrintJobs",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointActivityFileCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointActivityFileCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointActivityFileCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointActivityPages(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointActivityPages",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointActivityPages",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointActivityUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointActivityUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointActivityUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointActivityUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointActivityUserDetail-f3be",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointActivityUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointActivityUserDetail-e8d6",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointSiteUsageDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointSiteUsageDetail-d27a",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointSiteUsageDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointSiteUsageDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointSiteUsageDetail-bfde",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointSiteUsageDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointSiteUsageFileCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointSiteUsageFileCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointSiteUsageFileCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointSiteUsagePages(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointSiteUsagePages",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointSiteUsagePages",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointSiteUsageSiteCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointSiteUsageSiteCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointSiteUsageSiteCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSharePointSiteUsageStorage(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSharePointSiteUsageStorage",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSharePointSiteUsageStorage",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessActivityCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessActivityCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessActivityCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessActivityUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessActivityUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessActivityUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessActivityUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessActivityUserDetail-e4c9",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessActivityUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessActivityUserDetail-2550",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessDeviceUsageDistributionUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessDeviceUsageDistributionUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessDeviceUsageDistributionUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessDeviceUsageUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessDeviceUsageUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessDeviceUsageUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessDeviceUsageUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessDeviceUsageUserDetail-a692",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessDeviceUsageUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessDeviceUsageUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessDeviceUsageUserDetail-0c42",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessDeviceUsageUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessOrganizerActivityCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessOrganizerActivityCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessOrganizerActivityCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessOrganizerActivityMinuteCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessOrganizerActivityMinuteCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessOrganizerActivityMinuteCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessOrganizerActivityUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessOrganizerActivityUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessOrganizerActivityUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessParticipantActivityCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessParticipantActivityCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessParticipantActivityCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessParticipantActivityMinuteCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessParticipantActivityMinuteCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessParticipantActivityMinuteCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessParticipantActivityUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessParticipantActivityUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessParticipantActivityUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessPeerToPeerActivityCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessPeerToPeerActivityCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessPeerToPeerActivityCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessPeerToPeerActivityMinuteCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessPeerToPeerActivityMinuteCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessPeerToPeerActivityMinuteCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getSkypeForBusinessPeerToPeerActivityUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getSkypeForBusinessPeerToPeerActivityUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getSkypeForBusinessPeerToPeerActivityUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getTeamsDeviceUsageDistributionUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getTeamsDeviceUsageDistributionUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getTeamsDeviceUsageDistributionUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getTeamsDeviceUsageUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getTeamsDeviceUsageUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getTeamsDeviceUsageUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getTeamsDeviceUsageUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getTeamsDeviceUsageUserDetail-7148",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getTeamsDeviceUsageUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getTeamsDeviceUsageUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getTeamsDeviceUsageUserDetail-bd2b",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getTeamsDeviceUsageUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getTeamsUserActivityCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getTeamsUserActivityCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getTeamsUserActivityCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getTeamsUserActivityUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getTeamsUserActivityUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getTeamsUserActivityUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getTeamsUserActivityUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getTeamsUserActivityUserDetail-a3f1",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getTeamsUserActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getTeamsUserActivityUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getTeamsUserActivityUserDetail-85fc",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getTeamsUserActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getUserArchivedPrintJobs(userId='{{id}}',startDateTime={{id2}},endDateTime={{id3}})",
+    "param_size": 3,
+    "parameters": [
+      "user_id",
+      "start_date_time",
+      "end_date_time"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getUserArchivedPrintJobs",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getUserArchivedPrintJobs",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerActivityCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerActivityCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerActivityCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerActivityUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerActivityUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerActivityUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerActivityUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerActivityUserDetail-ac30",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerActivityUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerActivityUserDetail-8a2a",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerActivityUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerDeviceUsageDistributionUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerDeviceUsageDistributionUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerDeviceUsageDistributionUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerDeviceUsageUserCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerDeviceUsageUserCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerDeviceUsageUserCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerDeviceUsageUserDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerDeviceUsageUserDetail-d0ac",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerDeviceUsageUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerDeviceUsageUserDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerDeviceUsageUserDetail-1880",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerDeviceUsageUserDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerGroupsActivityCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerGroupsActivityCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerGroupsActivityCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerGroupsActivityDetail(date={{id}})",
+    "param_size": 1,
+    "parameters": [
+      "date"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerGroupsActivityDetail-da9a",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerGroupsActivityDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerGroupsActivityDetail(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerGroupsActivityDetail-8201",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerGroupsActivityDetail",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.getYammerGroupsActivityGroupCounts(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.getYammerGroupsActivityGroupCounts",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getYammerGroupsActivityGroupCounts",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.managedDeviceEnrollmentFailureDetails()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.managedDeviceEnrollmentFailureDetails-027e",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function managedDeviceEnrollmentFailureDetails",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.managedDeviceEnrollmentFailureDetails(skip={{id}},top={{id2}},filter='{{id3}}',skipToken='{{id4}}')",
+    "param_size": 4,
+    "parameters": [
+      "skip",
+      "top",
+      "filter",
+      "skip_token"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.managedDeviceEnrollmentFailureDetails-6302",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function managedDeviceEnrollmentFailureDetails",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.managedDeviceEnrollmentTopFailures()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.managedDeviceEnrollmentTopFailures-4669",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function managedDeviceEnrollmentTopFailures",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/microsoft.graph.managedDeviceEnrollmentTopFailures(period='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "period"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.managedDeviceEnrollmentTopFailures-584d",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function managedDeviceEnrollmentTopFailures",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/monthlyPrintUsageByPrinter",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.ListMonthlyPrintUsageByPrinter",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "List monthlyPrintUsageByPrinter",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "reports.CreateMonthlyPrintUsageByPrinter",
+        "operation_mapping": "reports",
+        "http_method": "POST",
+        "doc": "Create new navigation property to monthlyPrintUsageByPrinter for reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/monthlyPrintUsageByPrinter/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.monthlyPrintUsageByPrinter-18cc",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Reports",
+        "original_parent": "Get",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/monthlyPrintUsageByPrinter/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "print_usage_by_printer_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.GetMonthlyPrintUsageByPrinter",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Get monthlyPrintUsageByPrinter from reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "reports.UpdateMonthlyPrintUsageByPrinter",
+        "operation_mapping": "reports",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property monthlyPrintUsageByPrinter in reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "reports.DeleteMonthlyPrintUsageByPrinter",
+        "operation_mapping": "reports",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property monthlyPrintUsageByPrinter for reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/monthlyPrintUsageByUser",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.ListMonthlyPrintUsageByUser",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "List monthlyPrintUsageByUser",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "reports.CreateMonthlyPrintUsageByUser",
+        "operation_mapping": "reports",
+        "http_method": "POST",
+        "doc": "Create new navigation property to monthlyPrintUsageByUser for reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/monthlyPrintUsageByUser/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.monthlyPrintUsageByUser-60f0",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Reports",
+        "original_parent": "Get",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/monthlyPrintUsageByUser/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "print_usage_by_user_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.GetMonthlyPrintUsageByUser",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Get monthlyPrintUsageByUser from reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "reports.UpdateMonthlyPrintUsageByUser",
+        "operation_mapping": "reports",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property monthlyPrintUsageByUser in reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "reports.DeleteMonthlyPrintUsageByUser",
+        "operation_mapping": "reports",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property monthlyPrintUsageByUser for reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/security",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "reports.UpdateSecurity",
+        "operation_mapping": "reports",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property security in reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.GetSecurity",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Get security from reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "reports.DeleteSecurity",
+        "operation_mapping": "reports",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property security for reports",
+        "parent": "Reports",
+        "original_parent": "Reports",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/security/microsoft.graph.getAttackSimulationRepeatOffenders()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.security.getAttackSimulationRepeatOffenders",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getAttackSimulationRepeatOffenders",
+        "parent": "Reports",
+        "original_parent": "Security",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/security/microsoft.graph.getAttackSimulationSimulationUserCoverage()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.security.getAttackSimulationSimulationUserCoverage",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getAttackSimulationSimulationUserCoverage",
+        "parent": "Reports",
+        "original_parent": "Security",
+        "resource_identity": "Reports"
+      }
+    ]
+  },
+  {
+    "path": "/reports/security/microsoft.graph.getAttackSimulationTrainingUserCoverage()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "reports.security.getAttackSimulationTrainingUserCoverage",
+        "operation_mapping": "reports",
+        "http_method": "GET",
+        "doc": "Invoke function getAttackSimulationTrainingUserCoverage",
+        "parent": "Reports",
+        "original_parent": "Security",
+        "resource_identity": "Reports"
+      }
+    ]
+  }
+]

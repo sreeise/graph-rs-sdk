@@ -5,26 +5,26 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "teams.CreateMembers",
-        "operation_mapping": "members",
-        "http_method": "POST",
-        "doc": "Create new navigation property to members for teams",
-        "parent": "Members",
-        "original_parent": "Members",
-        "resource_identity": null
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.ListMembers",
         "operation_mapping": "members",
         "http_method": "GET",
-        "doc": "Get members from teams",
-        "parent": "Members",
-        "original_parent": "Members",
-        "resource_identity": null
+        "doc": "List members of team",
+        "parent": "TeamsMembers",
+        "original_parent": "TeamsMembers",
+        "resource_identity": "TeamsMembers"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.CreateMembers",
+        "operation_mapping": "members",
+        "http_method": "POST",
+        "doc": "Add member to team",
+        "parent": "TeamsMembers",
+        "original_parent": "TeamsMembers",
+        "resource_identity": "TeamsMembers"
       }
     ]
   },
@@ -40,14 +40,14 @@
         "operation_mapping": "members",
         "http_method": "GET",
         "doc": "Get the number of the resource",
-        "parent": "Members",
-        "original_parent": "Members",
-        "resource_identity": null
+        "parent": "TeamsMembers",
+        "original_parent": "TeamsMembers",
+        "resource_identity": "TeamsMembers"
       }
     ]
   },
   {
-    "path": "/members/microsoft.graph.add",
+    "path": "/members/add",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -58,9 +58,9 @@
         "operation_mapping": "members",
         "http_method": "POST",
         "doc": "Invoke action add",
-        "parent": "Members",
-        "original_parent": "Members",
-        "resource_identity": null
+        "parent": "TeamsMembers",
+        "original_parent": "TeamsMembers",
+        "resource_identity": "TeamsMembers"
       }
     ]
   },
@@ -71,36 +71,36 @@
     "metadata": [
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "teams.UpdateMembers",
-        "operation_mapping": "membersId",
+        "operation_mapping": "TeamsMembersId",
         "http_method": "PATCH",
         "doc": "Update the navigation property members in teams",
-        "parent": "MembersId",
-        "original_parent": "Members",
-        "resource_identity": "Members"
+        "parent": "TeamsMembersId",
+        "original_parent": "TeamsMembers",
+        "resource_identity": "TeamsMembers"
       },
       {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "teams.DeleteMembers",
-        "operation_mapping": "membersId",
+        "operation_mapping": "TeamsMembersId",
         "http_method": "DELETE",
         "doc": "Delete navigation property members for teams",
-        "parent": "MembersId",
-        "original_parent": "Members",
-        "resource_identity": "Members"
+        "parent": "TeamsMembersId",
+        "original_parent": "TeamsMembers",
+        "resource_identity": "TeamsMembers"
       },
       {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.GetMembers",
-        "operation_mapping": "membersId",
+        "operation_mapping": "TeamsMembersId",
         "http_method": "GET",
         "doc": "Get members from teams",
-        "parent": "MembersId",
-        "original_parent": "Members",
-        "resource_identity": "Members"
+        "parent": "TeamsMembersId",
+        "original_parent": "TeamsMembers",
+        "resource_identity": "TeamsMembers"
       }
     ]
   }

@@ -5,8 +5,12 @@
       "tags": [
         "teams.channel"
       ],
-      "summary": "Get sharedWithTeams from teams",
-      "description": "A collection of teams with which a channel is shared.",
+      "summary": "List sharedWithChannelTeamInfo",
+      "description": "Get the list of teams that has been shared a specified channel. This operation is allowed only for channels with a **membershipType** value of `shared`.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/sharedwithchannelteaminfo-list?view=graph-rest-1.0"
+      },
       "operationId": "teams.primaryChannel.ListSharedWithTeams",
       "parameters": [
         {
@@ -186,21 +190,21 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.sharedWithChannelTeamInfoCollectionResponse"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -236,7 +240,7 @@
         }
       },
       "responses": {
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -277,7 +281,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -307,7 +311,30 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.sharedWithTeams-9fea",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -321,13 +348,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
         }
       },
       "deprecated": false
@@ -338,7 +358,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -466,14 +486,7 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -488,6 +501,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -537,17 +557,17 @@
         }
       ],
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         },
@@ -587,10 +607,21 @@
         }
       },
       "responses": {
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.sharedWithChannelTeamInfo"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -617,7 +648,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -645,7 +676,7 @@
           "Left": {
             "name": "sharedWithChannelTeamInfo-id",
             "in": "path",
-            "description": "key: id of sharedWithChannelTeamInfo",
+            "description": "The unique identifier of sharedWithChannelTeamInfo",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -676,8 +707,12 @@
       "tags": [
         "teams.channel"
       ],
-      "summary": "Get allowedMembers from teams",
-      "description": "A collection of team members who have access to the shared channel.",
+      "summary": "List allowedMembers",
+      "description": "Get the list of conversationMembers who can access a shared channel. This method does not return the following conversationMembers from the team:\n- Users with `Guest` role\n- Users who are externally authenticated in the tenant",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/sharedwithchannelteaminfo-list-allowedmembers?view=graph-rest-1.0"
+      },
       "operationId": "teams.primaryChannel.sharedWithTeams.ListAllowedMembers",
       "parameters": [
         {
@@ -853,7 +888,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.conversationMemberCollectionResponse"
@@ -861,13 +903,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -883,7 +918,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -911,7 +946,7 @@
           "Left": {
             "name": "sharedWithChannelTeamInfo-id",
             "in": "path",
-            "description": "key: id of sharedWithChannelTeamInfo",
+            "description": "The unique identifier of sharedWithChannelTeamInfo",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -941,7 +976,30 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.allowedMembers-2d1d",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -955,13 +1013,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
         }
       },
       "deprecated": false
@@ -972,7 +1023,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1000,7 +1051,7 @@
           "Left": {
             "name": "sharedWithChannelTeamInfo-id",
             "in": "path",
-            "description": "key: id of sharedWithChannelTeamInfo",
+            "description": "The unique identifier of sharedWithChannelTeamInfo",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1124,7 +1175,21 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1141,20 +1206,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -1165,7 +1216,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1193,7 +1244,7 @@
           "Left": {
             "name": "sharedWithChannelTeamInfo-id",
             "in": "path",
-            "description": "key: id of sharedWithChannelTeamInfo",
+            "description": "The unique identifier of sharedWithChannelTeamInfo",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1221,7 +1272,7 @@
           "Left": {
             "name": "conversationMember-id",
             "in": "path",
-            "description": "key: id of conversationMember",
+            "description": "The unique identifier of conversationMember",
             "required": true,
             "deprecated": false,
             "explode": false,

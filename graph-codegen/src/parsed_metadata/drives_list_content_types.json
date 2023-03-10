@@ -1,0 +1,561 @@
+[
+  {
+    "path": "/contentTypes",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.ListContentTypes",
+        "operation_mapping": "drivesListContentTypes",
+        "http_method": "GET",
+        "doc": "List contentTypes in a list",
+        "parent": "DrivesListContentTypes",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.CreateContentTypes",
+        "operation_mapping": "drivesListContentTypes",
+        "http_method": "POST",
+        "doc": "Create new navigation property to contentTypes for drives",
+        "parent": "DrivesListContentTypes",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.contentTypes-5838",
+        "operation_mapping": "drivesListContentTypes",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesListContentTypes",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/addCopy",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.drive.list.contentTypes.addCopy",
+        "operation_mapping": "drivesListContentTypes",
+        "http_method": "POST",
+        "doc": "Invoke action addCopy",
+        "parent": "DrivesListContentTypes",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/addCopyFromContentTypeHub",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.drive.list.contentTypes.addCopyFromContentTypeHub",
+        "operation_mapping": "drivesListContentTypes",
+        "http_method": "POST",
+        "doc": "Invoke action addCopyFromContentTypeHub",
+        "parent": "DrivesListContentTypes",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/getCompatibleHubContentTypes()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.drive.list.contentTypes.getCompatibleHubContentTypes",
+        "operation_mapping": "drivesListContentTypes",
+        "http_method": "GET",
+        "doc": "Invoke function getCompatibleHubContentTypes",
+        "parent": "DrivesListContentTypes",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.UpdateContentTypes",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property contentTypes in drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.GetContentTypes",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get contentTypes from drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.list.DeleteContentTypes",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property contentTypes for drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/associateWithHubSites",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.list.contentTypes.contentType.associateWithHubSites",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "POST",
+        "doc": "Invoke action associateWithHubSites",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/base",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.GetBase",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get base from drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/baseTypes",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.ListBaseTypes",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get baseTypes from drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/baseTypes/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.baseTypes-95ae",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/baseTypes/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "content_type_id_1"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.GetBaseTypes",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get baseTypes from drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/columnLinks",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.CreateColumnLinks",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to columnLinks for drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.ListColumnLinks",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get columnLinks from drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/columnLinks/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.columnLinks-e5f5",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/columnLinks/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "column_link_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.GetColumnLinks",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get columnLinks from drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.UpdateColumnLinks",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property columnLinks in drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.list.contentTypes.DeleteColumnLinks",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property columnLinks for drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/columnPositions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.ListColumnPositions",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get columnPositions from drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/columnPositions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.columnPositions-6cb6",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/columnPositions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "column_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.GetColumnPositions",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get columnPositions from drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/columns",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.ListColumns",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "List columnDefinitions in a content type",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.CreateColumns",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "POST",
+        "doc": "Create a columnDefinition in a content type",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/columns/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.columns-4b13",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/columns/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "column_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.GetColumns",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get columns from drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.UpdateColumns",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property columns in drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.list.contentTypes.DeleteColumns",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property columns for drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/columns/{{id}}/sourceColumn",
+    "param_size": 1,
+    "parameters": [
+      "column_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.contentTypes.columns.GetSourceColumn",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Get sourceColumn from drives",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/copyToDefaultContentLocation",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.list.contentTypes.contentType.copyToDefaultContentLocation",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "POST",
+        "doc": "Invoke action copyToDefaultContentLocation",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/isPublished()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.drive.list.contentTypes.contentType.isPublished",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "GET",
+        "doc": "Invoke function isPublished",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/publish",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.list.contentTypes.contentType.publish",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "POST",
+        "doc": "Invoke action publish",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  },
+  {
+    "path": "/contentTypes/{{RID}}/unpublish",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.list.contentTypes.contentType.unpublish",
+        "operation_mapping": "DrivesListContentTypesId",
+        "http_method": "POST",
+        "doc": "Invoke action unpublish",
+        "parent": "DrivesListContentTypesId",
+        "original_parent": "DrivesListContentTypes",
+        "resource_identity": "DrivesListContentTypes"
+      }
+    ]
+  }
+]

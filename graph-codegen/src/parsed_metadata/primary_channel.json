@@ -6,6 +6,28 @@
     "metadata": [
       {
         "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.GetPrimaryChannel",
+        "operation_mapping": "primaryChannel",
+        "http_method": "GET",
+        "doc": "Get primaryChannel",
+        "parent": "PrimaryChannel",
+        "original_parent": "PrimaryChannel",
+        "resource_identity": "PrimaryChannel"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.UpdatePrimaryChannel",
+        "operation_mapping": "primaryChannel",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property primaryChannel in teams",
+        "parent": "PrimaryChannel",
+        "original_parent": "PrimaryChannel",
+        "resource_identity": "PrimaryChannel"
+      },
+      {
+        "has_body": false,
         "request_task": "NoContent",
         "operation_id": "teams.DeletePrimaryChannel",
         "operation_mapping": "primaryChannel",
@@ -13,29 +35,43 @@
         "doc": "Delete navigation property primaryChannel for teams",
         "parent": "PrimaryChannel",
         "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      },
+        "resource_identity": "PrimaryChannel"
+      }
+    ]
+  },
+  {
+    "path": "/primaryChannel/completeMigration",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
       {
-        "has_body": true,
+        "has_body": false,
         "request_task": "NoContent",
-        "operation_id": "teams.UpdatePrimaryChannel",
+        "operation_id": "teams.team.primaryChannel.completeMigration",
         "operation_mapping": "primaryChannel",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property primaryChannel in teams",
+        "http_method": "POST",
+        "doc": "Invoke action completeMigration",
         "parent": "PrimaryChannel",
         "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      },
+        "resource_identity": "PrimaryChannel"
+      }
+    ]
+  },
+  {
+    "path": "/primaryChannel/doesUserHaveAccess(userId='@userId',tenantId='@tenantId',userPrincipalName='@userPrincipalName')",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "teams.GetPrimaryChannel",
+        "operation_id": "teams.team.primaryChannel.doesUserHaveAccess",
         "operation_mapping": "primaryChannel",
         "http_method": "GET",
-        "doc": "Get primaryChannel from teams",
+        "doc": "Invoke function doesUserHaveAccess",
         "parent": "PrimaryChannel",
         "original_parent": "PrimaryChannel",
-        "resource_identity": null
+        "resource_identity": "PrimaryChannel"
       }
     ]
   },
@@ -50,10 +86,10 @@
         "operation_id": "teams.primaryChannel.GetFilesFolder",
         "operation_mapping": "primaryChannel",
         "http_method": "GET",
-        "doc": "Get filesFolder from teams",
+        "doc": "Get filesFolder",
         "parent": "PrimaryChannel",
         "original_parent": "PrimaryChannel",
-        "resource_identity": null
+        "resource_identity": "PrimaryChannel"
       }
     ]
   },
@@ -71,7 +107,7 @@
         "doc": "Get content for the navigation property filesFolder from teams",
         "parent": "PrimaryChannel",
         "original_parent": "PrimaryChannel",
-        "resource_identity": null
+        "resource_identity": "PrimaryChannel"
       },
       {
         "has_body": true,
@@ -82,159 +118,12 @@
         "doc": "Update content for the navigation property filesFolder in teams",
         "parent": "PrimaryChannel",
         "original_parent": "PrimaryChannel",
-        "resource_identity": null
+        "resource_identity": "PrimaryChannel"
       }
     ]
   },
   {
-    "path": "/primaryChannel/members",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "teams.primaryChannel.CreateMembers",
-        "operation_mapping": "primaryChannel",
-        "http_method": "POST",
-        "doc": "Create new navigation property to members for teams",
-        "parent": "PrimaryChannel",
-        "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.primaryChannel.ListMembers",
-        "operation_mapping": "primaryChannel",
-        "http_method": "GET",
-        "doc": "Get members from teams",
-        "parent": "PrimaryChannel",
-        "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      }
-    ]
-  },
-  {
-    "path": "/primaryChannel/members/$count",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.Count.members-8411",
-        "operation_mapping": "primaryChannel",
-        "http_method": "GET",
-        "doc": "Get the number of the resource",
-        "parent": "PrimaryChannel",
-        "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      }
-    ]
-  },
-  {
-    "path": "/primaryChannel/members/microsoft.graph.add",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "teams.team.primaryChannel.members.add",
-        "operation_mapping": "primaryChannel",
-        "http_method": "POST",
-        "doc": "Invoke action add",
-        "parent": "PrimaryChannel",
-        "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      }
-    ]
-  },
-  {
-    "path": "/primaryChannel/members/{{id}}",
-    "param_size": 1,
-    "parameters": [
-      "conversation_member_id"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "teams.primaryChannel.DeleteMembers",
-        "operation_mapping": "primaryChannel",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property members for teams",
-        "parent": "PrimaryChannel",
-        "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      },
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.primaryChannel.UpdateMembers",
-        "operation_mapping": "primaryChannel",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property members in teams",
-        "parent": "PrimaryChannel",
-        "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.primaryChannel.GetMembers",
-        "operation_mapping": "primaryChannel",
-        "http_method": "GET",
-        "doc": "Get members from teams",
-        "parent": "PrimaryChannel",
-        "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      }
-    ]
-  },
-  {
-    "path": "/primaryChannel/microsoft.graph.completeMigration",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "teams.team.primaryChannel.completeMigration",
-        "operation_mapping": "primaryChannel",
-        "http_method": "POST",
-        "doc": "Invoke action completeMigration",
-        "parent": "PrimaryChannel",
-        "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      }
-    ]
-  },
-  {
-    "path": "/primaryChannel/microsoft.graph.doesUserHaveAccess(userId='{{id}}',tenantId='{{id2}}',userPrincipalName='{{id3}}')",
-    "param_size": 3,
-    "parameters": [
-      "user_id",
-      "tenant_id",
-      "user_principal_name"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.team.primaryChannel.doesUserHaveAccess",
-        "operation_mapping": "primaryChannel",
-        "http_method": "GET",
-        "doc": "Invoke function doesUserHaveAccess",
-        "parent": "PrimaryChannel",
-        "original_parent": "PrimaryChannel",
-        "resource_identity": null
-      }
-    ]
-  },
-  {
-    "path": "/primaryChannel/microsoft.graph.provisionEmail",
+    "path": "/primaryChannel/provisionEmail",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -247,12 +136,12 @@
         "doc": "Invoke action provisionEmail",
         "parent": "PrimaryChannel",
         "original_parent": "PrimaryChannel",
-        "resource_identity": null
+        "resource_identity": "PrimaryChannel"
       }
     ]
   },
   {
-    "path": "/primaryChannel/microsoft.graph.removeEmail",
+    "path": "/primaryChannel/removeEmail",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -265,7 +154,7 @@
         "doc": "Invoke action removeEmail",
         "parent": "PrimaryChannel",
         "original_parent": "PrimaryChannel",
-        "resource_identity": null
+        "resource_identity": "PrimaryChannel"
       }
     ]
   }

@@ -1,0 +1,23 @@
+{
+  "modifier_name": null,
+  "path": "/authentication",
+  "resource_identity": "Authentication",
+  "trim_path_start": "/users/{user-id}",
+  "filter_path": [
+    "/multiValueExtendedProperties",
+    "singleValueExtendedProperties"
+  ],
+  "replace_operation_map": "authentication",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/users/authentication/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

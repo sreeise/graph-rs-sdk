@@ -175,16 +175,23 @@ impl MacroFormatter {
 
         if param_size > 0 {
             format!(
-                "{}!(
+				"{}!(
                         {{ doc: $doc, name: $name, response: $T, path: $template, method: {}, params: [{}], has_body: {} }}
-                    );", macro_name, method.enum_name(), inner_params, has_body
-            )
+                    );",
+				macro_name,
+				method.enum_name(),
+				inner_params,
+				has_body
+			)
         } else {
             format!(
-                "{}!(
+				"{}!(
                     {{ doc: $doc, name: $name, response: $T, path: $template, method: {}, has_body: {} }}
-                );", macro_name, method.enum_name(), has_body
-            )
+                );",
+				macro_name,
+				method.enum_name(),
+				has_body
+			)
         }
     }
 
@@ -218,7 +225,11 @@ impl MacroFormatter {
 
         if doc {
             if param_size > 0 {
-                format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: [{}], has_body: {} }} )", s, has_body)
+                format!(
+					"( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: [{}], has_body: {} }} )",
+					s,
+					has_body
+				)
             } else {
                 format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, has_body: {} }} )", has_body)
             }

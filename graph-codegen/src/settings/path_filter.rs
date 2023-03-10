@@ -4,35 +4,6 @@ use graph_core::resource::ResourceIdentity;
 
 pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
     match resource_identity {
-        ResourceIdentity::AccessPackages => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["assignmentPolicies"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
-            ))]
-        }
-        ResourceIdentity::AccessReviews => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["definitions"].iter().map(|s| s.to_string()).collect(),
-            ))]
-        }
-        ResourceIdentity::AccessReviewDefinitions => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["instances", "stages"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
-            ))]
-        }
-        ResourceIdentity::Admin => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["serviceAnnouncement"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
-            ))]
-        }
         ResourceIdentity::AdministrativeUnits => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["members"].iter().map(|s| s.to_string()).collect(),
@@ -51,7 +22,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                 vec!["/tasks/"].iter().map(|s| s.to_string()).collect(),
             ))]
         }
-        ResourceIdentity::Calendar | ResourceIdentity::Calendars => {
+        ResourceIdentity::DefaultCalendar | ResourceIdentity::Calendars => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec![
                     "calendarGroup",
@@ -82,77 +53,6 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                 .collect(),
             ))]
         }
-        ResourceIdentity::CalendarView | ResourceIdentity::CalendarViews => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec![
-                    "/calendar/calendarView",
-                    "events",
-                    "/calendar/calendarPermissions",
-                    "/calendar/getSchedule",
-                    "instances",
-                    "/attachments/",
-                    "/calendar/allowedCalendarSharingRoles",
-                ]
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
-            ))]
-        }
-        ResourceIdentity::CallRecords => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["sessions/{session-id}"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
-            ))]
-        }
-        ResourceIdentity::Communications => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec![
-                    "callRecords/{callRecord-id}/",
-                    "calls/{call-id}/",
-                    "calls/logTeleconferenceDeviceQuality",
-                ]
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
-            ))]
-        }
-        ResourceIdentity::Conversations => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["/threads/"].iter().map(|s| s.to_string()).collect(),
-            ))]
-        }
-        // sharedWithTeams
-        ResourceIdentity::Channels => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["sharedWithTeams", "tabs", "messages", "members"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
-            ))]
-        }
-        ResourceIdentity::ChildFolders => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["/move"].iter().map(|s| s.to_string()).collect(),
-            ))]
-        }
-        ResourceIdentity::ContactFolders => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec![
-                    "childFolders",
-                    "contactFolders/{contactFolder-id}/contacts/",
-                ]
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
-            ))]
-        }
-        ResourceIdentity::DefinitionInstances => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["stages"].iter().map(|s| s.to_string()).collect(),
-            ))]
-        }
         ResourceIdentity::Directory => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec![
@@ -180,22 +80,6 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                     .collect(),
             ))]
         }
-        ResourceIdentity::EntitlementManagement => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec![
-                    "catalogs",
-                    "connectedOrganizations",
-                    "assignmentPolicies",
-                    "accessPackages",
-                    "assignmentRequests",
-                    "assignments",
-                    "accessPackageAssignmentApprovals",
-                ]
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
-            ))]
-        }
         ResourceIdentity::Events => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec![
@@ -205,19 +89,6 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                     "/calendar/getSchedule",
                     "calendarPermissions",
                     "/attachments/",
-                ]
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
-            ))]
-        }
-        ResourceIdentity::IdentityGovernance => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec![
-                    "entitlementManagement",
-                    "accessReviews",
-                    "appConsent",
-                    "termsOfUse",
                 ]
                 .iter()
                 .map(|s| s.to_string())
@@ -240,7 +111,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                     .collect(),
             ))]
         }
-        ResourceIdentity::Messages => {
+        ResourceIdentity::ChatsMessages => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["/move", "/attachments/"]
                     .iter()
@@ -373,44 +244,9 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                 .map(|s| s.to_string())
                 .collect(),
         ))],
-        ResourceIdentity::Posts => {
+        ResourceIdentity::GroupsThreadsPosts => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["/attachments/"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
-            ))]
-        }
-        ResourceIdentity::Me => vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-            vec![
-                "activities",
-                "historyItems",
-                "contacts",
-                "onlineMeetings",
-                "outlook",
-                "/settings/",
-                "calendarGroup",
-                "calendars",
-                "calendar",
-                "calendarView",
-                "contactFolder",
-                "events",
-                "inferenceClassification",
-                "insights",
-                "instances",
-                "mailFolders",
-                "managedDevices",
-                "messages",
-                "onenote",
-                "planner",
-            ]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
-        ))],
-        ResourceIdentity::ServiceAnnouncement => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["messages", "healthOverviews"]
                     .iter()
                     .map(|s| s.to_string())
                     .collect(),
@@ -424,54 +260,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                     .collect(),
             ))]
         }
-        ResourceIdentity::Users => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec![
-                    "activities",
-                    "historyItems",
-                    "contacts",
-                    "onlineMeetings",
-                    "outlook",
-                    "/settings/",
-                    "calendarGroup",
-                    "calendars",
-                    "calendar",
-                    "calendarView",
-                    "contactFolder",
-                    "events",
-                    "inferenceClassification",
-                    "insights",
-                    "instances",
-                    "mailFolders",
-                    "managedDevices",
-                    "messages",
-                    "onenote",
-                    "planner",
-                ]
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
-            ))]
-        }
-        ResourceIdentity::Groups => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec![
-                    "/calendarGroup/",
-                    "/calendars/",
-                    "/calendar/",
-                    "/calendarView/",
-                    "/events/",
-                    "/onenote/",
-                    "/planner/",
-                    "/conversations/",
-                    "/threads/",
-                    "/conversations/",
-                ]
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
-            ))]
-        }
+
         ResourceIdentity::Teams => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec![
@@ -486,15 +275,7 @@ pub fn get_path_filters(resource_identity: ResourceIdentity) -> Vec<Filter> {
                 .collect(),
             ))]
         }
-        ResourceIdentity::TermsOfUse => {
-            vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
-                vec!["agreementAcceptances", "agreements"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
-            ))]
-        }
-        ResourceIdentity::Threads => {
+        ResourceIdentity::GroupsThreads => {
             vec![Filter::IgnoreIf(FilterIgnore::PathContainsMulti(
                 vec!["/posts/"].iter().map(|s| s.to_string()).collect(),
             ))]

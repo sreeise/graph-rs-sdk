@@ -1,0 +1,20 @@
+{
+  "modifier_name": null,
+  "path": "/domainDnsRecords",
+  "resource_identity": "DomainDnsRecords",
+  "trim_path_start": null,
+  "filter_path": [],
+  "replace_operation_map": "domainDnsRecords",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/domain_dns_records/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

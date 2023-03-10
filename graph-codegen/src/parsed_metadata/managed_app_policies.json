@@ -1,0 +1,107 @@
+[
+  {
+    "path": "/managedAppPolicies",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.ListManagedAppPolicies",
+        "operation_mapping": "managedAppPolicies",
+        "http_method": "GET",
+        "doc": "Get managedAppPolicies from deviceAppManagement",
+        "parent": "DeviceAppManagementManagedAppPolicies",
+        "original_parent": "DeviceAppManagementManagedAppPolicies",
+        "resource_identity": "DeviceAppManagementManagedAppPolicies"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.CreateManagedAppPolicies",
+        "operation_mapping": "managedAppPolicies",
+        "http_method": "POST",
+        "doc": "Create new navigation property to managedAppPolicies for deviceAppManagement",
+        "parent": "DeviceAppManagementManagedAppPolicies",
+        "original_parent": "DeviceAppManagementManagedAppPolicies",
+        "resource_identity": "DeviceAppManagementManagedAppPolicies"
+      }
+    ]
+  },
+  {
+    "path": "/managedAppPolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.managedAppPolicies-b24d",
+        "operation_mapping": "managedAppPolicies",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DeviceAppManagementManagedAppPolicies",
+        "original_parent": "DeviceAppManagementManagedAppPolicies",
+        "resource_identity": "DeviceAppManagementManagedAppPolicies"
+      }
+    ]
+  },
+  {
+    "path": "/managedAppPolicies/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.DeleteManagedAppPolicies",
+        "operation_mapping": "DeviceAppManagementManagedAppPoliciesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property managedAppPolicies for deviceAppManagement",
+        "parent": "DeviceAppManagementManagedAppPoliciesId",
+        "original_parent": "DeviceAppManagementManagedAppPolicies",
+        "resource_identity": "DeviceAppManagementManagedAppPolicies"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.UpdateManagedAppPolicies",
+        "operation_mapping": "DeviceAppManagementManagedAppPoliciesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property managedAppPolicies in deviceAppManagement",
+        "parent": "DeviceAppManagementManagedAppPoliciesId",
+        "original_parent": "DeviceAppManagementManagedAppPolicies",
+        "resource_identity": "DeviceAppManagementManagedAppPolicies"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.GetManagedAppPolicies",
+        "operation_mapping": "DeviceAppManagementManagedAppPoliciesId",
+        "http_method": "GET",
+        "doc": "Get managedAppPolicies from deviceAppManagement",
+        "parent": "DeviceAppManagementManagedAppPoliciesId",
+        "original_parent": "DeviceAppManagementManagedAppPolicies",
+        "resource_identity": "DeviceAppManagementManagedAppPolicies"
+      }
+    ]
+  },
+  {
+    "path": "/managedAppPolicies/{{RID}}/targetApps",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.managedAppPolicies.managedAppPolicy.targetApps",
+        "operation_mapping": "DeviceAppManagementManagedAppPoliciesId",
+        "http_method": "POST",
+        "doc": "Invoke action targetApps",
+        "parent": "DeviceAppManagementManagedAppPoliciesId",
+        "original_parent": "DeviceAppManagementManagedAppPolicies",
+        "resource_identity": "DeviceAppManagementManagedAppPolicies"
+      }
+    ]
+  }
+]

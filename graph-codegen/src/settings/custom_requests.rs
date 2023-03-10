@@ -422,7 +422,7 @@ pub fn get_custom_requests(
                     doc: None,
                 },
             ],
-            ResourceIdentity::Conversations => vec![Request {
+            ResourceIdentity::GroupsConversations => vec![Request {
                 path: "/conversations/{{RID}}".into(),
                 method: HttpMethod::DELETE,
                 method_name: "delete_conversations".into(),
@@ -436,7 +436,7 @@ pub fn get_custom_requests(
                 operation_mapping: "groups.conversations".into(),
                 doc: None,
             }],
-            ResourceIdentity::Messages => vec![
+            ResourceIdentity::ChatsMessages => vec![
                 Request {
                     path: "/messages/{{RID}}/move".into(),
                     method: HttpMethod::POST,

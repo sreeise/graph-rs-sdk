@@ -1,0 +1,19 @@
+{
+  "modifier_name": "roleDefinitions",
+  "path": "/roleDefinitions",
+  "resource_identity": "RoleDefinitions",
+  "trim_path_start": "/deviceManagement",
+  "filter_path": [],
+  "replace_operation_map": "roleDefinitions",
+  "parameter_filter": [],
+  "mod_file_writer": null,
+  "mod_write_override": {
+    "folder_path": "/device_management/role_definitions",
+    "folder_name": "device_management",
+    "mod_name": "role_definitions",
+    "mod_file_string": [
+      "role_definitions"
+    ]
+  },
+  "children": []
+}

@@ -1,0 +1,22 @@
+{
+  "modifier_name": null,
+  "path": "/outlook",
+  "resource_identity": "Outlook",
+  "trim_path_start": "/users/{user-id}",
+  "filter_path": [
+    "supportedTimeZones()"
+  ],
+  "replace_operation_map": "outlook",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/users/outlook/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

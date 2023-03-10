@@ -3,5 +3,15 @@
   "path": "/accessPackageAssignmentApprovals",
   "resource_identity": "AccessPackageAssignmentApprovals",
   "trim_path_start": "/identityGovernance/entitlementManagement",
-  "parameter_filter": []
+  "filter_path": [],
+  "replace_operation_map": null,
+  "parameter_filter": [],
+  "mod_file": null,
+  "mod_file_writer": null,
+  "mod_write_override": {
+    "folder_path": "/identity_governance/access_package_assignment_approvals",
+    "folder_name": "identity_governance",
+    "mod_name": "access_package_assignment_approvals"
+  },
+  "children": []
 }

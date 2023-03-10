@@ -1,0 +1,793 @@
+[
+  {
+    "path": "/calls",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "calls.ListCalls",
+        "operation_mapping": "calls",
+        "http_method": "GET",
+        "doc": "Get calls from communications",
+        "parent": "Calls",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "calls.CreateCalls",
+        "operation_mapping": "calls",
+        "http_method": "POST",
+        "doc": "Create call",
+        "parent": "Calls",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.calls-5d04",
+        "operation_mapping": "calls",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Calls",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/logTeleconferenceDeviceQuality",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.logTeleconferenceDeviceQuality",
+        "operation_mapping": "calls",
+        "http_method": "POST",
+        "doc": "Invoke action logTeleconferenceDeviceQuality",
+        "parent": "Calls",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "communications.DeleteCalls",
+        "operation_mapping": "CallsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property calls for communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "calls.GetCalls",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get calls from communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "calls.UpdateCalls",
+        "operation_mapping": "CallsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property calls in communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/addLargeGalleryView",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.addLargeGalleryView",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action addLargeGalleryView",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/answer",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.call.answer",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action answer",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/audioRoutingGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.calls.ListAudioRoutingGroups",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get audioRoutingGroups from communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.CreateAudioRoutingGroups",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to audioRoutingGroups for communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/audioRoutingGroups/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.audioRoutingGroups-157e",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/audioRoutingGroups/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "audio_routing_group_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.calls.GetAudioRoutingGroups",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get audioRoutingGroups from communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.DeleteAudioRoutingGroups",
+        "operation_mapping": "CallsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property audioRoutingGroups for communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.UpdateAudioRoutingGroups",
+        "operation_mapping": "CallsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property audioRoutingGroups in communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/cancelMediaProcessing",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.cancelMediaProcessing",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action cancelMediaProcessing",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/changeScreenSharingRole",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.call.changeScreenSharingRole",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action changeScreenSharingRole",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/contentSharingSessions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.CreateContentSharingSessions",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to contentSharingSessions for communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.calls.ListContentSharingSessions",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "List contentSharingSessions",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/contentSharingSessions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.contentSharingSessions-a2b2",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/contentSharingSessions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "content_sharing_session_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.DeleteContentSharingSessions",
+        "operation_mapping": "CallsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property contentSharingSessions for communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.calls.GetContentSharingSessions",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get contentSharingSessions from communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.UpdateContentSharingSessions",
+        "operation_mapping": "CallsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property contentSharingSessions in communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/keepAlive",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.call.keepAlive",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action keepAlive",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/mute",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.mute",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action mute",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/operations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.CreateOperations",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to operations for communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.calls.ListOperations",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get operations from communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/operations/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.operations-3444",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/operations/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "comms_operation_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.calls.GetOperations",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get operations from communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.UpdateOperations",
+        "operation_mapping": "CallsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property operations in communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.DeleteOperations",
+        "operation_mapping": "CallsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property operations for communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/participants",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.CreateParticipants",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to participants for communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.calls.ListParticipants",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "List participants",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/participants/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.participants-4efe",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/participants/invite",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.participants.invite",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action invite",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/participants/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "participant_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.UpdateParticipants",
+        "operation_mapping": "CallsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property participants in communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.calls.GetParticipants",
+        "operation_mapping": "CallsId",
+        "http_method": "GET",
+        "doc": "Get participants from communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.DeleteParticipants",
+        "operation_mapping": "CallsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property participants for communications",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/participants/{{id}}/mute",
+    "param_size": 1,
+    "parameters": [
+      "participant_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.participants.participant.mute",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action mute",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/participants/{{id}}/startHoldMusic",
+    "param_size": 1,
+    "parameters": [
+      "participant_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.participants.participant.startHoldMusic",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action startHoldMusic",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/participants/{{id}}/stopHoldMusic",
+    "param_size": 1,
+    "parameters": [
+      "participant_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.participants.participant.stopHoldMusic",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action stopHoldMusic",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/playPrompt",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.playPrompt",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action playPrompt",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/recordResponse",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.recordResponse",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action recordResponse",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/redirect",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.call.redirect",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action redirect",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/reject",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.call.reject",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action reject",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/subscribeToTone",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.subscribeToTone",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action subscribeToTone",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/transfer",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "communications.calls.call.transfer",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action transfer",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/unmute",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.unmute",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action unmute",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  },
+  {
+    "path": "/calls/{{RID}}/updateRecordingStatus",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.calls.call.updateRecordingStatus",
+        "operation_mapping": "CallsId",
+        "http_method": "POST",
+        "doc": "Invoke action updateRecordingStatus",
+        "parent": "CallsId",
+        "original_parent": "Calls",
+        "resource_identity": "Calls"
+      }
+    ]
+  }
+]

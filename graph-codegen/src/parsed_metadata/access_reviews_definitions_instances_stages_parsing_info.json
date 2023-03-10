@@ -1,0 +1,23 @@
+{
+  "modifier_name": "accessReviewsDefinitionsInstancesStages",
+  "path": "/stages",
+  "resource_identity": "AccessReviewsDefinitionsInstancesStages",
+  "trim_path_start": "/identityGovernance/accessReviews/definitions/{accessReviewScheduleDefinition-id}/instances/{accessReviewInstance-id}",
+  "filter_path": [],
+  "replace_operation_map": null,
+  "parameter_filter": [
+    "accessReviewScheduleDefinition-id",
+    "accessReviewInstance-id"
+  ],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/identity_governance/access_reviews_definitions_instances_stages/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

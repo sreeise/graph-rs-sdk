@@ -1,0 +1,161 @@
+[
+  {
+    "path": "/primaryChannel",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.DeletePrimaryChannel",
+        "operation_mapping": "teamsPrimaryChannel",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property primaryChannel for teams",
+        "parent": "TeamsPrimaryChannel",
+        "original_parent": "TeamsPrimaryChannel",
+        "resource_identity": "TeamsPrimaryChannel"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.GetPrimaryChannel",
+        "operation_mapping": "teamsPrimaryChannel",
+        "http_method": "GET",
+        "doc": "Get primaryChannel",
+        "parent": "TeamsPrimaryChannel",
+        "original_parent": "TeamsPrimaryChannel",
+        "resource_identity": "TeamsPrimaryChannel"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.UpdatePrimaryChannel",
+        "operation_mapping": "teamsPrimaryChannel",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property primaryChannel in teams",
+        "parent": "TeamsPrimaryChannel",
+        "original_parent": "TeamsPrimaryChannel",
+        "resource_identity": "TeamsPrimaryChannel"
+      }
+    ]
+  },
+  {
+    "path": "/primaryChannel/completeMigration",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.team.primaryChannel.completeMigration",
+        "operation_mapping": "teamsPrimaryChannel",
+        "http_method": "POST",
+        "doc": "Invoke action completeMigration",
+        "parent": "TeamsPrimaryChannel",
+        "original_parent": "TeamsPrimaryChannel",
+        "resource_identity": "TeamsPrimaryChannel"
+      }
+    ]
+  },
+  {
+    "path": "/primaryChannel/doesUserHaveAccess(userId='@userId',tenantId='@tenantId',userPrincipalName='@userPrincipalName')",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.team.primaryChannel.doesUserHaveAccess",
+        "operation_mapping": "teamsPrimaryChannel",
+        "http_method": "GET",
+        "doc": "Invoke function doesUserHaveAccess",
+        "parent": "TeamsPrimaryChannel",
+        "original_parent": "TeamsPrimaryChannel",
+        "resource_identity": "TeamsPrimaryChannel"
+      }
+    ]
+  },
+  {
+    "path": "/primaryChannel/filesFolder",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.primaryChannel.GetFilesFolder",
+        "operation_mapping": "teamsPrimaryChannel",
+        "http_method": "GET",
+        "doc": "Get filesFolder",
+        "parent": "TeamsPrimaryChannel",
+        "original_parent": "TeamsPrimaryChannel",
+        "resource_identity": "TeamsPrimaryChannel"
+      }
+    ]
+  },
+  {
+    "path": "/primaryChannel/filesFolder/content",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.primaryChannel.GetFilesFolderContent",
+        "operation_mapping": "teamsPrimaryChannel",
+        "http_method": "GET",
+        "doc": "Get content for the navigation property filesFolder from teams",
+        "parent": "TeamsPrimaryChannel",
+        "original_parent": "TeamsPrimaryChannel",
+        "resource_identity": "TeamsPrimaryChannel"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "teams.primaryChannel.UpdateFilesFolderContent",
+        "operation_mapping": "teamsPrimaryChannel",
+        "http_method": "PUT",
+        "doc": "Update content for the navigation property filesFolder in teams",
+        "parent": "TeamsPrimaryChannel",
+        "original_parent": "TeamsPrimaryChannel",
+        "resource_identity": "TeamsPrimaryChannel"
+      }
+    ]
+  },
+  {
+    "path": "/primaryChannel/provisionEmail",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.team.primaryChannel.provisionEmail",
+        "operation_mapping": "teamsPrimaryChannel",
+        "http_method": "POST",
+        "doc": "Invoke action provisionEmail",
+        "parent": "TeamsPrimaryChannel",
+        "original_parent": "TeamsPrimaryChannel",
+        "resource_identity": "TeamsPrimaryChannel"
+      }
+    ]
+  },
+  {
+    "path": "/primaryChannel/removeEmail",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.team.primaryChannel.removeEmail",
+        "operation_mapping": "teamsPrimaryChannel",
+        "http_method": "POST",
+        "doc": "Invoke action removeEmail",
+        "parent": "TeamsPrimaryChannel",
+        "original_parent": "TeamsPrimaryChannel",
+        "resource_identity": "TeamsPrimaryChannel"
+      }
+    ]
+  }
+]

@@ -3,5 +3,17 @@
   "path": "/definitions",
   "resource_identity": "AccessReviewDefinitions",
   "trim_path_start": "/identityGovernance/accessReviews",
-  "parameter_filter": []
+  "filter_path": [],
+  "replace_operation_map": "accessReviewDefinitions",
+  "parameter_filter": [],
+  "mod_file_writer": null,
+  "mod_write_override": {
+    "folder_path": "/identity_governance/access_review_definitions",
+    "folder_name": "identity_governance",
+    "mod_name": "access_review_definitions",
+    "mod_file_string": [
+      "access_review_definitions"
+    ]
+  },
+  "children": []
 }

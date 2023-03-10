@@ -1,0 +1,89 @@
+[
+  {
+    "path": "/tags",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.ListTags",
+        "operation_mapping": "tags",
+        "http_method": "GET",
+        "doc": "List teamworkTags",
+        "parent": "TeamsTags",
+        "original_parent": "TeamsTags",
+        "resource_identity": "TeamsTags"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.CreateTags",
+        "operation_mapping": "tags",
+        "http_method": "POST",
+        "doc": "Create teamworkTag",
+        "parent": "TeamsTags",
+        "original_parent": "TeamsTags",
+        "resource_identity": "TeamsTags"
+      }
+    ]
+  },
+  {
+    "path": "/tags/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.tags-db00",
+        "operation_mapping": "tags",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "TeamsTags",
+        "original_parent": "TeamsTags",
+        "resource_identity": "TeamsTags"
+      }
+    ]
+  },
+  {
+    "path": "/tags/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.GetTags",
+        "operation_mapping": "TeamsTagsId",
+        "http_method": "GET",
+        "doc": "Get tags from teams",
+        "parent": "TeamsTagsId",
+        "original_parent": "TeamsTags",
+        "resource_identity": "TeamsTags"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.DeleteTags",
+        "operation_mapping": "TeamsTagsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property tags for teams",
+        "parent": "TeamsTagsId",
+        "original_parent": "TeamsTags",
+        "resource_identity": "TeamsTags"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.UpdateTags",
+        "operation_mapping": "TeamsTagsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property tags in teams",
+        "parent": "TeamsTagsId",
+        "original_parent": "TeamsTags",
+        "resource_identity": "TeamsTags"
+      }
+    ]
+  }
+]

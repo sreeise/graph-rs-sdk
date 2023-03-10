@@ -1,0 +1,218 @@
+[
+  {
+    "path": "/androidManagedAppProtections",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.CreateAndroidManagedAppProtections",
+        "operation_mapping": "androidManagedAppProtections",
+        "http_method": "POST",
+        "doc": "Create new navigation property to androidManagedAppProtections for deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.ListAndroidManagedAppProtections",
+        "operation_mapping": "androidManagedAppProtections",
+        "http_method": "GET",
+        "doc": "Get androidManagedAppProtections from deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      }
+    ]
+  },
+  {
+    "path": "/androidManagedAppProtections/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.androidManagedAppProtections-dc72",
+        "operation_mapping": "androidManagedAppProtections",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      }
+    ]
+  },
+  {
+    "path": "/androidManagedAppProtections/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.GetAndroidManagedAppProtections",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "GET",
+        "doc": "Get androidManagedAppProtections from deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.UpdateAndroidManagedAppProtections",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property androidManagedAppProtections in deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.DeleteAndroidManagedAppProtections",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property androidManagedAppProtections for deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      }
+    ]
+  },
+  {
+    "path": "/androidManagedAppProtections/{{RID}}/apps",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.androidManagedAppProtections.ListApps",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "GET",
+        "doc": "Get apps from deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.androidManagedAppProtections.CreateApps",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to apps for deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      }
+    ]
+  },
+  {
+    "path": "/androidManagedAppProtections/{{RID}}/apps/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.apps-6de4",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      }
+    ]
+  },
+  {
+    "path": "/androidManagedAppProtections/{{RID}}/apps/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "managed_mobile_app_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.androidManagedAppProtections.GetApps",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "GET",
+        "doc": "Get apps from deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.androidManagedAppProtections.DeleteApps",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property apps for deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.androidManagedAppProtections.UpdateApps",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property apps in deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      }
+    ]
+  },
+  {
+    "path": "/androidManagedAppProtections/{{RID}}/deploymentSummary",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.androidManagedAppProtections.GetDeploymentSummary",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "GET",
+        "doc": "Get deploymentSummary from deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.androidManagedAppProtections.UpdateDeploymentSummary",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property deploymentSummary in deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.androidManagedAppProtections.DeleteDeploymentSummary",
+        "operation_mapping": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property deploymentSummary for deviceAppManagement",
+        "parent": "DeviceAppManagementAndroidManagedAppProtectionsId",
+        "original_parent": "DeviceAppManagementAndroidManagedAppProtections",
+        "resource_identity": "DeviceAppManagementAndroidManagedAppProtections"
+      }
+    ]
+  }
+]

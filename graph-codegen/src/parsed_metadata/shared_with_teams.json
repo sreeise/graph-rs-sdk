@@ -5,17 +5,6 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.primaryChannel.ListSharedWithTeams",
-        "operation_mapping": "sharedWithTeams",
-        "http_method": "GET",
-        "doc": "Get sharedWithTeams from teams",
-        "parent": "SharedWithTeams",
-        "original_parent": "SharedWithTeams",
-        "resource_identity": null
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "teams.primaryChannel.CreateSharedWithTeams",
@@ -24,7 +13,18 @@
         "doc": "Create new navigation property to sharedWithTeams for teams",
         "parent": "SharedWithTeams",
         "original_parent": "SharedWithTeams",
-        "resource_identity": null
+        "resource_identity": "SharedWithTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.primaryChannel.ListSharedWithTeams",
+        "operation_mapping": "sharedWithTeams",
+        "http_method": "GET",
+        "doc": "List sharedWithChannelTeamInfo",
+        "parent": "SharedWithTeams",
+        "original_parent": "SharedWithTeams",
+        "resource_identity": "SharedWithTeams"
       }
     ]
   },
@@ -42,7 +42,7 @@
         "doc": "Get the number of the resource",
         "parent": "SharedWithTeams",
         "original_parent": "SharedWithTeams",
-        "resource_identity": null
+        "resource_identity": "SharedWithTeams"
       }
     ]
   },
@@ -55,9 +55,20 @@
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "teams.primaryChannel.DeleteSharedWithTeams",
-        "operation_mapping": "sharedWithTeamsId",
+        "operation_mapping": "SharedWithTeamsId",
         "http_method": "DELETE",
         "doc": "Delete navigation property sharedWithTeams for teams",
+        "parent": "SharedWithTeamsId",
+        "original_parent": "SharedWithTeams",
+        "resource_identity": "SharedWithTeams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.primaryChannel.UpdateSharedWithTeams",
+        "operation_mapping": "SharedWithTeamsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property sharedWithTeams in teams",
         "parent": "SharedWithTeamsId",
         "original_parent": "SharedWithTeams",
         "resource_identity": "SharedWithTeams"
@@ -66,20 +77,9 @@
         "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.primaryChannel.GetSharedWithTeams",
-        "operation_mapping": "sharedWithTeamsId",
+        "operation_mapping": "SharedWithTeamsId",
         "http_method": "GET",
         "doc": "Get sharedWithTeams from teams",
-        "parent": "SharedWithTeamsId",
-        "original_parent": "SharedWithTeams",
-        "resource_identity": "SharedWithTeams"
-      },
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.primaryChannel.UpdateSharedWithTeams",
-        "operation_mapping": "sharedWithTeamsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property sharedWithTeams in teams",
         "parent": "SharedWithTeamsId",
         "original_parent": "SharedWithTeams",
         "resource_identity": "SharedWithTeams"
@@ -95,9 +95,9 @@
         "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.primaryChannel.sharedWithTeams.ListAllowedMembers",
-        "operation_mapping": "sharedWithTeamsId",
+        "operation_mapping": "SharedWithTeamsId",
         "http_method": "GET",
-        "doc": "Get allowedMembers from teams",
+        "doc": "List allowedMembers",
         "parent": "SharedWithTeamsId",
         "original_parent": "SharedWithTeams",
         "resource_identity": "SharedWithTeams"
@@ -113,7 +113,7 @@
         "has_body": false,
         "request_task": "Json",
         "operation_id": "Get.Count.allowedMembers-2d1d",
-        "operation_mapping": "sharedWithTeamsId",
+        "operation_mapping": "SharedWithTeamsId",
         "http_method": "GET",
         "doc": "Get the number of the resource",
         "parent": "SharedWithTeamsId",
@@ -133,7 +133,7 @@
         "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.primaryChannel.sharedWithTeams.GetAllowedMembers",
-        "operation_mapping": "sharedWithTeamsId",
+        "operation_mapping": "SharedWithTeamsId",
         "http_method": "GET",
         "doc": "Get allowedMembers from teams",
         "parent": "SharedWithTeamsId",

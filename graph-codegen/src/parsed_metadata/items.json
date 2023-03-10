@@ -1,0 +1,1271 @@
+[
+  {
+    "path": "/items",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.CreateItems",
+        "operation_mapping": "items",
+        "http_method": "POST",
+        "doc": "Create new navigation property to items for drives",
+        "parent": "DrivesItems",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.ListItems",
+        "operation_mapping": "items",
+        "http_method": "GET",
+        "doc": "Get items from drives",
+        "parent": "DrivesItems",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.items-9c16",
+        "operation_mapping": "items",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesItems",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.GetItems",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get items from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.UpdateItems",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property items in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.DeleteItems",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property items for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.UpdateAnalytics",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property analytics in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.GetAnalytics",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get analytics from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.items.DeleteAnalytics",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property analytics for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics/allTime",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.GetAllTime",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get itemAnalytics",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics/itemActivityStats",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.CreateItemActivityStats",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to itemActivityStats for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.ListItemActivityStats",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get itemActivityStats from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics/itemActivityStats/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.itemActivityStats-f4fa",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics/itemActivityStats/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "item_activity_stat_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.items.analytics.DeleteItemActivityStats",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property itemActivityStats for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.GetItemActivityStats",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get itemActivityStats from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.UpdateItemActivityStats",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property itemActivityStats in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics/itemActivityStats/{{id}}/activities",
+    "param_size": 1,
+    "parameters": [
+      "item_activity_stat_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.itemActivityStats.ListActivities",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get activities from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.itemActivityStats.CreateActivities",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to activities for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics/itemActivityStats/{{id}}/activities/$count",
+    "param_size": 1,
+    "parameters": [
+      "item_activity_stat_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.activities-7511",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics/itemActivityStats/{{id}}/activities/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "item_activity_stat_id",
+      "item_activity_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.itemActivityStats.GetActivities",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get activities from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.itemActivityStats.UpdateActivities",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property activities in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.items.analytics.itemActivityStats.DeleteActivities",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property activities for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics/itemActivityStats/{{id}}/activities/{{id2}}/driveItem",
+    "param_size": 2,
+    "parameters": [
+      "item_activity_stat_id",
+      "item_activity_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.itemActivityStats.activities.GetDriveItem",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get driveItem from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics/itemActivityStats/{{id}}/activities/{{id2}}/driveItem/content",
+    "param_size": 2,
+    "parameters": [
+      "item_activity_stat_id",
+      "item_activity_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "drives.items.analytics.itemActivityStats.activities.UpdateDriveItemContent",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PUT",
+        "doc": "Update content for the navigation property driveItem in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.itemActivityStats.activities.GetDriveItemContent",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get content for the navigation property driveItem from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/analytics/lastSevenDays",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.analytics.GetLastSevenDays",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get lastSevenDays from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/checkin",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.items.driveItem.checkin",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action checkin",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/checkout",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.items.driveItem.checkout",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action checkout",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/children",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.ListChildren",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "List children of a driveItem",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.CreateChildren",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to children for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/children/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.children-17b0",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/children/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "drive_item_id_1"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.GetChildren",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get children from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/children/{{id}}/content",
+    "param_size": 1,
+    "parameters": [
+      "drive_item_id_1"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.GetChildrenContent",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get content for the navigation property children from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "drives.items.UpdateChildrenContent",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PUT",
+        "doc": "Update content for the navigation property children in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/content",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "drives.UpdateItemsContent",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PUT",
+        "doc": "Update content for the navigation property items in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.GetItemsContent",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get content for the navigation property items from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/copy",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.copy",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action copy",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/createLink",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.createLink",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action createLink",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/createUploadSession",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "UploadSession",
+        "operation_id": "drives.drive.items.driveItem.createUploadSession",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action createUploadSession",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.delta-fa14",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/delta(token='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "token"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.delta-9846",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/follow",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.follow",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action follow",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/getActivitiesByInterval(startDateTime='{{id}}',endDateTime='{{id2}}',interval='{{id3}}')",
+    "param_size": 3,
+    "parameters": [
+      "start_date_time",
+      "end_date_time",
+      "interval"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.getActivitiesByInterval-ad27",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Invoke function getActivitiesByInterval",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/invite",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.invite",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action invite",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/listItem",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.GetListItem",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get listItem from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/permissions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.ListPermissions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "List sharing permissions on a driveItem",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.CreatePermissions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to permissions for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/permissions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.permissions-d367",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/permissions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "permission_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.GetPermissions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get permissions from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.items.DeletePermissions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property permissions for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.UpdatePermissions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property permissions in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/permissions/{{id}}/grant",
+    "param_size": 1,
+    "parameters": [
+      "permission_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.permissions.permission.grant",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action grant",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/preview",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.preview",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action preview",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/restore",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.restore",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action restore",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/search(q='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "q"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.drive.items.driveItem.search",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Invoke function search",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/subscriptions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.CreateSubscriptions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to subscriptions for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.ListSubscriptions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get subscriptions from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/subscriptions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.subscriptions-f848",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/subscriptions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "subscription_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.UpdateSubscriptions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property subscriptions in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.items.DeleteSubscriptions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property subscriptions for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.GetSubscriptions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get subscriptions from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/subscriptions/{{id}}/reauthorize",
+    "param_size": 1,
+    "parameters": [
+      "subscription_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.items.driveItem.subscriptions.subscription.reauthorize",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action reauthorize",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/thumbnails",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.CreateThumbnails",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to thumbnails for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.ListThumbnails",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "List thumbnails for a DriveItem",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/thumbnails/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.thumbnails-50f0",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/thumbnails/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "thumbnail_set_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.UpdateThumbnails",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property thumbnails in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.items.DeleteThumbnails",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property thumbnails for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.GetThumbnails",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get thumbnails from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/unfollow",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.items.driveItem.unfollow",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action unfollow",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/validatePermission",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.items.driveItem.validatePermission",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action validatePermission",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/versions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.ListVersions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "List versions of a driveItem",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.CreateVersions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to versions for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/versions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.versions-6d7a",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/versions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "drive_item_version_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.GetVersions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get versions from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.items.DeleteVersions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property versions for drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.items.UpdateVersions",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property versions in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/versions/{{id}}/content",
+    "param_size": 1,
+    "parameters": [
+      "drive_item_version_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "drives.items.UpdateVersionsContent",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "PUT",
+        "doc": "Update content for the navigation property versions in drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.items.GetVersionsContent",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "GET",
+        "doc": "Get content for the navigation property versions from drives",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  },
+  {
+    "path": "/items/{{RID}}/versions/{{id}}/restoreVersion",
+    "param_size": 1,
+    "parameters": [
+      "drive_item_version_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.items.driveItem.versions.driveItemVersion.restoreVersion",
+        "operation_mapping": "DrivesItemsId",
+        "http_method": "POST",
+        "doc": "Invoke action restoreVersion",
+        "parent": "DrivesItemsId",
+        "original_parent": "DrivesItems",
+        "resource_identity": "DrivesItems"
+      }
+    ]
+  }
+]

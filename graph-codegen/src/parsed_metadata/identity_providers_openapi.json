@@ -1,0 +1,768 @@
+{
+  "/identityProviders": {
+    "description": "Provides operations to manage the collection of identityProvider entities.",
+    "get": {
+      "tags": [
+        "identityProviders.identityProvider"
+      ],
+      "summary": "List identityProviders (deprecated)",
+      "description": "Retrieve all identityProviders in the directory.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/identityprovider-list?view=graph-rest-1.0"
+      },
+      "operationId": "identityProviders.identityProvider.ListIdentityProvider",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "clientId",
+                    "clientId desc",
+                    "clientSecret",
+                    "clientSecret desc",
+                    "name",
+                    "name desc",
+                    "type",
+                    "type desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "clientId",
+                    "clientSecret",
+                    "name",
+                    "type"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.identityProviderCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": true
+    },
+    "post": {
+      "tags": [
+        "identityProviders.identityProvider"
+      ],
+      "summary": "Add new entity to identityProviders",
+      "operationId": "identityProviders.identityProvider.CreateIdentityProvider",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.identityProvider"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Created entity",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.identityProvider"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": true
+    }
+  },
+  "/identityProviders/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.identityProviders-a7d6",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": true
+    }
+  },
+  "/identityProviders/availableProviderTypes()": {
+    "description": "Provides operations to call the availableProviderTypes method.",
+    "get": {
+      "tags": [
+        "identityProviders.Functions"
+      ],
+      "summary": "Invoke function availableProviderTypes",
+      "operationId": "identityProviders.availableProviderTypes",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
+                                      "type": "string",
+                                      "readOnly": false,
+                                      "writeOnly": false,
+                                      "required": [],
+                                      "uniqueItems": false,
+                                      "additionalPropertiesAllowed": false,
+                                      "enum": [],
+                                      "nullable": true,
+                                      "deprecated": false,
+                                      "unresolvedReference": false
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
+                                  }
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
+                          }
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": true
+    }
+  },
+  "/identityProviders/{identityProvider-id}": {
+    "description": "Provides operations to manage the collection of identityProvider entities.",
+    "get": {
+      "tags": [
+        "identityProviders.identityProvider"
+      ],
+      "summary": "Get identityProvider (deprecated)",
+      "description": "Retrieve the properties of an existing identityProvider.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/identityprovider-get?view=graph-rest-1.0"
+      },
+      "operationId": "identityProviders.identityProvider.GetIdentityProvider",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "clientId",
+                    "clientSecret",
+                    "name",
+                    "type"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved entity",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.identityProvider"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": true
+    },
+    "delete": {
+      "tags": [
+        "identityProviders.identityProvider"
+      ],
+      "summary": "Delete identityProvider (deprecated)",
+      "description": "Delete an existing identityProvider.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/identityprovider-delete?view=graph-rest-1.0"
+      },
+      "operationId": "identityProviders.identityProvider.DeleteIdentityProvider",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": true
+    },
+    "patch": {
+      "tags": [
+        "identityProviders.identityProvider"
+      ],
+      "summary": "Update identityProvider (deprecated)",
+      "description": "Update properties in an existing identityProvider.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/identityprovider-update?view=graph-rest-1.0"
+      },
+      "operationId": "identityProviders.identityProvider.UpdateIdentityProvider",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.identityProvider"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.identityProvider"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": true
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "identityProvider-id",
+            "in": "path",
+            "description": "The unique identifier of identityProvider",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "identityProvider"
+          }
+        }
+      }
+    ]
+  }
+}

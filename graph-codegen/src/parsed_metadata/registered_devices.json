@@ -1,0 +1,218 @@
+[
+  {
+    "path": "/registeredDevices",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListRegisteredDevices",
+        "operation_mapping": "registeredDevices",
+        "http_method": "GET",
+        "doc": "Get registeredDevices from users",
+        "parent": "RegisteredDevices",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.registeredDevices-0403",
+        "operation_mapping": "registeredDevices",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "RegisteredDevices",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/graph.appRoleAssignment",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.appRoleAssignment-ec94",
+        "operation_mapping": "registeredDevices",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.appRoleAssignment in the microsoft.graph.directoryObject collection",
+        "parent": "RegisteredDevices",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/graph.appRoleAssignment/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.appRoleAssignment-cd2d",
+        "operation_mapping": "registeredDevices",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "RegisteredDevices",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/graph.device",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.device-0444",
+        "operation_mapping": "registeredDevices",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.device in the microsoft.graph.directoryObject collection",
+        "parent": "RegisteredDevices",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/graph.device/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.device-16e2",
+        "operation_mapping": "registeredDevices",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "RegisteredDevices",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/graph.endpoint",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.endpoint-ad1f",
+        "operation_mapping": "registeredDevices",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.endpoint in the microsoft.graph.directoryObject collection",
+        "parent": "RegisteredDevices",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/graph.endpoint/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.endpoint-87c6",
+        "operation_mapping": "registeredDevices",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "RegisteredDevices",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetRegisteredDevices",
+        "operation_mapping": "RegisteredDevicesId",
+        "http_method": "GET",
+        "doc": "Get registeredDevices from users",
+        "parent": "RegisteredDevicesId",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/{{RID}}/graph.appRoleAssignment",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.appRoleAssignment-ec94",
+        "operation_mapping": "RegisteredDevicesId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.appRoleAssignment",
+        "parent": "RegisteredDevicesId",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/{{RID}}/graph.device",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.device-0444",
+        "operation_mapping": "RegisteredDevicesId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.device",
+        "parent": "RegisteredDevicesId",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  },
+  {
+    "path": "/registeredDevices/{{RID}}/graph.endpoint",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.endpoint-ad1f",
+        "operation_mapping": "RegisteredDevicesId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.endpoint",
+        "parent": "RegisteredDevicesId",
+        "original_parent": "RegisteredDevices",
+        "resource_identity": "RegisteredDevices"
+      }
+    ]
+  }
+]

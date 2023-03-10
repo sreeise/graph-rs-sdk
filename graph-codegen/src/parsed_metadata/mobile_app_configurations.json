@@ -1,0 +1,454 @@
+[
+  {
+    "path": "/mobileAppConfigurations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.CreateMobileAppConfigurations",
+        "operation_mapping": "mobileAppConfigurations",
+        "http_method": "POST",
+        "doc": "Create new navigation property to mobileAppConfigurations for deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurations",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.ListMobileAppConfigurations",
+        "operation_mapping": "mobileAppConfigurations",
+        "http_method": "GET",
+        "doc": "Get mobileAppConfigurations from deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurations",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.mobileAppConfigurations-15a7",
+        "operation_mapping": "mobileAppConfigurations",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DeviceAppManagementMobileAppConfigurations",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.DeleteMobileAppConfigurations",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property mobileAppConfigurations for deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.GetMobileAppConfigurations",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get mobileAppConfigurations from deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.UpdateMobileAppConfigurations",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property mobileAppConfigurations in deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/assign",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.managedDeviceMobileAppConfiguration.assign",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "POST",
+        "doc": "Invoke action assign",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/assignments",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.CreateAssignments",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to assignments for deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.ListAssignments",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get assignments from deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/assignments/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.assignments-24db",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/assignments/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "managed_device_mobile_app_configuration_assignment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.GetAssignments",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get assignments from deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.UpdateAssignments",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property assignments in deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.DeleteAssignments",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property assignments for deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/deviceStatusSummary",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.GetDeviceStatusSummary",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get deviceStatusSummary from deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.UpdateDeviceStatusSummary",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property deviceStatusSummary in deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.DeleteDeviceStatusSummary",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property deviceStatusSummary for deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/deviceStatuses",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.ListDeviceStatuses",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get deviceStatuses from deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.CreateDeviceStatuses",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to deviceStatuses for deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/deviceStatuses/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.deviceStatuses-812c",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/deviceStatuses/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "managed_device_mobile_app_configuration_device_status_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.UpdateDeviceStatuses",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property deviceStatuses in deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.GetDeviceStatuses",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get deviceStatuses from deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.DeleteDeviceStatuses",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property deviceStatuses for deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/userStatusSummary",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.GetUserStatusSummary",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get userStatusSummary from deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.DeleteUserStatusSummary",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property userStatusSummary for deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.UpdateUserStatusSummary",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property userStatusSummary in deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/userStatuses",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.CreateUserStatuses",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to userStatuses for deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.ListUserStatuses",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get userStatuses from deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/userStatuses/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.userStatuses-b4b1",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  },
+  {
+    "path": "/mobileAppConfigurations/{{RID}}/userStatuses/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "managed_device_mobile_app_configuration_user_status_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.UpdateUserStatuses",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property userStatuses in deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.GetUserStatuses",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "GET",
+        "doc": "Get userStatuses from deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.mobileAppConfigurations.DeleteUserStatuses",
+        "operation_mapping": "DeviceAppManagementMobileAppConfigurationsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property userStatuses for deviceAppManagement",
+        "parent": "DeviceAppManagementMobileAppConfigurationsId",
+        "original_parent": "DeviceAppManagementMobileAppConfigurations",
+        "resource_identity": "DeviceAppManagementMobileAppConfigurations"
+      }
+    ]
+  }
+]

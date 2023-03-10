@@ -1,0 +1,306 @@
+[
+  {
+    "path": "/schools",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.ListSchools",
+        "operation_mapping": "educationSchools",
+        "http_method": "GET",
+        "doc": "List educationSchools",
+        "parent": "EducationSchools",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.CreateSchools",
+        "operation_mapping": "educationSchools",
+        "http_method": "POST",
+        "doc": "Create educationSchool",
+        "parent": "EducationSchools",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.schools-c02b",
+        "operation_mapping": "educationSchools",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "EducationSchools",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "education.schools.delta",
+        "operation_mapping": "educationSchools",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "EducationSchools",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.UpdateSchools",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property schools in education",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.GetSchools",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "GET",
+        "doc": "Get schools from education",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "education.DeleteSchools",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property schools for education",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/{{RID}}/administrativeUnit",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.schools.UpdateAdministrativeUnit",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property administrativeUnit in education",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.schools.GetAdministrativeUnit",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "GET",
+        "doc": "List administrativeUnit an educationSchool",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/{{RID}}/classes",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.schools.ListClasses",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "GET",
+        "doc": "List classes of an educationSchool",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/{{RID}}/classes/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.classes-d3ee",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/{{RID}}/classes/$ref",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "education.schools.CreateRefClasses",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property ref to classes for education",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.schools.ListRefClasses",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "GET",
+        "doc": "List classes of an educationSchool",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/{{RID}}/classes/{{id}}/$ref",
+    "param_size": 1,
+    "parameters": [
+      "education_class_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "education.schools.DeleteRefClasses",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property classes for education",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/{{RID}}/users",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.schools.ListUsers",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "GET",
+        "doc": "List users of an educationSchool",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/{{RID}}/users/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.users-e5a6",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/{{RID}}/users/$ref",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "education.schools.CreateRefUsers",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property ref to users for education",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.schools.ListRefUsers",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "GET",
+        "doc": "List users of an educationSchool",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  },
+  {
+    "path": "/schools/{{RID}}/users/{{id}}/$ref",
+    "param_size": 1,
+    "parameters": [
+      "education_user_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "education.schools.DeleteRefUsers",
+        "operation_mapping": "EducationSchoolsId",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property users for education",
+        "parent": "EducationSchoolsId",
+        "original_parent": "EducationSchools",
+        "resource_identity": "EducationSchools"
+      }
+    ]
+  }
+]

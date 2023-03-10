@@ -1,0 +1,367 @@
+[
+  {
+    "path": "/list",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.GetList",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get list from drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.UpdateList",
+        "operation_mapping": "list",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property list in drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.DeleteList",
+        "operation_mapping": "list",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property list for drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/columns",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.CreateColumns",
+        "operation_mapping": "list",
+        "http_method": "POST",
+        "doc": "Create a columnDefinition in a list",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.ListColumns",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "List columnDefinitions in a list",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/columns/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.columns-5e2e",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/columns/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "column_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.GetColumns",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get columns from drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.UpdateColumns",
+        "operation_mapping": "list",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property columns in drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.list.DeleteColumns",
+        "operation_mapping": "list",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property columns for drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/columns/{{id}}/sourceColumn",
+    "param_size": 1,
+    "parameters": [
+      "column_definition_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.columns.GetSourceColumn",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get sourceColumn from drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/drive",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.GetDrive",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get drive from drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/operations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.ListOperations",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get operations from drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.CreateOperations",
+        "operation_mapping": "list",
+        "http_method": "POST",
+        "doc": "Create new navigation property to operations for drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/operations/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.operations-e8e7",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/operations/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "rich_long_running_operation_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.GetOperations",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get operations from drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.list.DeleteOperations",
+        "operation_mapping": "list",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property operations for drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.UpdateOperations",
+        "operation_mapping": "list",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property operations in drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/subscriptions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.CreateSubscriptions",
+        "operation_mapping": "list",
+        "http_method": "POST",
+        "doc": "Create new navigation property to subscriptions for drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.ListSubscriptions",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get subscriptions from drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/subscriptions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.subscriptions-59f5",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/subscriptions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "subscription_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "drives.list.GetSubscriptions",
+        "operation_mapping": "list",
+        "http_method": "GET",
+        "doc": "Get subscriptions from drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.list.DeleteSubscriptions",
+        "operation_mapping": "list",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property subscriptions for drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "drives.list.UpdateSubscriptions",
+        "operation_mapping": "list",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property subscriptions in drives",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  },
+  {
+    "path": "/list/subscriptions/{{id}}/reauthorize",
+    "param_size": 1,
+    "parameters": [
+      "subscription_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "drives.drive.list.subscriptions.subscription.reauthorize",
+        "operation_mapping": "list",
+        "http_method": "POST",
+        "doc": "Invoke action reauthorize",
+        "parent": "DrivesList",
+        "original_parent": "DrivesList",
+        "resource_identity": "DrivesList"
+      }
+    ]
+  }
+]

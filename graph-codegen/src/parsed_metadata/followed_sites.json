@@ -1,0 +1,56 @@
+[
+  {
+    "path": "/followedSites",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListFollowedSites",
+        "operation_mapping": "followedSites",
+        "http_method": "GET",
+        "doc": "List followed sites",
+        "parent": "FollowedSites",
+        "original_parent": "FollowedSites",
+        "resource_identity": "FollowedSites"
+      }
+    ]
+  },
+  {
+    "path": "/followedSites/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.followedSites-40c9",
+        "operation_mapping": "followedSites",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "FollowedSites",
+        "original_parent": "FollowedSites",
+        "resource_identity": "FollowedSites"
+      }
+    ]
+  },
+  {
+    "path": "/followedSites/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetFollowedSites",
+        "operation_mapping": "FollowedSitesId",
+        "http_method": "GET",
+        "doc": "Get followedSites from users",
+        "parent": "FollowedSitesId",
+        "original_parent": "FollowedSites",
+        "resource_identity": "FollowedSites"
+      }
+    ]
+  }
+]

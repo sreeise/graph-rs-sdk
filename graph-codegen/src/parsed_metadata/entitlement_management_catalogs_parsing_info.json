@@ -1,0 +1,19 @@
+{
+  "modifier_name": "entitlementManagementCatalogs",
+  "path": "/catalogs",
+  "resource_identity": "EntitlementManagementCatalogs",
+  "trim_path_start": "/identityGovernance/entitlementManagement",
+  "filter_path": [
+    "accessPackages/"
+  ],
+  "replace_operation_map": null,
+  "parameter_filter": [],
+  "mod_file": null,
+  "mod_file_writer": null,
+  "mod_write_override": {
+    "folder_path": "/identity_governance/entitlement_management_catalogs",
+    "folder_name": "identity_governance",
+    "mod_name": "entitlement_management_catalogs"
+  },
+  "children": []
+}

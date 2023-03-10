@@ -6,17 +6,6 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "identityGovernance.DeleteEntitlementManagement",
-        "operation_mapping": "entitlementManagement",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property entitlementManagement for identityGovernance",
-        "parent": "EntitlementManagement",
-        "original_parent": "EntitlementManagement",
-        "resource_identity": "EntitlementManagement"
-      },
-      {
-        "has_body": false,
         "request_task": "Json",
         "operation_id": "identityGovernance.GetEntitlementManagement",
         "operation_mapping": "entitlementManagement",
@@ -28,11 +17,22 @@
       },
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "identityGovernance.UpdateEntitlementManagement",
         "operation_mapping": "entitlementManagement",
         "http_method": "PATCH",
         "doc": "Update the navigation property entitlementManagement in identityGovernance",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "EntitlementManagement"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.DeleteEntitlementManagement",
+        "operation_mapping": "entitlementManagement",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property entitlementManagement for identityGovernance",
         "parent": "EntitlementManagement",
         "original_parent": "EntitlementManagement",
         "resource_identity": "EntitlementManagement"
@@ -46,6 +46,17 @@
     "metadata": [
       {
         "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.GetSettings",
+        "operation_mapping": "entitlementManagement",
+        "http_method": "GET",
+        "doc": "Get entitlementManagementSettings",
+        "parent": "EntitlementManagement",
+        "original_parent": "EntitlementManagement",
+        "resource_identity": "EntitlementManagement"
+      },
+      {
+        "has_body": false,
         "request_task": "NoContent",
         "operation_id": "identityGovernance.entitlementManagement.DeleteSettings",
         "operation_mapping": "entitlementManagement",
@@ -56,23 +67,12 @@
         "resource_identity": "EntitlementManagement"
       },
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.GetSettings",
-        "operation_mapping": "entitlementManagement",
-        "http_method": "GET",
-        "doc": "Get settings from identityGovernance",
-        "parent": "EntitlementManagement",
-        "original_parent": "EntitlementManagement",
-        "resource_identity": "EntitlementManagement"
-      },
-      {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "identityGovernance.entitlementManagement.UpdateSettings",
         "operation_mapping": "entitlementManagement",
         "http_method": "PATCH",
-        "doc": "Update the navigation property settings in identityGovernance",
+        "doc": "Update entitlementManagementSettings",
         "parent": "EntitlementManagement",
         "original_parent": "EntitlementManagement",
         "resource_identity": "EntitlementManagement"

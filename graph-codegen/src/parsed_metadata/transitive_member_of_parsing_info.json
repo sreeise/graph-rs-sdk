@@ -1,0 +1,23 @@
+{
+  "modifier_name": null,
+  "path": "/transitiveMemberOf",
+  "resource_identity": "TransitiveMemberOf",
+  "trim_path_start": "/users/{user-id}",
+  "filter_path": [
+    "/multiValueExtendedProperties",
+    "singleValueExtendedProperties"
+  ],
+  "replace_operation_map": "transitiveMemberOf",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/users/transitive_member_of/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

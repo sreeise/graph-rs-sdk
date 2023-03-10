@@ -175,17 +175,17 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.approvalCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.approvalCollectionResponse"
             }
           }
         },
@@ -225,7 +225,21 @@
         }
       },
       "responses": {
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -242,20 +256,6 @@
               }
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -266,11 +266,34 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.accessPackageAssignmentApprovals-ac9b",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -280,19 +303,12 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
         }
       },
       "deprecated": false
     }
   },
-  "/accessPackageAssignmentApprovals/microsoft.graph.filterByCurrentUser(on='{on}')": {
+  "/accessPackageAssignmentApprovals/filterByCurrentUser(on='{on}')": {
     "description": "Provides operations to call the filterByCurrentUser method.",
     "get": {
       "tags": [
@@ -327,24 +343,131 @@
               "content": {}
             }
           }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "stages"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -357,58 +480,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.approval"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.approval"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -419,6 +567,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -524,14 +686,14 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -549,7 +711,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -595,10 +757,10 @@
         }
       ],
       "responses": {
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -609,10 +771,10 @@
             }
           }
         },
-        "5XX": {
+        "204": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -645,6 +807,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -652,17 +821,21 @@
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.approval"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -675,7 +848,7 @@
           "Left": {
             "name": "approval-id",
             "in": "path",
-            "description": "key: id of approval",
+            "description": "The unique identifier of approval",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -706,8 +879,12 @@
       "tags": [
         "identityGovernance.entitlementManagement"
       ],
-      "summary": "Get stages from identityGovernance",
-      "description": "A collection of stages in the approval decision.",
+      "summary": "List approval stages",
+      "description": "In Azure AD entitlement management, list the approvalStage objects associated with an approval object. This call can be made by an approver, providing the identifier of the access package assignment request.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/approval-list-stages?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.ListStages",
       "parameters": [
         {
@@ -895,14 +1072,7 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.approvalStageCollectionResponse"
@@ -910,6 +1080,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -945,14 +1122,7 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -967,6 +1137,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -986,7 +1163,7 @@
           "Left": {
             "name": "approval-id",
             "in": "path",
-            "description": "key: id of approval",
+            "description": "The unique identifier of approval",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1016,22 +1193,38 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.stages-0bb2",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1047,7 +1240,7 @@
           "Left": {
             "name": "approval-id",
             "in": "path",
-            "description": "key: id of approval",
+            "description": "The unique identifier of approval",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1189,7 +1382,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1246,7 +1439,7 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1260,7 +1453,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1296,21 +1489,32 @@
         }
       },
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.approvalStage"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1326,7 +1530,7 @@
           "Left": {
             "name": "approval-id",
             "in": "path",
-            "description": "key: id of approval",
+            "description": "The unique identifier of approval",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1354,7 +1558,7 @@
           "Left": {
             "name": "approvalStage-id",
             "in": "path",
-            "description": "key: id of approvalStage",
+            "description": "The unique identifier of approvalStage",
             "required": true,
             "deprecated": false,
             "explode": false,

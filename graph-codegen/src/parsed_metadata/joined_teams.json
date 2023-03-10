@@ -1,0 +1,759 @@
+[
+  {
+    "path": "/joinedTeams",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListJoinedTeams",
+        "operation_mapping": "joinedTeams",
+        "http_method": "GET",
+        "doc": "List joinedTeams",
+        "parent": "JoinedTeams",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateJoinedTeams",
+        "operation_mapping": "joinedTeams",
+        "http_method": "POST",
+        "doc": "Create new navigation property to joinedTeams for users",
+        "parent": "JoinedTeams",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.joinedTeams-0d57",
+        "operation_mapping": "joinedTeams",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "JoinedTeams",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/getAllMessages()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.joinedTeams.getAllMessages",
+        "operation_mapping": "joinedTeams",
+        "http_method": "GET",
+        "doc": "Invoke function getAllMessages",
+        "parent": "JoinedTeams",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteJoinedTeams",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property joinedTeams for users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetJoinedTeams",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get joinedTeams from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateJoinedTeams",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property joinedTeams in users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/allChannels",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.ListAllChannels",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "List allChannels",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/allChannels/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.allChannels-33d5",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/allChannels/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "channel_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetAllChannels",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get allChannels from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/archive",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.joinedTeams.team.archive",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action archive",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/clone",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.joinedTeams.team.clone",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action clone",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/completeMigration",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.joinedTeams.team.completeMigration",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action completeMigration",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/group",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetGroup",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get group from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/incomingChannels",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.ListIncomingChannels",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "List incomingChannels",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/incomingChannels/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.incomingChannels-bf05",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/incomingChannels/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "channel_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetIncomingChannels",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get incomingChannels from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/installedApps",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.CreateInstalledApps",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "POST",
+        "doc": "Add app to team",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.ListInstalledApps",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "List apps in team",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/installedApps/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.installedApps-1148",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/installedApps/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "teams_app_installation_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.joinedTeams.DeleteInstalledApps",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property installedApps for users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetInstalledApps",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get installedApps from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.UpdateInstalledApps",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property installedApps in users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/installedApps/{{id}}/teamsApp",
+    "param_size": 1,
+    "parameters": [
+      "teams_app_installation_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.installedApps.GetTeamsApp",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get teamsApp from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/installedApps/{{id}}/teamsAppDefinition",
+    "param_size": 1,
+    "parameters": [
+      "teams_app_installation_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.installedApps.GetTeamsAppDefinition",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get teamsAppDefinition from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/installedApps/{{id}}/upgrade",
+    "param_size": 1,
+    "parameters": [
+      "teams_app_installation_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.joinedTeams.team.installedApps.teamsAppInstallation.upgrade",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action upgrade",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/members",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.ListMembers",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "List members of team",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.CreateMembers",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "POST",
+        "doc": "Add member to team",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/members/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.members-5648",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/members/add",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.joinedTeams.team.members.add",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action add",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/members/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "conversation_member_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.joinedTeams.DeleteMembers",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property members for users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetMembers",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get members from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.UpdateMembers",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property members in users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/operations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.CreateOperations",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to operations for users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.ListOperations",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get operations from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/operations/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.operations-5268",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/operations/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "teams_async_operation_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetOperations",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get operations from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.UpdateOperations",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property operations in users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.joinedTeams.DeleteOperations",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property operations for users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/photo",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetPhoto",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get photo from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.UpdatePhoto",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property photo in users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.joinedTeams.DeletePhoto",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property photo for users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/photo/$value",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetPhotoContent",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get media content for the navigation property photo from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.joinedTeams.UpdatePhotoContent",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "PUT",
+        "doc": "Update media content for the navigation property photo in users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/sendActivityNotification",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.joinedTeams.team.sendActivityNotification",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action sendActivityNotification",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/template",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetTemplate",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get template from users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  },
+  {
+    "path": "/joinedTeams/{{RID}}/unarchive",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.joinedTeams.team.unarchive",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action unarchive",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      }
+    ]
+  }
+]

@@ -1,0 +1,760 @@
+{
+  "/windowsInformationProtectionPolicies": {
+    "description": "Provides operations to manage the windowsInformationProtectionPolicies property of the microsoft.graph.deviceAppManagement entity.",
+    "get": {
+      "tags": [
+        "deviceAppManagement.windowsInformationProtectionPolicy"
+      ],
+      "summary": "Get windowsInformationProtectionPolicies from deviceAppManagement",
+      "description": "Windows information protection for apps running on devices which are not MDM enrolled.",
+      "operationId": "deviceAppManagement.ListWindowsInformationProtectionPolicies",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "createdDateTime",
+                    "createdDateTime desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "lastModifiedDateTime",
+                    "lastModifiedDateTime desc",
+                    "version",
+                    "version desc",
+                    "azureRightsManagementServicesAllowed",
+                    "azureRightsManagementServicesAllowed desc",
+                    "dataRecoveryCertificate",
+                    "dataRecoveryCertificate desc",
+                    "enforcementLevel",
+                    "enforcementLevel desc",
+                    "enterpriseDomain",
+                    "enterpriseDomain desc",
+                    "enterpriseInternalProxyServers",
+                    "enterpriseInternalProxyServers desc",
+                    "enterpriseIPRanges",
+                    "enterpriseIPRanges desc",
+                    "enterpriseIPRangesAreAuthoritative",
+                    "enterpriseIPRangesAreAuthoritative desc",
+                    "enterpriseNetworkDomainNames",
+                    "enterpriseNetworkDomainNames desc",
+                    "enterpriseProtectedDomainNames",
+                    "enterpriseProtectedDomainNames desc",
+                    "enterpriseProxiedDomains",
+                    "enterpriseProxiedDomains desc",
+                    "enterpriseProxyServers",
+                    "enterpriseProxyServers desc",
+                    "enterpriseProxyServersAreAuthoritative",
+                    "enterpriseProxyServersAreAuthoritative desc",
+                    "exemptApps",
+                    "exemptApps desc",
+                    "iconsVisible",
+                    "iconsVisible desc",
+                    "indexingEncryptedStoresOrItemsBlocked",
+                    "indexingEncryptedStoresOrItemsBlocked desc",
+                    "isAssigned",
+                    "isAssigned desc",
+                    "neutralDomainResources",
+                    "neutralDomainResources desc",
+                    "protectedApps",
+                    "protectedApps desc",
+                    "protectionUnderLockConfigRequired",
+                    "protectionUnderLockConfigRequired desc",
+                    "revokeOnUnenrollDisabled",
+                    "revokeOnUnenrollDisabled desc",
+                    "rightsManagementServicesTemplateId",
+                    "rightsManagementServicesTemplateId desc",
+                    "smbAutoEncryptedFileExtensions",
+                    "smbAutoEncryptedFileExtensions desc",
+                    "daysWithoutContactBeforeUnenroll",
+                    "daysWithoutContactBeforeUnenroll desc",
+                    "mdmEnrollmentUrl",
+                    "mdmEnrollmentUrl desc",
+                    "minutesOfInactivityBeforeDeviceLock",
+                    "minutesOfInactivityBeforeDeviceLock desc",
+                    "numberOfPastPinsRemembered",
+                    "numberOfPastPinsRemembered desc",
+                    "passwordMaximumAttemptCount",
+                    "passwordMaximumAttemptCount desc",
+                    "pinExpirationDays",
+                    "pinExpirationDays desc",
+                    "pinLowercaseLetters",
+                    "pinLowercaseLetters desc",
+                    "pinMinimumLength",
+                    "pinMinimumLength desc",
+                    "pinSpecialCharacters",
+                    "pinSpecialCharacters desc",
+                    "pinUppercaseLetters",
+                    "pinUppercaseLetters desc",
+                    "revokeOnMdmHandoffDisabled",
+                    "revokeOnMdmHandoffDisabled desc",
+                    "windowsHelloForBusinessBlocked",
+                    "windowsHelloForBusinessBlocked desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "createdDateTime",
+                    "description",
+                    "displayName",
+                    "lastModifiedDateTime",
+                    "version",
+                    "azureRightsManagementServicesAllowed",
+                    "dataRecoveryCertificate",
+                    "enforcementLevel",
+                    "enterpriseDomain",
+                    "enterpriseInternalProxyServers",
+                    "enterpriseIPRanges",
+                    "enterpriseIPRangesAreAuthoritative",
+                    "enterpriseNetworkDomainNames",
+                    "enterpriseProtectedDomainNames",
+                    "enterpriseProxiedDomains",
+                    "enterpriseProxyServers",
+                    "enterpriseProxyServersAreAuthoritative",
+                    "exemptApps",
+                    "iconsVisible",
+                    "indexingEncryptedStoresOrItemsBlocked",
+                    "isAssigned",
+                    "neutralDomainResources",
+                    "protectedApps",
+                    "protectionUnderLockConfigRequired",
+                    "revokeOnUnenrollDisabled",
+                    "rightsManagementServicesTemplateId",
+                    "smbAutoEncryptedFileExtensions",
+                    "daysWithoutContactBeforeUnenroll",
+                    "mdmEnrollmentUrl",
+                    "minutesOfInactivityBeforeDeviceLock",
+                    "numberOfPastPinsRemembered",
+                    "passwordMaximumAttemptCount",
+                    "pinExpirationDays",
+                    "pinLowercaseLetters",
+                    "pinMinimumLength",
+                    "pinSpecialCharacters",
+                    "pinUppercaseLetters",
+                    "revokeOnMdmHandoffDisabled",
+                    "windowsHelloForBusinessBlocked",
+                    "assignments",
+                    "exemptAppLockerFiles",
+                    "protectedAppLockerFiles"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "assignments",
+                    "exemptAppLockerFiles",
+                    "protectedAppLockerFiles"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.windowsInformationProtectionPolicyCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "deviceAppManagement.windowsInformationProtectionPolicy"
+      ],
+      "summary": "Create new navigation property to windowsInformationProtectionPolicies for deviceAppManagement",
+      "operationId": "deviceAppManagement.CreateWindowsInformationProtectionPolicies",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.windowsInformationProtectionPolicy"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Created navigation property.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.windowsInformationProtectionPolicy"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/windowsInformationProtectionPolicies/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.windowsInformationProtectionPolicies-b909",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/windowsInformationProtectionPolicies/{windowsInformationProtectionPolicy-id}": {
+    "description": "Provides operations to manage the windowsInformationProtectionPolicies property of the microsoft.graph.deviceAppManagement entity.",
+    "get": {
+      "tags": [
+        "deviceAppManagement.windowsInformationProtectionPolicy"
+      ],
+      "summary": "Get windowsInformationProtectionPolicies from deviceAppManagement",
+      "description": "Windows information protection for apps running on devices which are not MDM enrolled.",
+      "operationId": "deviceAppManagement.GetWindowsInformationProtectionPolicies",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "createdDateTime",
+                    "description",
+                    "displayName",
+                    "lastModifiedDateTime",
+                    "version",
+                    "azureRightsManagementServicesAllowed",
+                    "dataRecoveryCertificate",
+                    "enforcementLevel",
+                    "enterpriseDomain",
+                    "enterpriseInternalProxyServers",
+                    "enterpriseIPRanges",
+                    "enterpriseIPRangesAreAuthoritative",
+                    "enterpriseNetworkDomainNames",
+                    "enterpriseProtectedDomainNames",
+                    "enterpriseProxiedDomains",
+                    "enterpriseProxyServers",
+                    "enterpriseProxyServersAreAuthoritative",
+                    "exemptApps",
+                    "iconsVisible",
+                    "indexingEncryptedStoresOrItemsBlocked",
+                    "isAssigned",
+                    "neutralDomainResources",
+                    "protectedApps",
+                    "protectionUnderLockConfigRequired",
+                    "revokeOnUnenrollDisabled",
+                    "rightsManagementServicesTemplateId",
+                    "smbAutoEncryptedFileExtensions",
+                    "daysWithoutContactBeforeUnenroll",
+                    "mdmEnrollmentUrl",
+                    "minutesOfInactivityBeforeDeviceLock",
+                    "numberOfPastPinsRemembered",
+                    "passwordMaximumAttemptCount",
+                    "pinExpirationDays",
+                    "pinLowercaseLetters",
+                    "pinMinimumLength",
+                    "pinSpecialCharacters",
+                    "pinUppercaseLetters",
+                    "revokeOnMdmHandoffDisabled",
+                    "windowsHelloForBusinessBlocked",
+                    "assignments",
+                    "exemptAppLockerFiles",
+                    "protectedAppLockerFiles"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "assignments",
+                    "exemptAppLockerFiles",
+                    "protectedAppLockerFiles"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved navigation property",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.windowsInformationProtectionPolicy"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "delete": {
+      "tags": [
+        "deviceAppManagement.windowsInformationProtectionPolicy"
+      ],
+      "summary": "Delete navigation property windowsInformationProtectionPolicies for deviceAppManagement",
+      "operationId": "deviceAppManagement.DeleteWindowsInformationProtectionPolicies",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "patch": {
+      "tags": [
+        "deviceAppManagement.windowsInformationProtectionPolicy"
+      ],
+      "summary": "Update the navigation property windowsInformationProtectionPolicies in deviceAppManagement",
+      "operationId": "deviceAppManagement.UpdateWindowsInformationProtectionPolicies",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.windowsInformationProtectionPolicy"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.windowsInformationProtectionPolicy"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "windowsInformationProtectionPolicy-id",
+            "in": "path",
+            "description": "The unique identifier of windowsInformationProtectionPolicy",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "windowsInformationProtectionPolicy"
+          }
+        }
+      }
+    ]
+  }
+}

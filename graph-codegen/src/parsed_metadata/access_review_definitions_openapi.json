@@ -5,8 +5,12 @@
       "tags": [
         "identityGovernance.accessReviewSet"
       ],
-      "summary": "Get definitions from identityGovernance",
-      "description": "Represents the template and scheduling for an access review.",
+      "summary": "List definitions",
+      "description": "Get a list of the accessReviewScheduleDefinition objects and their properties.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewset-list-definitions?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.ListDefinitions",
       "parameters": [
         {
@@ -217,13 +221,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -231,10 +228,17 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.accessReviewScheduleDefinitionCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -245,7 +249,12 @@
       "tags": [
         "identityGovernance.accessReviewSet"
       ],
-      "summary": "Create new navigation property to definitions for identityGovernance",
+      "summary": "Create definitions",
+      "description": "Create a new accessReviewScheduleDefinition object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewset-post-definitions?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.CreateDefinitions",
       "requestBody": {
         "either": {
@@ -267,21 +276,7 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -298,6 +293,20 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -308,18 +317,34 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.definitions-6cbe",
-      "responses": {
-        "200": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -369,10 +394,173 @@
               "content": {}
             }
           }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "additionalNotificationRecipients",
+                    "createdBy",
+                    "createdDateTime",
+                    "descriptionForAdmins",
+                    "descriptionForReviewers",
+                    "displayName",
+                    "fallbackReviewers",
+                    "instanceEnumerationScope",
+                    "lastModifiedDateTime",
+                    "reviewers",
+                    "scope",
+                    "settings",
+                    "stageSettings",
+                    "status",
+                    "instances"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "additionalNotificationRecipients",
+                    "additionalNotificationRecipients desc",
+                    "createdBy",
+                    "createdBy desc",
+                    "createdDateTime",
+                    "createdDateTime desc",
+                    "descriptionForAdmins",
+                    "descriptionForAdmins desc",
+                    "descriptionForReviewers",
+                    "descriptionForReviewers desc",
+                    "displayName",
+                    "displayName desc",
+                    "fallbackReviewers",
+                    "fallbackReviewers desc",
+                    "instanceEnumerationScope",
+                    "instanceEnumerationScope desc",
+                    "lastModifiedDateTime",
+                    "lastModifiedDateTime desc",
+                    "reviewers",
+                    "reviewers desc",
+                    "scope",
+                    "scope desc",
+                    "settings",
+                    "settings desc",
+                    "stageSettings",
+                    "stageSettings desc",
+                    "status",
+                    "status desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -385,58 +573,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.accessReviewScheduleDefinition"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.accessReviewScheduleDefinition"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -450,14 +663,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -580,7 +793,7 @@
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -598,14 +811,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -658,17 +871,17 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -701,13 +914,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -715,10 +921,28 @@
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessReviewScheduleDefinition"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -762,8 +986,12 @@
       "tags": [
         "identityGovernance.accessReviewSet"
       ],
-      "summary": "Get instances from identityGovernance",
-      "description": "If the accessReviewScheduleDefinition is a recurring access review, instances represent each recurrence. A review that does not recur will have exactly one instance. Instances also represent each unique resource under review in the accessReviewScheduleDefinition. If a review has multiple resources and multiple instances, each resource will have a unique instance for each recurrence.",
+      "summary": "List instances",
+      "description": "Get a list of the accessReviewInstance objects and their properties.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewscheduledefinition-list-instances?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.ListInstances",
       "parameters": [
         {
@@ -954,21 +1182,21 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.accessReviewInstanceCollectionResponse"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1004,7 +1232,7 @@
         }
       },
       "responses": {
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -1022,14 +1250,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1075,6 +1303,22 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.instances-b022",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
         "5XX": {
           "either": {
@@ -1090,7 +1334,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -1166,10 +1410,151 @@
               "content": {}
             }
           }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "endDateTime",
+                    "fallbackReviewers",
+                    "reviewers",
+                    "scope",
+                    "startDateTime",
+                    "status",
+                    "contactedReviewers",
+                    "decisions",
+                    "stages"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "endDateTime",
+                    "endDateTime desc",
+                    "fallbackReviewers",
+                    "fallbackReviewers desc",
+                    "reviewers",
+                    "reviewers desc",
+                    "scope",
+                    "scope desc",
+                    "startDateTime",
+                    "startDateTime desc",
+                    "status",
+                    "status desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -1182,58 +1567,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.accessReviewInstance"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.accessReviewInstance"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -1247,14 +1657,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1403,7 +1813,7 @@
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1474,13 +1884,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -1492,6 +1895,13 @@
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1531,17 +1941,28 @@
             }
           }
         },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessReviewInstance"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -1613,8 +2034,12 @@
       "tags": [
         "identityGovernance.accessReviewSet"
       ],
-      "summary": "Get contactedReviewers from identityGovernance",
-      "description": "Returns the collection of reviewers who were contacted to complete this review. While the reviewers and fallbackReviewers properties of the accessReviewScheduleDefinition might specify group owners or managers as reviewers, contactedReviewers returns their individual identities. Supports $select. Read-only.",
+      "summary": "List contactedReviewers",
+      "description": "Get the reviewers for an access review instance, irrespective of whether or not they have received a notification. The reviewers are represented by an accessReviewReviewer object. A list of zero or more objects are returned, including all of their nested properties.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewinstance-list-contactedreviewers?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.instances.ListContactedReviewers",
       "parameters": [
         {
@@ -1797,17 +2222,17 @@
             }
           }
         },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.accessReviewReviewerCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.accessReviewReviewerCollectionResponse"
             }
           }
         }
@@ -1840,7 +2265,14 @@
         }
       },
       "responses": {
-        "201": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -1859,13 +2291,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1939,14 +2364,23 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.contactedReviewers-fe5f",
-      "responses": {
-        "4XX": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
         "5XX": {
           "either": {
             "Right": {
@@ -1954,10 +2388,17 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2122,14 +2563,14 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -2147,7 +2588,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2193,17 +2634,17 @@
         }
       ],
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         },
@@ -2243,13 +2684,6 @@
         }
       },
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -2261,6 +2695,24 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessReviewReviewer"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -2360,8 +2812,12 @@
       "tags": [
         "identityGovernance.accessReviewSet"
       ],
-      "summary": "Get decisions from identityGovernance",
-      "description": "Each user reviewed in an accessReviewInstance has a decision item representing if they were approved, denied, or not yet reviewed.",
+      "summary": "List decisions",
+      "description": "Get the accessReviewInstanceDecisionItem resources from the decisions navigation property on a given accessReviewInstance. A list of zero or more accessReviewInstanceDecisionItem objects are returned, including all of their nested properties.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewinstance-list-decisions?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.instances.ListDecisions",
       "parameters": [
         {
@@ -2567,6 +3023,13 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.accessReviewInstanceDecisionItemCollectionResponse"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -2578,13 +3041,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.accessReviewInstanceDecisionItemCollectionResponse"
             }
           }
         }
@@ -2624,14 +3080,7 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -2646,6 +3095,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2716,14 +3172,23 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.decisions-c10a",
-      "responses": {
-        "200": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
         "4XX": {
           "either": {
             "Right": {
@@ -2735,6 +3200,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -2835,6 +3307,165 @@
               "content": {}
             }
           }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "accessReviewId",
+                    "appliedBy",
+                    "appliedDateTime",
+                    "applyResult",
+                    "decision",
+                    "justification",
+                    "principal",
+                    "principalLink",
+                    "recommendation",
+                    "resource",
+                    "resourceLink",
+                    "reviewedBy",
+                    "reviewedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "accessReviewId",
+                    "accessReviewId desc",
+                    "appliedBy",
+                    "appliedBy desc",
+                    "appliedDateTime",
+                    "appliedDateTime desc",
+                    "applyResult",
+                    "applyResult desc",
+                    "decision",
+                    "decision desc",
+                    "justification",
+                    "justification desc",
+                    "principal",
+                    "principal desc",
+                    "principalLink",
+                    "principalLink desc",
+                    "recommendation",
+                    "recommendation desc",
+                    "resource",
+                    "resource desc",
+                    "resourceLink",
+                    "resourceLink desc",
+                    "reviewedBy",
+                    "reviewedBy desc",
+                    "reviewedDateTime",
+                    "reviewedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
         }
       ],
       "responses": {
@@ -2845,7 +3476,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -2858,58 +3489,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.accessReviewInstanceDecisionItem"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.accessReviewInstanceDecisionItem"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -3101,7 +3757,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -3116,13 +3779,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -3229,10 +3885,21 @@
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessReviewInstanceDecisionItem"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -3340,8 +4007,20 @@
         "identityGovernance.Actions"
       ],
       "summary": "Invoke action acceptRecommendations",
+      "description": "Allows the acceptance of recommendations on all accessReviewInstanceDecisionItem objects that have not been reviewed on an accessReviewInstance object for which the calling user is a reviewer.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewinstance-acceptrecommendations?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.acceptRecommendations",
       "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -3353,13 +4032,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
             }
           }
         }
@@ -3432,9 +4104,21 @@
         "identityGovernance.Actions"
       ],
       "summary": "Invoke action applyDecisions",
+      "description": "Apply review decisions on an accessReviewInstance if the decisions were not applied automatically because the autoApplyDecisionsEnabled property is `false` in the review's accessReviewScheduleSettings. The status of the accessReviewInstance must be `Completed` to call this method.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewinstance-applydecisions?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.applyDecisions",
       "responses": {
         "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3445,13 +4129,6 @@
           "either": {
             "Left": {
               "description": "Success"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3524,6 +4201,11 @@
         "identityGovernance.Actions"
       ],
       "summary": "Invoke action batchRecordDecisions",
+      "description": "Enables reviewers to review all accessReviewInstanceDecisionItem objects in batches by using **principalId**, **resourceId**, or neither.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewinstance-batchrecorddecisions?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.batchRecordDecisions",
       "requestBody": {
         "either": {
@@ -3540,6 +4222,18 @@
                       "required": [],
                       "uniqueItems": false,
                       "properties": {
+                        "resourceId": {
+                          "type": "string",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
                         "decision": {
                           "type": "string",
                           "readOnly": false,
@@ -3553,18 +4247,6 @@
                           "unresolvedReference": false
                         },
                         "justification": {
-                          "type": "string",
-                          "readOnly": false,
-                          "writeOnly": false,
-                          "required": [],
-                          "uniqueItems": false,
-                          "additionalPropertiesAllowed": false,
-                          "enum": [],
-                          "nullable": true,
-                          "deprecated": false,
-                          "unresolvedReference": false
-                        },
-                        "resourceId": {
                           "type": "string",
                           "readOnly": false,
                           "writeOnly": false,
@@ -3604,6 +4286,13 @@
         }
       },
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -3612,13 +4301,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3694,15 +4376,13 @@
         "identityGovernance.Actions"
       ],
       "summary": "Invoke action resetDecisions",
+      "description": "Resets all accessReviewInstanceDecisionItem objects on an accessReviewInstance to `notReviewed`.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewinstance-resetdecisions?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.resetDecisions",
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -3714,6 +4394,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -3786,6 +4473,11 @@
         "identityGovernance.Actions"
       ],
       "summary": "Invoke action sendReminder",
+      "description": "Send a reminder to the reviewers of an active accessReviewInstance.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewinstance-sendreminder?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.sendReminder",
       "responses": {
         "204": {
@@ -3878,9 +4570,14 @@
         "identityGovernance.Actions"
       ],
       "summary": "Invoke action stop",
+      "description": "Stop a currently active accessReviewInstance. After the access review instance stops, the instance status is marked as `Completed`, the reviewers can no longer give input, and the access review decisions are applied. Stopping an instance will not stop future instances. To prevent a recurring access review from starting future instances, update the schedule definition to change its scheduled end date.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewinstance-stop?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stop",
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3894,7 +4591,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3969,8 +4666,12 @@
       "tags": [
         "identityGovernance.accessReviewSet"
       ],
-      "summary": "Get stages from identityGovernance",
-      "description": "If the instance has multiple stages, this returns the collection of stages. A new stage will only be created when the previous stage ends. The existence, number, and settings of stages on a review instance are created based on the accessReviewStageSettings on the parent accessReviewScheduleDefinition.",
+      "summary": "List stages (of an access review)",
+      "description": "Retrieve the stages in a multi-stage access review instance.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewinstance-list-stages?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.instances.ListStages",
       "parameters": [
         {
@@ -4154,17 +4855,17 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.accessReviewStageCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.accessReviewStageCollectionResponse"
             }
           }
         },
@@ -4218,7 +4919,7 @@
             }
           }
         },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -4303,7 +5004,30 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.stages-f2c5",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -4315,13 +5039,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -4422,6 +5139,142 @@
               "content": {}
             }
           }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "endDateTime",
+                    "fallbackReviewers",
+                    "reviewers",
+                    "startDateTime",
+                    "status",
+                    "decisions"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "endDateTime",
+                    "endDateTime desc",
+                    "fallbackReviewers",
+                    "fallbackReviewers desc",
+                    "reviewers",
+                    "reviewers desc",
+                    "startDateTime",
+                    "startDateTime desc",
+                    "status",
+                    "status desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
         }
       ],
       "responses": {
@@ -4432,7 +5285,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -4445,58 +5305,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.accessReviewStage"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.accessReviewStage"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -4507,13 +5392,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -4682,7 +5560,7 @@
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -4700,14 +5578,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4753,13 +5631,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
@@ -4768,6 +5639,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4803,13 +5681,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -4817,10 +5688,28 @@
             }
           }
         },
-        "204": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessReviewStage"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -4920,8 +5809,12 @@
       "tags": [
         "identityGovernance.accessReviewSet"
       ],
-      "summary": "Get decisions from identityGovernance",
-      "description": "Each user reviewed in an accessReviewStage has a decision item representing if they were approved, denied, or not yet reviewed.",
+      "summary": "List decisions (from a multi-stage access review)",
+      "description": "Get the decisions from a stage in a multi-stage access review. The decisions in an accessReviewStage object are represented by an accessReviewInstanceDecisionItem object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewstage-list-decisions?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.instances.stages.ListDecisions",
       "parameters": [
         {
@@ -5127,7 +6020,7 @@
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.accessReviewInstanceDecisionItemCollectionResponse"
@@ -5177,6 +6070,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -5184,7 +6084,7 @@
             }
           }
         },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -5199,13 +6099,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -5304,7 +6197,30 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.decisions-35e1",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -5312,17 +6228,10 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -5451,10 +6360,169 @@
               "content": {}
             }
           }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "accessReviewId",
+                    "appliedBy",
+                    "appliedDateTime",
+                    "applyResult",
+                    "decision",
+                    "justification",
+                    "principal",
+                    "principalLink",
+                    "recommendation",
+                    "resource",
+                    "resourceLink",
+                    "reviewedBy",
+                    "reviewedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "accessReviewId",
+                    "accessReviewId desc",
+                    "appliedBy",
+                    "appliedBy desc",
+                    "appliedDateTime",
+                    "appliedDateTime desc",
+                    "applyResult",
+                    "applyResult desc",
+                    "decision",
+                    "decision desc",
+                    "justification",
+                    "justification desc",
+                    "principal",
+                    "principal desc",
+                    "principalLink",
+                    "principalLink desc",
+                    "recommendation",
+                    "recommendation desc",
+                    "resource",
+                    "resource desc",
+                    "resourceLink",
+                    "resourceLink desc",
+                    "reviewedBy",
+                    "reviewedBy desc",
+                    "reviewedDateTime",
+                    "reviewedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -5467,58 +6535,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.accessReviewInstanceDecisionItem"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.accessReviewInstanceDecisionItem"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -5532,14 +6625,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5745,7 +6838,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -5760,13 +6860,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -5816,13 +6909,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -5834,6 +6920,13 @@
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -5866,17 +6959,28 @@
         }
       },
       "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessReviewInstanceDecisionItem"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
             }
           }
         },
@@ -6012,9 +7116,14 @@
         "identityGovernance.Actions"
       ],
       "summary": "Invoke action stop",
+      "description": "Stop an access review stage that is `inProgress`. After the access review stage stops, the stage **status** will be `Completed` and the reviewers can no longer give input. If there are subsequent stages that depend on the completed stage, the next stage will be created.  The accessReviewInstanceDecisionItem objects will always reflect the last decisions recorded across all stages at that given time, regardless of the status of the stages.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accessreviewstage-stop?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.instances.accessReviewInstance.stages.accessReviewStage.stop",
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -6028,7 +7137,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -6134,17 +7243,17 @@
       "summary": "Invoke action stop",
       "operationId": "identityGovernance.accessReviews.definitions.accessReviewScheduleDefinition.stop",
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         },

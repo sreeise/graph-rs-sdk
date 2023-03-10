@@ -1,0 +1,900 @@
+[
+  {
+    "path": "/authentication",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetAuthentication",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get authentication from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateAuthentication",
+        "operation_mapping": "authentication",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property authentication in users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteAuthentication",
+        "operation_mapping": "authentication",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property authentication for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/emailMethods",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.CreateEmailMethods",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Create emailMethod",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.ListEmailMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "List emailMethods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/emailMethods/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.emailMethods-6f5c",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/emailMethods/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "email_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.UpdateEmailMethods",
+        "operation_mapping": "authentication",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property emailMethods in users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeleteEmailMethods",
+        "operation_mapping": "authentication",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property emailMethods for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetEmailMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get emailMethods from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/fido2Methods",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.ListFido2Methods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get fido2Methods from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/fido2Methods/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.fido2Methods-9673",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/fido2Methods/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "fido_2_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeleteFido2Methods",
+        "operation_mapping": "authentication",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property fido2Methods for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetFido2Methods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get fido2Methods from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/methods",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.CreateMethods",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Create new navigation property to methods for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.ListMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "List methods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/methods/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.methods-0da1",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/methods/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get methods from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.UpdateMethods",
+        "operation_mapping": "authentication",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property methods in users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/methods/{{id}}/resetPassword",
+    "param_size": 1,
+    "parameters": [
+      "authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.authentication.methods.authenticationMethod.resetPassword",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Invoke action resetPassword",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/microsoftAuthenticatorMethods",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.ListMicrosoftAuthenticatorMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "List microsoftAuthenticatorAuthenticationMethods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/microsoftAuthenticatorMethods/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoftAuthenticatorMethods-af8c",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/microsoftAuthenticatorMethods/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "microsoft_authenticator_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeleteMicrosoftAuthenticatorMethods",
+        "operation_mapping": "authentication",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property microsoftAuthenticatorMethods for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetMicrosoftAuthenticatorMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get microsoftAuthenticatorMethods from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/microsoftAuthenticatorMethods/{{id}}/device",
+    "param_size": 1,
+    "parameters": [
+      "microsoft_authenticator_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.microsoftAuthenticatorMethods.GetDevice",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get device from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/operations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.ListOperations",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get operations from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.CreateOperations",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Create new navigation property to operations for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/operations/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.operations-40a4",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/operations/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "long_running_operation_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.UpdateOperations",
+        "operation_mapping": "authentication",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property operations in users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeleteOperations",
+        "operation_mapping": "authentication",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property operations for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetOperations",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get operations from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/passwordMethods",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.CreatePasswordMethods",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Create new navigation property to passwordMethods for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.ListPasswordMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "List passwordMethods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/passwordMethods/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.passwordMethods-ec55",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/passwordMethods/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "password_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetPasswordMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get passwordMethods from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/phoneMethods",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.CreatePhoneMethods",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Create phoneMethod",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.ListPhoneMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "List phoneMethods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/phoneMethods/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.phoneMethods-2ea0",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/phoneMethods/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "phone_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.UpdatePhoneMethods",
+        "operation_mapping": "authentication",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property phoneMethods in users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeletePhoneMethods",
+        "operation_mapping": "authentication",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property phoneMethods for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetPhoneMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get phoneMethods from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/phoneMethods/{{id}}/disableSmsSignIn",
+    "param_size": 1,
+    "parameters": [
+      "phone_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.authentication.phoneMethods.phoneAuthenticationMethod.disableSmsSignIn",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Invoke action disableSmsSignIn",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/phoneMethods/{{id}}/enableSmsSignIn",
+    "param_size": 1,
+    "parameters": [
+      "phone_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.authentication.phoneMethods.phoneAuthenticationMethod.enableSmsSignIn",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Invoke action enableSmsSignIn",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/softwareOathMethods",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.ListSoftwareOathMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "List softwareOathMethods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/softwareOathMethods/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.softwareOathMethods-0ccd",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/softwareOathMethods/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "software_oath_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetSoftwareOathMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get softwareOathMethods from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeleteSoftwareOathMethods",
+        "operation_mapping": "authentication",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property softwareOathMethods for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/temporaryAccessPassMethods",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.CreateTemporaryAccessPassMethods",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Create temporaryAccessPassMethod",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.ListTemporaryAccessPassMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "List temporaryAccessPassMethods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/temporaryAccessPassMethods/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.temporaryAccessPassMethods-3b4c",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/temporaryAccessPassMethods/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "temporary_access_pass_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeleteTemporaryAccessPassMethods",
+        "operation_mapping": "authentication",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property temporaryAccessPassMethods for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetTemporaryAccessPassMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get temporaryAccessPassMethods from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/windowsHelloForBusinessMethods",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.ListWindowsHelloForBusinessMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "List windowsHelloForBusinessAuthenticationMethods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/windowsHelloForBusinessMethods/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.windowsHelloForBusinessMethods-0479",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/windowsHelloForBusinessMethods/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "windows_hello_for_business_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeleteWindowsHelloForBusinessMethods",
+        "operation_mapping": "authentication",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property windowsHelloForBusinessMethods for users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetWindowsHelloForBusinessMethods",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get windowsHelloForBusinessMethods from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  },
+  {
+    "path": "/authentication/windowsHelloForBusinessMethods/{{id}}/device",
+    "param_size": 1,
+    "parameters": [
+      "windows_hello_for_business_authentication_method_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.authentication.windowsHelloForBusinessMethods.GetDevice",
+        "operation_mapping": "authentication",
+        "http_method": "GET",
+        "doc": "Get device from users",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      }
+    ]
+  }
+]

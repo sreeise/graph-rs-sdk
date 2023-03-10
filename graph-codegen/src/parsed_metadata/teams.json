@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.team.ListTeam",
+        "operation_mapping": "teams",
+        "http_method": "GET",
+        "doc": "Get team",
+        "parent": "Teams",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "teams.team.CreateTeam",
         "operation_mapping": "teams",
         "http_method": "POST",
         "doc": "Create team",
-        "parent": "Teams",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.team.ListTeam",
-        "operation_mapping": "teams",
-        "http_method": "GET",
-        "doc": "List teams",
         "parent": "Teams",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -47,7 +47,7 @@
     ]
   },
   {
-    "path": "/teams/microsoft.graph.getAllMessages()",
+    "path": "/teams/getAllMessages()",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -70,8 +70,19 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.team.GetTeam",
+        "operation_mapping": "TeamsId",
+        "http_method": "GET",
+        "doc": "Get team",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "teams.team.UpdateTeam",
         "operation_mapping": "TeamsId",
         "http_method": "PATCH",
@@ -90,17 +101,6 @@
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.team.GetTeam",
-        "operation_mapping": "TeamsId",
-        "http_method": "GET",
-        "doc": "Get team",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
       }
     ]
   },
@@ -115,7 +115,7 @@
         "operation_id": "teams.ListAllChannels",
         "operation_mapping": "TeamsId",
         "http_method": "GET",
-        "doc": "Get allChannels from teams",
+        "doc": "List allChannels",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -161,6 +161,60 @@
     ]
   },
   {
+    "path": "/teams/{{RID}}/archive",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "teams.team.archive",
+        "operation_mapping": "TeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action archive",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      }
+    ]
+  },
+  {
+    "path": "/teams/{{RID}}/clone",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "teams.team.clone",
+        "operation_mapping": "TeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action clone",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      }
+    ]
+  },
+  {
+    "path": "/teams/{{RID}}/completeMigration",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.team.completeMigration",
+        "operation_mapping": "TeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action completeMigration",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      }
+    ]
+  },
+  {
     "path": "/teams/{{RID}}/group",
     "param_size": 0,
     "parameters": [],
@@ -189,7 +243,7 @@
         "operation_id": "teams.ListIncomingChannels",
         "operation_mapping": "TeamsId",
         "http_method": "GET",
-        "doc": "Get incomingChannels from teams",
+        "doc": "List incomingChannels",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -240,23 +294,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.ListInstalledApps",
-        "operation_mapping": "TeamsId",
-        "http_method": "GET",
-        "doc": "Get installedApps from teams",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "teams.CreateInstalledApps",
         "operation_mapping": "TeamsId",
         "http_method": "POST",
-        "doc": "Create new navigation property to installedApps for teams",
+        "doc": "Add app to team",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.ListInstalledApps",
+        "operation_mapping": "TeamsId",
+        "http_method": "GET",
+        "doc": "List apps in team",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -290,17 +344,6 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.GetInstalledApps",
-        "operation_mapping": "TeamsId",
-        "http_method": "GET",
-        "doc": "Get installedApps from teams",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
-        "has_body": false,
         "request_task": "NoContent",
         "operation_id": "teams.DeleteInstalledApps",
         "operation_mapping": "TeamsId",
@@ -312,7 +355,7 @@
       },
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "teams.UpdateInstalledApps",
         "operation_mapping": "TeamsId",
         "http_method": "PATCH",
@@ -320,25 +363,16 @@
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
-      }
-    ]
-  },
-  {
-    "path": "/teams/{{RID}}/installedApps/{{id}}/microsoft.graph.upgrade",
-    "param_size": 1,
-    "parameters": [
-      "teams_app_installation_id"
-    ],
-    "metadata": [
+      },
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "teams.team.installedApps.teamsAppInstallation.upgrade",
+        "request_task": "Json",
+        "operation_id": "teams.GetInstalledApps",
         "operation_mapping": "TeamsId",
-        "http_method": "POST",
-        "doc": "Invoke action upgrade",
+        "http_method": "GET",
+        "doc": "Get installedApps from teams",
         "parent": "TeamsId",
-        "original_parent": "TeamsAppInstallation",
+        "original_parent": "Teams",
         "resource_identity": "Teams"
       }
     ]
@@ -384,91 +418,21 @@
     ]
   },
   {
-    "path": "/teams/{{RID}}/microsoft.graph.archive",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.team.archive",
-        "operation_mapping": "TeamsId",
-        "http_method": "POST",
-        "doc": "Invoke action archive",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      }
-    ]
-  },
-  {
-    "path": "/teams/{{RID}}/microsoft.graph.clone",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.team.clone",
-        "operation_mapping": "TeamsId",
-        "http_method": "POST",
-        "doc": "Invoke action clone",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      }
-    ]
-  },
-  {
-    "path": "/teams/{{RID}}/microsoft.graph.completeMigration",
-    "param_size": 0,
-    "parameters": [],
+    "path": "/teams/{{RID}}/installedApps/{{id}}/upgrade",
+    "param_size": 1,
+    "parameters": [
+      "teams_app_installation_id"
+    ],
     "metadata": [
       {
         "has_body": false,
         "request_task": "NoContent",
-        "operation_id": "teams.team.completeMigration",
+        "operation_id": "teams.team.installedApps.teamsAppInstallation.upgrade",
         "operation_mapping": "TeamsId",
         "http_method": "POST",
-        "doc": "Invoke action completeMigration",
+        "doc": "Invoke action upgrade",
         "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      }
-    ]
-  },
-  {
-    "path": "/teams/{{RID}}/microsoft.graph.sendActivityNotification",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.team.sendActivityNotification",
-        "operation_mapping": "TeamsId",
-        "http_method": "POST",
-        "doc": "Invoke action sendActivityNotification",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      }
-    ]
-  },
-  {
-    "path": "/teams/{{RID}}/microsoft.graph.unarchive",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "teams.team.unarchive",
-        "operation_mapping": "TeamsId",
-        "http_method": "POST",
-        "doc": "Invoke action unarchive",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
+        "original_parent": "TeamsAppInstallation",
         "resource_identity": "Teams"
       }
     ]
@@ -479,23 +443,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.ListOperations",
-        "operation_mapping": "TeamsId",
-        "http_method": "GET",
-        "doc": "Get operations from teams",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "teams.CreateOperations",
         "operation_mapping": "TeamsId",
         "http_method": "POST",
         "doc": "Create new navigation property to operations for teams",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.ListOperations",
+        "operation_mapping": "TeamsId",
+        "http_method": "GET",
+        "doc": "Get operations from teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -529,6 +493,17 @@
     "metadata": [
       {
         "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.DeleteOperations",
+        "operation_mapping": "TeamsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property operations for teams",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
+        "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.GetOperations",
         "operation_mapping": "TeamsId",
@@ -540,22 +515,11 @@
       },
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "teams.UpdateOperations",
         "operation_mapping": "TeamsId",
         "http_method": "PATCH",
         "doc": "Update the navigation property operations in teams",
-        "parent": "TeamsId",
-        "original_parent": "Teams",
-        "resource_identity": "Teams"
-      },
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "teams.DeleteOperations",
-        "operation_mapping": "TeamsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property operations for teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -568,12 +532,12 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.UpdatePhoto",
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.GetPhoto",
         "operation_mapping": "TeamsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property photo in teams",
+        "http_method": "GET",
+        "doc": "Get photo from teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -590,12 +554,12 @@
         "resource_identity": "Teams"
       },
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "teams.GetPhoto",
+        "operation_id": "teams.UpdatePhoto",
         "operation_mapping": "TeamsId",
-        "http_method": "GET",
-        "doc": "Get photo from teams",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property photo in teams",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"
@@ -632,6 +596,113 @@
     ]
   },
   {
+    "path": "/teams/{{RID}}/sendActivityNotification",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "teams.team.sendActivityNotification",
+        "operation_mapping": "TeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action sendActivityNotification",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      }
+    ]
+  },
+  {
+    "path": "/teams/{{RID}}/tags",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.ListTags",
+        "operation_mapping": "TeamsId",
+        "http_method": "GET",
+        "doc": "List teamworkTags",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.CreateTags",
+        "operation_mapping": "TeamsId",
+        "http_method": "POST",
+        "doc": "Create teamworkTag",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      }
+    ]
+  },
+  {
+    "path": "/teams/{{RID}}/tags/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.tags-db00",
+        "operation_mapping": "TeamsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "TeamsId",
+        "original_parent": "Get",
+        "resource_identity": "Teams"
+      }
+    ]
+  },
+  {
+    "path": "/teams/{{RID}}/tags/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "teamwork_tag_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.DeleteTags",
+        "operation_mapping": "TeamsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property tags for teams",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.GetTags",
+        "operation_mapping": "TeamsId",
+        "http_method": "GET",
+        "doc": "Get tags from teams",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.UpdateTags",
+        "operation_mapping": "TeamsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property tags in teams",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      }
+    ]
+  },
+  {
     "path": "/teams/{{RID}}/template",
     "param_size": 0,
     "parameters": [],
@@ -643,6 +714,24 @@
         "operation_mapping": "TeamsId",
         "http_method": "GET",
         "doc": "Get template from teams",
+        "parent": "TeamsId",
+        "original_parent": "Teams",
+        "resource_identity": "Teams"
+      }
+    ]
+  },
+  {
+    "path": "/teams/{{RID}}/unarchive",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.team.unarchive",
+        "operation_mapping": "TeamsId",
+        "http_method": "POST",
+        "doc": "Invoke action unarchive",
         "parent": "TeamsId",
         "original_parent": "Teams",
         "resource_identity": "Teams"

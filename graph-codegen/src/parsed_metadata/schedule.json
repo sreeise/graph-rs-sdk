@@ -5,15 +5,26 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.UpdateSchedule",
+        "operation_mapping": "schedule",
+        "http_method": "PUT",
+        "doc": "Update the navigation property schedule in teams",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
+      },
+      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.GetSchedule",
         "operation_mapping": "schedule",
         "http_method": "GET",
-        "doc": "Get schedule from teams",
+        "doc": "Get schedule",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -24,36 +35,7 @@
         "doc": "Delete navigation property schedule for teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.UpdateSchedule",
-        "operation_mapping": "schedule",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property schedule in teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
-      }
-    ]
-  },
-  {
-    "path": "/schedule/microsoft.graph.share",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.team.schedule.share",
-        "operation_mapping": "schedule",
-        "http_method": "POST",
-        "doc": "Invoke action share",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -63,6 +45,17 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.schedule.ListOfferShiftRequests",
+        "operation_mapping": "schedule",
+        "http_method": "GET",
+        "doc": "List offerShiftRequest",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
+      },
+      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "teams.schedule.CreateOfferShiftRequests",
@@ -71,18 +64,7 @@
         "doc": "Create new navigation property to offerShiftRequests for teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.schedule.ListOfferShiftRequests",
-        "operation_mapping": "schedule",
-        "http_method": "GET",
-        "doc": "Get offerShiftRequests from teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -100,7 +82,7 @@
         "doc": "Get the number of the resource",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -120,18 +102,18 @@
         "doc": "Get offerShiftRequests from teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "teams.schedule.UpdateOfferShiftRequests",
         "operation_mapping": "schedule",
         "http_method": "PATCH",
         "doc": "Update the navigation property offerShiftRequests in teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -142,7 +124,7 @@
         "doc": "Delete navigation property offerShiftRequests for teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -157,10 +139,10 @@
         "operation_id": "teams.schedule.ListOpenShiftChangeRequests",
         "operation_mapping": "schedule",
         "http_method": "GET",
-        "doc": "Get openShiftChangeRequests from teams",
+        "doc": "List openShiftChangeRequests",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": true,
@@ -168,10 +150,10 @@
         "operation_id": "teams.schedule.CreateOpenShiftChangeRequests",
         "operation_mapping": "schedule",
         "http_method": "POST",
-        "doc": "Create new navigation property to openShiftChangeRequests for teams",
+        "doc": "Create openShiftChangeRequest",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -189,7 +171,7 @@
         "doc": "Get the number of the resource",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -202,14 +184,14 @@
     "metadata": [
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "teams.schedule.UpdateOpenShiftChangeRequests",
         "operation_mapping": "schedule",
         "http_method": "PATCH",
         "doc": "Update the navigation property openShiftChangeRequests in teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -220,7 +202,7 @@
         "doc": "Delete navigation property openShiftChangeRequests for teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -231,7 +213,7 @@
         "doc": "Get openShiftChangeRequests from teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -241,6 +223,17 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.schedule.ListOpenShifts",
+        "operation_mapping": "schedule",
+        "http_method": "GET",
+        "doc": "List openShifts",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
+      },
+      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "teams.schedule.CreateOpenShifts",
@@ -249,18 +242,7 @@
         "doc": "Create new navigation property to openShifts for teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.schedule.ListOpenShifts",
-        "operation_mapping": "schedule",
-        "http_method": "GET",
-        "doc": "Get openShifts from teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -278,7 +260,7 @@
         "doc": "Get the number of the resource",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -290,15 +272,26 @@
     ],
     "metadata": [
       {
-        "has_body": true,
+        "has_body": false,
         "request_task": "NoContent",
+        "operation_id": "teams.schedule.DeleteOpenShifts",
+        "operation_mapping": "schedule",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property openShifts for teams",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
         "operation_id": "teams.schedule.UpdateOpenShifts",
         "operation_mapping": "schedule",
         "http_method": "PATCH",
         "doc": "Update the navigation property openShifts in teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -309,18 +302,7 @@
         "doc": "Get openShifts from teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "teams.schedule.DeleteOpenShifts",
-        "operation_mapping": "schedule",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property openShifts for teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -330,26 +312,26 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "teams.schedule.CreateSchedulingGroups",
-        "operation_mapping": "schedule",
-        "http_method": "POST",
-        "doc": "Create new navigation property to schedulingGroups for teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.schedule.ListSchedulingGroups",
         "operation_mapping": "schedule",
         "http_method": "GET",
-        "doc": "Get schedulingGroups from teams",
+        "doc": "List scheduleGroups",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.schedule.CreateSchedulingGroups",
+        "operation_mapping": "schedule",
+        "http_method": "POST",
+        "doc": "Create schedulingGroup",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -367,7 +349,7 @@
         "doc": "Get the number of the resource",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -379,15 +361,15 @@
     ],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.schedule.UpdateSchedulingGroups",
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.schedule.GetSchedulingGroups",
         "operation_mapping": "schedule",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property schedulingGroups in teams",
+        "http_method": "GET",
+        "doc": "Get schedulingGroups from teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -398,18 +380,36 @@
         "doc": "Delete navigation property schedulingGroups for teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "teams.schedule.GetSchedulingGroups",
+        "operation_id": "teams.schedule.UpdateSchedulingGroups",
         "operation_mapping": "schedule",
-        "http_method": "GET",
-        "doc": "Get schedulingGroups from teams",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property schedulingGroups in teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
+      }
+    ]
+  },
+  {
+    "path": "/schedule/share",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "teams.team.schedule.share",
+        "operation_mapping": "schedule",
+        "http_method": "POST",
+        "doc": "Invoke action share",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -424,10 +424,10 @@
         "operation_id": "teams.schedule.ListShifts",
         "operation_mapping": "schedule",
         "http_method": "GET",
-        "doc": "Get shifts from teams",
+        "doc": "List shifts",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": true,
@@ -435,10 +435,10 @@
         "operation_id": "teams.schedule.CreateShifts",
         "operation_mapping": "schedule",
         "http_method": "POST",
-        "doc": "Create new navigation property to shifts for teams",
+        "doc": "Create shift",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -456,7 +456,7 @@
         "doc": "Get the number of the resource",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -469,17 +469,6 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "teams.schedule.DeleteShifts",
-        "operation_mapping": "schedule",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property shifts for teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
-        "has_body": false,
         "request_task": "Json",
         "operation_id": "teams.schedule.GetShifts",
         "operation_mapping": "schedule",
@@ -487,18 +476,29 @@
         "doc": "Get shifts from teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "teams.schedule.UpdateShifts",
         "operation_mapping": "schedule",
         "http_method": "PATCH",
         "doc": "Update the navigation property shifts in teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.schedule.DeleteShifts",
+        "operation_mapping": "schedule",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property shifts for teams",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -508,26 +508,26 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.schedule.ListSwapShiftsChangeRequests",
-        "operation_mapping": "schedule",
-        "http_method": "GET",
-        "doc": "Get swapShiftsChangeRequests from teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "teams.schedule.CreateSwapShiftsChangeRequests",
         "operation_mapping": "schedule",
         "http_method": "POST",
-        "doc": "Create new navigation property to swapShiftsChangeRequests for teams",
+        "doc": "Create swapShiftsChangeRequest",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.schedule.ListSwapShiftsChangeRequests",
+        "operation_mapping": "schedule",
+        "http_method": "GET",
+        "doc": "List swapShiftsChangeRequest",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -545,7 +545,7 @@
         "doc": "Get the number of the resource",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -557,26 +557,15 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "teams.schedule.DeleteSwapShiftsChangeRequests",
-        "operation_mapping": "schedule",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property swapShiftsChangeRequests for teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "teams.schedule.UpdateSwapShiftsChangeRequests",
         "operation_mapping": "schedule",
         "http_method": "PATCH",
         "doc": "Update the navigation property swapShiftsChangeRequests in teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -587,7 +576,18 @@
         "doc": "Get swapShiftsChangeRequests from teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "teams.schedule.DeleteSwapShiftsChangeRequests",
+        "operation_mapping": "schedule",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property swapShiftsChangeRequests for teams",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -597,26 +597,26 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.schedule.ListTimeOffReasons",
-        "operation_mapping": "schedule",
-        "http_method": "GET",
-        "doc": "Get timeOffReasons from teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "teams.schedule.CreateTimeOffReasons",
         "operation_mapping": "schedule",
         "http_method": "POST",
-        "doc": "Create new navigation property to timeOffReasons for teams",
+        "doc": "Create timeOffReason",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.schedule.ListTimeOffReasons",
+        "operation_mapping": "schedule",
+        "http_method": "GET",
+        "doc": "List timeOffReasons",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -634,7 +634,7 @@
         "doc": "Get the number of the resource",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -654,7 +654,18 @@
         "doc": "Get timeOffReasons from teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "teams.schedule.UpdateTimeOffReasons",
+        "operation_mapping": "schedule",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property timeOffReasons in teams",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -665,18 +676,7 @@
         "doc": "Delete navigation property timeOffReasons for teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "teams.schedule.UpdateTimeOffReasons",
-        "operation_mapping": "schedule",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property timeOffReasons in teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -694,7 +694,7 @@
         "doc": "Create new navigation property to timeOffRequests for teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -702,10 +702,10 @@
         "operation_id": "teams.schedule.ListTimeOffRequests",
         "operation_mapping": "schedule",
         "http_method": "GET",
-        "doc": "Get timeOffRequests from teams",
+        "doc": "List timeOffRequest",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -723,7 +723,7 @@
         "doc": "Get the number of the resource",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -735,26 +735,15 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "teams.schedule.GetTimeOffRequests",
-        "operation_mapping": "schedule",
-        "http_method": "GET",
-        "doc": "Get timeOffRequests from teams",
-        "parent": "Schedule",
-        "original_parent": "Schedule",
-        "resource_identity": null
-      },
-      {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "teams.schedule.UpdateTimeOffRequests",
         "operation_mapping": "schedule",
         "http_method": "PATCH",
         "doc": "Update the navigation property timeOffRequests in teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -765,7 +754,18 @@
         "doc": "Delete navigation property timeOffRequests for teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "teams.schedule.GetTimeOffRequests",
+        "operation_mapping": "schedule",
+        "http_method": "GET",
+        "doc": "Get timeOffRequests from teams",
+        "parent": "Schedule",
+        "original_parent": "Schedule",
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -780,10 +780,10 @@
         "operation_id": "teams.schedule.ListTimesOff",
         "operation_mapping": "schedule",
         "http_method": "GET",
-        "doc": "Get timesOff from teams",
+        "doc": "List timesOff",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": true,
@@ -791,10 +791,10 @@
         "operation_id": "teams.schedule.CreateTimesOff",
         "operation_mapping": "schedule",
         "http_method": "POST",
-        "doc": "Create new navigation property to timesOff for teams",
+        "doc": "Create timeOff",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -812,7 +812,7 @@
         "doc": "Get the number of the resource",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   },
@@ -832,18 +832,18 @@
         "doc": "Get timesOff from teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "teams.schedule.UpdateTimesOff",
         "operation_mapping": "schedule",
         "http_method": "PATCH",
         "doc": "Update the navigation property timesOff in teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       },
       {
         "has_body": false,
@@ -854,7 +854,7 @@
         "doc": "Delete navigation property timesOff for teams",
         "parent": "Schedule",
         "original_parent": "Schedule",
-        "resource_identity": null
+        "resource_identity": "Schedule"
       }
     ]
   }

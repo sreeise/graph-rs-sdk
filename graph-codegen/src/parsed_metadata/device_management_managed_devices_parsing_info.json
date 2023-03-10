@@ -1,0 +1,19 @@
+{
+  "modifier_name": "deviceManagementManagedDevices",
+  "path": "/managedDevices",
+  "resource_identity": "DeviceManagementManagedDevices",
+  "trim_path_start": "/deviceManagement",
+  "filter_path": [],
+  "replace_operation_map": "deviceManagementManagedDevices",
+  "parameter_filter": [],
+  "mod_file_writer": null,
+  "mod_write_override": {
+    "folder_path": "/device_management/device_management_managed_devices",
+    "folder_name": "device_management",
+    "mod_name": "device_management_managed_devices",
+    "mod_file_string": [
+      "device_management_managed_devices"
+    ]
+  },
+  "children": []
+}

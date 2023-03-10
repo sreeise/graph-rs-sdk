@@ -1,0 +1,23 @@
+{
+  "modifier_name": null,
+  "path": "/drives",
+  "resource_identity": "Drives",
+  "trim_path_start": "/users/{user-id}",
+  "filter_path": [
+    "/multiValueExtendedProperties",
+    "singleValueExtendedProperties"
+  ],
+  "replace_operation_map": "drives",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/users/drives/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

@@ -1,7 +1,23 @@
 {
-  "modifier_name": "appConsent",
+  "modifier_name": null,
   "path": "/appConsent",
   "resource_identity": "AppConsent",
   "trim_path_start": "/identityGovernance",
-  "parameter_filter": []
+  "filter_path": [
+    "/multiValueExtendedProperties",
+    "singleValueExtendedProperties"
+  ],
+  "replace_operation_map": "appConsent",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/identity_governance/app_consent/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
 }

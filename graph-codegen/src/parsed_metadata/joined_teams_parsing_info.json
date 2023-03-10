@@ -1,0 +1,25 @@
+{
+  "modifier_name": null,
+  "path": "/joinedTeams",
+  "resource_identity": "JoinedTeams",
+  "trim_path_start": "/users/{user-id}",
+  "filter_path": [
+    "primaryChannel",
+    "channels",
+    "tags",
+    "schedule"
+  ],
+  "replace_operation_map": "joinedTeams",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/users/joined_teams/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

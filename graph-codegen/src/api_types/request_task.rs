@@ -68,23 +68,11 @@ impl RequestTask {
     pub fn imports(&self) -> Vec<&str> {
         match self {
             RequestTask::Json | RequestTask::Bytes => vec![],
-            RequestTask::NoContent | RequestTask::Upload => vec!["graph_http::types::NoContent"],
-            RequestTask::UploadSession => vec![
-                "std::path::Path",
-                "graph_error::GraphFailure",
-                "graph_http::UploadSessionClient",
-            ],
-            RequestTask::Download => vec![
-                // For now, the parser doesnt differentiate between non-async and async downloads
-                // Any download macro must be implemented twice for async and non-async methods.
-                "graph_http::{AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient}"
-            ],
-            RequestTask::AsyncDownload => vec![
-                // For now, the parser doesnt differentiate between non-async and async downloads
-                // Any download macro must be implemented twice for async and non-async methods.
-                "graph_http::{AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient}"
-            ],
-            RequestTask::Delta => vec!["graph_http::types::DeltaPhantom"],
+            RequestTask::NoContent | RequestTask::Upload => vec![],
+            RequestTask::UploadSession => vec![],
+            RequestTask::Download => vec![],
+            RequestTask::AsyncDownload => vec![],
+            RequestTask::Delta => vec![],
         }
     }
 }

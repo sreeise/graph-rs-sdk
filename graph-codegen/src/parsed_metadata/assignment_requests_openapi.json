@@ -5,8 +5,12 @@
       "tags": [
         "identityGovernance.entitlementManagement"
       ],
-      "summary": "Get assignmentRequests from identityGovernance",
-      "description": "Access package assignment requests created by or on behalf of a subject.",
+      "summary": "List assignmentRequests",
+      "description": "In Azure AD entitlement management, retrieve a list of accessPackageAssignmentRequest objects.  The resulting list includes all the assignment requests, current and well as expired, that the caller has access to read, across all catalogs and access packages.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/entitlementmanagement-list-assignmentrequests?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.entitlementManagement.ListAssignmentRequests",
       "parameters": [
         {
@@ -70,6 +74,8 @@
                   "enum": [
                     "id",
                     "id desc",
+                    "answers",
+                    "answers desc",
                     "completedDateTime",
                     "completedDateTime desc",
                     "createdDateTime",
@@ -124,6 +130,7 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "id",
+                    "answers",
                     "completedDateTime",
                     "createdDateTime",
                     "requestType",
@@ -197,6 +204,13 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.accessPackageAssignmentRequestCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -210,13 +224,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.accessPackageAssignmentRequestCollectionResponse"
-            }
-          }
         }
       },
       "deprecated": false
@@ -225,7 +232,12 @@
       "tags": [
         "identityGovernance.entitlementManagement"
       ],
-      "summary": "Create new navigation property to assignmentRequests for identityGovernance",
+      "summary": "Create accessPackageAssignmentRequest",
+      "description": "In Azure AD Entitlement Management, create a new accessPackageAssignmentRequest object.  This operation is used to assign a user to an access package, update the assignment, or to remove an access package assignment.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/entitlementmanagement-post-assignmentrequests?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.entitlementManagement.CreateAssignmentRequests",
       "requestBody": {
         "either": {
@@ -247,21 +259,7 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -278,6 +276,20 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -288,6 +300,22 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.assignmentRequests-e1cf",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
         "5XX": {
           "either": {
@@ -296,7 +324,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -314,7 +342,7 @@
       "deprecated": false
     }
   },
-  "/assignmentRequests/microsoft.graph.filterByCurrentUser(on='{on}')": {
+  "/assignmentRequests/filterByCurrentUser(on='{on}')": {
     "description": "Provides operations to call the filterByCurrentUser method.",
     "get": {
       "tags": [
@@ -349,16 +377,153 @@
               "content": {}
             }
           }
-        }
-      ],
-      "responses": {
-        "4XX": {
+        },
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/top"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "answers",
+                    "completedDateTime",
+                    "createdDateTime",
+                    "requestType",
+                    "schedule",
+                    "state",
+                    "status",
+                    "accessPackage",
+                    "assignment",
+                    "requestor"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "answers",
+                    "answers desc",
+                    "completedDateTime",
+                    "completedDateTime desc",
+                    "createdDateTime",
+                    "createdDateTime desc",
+                    "requestType",
+                    "requestType desc",
+                    "schedule",
+                    "schedule desc",
+                    "state",
+                    "state desc",
+                    "status",
+                    "status desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
         "5XX": {
           "either": {
             "Right": {
@@ -366,7 +531,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -379,58 +544,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.accessPackageAssignmentRequest"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.accessPackageAssignmentRequest"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -441,6 +631,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -483,6 +680,7 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "id",
+                    "answers",
                     "completedDateTime",
                     "createdDateTime",
                     "requestType",
@@ -563,14 +761,7 @@
             }
           }
         },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -585,6 +776,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -677,21 +875,32 @@
         }
       },
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackageAssignmentRequest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -707,7 +916,7 @@
           "Left": {
             "name": "accessPackageAssignmentRequest-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentRequest",
+            "description": "The unique identifier of accessPackageAssignmentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -772,8 +981,11 @@
                     "displayName",
                     "isHidden",
                     "modifiedDateTime",
+                    "accessPackagesIncompatibleWith",
                     "assignmentPolicies",
-                    "catalog"
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -816,8 +1028,11 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "*",
+                    "accessPackagesIncompatibleWith",
                     "assignmentPolicies",
-                    "catalog"
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -837,14 +1052,7 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -859,6 +1067,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -878,7 +1093,7 @@
           "Left": {
             "name": "accessPackageAssignmentRequest-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentRequest",
+            "description": "The unique identifier of accessPackageAssignmentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -910,7 +1125,7 @@
         "identityGovernance.entitlementManagement"
       ],
       "summary": "Get assignment from identityGovernance",
-      "description": "For a requestType of UserAdd or AdminAdd, this is an access package assignment requested to be created.  For a requestType of UserRemove, AdminRemove or SystemRemove, this has the id property of an existing assignment to be removed.   Supports $expand.",
+      "description": "For a requestType of userAdd or adminAdd, this is an access package assignment requested to be created.  For a requestType of userRemove, adminRemove or systemRemove, this has the id property of an existing assignment to be removed.   Supports $expand.",
       "operationId": "identityGovernance.entitlementManagement.assignmentRequests.GetAssignment",
       "parameters": [
         {
@@ -1009,21 +1224,7 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1040,6 +1241,20 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -1050,7 +1265,7 @@
           "Left": {
             "name": "accessPackageAssignmentRequest-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentRequest",
+            "description": "The unique identifier of accessPackageAssignmentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1075,13 +1290,18 @@
       }
     ]
   },
-  "/assignmentRequests/{accessPackageAssignmentRequest-id}/microsoft.graph.cancel": {
+  "/assignmentRequests/{accessPackageAssignmentRequest-id}/cancel": {
     "description": "Provides operations to call the cancel method.",
     "post": {
       "tags": [
         "identityGovernance.Actions"
       ],
       "summary": "Invoke action cancel",
+      "description": "In Azure AD Entitlement Management, cancel accessPackageAssignmentRequest objects that are in a cancellable state: `accepted`, `pendingApproval`, `pendingNotBefore`, `pendingApprovalEscalated`.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accesspackageassignmentrequest-cancel?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.entitlementManagement.assignmentRequests.accessPackageAssignmentRequest.cancel",
       "responses": {
         "5XX": {
@@ -1114,7 +1334,7 @@
           "Left": {
             "name": "accessPackageAssignmentRequest-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentRequest",
+            "description": "The unique identifier of accessPackageAssignmentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1139,7 +1359,7 @@
       }
     ]
   },
-  "/assignmentRequests/{accessPackageAssignmentRequest-id}/microsoft.graph.reprocess": {
+  "/assignmentRequests/{accessPackageAssignmentRequest-id}/reprocess": {
     "description": "Provides operations to call the reprocess method.",
     "post": {
       "tags": [
@@ -1155,17 +1375,17 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1178,7 +1398,7 @@
           "Left": {
             "name": "accessPackageAssignmentRequest-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentRequest",
+            "description": "The unique identifier of accessPackageAssignmentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1307,7 +1527,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1331,13 +1558,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -1348,7 +1568,7 @@
           "Left": {
             "name": "accessPackageAssignmentRequest-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentRequest",
+            "description": "The unique identifier of accessPackageAssignmentRequest",
             "required": true,
             "deprecated": false,
             "explode": false,

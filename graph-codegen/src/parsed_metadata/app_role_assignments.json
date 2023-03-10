@@ -1,0 +1,89 @@
+[
+  {
+    "path": "/appRoleAssignments",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListAppRoleAssignments",
+        "operation_mapping": "appRoleAssignments",
+        "http_method": "GET",
+        "doc": "Get appRoleAssignments from users",
+        "parent": "AppRoleAssignments",
+        "original_parent": "AppRoleAssignments",
+        "resource_identity": "AppRoleAssignments"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateAppRoleAssignments",
+        "operation_mapping": "appRoleAssignments",
+        "http_method": "POST",
+        "doc": "Grant an appRoleAssignment to a user",
+        "parent": "AppRoleAssignments",
+        "original_parent": "AppRoleAssignments",
+        "resource_identity": "AppRoleAssignments"
+      }
+    ]
+  },
+  {
+    "path": "/appRoleAssignments/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.appRoleAssignments-d180",
+        "operation_mapping": "appRoleAssignments",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "AppRoleAssignments",
+        "original_parent": "AppRoleAssignments",
+        "resource_identity": "AppRoleAssignments"
+      }
+    ]
+  },
+  {
+    "path": "/appRoleAssignments/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetAppRoleAssignments",
+        "operation_mapping": "AppRoleAssignmentsId",
+        "http_method": "GET",
+        "doc": "Get appRoleAssignments from users",
+        "parent": "AppRoleAssignmentsId",
+        "original_parent": "AppRoleAssignments",
+        "resource_identity": "AppRoleAssignments"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateAppRoleAssignments",
+        "operation_mapping": "AppRoleAssignmentsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property appRoleAssignments in users",
+        "parent": "AppRoleAssignmentsId",
+        "original_parent": "AppRoleAssignments",
+        "resource_identity": "AppRoleAssignments"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteAppRoleAssignments",
+        "operation_mapping": "AppRoleAssignmentsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property appRoleAssignments for users",
+        "parent": "AppRoleAssignmentsId",
+        "original_parent": "AppRoleAssignments",
+        "resource_identity": "AppRoleAssignments"
+      }
+    ]
+  }
+]

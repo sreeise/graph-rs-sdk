@@ -1,0 +1,19 @@
+{
+  "modifier_name": "accessReviewsDefinitionsInstances",
+  "path": "/instances",
+  "resource_identity": "AccessReviewsDefinitionsInstances",
+  "trim_path_start": "/identityGovernance/accessReviews/definitions/{accessReviewScheduleDefinition-id}",
+  "filter_path": [],
+  "replace_operation_map": null,
+  "parameter_filter": [
+    "accessReviewScheduleDefinition-id"
+  ],
+  "mod_file": null,
+  "mod_file_writer": null,
+  "mod_write_override": {
+    "folder_path": "/identity_governance/access_reviews_definitions_instances",
+    "folder_name": "identity_governance",
+    "mod_name": "access_reviews_definitions_instances"
+  },
+  "children": []
+}

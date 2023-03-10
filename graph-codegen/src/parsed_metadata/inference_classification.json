@@ -1,0 +1,120 @@
+[
+  {
+    "path": "/inferenceClassification",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetInferenceClassification",
+        "operation_mapping": "inferenceClassification",
+        "http_method": "GET",
+        "doc": "Get inferenceClassification from users",
+        "parent": "InferenceClassification",
+        "original_parent": "InferenceClassification",
+        "resource_identity": "InferenceClassification"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateInferenceClassification",
+        "operation_mapping": "inferenceClassification",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property inferenceClassification in users",
+        "parent": "InferenceClassification",
+        "original_parent": "InferenceClassification",
+        "resource_identity": "InferenceClassification"
+      }
+    ]
+  },
+  {
+    "path": "/inferenceClassification/overrides",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.inferenceClassification.ListOverrides",
+        "operation_mapping": "inferenceClassification",
+        "http_method": "GET",
+        "doc": "List overrides",
+        "parent": "InferenceClassification",
+        "original_parent": "InferenceClassification",
+        "resource_identity": "InferenceClassification"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.inferenceClassification.CreateOverrides",
+        "operation_mapping": "inferenceClassification",
+        "http_method": "POST",
+        "doc": "Create inferenceClassificationOverride",
+        "parent": "InferenceClassification",
+        "original_parent": "InferenceClassification",
+        "resource_identity": "InferenceClassification"
+      }
+    ]
+  },
+  {
+    "path": "/inferenceClassification/overrides/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.overrides-f355",
+        "operation_mapping": "inferenceClassification",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "InferenceClassification",
+        "original_parent": "InferenceClassification",
+        "resource_identity": "InferenceClassification"
+      }
+    ]
+  },
+  {
+    "path": "/inferenceClassification/overrides/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "inference_classification_override_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.inferenceClassification.DeleteOverrides",
+        "operation_mapping": "inferenceClassification",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property overrides for users",
+        "parent": "InferenceClassification",
+        "original_parent": "InferenceClassification",
+        "resource_identity": "InferenceClassification"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.inferenceClassification.UpdateOverrides",
+        "operation_mapping": "inferenceClassification",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property overrides in users",
+        "parent": "InferenceClassification",
+        "original_parent": "InferenceClassification",
+        "resource_identity": "InferenceClassification"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.inferenceClassification.GetOverrides",
+        "operation_mapping": "inferenceClassification",
+        "http_method": "GET",
+        "doc": "Get overrides from users",
+        "parent": "InferenceClassification",
+        "original_parent": "InferenceClassification",
+        "resource_identity": "InferenceClassification"
+      }
+    ]
+  }
+]

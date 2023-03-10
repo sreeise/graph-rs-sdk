@@ -1,0 +1,56 @@
+[
+  {
+    "path": "/managedAppRegistrations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListManagedAppRegistrations",
+        "operation_mapping": "managedAppRegistrations",
+        "http_method": "GET",
+        "doc": "Get managedAppRegistrations from users",
+        "parent": "ManagedAppRegistrations",
+        "original_parent": "ManagedAppRegistrations",
+        "resource_identity": "ManagedAppRegistrations"
+      }
+    ]
+  },
+  {
+    "path": "/managedAppRegistrations/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.managedAppRegistrations-9add",
+        "operation_mapping": "managedAppRegistrations",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ManagedAppRegistrations",
+        "original_parent": "ManagedAppRegistrations",
+        "resource_identity": "ManagedAppRegistrations"
+      }
+    ]
+  },
+  {
+    "path": "/managedAppRegistrations/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetManagedAppRegistrations",
+        "operation_mapping": "ManagedAppRegistrationsId",
+        "http_method": "GET",
+        "doc": "Get managedAppRegistrations from users",
+        "parent": "ManagedAppRegistrationsId",
+        "original_parent": "ManagedAppRegistrations",
+        "resource_identity": "ManagedAppRegistrations"
+      }
+    ]
+  }
+]

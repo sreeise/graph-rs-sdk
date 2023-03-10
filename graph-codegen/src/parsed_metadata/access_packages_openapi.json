@@ -5,8 +5,12 @@
       "tags": [
         "identityGovernance.entitlementManagement"
       ],
-      "summary": "Get accessPackages from identityGovernance",
-      "description": "Access packages define the collection of resource roles and the policies for which subjects can request or be assigned access to those resources.",
+      "summary": "List accessPackages",
+      "description": "Retrieve a list of accessPackage objects.  The resulting list includes all the access packages that the caller has access to read, across all catalogs.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/entitlementmanagement-list-accesspackages?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.entitlementManagement.ListAccessPackages",
       "parameters": [
         {
@@ -127,8 +131,11 @@
                     "displayName",
                     "isHidden",
                     "modifiedDateTime",
+                    "accessPackagesIncompatibleWith",
                     "assignmentPolicies",
-                    "catalog"
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -171,8 +178,11 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "*",
+                    "accessPackagesIncompatibleWith",
                     "assignmentPolicies",
-                    "catalog"
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -192,13 +202,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -206,7 +209,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.accessPackageCollectionResponse"
@@ -220,7 +230,12 @@
       "tags": [
         "identityGovernance.entitlementManagement"
       ],
-      "summary": "Create new navigation property to accessPackages for identityGovernance",
+      "summary": "Create accessPackage",
+      "description": "Create a new accessPackage object. The access package will be added to an existing accessPackageCatalog.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/entitlementmanagement-post-accesspackages?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.entitlementManagement.CreateAccessPackages",
       "requestBody": {
         "either": {
@@ -242,7 +257,14 @@
         }
       },
       "responses": {
-        "201": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -266,13 +288,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -283,15 +298,24 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.accessPackages-87ea",
-      "responses": {
-        "5XX": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
-        "200": {
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -304,12 +328,19 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     }
   },
-  "/accessPackages/microsoft.graph.filterByCurrentUser(on='{on}')": {
+  "/accessPackages/filterByCurrentUser(on='{on}')": {
     "description": "Provides operations to call the filterByCurrentUser method.",
     "get": {
       "tags": [
@@ -344,16 +375,149 @@
               "content": {}
             }
           }
-        }
-      ],
-      "responses": {
-        "5XX": {
+        },
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/top"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "createdDateTime",
+                    "description",
+                    "displayName",
+                    "isHidden",
+                    "modifiedDateTime",
+                    "accessPackagesIncompatibleWith",
+                    "assignmentPolicies",
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "createdDateTime",
+                    "createdDateTime desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "isHidden",
+                    "isHidden desc",
+                    "modifiedDateTime",
+                    "modifiedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
         "4XX": {
           "either": {
             "Right": {
@@ -361,7 +525,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -374,58 +545,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.accessPackage"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.accessPackage"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -483,8 +679,11 @@
                     "displayName",
                     "isHidden",
                     "modifiedDateTime",
+                    "accessPackagesIncompatibleWith",
                     "assignmentPolicies",
-                    "catalog"
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -527,8 +726,11 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "*",
+                    "accessPackagesIncompatibleWith",
                     "assignmentPolicies",
-                    "catalog"
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -548,21 +750,7 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -577,6 +765,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -619,6 +821,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -630,13 +839,6 @@
           "either": {
             "Left": {
               "description": "Success"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -669,10 +871,279 @@
         }
       },
       "responses": {
-        "204": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackage"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/accessPackagesIncompatibleWith": {
+    "description": "Provides operations to manage the accessPackagesIncompatibleWith property of the microsoft.graph.accessPackage entity.",
+    "get": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "List accessPackagesIncompatibleWith",
+      "description": "Retrieve a list of the accessPackage objects that have marked a specified accessPackage as incompatible.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accesspackage-list-accesspackagesincompatiblewith?view=graph-rest-1.0"
+      },
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.ListAccessPackagesIncompatibleWith",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "createdDateTime",
+                    "createdDateTime desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "isHidden",
+                    "isHidden desc",
+                    "modifiedDateTime",
+                    "modifiedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "createdDateTime",
+                    "description",
+                    "displayName",
+                    "isHidden",
+                    "modifiedDateTime",
+                    "accessPackagesIncompatibleWith",
+                    "assignmentPolicies",
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "accessPackagesIncompatibleWith",
+                    "assignmentPolicies",
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.accessPackageCollectionResponse"
             }
           }
         },
@@ -699,7 +1170,289 @@
           "Left": {
             "name": "accessPackage-id",
             "in": "path",
-            "description": "key: id of accessPackage",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/accessPackagesIncompatibleWith/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.accessPackagesIncompatibleWith-2183",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/accessPackagesIncompatibleWith/{accessPackage-id1}": {
+    "description": "Provides operations to manage the accessPackagesIncompatibleWith property of the microsoft.graph.accessPackage entity.",
+    "get": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Get accessPackagesIncompatibleWith from identityGovernance",
+      "description": "The access packages that are incompatible with this package. Read-only.",
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.GetAccessPackagesIncompatibleWith",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "createdDateTime",
+                    "description",
+                    "displayName",
+                    "isHidden",
+                    "modifiedDateTime",
+                    "accessPackagesIncompatibleWith",
+                    "assignmentPolicies",
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "accessPackagesIncompatibleWith",
+                    "assignmentPolicies",
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved navigation property",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackage"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id1",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -870,7 +1623,8 @@
                     "reviewSettings",
                     "specificAllowedTargets",
                     "accessPackage",
-                    "catalog"
+                    "catalog",
+                    "questions"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -914,7 +1668,8 @@
                   "enum": [
                     "*",
                     "accessPackage",
-                    "catalog"
+                    "catalog",
+                    "questions"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -934,17 +1689,17 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.accessPackageAssignmentPolicyCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.accessPackageAssignmentPolicyCollectionResponse"
             }
           }
         },
@@ -984,14 +1739,14 @@
         }
       },
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -1009,7 +1764,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1025,7 +1780,7 @@
           "Left": {
             "name": "accessPackage-id",
             "in": "path",
-            "description": "key: id of accessPackage",
+            "description": "The unique identifier of accessPackage",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1055,22 +1810,38 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.assignmentPolicies-96f1",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1086,7 +1857,7 @@
           "Left": {
             "name": "accessPackage-id",
             "in": "path",
-            "description": "key: id of accessPackage",
+            "description": "The unique identifier of accessPackage",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1157,7 +1928,8 @@
                     "reviewSettings",
                     "specificAllowedTargets",
                     "accessPackage",
-                    "catalog"
+                    "catalog",
+                    "questions"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -1201,7 +1973,8 @@
                   "enum": [
                     "*",
                     "accessPackage",
-                    "catalog"
+                    "catalog",
+                    "questions"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -1221,6 +1994,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -1228,7 +2008,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1243,13 +2023,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1342,10 +2115,21 @@
         }
       },
       "responses": {
-        "5XX": {
+        "2XX": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackageAssignmentPolicy"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -1356,10 +2140,10 @@
             }
           }
         },
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1372,7 +2156,7 @@
           "Left": {
             "name": "accessPackage-id",
             "in": "path",
-            "description": "key: id of accessPackage",
+            "description": "The unique identifier of accessPackage",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1400,7 +2184,7 @@
           "Left": {
             "name": "accessPackageAssignmentPolicy-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentPolicy",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1465,8 +2249,11 @@
                     "displayName",
                     "isHidden",
                     "modifiedDateTime",
+                    "accessPackagesIncompatibleWith",
                     "assignmentPolicies",
-                    "catalog"
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -1509,8 +2296,11 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "*",
+                    "accessPackagesIncompatibleWith",
                     "assignmentPolicies",
-                    "catalog"
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -1530,7 +2320,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1554,13 +2351,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -1571,7 +2361,7 @@
           "Left": {
             "name": "accessPackage-id",
             "in": "path",
-            "description": "key: id of accessPackage",
+            "description": "The unique identifier of accessPackage",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1599,7 +2389,7 @@
           "Left": {
             "name": "accessPackageAssignmentPolicy-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentPolicy",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1736,14 +2526,7 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1760,6 +2543,13 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -1770,7 +2560,7 @@
           "Left": {
             "name": "accessPackage-id",
             "in": "path",
-            "description": "key: id of accessPackage",
+            "description": "The unique identifier of accessPackage",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1798,7 +2588,7 @@
           "Left": {
             "name": "accessPackageAssignmentPolicy-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentPolicy",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1818,6 +2608,788 @@
             "examples": {},
             "content": {},
             "x-ms-docs-key-type": "accessPackageAssignmentPolicy"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/assignmentPolicies/{accessPackageAssignmentPolicy-id}/questions": {
+    "description": "Provides operations to manage the questions property of the microsoft.graph.accessPackageAssignmentPolicy entity.",
+    "get": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Get questions from identityGovernance",
+      "description": "Questions that are posed to the  requestor.",
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.assignmentPolicies.ListQuestions",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "isAnswerEditable",
+                    "isAnswerEditable desc",
+                    "isRequired",
+                    "isRequired desc",
+                    "localizations",
+                    "localizations desc",
+                    "sequence",
+                    "sequence desc",
+                    "text",
+                    "text desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "isAnswerEditable",
+                    "isRequired",
+                    "localizations",
+                    "sequence",
+                    "text"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.accessPackageQuestionCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Create new navigation property to questions for identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.assignmentPolicies.CreateQuestions",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.accessPackageQuestion"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Created navigation property.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackageQuestion"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackageAssignmentPolicy-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackageAssignmentPolicy"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/assignmentPolicies/{accessPackageAssignmentPolicy-id}/questions/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.questions-00ce",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackageAssignmentPolicy-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackageAssignmentPolicy"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/assignmentPolicies/{accessPackageAssignmentPolicy-id}/questions/{accessPackageQuestion-id}": {
+    "description": "Provides operations to manage the questions property of the microsoft.graph.accessPackageAssignmentPolicy entity.",
+    "get": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Get questions from identityGovernance",
+      "description": "Questions that are posed to the  requestor.",
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.assignmentPolicies.GetQuestions",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "isAnswerEditable",
+                    "isRequired",
+                    "localizations",
+                    "sequence",
+                    "text"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved navigation property",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackageQuestion"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "delete": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Delete navigation property questions for identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.assignmentPolicies.DeleteQuestions",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "patch": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Update the navigation property questions in identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.assignmentPolicies.UpdateQuestions",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.accessPackageQuestion"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackageQuestion"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackageAssignmentPolicy-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackageAssignmentPolicy"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackageQuestion-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackageQuestion",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackageQuestion"
           }
         }
       }
@@ -1941,7 +3513,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1968,7 +3540,7 @@
           "Left": {
             "name": "accessPackage-id",
             "in": "path",
-            "description": "key: id of accessPackage",
+            "description": "The unique identifier of accessPackage",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1993,23 +3565,21 @@
       }
     ]
   },
-  "/accessPackages/{accessPackage-id}/microsoft.graph.getApplicablePolicyRequirements": {
+  "/accessPackages/{accessPackage-id}/getApplicablePolicyRequirements": {
     "description": "Provides operations to call the getApplicablePolicyRequirements method.",
     "post": {
       "tags": [
         "identityGovernance.Actions"
       ],
       "summary": "Invoke action getApplicablePolicyRequirements",
+      "description": "In Azure AD entitlement management, this action retrieves a list of accessPackageAssignmentRequestRequirements objects that the currently signed-in user can use to create an accessPackageAssignmentRequest.  Each requirement object corresponds to an access package assignment policy that the currently signed-in user is allowed to request an assignment for.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accesspackage-getapplicablepolicyrequirements?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.entitlementManagement.accessPackages.accessPackage.getApplicablePolicyRequirements",
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -2018,62 +3588,86 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "title": "Collection of accessPackage",
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.accessPackageAssignmentRequestRequirements"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.accessPackageAssignmentRequestRequirements"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -2093,6 +3687,13 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -2103,7 +3704,7 @@
           "Left": {
             "name": "accessPackage-id",
             "in": "path",
-            "description": "key: id of accessPackage",
+            "description": "The unique identifier of accessPackage",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2123,6 +3724,1580 @@
             "examples": {},
             "content": {},
             "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/incompatibleAccessPackages": {
+    "description": "Provides operations to manage the incompatibleAccessPackages property of the microsoft.graph.accessPackage entity.",
+    "get": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "List incompatibleAccessPackages",
+      "description": "Retrieve a list of the accessPackage objects that have been marked as incompatible on an accessPackage.  ",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accesspackage-list-incompatibleaccesspackages?view=graph-rest-1.0"
+      },
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.ListIncompatibleAccessPackages",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "createdDateTime",
+                    "createdDateTime desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "isHidden",
+                    "isHidden desc",
+                    "modifiedDateTime",
+                    "modifiedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "createdDateTime",
+                    "description",
+                    "displayName",
+                    "isHidden",
+                    "modifiedDateTime",
+                    "accessPackagesIncompatibleWith",
+                    "assignmentPolicies",
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "accessPackagesIncompatibleWith",
+                    "assignmentPolicies",
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.accessPackageCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/incompatibleAccessPackages/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.incompatibleAccessPackages-c2c1",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/incompatibleAccessPackages/$ref": {
+    "description": "Provides operations to manage the collection of identityGovernance entities.",
+    "get": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "List incompatibleAccessPackages",
+      "description": "Retrieve a list of the accessPackage objects that have been marked as incompatible on an accessPackage.  ",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accesspackage-list-incompatibleaccesspackages?view=graph-rest-1.0"
+      },
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.ListRefIncompatibleAccessPackages",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "createdDateTime",
+                    "createdDateTime desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "isHidden",
+                    "isHidden desc",
+                    "modifiedDateTime",
+                    "modifiedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/StringCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Create new navigation property ref to incompatibleAccessPackages for identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.CreateRefIncompatibleAccessPackages",
+      "requestBody": {
+        "either": {
+          "Right": {
+            "$ref": "#/components/requestBodies/refPostBody"
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/incompatibleAccessPackages/{accessPackage-id1}/$ref": {
+    "description": "Provides operations to manage the collection of identityGovernance entities.",
+    "delete": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Delete ref of navigation property incompatibleAccessPackages for identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.DeleteRefIncompatibleAccessPackages",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "@id",
+              "in": "query",
+              "description": "Delete Uri",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id1",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/incompatibleGroups": {
+    "description": "Provides operations to manage the incompatibleGroups property of the microsoft.graph.accessPackage entity.",
+    "get": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "List incompatibleGroups",
+      "description": "Retrieve a list of the group objects that have been marked as incompatible on an accessPackage.  ",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accesspackage-list-incompatiblegroups?view=graph-rest-1.0"
+      },
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.ListIncompatibleGroups",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc",
+                    "assignedLabels",
+                    "assignedLabels desc",
+                    "assignedLicenses",
+                    "assignedLicenses desc",
+                    "classification",
+                    "classification desc",
+                    "createdDateTime",
+                    "createdDateTime desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "expirationDateTime",
+                    "expirationDateTime desc",
+                    "groupTypes",
+                    "groupTypes desc",
+                    "hasMembersWithLicenseErrors",
+                    "hasMembersWithLicenseErrors desc",
+                    "isAssignableToRole",
+                    "isAssignableToRole desc",
+                    "licenseProcessingState",
+                    "licenseProcessingState desc",
+                    "mail",
+                    "mail desc",
+                    "mailEnabled",
+                    "mailEnabled desc",
+                    "mailNickname",
+                    "mailNickname desc",
+                    "membershipRule",
+                    "membershipRule desc",
+                    "membershipRuleProcessingState",
+                    "membershipRuleProcessingState desc",
+                    "onPremisesDomainName",
+                    "onPremisesDomainName desc",
+                    "onPremisesLastSyncDateTime",
+                    "onPremisesLastSyncDateTime desc",
+                    "onPremisesNetBiosName",
+                    "onPremisesNetBiosName desc",
+                    "onPremisesProvisioningErrors",
+                    "onPremisesProvisioningErrors desc",
+                    "onPremisesSamAccountName",
+                    "onPremisesSamAccountName desc",
+                    "onPremisesSecurityIdentifier",
+                    "onPremisesSecurityIdentifier desc",
+                    "onPremisesSyncEnabled",
+                    "onPremisesSyncEnabled desc",
+                    "preferredDataLocation",
+                    "preferredDataLocation desc",
+                    "preferredLanguage",
+                    "preferredLanguage desc",
+                    "proxyAddresses",
+                    "proxyAddresses desc",
+                    "renewedDateTime",
+                    "renewedDateTime desc",
+                    "securityEnabled",
+                    "securityEnabled desc",
+                    "securityIdentifier",
+                    "securityIdentifier desc",
+                    "theme",
+                    "theme desc",
+                    "visibility",
+                    "visibility desc",
+                    "allowExternalSenders",
+                    "allowExternalSenders desc",
+                    "autoSubscribeNewMembers",
+                    "autoSubscribeNewMembers desc",
+                    "hideFromAddressLists",
+                    "hideFromAddressLists desc",
+                    "hideFromOutlookClients",
+                    "hideFromOutlookClients desc",
+                    "isSubscribedByMail",
+                    "isSubscribedByMail desc",
+                    "unseenCount",
+                    "unseenCount desc",
+                    "isArchived",
+                    "isArchived desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime",
+                    "assignedLabels",
+                    "assignedLicenses",
+                    "classification",
+                    "createdDateTime",
+                    "description",
+                    "displayName",
+                    "expirationDateTime",
+                    "groupTypes",
+                    "hasMembersWithLicenseErrors",
+                    "isAssignableToRole",
+                    "licenseProcessingState",
+                    "mail",
+                    "mailEnabled",
+                    "mailNickname",
+                    "membershipRule",
+                    "membershipRuleProcessingState",
+                    "onPremisesDomainName",
+                    "onPremisesLastSyncDateTime",
+                    "onPremisesNetBiosName",
+                    "onPremisesProvisioningErrors",
+                    "onPremisesSamAccountName",
+                    "onPremisesSecurityIdentifier",
+                    "onPremisesSyncEnabled",
+                    "preferredDataLocation",
+                    "preferredLanguage",
+                    "proxyAddresses",
+                    "renewedDateTime",
+                    "securityEnabled",
+                    "securityIdentifier",
+                    "theme",
+                    "visibility",
+                    "allowExternalSenders",
+                    "autoSubscribeNewMembers",
+                    "hideFromAddressLists",
+                    "hideFromOutlookClients",
+                    "isSubscribedByMail",
+                    "unseenCount",
+                    "isArchived",
+                    "appRoleAssignments",
+                    "createdOnBehalfOf",
+                    "memberOf",
+                    "members",
+                    "membersWithLicenseErrors",
+                    "owners",
+                    "permissionGrants",
+                    "settings",
+                    "transitiveMemberOf",
+                    "transitiveMembers",
+                    "acceptedSenders",
+                    "calendar",
+                    "calendarView",
+                    "conversations",
+                    "events",
+                    "rejectedSenders",
+                    "threads",
+                    "drive",
+                    "drives",
+                    "sites",
+                    "extensions",
+                    "groupLifecyclePolicies",
+                    "planner",
+                    "onenote",
+                    "photo",
+                    "photos",
+                    "team"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*",
+                    "appRoleAssignments",
+                    "createdOnBehalfOf",
+                    "memberOf",
+                    "members",
+                    "membersWithLicenseErrors",
+                    "owners",
+                    "permissionGrants",
+                    "settings",
+                    "transitiveMemberOf",
+                    "transitiveMembers",
+                    "acceptedSenders",
+                    "calendar",
+                    "calendarView",
+                    "conversations",
+                    "events",
+                    "rejectedSenders",
+                    "threads",
+                    "drive",
+                    "drives",
+                    "sites",
+                    "extensions",
+                    "groupLifecyclePolicies",
+                    "planner",
+                    "onenote",
+                    "photo",
+                    "photos",
+                    "team"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.groupCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/incompatibleGroups/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.incompatibleGroups-30b4",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/incompatibleGroups/$ref": {
+    "description": "Provides operations to manage the collection of identityGovernance entities.",
+    "get": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "List incompatibleGroups",
+      "description": "Retrieve a list of the group objects that have been marked as incompatible on an accessPackage.  ",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/accesspackage-list-incompatiblegroups?view=graph-rest-1.0"
+      },
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.ListRefIncompatibleGroups",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc",
+                    "assignedLabels",
+                    "assignedLabels desc",
+                    "assignedLicenses",
+                    "assignedLicenses desc",
+                    "classification",
+                    "classification desc",
+                    "createdDateTime",
+                    "createdDateTime desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "expirationDateTime",
+                    "expirationDateTime desc",
+                    "groupTypes",
+                    "groupTypes desc",
+                    "hasMembersWithLicenseErrors",
+                    "hasMembersWithLicenseErrors desc",
+                    "isAssignableToRole",
+                    "isAssignableToRole desc",
+                    "licenseProcessingState",
+                    "licenseProcessingState desc",
+                    "mail",
+                    "mail desc",
+                    "mailEnabled",
+                    "mailEnabled desc",
+                    "mailNickname",
+                    "mailNickname desc",
+                    "membershipRule",
+                    "membershipRule desc",
+                    "membershipRuleProcessingState",
+                    "membershipRuleProcessingState desc",
+                    "onPremisesDomainName",
+                    "onPremisesDomainName desc",
+                    "onPremisesLastSyncDateTime",
+                    "onPremisesLastSyncDateTime desc",
+                    "onPremisesNetBiosName",
+                    "onPremisesNetBiosName desc",
+                    "onPremisesProvisioningErrors",
+                    "onPremisesProvisioningErrors desc",
+                    "onPremisesSamAccountName",
+                    "onPremisesSamAccountName desc",
+                    "onPremisesSecurityIdentifier",
+                    "onPremisesSecurityIdentifier desc",
+                    "onPremisesSyncEnabled",
+                    "onPremisesSyncEnabled desc",
+                    "preferredDataLocation",
+                    "preferredDataLocation desc",
+                    "preferredLanguage",
+                    "preferredLanguage desc",
+                    "proxyAddresses",
+                    "proxyAddresses desc",
+                    "renewedDateTime",
+                    "renewedDateTime desc",
+                    "securityEnabled",
+                    "securityEnabled desc",
+                    "securityIdentifier",
+                    "securityIdentifier desc",
+                    "theme",
+                    "theme desc",
+                    "visibility",
+                    "visibility desc",
+                    "allowExternalSenders",
+                    "allowExternalSenders desc",
+                    "autoSubscribeNewMembers",
+                    "autoSubscribeNewMembers desc",
+                    "hideFromAddressLists",
+                    "hideFromAddressLists desc",
+                    "hideFromOutlookClients",
+                    "hideFromOutlookClients desc",
+                    "isSubscribedByMail",
+                    "isSubscribedByMail desc",
+                    "unseenCount",
+                    "unseenCount desc",
+                    "isArchived",
+                    "isArchived desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/StringCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Create new navigation property ref to incompatibleGroups for identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.CreateRefIncompatibleGroups",
+      "requestBody": {
+        "either": {
+          "Right": {
+            "$ref": "#/components/requestBodies/refPostBody"
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      }
+    ]
+  },
+  "/accessPackages/{accessPackage-id}/incompatibleGroups/{group-id}/$ref": {
+    "description": "Provides operations to manage the collection of identityGovernance entities.",
+    "delete": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Delete ref of navigation property incompatibleGroups for identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.accessPackages.DeleteRefIncompatibleGroups",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "@id",
+              "in": "query",
+              "description": "Delete Uri",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackage-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackage",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackage"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "group-id",
+            "in": "path",
+            "description": "The unique identifier of group",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "group"
           }
         }
       }

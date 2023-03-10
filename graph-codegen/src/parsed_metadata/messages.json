@@ -1,0 +1,483 @@
+[
+  {
+    "path": "/messages",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListMessages",
+        "operation_mapping": "messages",
+        "http_method": "GET",
+        "doc": "Get open extension",
+        "parent": "UsersMessages",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateMessages",
+        "operation_mapping": "messages",
+        "http_method": "POST",
+        "doc": "Create open extension",
+        "parent": "UsersMessages",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.messages-0f52",
+        "operation_mapping": "messages",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "UsersMessages",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "users.user.messages.delta",
+        "operation_mapping": "messages",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "UsersMessages",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteMessages",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property messages for users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetMessages",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "GET",
+        "doc": "Get messages from users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateMessages",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property messages in users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/$value",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.UpdateMessagesContent",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "PUT",
+        "doc": "Update media content for the navigation property messages in users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetMessagesContent",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "GET",
+        "doc": "Get media content for the navigation property messages from users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/attachments",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.messages.CreateAttachments",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Add attachment",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.messages.ListAttachments",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "GET",
+        "doc": "List attachments",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/attachments/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.attachments-a586",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/attachments/createUploadSession",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "UploadSession",
+        "operation_id": "users.user.messages.message.attachments.createUploadSession",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Invoke action createUploadSession",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/attachments/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "attachment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.messages.GetAttachments",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "GET",
+        "doc": "Get attachments from users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.messages.DeleteAttachments",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property attachments for users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/copy",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.messages.message.copy",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Invoke action copy",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/createForward",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.messages.message.createForward",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Invoke action createForward",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/createReply",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.messages.message.createReply",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Invoke action createReply",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/createReplyAll",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.messages.message.createReplyAll",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Invoke action createReplyAll",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/extensions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.messages.ListExtensions",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "GET",
+        "doc": "Get extensions from users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.messages.CreateExtensions",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Create open extension",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/extensions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.extensions-5628",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/extensions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "extension_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.messages.UpdateExtensions",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property extensions in users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.messages.DeleteExtensions",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property extensions for users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.messages.GetExtensions",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "GET",
+        "doc": "Get extensions from users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/forward",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.messages.message.forward",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Invoke action forward",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/move",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.messages.message.move",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Invoke action move",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/reply",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.messages.message.reply",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Invoke action reply",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/replyAll",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.messages.message.replyAll",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Invoke action replyAll",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  },
+  {
+    "path": "/messages/{{RID}}/send",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.messages.message.send",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "POST",
+        "doc": "Invoke action send",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      }
+    ]
+  }
+]

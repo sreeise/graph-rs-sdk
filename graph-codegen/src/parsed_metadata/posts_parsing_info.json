@@ -1,0 +1,24 @@
+{
+  "modifier_name": null,
+  "path": "/posts",
+  "resource_identity": "GroupsThreadsPosts",
+  "trim_path_start": "/groups/{group-id}/threads/{conversationThread-id}",
+  "filter_path": [
+    "inReplyTo",
+    "/multiValueExtendedProperties",
+    "singleValueExtendedProperties"
+  ],
+  "replace_operation_map": "groupsThreadsPosts",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/groups/groups_threads_posts/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

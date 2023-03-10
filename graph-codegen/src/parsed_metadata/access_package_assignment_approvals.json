@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.CreateAccessPackageAssignmentApprovals",
-        "operation_mapping": "accessPackageAssignmentApprovals",
-        "http_method": "POST",
-        "doc": "Create new navigation property to accessPackageAssignmentApprovals for identityGovernance",
-        "parent": "AccessPackageAssignmentApprovals",
-        "original_parent": "AccessPackageAssignmentApprovals",
-        "resource_identity": "AccessPackageAssignmentApprovals"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "identityGovernance.entitlementManagement.ListAccessPackageAssignmentApprovals",
         "operation_mapping": "accessPackageAssignmentApprovals",
         "http_method": "GET",
         "doc": "Get accessPackageAssignmentApprovals from identityGovernance",
+        "parent": "AccessPackageAssignmentApprovals",
+        "original_parent": "AccessPackageAssignmentApprovals",
+        "resource_identity": "AccessPackageAssignmentApprovals"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.CreateAccessPackageAssignmentApprovals",
+        "operation_mapping": "accessPackageAssignmentApprovals",
+        "http_method": "POST",
+        "doc": "Create new navigation property to accessPackageAssignmentApprovals for identityGovernance",
         "parent": "AccessPackageAssignmentApprovals",
         "original_parent": "AccessPackageAssignmentApprovals",
         "resource_identity": "AccessPackageAssignmentApprovals"
@@ -47,7 +47,7 @@
     ]
   },
   {
-    "path": "/accessPackageAssignmentApprovals/microsoft.graph.filterByCurrentUser(on='{{id}}')",
+    "path": "/accessPackageAssignmentApprovals/filterByCurrentUser(on='{{id}}')",
     "param_size": 1,
     "parameters": [
       "on"
@@ -75,7 +75,7 @@
         "has_body": false,
         "request_task": "Json",
         "operation_id": "identityGovernance.entitlementManagement.GetAccessPackageAssignmentApprovals",
-        "operation_mapping": "accessPackageAssignmentApprovalsId",
+        "operation_mapping": "AccessPackageAssignmentApprovalsId",
         "http_method": "GET",
         "doc": "Get accessPackageAssignmentApprovals from identityGovernance",
         "parent": "AccessPackageAssignmentApprovalsId",
@@ -86,7 +86,7 @@
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "identityGovernance.entitlementManagement.DeleteAccessPackageAssignmentApprovals",
-        "operation_mapping": "accessPackageAssignmentApprovalsId",
+        "operation_mapping": "AccessPackageAssignmentApprovalsId",
         "http_method": "DELETE",
         "doc": "Delete navigation property accessPackageAssignmentApprovals for identityGovernance",
         "parent": "AccessPackageAssignmentApprovalsId",
@@ -95,9 +95,9 @@
       },
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "identityGovernance.entitlementManagement.UpdateAccessPackageAssignmentApprovals",
-        "operation_mapping": "accessPackageAssignmentApprovalsId",
+        "operation_mapping": "AccessPackageAssignmentApprovalsId",
         "http_method": "PATCH",
         "doc": "Update the navigation property accessPackageAssignmentApprovals in identityGovernance",
         "parent": "AccessPackageAssignmentApprovalsId",
@@ -115,9 +115,9 @@
         "has_body": false,
         "request_task": "Json",
         "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.ListStages",
-        "operation_mapping": "accessPackageAssignmentApprovalsId",
+        "operation_mapping": "AccessPackageAssignmentApprovalsId",
         "http_method": "GET",
-        "doc": "Get stages from identityGovernance",
+        "doc": "List approval stages",
         "parent": "AccessPackageAssignmentApprovalsId",
         "original_parent": "AccessPackageAssignmentApprovals",
         "resource_identity": "AccessPackageAssignmentApprovals"
@@ -126,7 +126,7 @@
         "has_body": true,
         "request_task": "Json",
         "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.CreateStages",
-        "operation_mapping": "accessPackageAssignmentApprovalsId",
+        "operation_mapping": "AccessPackageAssignmentApprovalsId",
         "http_method": "POST",
         "doc": "Create new navigation property to stages for identityGovernance",
         "parent": "AccessPackageAssignmentApprovalsId",
@@ -144,7 +144,7 @@
         "has_body": false,
         "request_task": "Json",
         "operation_id": "Get.Count.stages-0bb2",
-        "operation_mapping": "accessPackageAssignmentApprovalsId",
+        "operation_mapping": "AccessPackageAssignmentApprovalsId",
         "http_method": "GET",
         "doc": "Get the number of the resource",
         "parent": "AccessPackageAssignmentApprovalsId",
@@ -161,21 +161,10 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.GetStages",
-        "operation_mapping": "accessPackageAssignmentApprovalsId",
-        "http_method": "GET",
-        "doc": "Get stages from identityGovernance",
-        "parent": "AccessPackageAssignmentApprovalsId",
-        "original_parent": "AccessPackageAssignmentApprovals",
-        "resource_identity": "AccessPackageAssignmentApprovals"
-      },
-      {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.UpdateStages",
-        "operation_mapping": "accessPackageAssignmentApprovalsId",
+        "operation_mapping": "AccessPackageAssignmentApprovalsId",
         "http_method": "PATCH",
         "doc": "Update the navigation property stages in identityGovernance",
         "parent": "AccessPackageAssignmentApprovalsId",
@@ -184,9 +173,20 @@
       },
       {
         "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.GetStages",
+        "operation_mapping": "AccessPackageAssignmentApprovalsId",
+        "http_method": "GET",
+        "doc": "Get stages from identityGovernance",
+        "parent": "AccessPackageAssignmentApprovalsId",
+        "original_parent": "AccessPackageAssignmentApprovals",
+        "resource_identity": "AccessPackageAssignmentApprovals"
+      },
+      {
+        "has_body": false,
         "request_task": "NoContent",
         "operation_id": "identityGovernance.entitlementManagement.accessPackageAssignmentApprovals.DeleteStages",
-        "operation_mapping": "accessPackageAssignmentApprovalsId",
+        "operation_mapping": "AccessPackageAssignmentApprovalsId",
         "http_method": "DELETE",
         "doc": "Delete navigation property stages for identityGovernance",
         "parent": "AccessPackageAssignmentApprovalsId",

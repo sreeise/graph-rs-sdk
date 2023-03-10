@@ -1,0 +1,446 @@
+[
+  {
+    "path": "/submissions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.ListSubmissions",
+        "operation_mapping": "submissions",
+        "http_method": "GET",
+        "doc": "List submissions",
+        "parent": "EducationAssignmentsSubmissions",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.CreateSubmissions",
+        "operation_mapping": "submissions",
+        "http_method": "POST",
+        "doc": "Create new navigation property to submissions for education",
+        "parent": "EducationAssignmentsSubmissions",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.submissions-39e1",
+        "operation_mapping": "submissions",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "EducationAssignmentsSubmissions",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "education.me.assignments.DeleteSubmissions",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property submissions for education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.GetSubmissions",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "GET",
+        "doc": "Get submissions from education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.UpdateSubmissions",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property submissions in education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/outcomes",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.ListOutcomes",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "GET",
+        "doc": "List outcomes",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.CreateOutcomes",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "POST",
+        "doc": "Create educationFeedbackResourceOutcome",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/outcomes/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.outcomes-86b6",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/outcomes/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "education_outcome_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.UpdateOutcomes",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property outcomes in education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.GetOutcomes",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "GET",
+        "doc": "Get outcomes from education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "education.me.assignments.submissions.DeleteOutcomes",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property outcomes for education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/reassign",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.educationAssignment.submissions.educationSubmission.reassign",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "POST",
+        "doc": "Invoke action reassign",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/resources",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.CreateResources",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "POST",
+        "doc": "Create educationSubmissionResource",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.ListResources",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "GET",
+        "doc": "List submission resources",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/resources/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.resources-4a0c",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/resources/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "education_submission_resource_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "education.me.assignments.submissions.DeleteResources",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property resources for education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.GetResources",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "GET",
+        "doc": "Get resources from education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.UpdateResources",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property resources in education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/return",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.educationAssignment.submissions.educationSubmission.return",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "POST",
+        "doc": "Invoke action return",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/setUpResourcesFolder",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.educationAssignment.submissions.educationSubmission.setUpResourcesFolder",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "POST",
+        "doc": "Invoke action setUpResourcesFolder",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/submit",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.educationAssignment.submissions.educationSubmission.submit",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "POST",
+        "doc": "Invoke action submit",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/submittedResources",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.CreateSubmittedResources",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to submittedResources for education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.ListSubmittedResources",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "GET",
+        "doc": "List submittedResources",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/submittedResources/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.submittedResources-a574",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/submittedResources/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "education_submission_resource_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.UpdateSubmittedResources",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property submittedResources in education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.submissions.GetSubmittedResources",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "GET",
+        "doc": "Get submittedResources from education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "education.me.assignments.submissions.DeleteSubmittedResources",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property submittedResources for education",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  },
+  {
+    "path": "/submissions/{{RID}}/unsubmit",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "education.me.assignments.educationAssignment.submissions.educationSubmission.unsubmit",
+        "operation_mapping": "EducationAssignmentsSubmissionsId",
+        "http_method": "POST",
+        "doc": "Invoke action unsubmit",
+        "parent": "EducationAssignmentsSubmissionsId",
+        "original_parent": "EducationAssignmentsSubmissions",
+        "resource_identity": "EducationAssignmentsSubmissions"
+      }
+    ]
+  }
+]

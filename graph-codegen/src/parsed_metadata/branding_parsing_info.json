@@ -1,7 +1,20 @@
 {
-  "modifier_name": "branding",
+  "modifier_name": null,
   "path": "/branding",
   "resource_identity": "Branding",
   "trim_path_start": null,
-  "parameter_filter": []
+  "filter_path": [],
+  "replace_operation_map": "branding",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/branding/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
 }

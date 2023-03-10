@@ -1,0 +1,23 @@
+{
+  "modifier_name": null,
+  "path": "/messages",
+  "resource_identity": "UsersMessages",
+  "trim_path_start": "/users/{user-id}",
+  "filter_path": [
+    "/multiValueExtendedProperties",
+    "singleValueExtendedProperties"
+  ],
+  "replace_operation_map": "usersMessages",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/users/users_messages/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

@@ -1,0 +1,19 @@
+{
+  "modifier_name": "termsAndConditions",
+  "path": "/termsAndConditions",
+  "resource_identity": "TermsAndConditions",
+  "trim_path_start": "/deviceManagement",
+  "filter_path": [],
+  "replace_operation_map": "termsAndConditions",
+  "parameter_filter": [],
+  "mod_file_writer": null,
+  "mod_write_override": {
+    "folder_path": "/device_management/terms_and_conditions",
+    "folder_name": "device_management",
+    "mod_name": "terms_and_conditions",
+    "mod_file_string": [
+      "terms_and_conditions"
+    ]
+  },
+  "children": []
+}

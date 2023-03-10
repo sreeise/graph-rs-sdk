@@ -1,0 +1,833 @@
+[
+  {
+    "path": "/users",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.ListUser",
+        "operation_mapping": "users",
+        "http_method": "GET",
+        "doc": "List users",
+        "parent": "Users",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.CreateUser",
+        "operation_mapping": "users",
+        "http_method": "POST",
+        "doc": "Create User",
+        "parent": "Users",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.users-ee47",
+        "operation_mapping": "users",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Users",
+        "original_parent": "Get",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "users.delta",
+        "operation_mapping": "users",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "Users",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/getAvailableExtensionProperties",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.getAvailableExtensionProperties",
+        "operation_mapping": "users",
+        "http_method": "POST",
+        "doc": "Invoke action getAvailableExtensionProperties",
+        "parent": "Users",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/getByIds",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.getByIds",
+        "operation_mapping": "users",
+        "http_method": "POST",
+        "doc": "Invoke action getByIds",
+        "parent": "Users",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/validateProperties",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.validateProperties",
+        "operation_mapping": "users",
+        "http_method": "POST",
+        "doc": "Invoke action validateProperties",
+        "parent": "Users",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.GetUser",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Get user",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.UpdateUser",
+        "operation_mapping": "UsersId",
+        "http_method": "PATCH",
+        "doc": "Update user",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.DeleteUser",
+        "operation_mapping": "UsersId",
+        "http_method": "DELETE",
+        "doc": "Delete a user",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/agreementAcceptances",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListAgreementAcceptances",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "List agreementAcceptances",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/agreementAcceptances/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.agreementAcceptances-b659",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "UsersId",
+        "original_parent": "Get",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/agreementAcceptances/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "agreement_acceptance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetAgreementAcceptances",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Get agreementAcceptances from users",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/assignLicense",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.assignLicense",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action assignLicense",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/changePassword",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.changePassword",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action changePassword",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/checkMemberGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.checkMemberGroups",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action checkMemberGroups",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/checkMemberObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.checkMemberObjects",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action checkMemberObjects",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/drive",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetDrive",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Get Drive",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/exportDeviceAndAppManagementData()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.exportDeviceAndAppManagementData-1a02",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Invoke function exportDeviceAndAppManagementData",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/exportDeviceAndAppManagementData(skip={{id}},top={{id2}})",
+    "param_size": 2,
+    "parameters": [
+      "skip",
+      "top"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.exportDeviceAndAppManagementData-fd7c",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Invoke function exportDeviceAndAppManagementData",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/exportPersonalData",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.exportPersonalData",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action exportPersonalData",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/findMeetingTimes",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.findMeetingTimes",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action findMeetingTimes",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/getMailTips",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.getMailTips",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action getMailTips",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/getManagedAppDiagnosticStatuses()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.getManagedAppDiagnosticStatuses",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Invoke function getManagedAppDiagnosticStatuses",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/getManagedAppPolicies()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.getManagedAppPolicies",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Invoke function getManagedAppPolicies",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/getManagedDevicesWithAppFailures()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.getManagedDevicesWithAppFailures",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Invoke function getManagedDevicesWithAppFailures",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/getMemberGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.getMemberGroups",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action getMemberGroups",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/getMemberObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.getMemberObjects",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action getMemberObjects",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/manager",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetManager",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "List manager",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/manager/$ref",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetRefManager",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "List manager",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteRefManager",
+        "operation_mapping": "UsersId",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property manager for users",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.UpdateRefManager",
+        "operation_mapping": "UsersId",
+        "http_method": "PUT",
+        "doc": "Update the ref of navigation property manager in users",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/photo",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetPhoto",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Get photo from users",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdatePhoto",
+        "operation_mapping": "UsersId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property photo in users",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/photo/$value",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetPhotoContent",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Get media content for the navigation property photo from users",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.UpdatePhotoContent",
+        "operation_mapping": "UsersId",
+        "http_method": "PUT",
+        "doc": "Update media content for the navigation property photo in users",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/reminderView(StartDateTime='{{id}}',EndDateTime='{{id2}}')",
+    "param_size": 2,
+    "parameters": [
+      "start_date_time",
+      "end_date_time"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.reminderView",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Invoke function reminderView",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/removeAllDevicesFromManagement",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.removeAllDevicesFromManagement",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action removeAllDevicesFromManagement",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/reprocessLicenseAssignment",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.reprocessLicenseAssignment",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action reprocessLicenseAssignment",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/restore",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.restore",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action restore",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/revokeSignInSessions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.revokeSignInSessions",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action revokeSignInSessions",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/sendMail",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.sendMail",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action sendMail",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/settings",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateSettings",
+        "operation_mapping": "UsersId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property settings in users",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetSettings",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Get settings from users",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteSettings",
+        "operation_mapping": "UsersId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property settings for users",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/settings/shiftPreferences",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.settings.DeleteShiftPreferences",
+        "operation_mapping": "UsersId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property shiftPreferences for users",
+        "parent": "UsersId",
+        "original_parent": "Settings",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.settings.UpdateShiftPreferences",
+        "operation_mapping": "UsersId",
+        "http_method": "PATCH",
+        "doc": "Update shiftPreferences",
+        "parent": "UsersId",
+        "original_parent": "Settings",
+        "resource_identity": "Users"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.settings.GetShiftPreferences",
+        "operation_mapping": "UsersId",
+        "http_method": "GET",
+        "doc": "Get shiftPreferences",
+        "parent": "UsersId",
+        "original_parent": "Settings",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/translateExchangeIds",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.translateExchangeIds",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action translateExchangeIds",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  },
+  {
+    "path": "/users/{{RID}}/wipeManagedAppRegistrationsByDeviceTag",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.wipeManagedAppRegistrationsByDeviceTag",
+        "operation_mapping": "UsersId",
+        "http_method": "POST",
+        "doc": "Invoke action wipeManagedAppRegistrationsByDeviceTag",
+        "parent": "UsersId",
+        "original_parent": "Users",
+        "resource_identity": "Users"
+      }
+    ]
+  }
+]

@@ -1,0 +1,89 @@
+[
+  {
+    "path": "/licenseDetails",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListLicenseDetails",
+        "operation_mapping": "licenseDetails",
+        "http_method": "GET",
+        "doc": "List licenseDetails",
+        "parent": "LicenseDetails",
+        "original_parent": "LicenseDetails",
+        "resource_identity": "LicenseDetails"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateLicenseDetails",
+        "operation_mapping": "licenseDetails",
+        "http_method": "POST",
+        "doc": "Create new navigation property to licenseDetails for users",
+        "parent": "LicenseDetails",
+        "original_parent": "LicenseDetails",
+        "resource_identity": "LicenseDetails"
+      }
+    ]
+  },
+  {
+    "path": "/licenseDetails/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.licenseDetails-a83d",
+        "operation_mapping": "licenseDetails",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "LicenseDetails",
+        "original_parent": "LicenseDetails",
+        "resource_identity": "LicenseDetails"
+      }
+    ]
+  },
+  {
+    "path": "/licenseDetails/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetLicenseDetails",
+        "operation_mapping": "LicenseDetailsId",
+        "http_method": "GET",
+        "doc": "Get licenseDetails from users",
+        "parent": "LicenseDetailsId",
+        "original_parent": "LicenseDetails",
+        "resource_identity": "LicenseDetails"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateLicenseDetails",
+        "operation_mapping": "LicenseDetailsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property licenseDetails in users",
+        "parent": "LicenseDetailsId",
+        "original_parent": "LicenseDetails",
+        "resource_identity": "LicenseDetails"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteLicenseDetails",
+        "operation_mapping": "LicenseDetailsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property licenseDetails for users",
+        "parent": "LicenseDetailsId",
+        "original_parent": "LicenseDetails",
+        "resource_identity": "LicenseDetails"
+      }
+    ]
+  }
+]

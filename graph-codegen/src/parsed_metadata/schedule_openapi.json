@@ -5,8 +5,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Get schedule from teams",
-      "description": "The schedule of shifts for this team.",
+      "summary": "Get schedule",
+      "description": "Retrieve the properties and relationships of a schedule object. The schedule creation process conforms to the One API guideline for resource based long running operations (RELO).\nWhen clients use the PUT method, if the schedule is provisioned, the operation updates the schedule; otherwise, the operation starts the schedule provisioning process in the background. During schedule provisioning, clients can use the GET method to get the schedule and look at the `provisionStatus` property for the current state of the provisioning. If the provisioning failed, clients can get additional information from the `provisionStatusCode` property. Clients can also inspect the configuration of the schedule.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/schedule-get?view=graph-rest-1.0"
+      },
       "operationId": "teams.GetSchedule",
       "parameters": [
         {
@@ -123,14 +127,7 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -145,6 +142,74 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "put": {
+      "tags": [
+        "teams.schedule"
+      ],
+      "summary": "Update the navigation property schedule in teams",
+      "operationId": "teams.UpdateSchedule",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.schedule"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.schedule"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -194,7 +259,7 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -205,191 +270,6 @@
           "either": {
             "Left": {
               "description": "Success"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "patch": {
-      "tags": [
-        "teams.schedule"
-      ],
-      "summary": "Update the navigation property schedule in teams",
-      "operationId": "teams.UpdateSchedule",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "New navigation property values",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.schedule"
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "team-id",
-            "in": "path",
-            "description": "key: id of team",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "team"
-          }
-        }
-      }
-    ]
-  },
-  "/schedule/microsoft.graph.share": {
-    "description": "Provides operations to call the share method.",
-    "post": {
-      "tags": [
-        "teams.Actions"
-      ],
-      "summary": "Invoke action share",
-      "operationId": "teams.team.schedule.share",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "Action parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Left": {
-                      "type": "object",
-                      "readOnly": false,
-                      "writeOnly": false,
-                      "required": [],
-                      "uniqueItems": false,
-                      "properties": {
-                        "notifyTeam": {
-                          "type": "boolean",
-                          "default": false,
-                          "readOnly": false,
-                          "writeOnly": false,
-                          "required": [],
-                          "uniqueItems": false,
-                          "additionalPropertiesAllowed": false,
-                          "enum": [],
-                          "nullable": true,
-                          "deprecated": false,
-                          "unresolvedReference": false
-                        },
-                        "endDateTime": {
-                          "type": "string",
-                          "format": "date-time",
-                          "pattern": "^[0-9]{4,}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]([.][0-9]{1,12})?(Z|[+-][0-9][0-9]:[0-9][0-9])$",
-                          "readOnly": false,
-                          "writeOnly": false,
-                          "required": [],
-                          "uniqueItems": false,
-                          "additionalPropertiesAllowed": false,
-                          "enum": [],
-                          "nullable": true,
-                          "deprecated": false,
-                          "unresolvedReference": false
-                        },
-                        "startDateTime": {
-                          "type": "string",
-                          "format": "date-time",
-                          "pattern": "^[0-9]{4,}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]([.][0-9]{1,12})?(Z|[+-][0-9][0-9]:[0-9][0-9])$",
-                          "readOnly": false,
-                          "writeOnly": false,
-                          "required": [],
-                          "uniqueItems": false,
-                          "additionalPropertiesAllowed": false,
-                          "enum": [],
-                          "nullable": true,
-                          "deprecated": false,
-                          "unresolvedReference": false
-                        }
-                      },
-                      "additionalPropertiesAllowed": false,
-                      "enum": [],
-                      "nullable": false,
-                      "deprecated": false,
-                      "unresolvedReference": false
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -409,7 +289,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -440,7 +320,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Get offerShiftRequests from teams",
+      "summary": "List offerShiftRequest",
+      "description": "Retrieve the properties and relationships of all offerShiftRequest objects in a team.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/offershiftrequest-list?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.ListOfferShiftRequests",
       "parameters": [
         {
@@ -659,17 +544,17 @@
             }
           }
         },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.offerShiftRequestCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.offerShiftRequestCollectionResponse"
             }
           }
         }
@@ -702,7 +587,14 @@
         }
       },
       "responses": {
-        "201": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -717,13 +609,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -743,7 +628,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -773,18 +658,34 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.offerShiftRequests-9c52",
-      "responses": {
-        "200": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -804,7 +705,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -939,14 +840,7 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -965,6 +859,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1017,17 +918,17 @@
             }
           }
         },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1060,13 +961,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -1074,10 +968,28 @@
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.offerShiftRequest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1090,7 +1002,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1118,7 +1030,7 @@
           "Left": {
             "name": "offerShiftRequest-id",
             "in": "path",
-            "description": "key: id of offerShiftRequest",
+            "description": "The unique identifier of offerShiftRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1149,7 +1061,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Get openShiftChangeRequests from teams",
+      "summary": "List openShiftChangeRequests",
+      "description": "Retrieve a list of openShiftChangeRequest objects in a team.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/openshiftchangerequest-list?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.ListOpenShiftChangeRequests",
       "parameters": [
         {
@@ -1352,13 +1269,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -1366,10 +1276,17 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.openShiftChangeRequestCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1380,7 +1297,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Create new navigation property to openShiftChangeRequests for teams",
+      "summary": "Create openShiftChangeRequest",
+      "description": "Create instance of an openShiftChangeRequest object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/openshiftchangerequest-post?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.CreateOpenShiftChangeRequests",
       "requestBody": {
         "either": {
@@ -1416,7 +1338,7 @@
             }
           }
         },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -1443,7 +1365,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1473,8 +1395,24 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.openShiftChangeRequests-179b",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -1504,7 +1442,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1643,7 +1581,14 @@
             }
           }
         },
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1658,13 +1603,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1757,6 +1695,24 @@
         }
       },
       "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.openShiftChangeRequest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -1770,13 +1726,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
         }
       },
       "deprecated": false
@@ -1787,7 +1736,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1815,7 +1764,7 @@
           "Left": {
             "name": "openShiftChangeRequest-id",
             "in": "path",
-            "description": "key: id of openShiftChangeRequest",
+            "description": "The unique identifier of openShiftChangeRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1846,7 +1795,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Get openShifts from teams",
+      "summary": "List openShifts",
+      "description": "List openShift objects in a team.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/openshift-list?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.ListOpenShifts",
       "parameters": [
         {
@@ -2031,6 +1985,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2038,17 +1999,10 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.openShiftCollectionResponse"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2081,6 +2035,13 @@
         }
       },
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2088,7 +2049,7 @@
             }
           }
         },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -2105,13 +2066,6 @@
               }
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -2122,7 +2076,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2152,11 +2106,27 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.openShifts-bdbd",
-      "responses": {
-        "5XX": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -2167,10 +2137,10 @@
             }
           }
         },
-        "200": {
+        "5XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2183,7 +2153,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2309,14 +2279,7 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -2335,6 +2298,13 @@
           }
         },
         "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2380,10 +2350,10 @@
         }
       ],
       "responses": {
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -2394,10 +2364,10 @@
             }
           }
         },
-        "5XX": {
+        "204": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -2430,6 +2400,13 @@
         }
       },
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2437,17 +2414,21 @@
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.openShift"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -2460,7 +2441,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2488,7 +2469,7 @@
           "Left": {
             "name": "openShift-id",
             "in": "path",
-            "description": "key: id of openShift",
+            "description": "The unique identifier of openShift",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2519,8 +2500,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Get schedulingGroups from teams",
-      "description": "The logical grouping of users in the schedule (usually by role).",
+      "summary": "List scheduleGroups",
+      "description": "Get the list of schedulingGroups in this schedule.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/schedule-list-schedulinggroups?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.ListSchedulingGroups",
       "parameters": [
         {
@@ -2663,17 +2648,17 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.schedulingGroupCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.schedulingGroupCollectionResponse"
             }
           }
         },
@@ -2691,7 +2676,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Create new navigation property to schedulingGroups for teams",
+      "summary": "Create schedulingGroup",
+      "description": "Create a new schedulingGroup.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/schedule-post-schedulinggroups?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.CreateSchedulingGroups",
       "requestBody": {
         "either": {
@@ -2713,14 +2703,14 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -2738,7 +2728,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2754,7 +2744,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2784,22 +2774,38 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.schedulingGroups-256b",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2815,7 +2821,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2907,7 +2913,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -2922,13 +2935,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2971,6 +2977,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -2982,13 +2995,6 @@
           "either": {
             "Left": {
               "description": "Success"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3021,13 +3027,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -3035,10 +3034,28 @@
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.schedulingGroup"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3051,7 +3068,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3079,7 +3096,7 @@
           "Left": {
             "name": "schedulingGroup-id",
             "in": "path",
-            "description": "key: id of schedulingGroup",
+            "description": "The unique identifier of schedulingGroup",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3104,14 +3121,158 @@
       }
     ]
   },
+  "/schedule/share": {
+    "description": "Provides operations to call the share method.",
+    "post": {
+      "tags": [
+        "teams.Actions"
+      ],
+      "summary": "Invoke action share",
+      "description": "Share a schedule time range with schedule members.\nMake the collections of shift, openshift and timeOff items in the specified time range of the schedule viewable by the specified team members, including employees and managers.\nEach shift, openshift and timeOff instance in a schedule supports a draft version and a shared version of the item. The draft version is viewable by only managers, and the shared version is viewable by employees and managers. For each shift, openshift and timeOff instance in the specified time range, the share action updates the shared version from the draft version, so that in addition to managers, employees can also view the most current information about the item. The **notifyTeam** parameter further specifies which employees can view the item.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/schedule-share?view=graph-rest-1.0"
+      },
+      "operationId": "teams.team.schedule.share",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "Action parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Left": {
+                      "type": "object",
+                      "readOnly": false,
+                      "writeOnly": false,
+                      "required": [],
+                      "uniqueItems": false,
+                      "properties": {
+                        "endDateTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^[0-9]{4,}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]([.][0-9]{1,12})?(Z|[+-][0-9][0-9]:[0-9][0-9])$",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
+                        "notifyTeam": {
+                          "type": "boolean",
+                          "default": false,
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        },
+                        "startDateTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^[0-9]{4,}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]([.][0-9]{1,12})?(Z|[+-][0-9][0-9]:[0-9][0-9])$",
+                          "readOnly": false,
+                          "writeOnly": false,
+                          "required": [],
+                          "uniqueItems": false,
+                          "additionalPropertiesAllowed": false,
+                          "enum": [],
+                          "nullable": true,
+                          "deprecated": false,
+                          "unresolvedReference": false
+                        }
+                      },
+                      "additionalPropertiesAllowed": false,
+                      "enum": [],
+                      "nullable": false,
+                      "deprecated": false,
+                      "unresolvedReference": false
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "team-id",
+            "in": "path",
+            "description": "The unique identifier of team",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "team"
+          }
+        }
+      }
+    ]
+  },
   "/schedule/shifts": {
     "description": "Provides operations to manage the shifts property of the microsoft.graph.schedule entity.",
     "get": {
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Get shifts from teams",
-      "description": "The shifts in the schedule.",
+      "summary": "List shifts",
+      "description": "Get the list of shift instances in a schedule.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/schedule-list-shifts?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.ListShifts",
       "parameters": [
         {
@@ -3257,13 +3418,6 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.shiftCollectionResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -3277,6 +3431,13 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.shiftCollectionResponse"
+            }
+          }
         }
       },
       "deprecated": false
@@ -3285,7 +3446,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Create new navigation property to shifts for teams",
+      "summary": "Create shift",
+      "description": "Create a new shift instance in a schedule. The duration of a shift cannot be less than 1 minute or longer than 24 hours.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/schedule-post-shifts?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.CreateShifts",
       "requestBody": {
         "either": {
@@ -3307,7 +3473,21 @@
         }
       },
       "responses": {
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -3324,20 +3504,6 @@
               }
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -3348,7 +3514,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3378,8 +3544,24 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.shifts-97aa",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -3409,7 +3591,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3509,7 +3691,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -3566,17 +3748,17 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -3616,21 +3798,32 @@
         }
       },
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.shift"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3646,7 +3839,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3674,7 +3867,7 @@
           "Left": {
             "name": "shift-id",
             "in": "path",
-            "description": "key: id of shift",
+            "description": "The unique identifier of shift",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3705,7 +3898,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Get swapShiftsChangeRequests from teams",
+      "summary": "List swapShiftsChangeRequest",
+      "description": "Retrieve a list of swapShiftsChangeRequest objects in the team.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/swapshiftschangerequest-list?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.ListSwapShiftsChangeRequests",
       "parameters": [
         {
@@ -3920,14 +4118,7 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.swapShiftsChangeRequestCollectionResponse"
@@ -3935,6 +4126,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3948,7 +4146,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Create new navigation property to swapShiftsChangeRequests for teams",
+      "summary": "Create swapShiftsChangeRequest",
+      "description": "Create an instance of a swapShiftsChangeRequest object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/swapshiftschangerequest-post?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.CreateSwapShiftsChangeRequests",
       "requestBody": {
         "either": {
@@ -3970,7 +4173,7 @@
         }
       },
       "responses": {
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -3988,14 +4191,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4011,7 +4214,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4041,14 +4244,23 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.swapShiftsChangeRequests-9390",
-      "responses": {
-        "4XX": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
         "5XX": {
           "either": {
             "Right": {
@@ -4056,10 +4268,17 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -4072,7 +4291,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4208,13 +4427,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -4222,7 +4434,14 @@
             }
           }
         },
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -4279,7 +4498,7 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4293,7 +4512,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4336,17 +4555,28 @@
             }
           }
         },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.swapShiftsChangeRequest"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -4359,7 +4589,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4387,7 +4617,7 @@
           "Left": {
             "name": "swapShiftsChangeRequest-id",
             "in": "path",
-            "description": "key: id of swapShiftsChangeRequest",
+            "description": "The unique identifier of swapShiftsChangeRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4418,8 +4648,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Get timeOffReasons from teams",
-      "description": "The set of reasons for a time off in the schedule.",
+      "summary": "List timeOffReasons",
+      "description": "Get the list of timeOffReasons in a schedule.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/schedule-list-timeoffreasons?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.ListTimeOffReasons",
       "parameters": [
         {
@@ -4562,6 +4796,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -4569,17 +4810,10 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.timeOffReasonCollectionResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -4590,7 +4824,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Create new navigation property to timeOffReasons for teams",
+      "summary": "Create timeOffReason",
+      "description": "Create a new timeOffReason.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/schedule-post-timeoffreasons?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.CreateTimeOffReasons",
       "requestBody": {
         "either": {
@@ -4619,7 +4858,7 @@
             }
           }
         },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -4653,7 +4892,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4683,22 +4922,38 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.timeOffReasons-4024",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4714,7 +4969,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4806,14 +5061,7 @@
             }
           }
         },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -4828,6 +5076,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -4877,14 +5132,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4920,21 +5175,32 @@
         }
       },
       "responses": {
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.timeOffReason"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4950,7 +5216,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4978,7 +5244,7 @@
           "Left": {
             "name": "timeOffReason-id",
             "in": "path",
-            "description": "key: id of timeOffReason",
+            "description": "The unique identifier of timeOffReason",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5009,7 +5275,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Get timeOffRequests from teams",
+      "summary": "List timeOffRequest",
+      "description": "Retrieve a list of timeOffRequest objects in the team.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/timeoffrequest-list?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.ListTimeOffRequests",
       "parameters": [
         {
@@ -5176,7 +5447,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.timeOffRequestCollectionResponse"
@@ -5184,13 +5462,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5226,6 +5497,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -5233,7 +5511,7 @@
             }
           }
         },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -5250,13 +5528,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -5267,7 +5538,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5297,6 +5568,22 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.timeOffRequests-9411",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
         "4XX": {
           "either": {
@@ -5312,7 +5599,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -5328,7 +5615,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5420,7 +5707,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -5439,13 +5733,6 @@
           }
         },
         "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5498,17 +5785,17 @@
             }
           }
         },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -5541,10 +5828,21 @@
         }
       },
       "responses": {
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.timeOffRequest"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -5571,7 +5869,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5599,7 +5897,7 @@
           "Left": {
             "name": "timeOffRequest-id",
             "in": "path",
-            "description": "key: id of timeOffRequest",
+            "description": "The unique identifier of timeOffRequest",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5630,8 +5928,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Get timesOff from teams",
-      "description": "The instances of times off in the schedule.",
+      "summary": "List timesOff",
+      "description": "Get the list of timeOff instances in a schedule.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/schedule-list-timesoff?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.ListTimesOff",
       "parameters": [
         {
@@ -5774,13 +6076,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -5788,7 +6083,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.timeOffCollectionResponse"
@@ -5802,7 +6104,12 @@
       "tags": [
         "teams.schedule"
       ],
-      "summary": "Create new navigation property to timesOff for teams",
+      "summary": "Create timeOff",
+      "description": "Create a new timeOff instance in a schedule.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/schedule-post-timesoff?view=graph-rest-1.0"
+      },
       "operationId": "teams.schedule.CreateTimesOff",
       "requestBody": {
         "either": {
@@ -5831,14 +6138,7 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -5855,6 +6155,13 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -5865,7 +6172,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5895,6 +6202,22 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.timesOff-16b4",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
         "4XX": {
           "either": {
@@ -5903,17 +6226,17 @@
             }
           }
         },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -5926,7 +6249,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -6011,7 +6334,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -6026,13 +6356,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -6082,13 +6405,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -6100,6 +6416,13 @@
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -6132,13 +6455,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -6146,10 +6462,28 @@
             }
           }
         },
-        "204": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.timeOff"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -6162,7 +6496,7 @@
           "Left": {
             "name": "team-id",
             "in": "path",
-            "description": "key: id of team",
+            "description": "The unique identifier of team",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -6190,7 +6524,7 @@
           "Left": {
             "name": "timeOff-id",
             "in": "path",
-            "description": "key: id of timeOff",
+            "description": "The unique identifier of timeOff",
             "required": true,
             "deprecated": false,
             "explode": false,

@@ -1,0 +1,49 @@
+[
+  {
+    "path": "/communications",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "communications.cloudCommunications.GetCloudCommunications",
+        "operation_mapping": "communications",
+        "http_method": "GET",
+        "doc": "Get communications",
+        "parent": "Communications",
+        "original_parent": "CloudCommunications",
+        "resource_identity": "Communications"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.cloudCommunications.UpdateCloudCommunications",
+        "operation_mapping": "communications",
+        "http_method": "PATCH",
+        "doc": "Update communications",
+        "parent": "Communications",
+        "original_parent": "CloudCommunications",
+        "resource_identity": "Communications"
+      }
+    ]
+  },
+  {
+    "path": "/communications/getPresencesByUserId",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "communications.getPresencesByUserId",
+        "operation_mapping": "communications",
+        "http_method": "POST",
+        "doc": "Invoke action getPresencesByUserId",
+        "parent": "Communications",
+        "original_parent": "Communications",
+        "resource_identity": "Communications"
+      }
+    ]
+  }
+]

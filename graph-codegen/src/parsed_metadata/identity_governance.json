@@ -8,7 +8,7 @@
         "has_body": false,
         "request_task": "Json",
         "operation_id": "identityGovernance.identityGovernance.GetIdentityGovernance",
-        "operation_mapping": "identityGovernance.identityGovernance",
+        "operation_mapping": "identityGovernance",
         "http_method": "GET",
         "doc": "Get identityGovernance",
         "parent": "IdentityGovernance",
@@ -17,13 +17,749 @@
       },
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "identityGovernance.identityGovernance.UpdateIdentityGovernance",
-        "operation_mapping": "identityGovernance.identityGovernance",
+        "operation_mapping": "identityGovernance",
         "http_method": "PATCH",
         "doc": "Update identityGovernance",
         "parent": "IdentityGovernance",
         "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.UpdateTermsOfUse",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property termsOfUse in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.DeleteTermsOfUse",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property termsOfUse for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.GetTermsOfUse",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get termsOfUse from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "IdentityGovernance",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreementAcceptances",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.CreateAgreementAcceptances",
+        "operation_mapping": "identityGovernance",
+        "http_method": "POST",
+        "doc": "Create new navigation property to agreementAcceptances for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.ListAgreementAcceptances",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get agreementAcceptances from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreementAcceptances/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.agreementAcceptances-70d1",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "IdentityGovernance",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreementAcceptances/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "agreement_acceptance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.UpdateAgreementAcceptances",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property agreementAcceptances in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.DeleteAgreementAcceptances",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property agreementAcceptances for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.GetAgreementAcceptances",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get agreementAcceptances from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.ListAgreements",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "List agreements",
+        "parent": "IdentityGovernance",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.CreateAgreements",
+        "operation_mapping": "identityGovernance",
+        "http_method": "POST",
+        "doc": "Create agreement",
+        "parent": "IdentityGovernance",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.agreements-7fcc",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "IdentityGovernance",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.UpdateAgreements",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property agreements in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.DeleteAgreements",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property agreements for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.GetAgreements",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get agreements from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "TermsOfUse",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/acceptances",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.ListAcceptances",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "List acceptances",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.CreateAcceptances",
+        "operation_mapping": "identityGovernance",
+        "http_method": "POST",
+        "doc": "Create new navigation property to acceptances for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/acceptances/$count",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.acceptances-7e12",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "IdentityGovernance",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/acceptances/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_acceptance_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.UpdateAcceptances",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property acceptances in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.DeleteAcceptances",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property acceptances for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.GetAcceptances",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get acceptances from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.GetFile",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get agreementFile",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.UpdateFile",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property file in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.DeleteFile",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property file for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.CreateLocalizations",
+        "operation_mapping": "identityGovernance",
+        "http_method": "POST",
+        "doc": "Create new navigation property to localizations for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "File",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.ListLocalizations",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get localizations from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "File",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations/$count",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.localizations-d8c7",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "IdentityGovernance",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.GetLocalizations",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get localizations from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "File",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.DeleteLocalizations",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property localizations for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "File",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.UpdateLocalizations",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property localizations in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "File",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations/{{id2}}/versions",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.localizations.ListVersions",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get versions from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Localizations",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.localizations.CreateVersions",
+        "operation_mapping": "identityGovernance",
+        "http_method": "POST",
+        "doc": "Create new navigation property to versions for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Localizations",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations/{{id2}}/versions/$count",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.versions-47c0",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "IdentityGovernance",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/file/localizations/{{id2}}/versions/{{id3}}",
+    "param_size": 3,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id",
+      "agreement_file_version_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.localizations.UpdateVersions",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property versions in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Localizations",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.localizations.DeleteVersions",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property versions for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Localizations",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.file.localizations.GetVersions",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get versions from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Localizations",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.ListFiles",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get files from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.CreateFiles",
+        "operation_mapping": "identityGovernance",
+        "http_method": "POST",
+        "doc": "Create agreementFileLocalization",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files/$count",
+    "param_size": 1,
+    "parameters": [
+      "agreement_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.files-54ad",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "IdentityGovernance",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files/{{id2}}",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.UpdateFiles",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property files in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.DeleteFiles",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property files for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.GetFiles",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get files from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Agreements",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files/{{id2}}/versions",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.files.ListVersions",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get versions from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Files",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.files.CreateVersions",
+        "operation_mapping": "identityGovernance",
+        "http_method": "POST",
+        "doc": "Create new navigation property to versions for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Files",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files/{{id2}}/versions/$count",
+    "param_size": 2,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.versions-9b3e",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "IdentityGovernance",
+        "original_parent": "Get",
+        "resource_identity": "IdentityGovernance"
+      }
+    ]
+  },
+  {
+    "path": "/identityGovernance/termsOfUse/agreements/{{id}}/files/{{id2}}/versions/{{id3}}",
+    "param_size": 3,
+    "parameters": [
+      "agreement_id",
+      "agreement_file_localization_id",
+      "agreement_file_version_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "identityGovernance.termsOfUse.agreements.files.DeleteVersions",
+        "operation_mapping": "identityGovernance",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property versions for identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Files",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.files.GetVersions",
+        "operation_mapping": "identityGovernance",
+        "http_method": "GET",
+        "doc": "Get versions from identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Files",
+        "resource_identity": "IdentityGovernance"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "identityGovernance.termsOfUse.agreements.files.UpdateVersions",
+        "operation_mapping": "identityGovernance",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property versions in identityGovernance",
+        "parent": "IdentityGovernance",
+        "original_parent": "Files",
         "resource_identity": "IdentityGovernance"
       }
     ]

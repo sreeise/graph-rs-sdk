@@ -1,0 +1,723 @@
+[
+  {
+    "path": "/organization",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.organization.CreateOrganization",
+        "operation_mapping": "organization",
+        "http_method": "POST",
+        "doc": "Add new entity to organization",
+        "parent": "Organization",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.organization.ListOrganization",
+        "operation_mapping": "organization",
+        "http_method": "GET",
+        "doc": "List organization",
+        "parent": "Organization",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.organization-9453",
+        "operation_mapping": "organization",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Organization",
+        "original_parent": "Get",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "organization.delta",
+        "operation_mapping": "organization",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "Organization",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/getAvailableExtensionProperties",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.getAvailableExtensionProperties",
+        "operation_mapping": "organization",
+        "http_method": "POST",
+        "doc": "Invoke action getAvailableExtensionProperties",
+        "parent": "Organization",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/getByIds",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.getByIds",
+        "operation_mapping": "organization",
+        "http_method": "POST",
+        "doc": "Invoke action getByIds",
+        "parent": "Organization",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/validateProperties",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "organization.validateProperties",
+        "operation_mapping": "organization",
+        "http_method": "POST",
+        "doc": "Invoke action validateProperties",
+        "parent": "Organization",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.organization.GetOrganization",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.organization.UpdateOrganization",
+        "operation_mapping": "OrganizationId",
+        "http_method": "PATCH",
+        "doc": "Update organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "organization.organization.DeleteOrganization",
+        "operation_mapping": "OrganizationId",
+        "http_method": "DELETE",
+        "doc": "Delete entity from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/branding",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.UpdateBranding",
+        "operation_mapping": "OrganizationId",
+        "http_method": "PATCH",
+        "doc": "Update organizationalBranding",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "organization.DeleteBranding",
+        "operation_mapping": "OrganizationId",
+        "http_method": "DELETE",
+        "doc": "Delete organizationalBranding",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.GetBranding",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get organizationalBranding",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/branding/backgroundImage",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.GetBrandingBackgroundImage",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get backgroundImage for the navigation property branding from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "organization.UpdateBrandingBackgroundImage",
+        "operation_mapping": "OrganizationId",
+        "http_method": "PUT",
+        "doc": "Update backgroundImage for the navigation property branding in organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/branding/bannerLogo",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.GetBrandingBannerLogo",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get bannerLogo for the navigation property branding from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "organization.UpdateBrandingBannerLogo",
+        "operation_mapping": "OrganizationId",
+        "http_method": "PUT",
+        "doc": "Update bannerLogo for the navigation property branding in organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/branding/localizations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.branding.CreateLocalizations",
+        "operation_mapping": "OrganizationId",
+        "http_method": "POST",
+        "doc": "Create organizationalBrandingLocalization",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.branding.ListLocalizations",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "List localizations",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/branding/localizations/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.localizations-e39f",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OrganizationId",
+        "original_parent": "Get",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/branding/localizations/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "organizational_branding_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.branding.GetLocalizations",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get localizations from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.branding.UpdateLocalizations",
+        "operation_mapping": "OrganizationId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property localizations in organization",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "organization.branding.DeleteLocalizations",
+        "operation_mapping": "OrganizationId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property localizations for organization",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/branding/localizations/{{id}}/backgroundImage",
+    "param_size": 1,
+    "parameters": [
+      "organizational_branding_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.branding.GetLocalizationsBackgroundImage",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get backgroundImage for the navigation property localizations from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "organization.branding.UpdateLocalizationsBackgroundImage",
+        "operation_mapping": "OrganizationId",
+        "http_method": "PUT",
+        "doc": "Update backgroundImage for the navigation property localizations in organization",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/branding/localizations/{{id}}/bannerLogo",
+    "param_size": 1,
+    "parameters": [
+      "organizational_branding_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.branding.GetLocalizationsBannerLogo",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get bannerLogo for the navigation property localizations from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "organization.branding.UpdateLocalizationsBannerLogo",
+        "operation_mapping": "OrganizationId",
+        "http_method": "PUT",
+        "doc": "Update bannerLogo for the navigation property localizations in organization",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/branding/localizations/{{id}}/squareLogo",
+    "param_size": 1,
+    "parameters": [
+      "organizational_branding_localization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "organization.branding.UpdateLocalizationsSquareLogo",
+        "operation_mapping": "OrganizationId",
+        "http_method": "PUT",
+        "doc": "Update squareLogo for the navigation property localizations in organization",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.branding.GetLocalizationsSquareLogo",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get squareLogo for the navigation property localizations from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Branding",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/branding/squareLogo",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.GetBrandingSquareLogo",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get squareLogo for the navigation property branding from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "organization.UpdateBrandingSquareLogo",
+        "operation_mapping": "OrganizationId",
+        "http_method": "PUT",
+        "doc": "Update squareLogo for the navigation property branding in organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/certificateBasedAuthConfiguration",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.ListCertificateBasedAuthConfiguration",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "List certificateBasedAuthConfigurations",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/certificateBasedAuthConfiguration/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.certificateBasedAuthConfiguration-8262",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OrganizationId",
+        "original_parent": "Get",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/certificateBasedAuthConfiguration/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "certificate_based_auth_configuration_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.GetCertificateBasedAuthConfiguration",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get certificateBasedAuthConfiguration from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/checkMemberGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.organization.checkMemberGroups",
+        "operation_mapping": "OrganizationId",
+        "http_method": "POST",
+        "doc": "Invoke action checkMemberGroups",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/checkMemberObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.organization.checkMemberObjects",
+        "operation_mapping": "OrganizationId",
+        "http_method": "POST",
+        "doc": "Invoke action checkMemberObjects",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/extensions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.CreateExtensions",
+        "operation_mapping": "OrganizationId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to extensions for organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.ListExtensions",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get extensions from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/extensions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.extensions-bee2",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OrganizationId",
+        "original_parent": "Get",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/extensions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "extension_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.UpdateExtensions",
+        "operation_mapping": "OrganizationId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property extensions in organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.GetExtensions",
+        "operation_mapping": "OrganizationId",
+        "http_method": "GET",
+        "doc": "Get extensions from organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "organization.DeleteExtensions",
+        "operation_mapping": "OrganizationId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property extensions for organization",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/getMemberGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.organization.getMemberGroups",
+        "operation_mapping": "OrganizationId",
+        "http_method": "POST",
+        "doc": "Invoke action getMemberGroups",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/getMemberObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "organization.organization.getMemberObjects",
+        "operation_mapping": "OrganizationId",
+        "http_method": "POST",
+        "doc": "Invoke action getMemberObjects",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/restore",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.organization.restore",
+        "operation_mapping": "OrganizationId",
+        "http_method": "POST",
+        "doc": "Invoke action restore",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  },
+  {
+    "path": "/organization/{{RID}}/setMobileDeviceManagementAuthority",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "organization.organization.setMobileDeviceManagementAuthority",
+        "operation_mapping": "OrganizationId",
+        "http_method": "POST",
+        "doc": "Invoke action setMobileDeviceManagementAuthority",
+        "parent": "OrganizationId",
+        "original_parent": "Organization",
+        "resource_identity": "Organization"
+      }
+    ]
+  }
+]

@@ -1,0 +1,110 @@
+[
+  {
+    "path": "/transitiveMemberOf",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListTransitiveMemberOf",
+        "operation_mapping": "transitiveMemberOf",
+        "http_method": "GET",
+        "doc": "Get transitiveMemberOf from users",
+        "parent": "TransitiveMemberOf",
+        "original_parent": "TransitiveMemberOf",
+        "resource_identity": "TransitiveMemberOf"
+      }
+    ]
+  },
+  {
+    "path": "/transitiveMemberOf/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.transitiveMemberOf-b904",
+        "operation_mapping": "transitiveMemberOf",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "TransitiveMemberOf",
+        "original_parent": "TransitiveMemberOf",
+        "resource_identity": "TransitiveMemberOf"
+      }
+    ]
+  },
+  {
+    "path": "/transitiveMemberOf/graph.group",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-e8e2",
+        "operation_mapping": "transitiveMemberOf",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
+        "parent": "TransitiveMemberOf",
+        "original_parent": "TransitiveMemberOf",
+        "resource_identity": "TransitiveMemberOf"
+      }
+    ]
+  },
+  {
+    "path": "/transitiveMemberOf/graph.group/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.group-062f",
+        "operation_mapping": "transitiveMemberOf",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "TransitiveMemberOf",
+        "original_parent": "TransitiveMemberOf",
+        "resource_identity": "TransitiveMemberOf"
+      }
+    ]
+  },
+  {
+    "path": "/transitiveMemberOf/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetTransitiveMemberOf",
+        "operation_mapping": "TransitiveMemberOfId",
+        "http_method": "GET",
+        "doc": "Get transitiveMemberOf from users",
+        "parent": "TransitiveMemberOfId",
+        "original_parent": "TransitiveMemberOf",
+        "resource_identity": "TransitiveMemberOf"
+      }
+    ]
+  },
+  {
+    "path": "/transitiveMemberOf/{{RID}}/graph.group",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-e8e2",
+        "operation_mapping": "TransitiveMemberOfId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
+        "parent": "TransitiveMemberOfId",
+        "original_parent": "TransitiveMemberOf",
+        "resource_identity": "TransitiveMemberOf"
+      }
+    ]
+  }
+]

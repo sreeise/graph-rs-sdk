@@ -1,0 +1,47 @@
+{
+  "modifier_name": null,
+  "path": "/sites",
+  "resource_identity": "Sites",
+  "trim_path_start": null,
+  "filter_path": [
+    "termStores",
+    "termStore",
+    "lists",
+    "getActivitiesByInterval()"
+  ],
+  "replace_operation_map": "sites",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/sites/mod.rs",
+      "declarations": [
+        "request",
+        "lists"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": [
+    {
+      "modifier_name": null,
+      "path": "/lists",
+      "resource_identity": "Lists",
+      "trim_path_start": "/sites/{site-id}",
+      "filter_path": [],
+      "replace_operation_map": "lists",
+      "parameter_filter": [],
+      "mod_file": {
+        "Declarations": {
+          "file": "./src/sites/lists/mod.rs",
+          "declarations": [
+            "request"
+          ]
+        }
+      },
+      "mod_file_writer": null,
+      "mod_write_override": null,
+      "children": []
+    }
+  ]
+}

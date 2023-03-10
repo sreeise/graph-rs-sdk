@@ -1,0 +1,20 @@
+{
+  "modifier_name": null,
+  "path": "/targetedManagedAppConfigurations",
+  "resource_identity": "DeviceAppManagementTargetedManagedAppConfigurations",
+  "trim_path_start": "/deviceAppManagement",
+  "filter_path": [],
+  "replace_operation_map": "targetedManagedAppConfigurations",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/device_app_management/device_app_management_targeted_managed_app_configurations/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

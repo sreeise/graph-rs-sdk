@@ -5,8 +5,12 @@
       "tags": [
         "identityGovernance.entitlementManagement"
       ],
-      "summary": "Get assignmentPolicies from identityGovernance",
-      "description": "Access package assignment policies govern which subjects can request or be assigned an access package via an access package assignment.",
+      "summary": "List assignmentPolicies",
+      "description": "In Azure AD entitlement management, retrieve a list of accessPackageAssignmentPolicy objects. If the delegated user is in a directory role, the resulting list includes all the assignment policies that the caller has access to read, across all catalogs and access packages. If the delegated user is an access package manager or catalog owner, they should instead retrieve the policies for the access packages they can read with list accessPackages by including `$expand=accessPackageAssignmentPolicies` as a query parameter.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/entitlementmanagement-list-assignmentpolicies?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.entitlementManagement.ListAssignmentPolicies",
       "parameters": [
         {
@@ -146,7 +150,8 @@
                     "reviewSettings",
                     "specificAllowedTargets",
                     "accessPackage",
-                    "catalog"
+                    "catalog",
+                    "questions"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -190,7 +195,8 @@
                   "enum": [
                     "*",
                     "accessPackage",
-                    "catalog"
+                    "catalog",
+                    "questions"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -210,17 +216,17 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.accessPackageAssignmentPolicyCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.accessPackageAssignmentPolicyCollectionResponse"
             }
           }
         },
@@ -238,7 +244,12 @@
       "tags": [
         "identityGovernance.entitlementManagement"
       ],
-      "summary": "Create new navigation property to assignmentPolicies for identityGovernance",
+      "summary": "Create assignmentPolicies",
+      "description": "In Azure AD entitlement management, create a new accessPackageAssignmentPolicy object.  The request will include a reference to the accessPackage that will contain this policy, which must already exist.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/entitlementmanagement-post-assignmentpolicies?view=graph-rest-1.0"
+      },
       "operationId": "identityGovernance.entitlementManagement.CreateAssignmentPolicies",
       "requestBody": {
         "either": {
@@ -260,7 +271,7 @@
         }
       },
       "responses": {
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -301,14 +312,23 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.assignmentPolicies-7f35",
-      "responses": {
-        "4XX": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
         "5XX": {
           "either": {
             "Right": {
@@ -316,10 +336,17 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -374,7 +401,8 @@
                     "reviewSettings",
                     "specificAllowedTargets",
                     "accessPackage",
-                    "catalog"
+                    "catalog",
+                    "questions"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -418,7 +446,8 @@
                   "enum": [
                     "*",
                     "accessPackage",
-                    "catalog"
+                    "catalog",
+                    "questions"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -438,13 +467,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -452,7 +474,14 @@
             }
           }
         },
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -467,6 +496,67 @@
                   }
                 }
               }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "put": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Update the navigation property assignmentPolicies in identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.UpdateAssignmentPolicies",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.accessPackageAssignmentPolicy"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackageAssignmentPolicy"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -509,6 +599,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -520,63 +617,6 @@
           "either": {
             "Left": {
               "description": "Success"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "patch": {
-      "tags": [
-        "identityGovernance.entitlementManagement"
-      ],
-      "summary": "Update the navigation property assignmentPolicies in identityGovernance",
-      "operationId": "identityGovernance.entitlementManagement.UpdateAssignmentPolicies",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "New navigation property values",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.accessPackageAssignmentPolicy"
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -589,7 +629,7 @@
           "Left": {
             "name": "accessPackageAssignmentPolicy-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentPolicy",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -654,8 +694,11 @@
                     "displayName",
                     "isHidden",
                     "modifiedDateTime",
+                    "accessPackagesIncompatibleWith",
                     "assignmentPolicies",
-                    "catalog"
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -698,8 +741,11 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "*",
+                    "accessPackagesIncompatibleWith",
                     "assignmentPolicies",
-                    "catalog"
+                    "catalog",
+                    "incompatibleAccessPackages",
+                    "incompatibleGroups"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -719,6 +765,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -726,7 +779,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -743,13 +796,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -760,7 +806,7 @@
           "Left": {
             "name": "accessPackageAssignmentPolicy-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentPolicy",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -890,14 +936,14 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -915,7 +961,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -931,7 +977,7 @@
           "Left": {
             "name": "accessPackageAssignmentPolicy-id",
             "in": "path",
-            "description": "key: id of accessPackageAssignmentPolicy",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -951,6 +997,704 @@
             "examples": {},
             "content": {},
             "x-ms-docs-key-type": "accessPackageAssignmentPolicy"
+          }
+        }
+      }
+    ]
+  },
+  "/assignmentPolicies/{accessPackageAssignmentPolicy-id}/questions": {
+    "description": "Provides operations to manage the questions property of the microsoft.graph.accessPackageAssignmentPolicy entity.",
+    "get": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Get questions from identityGovernance",
+      "description": "Questions that are posed to the  requestor.",
+      "operationId": "identityGovernance.entitlementManagement.assignmentPolicies.ListQuestions",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "isAnswerEditable",
+                    "isAnswerEditable desc",
+                    "isRequired",
+                    "isRequired desc",
+                    "localizations",
+                    "localizations desc",
+                    "sequence",
+                    "sequence desc",
+                    "text",
+                    "text desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "isAnswerEditable",
+                    "isRequired",
+                    "localizations",
+                    "sequence",
+                    "text"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.accessPackageQuestionCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Create new navigation property to questions for identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.assignmentPolicies.CreateQuestions",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.accessPackageQuestion"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Created navigation property.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackageQuestion"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackageAssignmentPolicy-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackageAssignmentPolicy"
+          }
+        }
+      }
+    ]
+  },
+  "/assignmentPolicies/{accessPackageAssignmentPolicy-id}/questions/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.questions-ce3b",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackageAssignmentPolicy-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackageAssignmentPolicy"
+          }
+        }
+      }
+    ]
+  },
+  "/assignmentPolicies/{accessPackageAssignmentPolicy-id}/questions/{accessPackageQuestion-id}": {
+    "description": "Provides operations to manage the questions property of the microsoft.graph.accessPackageAssignmentPolicy entity.",
+    "get": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Get questions from identityGovernance",
+      "description": "Questions that are posed to the  requestor.",
+      "operationId": "identityGovernance.entitlementManagement.assignmentPolicies.GetQuestions",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "isAnswerEditable",
+                    "isRequired",
+                    "localizations",
+                    "sequence",
+                    "text"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Retrieved navigation property",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackageQuestion"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "delete": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Delete navigation property questions for identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.assignmentPolicies.DeleteQuestions",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "patch": {
+      "tags": [
+        "identityGovernance.entitlementManagement"
+      ],
+      "summary": "Update the navigation property questions in identityGovernance",
+      "operationId": "identityGovernance.entitlementManagement.assignmentPolicies.UpdateQuestions",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New navigation property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.accessPackageQuestion"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.accessPackageQuestion"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackageAssignmentPolicy-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackageAssignmentPolicy",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackageAssignmentPolicy"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "accessPackageQuestion-id",
+            "in": "path",
+            "description": "The unique identifier of accessPackageQuestion",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "accessPackageQuestion"
           }
         }
       }

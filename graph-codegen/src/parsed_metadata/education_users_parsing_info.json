@@ -1,0 +1,22 @@
+{
+  "modifier_name": null,
+  "path": "/users",
+  "resource_identity": "EducationUsers",
+  "trim_path_start": "/education",
+  "filter_path": [
+    "assignments"
+  ],
+  "replace_operation_map": "educationUsers",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/education/education_users/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
+}

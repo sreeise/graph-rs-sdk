@@ -1,0 +1,114 @@
+[
+  {
+    "path": "/presence",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdatePresence",
+        "operation_mapping": "presence",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property presence in users",
+        "parent": "Presence",
+        "original_parent": "Presence",
+        "resource_identity": "Presence"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeletePresence",
+        "operation_mapping": "presence",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property presence for users",
+        "parent": "Presence",
+        "original_parent": "Presence",
+        "resource_identity": "Presence"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetPresence",
+        "operation_mapping": "presence",
+        "http_method": "GET",
+        "doc": "Get presence",
+        "parent": "Presence",
+        "original_parent": "Presence",
+        "resource_identity": "Presence"
+      }
+    ]
+  },
+  {
+    "path": "/presence/clearPresence",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.presence.clearPresence",
+        "operation_mapping": "presence",
+        "http_method": "POST",
+        "doc": "Invoke action clearPresence",
+        "parent": "Presence",
+        "original_parent": "Presence",
+        "resource_identity": "Presence"
+      }
+    ]
+  },
+  {
+    "path": "/presence/clearUserPreferredPresence",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.presence.clearUserPreferredPresence",
+        "operation_mapping": "presence",
+        "http_method": "POST",
+        "doc": "Invoke action clearUserPreferredPresence",
+        "parent": "Presence",
+        "original_parent": "Presence",
+        "resource_identity": "Presence"
+      }
+    ]
+  },
+  {
+    "path": "/presence/setPresence",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.presence.setPresence",
+        "operation_mapping": "presence",
+        "http_method": "POST",
+        "doc": "Invoke action setPresence",
+        "parent": "Presence",
+        "original_parent": "Presence",
+        "resource_identity": "Presence"
+      }
+    ]
+  },
+  {
+    "path": "/presence/setUserPreferredPresence",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.presence.setUserPreferredPresence",
+        "operation_mapping": "presence",
+        "http_method": "POST",
+        "doc": "Invoke action setUserPreferredPresence",
+        "parent": "Presence",
+        "original_parent": "Presence",
+        "resource_identity": "Presence"
+      }
+    ]
+  }
+]

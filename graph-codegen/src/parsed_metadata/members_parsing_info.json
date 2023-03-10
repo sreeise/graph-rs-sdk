@@ -1,9 +1,20 @@
 {
-  "modifier_name": "members",
+  "modifier_name": null,
   "path": "/members",
-  "resource_identity": "Members",
+  "resource_identity": "TeamsMembers",
   "trim_path_start": "/teams/{team-id}",
-  "parameter_filter": [
-    "team-id"
-  ]
+  "filter_path": [],
+  "replace_operation_map": "teamsMembers",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/teams/teams_members/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
 }

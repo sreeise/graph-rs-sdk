@@ -1,0 +1,107 @@
+[
+  {
+    "path": "/conversations",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.conversations.ListConversations",
+        "operation_mapping": "conversations",
+        "http_method": "GET",
+        "doc": "List conversations",
+        "parent": "GroupsConversations",
+        "original_parent": "GroupsConversations",
+        "resource_identity": "GroupsConversations"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "groups.conversations.CreateConversations",
+        "operation_mapping": "conversations",
+        "http_method": "POST",
+        "doc": "Create conversation",
+        "parent": "GroupsConversations",
+        "original_parent": "GroupsConversations",
+        "resource_identity": "GroupsConversations"
+      }
+    ]
+  },
+  {
+    "path": "/conversations/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.conversations-c7df",
+        "operation_mapping": "conversations",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "GroupsConversations",
+        "original_parent": "GroupsConversations",
+        "resource_identity": "GroupsConversations"
+      }
+    ]
+  },
+  {
+    "path": "/conversations/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "groups.DeleteConversations",
+        "operation_mapping": "GroupsConversationsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property conversations for groups",
+        "parent": "GroupsConversationsId",
+        "original_parent": "GroupsConversations",
+        "resource_identity": "GroupsConversations"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.conversations.GetConversations",
+        "operation_mapping": "GroupsConversationsId",
+        "http_method": "GET",
+        "doc": "Get conversations from groups",
+        "parent": "GroupsConversationsId",
+        "original_parent": "GroupsConversations",
+        "resource_identity": "GroupsConversations"
+      }
+    ]
+  },
+  {
+    "path": "/conversations/{{RID}}/threads",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.conversations.ListThreads",
+        "operation_mapping": "GroupsConversationsId",
+        "http_method": "GET",
+        "doc": "List threads",
+        "parent": "GroupsConversationsId",
+        "original_parent": "GroupsConversations",
+        "resource_identity": "GroupsConversations"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "groups.conversations.CreateThreads",
+        "operation_mapping": "GroupsConversationsId",
+        "http_method": "POST",
+        "doc": "Create thread",
+        "parent": "GroupsConversationsId",
+        "original_parent": "GroupsConversations",
+        "resource_identity": "GroupsConversations"
+      }
+    ]
+  }
+]

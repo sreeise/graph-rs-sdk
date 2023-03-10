@@ -37,11 +37,31 @@ lazy_static! {
         r#"(?P<PATH_ID>\{)(\w+-\w+)(})|(?P<PATH_ID_NAMED>\{\{)(\w+)(}})|(?P<KEY_VALUE_PAIR>\w+)(=\{)(\w+)(})|(?P<KEY_VALUE_PAIR_QUOTED>\w+)(='\{)(\w+)(}')"#
     ).unwrap();
 
-    pub static ref OPERATION_ID_DUPLICATE_COUNT_METHODS: Regex = Regex::new(r#"(?P<GET_COUNT>Get.Count.)(?P<RESOURCE_NAME>\w+)(?P<ARBITRARY_CHARS>-\w+[0-9])"#).unwrap();
+    pub static ref OPERATION_ID_DUPLICATE_COUNT_METHODS: Regex = Regex::new(
+        r#"(?P<GET_COUNT>Get.Count.)(?P<RESOURCE_NAME>\w+)(?P<ARBITRARY_CHARS>-\w+[0-9])"#
+    ).unwrap();
 
     pub static ref RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING: Regex = Regex::new(r#"(?P<RESOURCE_NAME>\w+)(-\w+[0-9])"#).unwrap();
+
+    pub static ref API_METHOD_MACRO: Regex = Regex::new(r#"(doc: "\#)"#).unwrap();
 }
 
+// (doc: \"#\w*\",) (\w+\(\{)
+/*
+       doc: "# Update the navigation property calendar in users",
+       name: update_calendar,
+       response: NoContent,
+       path: "/calendar",
+       params: 0,
+       has_body: true
+*/
+
+// Match on first part of macro: (\w+!\(\{)
+// ^(?:\w+!\(\{)((\s*)(.*))+(}\);)$
+// (\w+!\(\{)(?:\s+\S+)+(:?}\);)*
+// (\w+!\(\{)(\w+:+)(\}\);)
+// (\w+!(\{)(\w+:[0-9])(});)
+// ^(?:\w+!\(\{)*
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
 pub enum PathMatcher {
     PathId,
@@ -292,7 +312,9 @@ impl RequestParser for &str {
                                     }
                                 }
                                 // If this matches return the original string.
-                                _ => return (self.to_string(), HashSet::new()),
+                                _ => {
+                                    return (self.to_string(), HashSet::new());
+                                }
                             }
                         }
                     }
@@ -403,6 +425,79 @@ impl RequestParser for &str {
 
         path
     }
+
+    /*
+            let s = capture[0].to_string();
+            let mut found_match = false;
+
+            for name in capture_names.iter() {
+                if capture.name(name).is_some() {
+                    if let Ok(path_matcher) = PathMatcher::from_str(name) {
+                        if !s.contains("RID") {
+                            match path_matcher {
+                                PathMatcher::PathId => {
+                                    if count == 1 {
+                                        path = path.replacen(s.as_str(), "{{id}}", 1);
+                                        found_match = true;
+                                        break;
+                                    } else {
+                                        path = path.replacen(
+                                            s.as_str(),
+                                            &format!("{{{{id{}}}}}", count),
+                                            1,
+                                        );
+                                        found_match = true;
+                                        break;
+                                    }
+                                }
+                                PathMatcher::PathIdNamed => {
+                                    path = replace_ids(count, s.as_str(), &mut path);
+                                    found_match = true;
+                                    break;
+                                }
+                                PathMatcher::KeyValuePair => {
+                                    if let Some(_i) = s.find('=') {
+                                        if let Some(i) = s.find('=') {
+                                            path = replace_ids(count, &s[i + 1..], &mut path);
+                                            found_match = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                PathMatcher::KeyValuePairQuoted => {
+                                    if let Some(_i) = s.find('=') {
+                                        if let Some(i) = s.find('=') {
+                                            if count == 1 {
+                                                path = path.replacen(&s[i + 1..], "'{{id}}'", 1);
+                                                found_match = true;
+                                                break;
+                                            } else {
+                                                path = path.replacen(
+                                                    &s[i + 1..],
+                                                    &format!("'{{{{id{}}}}}'", count),
+                                                    1,
+                                                );
+                                                found_match = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+               if found_match {
+                   break;
+               }
+           }
+
+            if found_match {
+                found_match = false;
+                count += 1;
+            }
+    */
 
     fn shift_path_ids(&self) -> String {
         self.replacen("id2", "id", 1)

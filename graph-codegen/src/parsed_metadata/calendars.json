@@ -1,0 +1,216 @@
+[
+  {
+    "path": "/calendars",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListCalendars",
+        "operation_mapping": "calendars",
+        "http_method": "GET",
+        "doc": "List calendars",
+        "parent": "Calendars",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateCalendars",
+        "operation_mapping": "calendars",
+        "http_method": "POST",
+        "doc": "Create calendar",
+        "parent": "Calendars",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      }
+    ]
+  },
+  {
+    "path": "/calendars/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.calendars-a1b5",
+        "operation_mapping": "calendars",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Calendars",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      }
+    ]
+  },
+  {
+    "path": "/calendars/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetCalendars",
+        "operation_mapping": "CalendarsId",
+        "http_method": "GET",
+        "doc": "Get calendars from users",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateCalendars",
+        "operation_mapping": "CalendarsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property calendars in users",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteCalendars",
+        "operation_mapping": "CalendarsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property calendars for users",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      }
+    ]
+  },
+  {
+    "path": "/calendars/{{RID}}/allowedCalendarSharingRoles(User='{{id}}')",
+    "param_size": 1,
+    "parameters": [
+      "user"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.user.calendars.calendar.allowedCalendarSharingRoles",
+        "operation_mapping": "CalendarsId",
+        "http_method": "GET",
+        "doc": "Invoke function allowedCalendarSharingRoles",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      }
+    ]
+  },
+  {
+    "path": "/calendars/{{RID}}/calendarPermissions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendars.ListCalendarPermissions",
+        "operation_mapping": "CalendarsId",
+        "http_method": "GET",
+        "doc": "Get calendarPermissions from users",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.calendars.CreateCalendarPermissions",
+        "operation_mapping": "CalendarsId",
+        "http_method": "POST",
+        "doc": "Create calendarPermission",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      }
+    ]
+  },
+  {
+    "path": "/calendars/{{RID}}/calendarPermissions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.calendarPermissions-a224",
+        "operation_mapping": "CalendarsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      }
+    ]
+  },
+  {
+    "path": "/calendars/{{RID}}/calendarPermissions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "calendar_permission_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.calendars.UpdateCalendarPermissions",
+        "operation_mapping": "CalendarsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property calendarPermissions in users",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendars.GetCalendarPermissions",
+        "operation_mapping": "CalendarsId",
+        "http_method": "GET",
+        "doc": "Get calendarPermissions from users",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.calendars.DeleteCalendarPermissions",
+        "operation_mapping": "CalendarsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property calendarPermissions for users",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      }
+    ]
+  },
+  {
+    "path": "/calendars/{{RID}}/getSchedule",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.calendars.calendar.getSchedule",
+        "operation_mapping": "CalendarsId",
+        "http_method": "POST",
+        "doc": "Invoke action getSchedule",
+        "parent": "CalendarsId",
+        "original_parent": "Calendars",
+        "resource_identity": "Calendars"
+      }
+    ]
+  }
+]

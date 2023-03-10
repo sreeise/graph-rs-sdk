@@ -2,6 +2,8 @@
 #![allow(deprecated)]
 pub extern crate inflector;
 #[macro_use]
+extern crate derive_builder;
+#[macro_use]
 extern crate serde;
 extern crate from_as;
 extern crate serde_json;

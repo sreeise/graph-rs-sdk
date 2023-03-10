@@ -56,7 +56,7 @@ pub use server_variable::*;
 pub use tag::*;
 pub use xml::*;
 
-use crate::api_types::{PathMetadata, ResourceParsingInfo};
+use crate::api_types::{PathMetadata, WriteConfiguration};
 use crate::macros::OpenApiParser;
 use crate::traits::{FilterPath, RequestParser};
 use from_as::*;
@@ -66,7 +66,7 @@ use inflector::Inflector;
 use rayon::prelude::*;
 use reqwest::Url;
 use serde_json::Value;
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::{
     collections::{BTreeMap, VecDeque},
     convert::TryFrom,
@@ -168,7 +168,7 @@ impl OpenApi {
 
     pub fn filter_resource_parsing_info_path(
         &self,
-        resource_parsing_info: &ResourceParsingInfo,
+        resource_parsing_info: &WriteConfiguration,
     ) -> BTreeMap<String, PathItem> {
         let trim_path_start = resource_parsing_info
             .trim_path_start
@@ -237,6 +237,27 @@ impl OpenApi {
             .collect()
     }
 
+    /// Returns all unique first path parts of a split path array of each path.
+    ///
+    /// # Explanation
+    /// Given the following paths
+    /// ```json
+    /// /deviceAppManagement/managedAppRegistrations
+    /// /deviceManagement/managedDevices
+    /// /directory/federationConfigurations
+    /// ```
+    /// The method returns the following BTreeSet:
+    /// ```json
+    /// [deviceAppManagement, deviceManagement, directory]
+    /// ```
+    ///
+    /// # Example
+    /// ```rust
+    /// use graph_codegen::openapi::OpenApi;
+    /// let open_api = OpenApi::default();
+    ///
+    /// let set = open_api.top_level_resources();
+    /// assert!(set.contains("DeviceAppManagement"))
     pub fn top_level_resources(&self) -> BTreeSet<String> {
         self.paths()
             .iter()
@@ -244,12 +265,74 @@ impl OpenApi {
                 path.split('/')
                     .into_iter()
                     .filter(|s| !s.trim().is_empty())
+                    .map(|s| s.to_pascal_case())
                     .take(1)
                     .collect()
             })
-            .filter(|s: &String| !s.is_empty())
-            .map(|s| s.to_pascal_case())
             .collect()
+    }
+
+    /// Get the first secondary path names for a given resource.
+    ///
+    /// # Explanation
+    /// Take deviceAppManagement as an example.
+    /// deviceAppManagement is a top level resource and its path starts with /deviceAppManagement
+    ///
+    /// managedAppRegistrations is a first second level resource of deviceAppManagement and the path
+    /// is /deviceAppManagement/managedAppRegistrations so the first level resources are any `path[1]`
+    /// given a split string array of the path.
+    ///
+    /// This method will ignore and filter out any parts of paths used for insertions such as
+    /// - `{id}` in `/resource/{id}`,
+    /// - Any parts of paths that have the following chars: ['{', '(', '.', '$'] such as $count and microsoft.graph
+    /// - Any second level resource that does not appear greater than or equal to 3 times
+    ///
+    /// # Example
+    /// ```rust
+    /// use graph_codegen::openapi::OpenApi;
+    /// let open_api = OpenApi::default();
+    ///
+    /// let set = open_api.first_second_level_resources("deviceAppManagement");
+    /// assert!(set.contains("managedAppRegistrations"))
+    /// ```
+    pub fn first_second_level_resources(&self, pat: &str) -> BTreeSet<String> {
+        let pat = {
+            if !pat.starts_with('/') {
+                format!("/{pat}")
+            } else {
+                pat.to_string()
+            }
+        };
+
+        let paths = self.filter_path(pat.as_str());
+        let mut set: BTreeSet<String> = BTreeSet::new();
+        let mut set_empty: BTreeSet<String> = BTreeSet::new();
+        let mut frequency: HashMap<String, i64> = HashMap::new();
+
+        for (path, _) in paths.iter() {
+            let p = path.replace("{group-id}/", "");
+            let mut path_arr: VecDeque<String> = p
+                .split('/')
+                .filter(|s| !s.trim().is_empty())
+                .filter(|s| !s.contains(['{', '(', '.', '$']))
+                .map(|s| s.to_string())
+                .collect();
+
+            if path_arr.len() > 1 {
+                frequency
+                    .entry(path_arr[1].to_string())
+                    .and_modify(|mut i| *i += 1)
+                    .or_insert(1);
+            }
+
+            for (key, value) in frequency.iter() {
+                if *value >= 3 {
+                    set.insert(key.to_string());
+                }
+            }
+        }
+
+        set
     }
 }
 
@@ -258,10 +341,7 @@ impl Default for OpenApi {
         match OpenApi::try_from(GraphUrl::parse(MS_GRAPH_METADATA_URL).unwrap()) {
             Ok(open_api) => open_api,
             Err(e) => {
-                println!(
-                    "Error parsing v1.0 metadata: {:#?}\n\nAttempting beta Api metadata",
-                    e
-                );
+                println!("Error parsing v1.0 metadata: {e:#?}\n\nAttempting beta Api metadata");
                 OpenApi::try_from(GraphUrl::parse(MS_GRAPH_BETA_METADATA_URL).unwrap()).unwrap()
             }
         }
@@ -335,7 +415,7 @@ impl OpenApiParser for OpenApi {}
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenApiRaw {
-    open_api: serde_json::Value,
+    pub open_api: serde_json::Value,
 }
 
 impl OpenApiRaw {
@@ -348,15 +428,10 @@ impl OpenApiRaw {
             .collect()
     }
 
-    pub fn path_filter(&mut self, path_start: &str) {
-        let paths = self.open_api["paths"].as_object().unwrap();
-        let map: HashMap<String, Value> = paths
-            .iter()
-            .filter(|(s, _v)| s.starts_with(path_start))
-            .map(|(s, v)| (s.clone(), v.clone()))
-            .collect();
-
-        self.open_api["paths"] = serde_json::to_value(map).unwrap();
+    pub fn path_filter(&mut self, path_start: &str, key_map: Vec<String>) {
+        let mut schema = self.open_api["paths"].clone();
+        let mut schema_map = schema.as_object().unwrap().clone();
+        self.open_api["paths"] = serde_json::to_value(schema_map).unwrap();
     }
 
     pub fn components(&self) -> serde_json::Value {

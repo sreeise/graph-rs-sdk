@@ -1,7 +1,22 @@
 {
-  "modifier_name": "accessReviews",
+  "modifier_name": null,
   "path": "/accessReviews",
   "resource_identity": "AccessReviews",
   "trim_path_start": "/identityGovernance",
-  "parameter_filter": []
+  "filter_path": [
+    "definitions"
+  ],
+  "replace_operation_map": null,
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/identity_governance/access_reviews/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
 }

@@ -1,0 +1,2161 @@
+[
+  {
+    "path": "/servicePrincipals",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.ListServicePrincipal",
+        "operation_mapping": "servicePrincipals",
+        "http_method": "GET",
+        "doc": "List servicePrincipals",
+        "parent": "ServicePrincipals",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.CreateServicePrincipal",
+        "operation_mapping": "servicePrincipals",
+        "http_method": "POST",
+        "doc": "Create servicePrincipal",
+        "parent": "ServicePrincipals",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.servicePrincipals-da6d",
+        "operation_mapping": "servicePrincipals",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipals",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "servicePrincipals.delta",
+        "operation_mapping": "servicePrincipals",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "ServicePrincipals",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/getAvailableExtensionProperties",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.getAvailableExtensionProperties",
+        "operation_mapping": "servicePrincipals",
+        "http_method": "POST",
+        "doc": "Invoke action getAvailableExtensionProperties",
+        "parent": "ServicePrincipals",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/getByIds",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.getByIds",
+        "operation_mapping": "servicePrincipals",
+        "http_method": "POST",
+        "doc": "Invoke action getByIds",
+        "parent": "ServicePrincipals",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/validateProperties",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.validateProperties",
+        "operation_mapping": "servicePrincipals",
+        "http_method": "POST",
+        "doc": "Invoke action validateProperties",
+        "parent": "ServicePrincipals",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.servicePrincipal.DeleteServicePrincipal",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "DELETE",
+        "doc": "Delete servicePrincipal",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.UpdateServicePrincipal",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "PATCH",
+        "doc": "Update entity in servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.GetServicePrincipal",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get servicePrincipal",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/addKey",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.addKey",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Invoke action addKey",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/addPassword",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.addPassword",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Invoke action addPassword",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/addTokenSigningCertificate",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.addTokenSigningCertificate",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Invoke action addTokenSigningCertificate",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/appManagementPolicies",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListAppManagementPolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get appManagementPolicies from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/appManagementPolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.appManagementPolicies-5cee",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/appManagementPolicies/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "app_management_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetAppManagementPolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get appManagementPolicies from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/appRoleAssignedTo",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.CreateAppRoleAssignedTo",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Grant an appRoleAssignment for a service principal",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListAppRoleAssignedTo",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "List appRoleAssignments granted for a service principal",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/appRoleAssignedTo/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.appRoleAssignedTo-705c",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/appRoleAssignedTo/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "app_role_assignment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.DeleteAppRoleAssignedTo",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property appRoleAssignedTo for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.UpdateAppRoleAssignedTo",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property appRoleAssignedTo in servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetAppRoleAssignedTo",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get appRoleAssignedTo from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/appRoleAssignments",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.CreateAppRoleAssignments",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Grant an appRoleAssignment to a service principal",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListAppRoleAssignments",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get appRoleAssignments from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/appRoleAssignments/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.appRoleAssignments-4e95",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/appRoleAssignments/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "app_role_assignment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetAppRoleAssignments",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get appRoleAssignments from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.UpdateAppRoleAssignments",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property appRoleAssignments in servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.DeleteAppRoleAssignments",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property appRoleAssignments for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/checkMemberGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.checkMemberGroups",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Invoke action checkMemberGroups",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/checkMemberObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.checkMemberObjects",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Invoke action checkMemberObjects",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/claimsMappingPolicies",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListClaimsMappingPolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "List assigned claimsMappingPolicy",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/claimsMappingPolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.claimsMappingPolicies-832a",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/claimsMappingPolicies/$ref",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListRefClaimsMappingPolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "List assigned claimsMappingPolicy",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.CreateRefClaimsMappingPolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property ref to claimsMappingPolicies for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/claimsMappingPolicies/{{id}}/$ref",
+    "param_size": 1,
+    "parameters": [
+      "claims_mapping_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.DeleteRefClaimsMappingPolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property claimsMappingPolicies for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/createdObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListCreatedObjects",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get createdObjects from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/createdObjects/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.createdObjects-0714",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/createdObjects/graph.servicePrincipal",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.servicePrincipal-acd7",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/createdObjects/graph.servicePrincipal/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.servicePrincipal-768a",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/createdObjects/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetCreatedObjects",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get createdObjects from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/createdObjects/{{id}}/graph.servicePrincipal",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.servicePrincipal-acd7",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.servicePrincipal",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/delegatedPermissionClassifications",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListDelegatedPermissionClassifications",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "List delegatedPermissionClassifications collection of servicePrincipal",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.CreateDelegatedPermissionClassifications",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Create delegatedPermissionClassification",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/delegatedPermissionClassifications/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.delegatedPermissionClassifications-31f9",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/delegatedPermissionClassifications/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "delegated_permission_classification_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetDelegatedPermissionClassifications",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get delegatedPermissionClassifications from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.UpdateDelegatedPermissionClassifications",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property delegatedPermissionClassifications in servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.DeleteDelegatedPermissionClassifications",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property delegatedPermissionClassifications for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/endpoints",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListEndpoints",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get endpoints from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.CreateEndpoints",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to endpoints for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/endpoints/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.endpoints-c0e0",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/endpoints/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "endpoint_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.UpdateEndpoints",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property endpoints in servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.DeleteEndpoints",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property endpoints for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetEndpoints",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get endpoints from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/federatedIdentityCredentials",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListFederatedIdentityCredentials",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get federatedIdentityCredentials from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.CreateFederatedIdentityCredentials",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to federatedIdentityCredentials for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/federatedIdentityCredentials/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.federatedIdentityCredentials-d9cd",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/federatedIdentityCredentials/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "federated_identity_credential_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.UpdateFederatedIdentityCredentials",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property federatedIdentityCredentials in servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.DeleteFederatedIdentityCredentials",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property federatedIdentityCredentials for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetFederatedIdentityCredentials",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get federatedIdentityCredentials from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/getMemberGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.getMemberGroups",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Invoke action getMemberGroups",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/getMemberObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.getMemberObjects",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Invoke action getMemberObjects",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/homeRealmDiscoveryPolicies",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListHomeRealmDiscoveryPolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "List assigned homeRealmDiscoveryPolicy",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/homeRealmDiscoveryPolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.homeRealmDiscoveryPolicies-d161",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/homeRealmDiscoveryPolicies/$ref",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.CreateRefHomeRealmDiscoveryPolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property ref to homeRealmDiscoveryPolicies for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListRefHomeRealmDiscoveryPolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "List assigned homeRealmDiscoveryPolicy",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/homeRealmDiscoveryPolicies/{{id}}/$ref",
+    "param_size": 1,
+    "parameters": [
+      "home_realm_discovery_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.DeleteRefHomeRealmDiscoveryPolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property homeRealmDiscoveryPolicies for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/memberOf",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListMemberOf",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get memberOf from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/memberOf/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.memberOf-be11",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/memberOf/graph.group",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-0dc6",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/memberOf/graph.group/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.group-96d9",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/memberOf/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetMemberOf",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get memberOf from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/memberOf/{{id}}/graph.group",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-0dc6",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/oauth2PermissionGrants",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListOauth2PermissionGrants",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "List oauth2PermissionGrants",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/oauth2PermissionGrants/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.oauth2PermissionGrants-f9dc",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/oauth2PermissionGrants/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "o_auth_2_permission_grant_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetOauth2PermissionGrants",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get oauth2PermissionGrants from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListOwnedObjects",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get ownedObjects from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.ownedObjects-7ae7",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/graph.appRoleAssignment",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.appRoleAssignment-1b30",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.appRoleAssignment in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/graph.appRoleAssignment/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.appRoleAssignment-793c",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/graph.application",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-4cd2",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/graph.application/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.application-2b95",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/graph.endpoint",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.endpoint-9e30",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.endpoint in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/graph.endpoint/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.endpoint-4594",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/graph.group",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-f1b9",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/graph.group/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.group-fc2e",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/graph.servicePrincipal",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.servicePrincipal-2481",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/graph.servicePrincipal/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.servicePrincipal-19c0",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetOwnedObjects",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get ownedObjects from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/{{id}}/graph.appRoleAssignment",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.appRoleAssignment-1b30",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.appRoleAssignment",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/{{id}}/graph.application",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-4cd2",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.application",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/{{id}}/graph.endpoint",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.endpoint-9e30",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.endpoint",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/{{id}}/graph.group",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-f1b9",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/ownedObjects/{{id}}/graph.servicePrincipal",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.servicePrincipal-2481",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.servicePrincipal",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListOwners",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get owners from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.owners-ec9a",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/$ref",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.CreateRefOwners",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property ref to owners for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListRefOwners",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get ref of owners from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/graph.appRoleAssignment",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.appRoleAssignment-eaec",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.appRoleAssignment in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Graph",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/graph.appRoleAssignment/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.appRoleAssignment-abce",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Graph",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/graph.endpoint",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.endpoint-6335",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.endpoint in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/graph.endpoint/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.endpoint-9454",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/graph.servicePrincipal",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.servicePrincipal-3e7b",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/graph.servicePrincipal/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.servicePrincipal-c35b",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/graph.user",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.user-da7b",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.user in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/graph.user/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.user-aab7",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/{{id}}/$ref",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.DeleteRefOwners",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property owners for servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/{{id}}/graph.appRoleAssignment",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.appRoleAssignment-eaec",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.appRoleAssignment",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Graph",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/{{id}}/graph.endpoint",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.endpoint-6335",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.endpoint",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/{{id}}/graph.servicePrincipal",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.servicePrincipal-3e7b",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.servicePrincipal",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/owners/{{id}}/graph.user",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.user-da7b",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.user",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/removeKey",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.servicePrincipal.removeKey",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Invoke action removeKey",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/removePassword",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "servicePrincipals.servicePrincipal.removePassword",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Invoke action removePassword",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/restore",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.servicePrincipal.restore",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "POST",
+        "doc": "Invoke action restore",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/tokenIssuancePolicies",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListTokenIssuancePolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get tokenIssuancePolicies from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/tokenIssuancePolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.tokenIssuancePolicies-578b",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/tokenIssuancePolicies/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "token_issuance_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetTokenIssuancePolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get tokenIssuancePolicies from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/tokenLifetimePolicies",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListTokenLifetimePolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get tokenLifetimePolicies from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/tokenLifetimePolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.tokenLifetimePolicies-4121",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/tokenLifetimePolicies/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "token_lifetime_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetTokenLifetimePolicies",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get tokenLifetimePolicies from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/transitiveMemberOf",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.ListTransitiveMemberOf",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get transitiveMemberOf from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/transitiveMemberOf/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.transitiveMemberOf-4794",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Get",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/transitiveMemberOf/graph.group",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-6c35",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/transitiveMemberOf/graph.group/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.group-e005",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/transitiveMemberOf/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "servicePrincipals.GetTransitiveMemberOf",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get transitiveMemberOf from servicePrincipals",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "ServicePrincipals",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  },
+  {
+    "path": "/servicePrincipals/{{RID}}/transitiveMemberOf/{{id}}/graph.group",
+    "param_size": 1,
+    "parameters": [
+      "directory_object_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-6c35",
+        "operation_mapping": "ServicePrincipalsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
+        "parent": "ServicePrincipalsId",
+        "original_parent": "Microsoft",
+        "resource_identity": "ServicePrincipals"
+      }
+    ]
+  }
+]

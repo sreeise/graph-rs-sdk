@@ -1,0 +1,218 @@
+[
+  {
+    "path": "/ownedObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListOwnedObjects",
+        "operation_mapping": "ownedObjects",
+        "http_method": "GET",
+        "doc": "Get ownedObjects from users",
+        "parent": "OwnedObjects",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.ownedObjects-2c09",
+        "operation_mapping": "ownedObjects",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OwnedObjects",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/graph.application",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-abca",
+        "operation_mapping": "ownedObjects",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
+        "parent": "OwnedObjects",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/graph.application/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.application-1b6d",
+        "operation_mapping": "ownedObjects",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OwnedObjects",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/graph.group",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-78d4",
+        "operation_mapping": "ownedObjects",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
+        "parent": "OwnedObjects",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/graph.group/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.group-7af3",
+        "operation_mapping": "ownedObjects",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OwnedObjects",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/graph.servicePrincipal",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.servicePrincipal-bb0c",
+        "operation_mapping": "ownedObjects",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
+        "parent": "OwnedObjects",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/graph.servicePrincipal/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.servicePrincipal-370f",
+        "operation_mapping": "ownedObjects",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OwnedObjects",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetOwnedObjects",
+        "operation_mapping": "OwnedObjectsId",
+        "http_method": "GET",
+        "doc": "Get ownedObjects from users",
+        "parent": "OwnedObjectsId",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/{{RID}}/graph.application",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-abca",
+        "operation_mapping": "OwnedObjectsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.application",
+        "parent": "OwnedObjectsId",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/{{RID}}/graph.group",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-78d4",
+        "operation_mapping": "OwnedObjectsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
+        "parent": "OwnedObjectsId",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  },
+  {
+    "path": "/ownedObjects/{{RID}}/graph.servicePrincipal",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.servicePrincipal-bb0c",
+        "operation_mapping": "OwnedObjectsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.servicePrincipal",
+        "parent": "OwnedObjectsId",
+        "original_parent": "OwnedObjects",
+        "resource_identity": "OwnedObjects"
+      }
+    ]
+  }
+]

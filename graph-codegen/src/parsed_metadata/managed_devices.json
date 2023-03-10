@@ -1,0 +1,649 @@
+[
+  {
+    "path": "/managedDevices",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListManagedDevices",
+        "operation_mapping": "managedDevices",
+        "http_method": "GET",
+        "doc": "Get managedDevices from users",
+        "parent": "ManagedDevices",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateManagedDevices",
+        "operation_mapping": "managedDevices",
+        "http_method": "POST",
+        "doc": "Create new navigation property to managedDevices for users",
+        "parent": "ManagedDevices",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.managedDevices-9db6",
+        "operation_mapping": "managedDevices",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ManagedDevices",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetManagedDevices",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "GET",
+        "doc": "Get managedDevices from users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateManagedDevices",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property managedDevices in users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteManagedDevices",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property managedDevices for users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/bypassActivationLock",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.bypassActivationLock",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action bypassActivationLock",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/cleanWindowsDevice",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.cleanWindowsDevice",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action cleanWindowsDevice",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/deleteUserFromSharedAppleDevice",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.deleteUserFromSharedAppleDevice",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action deleteUserFromSharedAppleDevice",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/deviceCategory",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.GetDeviceCategory",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "GET",
+        "doc": "Get deviceCategory from users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.managedDevices.DeleteDeviceCategory",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property deviceCategory for users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.UpdateDeviceCategory",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property deviceCategory in users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/deviceCompliancePolicyStates",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.CreateDeviceCompliancePolicyStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to deviceCompliancePolicyStates for users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.ListDeviceCompliancePolicyStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "GET",
+        "doc": "Get deviceCompliancePolicyStates from users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/deviceCompliancePolicyStates/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.deviceCompliancePolicyStates-51d2",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/deviceCompliancePolicyStates/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "device_compliance_policy_state_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.GetDeviceCompliancePolicyStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "GET",
+        "doc": "Get deviceCompliancePolicyStates from users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.managedDevices.DeleteDeviceCompliancePolicyStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property deviceCompliancePolicyStates for users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.UpdateDeviceCompliancePolicyStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property deviceCompliancePolicyStates in users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/deviceConfigurationStates",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.ListDeviceConfigurationStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "GET",
+        "doc": "Get deviceConfigurationStates from users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.CreateDeviceConfigurationStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to deviceConfigurationStates for users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/deviceConfigurationStates/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.deviceConfigurationStates-44c9",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/deviceConfigurationStates/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "device_configuration_state_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.managedDevices.DeleteDeviceConfigurationStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property deviceConfigurationStates for users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.UpdateDeviceConfigurationStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property deviceConfigurationStates in users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.GetDeviceConfigurationStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "GET",
+        "doc": "Get deviceConfigurationStates from users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/disableLostMode",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.disableLostMode",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action disableLostMode",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/locateDevice",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.locateDevice",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action locateDevice",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/logoutSharedAppleDeviceActiveUser",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.logoutSharedAppleDeviceActiveUser",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action logoutSharedAppleDeviceActiveUser",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/rebootNow",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.rebootNow",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action rebootNow",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/recoverPasscode",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.recoverPasscode",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action recoverPasscode",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/remoteLock",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.remoteLock",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action remoteLock",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/requestRemoteAssistance",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.requestRemoteAssistance",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action requestRemoteAssistance",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/resetPasscode",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.resetPasscode",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action resetPasscode",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/retire",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.retire",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action retire",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/shutDown",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.shutDown",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action shutDown",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/syncDevice",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.syncDevice",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action syncDevice",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/updateWindowsDeviceAccount",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.updateWindowsDeviceAccount",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action updateWindowsDeviceAccount",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/users",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.ListUsers",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "GET",
+        "doc": "Get users from users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/windowsDefenderScan",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.windowsDefenderScan",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action windowsDefenderScan",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/windowsDefenderUpdateSignatures",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.windowsDefenderUpdateSignatures",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action windowsDefenderUpdateSignatures",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/managedDevices/{{RID}}/wipe",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.user.managedDevices.managedDevice.wipe",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Invoke action wipe",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      }
+    ]
+  }
+]

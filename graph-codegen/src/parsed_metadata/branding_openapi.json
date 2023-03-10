@@ -113,7 +113,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved entity",
@@ -167,10 +167,21 @@
         }
       },
       "responses": {
-        "4XX": {
+        "2XX": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.organizationalBranding"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -181,10 +192,10 @@
             }
           }
         },
-        "204": {
+        "4XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -216,7 +227,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved media content",
@@ -319,7 +330,7 @@
       "description": "A banner version of your company logo that appears on the sign-in page. The allowed types are PNG or JPEG no larger than 36 × 245 pixels. We recommend using a transparent image with no padding around the logo.",
       "operationId": "branding.organizationalBranding.GetBannerLogo",
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved media content",
@@ -432,8 +443,12 @@
       "tags": [
         "branding.organizationalBrandingLocalization"
       ],
-      "summary": "Get localizations from branding",
-      "description": "Add different branding based on a locale.",
+      "summary": "List localizations",
+      "description": "Retrieve all localization branding objects, including the default branding.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/organizationalbranding-list-localizations?view=graph-rest-1.0"
+      },
       "operationId": "branding.ListLocalizations",
       "parameters": [
         {
@@ -630,13 +645,6 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.organizationalBrandingLocalizationCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -650,6 +658,13 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.organizationalBrandingLocalizationCollectionResponse"
+            }
+          }
         }
       },
       "deprecated": false
@@ -658,7 +673,12 @@
       "tags": [
         "branding.organizationalBrandingLocalization"
       ],
-      "summary": "Create new navigation property to localizations for branding",
+      "summary": "Create organizationalBrandingLocalization",
+      "description": "Create a new organizationalBrandingLocalization object. This creates a localized branding and at the same time, the default branding if it doesn't exist. The default branding is created only once. It's loaded when a localized branding isn't configured for the user's browser language. To retrieve the default branding, see Get branding.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/organizationalbranding-post-localizations?view=graph-rest-1.0"
+      },
       "operationId": "branding.CreateLocalizations",
       "requestBody": {
         "either": {
@@ -680,7 +700,21 @@
         }
       },
       "responses": {
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -697,20 +731,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -721,14 +741,23 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.localizations-b239",
-      "responses": {
-        "4XX": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
         "5XX": {
           "either": {
             "Right": {
@@ -736,7 +765,14 @@
             }
           }
         },
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -853,13 +889,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -867,7 +896,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -882,6 +911,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -924,17 +960,17 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -974,10 +1010,21 @@
         }
       },
       "responses": {
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.organizationalBrandingLocalization"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -1004,7 +1051,7 @@
           "Left": {
             "name": "organizationalBrandingLocalization-id",
             "in": "path",
-            "description": "key: id of organizationalBrandingLocalization",
+            "description": "The unique identifier of organizationalBrandingLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1037,6 +1084,10 @@
       ],
       "summary": "Get backgroundImage for the navigation property localizations from branding",
       "description": "Image that appears as the background of the sign-in page. The allowed types are PNG or JPEG not smaller than 300 KB and not larger than 1920 × 1080 pixels. A smaller image will reduce bandwidth requirements and make the page load faster.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/organizationalbranding-list-localizations?view=graph-rest-1.0"
+      },
       "operationId": "branding.GetLocalizationsBackgroundImage",
       "responses": {
         "4XX": {
@@ -1046,7 +1097,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved media content",
@@ -1071,13 +1129,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1121,6 +1172,13 @@
         }
       },
       "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -1134,13 +1192,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
         }
       },
       "deprecated": false
@@ -1151,7 +1202,7 @@
           "Left": {
             "name": "organizationalBrandingLocalization-id",
             "in": "path",
-            "description": "key: id of organizationalBrandingLocalization",
+            "description": "The unique identifier of organizationalBrandingLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1184,16 +1235,13 @@
       ],
       "summary": "Get bannerLogo for the navigation property localizations from branding",
       "description": "A banner version of your company logo that appears on the sign-in page. The allowed types are PNG or JPEG no larger than 36 × 245 pixels. We recommend using a transparent image with no padding around the logo.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/organizationalbranding-list-localizations?view=graph-rest-1.0"
+      },
       "operationId": "branding.GetLocalizationsBannerLogo",
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved media content",
@@ -1218,6 +1266,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -1275,14 +1330,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1298,7 +1353,7 @@
           "Left": {
             "name": "organizationalBrandingLocalization-id",
             "in": "path",
-            "description": "key: id of organizationalBrandingLocalization",
+            "description": "The unique identifier of organizationalBrandingLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1331,23 +1386,13 @@
       ],
       "summary": "Get squareLogo for the navigation property localizations from branding",
       "description": "A square version of your company logo that appears in Windows 10 out-of-box experiences (OOBE) and when Windows Autopilot is enabled for deployment. Allowed types are PNG or JPEG no larger than 240 x 240 pixels and no more than 10 KB in size. We recommend using a transparent image with no padding around the logo.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/organizationalbranding-list-localizations?view=graph-rest-1.0"
+      },
       "operationId": "branding.GetLocalizationsSquareLogo",
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved media content",
@@ -1372,6 +1417,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1422,14 +1481,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1445,7 +1504,7 @@
           "Left": {
             "name": "organizationalBrandingLocalization-id",
             "in": "path",
-            "description": "key: id of organizationalBrandingLocalization",
+            "description": "The unique identifier of organizationalBrandingLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1480,14 +1539,7 @@
       "description": "A square version of your company logo that appears in Windows 10 out-of-box experiences (OOBE) and when Windows Autopilot is enabled for deployment. Allowed types are PNG or JPEG no larger than 240 x 240 pixels and no more than 10 KB in size. We recommend using a transparent image with no padding around the logo.",
       "operationId": "branding.organizationalBranding.GetSquareLogo",
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved media content",
@@ -1512,6 +1564,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -1562,13 +1621,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
@@ -1577,6 +1629,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"

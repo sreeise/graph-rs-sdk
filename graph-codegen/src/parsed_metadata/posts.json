@@ -1,0 +1,210 @@
+[
+  {
+    "path": "/posts",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.threads.posts.ListPosts",
+        "operation_mapping": "posts",
+        "http_method": "GET",
+        "doc": "Get post",
+        "parent": "GroupsThreadsPosts",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      }
+    ]
+  },
+  {
+    "path": "/posts/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.posts-fcff",
+        "operation_mapping": "posts",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "GroupsThreadsPosts",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      }
+    ]
+  },
+  {
+    "path": "/posts/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.threads.posts.GetPosts",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "GET",
+        "doc": "Get posts from groups",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      }
+    ]
+  },
+  {
+    "path": "/posts/{{RID}}/attachments",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.threads.posts.ListAttachments",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "GET",
+        "doc": "List attachments",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "groups.threads.posts.CreateAttachments",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to attachments for groups",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      }
+    ]
+  },
+  {
+    "path": "/posts/{{RID}}/extensions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "groups.threads.posts.CreateExtensions",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to extensions for groups",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.threads.posts.ListExtensions",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "GET",
+        "doc": "Get extensions from groups",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      }
+    ]
+  },
+  {
+    "path": "/posts/{{RID}}/extensions/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.extensions-5e10",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      }
+    ]
+  },
+  {
+    "path": "/posts/{{RID}}/extensions/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "extension_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "groups.threads.posts.UpdateExtensions",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property extensions in groups",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.threads.posts.GetExtensions",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "GET",
+        "doc": "Get extensions from groups",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "groups.threads.posts.DeleteExtensions",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property extensions for groups",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      }
+    ]
+  },
+  {
+    "path": "/posts/{{RID}}/forward",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "groups.group.threads.conversationThread.posts.post.forward",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "POST",
+        "doc": "Invoke action forward",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      }
+    ]
+  },
+  {
+    "path": "/posts/{{RID}}/reply",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "groups.group.threads.conversationThread.posts.post.reply",
+        "operation_mapping": "GroupsThreadsPostsId",
+        "http_method": "POST",
+        "doc": "Invoke action reply",
+        "parent": "GroupsThreadsPostsId",
+        "original_parent": "GroupsThreadsPosts",
+        "resource_identity": "GroupsThreadsPosts"
+      }
+    ]
+  }
+]

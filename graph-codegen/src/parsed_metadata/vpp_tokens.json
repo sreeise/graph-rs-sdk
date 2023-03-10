@@ -1,0 +1,107 @@
+[
+  {
+    "path": "/vppTokens",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.ListVppTokens",
+        "operation_mapping": "vppTokens",
+        "http_method": "GET",
+        "doc": "Get vppTokens from deviceAppManagement",
+        "parent": "DeviceAppManagementVppTokens",
+        "original_parent": "DeviceAppManagementVppTokens",
+        "resource_identity": "DeviceAppManagementVppTokens"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.CreateVppTokens",
+        "operation_mapping": "vppTokens",
+        "http_method": "POST",
+        "doc": "Create new navigation property to vppTokens for deviceAppManagement",
+        "parent": "DeviceAppManagementVppTokens",
+        "original_parent": "DeviceAppManagementVppTokens",
+        "resource_identity": "DeviceAppManagementVppTokens"
+      }
+    ]
+  },
+  {
+    "path": "/vppTokens/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.vppTokens-d643",
+        "operation_mapping": "vppTokens",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DeviceAppManagementVppTokens",
+        "original_parent": "DeviceAppManagementVppTokens",
+        "resource_identity": "DeviceAppManagementVppTokens"
+      }
+    ]
+  },
+  {
+    "path": "/vppTokens/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.UpdateVppTokens",
+        "operation_mapping": "DeviceAppManagementVppTokensId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property vppTokens in deviceAppManagement",
+        "parent": "DeviceAppManagementVppTokensId",
+        "original_parent": "DeviceAppManagementVppTokens",
+        "resource_identity": "DeviceAppManagementVppTokens"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "deviceAppManagement.DeleteVppTokens",
+        "operation_mapping": "DeviceAppManagementVppTokensId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property vppTokens for deviceAppManagement",
+        "parent": "DeviceAppManagementVppTokensId",
+        "original_parent": "DeviceAppManagementVppTokens",
+        "resource_identity": "DeviceAppManagementVppTokens"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.GetVppTokens",
+        "operation_mapping": "DeviceAppManagementVppTokensId",
+        "http_method": "GET",
+        "doc": "Get vppTokens from deviceAppManagement",
+        "parent": "DeviceAppManagementVppTokensId",
+        "original_parent": "DeviceAppManagementVppTokens",
+        "resource_identity": "DeviceAppManagementVppTokens"
+      }
+    ]
+  },
+  {
+    "path": "/vppTokens/{{RID}}/syncLicenses",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "deviceAppManagement.vppTokens.vppToken.syncLicenses",
+        "operation_mapping": "DeviceAppManagementVppTokensId",
+        "http_method": "POST",
+        "doc": "Invoke action syncLicenses",
+        "parent": "DeviceAppManagementVppTokensId",
+        "original_parent": "DeviceAppManagementVppTokens",
+        "resource_identity": "DeviceAppManagementVppTokens"
+      }
+    ]
+  }
+]

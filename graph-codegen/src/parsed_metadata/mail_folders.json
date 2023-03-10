@@ -1,0 +1,214 @@
+[
+  {
+    "path": "/mailFolders",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListMailFolders",
+        "operation_mapping": "mailFolders",
+        "http_method": "GET",
+        "doc": "List mailFolders",
+        "parent": "MailFolders",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateMailFolders",
+        "operation_mapping": "mailFolders",
+        "http_method": "POST",
+        "doc": "Create MailFolder",
+        "parent": "MailFolders",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.mailFolders-7dc9",
+        "operation_mapping": "mailFolders",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "MailFolders",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "users.user.mailFolders.delta",
+        "operation_mapping": "mailFolders",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
+        "parent": "MailFolders",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateMailFolders",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property mailFolders in users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetMailFolders",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "GET",
+        "doc": "Get mailFolders from users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteMailFolders",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property mailFolders for users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/copy",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.mailFolders.mailFolder.copy",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "POST",
+        "doc": "Invoke action copy",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/messageRules",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.CreateMessageRules",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "POST",
+        "doc": "Create rule",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.ListMessageRules",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "GET",
+        "doc": "List rules",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/messageRules/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.messageRules-f330",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/messageRules/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "message_rule_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.GetMessageRules",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "GET",
+        "doc": "Get messageRules from users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.UpdateMessageRules",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property messageRules in users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.mailFolders.DeleteMessageRules",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property messageRules for users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  }
+]

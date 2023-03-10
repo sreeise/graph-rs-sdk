@@ -1,0 +1,218 @@
+[
+  {
+    "path": "/ownedDevices",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListOwnedDevices",
+        "operation_mapping": "ownedDevices",
+        "http_method": "GET",
+        "doc": "Get ownedDevices from users",
+        "parent": "OwnedDevices",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.ownedDevices-e76d",
+        "operation_mapping": "ownedDevices",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OwnedDevices",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/graph.appRoleAssignment",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.appRoleAssignment-7e3d",
+        "operation_mapping": "ownedDevices",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.appRoleAssignment in the microsoft.graph.directoryObject collection",
+        "parent": "OwnedDevices",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/graph.appRoleAssignment/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.appRoleAssignment-59f6",
+        "operation_mapping": "ownedDevices",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OwnedDevices",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/graph.device",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.device-7d8a",
+        "operation_mapping": "ownedDevices",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.device in the microsoft.graph.directoryObject collection",
+        "parent": "OwnedDevices",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/graph.device/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.device-64a9",
+        "operation_mapping": "ownedDevices",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OwnedDevices",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/graph.endpoint",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.endpoint-c7ff",
+        "operation_mapping": "ownedDevices",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.endpoint in the microsoft.graph.directoryObject collection",
+        "parent": "OwnedDevices",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/graph.endpoint/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.endpoint-bd17",
+        "operation_mapping": "ownedDevices",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "OwnedDevices",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetOwnedDevices",
+        "operation_mapping": "OwnedDevicesId",
+        "http_method": "GET",
+        "doc": "Get ownedDevices from users",
+        "parent": "OwnedDevicesId",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/{{RID}}/graph.appRoleAssignment",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.appRoleAssignment-7e3d",
+        "operation_mapping": "OwnedDevicesId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.appRoleAssignment",
+        "parent": "OwnedDevicesId",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/{{RID}}/graph.device",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.device-7d8a",
+        "operation_mapping": "OwnedDevicesId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.device",
+        "parent": "OwnedDevicesId",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  },
+  {
+    "path": "/ownedDevices/{{RID}}/graph.endpoint",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.endpoint-c7ff",
+        "operation_mapping": "OwnedDevicesId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.endpoint",
+        "parent": "OwnedDevicesId",
+        "original_parent": "OwnedDevices",
+        "resource_identity": "OwnedDevices"
+      }
+    ]
+  }
+]

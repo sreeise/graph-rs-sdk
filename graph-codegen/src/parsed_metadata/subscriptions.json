@@ -1,0 +1,89 @@
+[
+  {
+    "path": "/subscriptions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "subscriptions.subscription.CreateSubscription",
+        "operation_mapping": "subscriptions",
+        "http_method": "POST",
+        "doc": "Create subscription",
+        "parent": "Subscriptions",
+        "original_parent": "Subscriptions",
+        "resource_identity": "Subscriptions"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "subscriptions.subscription.ListSubscription",
+        "operation_mapping": "subscriptions",
+        "http_method": "GET",
+        "doc": "List subscriptions",
+        "parent": "Subscriptions",
+        "original_parent": "Subscriptions",
+        "resource_identity": "Subscriptions"
+      }
+    ]
+  },
+  {
+    "path": "/subscriptions/{{RID}}",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "subscriptions.subscription.GetSubscription",
+        "operation_mapping": "SubscriptionsId",
+        "http_method": "GET",
+        "doc": "Get subscription",
+        "parent": "SubscriptionsId",
+        "original_parent": "Subscriptions",
+        "resource_identity": "Subscriptions"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "subscriptions.subscription.UpdateSubscription",
+        "operation_mapping": "SubscriptionsId",
+        "http_method": "PATCH",
+        "doc": "Update subscription",
+        "parent": "SubscriptionsId",
+        "original_parent": "Subscriptions",
+        "resource_identity": "Subscriptions"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "subscriptions.subscription.DeleteSubscription",
+        "operation_mapping": "SubscriptionsId",
+        "http_method": "DELETE",
+        "doc": "Delete subscription",
+        "parent": "SubscriptionsId",
+        "original_parent": "Subscriptions",
+        "resource_identity": "Subscriptions"
+      }
+    ]
+  },
+  {
+    "path": "/subscriptions/{{RID}}/reauthorize",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "subscriptions.subscription.reauthorize",
+        "operation_mapping": "SubscriptionsId",
+        "http_method": "POST",
+        "doc": "Invoke action reauthorize",
+        "parent": "SubscriptionsId",
+        "original_parent": "Subscriptions",
+        "resource_identity": "Subscriptions"
+      }
+    ]
+  }
+]
