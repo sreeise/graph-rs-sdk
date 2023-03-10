@@ -38,15 +38,15 @@ impl AccessReviewsDefinitionsInstancesApiClient {
 }
 
 impl AccessReviewsDefinitionsInstancesIdApiClient {
-    api_client_link_id!(
-        stage,
-        ResourceIdentity::AccessReviewsDefinitionsInstancesStages,
-        AccessReviewsDefinitionsInstancesStagesIdApiClient
-    );
     api_client_link!(
         stages,
         ResourceIdentity::AccessReviewsDefinitionsInstancesStages,
         AccessReviewsDefinitionsInstancesStagesApiClient
+    );
+    api_client_link_id!(
+        stage,
+        ResourceIdentity::AccessReviewsDefinitionsInstancesStages,
+        AccessReviewsDefinitionsInstancesStagesIdApiClient
     );
 
     delete!(

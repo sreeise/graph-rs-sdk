@@ -21,76 +21,26 @@ resource_api_client!(
 );
 
 impl EntitlementManagementApiClient {
-    api_client_link!(
-        connected_organizations,
-        ResourceIdentity::ConnectedOrganizations,
-        ConnectedOrganizationsApiClient
-    );
-    api_client_link!(
-        access_packages,
-        ResourceIdentity::AccessPackages,
-        AccessPackagesApiClient
-    );
-    api_client_link!(
-        assignment_policies,
-        ResourceIdentity::AssignmentPolicies,
-        AssignmentPoliciesApiClient
-    );
+    api_client_link!(assignment_requests, AssignmentRequestsApiClient);
+    api_client_link_id!(assignment, EntitlementManagementAssignmentsIdApiClient);
+    api_client_link!(assignments, EntitlementManagementAssignmentsApiClient);
     api_client_link_id!(
         access_package_assignment_approval,
-        ResourceIdentity::AccessPackageAssignmentApprovals,
         AccessPackageAssignmentApprovalsIdApiClient
     );
-    api_client_link_id!(
-        catalog,
-        ResourceIdentity::EntitlementManagementCatalogs,
-        EntitlementManagementCatalogsIdApiClient
-    );
-    api_client_link_id!(
-        assignment_request,
-        ResourceIdentity::AssignmentRequests,
-        AssignmentRequestsIdApiClient
-    );
-    api_client_link_id!(
-        connected_organization,
-        ResourceIdentity::ConnectedOrganizations,
-        ConnectedOrganizationsIdApiClient
-    );
-    api_client_link_id!(
-        assignment,
-        ResourceIdentity::EntitlementManagementAssignments,
-        EntitlementManagementAssignmentsIdApiClient
-    );
-    api_client_link!(
-        assignment_requests,
-        ResourceIdentity::AssignmentRequests,
-        AssignmentRequestsApiClient
-    );
-    api_client_link_id!(
-        access_package,
-        ResourceIdentity::AccessPackages,
-        AccessPackagesIdApiClient
-    );
-    api_client_link!(
-        assignments,
-        ResourceIdentity::EntitlementManagementAssignments,
-        EntitlementManagementAssignmentsApiClient
-    );
+    api_client_link_id!(assignment_policy, AssignmentPoliciesIdApiClient);
+    api_client_link!(connected_organizations, ConnectedOrganizationsApiClient);
+    api_client_link!(assignment_policies, AssignmentPoliciesApiClient);
+    api_client_link!(access_packages, AccessPackagesApiClient);
+    api_client_link!(catalogs, EntitlementManagementCatalogsApiClient);
+    api_client_link_id!(assignment_request, AssignmentRequestsIdApiClient);
+    api_client_link_id!(access_package, AccessPackagesIdApiClient);
     api_client_link!(
         access_package_assignment_approvals,
-        ResourceIdentity::AccessPackageAssignmentApprovals,
         AccessPackageAssignmentApprovalsApiClient
     );
-    api_client_link_id!(
-        assignment_policy,
-        ResourceIdentity::AssignmentPolicies,
-        AssignmentPoliciesIdApiClient
-    );
-    api_client_link!(
-        catalogs,
-        ResourceIdentity::EntitlementManagementCatalogs,
-        EntitlementManagementCatalogsApiClient
-    );
+    api_client_link_id!(connected_organization, ConnectedOrganizationsIdApiClient);
+    api_client_link_id!(catalog, EntitlementManagementCatalogsIdApiClient);
 
     delete!(
         doc: "Delete navigation property entitlementManagement for identityGovernance",

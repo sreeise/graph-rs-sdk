@@ -61,6 +61,7 @@ impl ConnectedOrganizationsExternalSponsorsApiClient {
     delete!(
         doc: "Delete ref of navigation property externalSponsors for identityGovernance",
         name: delete_ref_external_sponsors,
-        path: "/externalSponsors/{{RID}}/$ref"
+        path: "/externalSponsors/{{id}}/$ref",
+        params: external_sponsors_id
     );
 }

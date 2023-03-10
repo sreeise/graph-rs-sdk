@@ -1,6 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use graph_http::types::DeltaPhantom;
 
 resource_api_client!(
     ConnectedOrganizationsInternalSponsorsApiClient,
@@ -61,7 +62,7 @@ impl ConnectedOrganizationsInternalSponsorsApiClient {
     delete!(
         doc: "Delete ref of navigation property internalSponsors for identityGovernance",
         name: delete_ref_internal_sponsors,
-        path: "/internalSponsors/{{RID}}/$ref"
+        path: "/internalSponsors/{{id}}/$ref",
+        params: internal_sponsors_id
     );
 }
-
