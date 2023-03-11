@@ -21,26 +21,4 @@ impl PlannerApiClient {
         path: "/planner",
         body: true
     );
-    post!(
-        doc: "Create new navigation property to plans for users",
-        name: create_plans,
-        path: "/planner/plans",
-        body: true
-    );
-    get!(
-        doc: "List plans",
-        name: list_plans,
-        path: "/planner/plans"
-    );
-    post!(
-        doc: "Create new navigation property to tasks for users",
-        name: create_tasks,
-        path: "/planner/tasks",
-        body: true
-    );
-    get!(
-        doc: "List tasks",
-        name: list_tasks,
-        path: "/planner/tasks"
-    );
 }

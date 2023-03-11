@@ -1,6 +1,8 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::extended_properties::*;
+use crate::users::*;
 
 resource_api_client!(
     ContactFoldersApiClient,
@@ -33,6 +35,12 @@ impl ContactFoldersApiClient {
 }
 
 impl ContactFoldersIdApiClient {
+    api_client_link!(extended_properties, ExtendedPropertiesApiClient);
+    api_client_link!(child_folder, ChildFoldersIdApiClient);
+    api_client_link!(contacts, ContactsApiClient);
+    api_client_link!(child_folders, ChildFoldersApiClient);
+    api_client_link!(contact, ContactsIdApiClient);
+
     delete!(
         doc: "Delete navigation property contactFolders for users",
         name: delete_contact_folders,
@@ -48,45 +56,5 @@ impl ContactFoldersIdApiClient {
         name: update_contact_folders,
         path: "/contactFolders/{{RID}}",
         body: true
-    );
-    post!(
-        doc: "Create ContactFolder",
-        name: create_child_folders,
-        path: "/contactFolders/{{RID}}/childFolders",
-        body: true
-    );
-    get!(
-        doc: "List childFolders",
-        name: list_child_folders,
-        path: "/contactFolders/{{RID}}/childFolders"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_child_folders_count,
-        path: "/contactFolders/{{RID}}/childFolders/$count"
-    );
-    get!(
-        doc: "Invoke function delta",
-        name: delta,
-        path: "/contactFolders/{{RID}}/childFolders/delta()"
-    );
-    delete!(
-        doc: "Delete navigation property childFolders for users",
-        name: delete_child_folders,
-        path: "/contactFolders/{{RID}}/childFolders/{{id}}",
-        params: contact_folder_id_1
-    );
-    get!(
-        doc: "Get childFolders from users",
-        name: get_child_folders,
-        path: "/contactFolders/{{RID}}/childFolders/{{id}}",
-        params: contact_folder_id_1
-    );
-    patch!(
-        doc: "Update the navigation property childFolders in users",
-        name: update_child_folders,
-        path: "/contactFolders/{{RID}}/childFolders/{{id}}",
-        body: true,
-        params: contact_folder_id_1
     );
 }

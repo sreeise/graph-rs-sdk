@@ -30,8 +30,8 @@ impl EventsApiClient {
 }
 
 impl EventsIdApiClient {
-    api_client_link!(instances, EventsInstancesApiClient);
     api_client_link_id!(instance, EventsInstancesIdApiClient);
+    api_client_link!(instances, EventsInstancesApiClient);
 
     delete!(
         doc: "Delete navigation property events for users",
@@ -65,6 +65,29 @@ impl EventsIdApiClient {
         doc: "List attachments",
         name: list_attachments,
         path: "/events/{{RID}}/attachments"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_attachments_count,
+        path: "/events/{{RID}}/attachments/$count"
+    );
+    post!(
+        doc: "Invoke action createUploadSession",
+        name: create_upload_session,
+        path: "/events/{{RID}}/attachments/createUploadSession",
+        body: true
+    );
+    delete!(
+        doc: "Delete navigation property attachments for users",
+        name: delete_attachments,
+        path: "/events/{{RID}}/attachments/{{id}}",
+        params: attachment_id
+    );
+    get!(
+        doc: "Get attachments from users",
+        name: get_attachments,
+        path: "/events/{{RID}}/attachments/{{id}}",
+        params: attachment_id
     );
     get!(
         doc: "Get calendar from users",
@@ -128,6 +151,76 @@ impl EventsIdApiClient {
         name: forward,
         path: "/events/{{RID}}/forward",
         body: true
+    );
+    post!(
+        doc: "Create new navigation property to multiValueExtendedProperties for users",
+        name: create_multi_value_extended_properties,
+        path: "/events/{{RID}}/multiValueExtendedProperties",
+        body: true
+    );
+    get!(
+        doc: "Get multiValueExtendedProperties from users",
+        name: list_multi_value_extended_properties,
+        path: "/events/{{RID}}/multiValueExtendedProperties"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: multi_value_extended_properties_ffcc,
+        path: "/events/{{RID}}/multiValueExtendedProperties/$count"
+    );
+    delete!(
+        doc: "Delete navigation property multiValueExtendedProperties for users",
+        name: delete_multi_value_extended_properties,
+        path: "/events/{{RID}}/multiValueExtendedProperties/{{id}}",
+        params: multi_value_legacy_extended_property_id
+    );
+    get!(
+        doc: "Get multiValueExtendedProperties from users",
+        name: get_multi_value_extended_properties,
+        path: "/events/{{RID}}/multiValueExtendedProperties/{{id}}",
+        params: multi_value_legacy_extended_property_id
+    );
+    patch!(
+        doc: "Update the navigation property multiValueExtendedProperties in users",
+        name: update_multi_value_extended_properties,
+        path: "/events/{{RID}}/multiValueExtendedProperties/{{id}}",
+        body: true,
+        params: multi_value_legacy_extended_property_id
+    );
+    post!(
+        doc: "Create new navigation property to singleValueExtendedProperties for users",
+        name: create_single_value_extended_properties,
+        path: "/events/{{RID}}/singleValueExtendedProperties",
+        body: true
+    );
+    get!(
+        doc: "Get singleValueExtendedProperties from users",
+        name: list_single_value_extended_properties,
+        path: "/events/{{RID}}/singleValueExtendedProperties"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_single_value_extended_properties_count,
+        path: "/events/{{RID}}/singleValueExtendedProperties/$count"
+    );
+    delete!(
+        doc: "Delete navigation property singleValueExtendedProperties for users",
+        name: delete_single_value_extended_properties,
+        path: "/events/{{RID}}/singleValueExtendedProperties/{{id}}",
+        params: single_value_legacy_extended_property_id
+    );
+    get!(
+        doc: "Get singleValueExtendedProperties from users",
+        name: get_single_value_extended_properties,
+        path: "/events/{{RID}}/singleValueExtendedProperties/{{id}}",
+        params: single_value_legacy_extended_property_id
+    );
+    patch!(
+        doc: "Update the navigation property singleValueExtendedProperties in users",
+        name: update_single_value_extended_properties,
+        path: "/events/{{RID}}/singleValueExtendedProperties/{{id}}",
+        body: true,
+        params: single_value_legacy_extended_property_id
     );
     post!(
         doc: "Invoke action snoozeReminder",

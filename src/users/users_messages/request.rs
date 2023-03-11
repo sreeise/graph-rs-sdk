@@ -161,7 +161,7 @@ impl UsersMessagesIdApiClient {
     );
     post!(
         doc: "Invoke action move",
-        name: move_messages,
+        name: move_message,
         path: "/messages/{{RID}}/move",
         body: true
     );

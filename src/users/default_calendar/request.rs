@@ -8,10 +8,10 @@ resource_api_client!(DefaultCalendarApiClient, ResourceIdentity::DefaultCalendar
 
 impl DefaultCalendarApiClient {
     api_client_link!(events, EventsApiClient);
-    api_client_link!(calendar_views, CalendarViewApiClient);
+    api_client_link_id!(event, EventsIdApiClient);
     api_client_link_id!(calendar_view, CalendarViewIdApiClient);
     api_client_link!(extended_properties, ExtendedPropertiesApiClient);
-    api_client_link_id!(event, EventsIdApiClient);
+    api_client_link!(calendar_views, CalendarViewApiClient);
 
     get!(
         doc: "Get calendar",
@@ -64,6 +64,27 @@ impl DefaultCalendarApiClient {
         path: "/calendar/calendarPermissions/{{id}}",
         body: true,
         params: calendar_permission_id
+    );
+    post!(
+        doc: "Create event",
+        name: create_events,
+        path: "/calendar/events",
+        body: true
+    );
+    get!(
+        doc: "List events",
+        name: list_events,
+        path: "/calendar/events"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_events_count,
+        path: "/calendar/events/$count"
+    );
+    get!(
+        doc: "Invoke function delta",
+        name: delta,
+        path: "/calendar/events/delta()"
     );
     post!(
         doc: "Invoke action getSchedule",

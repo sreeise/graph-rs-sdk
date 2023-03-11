@@ -34,8 +34,8 @@ impl TodoListsApiClient {
 }
 
 impl TodoListsIdApiClient {
-    api_client_link!(tasks, TodoListsTasksApiClient);
     api_client_link_id!(task, TodoListsTasksIdApiClient);
+    api_client_link!(tasks, TodoListsTasksApiClient);
 
     delete!(
         doc: "Delete navigation property lists for users",

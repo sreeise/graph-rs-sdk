@@ -35,12 +35,12 @@ impl ChannelsApiClient {
 }
 
 impl ChannelsIdApiClient {
-    api_client_link!(members, TeamsMembersApiClient);
-    api_client_link!(shared_with_teams, SharedWithTeamsApiClient);
-    api_client_link!(messages, ChatsMessagesApiClient);
-    api_client_link_id!(shared_with_team, SharedWithTeamsIdApiClient);
-    api_client_link_id!(member, TeamsMembersIdApiClient);
     api_client_link_id!(message, ChatsMessagesIdApiClient);
+    api_client_link_id!(member, TeamsMembersIdApiClient);
+    api_client_link!(messages, ChatsMessagesApiClient);
+    api_client_link!(shared_with_teams, SharedWithTeamsApiClient);
+    api_client_link!(members, TeamsMembersApiClient);
+    api_client_link_id!(shared_with_team, SharedWithTeamsIdApiClient);
 
     delete!(
         doc: "Delete navigation property channels for users",
