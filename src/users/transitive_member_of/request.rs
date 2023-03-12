@@ -21,7 +21,7 @@ impl TransitiveMemberOfApiClient {
     );
     get!(
         doc: "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_group_type,
+        name: graph,
         path: "/transitiveMemberOf/graph.group"
     );
     get!(

@@ -35,14 +35,14 @@ impl JoinedTeamsApiClient {
 }
 
 impl JoinedTeamsIdApiClient {
-    api_client_link!(channels, ChannelsApiClient);
-    api_client_link_id!(tag, TeamsTagsIdApiClient);
-    api_client_link!(member, TeamsMembersIdApiClient);
-    api_client_link!(members, TeamsMembersApiClient);
-    api_client_link_id!(channel, ChannelsIdApiClient);
     api_client_link!(tags, TeamsTagsApiClient);
     api_client_link!(primary_channel, PrimaryChannelApiClient);
+    api_client_link_id!(channel, ChannelsIdApiClient);
+    api_client_link!(member, TeamsMembersIdApiClient);
     api_client_link!(schedule, ScheduleApiClient);
+    api_client_link!(channels, ChannelsApiClient);
+    api_client_link!(members, TeamsMembersApiClient);
+    api_client_link_id!(tag, TeamsTagsIdApiClient);
 
     delete!(
         doc: "Delete navigation property joinedTeams for users",

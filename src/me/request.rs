@@ -3,87 +3,88 @@
 use crate::agreement_acceptances::*;
 use crate::api_default_imports::*;
 use crate::chats::*;
+use crate::oauth2_permission_grants::*;
+use crate::planner::*;
 use crate::users::*;
 
 resource_api_client!(MeApiClient, ResourceIdentity::Me);
 
 impl MeApiClient {
-    api_client_link!(channels, ChannelsApiClient);
-    api_client_link!(chats, ChatsApiClient);
-    api_client_link!(calendar_groups, CalendarGroupsApiClient);
+    api_client_link_id!(contact, ContactsIdApiClient);
+    api_client_link_id!(photo, PhotosIdApiClient);
     api_client_link_id!(registered_device, RegisteredDevicesIdApiClient);
-    api_client_link_id!(extension, ExtensionsIdApiClient);
+    api_client_link_id!(owned_object, OwnedObjectsIdApiClient);
+    api_client_link!(onenote, OnenoteApiClient);
+    api_client_link!(default_calendar, DefaultCalendarApiClient);
+    api_client_link!(photos, PhotosApiClient);
+    api_client_link!(calendars, CalendarsApiClient);
+    api_client_link!(presence, PresenceApiClient);
+    api_client_link_id!(owned_device, OwnedDevicesIdApiClient);
+    api_client_link!(insights, InsightsApiClient);
+    api_client_link!(member_of, MemberOfApiClient);
+    api_client_link!(owned_devices, OwnedDevicesApiClient);
+    api_client_link!(mail_folders, MailFoldersApiClient);
+    api_client_link!(created_objects, CreatedObjectsApiClient);
+    api_client_link!(joined_teams, JoinedTeamsApiClient);
+    api_client_link!(outlook, OutlookApiClient);
+    api_client_link!(managed_app_registrations, ManagedAppRegistrationsApiClient);
+    api_client_link_id!(activity, ActivitiesIdApiClient);
+    api_client_link!(events, EventsApiClient);
+    api_client_link_id!(calendar, CalendarsIdApiClient);
+    api_client_link!(registered_devices, RegisteredDevicesApiClient);
     api_client_link!(messages, UsersMessagesApiClient);
-    api_client_link!(app_role_assignments, AppRoleAssignmentsApiClient);
+    api_client_link!(calendar_views, CalendarViewApiClient);
+    api_client_link_id!(joined_team, JoinedTeamsIdApiClient);
     api_client_link_id!(
         device_management_troubleshooting_event,
         DeviceManagementTroubleshootingEventsIdApiClient
     );
-    api_client_link!(teamwork, TeamworkApiClient);
-    api_client_link!(managed_app_registrations, ManagedAppRegistrationsApiClient);
-    api_client_link!(owned_objects, OwnedObjectsApiClient);
-    api_client_link!(presence, PresenceApiClient);
-    api_client_link_id!(managed_device, ManagedDevicesIdApiClient);
-    api_client_link_id!(message, UsersMessagesIdApiClient);
-    api_client_link!(created_objects, CreatedObjectsApiClient);
-    api_client_link!(photos, PhotosApiClient);
-    api_client_link_id!(mail_folder, MailFoldersIdApiClient);
-    api_client_link_id!(contact_folder, ContactFoldersIdApiClient);
-    api_client_link!(scoped_role_member_of, ScopedRoleMemberOfApiClient);
-    api_client_link!(insights, InsightsApiClient);
-    api_client_link_id!(owned_device, OwnedDevicesIdApiClient);
+    api_client_link_id!(created_object, CreatedObjectsIdApiClient);
+    api_client_link!(activities, ActivitiesApiClient);
+    api_client_link_id!(managed_app_registration, ManagedAppRegistrationsIdApiClient);
     api_client_link_id!(transitive_member_of_id, TransitiveMemberOfIdApiClient);
-    api_client_link!(direct_reports, DirectReportsApiClient);
-    api_client_link!(license_details, LicenseDetailsApiClient);
-    api_client_link_id!(calendar_group, CalendarGroupsIdApiClient);
-    api_client_link!(transitive_member_of, TransitiveMemberOfApiClient);
+    api_client_link!(online_meetings, OnlineMeetingsApiClient);
+    api_client_link_id!(license_detail, LicenseDetailsIdApiClient);
+    api_client_link_id!(message, UsersMessagesIdApiClient);
+    api_client_link!(app_role_assignments, AppRoleAssignmentsApiClient);
+    api_client_link_id!(app_role_assignment, AppRoleAssignmentsIdApiClient);
+    api_client_link_id!(contact_folder, ContactFoldersIdApiClient);
     api_client_link!(contacts, ContactsApiClient);
-    api_client_link!(followed_sites, FollowedSitesApiClient);
-    api_client_link_id!(direct_report, DirectReportsIdApiClient);
-    api_client_link_id!(member_of_id, MemberOfIdApiClient);
-    api_client_link!(owned_devices, OwnedDevicesApiClient);
     api_client_link!(agreement_acceptances, AgreementAcceptancesApiClient);
+    api_client_link_id!(mail_folder, MailFoldersIdApiClient);
     api_client_link!(managed_devices, ManagedDevicesApiClient);
-    api_client_link_id!(chat, ChatsIdApiClient);
+    api_client_link!(direct_reports, DirectReportsApiClient);
+    api_client_link_id!(event, EventsIdApiClient);
     api_client_link!(planner, PlannerApiClient);
+    api_client_link!(authentication, AuthenticationApiClient);
+    api_client_link_id!(member_of_id, MemberOfIdApiClient);
+    api_client_link_id!(calendar_group, CalendarGroupsIdApiClient);
+    api_client_link_id!(scoped_role_member_of_id, ScopedRoleMemberOfIdApiClient);
     api_client_link!(
         device_management_troubleshooting_events,
         DeviceManagementTroubleshootingEventsApiClient
     );
-    api_client_link!(default_calendar, DefaultCalendarApiClient);
-    api_client_link!(events, EventsApiClient);
-    api_client_link!(oauth_2_permission_grants, Oauth2PermissionGrantsApiClient);
-    api_client_link!(inference_classification, InferenceClassificationApiClient);
-    api_client_link_id!(photo, PhotosIdApiClient);
-    api_client_link!(authentication, AuthenticationApiClient);
-    api_client_link_id!(calendar, CalendarsIdApiClient);
-    api_client_link_id!(managed_app_registration, ManagedAppRegistrationsIdApiClient);
-    api_client_link_id!(contact, ContactsIdApiClient);
-    api_client_link!(joined_teams, JoinedTeamsApiClient);
-    api_client_link_id!(event, EventsIdApiClient);
-    api_client_link!(registered_devices, RegisteredDevicesApiClient);
-    api_client_link!(calendars, CalendarsApiClient);
-    api_client_link!(contact_folders, ContactFoldersApiClient);
-    api_client_link_id!(activity, ActivitiesIdApiClient);
-    api_client_link!(mail_folders, MailFoldersApiClient);
-    api_client_link_id!(license_detail, LicenseDetailsIdApiClient);
-    api_client_link_id!(app_role_assignment, AppRoleAssignmentsIdApiClient);
-    api_client_link!(calendar_views, CalendarViewApiClient);
-    api_client_link!(member_of, MemberOfApiClient);
-    api_client_link_id!(scoped_role_member_of_id, ScopedRoleMemberOfIdApiClient);
-    api_client_link_id!(channel, ChannelsIdApiClient);
-    api_client_link_id!(created_object, CreatedObjectsIdApiClient);
-    api_client_link!(online_meetings, OnlineMeetingsApiClient);
-    api_client_link_id!(oauth_2_permission_grant, Oauth2PermissionGrantsIdApiClient);
-    api_client_link_id!(joined_team, JoinedTeamsIdApiClient);
-    api_client_link_id!(agreement_acceptance, AgreementAcceptancesIdApiClient);
-    api_client_link!(activities, ActivitiesApiClient);
-    api_client_link_id!(online_meeting, OnlineMeetingsIdApiClient);
-    api_client_link!(outlook, OutlookApiClient);
-    api_client_link_id!(owned_object, OwnedObjectsIdApiClient);
-    api_client_link_id!(calendar_view, CalendarViewIdApiClient);
     api_client_link!(todo, TodoApiClient);
+    api_client_link_id!(extension, ExtensionsIdApiClient);
+    api_client_link!(transitive_member_of, TransitiveMemberOfApiClient);
+    api_client_link!(inference_classification, InferenceClassificationApiClient);
+    api_client_link_id!(channel, ChannelsIdApiClient);
+    api_client_link_id!(direct_report, DirectReportsIdApiClient);
+    api_client_link!(teamwork, TeamworkApiClient);
+    api_client_link!(owned_objects, OwnedObjectsApiClient);
     api_client_link!(extensions, ExtensionsApiClient);
+    api_client_link!(followed_sites, FollowedSitesApiClient);
+    api_client_link!(chats, ChatsApiClient);
+    api_client_link_id!(agreement_acceptance, AgreementAcceptancesIdApiClient);
+    api_client_link_id!(online_meeting, OnlineMeetingsIdApiClient);
+    api_client_link!(scoped_role_member_of, ScopedRoleMemberOfApiClient);
+    api_client_link!(contact_folders, ContactFoldersApiClient);
+    api_client_link!(license_details, LicenseDetailsApiClient);
+    api_client_link_id!(chat, ChatsIdApiClient);
+    api_client_link_id!(calendar_view, CalendarViewIdApiClient);
+    api_client_link!(channels, ChannelsApiClient);
+    api_client_link!(calendar_groups, CalendarGroupsApiClient);
+    api_client_link_id!(managed_device, ManagedDevicesIdApiClient);
 
     get!(
         doc: "List manager",
@@ -270,6 +271,22 @@ impl MeApiClient {
         doc: "Update media content for the navigation property photo in me",
         name: update_photo_content,
         path: "/me/photo/$value",
+        body: true
+    );
+    delete!(
+        doc: "Delete navigation property planner for me",
+        name: delete_planner,
+        path: "/me/planner"
+    );
+    get!(
+        doc: "Get planner from me",
+        name: get_planner,
+        path: "/me/planner"
+    );
+    patch!(
+        doc: "Update the navigation property planner in me",
+        name: update_planner,
+        path: "/me/planner",
         body: true
     );
     get!(

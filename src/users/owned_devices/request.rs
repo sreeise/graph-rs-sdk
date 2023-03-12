@@ -19,31 +19,7 @@ impl OwnedDevicesApiClient {
         name: get_owned_devices_count,
         path: "/ownedDevices/$count"
     );
-    get!(
-        doc: "Get the items of type microsoft.graph.appRoleAssignment in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_app_role_assignment_type,
-        path: "/ownedDevices/graph.appRoleAssignment"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_app_role_assignment_count,
-        path: "/ownedDevices/graph.appRoleAssignment/$count"
-    );
-    get!(
-        doc: "Get the items of type microsoft.graph.device in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_device_type,
-        path: "/ownedDevices/graph.device"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_device_count,
-        path: "/ownedDevices/graph.device/$count"
-    );
-    get!(
-        doc: "Get the items of type microsoft.graph.endpoint in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_endpoint_type,
-        path: "/ownedDevices/graph.endpoint"
-    );
+
     get!(
         doc: "Get the number of the resource",
         name: get_endpoint_count,

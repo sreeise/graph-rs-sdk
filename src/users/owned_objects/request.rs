@@ -29,21 +29,7 @@ impl OwnedObjectsApiClient {
         name: get_application_count,
         path: "/ownedObjects/graph.application/$count"
     );
-    get!(
-        doc: "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_group_type,
-        path: "/ownedObjects/graph.group"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_group_count,
-        path: "/ownedObjects/graph.group/$count"
-    );
-    get!(
-        doc: "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_service_principal_type,
-        path: "/ownedObjects/graph.servicePrincipal"
-    );
+
     get!(
         doc: "Get the number of the resource",
         name: get_service_principal_count,

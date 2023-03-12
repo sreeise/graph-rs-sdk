@@ -6,8 +6,8 @@ use crate::users::*;
 resource_api_client!(TodoApiClient, ResourceIdentity::Todo);
 
 impl TodoApiClient {
-    api_client_link!(lists, TodoListsApiClient);
     api_client_link_id!(list, TodoListsIdApiClient);
+    api_client_link!(lists, TodoListsApiClient);
 
     delete!(
         doc: "Delete navigation property todo for users",

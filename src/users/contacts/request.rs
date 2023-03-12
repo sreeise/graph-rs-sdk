@@ -1,7 +1,6 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::extended_properties::*;
 
 resource_api_client!(
     ContactsApiClient,
@@ -34,8 +33,6 @@ impl ContactsApiClient {
 }
 
 impl ContactsIdApiClient {
-    api_client_link!(extended_properties, ExtendedPropertiesApiClient);
-
     delete!(
         doc: "Delete navigation property contacts for users",
         name: delete_contacts,

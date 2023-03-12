@@ -29,8 +29,8 @@ impl CalendarGroupsApiClient {
 }
 
 impl CalendarGroupsIdApiClient {
-    api_client_link_id!(calendar, CalendarsIdApiClient);
     api_client_link!(calendars, CalendarsApiClient);
+    api_client_link_id!(calendar, CalendarsIdApiClient);
 
     delete!(
         doc: "Delete navigation property calendarGroups for users",

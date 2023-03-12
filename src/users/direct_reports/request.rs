@@ -19,21 +19,7 @@ impl DirectReportsApiClient {
         name: get_direct_reports_count,
         path: "/directReports/$count"
     );
-    get!(
-        doc: "Get the items of type microsoft.graph.orgContact in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_org_contact_type,
-        path: "/directReports/graph.orgContact"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_org_contact_count,
-        path: "/directReports/graph.orgContact/$count"
-    );
-    get!(
-        doc: "Get the items of type microsoft.graph.user in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_user_type,
-        path: "/directReports/graph.user"
-    );
+
     get!(
         doc: "Get the number of the resource",
         name: get_user_count,

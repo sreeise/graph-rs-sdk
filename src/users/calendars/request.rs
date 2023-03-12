@@ -30,11 +30,11 @@ impl CalendarsApiClient {
 }
 
 impl CalendarsIdApiClient {
-    api_client_link!(calendar_views, CalendarViewApiClient);
-    api_client_link!(extended_properties, ExtendedPropertiesApiClient);
     api_client_link!(events, EventsApiClient);
     api_client_link_id!(calendar_view, CalendarViewIdApiClient);
     api_client_link_id!(event, EventsIdApiClient);
+    api_client_link!(extended_properties, ExtendedPropertiesApiClient);
+    api_client_link!(calendar_views, CalendarViewApiClient);
 
     delete!(
         doc: "Delete navigation property calendars for users",

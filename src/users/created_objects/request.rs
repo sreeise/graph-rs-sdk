@@ -21,7 +21,7 @@ impl CreatedObjectsApiClient {
     );
     get!(
         doc: "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_service_principal_type,
+        name: graph,
         path: "/createdObjects/graph.servicePrincipal"
     );
     get!(

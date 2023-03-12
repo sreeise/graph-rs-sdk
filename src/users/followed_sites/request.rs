@@ -2,7 +2,11 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(FollowedSitesApiClient, ResourceIdentity::FollowedSites);
+resource_api_client!(
+    FollowedSitesApiClient,
+    FollowedSitesIdApiClient,
+    ResourceIdentity::FollowedSites
+);
 
 impl FollowedSitesApiClient {
     get!(
@@ -15,6 +19,9 @@ impl FollowedSitesApiClient {
         name: get_followed_sites_count,
         path: "/followedSites/$count"
     );
+}
+
+impl FollowedSitesIdApiClient {
     get!(
         doc: "Get followedSites from users",
         name: get_followed_sites,

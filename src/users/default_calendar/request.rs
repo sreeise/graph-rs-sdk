@@ -7,23 +7,12 @@ use crate::users::*;
 resource_api_client!(DefaultCalendarApiClient, ResourceIdentity::DefaultCalendar);
 
 impl DefaultCalendarApiClient {
-    api_client_link!(events, EventsApiClient);
     api_client_link_id!(event, EventsIdApiClient);
     api_client_link_id!(calendar_view, CalendarViewIdApiClient);
     api_client_link!(extended_properties, ExtendedPropertiesApiClient);
     api_client_link!(calendar_views, CalendarViewApiClient);
+    api_client_link!(events, EventsApiClient);
 
-    get!(
-        doc: "Get calendar",
-        name: get_calendar,
-        path: "/calendar"
-    );
-    patch!(
-        doc: "Update calendar",
-        name: update_calendar,
-        path: "/calendar",
-        body: true
-    );
     get!(
         doc: "Invoke function allowedCalendarSharingRoles",
         name: allowed_calendar_sharing_roles,
