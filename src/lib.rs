@@ -142,7 +142,6 @@ pub mod inference_classification;
 pub mod insights;
 pub mod invitations;
 pub mod me;
-pub mod notebooks;
 pub mod oauth2_permission_grants;
 pub mod onenote;
 pub mod org_contact;
