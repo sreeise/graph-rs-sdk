@@ -31,9 +31,10 @@ impl ChatsApiClient {
 }
 
 impl ChatsIdApiClient {
-    api_client_link!(messages, MessagesApiClient);
-    api_client_link_id!(message, MessagesIdApiClient);
+    api_client_link_id!(message, ChatsMessagesIdApiClient);
     api_client_link!(members, TeamsMembersApiClient);
+    api_client_link!(messages, ChatsMessagesApiClient);
+    api_client_link!(member, TeamsMembersIdApiClient);
 
     delete!(
         doc: "Delete entity from chats",
