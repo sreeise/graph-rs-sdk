@@ -1,194 +1,138 @@
 // GENERATED CODE
 
-use crate::administrative_units_members::{
-    AdministrativeUnitsMembersIdRequest, AdministrativeUnitsMembersRequest,
-};
 use crate::api_default_imports::*;
-use graph_http::types::DeltaPhantom;
-use graph_http::types::NoContent;
+use crate::directory::*;
 
-register_client!(DirectoryRolesRequest,);
-register_client!(DirectoryRolesIdRequest, ());
+resource_api_client!(
+    DirectoryRolesApiClient,
+    DirectoryRolesIdApiClient,
+    ResourceIdentity::DirectoryRoles
+);
 
-impl<'a, Client> DirectoryRolesRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    post!({
+impl DirectoryRolesApiClient {
+    post!(
         doc: "Activate directoryRole",
         name: create_directory_role,
-        response: serde_json::Value,
         path: "/directoryRoles",
-        has_body: true
-    });
-    get!({
+        body: true
+    );
+    get!(
         doc: "List directoryRoles",
         name: list_directory_role,
-        response: serde_json::Value,
-        path: "/directoryRoles",
-        has_body: false
-    });
-    get!({
+        path: "/directoryRoles"
+    );
+    get!(
         doc: "Get the number of the resource",
         name: get_directory_roles_count,
-        response: serde_json::Value,
-        path: "/directoryRoles/$count",
-        has_body: false
-    });
-    get!({
+        path: "/directoryRoles/$count"
+    );
+    get!(
         doc: "Invoke function delta",
         name: delta,
-        response: DeltaPhantom<serde_json::Value>,
-        path: "/directoryRoles/microsoft.graph.delta()",
-        has_body: false
-    });
-    post!({
+        path: "/directoryRoles/delta()"
+    );
+    post!(
         doc: "Invoke action getAvailableExtensionProperties",
         name: get_available_extension_properties,
-        response: serde_json::Value,
-        path: "/directoryRoles/microsoft.graph.getAvailableExtensionProperties",
-        has_body: true
-    });
-    post!({
+        path: "/directoryRoles/getAvailableExtensionProperties",
+        body: true
+    );
+    post!(
         doc: "Invoke action getByIds",
         name: get_by_ids,
-        response: serde_json::Value,
-        path: "/directoryRoles/microsoft.graph.getByIds",
-        has_body: true
-    });
-    post!({
+        path: "/directoryRoles/getByIds",
+        body: true
+    );
+    post!(
         doc: "Invoke action validateProperties",
         name: validate_properties,
-        response: NoContent,
-        path: "/directoryRoles/microsoft.graph.validateProperties",
-        has_body: true
-    });
+        path: "/directoryRoles/validateProperties",
+        body: true
+    );
 }
 
-impl<'a, Client> DirectoryRolesIdRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    pub fn members(&self) -> AdministrativeUnitsMembersRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client
-            .set_ident(ResourceIdentity::AdministrativeUnitsMembers);
-        AdministrativeUnitsMembersRequest::new(self.client)
-    }
+impl DirectoryRolesIdApiClient {
+    api_client_link_id!(member, DirectoryMembersIdApiClient);
+    api_client_link!(members, DirectoryMembersApiClient);
 
-    pub fn member<ID: AsRef<str>>(
-        &self,
-        id: ID,
-    ) -> AdministrativeUnitsMembersIdRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client
-            .set_ident(ResourceIdentity::AdministrativeUnitsMembers);
-        AdministrativeUnitsMembersIdRequest::new(id.as_ref(), self.client)
-    }
-
-    delete!({
+    delete!(
         doc: "Delete entity from directoryRoles",
         name: delete_directory_role,
-        response: NoContent,
-        path: "/directoryRoles/{{RID}}",
-        has_body: false
-    });
-    get!({
+        path: "/directoryRoles/{{RID}}"
+    );
+    get!(
         doc: "Get directoryRole",
         name: get_directory_role,
-        response: serde_json::Value,
-        path: "/directoryRoles/{{RID}}",
-        has_body: false
-    });
-    patch!({
+        path: "/directoryRoles/{{RID}}"
+    );
+    patch!(
         doc: "Update entity in directoryRoles",
         name: update_directory_role,
-        response: NoContent,
         path: "/directoryRoles/{{RID}}",
-        has_body: true
-    });
-    post!({
+        body: true
+    );
+    post!(
         doc: "Invoke action checkMemberGroups",
         name: check_member_groups,
-        response: serde_json::Value,
-        path: "/directoryRoles/{{RID}}/microsoft.graph.checkMemberGroups",
-        has_body: true
-    });
-    post!({
+        path: "/directoryRoles/{{RID}}/checkMemberGroups",
+        body: true
+    );
+    post!(
         doc: "Invoke action checkMemberObjects",
         name: check_member_objects,
-        response: serde_json::Value,
-        path: "/directoryRoles/{{RID}}/microsoft.graph.checkMemberObjects",
-        has_body: true
-    });
-    post!({
+        path: "/directoryRoles/{{RID}}/checkMemberObjects",
+        body: true
+    );
+    post!(
         doc: "Invoke action getMemberGroups",
         name: get_member_groups,
-        response: serde_json::Value,
-        path: "/directoryRoles/{{RID}}/microsoft.graph.getMemberGroups",
-        has_body: true
-    });
-    post!({
+        path: "/directoryRoles/{{RID}}/getMemberGroups",
+        body: true
+    );
+    post!(
         doc: "Invoke action getMemberObjects",
         name: get_member_objects,
-        response: serde_json::Value,
-        path: "/directoryRoles/{{RID}}/microsoft.graph.getMemberObjects",
-        has_body: true
-    });
-    post!({
+        path: "/directoryRoles/{{RID}}/getMemberObjects",
+        body: true
+    );
+    post!(
         doc: "Invoke action restore",
         name: restore,
-        response: serde_json::Value,
-        path: "/directoryRoles/{{RID}}/microsoft.graph.restore",
-        has_body: false
-    });
-    post!({
+        path: "/directoryRoles/{{RID}}/restore"
+    );
+    post!(
         doc: "Create new navigation property to scopedMembers for directoryRoles",
         name: create_scoped_members,
-        response: serde_json::Value,
         path: "/directoryRoles/{{RID}}/scopedMembers",
-        has_body: true
-    });
-    get!({
-        doc: "Get scopedMembers from directoryRoles",
+        body: true
+    );
+    get!(
+        doc: "List scopedMembers for a directory role",
         name: list_scoped_members,
-        response: serde_json::Value,
-        path: "/directoryRoles/{{RID}}/scopedMembers",
-        has_body: false
-    });
-    get!({
+        path: "/directoryRoles/{{RID}}/scopedMembers"
+    );
+    get!(
         doc: "Get the number of the resource",
         name: get_scoped_members_count,
-        response: serde_json::Value,
-        path: "/directoryRoles/{{RID}}/scopedMembers/$count",
-        has_body: false
-    });
-    delete!({
+        path: "/directoryRoles/{{RID}}/scopedMembers/$count"
+    );
+    delete!(
         doc: "Delete navigation property scopedMembers for directoryRoles",
         name: delete_scoped_members,
-        response: NoContent,
         path: "/directoryRoles/{{RID}}/scopedMembers/{{id}}",
-        params: [ scoped_role_membership_id ],
-        has_body: false
-    });
-    get!({
+        params: scoped_role_membership_id
+    );
+    get!(
         doc: "Get scopedMembers from directoryRoles",
         name: get_scoped_members,
-        response: serde_json::Value,
         path: "/directoryRoles/{{RID}}/scopedMembers/{{id}}",
-        params: [ scoped_role_membership_id ],
-        has_body: false
-    });
-    patch!({
+        params: scoped_role_membership_id
+    );
+    patch!(
         doc: "Update the navigation property scopedMembers in directoryRoles",
         name: update_scoped_members,
-        response: NoContent,
         path: "/directoryRoles/{{RID}}/scopedMembers/{{id}}",
-        params: [ scoped_role_membership_id ],
-        has_body: true
-    });
+        body: true,
+        params: scoped_role_membership_id
+    );
 }
