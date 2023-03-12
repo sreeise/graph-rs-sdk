@@ -1,328 +1,321 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use graph_http::types::DeltaPhantom;
-use graph_http::types::NoContent;
+use crate::service_principals::*;
 
-register_client!(ApplicationsRequest,);
-register_client!(ApplicationsIdRequest, ());
+resource_api_client!(
+    ApplicationsApiClient,
+    ApplicationsIdApiClient,
+    ResourceIdentity::Applications
+);
 
-impl<'a, Client> ApplicationsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    pub fn id<ID: AsRef<str>>(&self, applications_id: ID) -> ApplicationsIdRequest<'a, Client> {
-        ApplicationsIdRequest::new(applications_id.as_ref(), self.client)
-    }
-
-    get!({
-        doc: "Get entities from applications",
-        name: list_application,
-        response: serde_json::Value,
-        path: "/applications",
-        has_body: false
-    });
-    post!({
-        doc: "Add new entity to applications",
+impl ApplicationsApiClient {
+    post!(
+        doc: "Create application",
         name: create_application,
-        response: serde_json::Value,
         path: "/applications",
-        has_body: true
-    });
-    get!({
+        body: true
+    );
+    get!(
+        doc: "List applications",
+        name: list_application,
+        path: "/applications"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_applications_count,
+        path: "/applications/$count"
+    );
+    get!(
         doc: "Invoke function delta",
         name: delta,
-        response: DeltaPhantom<serde_json::Value>,
-        path: "/applications/microsoft.graph.delta()",
-        has_body: false
-    });
-    post!({
+        path: "/applications/delta()"
+    );
+    post!(
         doc: "Invoke action getAvailableExtensionProperties",
         name: get_available_extension_properties,
-        response: serde_json::Value,
-        path: "/applications/microsoft.graph.getAvailableExtensionProperties",
-        has_body: true
-    });
-    post!({
+        path: "/applications/getAvailableExtensionProperties",
+        body: true
+    );
+    post!(
         doc: "Invoke action getByIds",
         name: get_by_ids,
-        response: serde_json::Value,
-        path: "/applications/microsoft.graph.getByIds",
-        has_body: true
-    });
-    post!({
+        path: "/applications/getByIds",
+        body: true
+    );
+    post!(
         doc: "Invoke action validateProperties",
         name: validate_properties,
-        response: NoContent,
-        path: "/applications/microsoft.graph.validateProperties",
-        has_body: true
-    });
+        path: "/applications/validateProperties",
+        body: true
+    );
 }
 
-impl<'a, Client> ApplicationsIdRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    patch!({
-        doc: "Update entity in applications",
-        name: update_application,
-        response: NoContent,
-        path: "/applications/{{RID}}",
-        has_body: true
-    });
-    delete!({
-        doc: "Delete entity from applications",
+impl ApplicationsIdApiClient {
+    api_client_link_id!(owner, ServicePrincipalsOwnersIdApiClient);
+    api_client_link!(owners, ServicePrincipalsOwnersApiClient);
+
+    delete!(
+        doc: "Delete application",
         name: delete_application,
-        response: NoContent,
-        path: "/applications/{{RID}}",
-        has_body: false
-    });
-    get!({
-        doc: "Get entity from applications by key",
+        path: "/applications/{{RID}}"
+    );
+    get!(
+        doc: "Get application",
         name: get_application,
-        response: serde_json::Value,
+        path: "/applications/{{RID}}"
+    );
+    patch!(
+        doc: "Update application",
+        name: update_application,
         path: "/applications/{{RID}}",
-        has_body: false
-    });
-    get!({
-        doc: "Get createdOnBehalfOf from applications",
-        name: get_created_on_behalf_of,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/createdOnBehalfOf",
-        has_body: false
-    });
-    get!({
-        doc: "Get ref of createdOnBehalfOf from applications",
-        name: get_ref_created_on_behalf_of,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/createdOnBehalfOf/$ref",
-        has_body: false
-    });
-    put!({
-        doc: "Update the ref of navigation property createdOnBehalfOf in applications",
-        name: update_ref_created_on_behalf_of,
-        response: NoContent,
-        path: "/applications/{{RID}}/createdOnBehalfOf/$ref",
-        has_body: true
-    });
-    delete!({
-        doc: "Delete ref of navigation property createdOnBehalfOf for applications",
-        name: delete_ref_created_on_behalf_of,
-        response: NoContent,
-        path: "/applications/{{RID}}/createdOnBehalfOf/$ref",
-        has_body: false
-    });
-    get!({
-        doc: "Get extensionProperties from applications",
-        name: list_extension_properties,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/extensionProperties",
-        has_body: false
-    });
-    post!({
-        doc: "Create new navigation property to extensionProperties for applications",
-        name: create_extension_properties,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/extensionProperties",
-        has_body: true
-    });
-    patch!({
-        doc: "Update the navigation property extensionProperties in applications",
-        name: update_extension_properties,
-        response: NoContent,
-        path: "/applications/{{RID}}/extensionProperties/{{id}}",
-        params: [ extension_property_id ],
-        has_body: true
-    });
-    delete!({
-        doc: "Delete navigation property extensionProperties for applications",
-        name: delete_extension_properties,
-        response: NoContent,
-        path: "/applications/{{RID}}/extensionProperties/{{id}}",
-        params: [ extension_property_id ],
-        has_body: false
-    });
-    get!({
-        doc: "Get extensionProperties from applications",
-        name: get_extension_properties,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/extensionProperties/{{id}}",
-        params: [ extension_property_id ],
-        has_body: false
-    });
-    get!({
-        doc: "Get homeRealmDiscoveryPolicies from applications",
-        name: list_home_realm_discovery_policies,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/homeRealmDiscoveryPolicies",
-        has_body: false
-    });
-    post!({
-        doc: "Create new navigation property ref to homeRealmDiscoveryPolicies for applications",
-        name: create_ref_home_realm_discovery_policies,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
-        has_body: true
-    });
-    get!({
-        doc: "Get ref of homeRealmDiscoveryPolicies from applications",
-        name: list_ref_home_realm_discovery_policies,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
-        has_body: false
-    });
-    get!({
-        doc: "Get media content for application from applications",
-        name: get_logo,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/logo",
-        has_body: false
-    });
-    put!({
-        doc: "Update media content for application in applications",
-        name: update_logo,
-        response: NoContent,
-        path: "/applications/{{RID}}/logo",
-        has_body: true
-    });
-    post!({
+        body: true
+    );
+    post!(
         doc: "Invoke action addKey",
         name: add_key,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/microsoft.graph.addKey",
-        has_body: true
-    });
-    post!({
+        path: "/applications/{{RID}}/addKey",
+        body: true
+    );
+    post!(
         doc: "Invoke action addPassword",
         name: add_password,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/microsoft.graph.addPassword",
-        has_body: true
-    });
-    post!({
+        path: "/applications/{{RID}}/addPassword",
+        body: true
+    );
+    get!(
+        doc: "Get appManagementPolicies from applications",
+        name: list_app_management_policies,
+        path: "/applications/{{RID}}/appManagementPolicies"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: count,
+        path: "/applications/{{RID}}/appManagementPolicies/$count"
+    );
+    post!(
+        doc: "Create new navigation property ref to appManagementPolicies for applications",
+        name: create_ref_app_management_policies,
+        path: "/applications/{{RID}}/appManagementPolicies/$ref",
+        body: true
+    );
+    get!(
+        doc: "Get ref of appManagementPolicies from applications",
+        name: list_ref_app_management_policies,
+        path: "/applications/{{RID}}/appManagementPolicies/$ref"
+    );
+    delete!(
+        doc: "Delete ref of navigation property appManagementPolicies for applications",
+        name: delete_ref_app_management_policies,
+        path: "/applications/{{RID}}/appManagementPolicies/{{id}}/$ref",
+        params: app_management_policy_id
+    );
+    post!(
         doc: "Invoke action checkMemberGroups",
         name: check_member_groups,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/microsoft.graph.checkMemberGroups",
-        has_body: true
-    });
-    post!({
+        path: "/applications/{{RID}}/checkMemberGroups",
+        body: true
+    );
+    post!(
         doc: "Invoke action checkMemberObjects",
         name: check_member_objects,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/microsoft.graph.checkMemberObjects",
-        has_body: true
-    });
-    post!({
+        path: "/applications/{{RID}}/checkMemberObjects",
+        body: true
+    );
+    get!(
+        doc: "Get createdOnBehalfOf from applications",
+        name: get_created_on_behalf_of,
+        path: "/applications/{{RID}}/createdOnBehalfOf"
+    );
+    post!(
+        doc: "Create extensionProperty (directory extension)",
+        name: create_extension_properties,
+        path: "/applications/{{RID}}/extensionProperties",
+        body: true
+    );
+    get!(
+        doc: "List extensionProperties (directory extensions)",
+        name: list_extension_properties,
+        path: "/applications/{{RID}}/extensionProperties"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_extension_properties_count,
+        path: "/applications/{{RID}}/extensionProperties/$count"
+    );
+    delete!(
+        doc: "Delete navigation property extensionProperties for applications",
+        name: delete_extension_properties,
+        path: "/applications/{{RID}}/extensionProperties/{{id}}",
+        params: extension_property_id
+    );
+    get!(
+        doc: "Get extensionProperties from applications",
+        name: get_extension_properties,
+        path: "/applications/{{RID}}/extensionProperties/{{id}}",
+        params: extension_property_id
+    );
+    patch!(
+        doc: "Update the navigation property extensionProperties in applications",
+        name: update_extension_properties,
+        path: "/applications/{{RID}}/extensionProperties/{{id}}",
+        body: true,
+        params: extension_property_id
+    );
+    post!(
+        doc: "Create federatedIdentityCredential",
+        name: create_federated_identity_credentials,
+        path: "/applications/{{RID}}/federatedIdentityCredentials",
+        body: true
+    );
+    get!(
+        doc: "List federatedIdentityCredentials",
+        name: list_federated_identity_credentials,
+        path: "/applications/{{RID}}/federatedIdentityCredentials"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_federated_identity_credentials_count,
+        path: "/applications/{{RID}}/federatedIdentityCredentials/$count"
+    );
+    delete!(
+        doc: "Delete navigation property federatedIdentityCredentials for applications",
+        name: delete_federated_identity_credentials,
+        path: "/applications/{{RID}}/federatedIdentityCredentials/{{id}}",
+        params: federated_identity_credential_id
+    );
+    get!(
+        doc: "Get federatedIdentityCredentials from applications",
+        name: get_federated_identity_credentials,
+        path: "/applications/{{RID}}/federatedIdentityCredentials/{{id}}",
+        params: federated_identity_credential_id
+    );
+    patch!(
+        doc: "Update the navigation property federatedIdentityCredentials in applications",
+        name: update_federated_identity_credentials,
+        path: "/applications/{{RID}}/federatedIdentityCredentials/{{id}}",
+        body: true,
+        params: federated_identity_credential_id
+    );
+    post!(
         doc: "Invoke action getMemberGroups",
         name: get_member_groups,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/microsoft.graph.getMemberGroups",
-        has_body: true
-    });
-    post!({
+        path: "/applications/{{RID}}/getMemberGroups",
+        body: true
+    );
+    post!(
         doc: "Invoke action getMemberObjects",
         name: get_member_objects,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/microsoft.graph.getMemberObjects",
-        has_body: true
-    });
-    post!({
+        path: "/applications/{{RID}}/getMemberObjects",
+        body: true
+    );
+    get!(
+        doc: "Get homeRealmDiscoveryPolicies from applications",
+        name: list_home_realm_discovery_policies,
+        path: "/applications/{{RID}}/homeRealmDiscoveryPolicies"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_home_realm_discovery_policies_count,
+        path: "/applications/{{RID}}/homeRealmDiscoveryPolicies/$count"
+    );
+    get!(
+        doc: "Get homeRealmDiscoveryPolicies from applications",
+        name: get_home_realm_discovery_policies,
+        path: "/applications/{{RID}}/homeRealmDiscoveryPolicies/{{id}}",
+        params: home_realm_discovery_policy_id
+    );
+    get!(
+        doc: "Get logo for application from applications",
+        name: get_logo,
+        path: "/applications/{{RID}}/logo"
+    );
+    put!(
+        doc: "Update logo for application in applications",
+        name: update_logo,
+        path: "/applications/{{RID}}/logo",
+        body: true
+    );
+    post!(
         doc: "Invoke action removeKey",
         name: remove_key,
-        response: NoContent,
-        path: "/applications/{{RID}}/microsoft.graph.removeKey",
-        has_body: true
-    });
-    post!({
+        path: "/applications/{{RID}}/removeKey",
+        body: true
+    );
+    post!(
         doc: "Invoke action removePassword",
         name: remove_password,
-        response: NoContent,
-        path: "/applications/{{RID}}/microsoft.graph.removePassword",
-        has_body: true
-    });
-    post!({
+        path: "/applications/{{RID}}/removePassword",
+        body: true
+    );
+    post!(
         doc: "Invoke action restore",
         name: restore,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/microsoft.graph.restore",
-        has_body: false
-    });
-    post!({
+        path: "/applications/{{RID}}/restore"
+    );
+    post!(
         doc: "Invoke action setVerifiedPublisher",
         name: set_verified_publisher,
-        response: NoContent,
-        path: "/applications/{{RID}}/microsoft.graph.setVerifiedPublisher",
-        has_body: true
-    });
-    post!({
-        doc: "Invoke action unsetVerifiedPublisher",
-        name: unset_verified_publisher,
-        response: NoContent,
-        path: "/applications/{{RID}}/microsoft.graph.unsetVerifiedPublisher",
-        has_body: false
-    });
-    get!({
-        doc: "Get owners from applications",
-        name: list_owners,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/owners",
-        has_body: false
-    });
-    get!({
-        doc: "Get ref of owners from applications",
-        name: list_ref_owners,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/owners/$ref",
-        has_body: false
-    });
-    post!({
-        doc: "Create new navigation property ref to owners for applications",
-        name: create_ref_owners,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/owners/$ref",
-        has_body: true
-    });
-    get!({
-        doc: "Get tokenIssuancePolicies from applications",
+        path: "/applications/{{RID}}/setVerifiedPublisher",
+        body: true
+    );
+    get!(
+        doc: "List assigned tokenIssuancePolicies",
         name: list_token_issuance_policies,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/tokenIssuancePolicies",
-        has_body: false
-    });
-    post!({
+        path: "/applications/{{RID}}/tokenIssuancePolicies"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_token_issuance_policies_count,
+        path: "/applications/{{RID}}/tokenIssuancePolicies/$count"
+    );
+    post!(
         doc: "Create new navigation property ref to tokenIssuancePolicies for applications",
         name: create_ref_token_issuance_policies,
-        response: serde_json::Value,
         path: "/applications/{{RID}}/tokenIssuancePolicies/$ref",
-        has_body: true
-    });
-    get!({
-        doc: "Get ref of tokenIssuancePolicies from applications",
+        body: true
+    );
+    get!(
+        doc: "List assigned tokenIssuancePolicies",
         name: list_ref_token_issuance_policies,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/tokenIssuancePolicies/$ref",
-        has_body: false
-    });
-    get!({
-        doc: "Get tokenLifetimePolicies from applications",
+        path: "/applications/{{RID}}/tokenIssuancePolicies/$ref"
+    );
+    delete!(
+        doc: "Delete ref of navigation property tokenIssuancePolicies for applications",
+        name: delete_ref_token_issuance_policies,
+        path: "/applications/{{RID}}/tokenIssuancePolicies/{{id}}/$ref",
+        params: token_issuance_policy_id
+    );
+    get!(
+        doc: "List assigned tokenLifetimePolicy",
         name: list_token_lifetime_policies,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/tokenLifetimePolicies",
-        has_body: false
-    });
-    get!({
-        doc: "Get ref of tokenLifetimePolicies from applications",
-        name: list_ref_token_lifetime_policies,
-        response: serde_json::Value,
-        path: "/applications/{{RID}}/tokenLifetimePolicies/$ref",
-        has_body: false
-    });
-    post!({
+        path: "/applications/{{RID}}/tokenLifetimePolicies"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_token_lifetime_policies_count,
+        path: "/applications/{{RID}}/tokenLifetimePolicies/$count"
+    );
+    post!(
         doc: "Create new navigation property ref to tokenLifetimePolicies for applications",
         name: create_ref_token_lifetime_policies,
-        response: serde_json::Value,
         path: "/applications/{{RID}}/tokenLifetimePolicies/$ref",
-        has_body: true
-    });
+        body: true
+    );
+    get!(
+        doc: "List assigned tokenLifetimePolicy",
+        name: list_ref_token_lifetime_policies,
+        path: "/applications/{{RID}}/tokenLifetimePolicies/$ref"
+    );
+    delete!(
+        doc: "Delete ref of navigation property tokenLifetimePolicies for applications",
+        name: delete_ref_token_lifetime_policies,
+        path: "/applications/{{RID}}/tokenLifetimePolicies/{{id}}/$ref",
+        params: token_lifetime_policy_id
+    );
+    post!(
+        doc: "Invoke action unsetVerifiedPublisher",
+        name: unset_verified_publisher,
+        path: "/applications/{{RID}}/unsetVerifiedPublisher"
+    );
 }

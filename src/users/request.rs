@@ -84,7 +84,7 @@ impl UsersIdApiClient {
     api_client_link_id!(owned_object, OwnedObjectsIdApiClient);
     api_client_link!(calendar_groups, CalendarGroupsApiClient);
     api_client_link_id!(calendar_view, CalendarViewIdApiClient);
-    api_client_link_id!(followed_site, FollowedSitesIdApiClient);
+    api_client_link_id!(followed_site, FollowedSitesApiClient);
     api_client_link_id!(managed_device, ManagedDevicesIdApiClient);
     api_client_link_id!(contact_folder, ContactFoldersIdApiClient);
     api_client_link!(online_meetings, OnlineMeetingsApiClient);
@@ -125,6 +125,8 @@ impl UsersIdApiClient {
     api_client_link_id!(managed_app_registration, ManagedAppRegistrationsIdApiClient);
     api_client_link!(followed_sites, FollowedSitesApiClient);
     api_client_link_id!(owned_device, OwnedDevicesIdApiClient);
+    api_client_link!(member_of, MemberOfApiClient);
+    api_client_link_id!(member_of_id, MemberOfIdApiClient);
 
     delete!(
         doc: "Delete a user",
