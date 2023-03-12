@@ -1,56 +1,42 @@
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+// GENERATED CODE
 
-register_client!(SubscribedSkusRequest,);
+use crate::api_default_imports::*;
 
-impl<'a, Client> SubscribedSkusRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get entities from subscribedSkus",
-        name: list_subscribed_sku,
-        response: serde_json::Value,
-        path: "/subscribedSkus",
-        params: 0,
-        has_body: false
-    });
+resource_api_client!(
+    SubscribedSkusApiClient,
+    SubscribedSkusIdApiClient,
+    ResourceIdentity::SubscribedSkus
+);
 
-    post!({
-        doc: "# Add new entity to subscribedSkus",
+impl SubscribedSkusApiClient {
+    post!(
+        doc: "Add new entity to subscribedSkus",
         name: create_subscribed_sku,
-        response: serde_json::Value,
         path: "/subscribedSkus",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
+    get!(
+        doc: "List subscribedSkus",
+        name: list_subscribed_sku,
+        path: "/subscribedSkus"
+    );
+}
 
-    get!({
-        doc: "# Get entity from subscribedSkus by key",
-        name: get_subscribed_sku,
-        response: serde_json::Value,
-        path: "/subscribedSkus/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update entity in subscribedSkus",
-        name: update_subscribed_sku,
-        response: NoContent,
-        path: "/subscribedSkus/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete entity from subscribedSkus",
+impl SubscribedSkusIdApiClient {
+    delete!(
+        doc: "Delete entity from subscribedSkus",
         name: delete_subscribed_sku,
-        response: NoContent,
-        path: "/subscribedSkus/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        path: "/subscribedSkus/{{RID}}"
+    );
+    get!(
+        doc: "Get subscribedSku",
+        name: get_subscribed_sku,
+        path: "/subscribedSkus/{{RID}}"
+    );
+    patch!(
+        doc: "Update entity in subscribedSkus",
+        name: update_subscribed_sku,
+        path: "/subscribedSkus/{{RID}}",
+        body: true
+    );
 }
