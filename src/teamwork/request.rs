@@ -1,65 +1,64 @@
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+// GENERATED CODE
 
-register_client!(TeamworkRequest,);
+use crate::api_default_imports::*;
+use crate::teamwork::*;
 
-impl<'a, Client> TeamworkRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get workforceIntegrations from teamwork",
-        name: get_workforce_integrations,
-        response: serde_json::Value,
-        path: "/teamwork/workforceIntegrations/{{id}}",
-        params: 1,
-        has_body: false
-    });
+resource_api_client!(TeamworkApiClient, ResourceIdentity::Teamwork);
 
-    patch!({
-        doc: "# Update the navigation property workforceIntegrations in teamwork",
-        name: update_workforce_integrations,
-        response: NoContent,
-        path: "/teamwork/workforceIntegrations/{{id}}",
-        params: 1,
-        has_body: true
-    });
+impl TeamworkApiClient {
+    api_client_link_id!(deleted_team, DeletedTeamsIdApiClient);
+    api_client_link!(deleted_teams, DeletedTeamsApiClient);
 
-    get!({
-        doc: "# Get workforceIntegrations from teamwork",
-        name: list_workforce_integrations,
-        response: serde_json::Value,
-        path: "/teamwork/workforceIntegrations",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to workforceIntegrations for teamwork",
-        name: create_workforce_integrations,
-        response: serde_json::Value,
-        path: "/teamwork/workforceIntegrations",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get teamwork",
+    get!(
+        doc: "Get teamwork",
         name: get_teamwork,
-        response: serde_json::Value,
-        path: "/teamwork",
-        params: 0,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update teamwork",
+        path: "/teamwork"
+    );
+    patch!(
+        doc: "Update teamwork",
         name: update_teamwork,
-        response: NoContent,
         path: "/teamwork",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
+    post!(
+        doc: "Invoke action sendActivityNotificationToRecipients",
+        name: send_activity_notification_to_recipients,
+        path: "/teamwork/sendActivityNotificationToRecipients",
+        body: true
+    );
+    post!(
+        doc: "Create workforceIntegration",
+        name: create_workforce_integrations,
+        path: "/teamwork/workforceIntegrations",
+        body: true
+    );
+    get!(
+        doc: "List workforceIntegrations",
+        name: list_workforce_integrations,
+        path: "/teamwork/workforceIntegrations"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_workforce_integrations_count,
+        path: "/teamwork/workforceIntegrations/$count"
+    );
+    delete!(
+        doc: "Delete navigation property workforceIntegrations for teamwork",
+        name: delete_workforce_integrations,
+        path: "/teamwork/workforceIntegrations/{{id}}",
+        params: workforce_integration_id
+    );
+    get!(
+        doc: "Get workforceIntegrations from teamwork",
+        name: get_workforce_integrations,
+        path: "/teamwork/workforceIntegrations/{{id}}",
+        params: workforce_integration_id
+    );
+    patch!(
+        doc: "Update the navigation property workforceIntegrations in teamwork",
+        name: update_workforce_integrations,
+        path: "/teamwork/workforceIntegrations/{{id}}",
+        body: true,
+        params: workforce_integration_id
+    );
 }
